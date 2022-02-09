@@ -1,6 +1,7 @@
 package com.sgcc.web.controller.sql;
 
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.entity.GlobalVariable;
 import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.connect.method.SshMethod;
@@ -1117,9 +1118,9 @@ public class SwitchInteraction {
      */
     public void insertvalueInformationService(List<String> user_String,boolean boo,ProblemScanLogic problemScanLogic,String parameterString){
 
-        String userName = SysUser.userName;
-        String nickName = SysUser.nickName;
-        String phonenumber = SysUser.phonenumber;
+        String userName = GlobalVariable.userName;
+        String nickName = GlobalVariable.nickName;
+        String phonenumber = GlobalVariable.phonenumber;
 
 
 
@@ -1303,8 +1304,8 @@ public class SwitchInteraction {
 
         ScanResults scanResults = new ScanResults();
 
-        String userName = SysUser.userName;
-        Long loginTime = LoginUser.loginTime;
+        String userName = GlobalVariable.userName;
+        Long loginTime = GlobalVariable.loginTime;
         if(loginTime == null){
             loginTime = System.currentTimeMillis();
         }

@@ -34,7 +34,7 @@ public class LoginUser implements UserDetails
     /**
      * 登录时间
      */
-    public static Long loginTime;
+    public Long loginTime;
 
     /**
      * 过期时间
@@ -49,7 +49,7 @@ public class LoginUser implements UserDetails
     /**
      * 登录地点
      */
-    public static String loginLocation;
+    public String loginLocation;
 
     /**
      * 浏览器类型

@@ -3,6 +3,7 @@ package com.sgcc.web.controller.sql;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.entity.GlobalVariable;
 import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.core.page.TableDataInfo;
@@ -117,8 +118,8 @@ public class SwitchProblemController extends BaseController
 
         ScanResults scanResults = new ScanResults();
 
-        String userName = SysUser.userName;
-        Long loginTime = LoginUser.loginTime;
+        String userName = GlobalVariable.userName;
+        Long loginTime = GlobalVariable.loginTime;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if(loginTime==null){
             loginTime = System.currentTimeMillis();
@@ -158,7 +159,7 @@ public class SwitchProblemController extends BaseController
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
         scanResults.setScanResultsVOS(scanResultsVOList);
-        WebSocketService.sendMessage("badao",scanResultsVOList);
+        WebSocketService.sendMessage("loophole",scanResultsVOList);
         return scanResultsVOList;
     }
 }

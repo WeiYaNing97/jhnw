@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 
+import com.sgcc.common.core.domain.entity.GlobalVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -68,6 +69,10 @@ public class TokenService
                 String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
                 LoginUser user = redisCache.getCacheObject(userKey);
+                GlobalVariable.loginTime = user.loginTime;
+                GlobalVariable.userName = user.getUsername();
+                GlobalVariable.nickName = user.getUser().getNickName();
+                GlobalVariable.phonenumber  = user.getUser().getPhonenumber();
                 return user;
             }
             catch (Exception e)

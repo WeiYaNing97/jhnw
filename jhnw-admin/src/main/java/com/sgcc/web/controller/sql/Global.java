@@ -1,5 +1,7 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.common.annotation.Excel;
+
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ public class Global {
 
     /** 子版本 */
     public static String subversionNumber;
+
 
 
     //行数记录
