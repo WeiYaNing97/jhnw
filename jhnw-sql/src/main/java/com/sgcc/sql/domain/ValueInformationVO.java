@@ -12,6 +12,8 @@ import com.sgcc.common.core.domain.BaseEntity;
 public class ValueInformationVO extends BaseEntity
 {
 
+    public Integer hproblemId;
+
     /** 是否显示 */
     @Excel(name = "是否显示")
     private String exhibit;
@@ -23,6 +25,7 @@ public class ValueInformationVO extends BaseEntity
     /** 动态信息 */
     @Excel(name = "动态信息")
     private String dynamicInformation;
+
 
     public String getExhibit() {
         return exhibit;
@@ -48,12 +51,21 @@ public class ValueInformationVO extends BaseEntity
         this.dynamicInformation = dynamicInformation;
     }
 
+    public Integer getHproblemId() {
+        return hproblemId;
+    }
+
+    public void setHproblemId(Integer hproblemId) {
+        this.hproblemId = hproblemId;
+    }
+
     @Override
     public String toString() {
         return "ValueInformationVO{" +
                 "exhibit='" + exhibit + '\'' +
                 ", dynamicVname='" + dynamicVname + '\'' +
                 ", dynamicInformation='" + dynamicInformation + '\'' +
+                ", hproblemId=" + hproblemId +
                 '}';
     }
 }

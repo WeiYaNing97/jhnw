@@ -11,6 +11,8 @@ import java.util.List;
  */
 public class ScanResultsVO {
 
+    public Integer hproblemId;
+
     /** 交换机ip */
     @Excel(name = "交换机ip")
     private String switchIp;
@@ -33,10 +35,19 @@ public class ScanResultsVO {
         this.switchProblemVOList = switchProblemVOList;
     }
 
+    public Integer getHproblemId() {
+        return hproblemId;
+    }
+
+    public void setHproblemId(Integer hproblemId) {
+        this.hproblemId = hproblemId;
+    }
+
     @Override
     public String toString() {
         return "ScanResultsVO{" +
                 "switchIp='" + switchIp + '\'' +
+                ", hproblemId='" + hproblemId + '\'' +
                 ", switchProblemVOList=" + switchProblemVOList +
                 '}';
     }

@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class SwitchProblemVO extends BaseEntity
 {
+    public Integer hproblemId;
+
     /** 交换机ip */
     @Excel(name = "交换机ip")
     public String switchIp;
@@ -28,6 +30,7 @@ public class SwitchProblemVO extends BaseEntity
     /** 问题种类 */
     @Excel(name = "问题种类")
     private String typeProblem;
+
 
     public List<SwitchProblemCO> switchProblemCOList;
 
@@ -71,6 +74,14 @@ public class SwitchProblemVO extends BaseEntity
         this.switchProblemCOList = switchProblemCOList;
     }
 
+    public Integer getHproblemId() {
+        return hproblemId;
+    }
+
+    public void setHproblemId(Integer hproblemId) {
+        this.hproblemId = hproblemId;
+    }
+
     @Override
     public String toString() {
         return "SwitchProblemVO{" +
@@ -78,6 +89,7 @@ public class SwitchProblemVO extends BaseEntity
                 ", switchName='" + switchName + '\'' +
                 ", switchPassword='" + switchPassword + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +
+                ", hproblemId=" + hproblemId +
                 ", switchProblemCOList=" + switchProblemCOList +
                 '}';
     }

@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * 与交换机交互方法类
@@ -1314,9 +1311,22 @@ public class SwitchInteraction {
         dateFormat = dateFormat.split(" ")[0];
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date date1 = new Date();
+            Long timestamp1 = Utils.getTimestamp(date1);
+            switchProblemVO.hproblemId = timestamp1.intValue() + (int)(Math.random()*1000+1);
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    Date date2 = new Date();
+                    Long timestamp2 = Utils.getTimestamp(date2);
+                    valueInformationVO.hproblemId = timestamp2.intValue() + (int)(Math.random()*1000+1);
+                }
+
+                Date date3 = new Date();
+                Long timestamp3 = Utils.getTimestamp(date3);
+
+                switchProblemCO.hproblemId = timestamp3.intValue() + (int)(Math.random()*1000+1);
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
@@ -1330,6 +1340,9 @@ public class SwitchInteraction {
         for (String ip_string:ip_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
+            Date date4 = new Date();
+            Long timestamp4 = Utils.getTimestamp(date4);
+            scanResultsVO.hproblemId = timestamp4.intValue() + (int)(Math.random()*1000+1) ;
             scanResultsVOList.add(scanResultsVO);
         }
 

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -120,18 +121,30 @@ public class SwitchProblemController extends BaseController
 
         String userName = GlobalVariable.userName;
         Long loginTime = GlobalVariable.loginTime;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if(loginTime==null){
+        if(loginTime == null){
             loginTime = System.currentTimeMillis();
-            simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateFormat = simpleDateFormat.format(loginTime);
-
+        dateFormat = dateFormat.split(" ")[0];
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date date1 = new Date();
+            Long timestamp1 = Utils.getTimestamp(date1);
+            switchProblemVO.hproblemId = timestamp1.intValue() + (int)(Math.random()*1000+1);
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    Date date2 = new Date();
+                    Long timestamp2 = Utils.getTimestamp(date2);
+                    valueInformationVO.hproblemId = timestamp2.intValue() + (int)(Math.random()*1000+1);
+                }
+
+                Date date3 = new Date();
+                Long timestamp3 = Utils.getTimestamp(date3);
+
+                switchProblemCO.hproblemId = timestamp3.intValue() + (int)(Math.random()*1000+1);
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
@@ -145,6 +158,9 @@ public class SwitchProblemController extends BaseController
         for (String ip_string:ip_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
+            Date date4 = new Date();
+            Long timestamp4 = Utils.getTimestamp(date4);
+            scanResultsVO.hproblemId = timestamp4.intValue() + (int)(Math.random()*1000+1) ;
             scanResultsVOList.add(scanResultsVO);
         }
 

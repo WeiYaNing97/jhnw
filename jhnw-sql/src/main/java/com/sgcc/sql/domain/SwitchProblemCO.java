@@ -13,6 +13,8 @@ import java.util.List;
  */
 public class SwitchProblemCO
 {
+    public Integer hproblemId;
+
     /** 问题索引 */
     @Excel(name = "问题索引")
     public String problemId;
@@ -36,8 +38,6 @@ public class SwitchProblemCO
     /** 问题名称 */
     @Excel(name = "问题名称")
     private String problemName;
-
-
 
     /** 问题种类 */
     @Excel(name = "问题种类")
@@ -111,6 +111,14 @@ public class SwitchProblemCO
         this.createTime = createTime;
     }
 
+    public Integer getHproblemId() {
+        return hproblemId;
+    }
+
+    public void setHproblemId(Integer hproblemId) {
+        this.hproblemId = hproblemId;
+    }
+
     @Override
     public String toString() {
         return "SwitchProblemCO{" +
@@ -121,6 +129,7 @@ public class SwitchProblemCO
                 ", resolved='" + resolved + '\'' +
                 ", problemName='" + problemName + '\'' +
                 ", createTime=" + createTime +
+                ", hproblemId=" + hproblemId +
                 ", valueInformationVOList=" + valueInformationVOList +
                 '}';
     }

@@ -287,4 +287,16 @@ public class Utils {
         return sdf.format(date);// 输出已经格式化的现在时间(24小时制)
     }
 
+    /**
+     获取精确到毫秒的时间戳
+     * @param date
+     * @return
+     **/
+    public static Long getTimestamp(Date date){
+        if (null == date) {
+            return (long) 0;
+        }
+        String timestamp = String.valueOf(date.getTime());
+        return Long.valueOf(timestamp);
+    }
 }
