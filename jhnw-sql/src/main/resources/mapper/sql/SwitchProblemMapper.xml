@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.SwitchProblemMapper">
+    
+    <resultMap type="com.sgcc.sql.domain.SwitchProblem" id="SwitchProblemResult">
+        <result property="id"    column="id"    />
+        <result property="switchIp"    column="switch_ip"    />
+        <result property="switchName"    column="switch_name"    />
+        <result property="switchPassword"    column="switch_password"    />
+        <result property="problemId"    column="problem_id"    />
+        <result property="ifQuestion"    column="if_question"    />
+        <result property="comId"    column="com_id"    />
+        <result property="valueId"    column="value_id"    />
+        <result property="resolved"    column="resolved"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="userName"    column="user_name"    />
+        <result property="phonenumber"    column="phonenumber"    />
+    </resultMap>
+
+    <!--mothod one -->
+    <resultMap id="SwitchProblemVO" type="com.sgcc.sql.domain.SwitchProblemVO">
+        <result property="switchIp"    column="switch_ip"    />
+        <result property="switchName"    column="switch_name"    />
+        <result property="switchPassword"    column="switch_password"    />
+        <result property="typeProblem"    column="type_problem"    />
+        <collection property="switchProblemCOList"  ofType="com.sgcc.sql.domain.SwitchProblemCO"
+                    javaType="java.util.ArrayList">
+            <result property="problemId"    column="problem_id"    />
+            <result property="ifQuestion"    column="if_question"    />
+            <result property="comId"    column="com_id"    />
+            <result property="valueId"    column="value_id"    />
+            <result property="resolved"    column="resolved"    />
+            <result property="problemName"    column="problem_name"    />
+            <result property="createTime"    column="create_time"    />
+        </collection>
+    </resultMap>
+
+    <select id="selectUnresolvedProblemInformationByData" resultMap="SwitchProblemVO">
+        SELECT
+            problem.id id,
+            problem.switch_ip switch_ip,
+            problem.switch_name switch_name,
+            problem.switch_password switch_password,
+            problem.problem_id problem_id,
+            problem.if_question if_question,
+            problem.com_id com_id,
+            problem.value_id value_id,
+            problem.resolved resolved,
+            problem.create_time create_time,
+            question.problem_name problem_name,
+            question.type_problem type_problem,
+            question.command_id command_id
+        FROM
+            ( SELECT id, switch_ip, switch_name, switch_password, problem_id,
+            if_question, com_id, value_id, resolved, create_time
+            FROM switch_problem
+
+        <where>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+            <if test="currentTime != null  and currentTime != ''"> and create_time > #{currentTime}</if>
+        </where>
+            ) problem
+            LEFT JOIN ( SELECT * FROM total_question_table ) question ON problem.problem_id = question.id
+    </select>
+
+    <sql id="selectSwitchProblemVo">
+        select id, switch_ip, switch_name, switch_password, problem_id, if_question,com_id, value_id, resolved, create_time,user_name,phonenumber from switch_problem
+    </sql>
+
+    <select id="selectSwitchProblemList" parameterType="com.sgcc.sql.domain.SwitchProblem" resultMap="SwitchProblemResult">
+        <include refid="selectSwitchProblemVo"/>
+        <where>  
+            <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
+            <if test="switchName != null  and switchName != ''"> and switch_name like concat('%', #{switchName}, '%')</if>
+            <if test="switchPassword != null  and switchPassword != ''"> and switch_password = #{switchPassword}</if>
+            <if test="problemId != null  and problemId != ''"> and problem_id = #{problemId}</if>
+            <if test="ifQuestion != null  and ifQuestion != ''"> and if_question = #{ifQuestion}</if>
+            <if test="comId != null  and comId != ''"> and com_id = #{comId}</if>
+            <if test="valueId != null  and valueId != ''"> and value_id = #{valueId}</if>
+            <if test="resolved != null  and resolved != ''"> and resolved = #{resolved}</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+            <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+        </where>
+    </select>
+    
+    <select id="selectSwitchProblemById" parameterType="Long" resultMap="SwitchProblemResult">
+        <include refid="selectSwitchProblemVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSwitchProblem" parameterType="com.sgcc.sql.domain.SwitchProblem" useGeneratedKeys="true" keyProperty="id">
+        insert into switch_problem
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip,</if>
+            <if test="switchName != null and switchName != ''">switch_name,</if>
+            <if test="switchPassword != null and switchPassword != ''">switch_password,</if>
+            <if test="problemId != null">problem_id,</if>
+            <if test="ifQuestion != null">if_question,</if>
+            <if test="comId != null">com_id,</if>
+            <if test="valueId != null">value_id,</if>
+            <if test="resolved != null">resolved,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="phonenumber != null">phonenumber,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
+            <if test="switchName != null and switchName != ''">#{switchName},</if>
+            <if test="switchPassword != null and switchPassword != ''">#{switchPassword},</if>
+            <if test="problemId != null">#{problemId},</if>
+            <if test="ifQuestion != null">#{ifQuestion},</if>
+            <if test="comId != null">#{comId},</if>
+            <if test="valueId != null">#{valueId},</if>
+            <if test="resolved != null">#{resolved},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="phonenumber != null">#{phonenumber},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSwitchProblem" parameterType="com.sgcc.sql.domain.SwitchProblem">
+        update switch_problem
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
+            <if test="switchName != null and switchName != ''">switch_name = #{switchName},</if>
+            <if test="switchPassword != null and switchPassword != ''">switch_password = #{switchPassword},</if>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="ifQuestion != null">if_question = #{ifQuestion},</if>
+            <if test="comId != null">com_id = #{comId},</if>
+            <if test="valueId != null">value_id = #{valueId},</if>
+            <if test="resolved != null">resolved = #{resolved},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="phonenumber != null">phonenumber = #{phonenumber},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSwitchProblemById" parameterType="Long">
+        delete from switch_problem where id = #{id}
+    </delete>
+
+    <delete id="deleteSwitchProblemByIds" parameterType="String">
+        delete from switch_problem where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

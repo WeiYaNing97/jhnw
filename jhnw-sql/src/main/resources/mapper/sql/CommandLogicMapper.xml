@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.CommandLogicMapper">
+    
+    <resultMap type="com.sgcc.sql.domain.CommandLogic" id="CommandLogicResult">
+        <result property="id"    column="id"    />
+        <result property="state"    column="state"    />
+        <result property="command"    column="command"    />
+        <result property="resultCheckId"    column="result_check_id"    />
+        <result property="problemId"    column="problem_id"    />
+        <result property="endIndex"    column="end_index"    />
+    </resultMap>
+
+    <sql id="selectCommandLogicVo">
+        select id, state, command, result_check_id, problem_id, end_index from command_logic
+    </sql>
+
+    <select id="selectCommandLogicList" parameterType="com.sgcc.sql.domain.CommandLogic" resultMap="CommandLogicResult">
+        <include refid="selectCommandLogicVo"/>
+        <where>  
+            <if test="state != null  and state != ''"> and state = #{state}</if>
+            <if test="command != null  and command != ''"> and command = #{command}</if>
+            <if test="resultCheckId != null "> and result_check_id = #{resultCheckId}</if>
+            <if test="problemId != null "> and problem_id = #{problemId}</if>
+            <if test="endIndex != null "> and end_index = #{endIndex}</if>
+        </where>
+    </select>
+    
+    <select id="selectCommandLogicById" parameterType="Long" resultMap="CommandLogicResult">
+        <include refid="selectCommandLogicVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCommandLogic" parameterType="com.sgcc.sql.domain.CommandLogic" useGeneratedKeys="true" keyProperty="id">
+        insert into command_logic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="state != null">state,</if>
+            <if test="command != null">command,</if>
+            <if test="resultCheckId != null">result_check_id,</if>
+            <if test="problemId != null">problem_id,</if>
+            <if test="endIndex != null">end_index,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="state != null">#{state},</if>
+            <if test="command != null">#{command},</if>
+            <if test="resultCheckId != null">#{resultCheckId},</if>
+            <if test="problemId != null">#{problemId},</if>
+            <if test="endIndex != null">#{endIndex},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCommandLogic" parameterType="com.sgcc.sql.domain.CommandLogic">
+        update command_logic
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state = #{state},</if>
+            <if test="command != null">command = #{command},</if>
+            <if test="resultCheckId != null">result_check_id = #{resultCheckId},</if>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="endIndex != null">end_index = #{endIndex},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCommandLogicById" parameterType="Long">
+        delete from command_logic where id = #{id}
+    </delete>
+
+    <delete id="deleteCommandLogicByIds" parameterType="String">
+        delete from command_logic where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.BasicInformationMapper">
+    
+    <resultMap type="BasicInformation" id="BasicInformationResult">
+        <result property="id"    column="id"    />
+        <result property="command"    column="command"    />
+        <result property="problemId"    column="problem_id"    />
+    </resultMap>
+
+    <sql id="selectBasicInformationVo">
+        select id, command, problem_id from basic_information
+    </sql>
+
+    <select id="selectBasicInformationList" parameterType="BasicInformation" resultMap="BasicInformationResult">
+        <include refid="selectBasicInformationVo"/>
+        <where>  
+            <if test="command != null  and command != ''"> and command = #{command}</if>
+            <if test="problemId != null  and problemId != ''"> and problem_id = #{problemId}</if>
+        </where>
+    </select>
+    
+    <select id="selectBasicInformationById" parameterType="Long" resultMap="BasicInformationResult">
+        <include refid="selectBasicInformationVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBasicInformation" parameterType="BasicInformation" useGeneratedKeys="true" keyProperty="id">
+        insert into basic_information
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="command != null">command,</if>
+            <if test="problemId != null">problem_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="command != null">#{command},</if>
+            <if test="problemId != null">#{problemId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBasicInformation" parameterType="BasicInformation">
+        update basic_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="command != null">command = #{command},</if>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBasicInformationById" parameterType="Long">
+        delete from basic_information where id = #{id}
+    </delete>
+
+    <delete id="deleteBasicInformationByIds" parameterType="String">
+        delete from basic_information where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

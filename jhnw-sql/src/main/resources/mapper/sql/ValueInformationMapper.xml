@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.ValueInformationMapper">
+    
+    <resultMap type="com.sgcc.sql.domain.ValueInformation" id="ValueInformationResult">
+        <result property="id"    column="id"    />
+        <result property="exhibit"    column="exhibit"    />
+        <result property="dynamicVname"    column="dynamic_Vname"    />
+        <result property="dynamicInformation"    column="dynamic_information"    />
+        <result property="displayInformation"    column="display_information"    />
+        <result property="outId"    column="out_id"    />
+    </resultMap>
+
+    <sql id="selectValueInformationVo">
+        select id, exhibit, dynamic_Vname, dynamic_information,display_information, out_id from value_information
+    </sql>
+
+    <select id="selectValueInformationList" parameterType="com.sgcc.sql.domain.ValueInformation" resultMap="ValueInformationResult">
+        <include refid="selectValueInformationVo"/>
+        <where>  
+            <if test="exhibit != null  and exhibit != ''"> and exhibit = #{exhibit}</if>
+            <if test="dynamicVname != null  and dynamicVname != ''"> and dynamic_Vname like concat('%', #{dynamicVname}, '%')</if>
+            <if test="dynamicInformation != null  and dynamicInformation != ''"> and dynamic_information = #{dynamicInformation}</if>
+            <if test="displayInformation != null  and displayInformation != ''"> and display_information = #{displayInformation}</if>
+            <if test="outId != null "> and out_id = #{outId}</if>
+        </where>
+    </select>
+    
+    <select id="selectValueInformationById" parameterType="Long" resultMap="ValueInformationResult">
+        <include refid="selectValueInformationVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertValueInformation" parameterType="com.sgcc.sql.domain.ValueInformation" useGeneratedKeys="true" keyProperty="id">
+        insert into value_information
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="exhibit != null and exhibit != ''">exhibit,</if>
+            <if test="dynamicVname != null and dynamicVname != ''">dynamic_Vname,</if>
+            <if test="dynamicInformation != null and dynamicInformation != ''">dynamic_information,</if>
+            <if test="displayInformation != null and displayInformation != ''">display_information,</if>
+            <if test="outId != null">out_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="exhibit != null and exhibit != ''">#{exhibit},</if>
+            <if test="dynamicVname != null and dynamicVname != ''">#{dynamicVname},</if>
+            <if test="dynamicInformation != null and dynamicInformation != ''">#{dynamicInformation},</if>
+            <if test="displayInformation != null and displayInformation != ''">#{displayInformation},</if>
+            <if test="outId != null">#{outId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateValueInformation" parameterType="com.sgcc.sql.domain.ValueInformation">
+        update value_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="exhibit != null and exhibit != ''">exhibit = #{exhibit},</if>
+            <if test="dynamicVname != null and dynamicVname != ''">dynamic_Vname = #{dynamicVname},</if>
+            <if test="dynamicInformation != null and dynamicInformation != ''">dynamic_information = #{dynamicInformation},</if>
+            <if test="displayInformation != null and displayInformation != ''">display_information = #{displayInformation},</if>
+            <if test="outId != null">out_id = #{outId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteValueInformationById" parameterType="Long">
+        delete from value_information where id = #{id}
+    </delete>
+
+    <delete id="deleteValueInformationByIds" parameterType="String">
+        delete from value_information where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

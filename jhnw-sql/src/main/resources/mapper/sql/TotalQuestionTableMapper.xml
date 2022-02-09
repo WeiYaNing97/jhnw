@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.TotalQuestionTableMapper">
+    
+    <resultMap type="com.sgcc.sql.domain.TotalQuestionTable" id="TotalQuestionTableResult">
+        <result property="id"    column="id"    />
+        <result property="brand"    column="brand"    />
+        <result property="type"    column="type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+        <result property="commandId"    column="command_id"    />
+        <result property="problemName"    column="problem_name"    />
+        <result property="typeProblem"    column="type_problem"    />
+        <result property="problemDescribeId"    column="problem_describe_id"    />
+        <result property="ifCycle"    column="if_cycle"    />
+    </resultMap>
+
+    <sql id="selectTotalQuestionTableVo">
+        select id, brand, type, fireware_version,sub_version, command_id, problem_name,type_problem, problem_describe_id,if_cycle from total_question_table
+    </sql>
+
+    <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+        <where>  
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+            <if test="ifCycle != null "> and if_cycle = #{ifCycle}</if>
+        </where>
+    </select>
+    
+    <select id="selectTotalQuestionTableById" parameterType="Long" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTotalQuestionTable" parameterType="com.sgcc.sql.domain.TotalQuestionTable" useGeneratedKeys="true" keyProperty="id">
+        insert into total_question_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="brand != null">brand,</if>
+            <if test="type != null">type,</if>
+            <if test="firewareVersion != null">fireware_version,</if>
+            <if test="subVersion != null">sub_version,</if>
+            <if test="commandId != null">command_id,</if>
+            <if test="problemName != null">problem_name,</if>
+            <if test="typeProblem != null">type_problem,</if>
+            <if test="problemDescribeId != null">problem_describe_id,</if>
+            <if test="ifCycle != null">if_cycle,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="brand != null">#{brand},</if>
+            <if test="type != null">#{type},</if>
+            <if test="firewareVersion != null">#{firewareVersion},</if>
+            <if test="subVersion != null">#{subVersion},</if>
+            <if test="commandId != null">#{commandId},</if>
+            <if test="problemName != null">#{problemName},</if>
+            <if test="typeProblem != null">#{typeProblem},</if>
+            <if test="problemDescribeId != null">#{problemDescribeId},</if>
+            <if test="ifCycle != null">#{ifCycle},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTotalQuestionTable" parameterType="com.sgcc.sql.domain.TotalQuestionTable">
+        update total_question_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="brand != null">brand = #{brand},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="firewareVersion != null">fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null">sub_version = #{subVersion},</if>
+            <if test="commandId != null">command_id = #{commandId},</if>
+            <if test="problemName != null">problem_name = #{problemName},</if>
+            <if test="typeProblem != null">type_problem = #{typeProblem},</if>
+            <if test="problemDescribeId != null">problem_describe_id = #{problemDescribeId},</if>
+            <if test="ifCycle != null">if_cycle = #{ifCycle},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTotalQuestionTableById" parameterType="Long">
+        delete from total_question_table where id = #{id}
+    </delete>
+
+    <delete id="deleteTotalQuestionTableByIds" parameterType="String">
+        delete from total_question_table where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.ReturnRecordMapper">
+    
+    <resultMap type="ReturnRecord" id="ReturnRecordResult">
+        <result property="id"    column="id"    />
+        <result property="currentCommLog"    column="current_comm_log"    />
+        <result property="currentReturnLog"    column="current_return_log"    />
+        <result property="currentIdentifier"    column="current_identifier"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectReturnRecordVo">
+        select id, current_comm_log, current_return_log, current_identifier, create_time from return_record
+    </sql>
+
+    <select id="selectReturnRecordList" parameterType="ReturnRecord" resultMap="ReturnRecordResult">
+        <include refid="selectReturnRecordVo"/>
+        <where>  
+            <if test="currentCommLog != null  and currentCommLog != ''"> and current_comm_log = #{currentCommLog}</if>
+            <if test="currentReturnLog != null  and currentReturnLog != ''"> and current_return_log = #{currentReturnLog}</if>
+            <if test="currentIdentifier != null  and currentIdentifier != ''"> and current_identifier = #{currentIdentifier}</if>
+        </where>
+    </select>
+    
+    <select id="selectReturnRecordById" parameterType="Long" resultMap="ReturnRecordResult">
+        <include refid="selectReturnRecordVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertReturnRecord" parameterType="ReturnRecord" useGeneratedKeys="true" keyProperty="id">
+    insert into return_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="currentCommLog != null and currentCommLog != ''">current_comm_log,</if>
+        <if test="currentReturnLog != null and currentReturnLog != ''">current_return_log,</if>
+        <if test="currentIdentifier != null">current_identifier,</if>
+        <if test="createTime != null">create_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="currentCommLog != null and currentCommLog != ''">#{currentCommLog},</if>
+        <if test="currentReturnLog != null and currentReturnLog != ''">#{currentReturnLog},</if>
+        <if test="currentIdentifier != null">#{currentIdentifier},</if>
+        <if test="createTime != null">#{createTime},</if>
+    </trim>
+</insert>
+
+    <update id="updateReturnRecord" parameterType="ReturnRecord">
+        update return_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="currentCommLog != null and currentCommLog != ''">current_comm_log = #{currentCommLog},</if>
+            <if test="currentReturnLog != null and currentReturnLog != ''">current_return_log = #{currentReturnLog},</if>
+            <if test="currentIdentifier != null">current_identifier = #{currentIdentifier},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteReturnRecordById" parameterType="Long">
+        delete from return_record where id = #{id}
+    </delete>
+
+    <delete id="deleteReturnRecordByIds" parameterType="String">
+        delete from return_record where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectReturnRecordListByDataTime" resultMap="ReturnRecordResult">
+        <include refid="selectReturnRecordVo"/>
+        where create_time like CONCAT(#{data}, '%')
+    </select>
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.ProblemScanLogicMapper">
+    
+    <resultMap type="com.sgcc.sql.domain.ProblemScanLogic" id="ProblemScanLogicResult">
+        <result property="id"    column="id"    />
+        <result property="logic"    column="logic"    />
+        <result property="matched"    column="matched"    />
+        <result property="relativePosition"    column="relative_position"    />
+        <result property="matchContent"    column="match_content"    />
+        <result property="action"    column="action"    />
+        <result property="rPosition"    column="r_position"    />
+        <result property="length"    column="length"    />
+        <result property="exhibit"    column="exhibit"    />
+        <result property="wordName"    column="word_name"    />
+        <result property="compare"    column="compare"    />
+        <result property="content"    column="content"    />
+        <result property="tNextId"    column="t_next_id"    />
+        <result property="tComId"    column="t_com_id"    />
+        <result property="tProblemId"    column="t_problem_id"    />
+        <result property="fNextId"    column="f_next_id"    />
+        <result property="fComId"    column="f_com_id"    />
+        <result property="fProblemId"    column="f_problem_id"    />
+        <result property="returnCmdId"    column="return_cmd_id"    />
+    </resultMap>
+
+    <sql id="selectProblemScanLogicVo">
+        select id, logic, matched, relative_position, match_content, action, r_position, length, exhibit, word_name, compare, content, t_next_id, t_com_id, t_problem_id, f_next_id, f_com_id, f_problem_id, return_cmd_id from problem_scan_logic
+    </sql>
+
+    <select id="selectProblemScanLogicList" parameterType="com.sgcc.sql.domain.ProblemScanLogic" resultMap="ProblemScanLogicResult">
+        <include refid="selectProblemScanLogicVo"/>
+        <where>  
+            <if test="logic != null  and logic != ''"> and logic = #{logic}</if>
+            <if test="matched != null  and matched != ''"> and matched = #{matched}</if>
+            <if test="relativePosition != null "> and relative_position = #{relativePosition}</if>
+            <if test="matchContent != null  and matchContent != ''"> and match_content = #{matchContent}</if>
+            <if test="action != null  and action != ''"> and action = #{action}</if>
+            <if test="rPosition != null "> and r_position = #{rPosition}</if>
+            <if test="length != null  and length != ''"> and length = #{length}</if>
+            <if test="exhibit != null  and exhibit != ''"> and exhibit = #{exhibit}</if>
+            <if test="wordName != null  and wordName != ''"> and word_name like concat('%', #{wordName}, '%')</if>
+            <if test="compare != null  and compare != ''"> and compare = #{compare}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="tNextId != null  and tNextId != ''"> and t_next_id = #{tNextId}</if>
+            <if test="tComId != null  and tComId != ''"> and t_com_id = #{tComId}</if>
+            <if test="tProblemId != null  and tProblemId != ''"> and t_problem_id = #{tProblemId}</if>
+            <if test="fNextId != null  and fNextId != ''"> and f_next_id = #{fNextId}</if>
+            <if test="fComId != null  and fComId != ''"> and f_com_id = #{fComId}</if>
+            <if test="fProblemId != null  and fProblemId != ''"> and f_problem_id = #{fProblemId}</if>
+            <if test="returnCmdId != null "> and return_cmd_id = #{returnCmdId}</if>
+        </where>
+    </select>
+    
+    <select id="selectProblemScanLogicById" parameterType="Long" resultMap="ProblemScanLogicResult">
+        <include refid="selectProblemScanLogicVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertProblemScanLogic" parameterType="com.sgcc.sql.domain.ProblemScanLogic" useGeneratedKeys="true" keyProperty="id">
+        insert into problem_scan_logic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="logic != null">logic,</if>
+            <if test="matched != null">matched,</if>
+            <if test="relativePosition != null">relative_position,</if>
+            <if test="matchContent != null">match_content,</if>
+            <if test="action != null">action,</if>
+            <if test="rPosition != null">r_position,</if>
+            <if test="length != null and length != ''">length,</if>
+            <if test="exhibit != null">exhibit,</if>
+            <if test="wordName != null">word_name,</if>
+            <if test="compare != null">compare,</if>
+            <if test="content != null">content,</if>
+            <if test="tNextId != null">t_next_id,</if>
+            <if test="tComId != null">t_com_id,</if>
+            <if test="tProblemId != null">t_problem_id,</if>
+            <if test="fNextId != null">f_next_id,</if>
+            <if test="fComId != null">f_com_id,</if>
+            <if test="fProblemId != null">f_problem_id,</if>
+            <if test="returnCmdId != null">return_cmd_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="logic != null">#{logic},</if>
+            <if test="matched != null">#{matched},</if>
+            <if test="relativePosition != null">#{relativePosition},</if>
+            <if test="matchContent != null">#{matchContent},</if>
+            <if test="action != null">#{action},</if>
+            <if test="rPosition != null">#{rPosition},</if>
+            <if test="length != null and length != ''">#{length},</if>
+            <if test="exhibit != null">#{exhibit},</if>
+            <if test="wordName != null">#{wordName},</if>
+            <if test="compare != null">#{compare},</if>
+            <if test="content != null">#{content},</if>
+            <if test="tNextId != null">#{tNextId},</if>
+            <if test="tComId != null">#{tComId},</if>
+            <if test="tProblemId != null">#{tProblemId},</if>
+            <if test="fNextId != null">#{fNextId},</if>
+            <if test="fComId != null">#{fComId},</if>
+            <if test="fProblemId != null">#{fProblemId},</if>
+            <if test="returnCmdId != null">#{returnCmdId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProblemScanLogic" parameterType="com.sgcc.sql.domain.ProblemScanLogic">
+        update problem_scan_logic
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="logic != null">logic = #{logic},</if>
+            <if test="matched != null">matched = #{matched},</if>
+            <if test="relativePosition != null">relative_position = #{relativePosition},</if>
+            <if test="matchContent != null">match_content = #{matchContent},</if>
+            <if test="action != null">action = #{action},</if>
+            <if test="rPosition != null">r_position = #{rPosition},</if>
+            <if test="length != null and length != ''">length = #{length},</if>
+            <if test="exhibit != null">exhibit = #{exhibit},</if>
+            <if test="wordName != null">word_name = #{wordName},</if>
+            <if test="compare != null">compare = #{compare},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="tNextId != null">t_next_id = #{tNextId},</if>
+            <if test="tComId != null">t_com_id = #{tComId},</if>
+            <if test="tProblemId != null">t_problem_id = #{tProblemId},</if>
+            <if test="fNextId != null">f_next_id = #{fNextId},</if>
+            <if test="fComId != null">f_com_id = #{fComId},</if>
+            <if test="fProblemId != null">f_problem_id = #{fProblemId},</if>
+            <if test="returnCmdId != null">return_cmd_id = #{returnCmdId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProblemScanLogicById" parameterType="Long">
+        delete from problem_scan_logic where id = #{id}
+    </delete>
+
+    <delete id="deleteProblemScanLogicByIds" parameterType="String">
+        delete from problem_scan_logic where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
