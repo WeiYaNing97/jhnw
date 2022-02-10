@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class SwitchProblemVO extends BaseEntity
 {
-    public Integer hproblemId;
+    public Long hproblemId;
 
     /** 交换机ip */
     @Excel(name = "交换机ip")
@@ -74,11 +74,11 @@ public class SwitchProblemVO extends BaseEntity
         this.switchProblemCOList = switchProblemCOList;
     }
 
-    public Integer getHproblemId() {
+    public Long getHproblemId() {
         return hproblemId;
     }
 
-    public void setHproblemId(Integer hproblemId) {
+    public void setHproblemId(Long hproblemId) {
         this.hproblemId = hproblemId;
     }
 

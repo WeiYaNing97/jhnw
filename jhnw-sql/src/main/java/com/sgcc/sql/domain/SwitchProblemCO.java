@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class SwitchProblemCO
 {
-    public Integer hproblemId;
+    public Long hproblemId;
 
     /** 问题索引 */
     @Excel(name = "问题索引")
@@ -111,11 +111,11 @@ public class SwitchProblemCO
         this.createTime = createTime;
     }
 
-    public Integer getHproblemId() {
+    public Long getHproblemId() {
         return hproblemId;
     }
 
-    public void setHproblemId(Integer hproblemId) {
+    public void setHproblemId(Long hproblemId) {
         this.hproblemId = hproblemId;
     }
 

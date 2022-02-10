@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class ScanResultsVO {
 
-    public Integer hproblemId;
+    public Long hproblemId;
 
     /** 交换机ip */
     @Excel(name = "交换机ip")
@@ -35,11 +35,11 @@ public class ScanResultsVO {
         this.switchProblemVOList = switchProblemVOList;
     }
 
-    public Integer getHproblemId() {
+    public Long getHproblemId() {
         return hproblemId;
     }
 
-    public void setHproblemId(Integer hproblemId) {
+    public void setHproblemId(Long hproblemId) {
         this.hproblemId = hproblemId;
     }
 

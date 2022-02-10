@@ -12,7 +12,7 @@ import com.sgcc.common.core.domain.BaseEntity;
 public class ValueInformationVO extends BaseEntity
 {
 
-    public Integer hproblemId;
+    public Long hproblemId;
 
     /** 是否显示 */
     @Excel(name = "是否显示")
@@ -51,11 +51,11 @@ public class ValueInformationVO extends BaseEntity
         this.dynamicInformation = dynamicInformation;
     }
 
-    public Integer getHproblemId() {
+    public Long getHproblemId() {
         return hproblemId;
     }
 
-    public void setHproblemId(Integer hproblemId) {
+    public void setHproblemId(Long hproblemId) {
         this.hproblemId = hproblemId;
     }
 

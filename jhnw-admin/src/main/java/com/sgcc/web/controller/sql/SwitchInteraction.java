@@ -1312,21 +1312,17 @@ public class SwitchInteraction {
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
-            Long timestamp1 = Utils.getTimestamp(date1);
-            switchProblemVO.hproblemId = timestamp1.intValue() + (int)(Math.random()*1000+1);
+            switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
                 for (ValueInformationVO valueInformationVO:valueInformationVOList){
                     Date date2 = new Date();
-                    Long timestamp2 = Utils.getTimestamp(date2);
-                    valueInformationVO.hproblemId = timestamp2.intValue() + (int)(Math.random()*1000+1);
+                    valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
                 }
 
                 Date date3 = new Date();
-                Long timestamp3 = Utils.getTimestamp(date3);
-
-                switchProblemCO.hproblemId = timestamp3.intValue() + (int)(Math.random()*1000+1);
+                switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
@@ -1341,8 +1337,7 @@ public class SwitchInteraction {
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
             Date date4 = new Date();
-            Long timestamp4 = Utils.getTimestamp(date4);
-            scanResultsVO.hproblemId = timestamp4.intValue() + (int)(Math.random()*1000+1) ;
+            scanResultsVO.hproblemId = Long.valueOf(Utils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
 
