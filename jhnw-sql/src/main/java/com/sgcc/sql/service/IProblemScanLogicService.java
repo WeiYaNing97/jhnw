@@ -1,14 +1,13 @@
 package com.sgcc.sql.service;
 
-import com.sgcc.sql.domain.ProblemScanLogic;
-
 import java.util.List;
+import com.sgcc.sql.domain.ProblemScanLogic;
 
 /**
  * 问题扫描逻辑Service接口
  * 
  * @author ruoyi
- * @date 2021-12-20
+ * @date 2022-02-14
  */
 public interface IProblemScanLogicService 
 {

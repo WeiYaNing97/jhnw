@@ -1,18 +1,17 @@
 package com.sgcc.sql.service.impl;
 
-import com.sgcc.sql.domain.ProblemScanLogic;
-import com.sgcc.sql.mapper.ProblemScanLogicMapper;
-import com.sgcc.sql.service.IProblemScanLogicService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import com.sgcc.sql.mapper.ProblemScanLogicMapper;
+import com.sgcc.sql.domain.ProblemScanLogic;
+import com.sgcc.sql.service.IProblemScanLogicService;
 
 /**
  * 问题扫描逻辑Service业务层处理
  * 
  * @author ruoyi
- * @date 2021-12-20
+ * @date 2022-02-14
  */
 @Service
 public class ProblemScanLogicServiceImpl implements IProblemScanLogicService 

@@ -55,6 +55,24 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="是否显示" prop="exhibit">
+        <el-input
+          v-model="queryParams.exhibit"
+          placeholder="请输入是否显示"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="取词名称" prop="wordName">
+        <el-input
+          v-model="queryParams.wordName"
+          placeholder="请输入取词名称"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="比较" prop="compare">
         <el-input
           v-model="queryParams.compare"
@@ -64,9 +82,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="true下一条分析索引" prop="tNextIdx">
+      <el-form-item label="true下一条分析索引" prop="tNextId">
         <el-input
-          v-model="queryParams.tNextIdx"
+          v-model="queryParams.tNextId"
           placeholder="请输入true下一条分析索引"
           clearable
           size="small"
@@ -82,18 +100,18 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="true问题索引" prop="tProblemIdx">
+      <el-form-item label="true问题索引" prop="tProblemId">
         <el-input
-          v-model="queryParams.tProblemIdx"
+          v-model="queryParams.tProblemId"
           placeholder="请输入true问题索引"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="false下一条分析索引" prop="fNextIdx">
+      <el-form-item label="false下一条分析索引" prop="fNextId">
         <el-input
-          v-model="queryParams.fNextIdx"
+          v-model="queryParams.fNextId"
           placeholder="请输入false下一条分析索引"
           clearable
           size="small"
@@ -109,9 +127,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="false问题索引" prop="fProblemIdx">
+      <el-form-item label="false问题索引" prop="fProblemId">
         <el-input
-          v-model="queryParams.fProblemIdx"
+          v-model="queryParams.fProblemId"
           placeholder="请输入false问题索引"
           clearable
           size="small"
@@ -122,6 +140,15 @@
         <el-input
           v-model="queryParams.returnCmdId"
           placeholder="请输入返回命令"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="循环起始ID" prop="cycleStartId">
+        <el-input
+          v-model="queryParams.cycleStartId"
+          placeholder="请输入循环起始ID"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -190,15 +217,18 @@
       <el-table-column label="动作" align="center" prop="action" />
       <el-table-column label="位置" align="center" prop="rPosition" />
       <el-table-column label="长度" align="center" prop="length" />
+      <el-table-column label="是否显示" align="center" prop="exhibit" />
+      <el-table-column label="取词名称" align="center" prop="wordName" />
       <el-table-column label="比较" align="center" prop="compare" />
       <el-table-column label="内容" align="center" prop="content" />
-      <el-table-column label="true下一条分析索引" align="center" prop="tNextIdx" />
+      <el-table-column label="true下一条分析索引" align="center" prop="tNextId" />
       <el-table-column label="true下一条命令索引" align="center" prop="tComId" />
-      <el-table-column label="true问题索引" align="center" prop="tProblemIdx" />
-      <el-table-column label="false下一条分析索引" align="center" prop="fNextIdx" />
+      <el-table-column label="true问题索引" align="center" prop="tProblemId" />
+      <el-table-column label="false下一条分析索引" align="center" prop="fNextId" />
       <el-table-column label="false下一条命令索引" align="center" prop="fComId" />
-      <el-table-column label="false问题索引" align="center" prop="fProblemIdx" />
+      <el-table-column label="false问题索引" align="center" prop="fProblemId" />
       <el-table-column label="返回命令" align="center" prop="returnCmdId" />
+      <el-table-column label="循环起始ID" align="center" prop="cycleStartId" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -251,32 +281,41 @@
         <el-form-item label="长度" prop="length">
           <el-input v-model="form.length" placeholder="请输入长度" />
         </el-form-item>
+        <el-form-item label="是否显示" prop="exhibit">
+          <el-input v-model="form.exhibit" placeholder="请输入是否显示" />
+        </el-form-item>
+        <el-form-item label="取词名称" prop="wordName">
+          <el-input v-model="form.wordName" placeholder="请输入取词名称" />
+        </el-form-item>
         <el-form-item label="比较" prop="compare">
           <el-input v-model="form.compare" placeholder="请输入比较" />
         </el-form-item>
         <el-form-item label="内容">
           <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
-        <el-form-item label="true下一条分析索引" prop="tNextIdx">
-          <el-input v-model="form.tNextIdx" placeholder="请输入true下一条分析索引" />
+        <el-form-item label="true下一条分析索引" prop="tNextId">
+          <el-input v-model="form.tNextId" placeholder="请输入true下一条分析索引" />
         </el-form-item>
         <el-form-item label="true下一条命令索引" prop="tComId">
           <el-input v-model="form.tComId" placeholder="请输入true下一条命令索引" />
         </el-form-item>
-        <el-form-item label="true问题索引" prop="tProblemIdx">
-          <el-input v-model="form.tProblemIdx" placeholder="请输入true问题索引" />
+        <el-form-item label="true问题索引" prop="tProblemId">
+          <el-input v-model="form.tProblemId" placeholder="请输入true问题索引" />
         </el-form-item>
-        <el-form-item label="false下一条分析索引" prop="fNextIdx">
-          <el-input v-model="form.fNextIdx" placeholder="请输入false下一条分析索引" />
+        <el-form-item label="false下一条分析索引" prop="fNextId">
+          <el-input v-model="form.fNextId" placeholder="请输入false下一条分析索引" />
         </el-form-item>
         <el-form-item label="false下一条命令索引" prop="fComId">
           <el-input v-model="form.fComId" placeholder="请输入false下一条命令索引" />
         </el-form-item>
-        <el-form-item label="false问题索引" prop="fProblemIdx">
-          <el-input v-model="form.fProblemIdx" placeholder="请输入false问题索引" />
+        <el-form-item label="false问题索引" prop="fProblemId">
+          <el-input v-model="form.fProblemId" placeholder="请输入false问题索引" />
         </el-form-item>
         <el-form-item label="返回命令" prop="returnCmdId">
           <el-input v-model="form.returnCmdId" placeholder="请输入返回命令" />
+        </el-form-item>
+        <el-form-item label="循环起始ID" prop="cycleStartId">
+          <el-input v-model="form.cycleStartId" placeholder="请输入循环起始ID" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -325,20 +364,26 @@ export default {
         action: null,
         rPosition: null,
         length: null,
+        exhibit: null,
+        wordName: null,
         compare: null,
         content: null,
-        tNextIdx: null,
+        tNextId: null,
         tComId: null,
-        tProblemIdx: null,
-        fNextIdx: null,
+        tProblemId: null,
+        fNextId: null,
         fComId: null,
-        fProblemIdx: null,
-        returnCmdId: null
+        fProblemId: null,
+        returnCmdId: null,
+        cycleStartId: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
+        relativePosition: [
+          { required: true, message: "相对位置不能为空", trigger: "blur" }
+        ],
         rPosition: [
           { required: true, message: "位置不能为空", trigger: "blur" }
         ],
@@ -377,15 +422,18 @@ export default {
         action: null,
         rPosition: null,
         length: null,
+        exhibit: null,
+        wordName: null,
         compare: null,
         content: null,
-        tNextIdx: null,
+        tNextId: null,
         tComId: null,
-        tProblemIdx: null,
-        fNextIdx: null,
+        tProblemId: null,
+        fNextId: null,
         fComId: null,
-        fProblemIdx: null,
-        returnCmdId: null
+        fProblemId: null,
+        returnCmdId: null,
+        cycleStartId: null
       };
       this.resetForm("form");
     },

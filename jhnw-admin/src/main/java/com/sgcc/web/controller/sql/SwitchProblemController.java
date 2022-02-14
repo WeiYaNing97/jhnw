@@ -26,9 +26,6 @@ import java.util.List;
 
 /**
  * 交换机问题Controller
- * 
- * @author ruoyi
- * @date 2021-12-28
  */
 @RestController
 @RequestMapping("/sql/switch_problem")
@@ -149,6 +146,7 @@ public class SwitchProblemController extends BaseController
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
+
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String ip_string:ip_hashSet){
