@@ -82,14 +82,15 @@ public class SwitchProblemVO extends BaseEntity
         this.hproblemId = hproblemId;
     }
 
+
     @Override
     public String toString() {
         return "SwitchProblemVO{" +
-                "switchIp='" + switchIp + '\'' +
+                "hproblemId=" + hproblemId +
+                ", switchIp='" + switchIp + '\'' +
                 ", switchName='" + switchName + '\'' +
                 ", switchPassword='" + switchPassword + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +
-                ", hproblemId=" + hproblemId +
                 ", switchProblemCOList=" + switchProblemCOList +
                 '}';
     }

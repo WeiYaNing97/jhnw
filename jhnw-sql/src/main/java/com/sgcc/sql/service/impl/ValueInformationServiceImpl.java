@@ -115,6 +115,7 @@ public class ValueInformationServiceImpl implements IValueInformationService
         for (ValueInformation valueInformation:valueInformationList){
             ValueInformationVO valueInformationVO = new ValueInformationVO();
             BeanUtils.copyProperties(valueInformation,valueInformationVO);
+            valueInformationVO.setParameterId(valueInformation.getId());
             valueInformationVOList.add(valueInformationVO);
         }
 

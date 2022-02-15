@@ -15,6 +15,8 @@ public class SwitchProblemCO
 {
     public Long hproblemId;
 
+    public Long questionId;
+
     /** 问题索引 */
     @Excel(name = "问题索引")
     public String problemId;
@@ -119,17 +121,27 @@ public class SwitchProblemCO
         this.hproblemId = hproblemId;
     }
 
+
+    public Long getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(Long questionId) {
+        this.questionId = questionId;
+    }
+
     @Override
     public String toString() {
         return "SwitchProblemCO{" +
-                "problemId='" + problemId + '\'' +
+                "hproblemId=" + hproblemId +
+                ", questionId=" + questionId +
+                ", problemId='" + problemId + '\'' +
                 ", ifQuestion='" + ifQuestion + '\'' +
                 ", comId='" + comId + '\'' +
                 ", valueId=" + valueId +
                 ", resolved='" + resolved + '\'' +
                 ", problemName='" + problemName + '\'' +
                 ", createTime=" + createTime +
-                ", hproblemId=" + hproblemId +
                 ", valueInformationVOList=" + valueInformationVOList +
                 '}';
     }

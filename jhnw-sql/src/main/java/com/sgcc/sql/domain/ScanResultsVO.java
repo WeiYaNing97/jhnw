@@ -13,6 +13,8 @@ public class ScanResultsVO {
 
     public Long hproblemId;
 
+    public Long id;
+
     /** 交换机ip */
     @Excel(name = "交换机ip")
     private String switchIp;
@@ -43,11 +45,20 @@ public class ScanResultsVO {
         this.hproblemId = hproblemId;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "ScanResultsVO{" +
-                "switchIp='" + switchIp + '\'' +
-                ", hproblemId='" + hproblemId + '\'' +
+                "hproblemId=" + hproblemId +
+                ", id=" + id +
+                ", switchIp='" + switchIp + '\'' +
                 ", switchProblemVOList=" + switchProblemVOList +
                 '}';
     }

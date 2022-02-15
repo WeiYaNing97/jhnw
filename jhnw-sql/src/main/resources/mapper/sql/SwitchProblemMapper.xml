@@ -27,6 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="typeProblem"    column="type_problem"    />
         <collection property="switchProblemCOList"  ofType="com.sgcc.sql.domain.SwitchProblemCO"
                     javaType="java.util.ArrayList">
+            <result property="questionId"    column="question_id"    />
             <result property="problemId"    column="problem_id"    />
             <result property="ifQuestion"    column="if_question"    />
             <result property="comId"    column="com_id"    />
@@ -39,7 +40,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectUnresolvedProblemInformationByData" resultMap="SwitchProblemVO">
         SELECT
-            problem.id id,
             problem.switch_ip switch_ip,
             problem.switch_name switch_name,
             problem.switch_password switch_password,
@@ -49,6 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             problem.value_id value_id,
             problem.resolved resolved,
             problem.create_time create_time,
+            problem.id question_id,
             question.problem_name problem_name,
             question.type_problem type_problem,
             question.command_id command_id
