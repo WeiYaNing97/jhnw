@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2022年01月18日 14:27
  */
 @RestController
-@RequestMapping("/websocket")
+@RequestMapping("/sql/websocket")
 public class WebSocketController {
     @GetMapping("/pushone")
     public void pushone(){
@@ -23,7 +23,16 @@ public class WebSocketController {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            WebSocketService.sendMessage("badao","WebSocket成功"+number);
+            /*WebSocketService.sendMessage("badao","WebSocket成功:loophole"+number);*/
+            WebSocketService webSocketService = new WebSocketService();
+            webSocketService.sendMessage("badao","WebSocket成功:badao"+number+"\r\n");
+            webSocketService.onClose();
+            WebSocketService webSocketService1 = new WebSocketService();
+            webSocketService1.sendMessage("basicinformation","WebSocket成功:basicinformation"+number+"\r\n");
+            webSocketService1.onClose();
+            WebSocketService webSocketService2 = new WebSocketService();
+            webSocketService2.sendMessage("loophole","WebSocket成功:loophole"+number+"\r\n");
+            webSocketService2.onClose();
         }
     }
 }
