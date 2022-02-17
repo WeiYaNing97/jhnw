@@ -617,7 +617,8 @@ public class SwitchInteraction {
      * 根据分析ID获取问题扫描逻辑详细信息
      * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接,
      *                 交换机返回信息字符串, 单次分析提取数据，循环分析提取数据
-     *                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
+     *                 line_n:交换机返回信息字符串分析索引位置(光标)，firstID:第一条分析ID， currentID:当前分析ID ，
+     *                 logic_true_false:上一条分析结果true false ，insertsInteger：插入问题数据次数、为了“完成”]
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      * 用户信息 连接方式 ssh、telnet
@@ -628,7 +629,8 @@ public class SwitchInteraction {
     public List<String> selectProblemScanLogicById(Map<String,String> user_String, SshMethod connectMethod, TelnetSwitchMethod telnetSwitchMethod,
 
                                                    String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
-                                                   int line_n, Long firstID, Long currentID, boolean logic_true_false,Integer insertsInteger) {
+                                                   int line_n, Long firstID, Long currentID,
+                                                   boolean logic_true_false,Integer insertsInteger) {
         //第一条分析ID
         Long id = firstID;
         //如果当前分析ID不为空，则用当前分析ID
@@ -676,83 +678,90 @@ public class SwitchInteraction {
             String logic = problemScanLogic.getLogic();
             // logic_true_false  上一分析的逻辑
 
-            //匹配
+            //匹配逻辑
             if (!matched.equals("null")){
-                //匹配 成功 失败
+                //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, string_line_n, matchContent);
 
-                //与或逻辑
+                //根据 与或逻辑
+                //and  和  or 都是与上一条分析结果的 与或逻辑处理
+                //与或逻辑 默认为  错误 fale  匹配成功还是 失败
                 boolean matched_true_false = false;
+                // 如果有逻辑 则说明和上一层分析有关系  通过 与或逻辑及上一层分析结果 得到 最终逻辑
                 if (logic.equalsIgnoreCase("and")){
                     matched_true_false = logic_true_false && matchAnalysis_true_false;
                 }else if (logic.equalsIgnoreCase("or")){
                     matched_true_false = logic_true_false || matchAnalysis_true_false;
                 }else {
+                //如果没有与或逻辑 则 说明与上一层分析没有关系 则 当前分析结果 为 最终逻辑
                     matched_true_false = matchAnalysis_true_false;
                 }
 
-
-                //如果成功 则把 匹配成功的行数 付给变量 line_n
+                //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matched_true_false){
-                    //执行成功逻辑
-                    //下一条分析ID+"=:="+当前行数
-                    //有问题-问题索引-命令索引
+                    //执行 成功 逻辑
+                    //得到：下一条分析ID+"=:="+当前行数
+                    //（有问题-问题索引-命令索引
                     //无问题-无问题
                     //待定-下一命令ID
+                    //完成:结束分析 ）
                     String analysis_true_string = analysis_true(way,connectMethod, telnetSwitchMethod,problemScanLogic, num);
+                    //不包含字体：有问题无问题  和  待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
+                    if ((analysis_true_string.indexOf("问题") ==-1)
+                            && (analysis_true_string.indexOf("继续") == -1)
+                            && (analysis_true_string.indexOf("完成") == -1)){
 
-                    //不包含：有问题无问题  和  待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
-                    if ((analysis_true_string.indexOf("问题") ==-1) && (analysis_true_string.indexOf("继续") == -1)){
-                        //下一条分析ID+"=:="+当前行数
+                        //得到的 ： 下一条分析ID+"=:="+当前行数
                         String[] analysis_true_split = analysis_true_string.split("=:=");
+
                         //下一条分析ID
                         analysis_true_string =analysis_true_split[0];
+
                         //当前行数
                         line_n=Integer.valueOf(analysis_true_split[1]).intValue();
+
                         //根据下一条分析ID 和 当前行 来进行 下条分析
                         //返回 {总截取信息，true/false流程返回信息}
+                        //current_Round_Extraction_String : 单次分析提取数据
+                        //extractInformation_string : 循环分析提取数据
+                        //line_n:交换机返回信息字符串分析索引位置(光标)，firstID:第一条分析ID， currentID:当前分析ID ，
+                        //logic_true_false:上一条分析结果true false ，insertsInteger：累计插入问题数据次数、为了“完成”
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),true,insertsInteger);
+
                         //如果返回信息为null
                         if (ProblemScanLogic_returnstring!=null){
                             //内分析传到上一层
+                            //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
                         }
-
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            if (ProblemScanLogic_returnstring.get(1).indexOf("没问题")!=-1 && line_n != return_information_array.length){
-                                line_n = Integer.valueOf(ProblemScanLogic_returnstring.get(1).split("=:=")[1]).intValue();
-                            }
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,true,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
-                                return loop_string;
-                            }
-                            return loop_string;
-                        }
-
-
                         return ProblemScanLogic_returnstring;
                     }else {
-                        if ((analysis_true_string.indexOf("问题") !=-1) || (analysis_true_string.indexOf("继续") != -1)){
+                        // 如果是 字体 有问题 无问题 继续 完成
+                        if ((analysis_true_string.indexOf("问题") !=-1)
+                                || (analysis_true_string.indexOf("继续") != -1)){
                             insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
                             insertsInteger++;
                             current_Round_Extraction_String = "";
                             getUnresolvedProblemInformationByData();
+                        }else if ((insertsInteger==0 && analysis_true_string.indexOf("完成") != -1)){
+                            problemScanLogic.setfNextId("没问题");
+                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
+
+                            List<String> stringList = new ArrayList<>();
+                            stringList.add(extractInformation_string);
+                            stringList.add(analysis_true_string);
+                            return stringList;
                         }
-
+                        //当有结果的时候  考虑循环
                         if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
+                            //选择则 循环的 起始ID
                             firstID = problemScanLogic.getCycleStartId();
-
                             List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,"",extractInformation_string,
                                     line_n,firstID,null,true,insertsInteger);
@@ -762,6 +771,7 @@ public class SwitchInteraction {
                             }
                             return loop_string;
                         }
+
                         List<String> stringList = new ArrayList<>();
                         stringList.add(extractInformation_string);
                         stringList.add(analysis_true_string);
@@ -775,12 +785,65 @@ public class SwitchInteraction {
                     String analysis_false_string = analysis_false(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     //如果是最后一条信息 并且 匹配不上则
+                    // !false  &&   最后一条信息
                     if ((!matchAnalysis_true_false && num == return_information_array.length-1) ){
-                        //  =========================================================
-                        //  =========================================================
-                        if ((analysis_false_string.indexOf("问题") !=-1) || (analysis_false_string.indexOf("继续") !=-1)) {
-                            insertvalueInformationService(user_String, false, problemScanLogic, current_Round_Extraction_String);
+                        //才会 查询
+                        if ((analysis_false_string.indexOf("问题") ==-1)
+                                && (analysis_false_string.indexOf("继续") ==-1)
+                                && (analysis_false_string.indexOf("完成") ==-1)){
+                            //如果 不包含问题  继续  完成 说明 没有结果 是具体ID
+                            //下一条分析ID+"=:="+当前行数
+                            String[] analysis_true_split = analysis_false_string.split("=:=");
+                            //下一条分析ID
+                            analysis_false_string =analysis_true_split[0];
+                            //当前行数
+                            line_n=Integer.valueOf(analysis_true_split[1]).intValue();
+                            //根据下一条分析ID 和 当前行 来进行 下条分析
+                            //返回 {总截取信息，true/false流程返回信息}
+                            List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                    return_information_array,current_Round_Extraction_String,extractInformation_string,
+                                    line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),false,insertsInteger);
+                            //如果返回信息为null
+                            if (ProblemScanLogic_returnstring!=null){
+                                //内分析传到上一层
+                                //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                                extractInformation_string = ProblemScanLogic_returnstring.get(0);
+                                return ProblemScanLogic_returnstring;
+                            }
+
+                            return ProblemScanLogic_returnstring;
+                            //如果包含问题 说明存在问题或者 不存在问题 有结果
+                        }else if ((analysis_false_string.indexOf("问题") !=-1)
+                                || (analysis_false_string.indexOf("继续") !=-1)){
+                            insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
                             insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
+
+                            //如果 可以是循环的，且 不是最后一行 则 尽行下一步分析
+                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
+                                firstID = problemScanLogic.getCycleStartId();
+                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                        return_information_array,"",extractInformation_string,
+                                        line_n,firstID,null,false,insertsInteger);
+                                if (loop_string!=null){
+                                    extractInformation_string = loop_string.get(0);
+                                    return loop_string;
+                                }
+                                return loop_string;
+                            }
+
+                        }else if (insertsInteger==0 && analysis_false_string.indexOf("完成") !=-1){
+                            problemScanLogic.setfNextId("没问题");
+                            insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
+
+                            List<String> stringList = new ArrayList<>();
+                            stringList.add(extractInformation_string);
+                            stringList.add(analysis_false_string+"=:="+line_n);
+                            return stringList;
                         }
 
                         List<String> stringList = new ArrayList<>();
@@ -788,73 +851,9 @@ public class SwitchInteraction {
                         stringList.add(analysis_false_string+"=:="+line_n);
                         return stringList;
                     }
-
+                    // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
                     if (relativePosition_line.equals("null")){
                         continue;
-                    }
-
-                    //如果包含问题 说明存在问题或者 不存在问题 有结果
-                    if ((analysis_false_string.indexOf("问题") !=-1) || (analysis_false_string.indexOf("继续") !=-1)){
-                        insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
-                        insertsInteger++;
-                        current_Round_Extraction_String = "";
-                        getUnresolvedProblemInformationByData();
-
-                        //如果 可以是循环的，且 不是最后一行 则 尽行下一步分析
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,false,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
-                                return loop_string;
-                            }
-                            return loop_string;
-                        }
-
-                    }else if ((analysis_false_string.indexOf("问题") ==-1) && (analysis_false_string.indexOf("继续") ==-1) && (analysis_false_string.indexOf("完成") ==-1)){
-                        //如果 不包含问题  继续  完成 说明 没有结果 是具体ID
-                        //下一条分析ID+"=:="+当前行数
-                        String[] analysis_true_split = analysis_false_string.split("=:=");
-                        //下一条分析ID
-                        analysis_false_string =analysis_true_split[0];
-                        //当前行数
-                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-                        //根据下一条分析ID 和 当前行 来进行 下条分析
-                        //返回 {总截取信息，true/false流程返回信息}
-                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),false,insertsInteger);
-                        //如果返回信息为null
-                        if (ProblemScanLogic_returnstring!=null){
-                            //内分析传到上一层
-                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                            return ProblemScanLogic_returnstring;
-                        }
-
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            if (ProblemScanLogic_returnstring.get(1).indexOf("没问题")!=-1 && line_n != return_information_array.length){
-                                line_n = Integer.valueOf(ProblemScanLogic_returnstring.get(1).split("=:=")[1]).intValue();
-                            }
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,false,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
-                                return loop_string;
-                            }
-                            return loop_string;
-                        }
-
-
-                        return ProblemScanLogic_returnstring;
                     }
                 }
                 continue;
@@ -886,12 +885,13 @@ public class SwitchInteraction {
                     String analysis_true_string = analysis_true(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     //不包含：有问题无问题和待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
-                    if ((analysis_true_string.indexOf("问题") ==-1) && (analysis_true_string.indexOf("继续") == -1)){
+                    if ((analysis_true_string.indexOf("问题") ==-1)
+                            && (analysis_true_string.indexOf("继续") == -1)
+                            && (analysis_true_string.indexOf("完成") == -1)){
 
                         String[] analysis_true_split = analysis_true_string.split("=:=");
                         analysis_true_string =analysis_true_split[0];
                         line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
@@ -900,43 +900,41 @@ public class SwitchInteraction {
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
                         }
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
 
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            if (ProblemScanLogic_returnstring.get(1).indexOf("没问题")!=-1 && line_n != return_information_array.length){
-                                line_n = Integer.valueOf(ProblemScanLogic_returnstring.get(1).split("=:=")[1]).intValue();
-                            }
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,true,insertsInteger);
-                            if (ProblemScanLogic_returnstring!=null){
-                                extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                                return ProblemScanLogic_returnstring;
-                            }
-                            return loop_string;
-                        }
                         return ProblemScanLogic_returnstring;
                     }else {
-                        insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                        insertsInteger++;
-                        current_Round_Extraction_String = "";
-                        getUnresolvedProblemInformationByData();
 
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
+                        //字体
+                        if ((analysis_true_string.indexOf("问题") !=-1)
+                                || (analysis_true_string.indexOf("继续") != -1)){
+                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
 
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,true,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
+                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
+                                firstID = problemScanLogic.getCycleStartId();
+                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                        return_information_array,"",extractInformation_string,
+                                        line_n,firstID,null,true,insertsInteger);
+                                if (loop_string!=null){
+                                    extractInformation_string = loop_string.get(0);
+                                    return loop_string;
+                                }
                                 return loop_string;
                             }
-                            return loop_string;
+                        }else if (insertsInteger==0 && analysis_true_string.indexOf("完成") != -1){
+                            problemScanLogic.setfNextId("没问题");
+                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
+                            List<String> stringList = new ArrayList<>();
+                            stringList.add(extractInformation_string);
+                            stringList.add(analysis_true_string);
+                            return stringList;
                         }
+
                         List<String> stringList = new ArrayList<>();
                         stringList.add(extractInformation_string);
                         stringList.add(analysis_true_string);
@@ -947,28 +945,27 @@ public class SwitchInteraction {
                     //走 false 逻辑
                     String analysis_false_string = analysis_false(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
-                    //insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
                     current_Round_Extraction_String = "";
 
-                    if ((wordSelection_string ==null && num == return_information_array.length-1)){
-                        if (insertsInteger>0){
-                            return null;
-                        }else if (insertsInteger == 0){
-                            problemScanLogic.setfNextId("没问题");
-                            insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
+                    // 不为 字体 是下一个ID
+                    if ((analysis_false_string.indexOf("问题") ==-1)
+                            && (analysis_false_string.indexOf("继续") ==-1)
+                            && (analysis_false_string.indexOf("完成") ==-1)){
+
+                        String[] analysis_true_split = analysis_false_string.split("=:=");
+                        analysis_false_string =analysis_true_split[0];
+                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
+
+                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                return_information_array,current_Round_Extraction_String,extractInformation_string,
+                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),false,insertsInteger);
+                        if (ProblemScanLogic_returnstring!=null){
+                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
+                            return ProblemScanLogic_returnstring;
                         }
-                        List<String> stringList = new ArrayList<>();
-                        stringList.add(extractInformation_string);
-                        stringList.add(analysis_false_string+"=:="+line_n);
-                        return stringList;
-                    }
-
-                    if (relativePosition_line.equals("null")){
-                        continue;
-                    }
-
+                        return ProblemScanLogic_returnstring;
                     //如果包含问题 说明存在问题或者 不存在问题 有结果
-                    if ((analysis_false_string.indexOf("问题") !=-1) || (analysis_false_string.indexOf("继续") !=-1)){
+                    }else if ((analysis_false_string.indexOf("问题") !=-1) || (analysis_false_string.indexOf("继续") !=-1)){
                         insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
                         insertsInteger++;
                         current_Round_Extraction_String = "";
@@ -976,9 +973,7 @@ public class SwitchInteraction {
 
                         //如果 可以是循环的，且 不是最后一行 则 尽行下一步分析
                         if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
                             firstID = problemScanLogic.getCycleStartId();
-
                             List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,"",extractInformation_string,
                                     line_n,firstID,null,false,insertsInteger);
@@ -989,42 +984,13 @@ public class SwitchInteraction {
                             return loop_string;
                         }
 
-                    }else if ((analysis_false_string.indexOf("问题") ==-1) && (analysis_false_string.indexOf("继续") ==-1) && (analysis_false_string.indexOf("完成") ==-1)){
-
-                        String[] analysis_true_split = analysis_false_string.split("=:=");
-                        analysis_false_string =analysis_true_split[0];
-                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
-
-                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),false,insertsInteger);
-                        if (ProblemScanLogic_returnstring!=null){
-                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                            return ProblemScanLogic_returnstring;
-                        }
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            if (ProblemScanLogic_returnstring.get(1).indexOf("没问题")!=-1 && line_n != return_information_array.length){
-                                line_n = Integer.valueOf(ProblemScanLogic_returnstring.get(1).split("=:=")[1]).intValue();
-                            }
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,false,insertsInteger);
-                            if (ProblemScanLogic_returnstring!=null){
-                                extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                                return ProblemScanLogic_returnstring;
-                            }
-                            return loop_string;
-                        }
-                        return ProblemScanLogic_returnstring;
-
+                    }else if ((insertsInteger == 0 && analysis_false_string.indexOf("完成") !=-1)){
+                        problemScanLogic.setfNextId("没问题");
+                        insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
+                        insertsInteger++;
+                        current_Round_Extraction_String = "";
+                        getUnresolvedProblemInformationByData();
                     }
-
-
                 }
                 continue;
             }
@@ -1059,12 +1025,13 @@ public class SwitchInteraction {
                     String analysis_true_string = analysis_true(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     //不包含：有问题无问题和待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
-                    if ((analysis_true_string.indexOf("问题") ==-1) && (analysis_true_string.indexOf("继续") == -1)){
+                    if ((analysis_true_string.indexOf("问题") ==-1)
+                            && (analysis_true_string.indexOf("继续") == -1)
+                            && (analysis_true_string.indexOf("完成") == -1)){
 
                         String[] analysis_true_split = analysis_true_string.split("=:=");
                         analysis_true_string =analysis_true_split[0];
                         line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
@@ -1073,44 +1040,36 @@ public class SwitchInteraction {
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
                         }
-
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            if (ProblemScanLogic_returnstring.get(1).indexOf("没问题")!=-1 && line_n != return_information_array.length){
-                                line_n = Integer.valueOf(ProblemScanLogic_returnstring.get(1).split("=:=")[1]).intValue();
-                            }
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,true,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
-                                return loop_string;
-                            }
-                            return loop_string;
-                        }
                         return ProblemScanLogic_returnstring;
                     }else {
-                        insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                        insertsInteger++;
-                        current_Round_Extraction_String = "";
-                        getUnresolvedProblemInformationByData();
+                        if ((analysis_true_string.indexOf("问题") !=-1)
+                                || (analysis_true_string.indexOf("继续") != -1)){
+                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
 
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
+                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
 
-                            firstID = problemScanLogic.getCycleStartId();
+                                firstID = problemScanLogic.getCycleStartId();
 
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,true,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
+                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                        return_information_array,"",extractInformation_string,
+                                        line_n,firstID,null,true,insertsInteger);
+                                if (loop_string!=null){
+                                    extractInformation_string = loop_string.get(0);
+                                    return loop_string;
+                                }
                                 return loop_string;
                             }
-                            return loop_string;
+                        }else if (insertsInteger==0 && analysis_true_string.indexOf("完成") != -1){
+                            problemScanLogic.setfNextId("没问题");
+                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
                         }
+
                         List<String> stringList = new ArrayList<>();
                         stringList.add(extractInformation_string);
                         stringList.add(analysis_true_string);
@@ -1119,18 +1078,15 @@ public class SwitchInteraction {
 
                 }else {
 
-                    if (relativePosition_line.equals("null")){
-                        continue;
-                    }
-
                     String analysis_false_string = analysis_false(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
-                    if ((analysis_false_string.indexOf("问题") ==-1) && (analysis_false_string.indexOf("继续") == -1)){
+                    if ((analysis_false_string.indexOf("问题") ==-1)
+                            && (analysis_false_string.indexOf("继续") == -1)
+                            && (analysis_false_string.indexOf("完成") == -1)){
 
                         String[] analysis_true_split = analysis_false_string.split("=:=");
                         analysis_false_string =analysis_true_split[0];
                         line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
@@ -1139,43 +1095,33 @@ public class SwitchInteraction {
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
                         }
-
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                            firstID = problemScanLogic.getCycleStartId();
-
-                            if (ProblemScanLogic_returnstring.get(1).indexOf("没问题")!=-1 && line_n != return_information_array.length){
-                                line_n = Integer.valueOf(ProblemScanLogic_returnstring.get(1).split("=:=")[1]).intValue();
-                            }
-
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,false,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
-                                return loop_string;
-                            }
-                            return loop_string;
-                        }
                         return ProblemScanLogic_returnstring;
                     }else {
-                        insertvalueInformationService(user_String,compare_boolean,problemScanLogic,current_Round_Extraction_String);
-                        insertsInteger++;
-                        current_Round_Extraction_String = "";
-                        getUnresolvedProblemInformationByData();
+                        if ((analysis_false_string.indexOf("问题") !=-1)
+                                || (analysis_false_string.indexOf("继续") != -1)){
+                            insertvalueInformationService(user_String,compare_boolean,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
 
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
+                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
 
-                            firstID = problemScanLogic.getCycleStartId();
+                                firstID = problemScanLogic.getCycleStartId();
 
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,false,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
+                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                        return_information_array,"",extractInformation_string,
+                                        line_n,firstID,null,false,insertsInteger);
+                                if (loop_string!=null){
+                                    extractInformation_string = loop_string.get(0);
+                                    return loop_string;
+                                }
                                 return loop_string;
                             }
-                            return loop_string;
+                        }else if (insertsInteger==0 && (analysis_false_string.indexOf("完成") != -1)){
+                            insertvalueInformationService(user_String,compare_boolean,problemScanLogic,current_Round_Extraction_String);
+                            insertsInteger++;
+                            current_Round_Extraction_String = "";
+                            getUnresolvedProblemInformationByData();
                         }
                         List<String> stringList = new ArrayList<>();
                         stringList.add(extractInformation_string);
