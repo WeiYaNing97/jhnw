@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com
@@ -15,24 +18,41 @@ import org.springframework.web.bind.annotation.RestController;
 public class WebSocketController {
     @GetMapping("/pushone")
     public void pushone(){
-        for (int number=0;number<=5;number++){
-            try {
-                //睡眠1s
-                Thread.currentThread().sleep(1000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            /*WebSocketService.sendMessage("badao","WebSocket成功:loophole"+number);*/
-            WebSocketService webSocketService = new WebSocketService();
-            webSocketService.sendMessage("badao","WebSocket成功:badao"+number+"\r\n");
-            webSocketService.onClose();
-            WebSocketService webSocketService1 = new WebSocketService();
-            webSocketService1.sendMessage("basicinformation","WebSocket成功:basicinformation"+number+"\r\n");
-            webSocketService1.onClose();
-            WebSocketService webSocketService2 = new WebSocketService();
-            webSocketService2.sendMessage("loophole","WebSocket成功:loophole"+number+"\r\n");
-            webSocketService2.onClose();
-        }
+        HashMap<String,String> has1 = new HashMap<>();
+        has1.put("pro","密码是否明文存储");
+        has1.put("yichang","正常");
+
+        ArrayList list1 = new ArrayList();
+        list1.add(has1);
+
+        HashMap<String,Object> hashMap = new HashMap<>();
+        hashMap.put("protype","安全配置");
+        hashMap.put("childs", list1);
+
+        ArrayList listA = new ArrayList();
+        listA.add(hashMap);
+
+        HashMap<String,Object> hasMapA= new HashMap<>();
+        hasMapA.put("zhuji","192.168.1.1");
+        hasMapA.put("childs",listA);
+
+    //        HashMap<String,Object> hashMap1 = new HashMap<>();
+    //        hashMap1.put("type","设备缺陷");
+    //        hashMap1.put("childs",list1);
+
+        ArrayList list = new ArrayList();
+        list.add(hasMapA);
+    //        list.add(hashMap1);
+        System.err.println("test");
+        System.out.println(list);
+        WebSocketService.sendMessage("badao",list);
+        ArrayList sss = new ArrayList();
+        sss.add("asas");
+        sss.add("asas");
+        sss.add("asas");
+        sss.add("asas");
+        System.out.println(sss);
+        WebSocketService.sendMessage("basicinformation",sss);
+//        return list;
     }
 }

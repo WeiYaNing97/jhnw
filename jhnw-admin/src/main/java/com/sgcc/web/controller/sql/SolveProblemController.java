@@ -73,6 +73,7 @@ public class SolveProblemController {
             valueInformationVOList.add(valueInformationVO);
             parameterID = valueInformation.getOutId();
         }
+        solveProblem(valueInformationVOList);
         return AjaxResult.success(valueInformationVOList);
     }
 
@@ -85,12 +86,12 @@ public class SolveProblemController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("solveProblem")
-    public AjaxResult solveProblem(){
+    public AjaxResult solveProblem(List<ValueInformationVO> valueInformationVOList){
         List<String> commandList = new ArrayList<>();
-        commandList.add("sys");
-        commandList.add("local-user admin");
-        commandList.add("password cipher admin");
-        commandList.add("display cu");
+        commandList.add("sys             :          ");
+        commandList.add("local-user      :          用户名");
+        commandList.add("password cipher :          密码");
+        commandList.add("display cu      :          ");
 
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode","ssh");
@@ -98,6 +99,23 @@ public class SolveProblemController {
         user_String.put("name","admin");
         user_String.put("password","admin");
         user_String.put("port","22");
+
+
+        for (int num = 0;num<commandList.size();num++){
+            String[] command_split = commandList.get(num).split(":");
+            if (command_split.length>1){
+                String value_string= command_split[command_split.length-1];
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    if (valueInformationVO.getDynamicVname().equals(value_string)){
+                        String command_sum = command_split[0] + " "+ valueInformationVO.getDynamicInformation();
+                        commandList.set(num,command_sum);
+                    }
+                }
+            }else {
+                commandList.set(num,command_split[0]);
+            }
+        }
+
 
         //ssh连接
         SshMethod connectMethod = null;
