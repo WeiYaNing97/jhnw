@@ -56,6 +56,28 @@ public class SolveProblemController {
         return AjaxResult.success(commandLogicList);
     }
 
+    /**
+    * @method: 根据参数ID 获取参数名称集合
+    * @Param: [parameterID]
+    * @return: com.sgcc.common.core.domain.AjaxResult
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @RequestMapping("queryParameterNameCollection")
+    public AjaxResult queryParameterNameCollection(Long parameterID){
+        if (parameterID == 0){
+            return AjaxResult.success(null);
+        }
+        List<String> valueNameList = new ArrayList<>();
+        while (parameterID != 0){
+            ValueInformation valueInformation = valueInformationService.selectValueInformationById(parameterID);
+            valueNameList.add(valueInformation.getDynamicVname());
+            parameterID = valueInformation.getOutId();
+        }
+        return AjaxResult.success(valueNameList);
+    }
+
+
     /***
     * @method: queryParameterSet
     * @Param: []
@@ -88,10 +110,11 @@ public class SolveProblemController {
     @RequestMapping("solveProblem")
     public AjaxResult solveProblem(List<ValueInformationVO> valueInformationVOList){
         List<String> commandList = new ArrayList<>();
-        commandList.add("sys             :          ");
-        commandList.add("local-user      :          用户名");
-        commandList.add("password cipher :          密码");
-        commandList.add("display cu      :          ");
+        commandList.add("sys:");
+        commandList.add("local-user:用户名");
+        commandList.add("password cipher:密码");
+        commandList.add("display cu:");
+
 
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode","ssh");

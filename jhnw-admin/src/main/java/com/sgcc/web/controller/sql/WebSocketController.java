@@ -1,5 +1,4 @@
 package com.sgcc.web.controller.sql;
-
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

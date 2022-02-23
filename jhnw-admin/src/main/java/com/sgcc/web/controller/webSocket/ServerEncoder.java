@@ -1,12 +1,7 @@
 package com.sgcc.web.controller.webSocket;
 
-
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.sgcc.sql.domain.ScanResults;
-import com.sgcc.sql.domain.ScanResultsVO;
-import springfox.documentation.service.ResponseMessage;
 
 import javax.websocket.EncodeException;
 import javax.websocket.Encoder;
@@ -36,14 +31,14 @@ public class ServerEncoder implements Encoder.Text<ArrayList> {
      *  encode()方法里的参数和Text<T>里的T一致，如果你是Student，这里就是encode（Student student）
      */
     @Override
-    public String encode(ArrayList scanResults) throws EncodeException {
+    public String encode(ArrayList arrayList) throws EncodeException {
         try {
             /*
              * 这里是重点，只需要返回Object序列化后的json字符串就行
              * 你也可以使用gosn，fastJson来序列化。
              */
             JsonMapper jsonMapper = new JsonMapper();
-            return jsonMapper.writeValueAsString(scanResults);
+            return jsonMapper.writeValueAsString(arrayList);
 
         } catch ( JsonProcessingException e) {
             e.printStackTrace();

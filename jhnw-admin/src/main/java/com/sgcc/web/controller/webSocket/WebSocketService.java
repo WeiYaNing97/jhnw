@@ -1,14 +1,15 @@
 package com.sgcc.web.controller.webSocket;
 
+import com.sgcc.web.controller.webSocket.ServerEncoder;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint(value = "/websocket/{userName}",encoders = { ServerEncoder.class })
@@ -44,9 +45,9 @@ public class WebSocketService {
 
         log.info("----------------------------------------------------------------------------");
         log.info("用户连接:"+userName+",当前在线人数为:" + getOnlineCount());
-        /*try {
-            sendMessage(userName);
-        } catch (IOException e) {
+       /* try {
+            sendMessage("来自后台的反馈：连接成功");
+        } catch (IOException | EncodeException e) {
             log.error("用户:"+userName+",网络异常!!!!!!");
         }*/
     }
@@ -96,23 +97,22 @@ public class WebSocketService {
     /**
      * 连接服务器成功后主动推送
      */
-    public void sendMessage(String message) throws IOException {
+    public void sendMessage(String string) throws IOException{//, EncodeException {
         synchronized (session){
-            this.session.getBasicRemote().sendText(message);
+            this.session.getBasicRemote().sendText(string);
         }
     }
 
     /**
-     * 向指定客户端发送消息 List
+     * 向指定客户端发送消息
      * @param userName
-     * @param message
+     * @param object
      */
-    public static void sendMessage(String userName, Object message){
-        System.err.print("\r\nuserName="+userName+"message="+message);
+    public static void sendMessage(String userName,Object object){
         try {
             WebSocketClient webSocketClient = webSocketMap.get(userName);
             if(webSocketClient!=null){
-                webSocketClient.getSession().getBasicRemote().sendObject(message);
+                webSocketClient.getSession().getBasicRemote().sendObject(object);
             }
         } catch (IOException | EncodeException e) {
             e.printStackTrace();
@@ -120,17 +120,11 @@ public class WebSocketService {
         }
     }
 
-    /**
-     * 向指定客户端发送消息 String
-     * @param userName
-     * @param message
-     */
-    public static void sendMessage(String userName, String message){
-        System.err.print("\r\nuserName="+userName+"message="+message);
+    public static void sendMessage(String userName,String string){
         try {
             WebSocketClient webSocketClient = webSocketMap.get(userName);
             if(webSocketClient!=null){
-                webSocketClient.getSession().getBasicRemote().sendText(message);
+                webSocketClient.getSession().getBasicRemote().sendText(string);
             }
         } catch (IOException e) {
             e.printStackTrace();

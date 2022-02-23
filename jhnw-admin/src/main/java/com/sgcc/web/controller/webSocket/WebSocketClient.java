@@ -1,10 +1,9 @@
 package com.sgcc.web.controller.webSocket;
-
 import javax.websocket.Session;
 
 public class WebSocketClient {
     // 与某个客户端的连接会话，需要通过它来给客户端发送数据
-    public static Session session;
+    private Session session;
 
     //连接的uri
     private String uri;
@@ -13,7 +12,7 @@ public class WebSocketClient {
         return session;
     }
 
-    public  void setSession(Session session) {
+    public void setSession(Session session) {
         this.session = session;
     }
 
