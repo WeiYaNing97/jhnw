@@ -56,28 +56,6 @@ public class SolveProblemController {
         return AjaxResult.success(commandLogicList);
     }
 
-    /**
-    * @method: 根据参数ID 获取参数名称集合
-    * @Param: [parameterID]
-    * @return: com.sgcc.common.core.domain.AjaxResult
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @RequestMapping("queryParameterNameCollection")
-    public AjaxResult queryParameterNameCollection(Long parameterID){
-        if (parameterID == 0){
-            return AjaxResult.success(null);
-        }
-        List<String> valueNameList = new ArrayList<>();
-        while (parameterID != 0){
-            ValueInformation valueInformation = valueInformationService.selectValueInformationById(parameterID);
-            valueNameList.add(valueInformation.getDynamicVname());
-            parameterID = valueInformation.getOutId();
-        }
-        return AjaxResult.success(valueNameList);
-    }
-
-
     /***
     * @method: queryParameterSet
     * @Param: []
@@ -86,16 +64,25 @@ public class SolveProblemController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("queryParameterSet")
-    public AjaxResult queryParameterSet(Long parameterID){
+    public AjaxResult queryParameterSet(String commandID,Long valueID){
+
+        AjaxResult ajaxResult = queryCommandSet(commandID);
+        List<CommandLogic> commandLogicList = (List<CommandLogic>)ajaxResult.get("data");
+        List<String> commandList = new ArrayList<>();
+
+        for (CommandLogic commandLogic:commandLogicList){
+            commandList.add(commandLogic.getCommand());
+        }
+
         List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
-        while (parameterID != 0){
-            ValueInformation valueInformation = valueInformationService.selectValueInformationById(parameterID);
+        while (valueID != 0){
+            ValueInformation valueInformation = valueInformationService.selectValueInformationById(valueID);
             ValueInformationVO valueInformationVO = new ValueInformationVO();
             BeanUtils.copyProperties(valueInformation,valueInformationVO);
             valueInformationVOList.add(valueInformationVO);
-            parameterID = valueInformation.getOutId();
+            valueID = valueInformation.getOutId();
         }
-        solveProblem(valueInformationVOList);
+        solveProblem(commandList,valueInformationVOList);
         return AjaxResult.success(valueInformationVOList);
     }
 
@@ -108,13 +95,7 @@ public class SolveProblemController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("solveProblem")
-    public AjaxResult solveProblem(List<ValueInformationVO> valueInformationVOList){
-        List<String> commandList = new ArrayList<>();
-        commandList.add("sys:");
-        commandList.add("local-user:用户名");
-        commandList.add("password cipher:密码");
-        commandList.add("display cu:");
-
+    public AjaxResult solveProblem(List<String> commandList,List<ValueInformationVO> valueInformationVOList){
 
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode","ssh");
@@ -173,6 +154,7 @@ public class SolveProblemController {
             for (String command:commandList){
                 //根据 连接方法 判断 实际连接方式
                 //并发送命令 接受返回结果
+                System.err.print("\r\n"+"命令："+command+"\r\n");
                 if (user_String.get("mode").equalsIgnoreCase("ssh")){
 
                     WebSocketService.sendMessage("badao",command);
@@ -189,7 +171,7 @@ public class SolveProblemController {
                 }
                 //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
                 commandString = Utils.trimString(commandString);
-
+                System.err.print("\r\n"+"交换机返回信息："+commandString+"\r\n");
                 //交换机返回信息 按行分割为 字符串数组
                 String[] commandString_split = commandString.split("\r\n");
                 //创建 存储交换机返回数据 实体类
