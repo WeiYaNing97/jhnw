@@ -177,7 +177,11 @@ public class SwitchInteraction {
 
         /* 返回信息 ： [是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
                 connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）]*/
-        return AjaxResult.success(objectList);
+        if(is_the_connection_successful){
+            return AjaxResult.success(objectList);
+        }else {
+            return AjaxResult.error("connect0001","交换机连接失败！");
+        }
     }
 
     /**
