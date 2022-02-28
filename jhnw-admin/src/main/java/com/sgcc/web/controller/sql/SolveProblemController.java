@@ -45,16 +45,20 @@ public class SolveProblemController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("batchSolution")
-    public AjaxResult batchSolution(){
+    public AjaxResult batchSolution(String mode,String ip,String name,String password,String port,List<String> commandValueList){
         Map<String,String> user_String = new HashMap<>();
-        user_String.put("mode","ssh");
-        user_String.put("ip","192.168.1.1");
-        user_String.put("name","admin");
-        user_String.put("password","admin");
-        user_String.put("port","22");
+        user_String.put("mode",mode);
+        user_String.put("ip",ip);
+        user_String.put("name",name);
+        user_String.put("password",password);
+        user_String.put("port",port);
 
         List<String> command_value_String = new ArrayList<>();
         command_value_String.add("4:6");
+        command_value_String.add("4:8");
+        command_value_String.add("4:10");
+        command_value_String.add("4:12");
+        command_value_String.add("4:14");
 
         //ssh连接
         SshMethod connectMethod = null;
