@@ -12,4 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/sql/SwitchTest")
 public class SwitchTest {
 
+    @RequestMapping("/testTelnet")
+    public void testTelnet(){
+
+    }
 }

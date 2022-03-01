@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author 天幕顽主
  * 通过Telnet连接Windos、linux、交换机
@@ -13,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @ResponseBody
-@RequestMapping("TelnetSwitchMethod")
+@RequestMapping("/sql/TelnetSwitchMethod")
 public class TelnetSwitchMethod {
     private String hostIp;
     private String userName;
@@ -59,6 +62,31 @@ public class TelnetSwitchMethod {
                 return stringCommand;
             }
         }
+    }
+
+
+    /**
+     * 发送命令，返回结果
+     * @param command 发送命令：参数
+     * @return 返回结果
+     * @throws Exception
+     */
+    @RequestMapping("/sendCommandAll")
+    public String sendCommandAll() {
+        List<String> commandList = new ArrayList<>();
+        commandList.add("display ver");
+        commandList.add("display cu");
+        commandList.add("display ver");
+        commandList.add("display cu");
+        commandList.add("display ver");
+        commandList.add("display cu");
+
+        for (String command:commandList){
+            System.err.print("\r\n"+command);
+            String command1 = sendCommand(command);
+            System.err.print("\r\n"+command1);
+        }
+        return null;
     }
 
     /**

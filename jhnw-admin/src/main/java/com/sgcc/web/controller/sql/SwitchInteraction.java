@@ -87,7 +87,7 @@ public class SwitchInteraction {
             if (requestConnect_way.equalsIgnoreCase("ssh")){
                 connectMethod = (SshMethod)objectList.get(6);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                telnetSwitchMethod = (TelnetSwitchMethod)objectList.get(6);
+                telnetSwitchMethod = (TelnetSwitchMethod)objectList.get(7);
             }
 
             //获取基本信息
