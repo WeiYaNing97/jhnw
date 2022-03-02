@@ -25,71 +25,30 @@ public class TelnetTest {
         TelnetOperator telnet = new TelnetOperator("VT220",">");	//Windows,用VT220,否则会乱码
         telnet.login("192.168.1.1", 23, "admin", "admin");
 
-        System.out.print("\r\n"+"1:display cu");
-        String rs = telnet.sendCommandAll("display cu");
-        try {
-            rs = new String(rs.getBytes("ISO-8859-1"),"GBK");	//转一下编码
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        List<String> commandList = new ArrayList<>();
+        commandList.add("display ver");
+        commandList.add("display cu");
+        commandList.add("display ver");
+        commandList.add("display cu");
+        commandList.add("display ver");
+        commandList.add("display cu");
+        commandList.add("display ver");
+        commandList.add("display cu");
+
+        int i = 0 ;
+
+        for (String command:commandList){
+            System.out.print("\r\n"+(++i)+"command"+command);
+            String rs = telnet.sendCommandAll(command);
+
+            try {
+                rs = new String(rs.getBytes("ISO-8859-1"),"GBK");	//转一下编码
+                Thread.sleep(10*1000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.err.println("\r\n"+rs);
         }
-        System.err.println("\r\n"+rs);
-
-
-        System.out.print("\r\n"+"2:display ver");
-        rs = telnet.sendCommandAll("display ver");
-        try {
-            rs = new String(rs.getBytes("ISO-8859-1"),"GBK");	//转一下编码
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.err.println("\r\n"+rs);
-
-
-
-        System.out.print("\r\n"+"3:display cu");
-        rs = telnet.sendCommandAll("display cu");
-        try {
-            rs = new String(rs.getBytes("ISO-8859-1"),"GBK");	//转一下编码
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.err.println("\r\n"+rs);
-
-
-
-
-
-        rs = telnet.sendCommandAll("4:display ver");
-        try {
-            rs = new String(rs.getBytes("ISO-8859-1"),"GBK");	//转一下编码
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.err.println("\r\n"+rs);
-
-
-        System.out.print("\r\n"+"5:display cu");
-        rs = telnet.sendCommandAll("display cu");
-        try {
-            rs = new String(rs.getBytes("ISO-8859-1"),"GBK");	//转一下编码
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.err.println("\r\n"+rs);
-
-
-
-
-
-        rs = telnet.sendCommandAll("6:display ver");
-        try {
-            rs = new String(rs.getBytes("ISO-8859-1"),"GBK");	//转一下编码
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        System.err.println("\r\n"+rs);
-
-
-        return rs;
+        return null;
     }
 }

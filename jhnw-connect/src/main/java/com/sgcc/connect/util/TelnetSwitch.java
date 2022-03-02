@@ -23,7 +23,7 @@ public class TelnetSwitch {
 
     private String prompt = "#$>]";//#$>]
     private String loginPrompt = "login";
-    private String usernamePrompt = "User Name:";
+    private String usernamePrompt = "Username:";
     private String passwordPrompt = "Password:";
 
     private InputStream in;
@@ -98,10 +98,8 @@ public class TelnetSwitch {
             while (true) {
                 i = i + 1;
                 chr = (char)in.read();
-                System.out.print(chr+"\r\n");
                 int available = in.available();
                 string = string + chr;
-                System.out.print("\r\n"+string+"\r\n");
                 if ((available == 0 && (chr == endChar||chr == ']')||string.endsWith("---- More ----"))){
                     String s = new String(string.getBytes("ISO8859-1"), "GBK");// 编码转换，解决中文乱码问题
                     return s;
