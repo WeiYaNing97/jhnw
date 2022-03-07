@@ -1,5 +1,6 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.connect.translate.TranSlate;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -341,10 +342,10 @@ public class Utils {
         //判断是否包含 SHELL
         //判断是否包含 /LOGIN /LOGOUT
         if (iInformation_substring.equalsIgnoreCase("%")){
-            int Include_SHELL = switchInformation.indexOf("SHELL/");
+            int Include_SHELL = switchInformation.indexOf("SHELL");
 
             if (Include_SHELL !=- 1 &&
-                    ( switchInformation.indexOf("/LOGIN") != -1 ||  switchInformation.indexOf("/LOGOUT") != -1)){
+                    ( switchInformation.indexOf("LOGIN") != -1 ||  switchInformation.indexOf("LOGOUT") != -1)){
 
                 //确认存在登录信息
                 //%Apr  4 03:00:49:885 2000 H3C SHELL/5/LOGIN:- 1 - admin(192.168.1.98) in unit1 login
@@ -395,6 +396,8 @@ public class Utils {
                 }
                 //登录信息
                 String login_Information= login_return_Information[0];
+
+                TranSlate.tranSlate(login_Information);
 
                 String return_Information= login_return_Information[1];
                 if (return_Information !=null || !return_Information.equals("")){
