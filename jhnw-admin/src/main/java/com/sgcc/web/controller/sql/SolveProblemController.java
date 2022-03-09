@@ -46,13 +46,14 @@ public class SolveProblemController {
     */
     @RequestMapping("batchSolution")
     public AjaxResult batchSolution(String mode,String ip,String name,String password,String port,List<String> commandValueList){
+        //用户信息
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode",mode);
         user_String.put("ip",ip);
         user_String.put("name",name);
         user_String.put("password",password);
         user_String.put("port",port);
-
+        //问题编码ID 参数ID
         List<String> command_value_String = new ArrayList<>();
         command_value_String.add("4:6");
         command_value_String.add("4:8");
@@ -70,7 +71,6 @@ public class SolveProblemController {
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
         AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect(user_String,connectMethod, telnetSwitchMethod);
-
         //解析返回参数
         List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
         //是否连接成功
@@ -78,8 +78,10 @@ public class SolveProblemController {
 
         if (requestConnect_boolean){
             for (String commandValue:command_value_String){
+                //将 问题id 和 参数ID 分离开来
                 String[] commandValueSplit = commandValue.split(":");
-                Long.valueOf(commandValueSplit[0]).longValue();
+                //传参 问题id 和 参数ID
+                //返回 命令集合 的 参数集合
                 AjaxResult ajaxResult = queryParameterSet(Long.valueOf(commandValueSplit[0]).longValue(), Long.valueOf(commandValueSplit[1]).longValue());
                 Object[] command_value =  (Object[])ajaxResult.get("data");
                 List<String> commandList = (List<String>) command_value[0];
@@ -92,23 +94,25 @@ public class SolveProblemController {
 
 
     /***
-    * @method: queryParameterSet
+    * @method: queryParameterSet 返回 命令集合 的 参数集合
     * @Param: []
     * @return: com.sgcc.common.core.domain.AjaxResult
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
+     * 传参 命令ID 和 参数ID
     */
     @RequestMapping("queryParameterSet")
     public AjaxResult queryParameterSet(Long commandID,Long valueID){
-
+        //根据 第一个命令 ID  查询 命令信息集合
         AjaxResult ajaxResult = queryCommandSet(commandID);
         List<CommandLogic> commandLogicList = (List<CommandLogic>)ajaxResult.get("data");
         List<String> commandList = new ArrayList<>();
-
+        //将命令 放入 命令集合
         for (CommandLogic commandLogic:commandLogicList){
             commandList.add(commandLogic.getCommand());
         }
 
+        //查询 参数信息集合
         List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
         while (valueID != 0){
             ValueInformation valueInformation = valueInformationService.selectValueInformationById(valueID);
@@ -194,7 +198,7 @@ public class SolveProblemController {
             if (requestConnect_way.equalsIgnoreCase("ssh")){
 
                 WebSocketService.sendMessage("badao",command);
-                commandString = connectMethod.sendCommand(command);
+                commandString = connectMethod.sendCommand(command,null);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
                 WebSocketService.sendMessage("badao",command);

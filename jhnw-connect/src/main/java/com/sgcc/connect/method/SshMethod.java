@@ -61,7 +61,7 @@ public class SshMethod {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("sendCommand")
-    public String sendCommand(String command){
+    public String sendCommand(String command,String notFinished){
         //ssh发送命令
         //将命令放到数组中，满足方法的参数要求
         String[] cmds = {command};
@@ -70,7 +70,7 @@ public class SshMethod {
             quit = true;
         }
         //发送命令
-        String string = sshConnect.batchCommand(cmds, null,quit);
+        String string = sshConnect.batchCommand(cmds, notFinished,null,quit);
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }
@@ -106,7 +106,10 @@ public class SshMethod {
             }
             string = "\n" + string.trim();
         }
-        string = string.replace(" ---- More ----\n","");
+        if (notFinished == null && notFinished == ""){
+            notFinished = "---- More ----";
+        }
+        string = string.replace(" "+notFinished+"\n","");
         this.ReturnInformation = string;
         return string;
     }

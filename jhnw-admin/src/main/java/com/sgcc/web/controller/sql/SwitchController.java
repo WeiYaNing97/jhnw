@@ -85,7 +85,7 @@ public class SwitchController {
     @RequestMapping("sendMessage")
     public String sendMessage() {
         String way = this.way;
-        String basicInformation = "displaycu";
+        String basicInformation = "display cu";
         //多个命令是由,号分割的，所以需要根据, 来分割。例如：display device manuinfo,display ver
         String[] commandsplit = basicInformation.split(",");
         String commandString = ""; //预设交换机返回结果
@@ -97,7 +97,7 @@ public class SwitchController {
             if (way.equalsIgnoreCase("ssh")) {
 
                 WebSocketService.sendMessage("badao", command);
-                commandString = connectMethod.sendCommand(command);
+                commandString = connectMethod.sendCommand(command,null);
             } else if (way.equalsIgnoreCase("telnet")) {
 
                 WebSocketService.sendMessage("badao", command);

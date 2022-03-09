@@ -70,7 +70,7 @@ public class ProblemScanLogicController extends BaseController
             String return_sum = "";
             for (String string_split:split){
                 if (SwitchController.way.equalsIgnoreCase("ssh")){
-                    commandString = SwitchController.connectMethod.sendCommand(string_split);
+                    commandString = SwitchController.connectMethod.sendCommand(string_split,null);
                 }else if (SwitchController.way.equalsIgnoreCase("telnet")){
                     commandString = SwitchController.telnetSwitchMethod.sendCommand(string_split);
                 }
@@ -367,7 +367,7 @@ public class ProblemScanLogicController extends BaseController
         //执行命令
         String command_string = null;
         if (SwitchController.way.equalsIgnoreCase("ssh")){
-            command_string = SwitchController.connectMethod.sendCommand(command);
+            command_string = SwitchController.connectMethod.sendCommand(command,null);
         }else if (SwitchController.way.equalsIgnoreCase("telnet")){
             command_string = SwitchController.telnetSwitchMethod.sendCommand(command);
         }

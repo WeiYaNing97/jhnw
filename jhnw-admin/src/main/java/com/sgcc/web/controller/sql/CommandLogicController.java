@@ -55,7 +55,7 @@ public class CommandLogicController extends BaseController
             String command = commandLogic.getCommand();
             String command_string = null;
             if (SwitchController.way.equalsIgnoreCase("ssh")){
-                command_string = SwitchController.connectMethod.sendCommand(command);
+                command_string = SwitchController.connectMethod.sendCommand(command,null);
             }else if (SwitchController.way.equalsIgnoreCase("telnet")){
                 command_string = SwitchController.telnetSwitchMethod.sendCommand(command);
             }
@@ -108,7 +108,7 @@ public class CommandLogicController extends BaseController
         //执行命令
         String command_string = null;
         if (SwitchController.way.equalsIgnoreCase("ssh")){
-            command_string = SwitchController.connectMethod.sendCommand(command);
+            command_string = SwitchController.connectMethod.sendCommand(command,null);
         }else if (SwitchController.way.equalsIgnoreCase("telnet")){
             command_string = SwitchController.telnetSwitchMethod.sendCommand(command);
         }

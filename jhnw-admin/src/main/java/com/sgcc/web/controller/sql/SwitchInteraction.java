@@ -120,8 +120,9 @@ public class SwitchInteraction {
         String command_return_information = null;
         Long analysis_id = null;
         for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
+            user_String.put("notFinished",totalQuestionTable.getNotFinished());
             user_String.put("operation",totalQuestionTable.getIfCycle());
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
             String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
                     executeScanCommandByCommandId_object,totalQuestionTable.getIfCycle());
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
@@ -214,7 +215,7 @@ public class SwitchInteraction {
                 if (way.equalsIgnoreCase("ssh")){
 
                     WebSocketService.sendMessage("badao",command);
-                    commandString = connectMethod.sendCommand(command);
+                    commandString = connectMethod.sendCommand(command,user_String.get("notFinished"));
                 }else if (way.equalsIgnoreCase("telnet")){
 
                     WebSocketService.sendMessage("badao",command);
@@ -425,7 +426,7 @@ public class SwitchInteraction {
             if (way.equalsIgnoreCase("ssh")){
 
                 WebSocketService.sendMessage("badao",command);
-                command_string = connectMethod.sendCommand(command);
+                command_string = connectMethod.sendCommand(command,user_String.get("notFinished"));
             }else if (way.equalsIgnoreCase("telnet")){
 
                 WebSocketService.sendMessage("badao",command);
@@ -480,7 +481,7 @@ public class SwitchInteraction {
                     continue;
                 }else {
                     System.err.print("简单检验，命令正确，新命令"+commandLogic.getEndIndex());
-                    List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(), way, connectMethod, telnetSwitchMethod);
+                    List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(),user_String.get("notFinished"), way, connectMethod, telnetSwitchMethod);
                     System.out.println("命令错误"+objectList.get(1));
                 }
             }else {
@@ -506,7 +507,7 @@ public class SwitchInteraction {
      * 分析ID 连接方式 ssh和telnet连接
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(Long commandId,String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod) {
+    public List<Object> executeScanCommandByCommandId(Long commandId,String notFinished,String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod) {
 
         //命令ID获取具体命令
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
@@ -517,7 +518,7 @@ public class SwitchInteraction {
         if (way.equalsIgnoreCase("ssh")){
 
             WebSocketService.sendMessage("badao",command);
-            command_string = connectMethod.sendCommand(command);
+            command_string = connectMethod.sendCommand(command,notFinished);
         }else if (way.equalsIgnoreCase("telnet")){
 
             WebSocketService.sendMessage("badao",command);
@@ -566,7 +567,7 @@ public class SwitchInteraction {
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
                 System.err.print("\r\n"+"简单检验，命令正确，新命令"+commandLogic.getEndIndex());
-                List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(), way, connectMethod, telnetSwitchMethod);
+                List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(),notFinished, way, connectMethod, telnetSwitchMethod);
                 return objectList;
             }
         }else {
@@ -709,7 +710,7 @@ public class SwitchInteraction {
                     //无问题-无问题
                     //待定-下一命令ID
                     //完成:结束分析 ）
-                    String analysis_true_string = analysis_true(way,connectMethod, telnetSwitchMethod,problemScanLogic, num);
+                    String analysis_true_string = analysis_true(user_String,connectMethod, telnetSwitchMethod,problemScanLogic, num);
                     //不包含字体：有问题无问题  和  待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
                     if ((analysis_true_string.indexOf("问题") ==-1)
                             && (analysis_true_string.indexOf("继续") == -1)
@@ -786,7 +787,7 @@ public class SwitchInteraction {
 
                     //insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
                     //current_Round_Extraction_String = "";
-                    String analysis_false_string = analysis_false(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
+                    String analysis_false_string = analysis_false(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     //如果是最后一条信息 并且 匹配不上则
                     // !false  &&   最后一条信息
@@ -886,7 +887,7 @@ public class SwitchInteraction {
                     extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+ wordSelection_string+"=:=";
                     current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
                     //分析结果为 true 有结果返回结果，没结果返回下一条分析ID
-                    String analysis_true_string = analysis_true(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
+                    String analysis_true_string = analysis_true(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     //不包含：有问题无问题和待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
                     if ((analysis_true_string.indexOf("问题") ==-1)
@@ -947,7 +948,7 @@ public class SwitchInteraction {
 
                 }else {
                     //走 false 逻辑
-                    String analysis_false_string = analysis_false(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
+                    String analysis_false_string = analysis_false(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     current_Round_Extraction_String = "";
 
@@ -1026,7 +1027,7 @@ public class SwitchInteraction {
                 }
 
                 if (compare_true_false){
-                    String analysis_true_string = analysis_true(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
+                    String analysis_true_string = analysis_true(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     //不包含：有问题无问题和待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
                     if ((analysis_true_string.indexOf("问题") ==-1)
@@ -1082,7 +1083,7 @@ public class SwitchInteraction {
 
                 }else {
 
-                    String analysis_false_string = analysis_false(way,connectMethod,telnetSwitchMethod,problemScanLogic, num);
+                    String analysis_false_string = analysis_false(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     if ((analysis_false_string.indexOf("问题") ==-1)
                             && (analysis_false_string.indexOf("继续") == -1)
@@ -1224,7 +1225,8 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public String analysis_true(String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,ProblemScanLogic problemScanLogic,int num){
+    public String analysis_true(Map<String,String> user_String,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,ProblemScanLogic problemScanLogic,int num){
+        String way = user_String.get("mode");
         // 设置返回信息 初始化为空
         String analysis_true = null;
         //扫描逻辑表数据信息 true 结果 下一条分析ID
@@ -1261,7 +1263,7 @@ public class SwitchInteraction {
                 case "继续":
                     //返回待分析继续 命令id
                     Long commandId =Integer.valueOf(problemScanLogic.gettComId()).longValue();
-                    executeScanCommandByCommandId(commandId,way,connectMethod,telnetSwitchMethod);
+                    executeScanCommandByCommandId(commandId,user_String.get("notFinished"),way,connectMethod,telnetSwitchMethod);
                     return analysis_true = "继续=:=tComId=:="+commandId;
                 case "完成":
                     return analysis_true = "完成";
@@ -1278,7 +1280,8 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public String analysis_false(String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,ProblemScanLogic problemScanLogic,int num){
+    public String analysis_false(Map<String,String> user_String,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,ProblemScanLogic problemScanLogic,int num){
+        String way = user_String.get("mode");
         // 设置返回信息 初始化为空
         String analysis_false=null;
         //扫描逻辑表数据信息 false 结果 下一条分析ID
@@ -1313,7 +1316,7 @@ public class SwitchInteraction {
                 case "继续":
                     //返回待分析继续 命令id
                     long commandId = Integer.valueOf(problemScanLogic.getfComId()).longValue();
-                    executeScanCommandByCommandId(commandId,way,connectMethod,telnetSwitchMethod);
+                    executeScanCommandByCommandId(commandId,user_String.get("notFinished"),way,connectMethod,telnetSwitchMethod);
                     return analysis_false = "继续=:=fComId=:="+commandId;
                 case "完成":
                     return analysis_false = "完成";

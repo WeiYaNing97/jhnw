@@ -32,6 +32,9 @@ public class TotalQuestionTable extends BaseEntity
     @Excel(name = "内部固件版本")
     private String subVersion;
 
+    /** 未完成 */
+    @Excel(name = "未完成")
+    private String notFinished;
     /** 启动命令ID */
     @Excel(name = "启动命令ID")
     private Long commandId;
@@ -137,6 +140,14 @@ public class TotalQuestionTable extends BaseEntity
         this.ifCycle = ifCycle;
     }
 
+    public String getNotFinished() {
+        return notFinished;
+    }
+
+    public void setNotFinished(String notFinished) {
+        this.notFinished = notFinished;
+    }
+
     @Override
     public String toString() {
         return "TotalQuestionTable{" +
@@ -145,6 +156,7 @@ public class TotalQuestionTable extends BaseEntity
                 ", type='" + type + '\'' +
                 ", firewareVersion='" + firewareVersion + '\'' +
                 ", subVersion='" + subVersion + '\'' +
+                ", notFinished='" + notFinished + '\'' +
                 ", commandId=" + commandId +
                 ", problemName='" + problemName + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +

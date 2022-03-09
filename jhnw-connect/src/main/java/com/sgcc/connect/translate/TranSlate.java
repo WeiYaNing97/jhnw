@@ -27,7 +27,7 @@ public class TranSlate {
         String s = transResult_split[1];
         String[] transResult_split_split = transResult_split[1].split("\"}]}");
         String unicodeToString = unicodeToString(transResult_split_split[0]);
-        //System.err.print("\r\n翻译:\r\n"+unicodeToString+"\r\n");
+        System.err.print("\r\n翻译:\r\n"+unicodeToString+"\r\n");
         return unicodeToString;
     }
 

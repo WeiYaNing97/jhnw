@@ -215,7 +215,12 @@ public class SshConnect implements Runnable {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    private String runCommand(String command, boolean ifEnter) {
+    private String runCommand(String command,String notFinished,boolean ifEnter) {
+
+        if (notFinished!=null && notFinished!=""){
+            moreEcho = notFinished;
+        }
+
         this.currEcho = new StringBuffer();
         //向服务器发送命令
         String str = sendCommand(command, ifEnter);
@@ -255,6 +260,8 @@ public class SshConnect implements Runnable {
 
                 //接收交换机返回信息 转换为字符串数组
                 String[] lineStrs = currEcho.toString().split("\\n");
+
+
                 //接收交换机返回信息不为空
                 if (lineStrs != null && lineStrs.length > 0) {
                     //private String moreEcho = "---- More ----";
@@ -283,7 +290,7 @@ public class SshConnect implements Runnable {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public String batchCommand(String[] cmds, int[] othernEenterCmds,boolean quit) {
+    public String batchCommand(String[] cmds,String notFinished, int[] othernEenterCmds,boolean quit) {
         this.quit=quit;
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < cmds.length; i++) {
@@ -304,18 +311,18 @@ public class SshConnect implements Runnable {
             // 命令结尾加上 "\n"
             cmd += (char) 10;
             //执行单个命令
-            String resultEcho = runCommand(cmd, ifInputEnter);
+            String resultEcho = runCommand(cmd, notFinished,ifInputEnter);
             sb.append(resultEcho);
         }
         return currEcho.toString();
     }
-    public String executive(String[] cmds, int[] othernEenterCmds) {
+    public String executive(String[] cmds,String notFinished, int[] othernEenterCmds) {
         if (cmds == null || cmds.length < 3) {
             logger.error("{} ssh cmds is null", this.ip);
             return null;
         }
         if (login(cmds)) {
-            return batchCommand(cmds, othernEenterCmds,quit);
+            return batchCommand(cmds,notFinished,othernEenterCmds,quit);
         }
         logger.error("{} ssh login error", this.ip);
         return null;
