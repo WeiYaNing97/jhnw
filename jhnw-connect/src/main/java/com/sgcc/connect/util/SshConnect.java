@@ -277,6 +277,7 @@ public class SshConnect implements Runnable {
                         continue;
                     }
                 }
+                return currEcho.toString();
             }
         }
         return currEcho.toString();
@@ -316,6 +317,8 @@ public class SshConnect implements Runnable {
         }
         return currEcho.toString();
     }
+
+
     public String executive(String[] cmds,String notFinished, int[] othernEenterCmds) {
         if (cmds == null || cmds.length < 3) {
             logger.error("{} ssh cmds is null", this.ip);
@@ -327,6 +330,8 @@ public class SshConnect implements Runnable {
         logger.error("{} ssh login error", this.ip);
         return null;
     }
+
+
     private abstract class SSHUserInfo implements UserInfo, UIKeyboardInteractive {
         public String getPassword() {
             return null;
