@@ -1,3 +1,0 @@
-
-<H3C>
-%Apr  5 07:02:03:671 2000 H3C SHELL/5/LOGIN:- 1 - admin(192.168.1.98) in unit1 login

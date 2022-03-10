@@ -49,7 +49,7 @@ public class InputPrintThread extends Thread {
     }
 
     public void fileCreationWrite(String returnInformationFileName,String returnString){
-        String lujing = "D:\\IdeaProjects\\github\\beifen\\jhnw\\jhnw-connect\\src\\main\\java\\com\\sgcc\\connect\\txt\\"+ returnInformationFileName +".txt";
+        String lujing = "F:\\"+ returnInformationFileName +".txt";
         File file = new File(lujing);
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();

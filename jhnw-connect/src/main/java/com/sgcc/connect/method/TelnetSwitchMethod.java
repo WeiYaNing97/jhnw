@@ -106,7 +106,7 @@ public class TelnetSwitchMethod {
             String command = telnetComponent.sendCommand(common);
             try {
 
-                File file = new File("D:\\IdeaProjects\\github\\beifen\\jhnw\\jhnw-connect\\src\\main\\java\\com\\sgcc\\connect\\txt\\"+ command +".txt");
+                File file = new File("F:\\"+ command +".txt");
 
                 String readFileContent = readFileContent(file);
 
