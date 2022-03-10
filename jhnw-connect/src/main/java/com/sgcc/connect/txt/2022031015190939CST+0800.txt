@@ -1,0 +1,18 @@
+display ver
+H3C Comware Platform Software
+Comware Software, Version 3.10, Release 1510P09
+Copyright (c) 2004-2007 Hangzhou H3C Technologies Co., Ltd. All rights reserved.
+S3600-28P-EI uptime is 0 week, 3 days, 7 hours, 7 minutes
+
+S3600-28P-EI with 1 MIPS Processor
+64M     bytes DRAM
+16384K  bytes Flash Memory
+Config Register points to FLASH
+
+Hardware Version is REV.C 
+CPLD Version is CPLD 001
+Bootrom Version is 320
+[Subslot 0] 24 FE Hardware Version is REV.C 
+[Subslot 1] 4 GE  Hardware Version is REV.C 
+
+<H3C>

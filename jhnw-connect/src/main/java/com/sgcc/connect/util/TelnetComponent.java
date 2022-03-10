@@ -1,11 +1,11 @@
-package com.sgcc.connect.method;
+package com.sgcc.connect.util;
 
 import org.apache.commons.net.telnet.TelnetClient;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 /**
@@ -27,6 +27,8 @@ public class TelnetComponent {
 
     private Thread outputThread;
 
+    public static String returnInformationFileName;
+
     /**
      * @return void
      * @Author MRC
@@ -46,6 +48,10 @@ public class TelnetComponent {
 
         inputStream = telnetClient.getInputStream();
         outputStream = telnetClient.getOutputStream();
+
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSzzZZ");//设置日期格式
+        String format = df.format(new Date());// new Date()为获取当前系统时间
+        returnInformationFileName = format +"";
 
         outputThread = new InputPrintThread(inputStream);
         //守护线程
@@ -71,7 +77,12 @@ public class TelnetComponent {
         outputStream.write(send.getBytes());
         outputStream.flush();
 
-        return "发送成功";
+        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSzzZZ");//设置日期格式
+        String format = df.format(new Date());// new Date()为获取当前系统时间
+        returnInformationFileName = format +"";
+
+        //根据 returnInformationFileName 为名的文件 读取出字符串
+        return returnInformationFileName;
     }
 
     /**
