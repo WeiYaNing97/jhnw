@@ -101,7 +101,7 @@ public class SwitchController {
             } else if (way.equalsIgnoreCase("telnet")) {
 
                 WebSocketService.sendMessage("badao", command);
-                commandString = telnetSwitchMethod.sendCommand(command);
+                commandString = telnetSwitchMethod.sendCommand(command,null);
             }
             //判断命令是否错误 错误为false 正确为true
             if (!Utils.judgmentError(commandString)) {

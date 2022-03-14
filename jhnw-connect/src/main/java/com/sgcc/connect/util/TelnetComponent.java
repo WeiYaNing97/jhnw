@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 
 /**
@@ -27,7 +28,7 @@ public class TelnetComponent {
 
     private Thread outputThread;
 
-    public static String returnInformationFileName;
+    public static String returnInformation;
 
     /**
      * @return void
@@ -49,9 +50,11 @@ public class TelnetComponent {
         inputStream = telnetClient.getInputStream();
         outputStream = telnetClient.getOutputStream();
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSzzZZ");//设置日期格式
-        String format = df.format(new Date());// new Date()为获取当前系统时间
-        returnInformationFileName = format +"";
+        try {
+            Thread.sleep(2*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         outputThread = new InputPrintThread(inputStream);
         //守护线程
@@ -68,6 +71,8 @@ public class TelnetComponent {
      **/
     public String sendCommand(String send) throws IOException {
 
+        returnInformation = "";
+
         //加入换行符
          send = send + "\n";
 
@@ -77,12 +82,15 @@ public class TelnetComponent {
         outputStream.write(send.getBytes());
         outputStream.flush();
 
-        SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSzzZZ");//设置日期格式
-        String format = df.format(new Date());// new Date()为获取当前系统时间
-        returnInformationFileName = format +"";
+        try {
+            Thread.sleep(2*1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        //根据 returnInformationFileName 为名的文件 读取出字符串
-        return returnInformationFileName;
+        System.err.print("\r\n"+returnInformation);
+
+        return returnInformation;
     }
 
     /**

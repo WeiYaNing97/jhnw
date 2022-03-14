@@ -28,7 +28,6 @@ public class InputPrintThread extends Thread {
         int w =0;
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
         try {
-
             //这里会发生阻塞，通过websocket推送进行
             while (!interrupted() && (num = inputStreamReader.read(bytes)) != -1) {
                 StringBuilder stringBuilder = new StringBuilder();
@@ -38,35 +37,9 @@ public class InputPrintThread extends Thread {
                     stringBuilder.append(ab);
                     //WebSocketServer.sendInfo(ab + "", SocketIdEnum.TELNET.getValue());
                 }
-                // 写入文件  文件名：TelnetComponent.returnInformationFileName
-                //System.err.print("\r\n"+stringBuilder.toString());
-                fileCreationWrite(TelnetComponent.returnInformationFileName,stringBuilder.toString());
 
+                TelnetComponent.returnInformation = TelnetComponent.returnInformation + stringBuilder.toString();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void fileCreationWrite(String returnInformationFileName,String returnString){
-        String lujing = "F:\\"+ returnInformationFileName +".txt";
-        File file = new File(lujing);
-        if (!file.getParentFile().exists()) {
-            file.getParentFile().mkdirs();
-        }
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            FileWriter fw = new FileWriter(file, true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(returnString);
-            bw.flush();
-            bw.close();
-            fw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

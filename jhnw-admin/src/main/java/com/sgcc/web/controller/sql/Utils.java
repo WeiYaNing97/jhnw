@@ -4,6 +4,7 @@ import com.sgcc.connect.translate.TranSlate;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -408,5 +409,67 @@ public class Utils {
         }
 
         return switchInformation;
+    }
+
+
+
+    /**
+    * @method: 读取字符串
+    * @Param: [file]
+    * @return: java.lang.String
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    public static String readFileContent(File file) {
+
+        try {
+
+            Thread.sleep(3*1000);
+            file.createNewFile();
+            FileInputStream fileInput = null;
+            fileInput = new FileInputStream(file);
+            int index=-1;
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((index = fileInput.read())!=-1) {
+                stringBuilder.append((char)index);
+            }
+            //System.err.print(stringBuilder.toString());
+            return stringBuilder.toString();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+    * @method: 写入文件
+    * @Param: [returnInformationFileName, returnString]
+    * @return: void
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    public void fileCreationWrite(String returnInformationFileName,String returnString){
+        String lujing = "F:\\"+ returnInformationFileName +".txt";
+        File file = new File(lujing);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileWriter fw = new FileWriter(file, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(returnString);
+            bw.flush();
+            bw.close();
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

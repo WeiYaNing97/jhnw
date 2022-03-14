@@ -219,7 +219,7 @@ public class SwitchInteraction {
                 }else if (way.equalsIgnoreCase("telnet")){
 
                     WebSocketService.sendMessage("badao",command);
-                    commandString = telnetSwitchMethod.sendCommand(command);
+                    commandString = telnetSwitchMethod.sendCommand(command,user_String.get("notFinished"));
                 }
                 //判断命令是否错误 错误为false 正确为true
                 if (!Utils.judgmentError(commandString)){
@@ -430,7 +430,7 @@ public class SwitchInteraction {
             }else if (way.equalsIgnoreCase("telnet")){
 
                 WebSocketService.sendMessage("badao",command);
-                command_string = telnetSwitchMethod.sendCommand(command);
+                command_string = telnetSwitchMethod.sendCommand(command,user_String.get("notFinished"));
             }
 
             command_string =Utils.trimString(command_string);
@@ -522,7 +522,7 @@ public class SwitchInteraction {
         }else if (way.equalsIgnoreCase("telnet")){
 
             WebSocketService.sendMessage("badao",command);
-            command_string = telnetSwitchMethod.sendCommand(command);
+            command_string = telnetSwitchMethod.sendCommand(command,notFinished);
         }
         //修整返回信息
         command_string =Utils.trimString(command_string);

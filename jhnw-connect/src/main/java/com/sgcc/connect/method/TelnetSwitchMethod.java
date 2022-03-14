@@ -23,6 +23,7 @@ public class TelnetSwitchMethod {
 
     private static TelnetComponent telnetComponent;
 
+    public String moreEcho = "---- More ----";
     /**
      * @Author MRC
      * @Description //TODO 打开telnet连接
@@ -39,9 +40,9 @@ public class TelnetSwitchMethod {
             e.printStackTrace();
         }
         if (open){
-            String namecommand = sendCommand(name);
+            String namecommand = sendCommand(name,null);
             if (namecommand!=null){
-                String passwordcommand = sendCommand(password);
+                String passwordcommand = sendCommand(password,null);
                 if (passwordcommand!=null){
                     return true;
                 }
@@ -64,8 +65,8 @@ public class TelnetSwitchMethod {
     }
 
     @GetMapping("sendCommand")
-    public String sendCommand(String common){
-        String returnStringCommand = dispatchOrders(common);
+    public String sendCommand(String common,String notFinished){
+        String returnStringCommand = dispatchOrders(common,notFinished);
 
         String endIdentifier = "<>,[]";
         String[] endIdentifierSplit = endIdentifier.split(",");
@@ -97,22 +98,22 @@ public class TelnetSwitchMethod {
      * @return java.lang.String
      **/
     @GetMapping("dispatchOrders")
-    public String dispatchOrders(String common) {
+    public String dispatchOrders(String common,String notFinished) {
+
+        if (notFinished != null){
+            moreEcho = notFinished;
+        }
 
         if (null == common) {
             return "error";
         }
         try {
-            String command = telnetComponent.sendCommand(common);
+            String readFileContent = telnetComponent.sendCommand(common);
             try {
 
-                File file = new File("F:\\"+ command +".txt");
-
-                String readFileContent = readFileContent(file);
-
-                while (readFileContent.indexOf("---- More ----")!=-1){
-                    readFileContent = readFileContent.replaceAll("---- More ----"," ");
-                    String sendCommon = dispatchOrders(" ");
+                while (readFileContent.indexOf(moreEcho)!=-1){
+                    readFileContent = readFileContent.replaceAll(moreEcho," ");
+                    String sendCommon = dispatchOrders(" ",moreEcho);
                     readFileContent = readFileContent + sendCommon;
                 }
                 return readFileContent;
@@ -145,28 +146,6 @@ public class TelnetSwitchMethod {
         }
 
         return "success";
-    }
-
-    public static String readFileContent(File file) {
-
-        try {
-
-            Thread.sleep(3*1000);
-            file.createNewFile();
-            FileInputStream fileInput = null;
-            fileInput = new FileInputStream(file);
-            int index=-1;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((index = fileInput.read())!=-1) {
-                stringBuilder.append((char)index);
-            }
-            System.err.print(stringBuilder.toString());
-            return stringBuilder.toString();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
     }
 
     public static void fileDelete(File file){

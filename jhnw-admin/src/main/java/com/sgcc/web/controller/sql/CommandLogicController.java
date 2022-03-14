@@ -57,7 +57,7 @@ public class CommandLogicController extends BaseController
             if (SwitchController.way.equalsIgnoreCase("ssh")){
                 command_string = SwitchController.connectMethod.sendCommand(command,null);
             }else if (SwitchController.way.equalsIgnoreCase("telnet")){
-                command_string = SwitchController.telnetSwitchMethod.sendCommand(command);
+                command_string = SwitchController.telnetSwitchMethod.sendCommand(command,null);
             }
             command_string =Utils.trimString(command_string);
             String[] split = command_string.split("\r\n");
@@ -110,7 +110,7 @@ public class CommandLogicController extends BaseController
         if (SwitchController.way.equalsIgnoreCase("ssh")){
             command_string = SwitchController.connectMethod.sendCommand(command,null);
         }else if (SwitchController.way.equalsIgnoreCase("telnet")){
-            command_string = SwitchController.telnetSwitchMethod.sendCommand(command);
+            command_string = SwitchController.telnetSwitchMethod.sendCommand(command,null);
         }
         //修整返回信息
         command_string =Utils.trimString(command_string);
