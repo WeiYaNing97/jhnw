@@ -1,8 +1,6 @@
 package com.sgcc.connect.method;
 
 import com.sgcc.connect.util.TelnetComponent;
-import org.apache.poi.ss.formula.functions.T;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
