@@ -31,6 +31,7 @@ public class TelnetSwitchMethod {
      **/
     @GetMapping("requestConnect")
     public boolean requestConnect(String ip,Integer port,String name,String password,String end){
+
         boolean open = open(ip, port);
         try {
             Thread.sleep(5*1000);

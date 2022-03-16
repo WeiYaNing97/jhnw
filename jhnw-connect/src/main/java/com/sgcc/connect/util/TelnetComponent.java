@@ -63,14 +63,16 @@ public class TelnetComponent {
         }
         outputStream.write(send.getBytes());
         outputStream.flush();
+
+
         try {
             Thread.sleep(2*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        returnInformation = removeGarbledCode(returnInformation);
 
+        returnInformation = removeGarbledCode(returnInformation);
 
         System.err.print("\r\n"+returnInformation);
 

@@ -420,11 +420,15 @@ public class Utils {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public static String readFileContent(File file) {
+    public static String readFileContent(String returnInformationFileName) {
 
         try {
+            File f = new File(".");
+            String absolutePath = f.getAbsolutePath();
+            absolutePath = absolutePath.substring(0, absolutePath.length() - 1);
+            absolutePath = absolutePath+"jhnw-connect\\src\\main\\java\\com\\sgcc\\connect\\txt\\"+returnInformationFileName+".txt";
+            File file = new File(absolutePath);
 
-            Thread.sleep(3*1000);
             file.createNewFile();
             FileInputStream fileInput = null;
             fileInput = new FileInputStream(file);
@@ -449,9 +453,14 @@ public class Utils {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public void fileCreationWrite(String returnInformationFileName,String returnString){
-        String lujing = "F:\\"+ returnInformationFileName +".txt";
-        File file = new File(lujing);
+    public static void fileCreationWrite(String returnInformationFileName,String returnString){
+        //获取项目当前路径
+        File f = new File(".");
+        String absolutePath = f.getAbsolutePath();
+        absolutePath = absolutePath.substring(0, absolutePath.length() - 1);
+        //编辑文件存储位置
+        absolutePath = absolutePath+"jhnw-connect\\src\\main\\java\\com\\sgcc\\connect\\txt\\"+returnInformationFileName+".txt";
+        File file = new File(absolutePath);
         if (!file.getParentFile().exists()) {
             file.getParentFile().mkdirs();
         }
