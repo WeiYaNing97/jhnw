@@ -329,7 +329,7 @@ public class Utils {
     }
 
     /**
-    * @method: 鉴别返回信息
+    * @method: 鉴别返回信息是否包含 登录信息
     * @Param: [switchInformation]
     * @return: java.lang.String
     * @Author: 天幕顽主

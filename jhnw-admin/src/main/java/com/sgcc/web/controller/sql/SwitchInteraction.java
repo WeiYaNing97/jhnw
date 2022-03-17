@@ -610,6 +610,7 @@ public class SwitchInteraction {
         List<String> problemScanLogic_stringList = selectProblemScanLogicById( user_String,connectMethod, telnetSwitchMethod,
                 return_information_array,"","",
                 0,first_problem_scanLogic_Id,null,true,0);// loop end
+
         if (problemScanLogic_stringList!=null){
             return problemScanLogic_stringList.get(0);
         }else {
@@ -1141,28 +1142,33 @@ public class SwitchInteraction {
 
     /**
      * @method: 插曲动态信息数据
-     * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接,
-     *                 交换机返回信息字符串, 单次分析提取数据，循环分析提取数据
-     *                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
+     * @Param: [Map<String,String> user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接
+     *                 boolean boo  分析成功 还是分析失败 true && false
+     *                 ProblemScanLogic problemScanLogic 分析信息
+     *                 String parameterString 单词提取信息
+     *                 ]
      * @return: void
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
     public void insertvalueInformationService(Map<String,String> user_String,boolean boo,ProblemScanLogic problemScanLogic,String parameterString){
 
+        //系统登录人 用户名
         String userName = GlobalVariable.userName;
         String nickName = GlobalVariable.nickName;
+        //系统登录人 手机号
         String phonenumber = GlobalVariable.phonenumber;
 
-
-
-        //第一条分析ID : 有问题  没问题
+        //下一条分析ID : 有问题  没问题
         String getNextId = "";
         //问题索引
         String problemId ="";
         //解决问题命令ID
         String comId ="";
-        //分析结果 true  or  false
+
+        //根据分析结果是 true  还是  false
+        //得到应该执行的分支
+        //下一条分析ID   问题索引     解决问题命令ID
         if (boo){
             getNextId = problemScanLogic.gettNextId();
             problemId = problemScanLogic.gettProblemId();
@@ -1173,18 +1179,29 @@ public class SwitchInteraction {
             comId = problemScanLogic.getfComId();
         }
 
+        //下一条分析ID  有问题   没问题   完成
         switch (getNextId){
             case "有问题":
             case "没问题":
-                //参数的 第一个ID
+            case "完成":
+                //参数组中的 第一个参数ID  默认为 0
                 Long outId = 0l;
+
+                //提取信息 如果不为空 则有参数
                 if (parameterString!=null && !parameterString.equals("")){
+                    //几个参数中间的 参数是 以  "=:=" 来分割的
+                    //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
                     String[] parameterStringsplit = parameterString.split("=:=");
+
+                    //判断提取参数 是否为空
                     if (parameterStringsplit.length>0){
+                        //创建 参数 实体类
                         ValueInformation valueInformation = new ValueInformation();
+
+                        //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
+                        //所以 参数组 要倒序插入
                         for (int number=parameterStringsplit.length-1;number>0;number--){
                             //插入参数
-
                             //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
                             String setDynamicInformation=parameterStringsplit[number];
                             valueInformation.setDisplayInformation(setDynamicInformation);//动态信息(显示
@@ -1205,6 +1222,8 @@ public class SwitchInteraction {
                 switchProblem.setSwitchIp(user_String.get("ip")); // ip
                 switchProblem.setSwitchName(user_String.get("name")); //name
                 switchProblem.setSwitchPassword(user_String.get("password")); //password
+
+
                 switchProblem.setProblemId(problemId); // 问题索引
                 switchProblem.setComId(comId);//命令索引
                 switchProblem.setValueId(outId);//参数索引
@@ -1219,13 +1238,14 @@ public class SwitchInteraction {
 
     /**
      * @method: 分析结果正确
-     * @Param: [way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接,
+     * @Param: [user_String 用户信息, connectMethod ssh连接, telnetSwitchMethod telnet连接,
      *                problemScanLogic 扫描逻辑表数据信息, num 交换机返回信息索引位置(光标)]
      * @return: java.lang.String 有结果返回结果，没结果返回下一条分析ID
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
     public String analysis_true(Map<String,String> user_String,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,ProblemScanLogic problemScanLogic,int num){
+        //连接方式
         String way = user_String.get("mode");
         // 设置返回信息 初始化为空
         String analysis_true = null;
@@ -1241,16 +1261,21 @@ public class SwitchInteraction {
                 && !tNextId_string.equals("")){
             //匹配成功则返回 true下一条ID
             int line_n = num;
+            //  wh300011   去除 前3位  得到 下一条 分析 ID
             long tNextId_Integer= Integer.valueOf(problemScanLogic.gettNextId().substring(3,problemScanLogic.gettNextId().length())).longValue();
+
+            //返回 下一条分析ID  和  光标位置
             return tNextId_Integer+"=:="+line_n;
+
         }else {
-            //如果 下一条分析ID 包含  没问题 有问题 继续
+            //如果 下一条分析ID 包含  没问题 有问题 继续  完成
             switch (tNextId_string){
                 //true 存在问题——问题：确认存在问题，是否返回看命令id
                 case "有问题":
                     //返回 下一条分析ID  和  交换机返回信息索引位置(光标)
                     Integer tComId =Integer.valueOf(problemScanLogic.gettComId());
                     Integer tProblemIdx =Integer.valueOf(problemScanLogic.gettProblemId());
+
                     if (tComId==0){
                         return  analysis_true = "有问题=:="+"问题索引=:="+tProblemIdx+"=:=tComId=:=0";
                     }else {
