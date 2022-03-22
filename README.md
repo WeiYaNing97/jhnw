@@ -13,3 +13,7 @@ port=23
 http://localhost/dev-api/sql/switch_problem/getUnresolvedProblemInformationByData
 ##解决问题(一个或者多个问题)
 http://localhost/dev-api/sql/SolveProblemController/batchSolution
+
+##文件上传
+###路径
+Utils  ： fileCreationWrite

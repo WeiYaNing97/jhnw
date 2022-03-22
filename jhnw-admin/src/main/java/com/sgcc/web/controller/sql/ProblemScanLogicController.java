@@ -558,8 +558,6 @@ public class ProblemScanLogicController extends BaseController
         return false;
     }
 
-
-
     /**
      * 查询问题扫描逻辑列表
      */
