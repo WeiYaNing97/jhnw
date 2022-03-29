@@ -1,18 +1,19 @@
 package com.sgcc.web.controller.sql;
 
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.common.enums.BusinessType;
+
+import com.sgcc.connect.translate.Stack;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ProblemScanLogic;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -67,20 +68,137 @@ public class DefinitionProblemController extends BaseController {
         return problemScanLogic;
     }
 
-    @RequestMapping("/definitionProblem")
-    public AjaxResult DefinitionProblem(CommandLogic commandLogic,List<ProblemScanLogic> problemScanLogicList){
 
-        commandLogic = insertCommandLogic(commandLogic);
+    @RequestMapping("definitionProblem")
+    public void definitionProblem(){//@RequestBody List<ProblemScanLogic> problemScanLogicList
 
-        for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-            problemScanLogic = insertProblemScanLogic(problemScanLogic);
+        List<ProblemScanLogic> pojoList = new ArrayList<>();
+
+        CommandLogic commandLogic = new CommandLogic();
+        ProblemScanLogic problemScanLogic = new ProblemScanLogic();
+
+        /*commandLogic.setCommand("display cu");
+        commandLogic.setResultCheckId(0l);
+        pojoList.add(commandLogic);*/
+
+        commandLogic = new CommandLogic();
+        //匹配成功
+        problemScanLogic.setMatched("精确匹配");
+        problemScanLogic.setRelativePosition("null");
+        problemScanLogic.setMatchContent("local-user");
+        problemScanLogic.settNextId("成功");
+        pojoList.add(problemScanLogic);
+        problemScanLogic = new ProblemScanLogic();
+        //取词
+        problemScanLogic.setAction("取词");
+        problemScanLogic.setRelativePosition("0,0");
+        problemScanLogic.setMatchContent("local-user");
+        problemScanLogic.setMatched("null");
+        problemScanLogic.settNextId("null");
+        problemScanLogic.setrPosition(1);
+        problemScanLogic.setLength("1W");
+        pojoList.add(problemScanLogic);
+        problemScanLogic = new ProblemScanLogic();
+        //匹配成功
+        problemScanLogic.setMatched("精确匹配");
+        problemScanLogic.setRelativePosition("1,0");
+        problemScanLogic.setMatchContent("password simple");
+        problemScanLogic.settNextId("成功");
+        pojoList.add(problemScanLogic);
+        problemScanLogic = new ProblemScanLogic();
+        //取词
+        problemScanLogic.setAction("取词");
+        problemScanLogic.setRelativePosition("0,0");
+        problemScanLogic.setMatchContent("password simple");
+        problemScanLogic.setMatched("null");
+        problemScanLogic.settNextId("null");
+        problemScanLogic.setrPosition(1);
+        problemScanLogic.setLength("1W");
+        pojoList.add(problemScanLogic);
+        problemScanLogic = new ProblemScanLogic();
+        //匹配失败
+        problemScanLogic.settNextId("失败");
+        pojoList.add(problemScanLogic);
+        problemScanLogic = new ProblemScanLogic();
+        //取词
+        problemScanLogic.setAction("取词");
+        problemScanLogic.setRelativePosition("0,0");
+        problemScanLogic.setMatchContent("password simple123456");
+        problemScanLogic.setMatched("null");
+        problemScanLogic.settNextId("null");
+        problemScanLogic.setrPosition(1);
+        problemScanLogic.setLength("1W");
+        pojoList.add(problemScanLogic);
+        problemScanLogic = new ProblemScanLogic();
+        //匹配失败
+        problemScanLogic.settNextId("失败");
+        pojoList.add(problemScanLogic);
+        problemScanLogic = new ProblemScanLogic();
+        //比较
+        problemScanLogic.setAction("取词");
+        problemScanLogic.setRelativePosition("0,0");
+        problemScanLogic.setMatchContent("比较");
+        problemScanLogic.setMatched("null");
+        problemScanLogic.settNextId("null");
+        problemScanLogic.setrPosition(1);
+        problemScanLogic.setLength("1W");
+        pojoList.add(problemScanLogic);
+
+        //上一条ID
+        Long oneId = 0l;
+        //当前插入条ID
+        Long twoId = 0l;
+        //是否失败
+        String SuccessOrFailure = null;
+
+        int number = 0;
+        Stack stack = new Stack();
+        for (ProblemScanLogic pojo:pojoList){
+            oneId = twoId;
+            if (pojo.gettNextId().equals("成功")){
+                int i = problemScanLogicService.insertProblemScanLogic(pojo);
+                twoId = pojo.getId();
+                stack.push(twoId);
+                if (oneId!=0){
+                    ProblemScanLogic problemScanLogic1 = problemScanLogicService.selectProblemScanLogicById(oneId);
+                    problemScanLogic1.settNextId(twoId.toString());
+                    int i1 = problemScanLogicService.updateProblemScanLogic(problemScanLogic1);
+                }
+                SuccessOrFailure = "成功"+pojo.getId();
+            }else if (pojo.gettNextId().equals("失败")){
+                oneId = (Long)stack.pop();
+                ProblemScanLogic problemScanLogic1 = problemScanLogicService.selectProblemScanLogicById(oneId);
+                problemScanLogic1.setfNextId(pojo.gettNextId());
+                int i1 = problemScanLogicService.updateProblemScanLogic(problemScanLogic1);
+                SuccessOrFailure = "失败"+problemScanLogic1.getId();
+            } else if (pojo.gettNextId().equals("null")){
+
+                if (SuccessOrFailure.indexOf("成功")!=-1 || SuccessOrFailure.indexOf("失败")!=-1){
+                    int i = problemScanLogicService.insertProblemScanLogic(pojo);
+                    twoId = pojo.getId();
+                    String substring = SuccessOrFailure.substring(2, SuccessOrFailure.length());
+                    Long LongId = Long.valueOf(substring).longValue();
+                    ProblemScanLogic problemScanLogic1 = problemScanLogicService.selectProblemScanLogicById(LongId);
+                    if (SuccessOrFailure.indexOf("成功")!=-1){
+                        problemScanLogic1.settNextId(twoId.toString());
+                    }else if (SuccessOrFailure.indexOf("失败")!=-1){
+                        problemScanLogic1.setfNextId(twoId.toString());
+                    }
+                    int i1 = problemScanLogicService.updateProblemScanLogic(problemScanLogic1);
+                }else {
+                    int i = problemScanLogicService.insertProblemScanLogic(pojo);
+                    twoId = pojo.getId();
+                    if (oneId!=0){
+                        ProblemScanLogic problemScanLogic1 = problemScanLogicService.selectProblemScanLogicById(oneId);
+                        problemScanLogic1.settNextId(twoId.toString());
+                        int i1 = problemScanLogicService.updateProblemScanLogic(problemScanLogic1);
+                    }
+                }
+
+                SuccessOrFailure = null;
+            }
         }
 
-        commandLogic.setProblemId("分析ID");
-
-        commandLogic = updateCommandLogic(commandLogic);
-
-        return null;
     }
 
 }

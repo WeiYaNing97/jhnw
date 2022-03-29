@@ -71,7 +71,7 @@ public class Utils {
     }
 
     /**
-    * @method: 判断是否为错误命令 或是否执行成功
+    * @method: 判断是否为错误命令 或是否执行成功  简单判断
     * @Param: [str] 交换机返回信息
     * @return: boolean  判断命令是否错误 错误为false 正确为true
     * @E-mail: WeiYaNing97@163.com
