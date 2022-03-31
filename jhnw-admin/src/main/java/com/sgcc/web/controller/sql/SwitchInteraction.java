@@ -377,7 +377,7 @@ public class SwitchInteraction {
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
         List<String> strings = selectProblemScanLogicById(user_String, connectMethod, telnetSwitchMethod,
                 return_information_array, "", "",
-                0, first_problem_scanLogic_Id, null,true,0);// loop end
+                0, first_problem_scanLogic_Id, null,0);// loop end
 
         return strings.get(0);
     }
@@ -609,7 +609,7 @@ public class SwitchInteraction {
         //根据ID去分析
         List<String> problemScanLogic_stringList = selectProblemScanLogicById( user_String,connectMethod, telnetSwitchMethod,
                 return_information_array,"","",
-                0,first_problem_scanLogic_Id,null,true,0);// loop end
+                0,first_problem_scanLogic_Id,null,0);// loop end
 
         if (problemScanLogic_stringList!=null){
             return problemScanLogic_stringList.get(0);
@@ -624,7 +624,7 @@ public class SwitchInteraction {
      * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接,
      *                 交换机返回信息字符串, 单次分析提取数据，循环分析提取数据
      *                 line_n:交换机返回信息字符串分析索引位置(光标)，firstID:第一条分析ID， currentID:当前分析ID ，
-     *                 logic_true_false:上一条分析结果true false ，insertsInteger：插入问题数据次数、为了“完成”]
+     *                 insertsInteger：插入问题数据次数、为了“完成”]
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      * 用户信息 连接方式 ssh、telnet
@@ -636,7 +636,7 @@ public class SwitchInteraction {
 
                                                    String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                                                    int line_n, Long firstID, Long currentID,
-                                                   boolean logic_true_false,Integer insertsInteger) {
+                                                   Integer insertsInteger) {
         //第一条分析ID
         Long id = firstID;
         //如果当前分析ID不为空，则用当前分析ID
@@ -680,31 +680,14 @@ public class SwitchInteraction {
             String action = problemScanLogic.getAction();
             //比较分析
             String compare = problemScanLogic.getCompare();
-            //与或 逻辑
-            String logic = problemScanLogic.getLogic();
-            // logic_true_false  上一分析的逻辑
 
             //匹配逻辑
             if (!matched.equals("null")){
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, string_line_n, matchContent);
 
-                //根据 与或逻辑
-                //and  和  or 都是与上一条分析结果的 与或逻辑处理
-                //与或逻辑 默认为  错误 fale  匹配成功还是 失败
-                boolean matched_true_false = false;
-                // 如果有逻辑 则说明和上一层分析有关系  通过 与或逻辑及上一层分析结果 得到 最终逻辑
-                if (logic.equalsIgnoreCase("and")){
-                    matched_true_false = logic_true_false && matchAnalysis_true_false;
-                }else if (logic.equalsIgnoreCase("or")){
-                    matched_true_false = logic_true_false || matchAnalysis_true_false;
-                }else {
-                //如果没有与或逻辑 则 说明与上一层分析没有关系 则 当前分析结果 为 最终逻辑
-                    matched_true_false = matchAnalysis_true_false;
-                }
-
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
-                if (matched_true_false){
+                if (matchAnalysis_true_false){
                     //执行 成功 逻辑
                     //得到：下一条分析ID+"=:="+当前行数
                     //（有问题-问题索引-命令索引
@@ -734,7 +717,7 @@ public class SwitchInteraction {
                         //logic_true_false:上一条分析结果true false ，insertsInteger：累计插入问题数据次数、为了“完成”
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),true,insertsInteger);
+                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),insertsInteger);
 
                         //如果返回信息为null
                         if (ProblemScanLogic_returnstring!=null){
@@ -770,7 +753,7 @@ public class SwitchInteraction {
                             firstID = problemScanLogic.getCycleStartId();
                             List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,true,insertsInteger);
+                                    line_n,firstID,null,insertsInteger);
                             if (loop_string!=null){
                                 extractInformation_string = loop_string.get(0);
                                 return loop_string;
@@ -808,7 +791,7 @@ public class SwitchInteraction {
                             //返回 {总截取信息，true/false流程返回信息}
                             List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                    line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),false,insertsInteger);
+                                    line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),insertsInteger);
                             //如果返回信息为null
                             if (ProblemScanLogic_returnstring!=null){
                                 //内分析传到上一层
@@ -831,7 +814,7 @@ public class SwitchInteraction {
                                 firstID = problemScanLogic.getCycleStartId();
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,false,insertsInteger);
+                                        line_n,firstID,null,insertsInteger);
                                 if (loop_string!=null){
                                     extractInformation_string = loop_string.get(0);
                                     return loop_string;
@@ -872,19 +855,8 @@ public class SwitchInteraction {
                         return_information_array[num], matchContent, //返回信息的一行 提取关键字
                         problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
 
-                //与或逻辑
-                boolean action_true_false = false;
-                if (logic.equalsIgnoreCase("and")){
-                    action_true_false = logic_true_false && wordSelection_string!=null;
-                }else if (logic.equalsIgnoreCase("or")){
-                    action_true_false = logic_true_false || wordSelection_string!=null;
-                }else {
-                    action_true_false = wordSelection_string!=null;
-                }
-
-
                 //取词结果 不为空 为正确
-                if (action_true_false){
+                if (wordSelection_string!=null){
                     extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+ wordSelection_string+"=:=";
                     current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
                     //分析结果为 true 有结果返回结果，没结果返回下一条分析ID
@@ -901,7 +873,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),true,insertsInteger);
+                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -922,7 +894,7 @@ public class SwitchInteraction {
                                 firstID = problemScanLogic.getCycleStartId();
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,true,insertsInteger);
+                                        line_n,firstID,null,insertsInteger);
                                 if (loop_string!=null){
                                     extractInformation_string = loop_string.get(0);
                                     return loop_string;
@@ -964,7 +936,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),false,insertsInteger);
+                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -982,7 +954,7 @@ public class SwitchInteraction {
                             firstID = problemScanLogic.getCycleStartId();
                             List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,false,insertsInteger);
+                                    line_n,firstID,null,insertsInteger);
                             if (loop_string!=null){
                                 extractInformation_string = loop_string.get(0);
                                 return loop_string;
@@ -1017,17 +989,7 @@ public class SwitchInteraction {
                 }
                 boolean compare_boolean = Utils.compareVersion(remove_content, compare, problemScanLogic.getContent());
 
-                //与或逻辑
-                boolean compare_true_false = false;
-                if (logic.equalsIgnoreCase("and")){
-                    compare_true_false = logic_true_false && compare_boolean;
-                }else if (logic.equalsIgnoreCase("or")){
-                    compare_true_false = logic_true_false || compare_boolean;
-                }else {
-                    compare_true_false = compare_boolean;
-                }
-
-                if (compare_true_false){
+                if (compare_boolean){
                     String analysis_true_string = analysis_true(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
 
                     //不包含：有问题无问题和待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
@@ -1041,7 +1003,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),true,insertsInteger);
+                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -1061,7 +1023,7 @@ public class SwitchInteraction {
 
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,true,insertsInteger);
+                                        line_n,firstID,null,insertsInteger);
                                 if (loop_string!=null){
                                     extractInformation_string = loop_string.get(0);
                                     return loop_string;
@@ -1096,7 +1058,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),false,insertsInteger);
+                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -1116,7 +1078,7 @@ public class SwitchInteraction {
 
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,false,insertsInteger);
+                                        line_n,firstID,null,insertsInteger);
                                 if (loop_string!=null){
                                     extractInformation_string = loop_string.get(0);
                                     return loop_string;

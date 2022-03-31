@@ -18,10 +18,6 @@ public class ProblemScanLogic extends BaseEntity
     /** 主键索引 */
     private Long id;
 
-    /** 逻辑 */
-    @Excel(name = "逻辑")
-    private String logic;
-
     /** 匹配 */
     @Excel(name = "匹配")
     private String matched;
@@ -74,6 +70,14 @@ public class ProblemScanLogic extends BaseEntity
     @Excel(name = "true问题索引")
     private String tProblemId;
 
+
+    /** false行号 */
+    @Excel(name = "false行号")
+    private String fLine;
+    /** true行号 */
+    @Excel(name = "true行号")
+    private String tLine;
+
     /** false下一条分析索引 */
     @Excel(name = "false下一条分析索引")
     private String fNextId;
@@ -94,210 +98,203 @@ public class ProblemScanLogic extends BaseEntity
     @Excel(name = "循环起始ID")
     private Long cycleStartId;
 
-    public void setId(Long id) 
-    {
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Long getId() 
-    {
-        return id;
-    }
-    public void setLogic(String logic) 
-    {
-        this.logic = logic;
+    public String getMatched() {
+        return matched;
     }
 
-    public String getLogic() 
-    {
-        return logic;
-    }
-    public void setMatched(String matched) 
-    {
+    public void setMatched(String matched) {
         this.matched = matched;
     }
 
-    public String getMatched() 
-    {
-        return matched;
+    public String getRelativePosition() {
+        return relativePosition;
     }
-    public void setRelativePosition(String relativePosition) 
-    {
+
+    public void setRelativePosition(String relativePosition) {
         this.relativePosition = relativePosition;
     }
 
-    public String getRelativePosition() 
-    {
-        return relativePosition;
+    public String getMatchContent() {
+        return matchContent;
     }
-    public void setMatchContent(String matchContent) 
-    {
+
+    public void setMatchContent(String matchContent) {
         this.matchContent = matchContent;
     }
 
-    public String getMatchContent() 
-    {
-        return matchContent;
+    public String getAction() {
+        return action;
     }
-    public void setAction(String action) 
-    {
+
+    public void setAction(String action) {
         this.action = action;
     }
 
-    public String getAction() 
-    {
-        return action;
+    public Integer getrPosition() {
+        return rPosition;
     }
-    public void setrPosition(Integer rPosition) 
-    {
+
+    public void setrPosition(Integer rPosition) {
         this.rPosition = rPosition;
     }
 
-    public Integer getrPosition() 
-    {
-        return rPosition;
+    public String getLength() {
+        return length;
     }
-    public void setLength(String length) 
-    {
+
+    public void setLength(String length) {
         this.length = length;
     }
 
-    public String getLength() 
-    {
-        return length;
+    public String getExhibit() {
+        return exhibit;
     }
-    public void setExhibit(String exhibit) 
-    {
+
+    public void setExhibit(String exhibit) {
         this.exhibit = exhibit;
     }
 
-    public String getExhibit() 
-    {
-        return exhibit;
+    public String getWordName() {
+        return wordName;
     }
-    public void setWordName(String wordName) 
-    {
+
+    public void setWordName(String wordName) {
         this.wordName = wordName;
     }
 
-    public String getWordName() 
-    {
-        return wordName;
+    public String getCompare() {
+        return compare;
     }
-    public void setCompare(String compare) 
-    {
+
+    public void setCompare(String compare) {
         this.compare = compare;
     }
 
-    public String getCompare() 
-    {
-        return compare;
+    public String getContent() {
+        return content;
     }
-    public void setContent(String content) 
-    {
+
+    public void setContent(String content) {
         this.content = content;
     }
 
-    public String getContent() 
-    {
-        return content;
+    public String gettNextId() {
+        return tNextId;
     }
-    public void settNextId(String tNextId) 
-    {
+
+    public void settNextId(String tNextId) {
         this.tNextId = tNextId;
     }
 
-    public String gettNextId() 
-    {
-        return tNextId;
+    public String gettComId() {
+        return tComId;
     }
-    public void settComId(String tComId) 
-    {
+
+    public void settComId(String tComId) {
         this.tComId = tComId;
     }
 
-    public String gettComId() 
-    {
-        return tComId;
+    public String gettProblemId() {
+        return tProblemId;
     }
-    public void settProblemId(String tProblemId) 
-    {
+
+    public void settProblemId(String tProblemId) {
         this.tProblemId = tProblemId;
     }
 
-    public String gettProblemId() 
-    {
-        return tProblemId;
+    public String getfLine() {
+        return fLine;
     }
-    public void setfNextId(String fNextId) 
-    {
+
+    public void setfLine(String fLine) {
+        this.fLine = fLine;
+    }
+
+    public String gettLine() {
+        return tLine;
+    }
+
+    public void settLine(String tLine) {
+        this.tLine = tLine;
+    }
+
+    public String getfNextId() {
+        return fNextId;
+    }
+
+    public void setfNextId(String fNextId) {
         this.fNextId = fNextId;
     }
 
-    public String getfNextId() 
-    {
-        return fNextId;
+    public String getfComId() {
+        return fComId;
     }
-    public void setfComId(String fComId) 
-    {
+
+    public void setfComId(String fComId) {
         this.fComId = fComId;
     }
 
-    public String getfComId() 
-    {
-        return fComId;
+    public String getfProblemId() {
+        return fProblemId;
     }
-    public void setfProblemId(String fProblemId) 
-    {
+
+    public void setfProblemId(String fProblemId) {
         this.fProblemId = fProblemId;
     }
 
-    public String getfProblemId() 
-    {
-        return fProblemId;
+    public Long getReturnCmdId() {
+        return returnCmdId;
     }
-    public void setReturnCmdId(Long returnCmdId) 
-    {
+
+    public void setReturnCmdId(Long returnCmdId) {
         this.returnCmdId = returnCmdId;
     }
 
-    public Long getReturnCmdId() 
-    {
-        return returnCmdId;
-    }
-    public void setCycleStartId(Long cycleStartId) 
-    {
-        this.cycleStartId = cycleStartId;
+    public Long getCycleStartId() {
+        return cycleStartId;
     }
 
-    public Long getCycleStartId() 
-    {
-        return cycleStartId;
+    public void setCycleStartId(Long cycleStartId) {
+        this.cycleStartId = cycleStartId;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("logic", getLogic())
-            .append("matched", getMatched())
-            .append("relativePosition", getRelativePosition())
-            .append("matchContent", getMatchContent())
-            .append("action", getAction())
-            .append("rPosition", getrPosition())
-            .append("length", getLength())
-            .append("exhibit", getExhibit())
-            .append("wordName", getWordName())
-            .append("compare", getCompare())
-            .append("content", getContent())
-            .append("tNextId", gettNextId())
-            .append("tComId", gettComId())
-            .append("tProblemId", gettProblemId())
-            .append("fNextId", getfNextId())
-            .append("fComId", getfComId())
-            .append("fProblemId", getfProblemId())
-            .append("returnCmdId", getReturnCmdId())
-            .append("cycleStartId", getCycleStartId())
-            .toString();
+        return "ProblemScanLogic{" +
+                "id=" + id +
+                ", matched='" + matched + '\'' +
+                ", relativePosition='" + relativePosition + '\'' +
+                ", matchContent='" + matchContent + '\'' +
+                ", action='" + action + '\'' +
+                ", rPosition=" + rPosition +
+                ", length='" + length + '\'' +
+                ", exhibit='" + exhibit + '\'' +
+                ", wordName='" + wordName + '\'' +
+                ", compare='" + compare + '\'' +
+                ", content='" + content + '\'' +
+                ", tNextId='" + tNextId + '\'' +
+                ", tComId='" + tComId + '\'' +
+                ", tProblemId='" + tProblemId + '\'' +
+                ", fLine='" + fLine + '\'' +
+                ", tLine='" + tLine + '\'' +
+                ", fNextId='" + fNextId + '\'' +
+                ", fComId='" + fComId + '\'' +
+                ", fProblemId='" + fProblemId + '\'' +
+                ", returnCmdId=" + returnCmdId +
+                ", cycleStartId=" + cycleStartId +
+                '}';
     }
 }

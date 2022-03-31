@@ -4,9 +4,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sgcc.sql.mapper.ProblemScanLogicMapper">
     
-    <resultMap type="ProblemScanLogic" id="ProblemScanLogicResult">
+    <resultMap type="com.sgcc.sql.domain.ProblemScanLogic" id="ProblemScanLogicResult">
         <result property="id"    column="id"    />
-        <result property="logic"    column="logic"    />
         <result property="matched"    column="matched"    />
         <result property="relativePosition"    column="relative_position"    />
         <result property="matchContent"    column="match_content"    />
@@ -17,6 +16,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="wordName"    column="word_name"    />
         <result property="compare"    column="compare"    />
         <result property="content"    column="content"    />
+        <result property="fLine"    column="f_line"    />
+        <result property="tLine"    column="t_Line"    />
         <result property="tNextId"    column="t_next_id"    />
         <result property="tComId"    column="t_com_id"    />
         <result property="tProblemId"    column="t_problem_id"    />
@@ -28,13 +29,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectProblemScanLogicVo">
-        select id, logic, matched, relative_position, match_content, action, r_position, length, exhibit, word_name, compare, content, t_next_id, t_com_id, t_problem_id, f_next_id, f_com_id, f_problem_id, return_cmd_id, cycle_start_id from problem_scan_logic
+        select id, matched, relative_position, match_content, action, r_position, length, exhibit, word_name, compare, content,
+        f_line,t_Line,t_next_id, t_com_id, t_problem_id, f_next_id, f_com_id, f_problem_id, return_cmd_id, cycle_start_id from problem_scan_logic
     </sql>
 
-    <select id="selectProblemScanLogicList" parameterType="ProblemScanLogic" resultMap="ProblemScanLogicResult">
+    <select id="selectProblemScanLogicList" parameterType="com.sgcc.sql.domain.ProblemScanLogic" resultMap="ProblemScanLogicResult">
         <include refid="selectProblemScanLogicVo"/>
-        <where>  
-            <if test="logic != null  and logic != ''"> and logic = #{logic}</if>
+        <where>
             <if test="matched != null  and matched != ''"> and matched = #{matched}</if>
             <if test="relativePosition != null  and relativePosition != ''"> and relative_position = #{relativePosition}</if>
             <if test="matchContent != null  and matchContent != ''"> and match_content = #{matchContent}</if>
@@ -45,6 +46,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="wordName != null  and wordName != ''"> and word_name like concat('%', #{wordName}, '%')</if>
             <if test="compare != null  and compare != ''"> and compare = #{compare}</if>
             <if test="content != null  and content != ''"> and content = #{content}</if>
+
+            <if test="fLine != null  and fLine != ''"> and f_line = #{fLine}</if>
+            <if test="tLine != null  and tLine != ''"> and t_line = #{tLine}</if>
+
             <if test="tNextId != null  and tNextId != ''"> and t_next_id = #{tNextId}</if>
             <if test="tComId != null  and tComId != ''"> and t_com_id = #{tComId}</if>
             <if test="tProblemId != null  and tProblemId != ''"> and t_problem_id = #{tProblemId}</if>
@@ -61,10 +66,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
         
-    <insert id="insertProblemScanLogic" parameterType="ProblemScanLogic" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertProblemScanLogic" parameterType="com.sgcc.sql.domain.ProblemScanLogic" useGeneratedKeys="true" keyProperty="id">
         insert into problem_scan_logic
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="logic != null">logic,</if>
             <if test="matched != null">matched,</if>
             <if test="relativePosition != null and relativePosition != ''">relative_position,</if>
             <if test="matchContent != null">match_content,</if>
@@ -75,6 +79,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="wordName != null">word_name,</if>
             <if test="compare != null">compare,</if>
             <if test="content != null">content,</if>
+            <if test="fLine != null">f_line,</if>
+            <if test="tLine != null">t_line,</if>
             <if test="tNextId != null">t_next_id,</if>
             <if test="tComId != null">t_com_id,</if>
             <if test="tProblemId != null">t_problem_id,</if>
@@ -85,7 +91,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cycleStartId != null">cycle_start_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="logic != null">#{logic},</if>
             <if test="matched != null">#{matched},</if>
             <if test="relativePosition != null and relativePosition != ''">#{relativePosition},</if>
             <if test="matchContent != null">#{matchContent},</if>
@@ -96,6 +101,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="wordName != null">#{wordName},</if>
             <if test="compare != null">#{compare},</if>
             <if test="content != null">#{content},</if>
+            <if test="fLine != null">#{fLine},</if>
+            <if test="tLine != null">#{tLine},</if>
             <if test="tNextId != null">#{tNextId},</if>
             <if test="tComId != null">#{tComId},</if>
             <if test="tProblemId != null">#{tProblemId},</if>
@@ -107,10 +114,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
-    <update id="updateProblemScanLogic" parameterType="ProblemScanLogic">
+    <update id="updateProblemScanLogic" parameterType="com.sgcc.sql.domain.ProblemScanLogic">
         update problem_scan_logic
         <trim prefix="SET" suffixOverrides=",">
-            <if test="logic != null">logic = #{logic},</if>
             <if test="matched != null">matched = #{matched},</if>
             <if test="relativePosition != null and relativePosition != ''">relative_position = #{relativePosition},</if>
             <if test="matchContent != null">match_content = #{matchContent},</if>
@@ -121,6 +127,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="wordName != null">word_name = #{wordName},</if>
             <if test="compare != null">compare = #{compare},</if>
             <if test="content != null">content = #{content},</if>
+            <if test="fLine != null">f_line = #{fLine},</if>
+            <if test="tLine != null">t_line = #{tLine},</if>
             <if test="tNextId != null">t_next_id = #{tNextId},</if>
             <if test="tComId != null">t_com_id = #{tComId},</if>
             <if test="tProblemId != null">t_problem_id = #{tProblemId},</if>
