@@ -17,7 +17,7 @@ public interface IProblemScanLogicService
      * @param id 问题扫描逻辑主键
      * @return 问题扫描逻辑
      */
-    public ProblemScanLogic selectProblemScanLogicById(Long id);
+    public ProblemScanLogic selectProblemScanLogicById(String id);
 
     /**
      * 查询问题扫描逻辑列表

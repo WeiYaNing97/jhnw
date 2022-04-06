@@ -28,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectCommandLogicById" parameterType="Long" resultMap="CommandLogicResult">
+    <select id="selectCommandLogicById" parameterType="String" resultMap="CommandLogicResult">
         <include refid="selectCommandLogicVo"/>
         where id = #{id}
     </select>
@@ -63,7 +63,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteCommandLogicById" parameterType="Long">
+    <delete id="deleteCommandLogicById" parameterType="String">
         delete from command_logic where id = #{id}
     </delete>
 

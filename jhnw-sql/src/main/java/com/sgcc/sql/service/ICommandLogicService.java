@@ -18,7 +18,7 @@ public interface ICommandLogicService
      * @param id 命令逻辑主键
      * @return 命令逻辑
      */
-    public CommandLogic selectCommandLogicById(Long id);
+    public CommandLogic selectCommandLogicById(String id);
 
     /**
      * 查询命令逻辑列表

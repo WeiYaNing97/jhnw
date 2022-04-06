@@ -16,7 +16,7 @@ public class ProblemScanLogic extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键索引 */
-    private Long id;
+    private String id;
 
     /** 匹配 */
     @Excel(name = "匹配")
@@ -103,11 +103,11 @@ public class ProblemScanLogic extends BaseEntity
         return serialVersionUID;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

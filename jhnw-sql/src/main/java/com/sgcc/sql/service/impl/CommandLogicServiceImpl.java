@@ -28,7 +28,7 @@ public class CommandLogicServiceImpl implements ICommandLogicService
      * @return 命令逻辑
      */
     @Override
-    public CommandLogic selectCommandLogicById(Long id)
+    public CommandLogic selectCommandLogicById(String id)
     {
         return commandLogicMapper.selectCommandLogicById(id);
     }

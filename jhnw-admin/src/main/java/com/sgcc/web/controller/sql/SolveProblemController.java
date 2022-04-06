@@ -82,7 +82,7 @@ public class SolveProblemController {
                 String[] commandValueSplit = commandValue.split(":");
                 //传参 问题id 和 参数ID
                 //返回 命令集合 的 参数集合
-                AjaxResult ajaxResult = queryParameterSet(Long.valueOf(commandValueSplit[0]).longValue(), Long.valueOf(commandValueSplit[1]).longValue());
+                AjaxResult ajaxResult = queryParameterSet(commandValueSplit[0], Long.valueOf(commandValueSplit[1]).longValue());
                 Object[] command_value =  (Object[])ajaxResult.get("data");
                 List<String> commandList = (List<String>) command_value[0];
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)command_value[1];
@@ -102,7 +102,7 @@ public class SolveProblemController {
      * 传参 命令ID 和 参数ID
     */
     @RequestMapping("queryParameterSet")
-    public AjaxResult queryParameterSet(Long commandID,Long valueID){
+    public AjaxResult queryParameterSet(String commandID,Long valueID){
         //根据 第一个命令 ID  查询 命令信息集合
         AjaxResult ajaxResult = queryCommandSet(commandID);
         List<CommandLogic> commandLogicList = (List<CommandLogic>)ajaxResult.get("data");
@@ -136,14 +136,14 @@ public class SolveProblemController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("queryCommandSet")
-    public AjaxResult queryCommandSet(Long commandId_Long){
+    public AjaxResult queryCommandSet(String commandId_Long){
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId_Long);
             commandLogicList.add(commandLogic);
             commandId_Long = commandLogic.getEndIndex();
-        }while (commandId_Long != 0);
+        }while (commandId_Long.equals("0"));
         return AjaxResult.success(commandLogicList);
     }
 

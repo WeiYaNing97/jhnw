@@ -16,7 +16,7 @@ public class CommandLogic extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键索引 */
-    private Long id;
+    private String id;
 
     /** 状态 */
     @Excel(name = "状态")
@@ -28,7 +28,7 @@ public class CommandLogic extends BaseEntity
 
     /** 返回结果验证id */
     @Excel(name = "返回结果验证id")
-    private Long resultCheckId;
+    private String resultCheckId;
 
     /** 返回分析id */
     @Excel(name = "返回分析id")
@@ -36,72 +36,69 @@ public class CommandLogic extends BaseEntity
 
     /** 命令结束索引 */
     @Excel(name = "命令结束索引")
-    private Long endIndex;
+    private String endIndex;
 
-    public void setId(Long id) 
-    {
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getId() 
-    {
-        return id;
+    public String getState() {
+        return state;
     }
-    public void setState(String state) 
-    {
+
+    public void setState(String state) {
         this.state = state;
     }
 
-    public String getState() 
-    {
-        return state;
+    public String getCommand() {
+        return command;
     }
-    public void setCommand(String command) 
-    {
+
+    public void setCommand(String command) {
         this.command = command;
     }
 
-    public String getCommand() 
-    {
-        return command;
+    public String getResultCheckId() {
+        return resultCheckId;
     }
-    public void setResultCheckId(Long resultCheckId) 
-    {
+
+    public void setResultCheckId(String resultCheckId) {
         this.resultCheckId = resultCheckId;
     }
 
-    public Long getResultCheckId() 
-    {
-        return resultCheckId;
+    public String getProblemId() {
+        return problemId;
     }
-    public void setProblemId(String problemId)
-    {
+
+    public void setProblemId(String problemId) {
         this.problemId = problemId;
     }
 
-    public String getProblemId()
-    {
-        return problemId;
-    }
-    public void setEndIndex(Long endIndex) 
-    {
-        this.endIndex = endIndex;
+    public String getEndIndex() {
+        return endIndex;
     }
 
-    public Long getEndIndex() 
-    {
-        return endIndex;
+    public void setEndIndex(String endIndex) {
+        this.endIndex = endIndex;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("state", getState())
-            .append("command", getCommand())
-            .append("resultCheckId", getResultCheckId())
-            .append("problemId", getProblemId())
-            .append("endIndex", getEndIndex())
-            .toString();
+        return "CommandLogic{" +
+                "id='" + id + '\'' +
+                ", state='" + state + '\'' +
+                ", command='" + command + '\'' +
+                ", resultCheckId='" + resultCheckId + '\'' +
+                ", problemId='" + problemId + '\'' +
+                ", endIndex='" + endIndex + '\'' +
+                '}';
     }
 }

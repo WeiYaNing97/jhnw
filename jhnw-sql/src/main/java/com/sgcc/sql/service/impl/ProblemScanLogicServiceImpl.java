@@ -26,7 +26,7 @@ public class ProblemScanLogicServiceImpl implements IProblemScanLogicService
      * @return 问题扫描逻辑
      */
     @Override
-    public ProblemScanLogic selectProblemScanLogicById(Long id)
+    public ProblemScanLogic selectProblemScanLogicById(String id)
     {
         return problemScanLogicMapper.selectProblemScanLogicById(id);
     }

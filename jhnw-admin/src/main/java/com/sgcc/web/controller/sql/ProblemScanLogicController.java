@@ -41,7 +41,7 @@ public class ProblemScanLogicController extends BaseController
     //交换机返回信息 切割为字符串数组
     public String[] return_information_array;
     //第一条分析ID
-    public static Long first_problem_scanLogic_Id;
+    public static String first_problem_scanLogic_Id;
     //单轮提取
     public String current_Round_Extraction_String;
     //提取信息总和
@@ -90,7 +90,7 @@ public class ProblemScanLogicController extends BaseController
             String command_String = Utils.trimString(return_sum);
             result_string = "";
             //分析第一条ID
-            first_problem_scanLogic_Id = Integer.valueOf(basicInformation.getProblemId().substring(3,basicInformation.getProblemId().length())).longValue();
+            first_problem_scanLogic_Id = basicInformation.getProblemId();
             analysisReturn(command_String);
 
             if (this.extractInformation_string.equals("")){
@@ -194,7 +194,7 @@ public class ProblemScanLogicController extends BaseController
     /**
      * 根据分析ID获取问题扫描逻辑详细信息
      */
-    public String selectProblemScanLogicById(Long id,String operation) {
+    public String selectProblemScanLogicById(String id,String operation) {
         //根据ID查询第一条分析数据
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
         //相对位置——行
@@ -227,7 +227,7 @@ public class ProblemScanLogicController extends BaseController
                     String analysis_true_string = analysis_true(problemScanLogic, num);
 
                     if ((analysis_true_string.indexOf("endmark") ==-1) && (analysis_true_string.indexOf("nextcmd") == -1)){
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(Integer.valueOf(analysis_true_string).longValue(),operation);
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(analysis_true_string,operation);
                         if ((analysis_true_string.indexOf("endmark") !=-1) && (analysis_true_string.indexOf("nextcmd") != -1) &&
                                 operation.equalsIgnoreCase("loop")&&num<return_information_array.length){
                             String loop_string = selectProblemScanLogicById(first_problem_scanLogic_Id, operation);
@@ -273,7 +273,7 @@ public class ProblemScanLogicController extends BaseController
                     String analysis_true_string = analysis_true(problemScanLogic, num);
 
                     if ((analysis_true_string.indexOf("endmark") ==-1) && (analysis_true_string.indexOf("nextcmd") == -1)){
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(Integer.valueOf(analysis_true_string).longValue(),operation);
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(analysis_true_string,operation);
                         if (operation.equalsIgnoreCase("loop")&&num<return_information_array.length){
                             String loop_string = selectProblemScanLogicById(first_problem_scanLogic_Id, operation);
                             return loop_string;
@@ -356,7 +356,7 @@ public class ProblemScanLogicController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public Long executeScanCommandByCommandId(Long commandId)
+    public Long executeScanCommandByCommandId(String commandId)
     {
         Long nextCommandID = 0L;
         //命令ID获取具体命令
@@ -383,7 +383,7 @@ public class ProblemScanLogicController extends BaseController
         //返回信息表，返回插入条数
         int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
-        if (commandLogic.getResultCheckId()==1l){
+        if (commandLogic.getResultCheckId().equals("1")){
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
                 CommandLogicController.switch_return_string = command_string;
@@ -394,7 +394,7 @@ public class ProblemScanLogicController extends BaseController
             }
         }else {
             //分析第一条ID
-            ProblemScanLogicController.first_problem_scanLogic_Id = Integer.valueOf(commandLogic.getProblemId().substring(3,commandLogic.getProblemId().length())).longValue();
+            ProblemScanLogicController.first_problem_scanLogic_Id = commandLogic.getProblemId();
             CommandLogicController.switch_return_string = command_string;//+"=:="+commandLogic.getProblemId();
             System.err.print("\r\n"+CommandLogicController.switch_return_string);
         }
@@ -436,7 +436,7 @@ public class ProblemScanLogicController extends BaseController
                     return analysis_true = "noproblem_endmark";
                 //true nextcmd：代表需要执行命令才能进一步分析，看命令id
                 case "nextcmd":
-                    Long commandId =Integer.valueOf(problemScanLogic.gettComId()).longValue();
+                    String commandId = problemScanLogic.gettComId();
                     executeScanCommandByCommandId(commandId);
                     return analysis_true = "nextcmd=:=tComId=:="+commandId;
             }
@@ -477,7 +477,7 @@ public class ProblemScanLogicController extends BaseController
                     return analysis_false = "noproblem_endmark";
                 //true nextcmd：代表需要执行命令才能进一步分析，看命令id
                 case "nextcmd":
-                    long commandId = Integer.valueOf(problemScanLogic.getfComId()).longValue();
+                    String commandId = problemScanLogic.getfComId();
                     executeScanCommandByCommandId(commandId);
                     return analysis_false = "nextcmd=:=fComId=:="+commandId;
             }
@@ -588,7 +588,7 @@ public class ProblemScanLogicController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(problemScanLogicService.selectProblemScanLogicById(id));
     }

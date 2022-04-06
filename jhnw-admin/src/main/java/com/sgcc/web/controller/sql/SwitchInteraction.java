@@ -274,8 +274,8 @@ public class SwitchInteraction {
             // 注释掉 可能会在两条交换机返回信息中 存在 "\r\n\r\n" 情况 按"\r\n"分割可能会出现空白元素
             //String command_String = Utils.trimString(return_sum);
 
-            //分析第一条ID basicInformation.getProblemId()  :  mh300013  mh3(前三个为操作和品牌的缩写) + 00013(为 问题扫描逻辑表  ID)
-            Long first_problem_scanLogic_Id = Integer.valueOf(basicInformation.getProblemId().substring(3,basicInformation.getProblemId().length())).longValue();
+            //分析第一条ID basicInformation.getProblemId() (为 问题扫描逻辑表  ID)
+            String first_problem_scanLogic_Id = basicInformation.getProblemId();
             //返回总提取信息
             String extractInformation_string1 = analysisReturn(user_String, connectMethod, telnetSwitchMethod,
                     return_sum, first_problem_scanLogic_Id);
@@ -360,7 +360,7 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     public String analysisReturn(Map<String,String> user_String,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,
-                                 String resultString,Long first_problem_scanLogic_Id){
+                                 String resultString,String first_problem_scanLogic_Id){
 
         //整理返回结果 去除 #
         //测试后无用 暂注释掉   注释掉可能会出现的情况 按行分割后 出现某数组元素只有 # 的情况
@@ -416,10 +416,10 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("/executeScanCommand")
-    public void executeScanCommand(Map<String,String> user_String,List<Long> commandIdList,
+    public void executeScanCommand(Map<String,String> user_String,List<String> commandIdList,
                                    String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,
                                    String firmwareVersion,String operation) {
-        for (Long commandId:commandIdList){
+        for (String commandId:commandIdList){
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
             String command = commandLogic.getCommand();
             String command_string = null;
@@ -475,7 +475,7 @@ public class SwitchInteraction {
 
             int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
             //判断是否简单检验
-            if (commandLogic.getResultCheckId()==1l){
+            if (commandLogic.getResultCheckId().equals("1")){
                 //判断命令是否错误 错误为false 正确为true
                 if (!Utils.judgmentError(command_string)){
                     continue;
@@ -507,7 +507,7 @@ public class SwitchInteraction {
      * 分析ID 连接方式 ssh和telnet连接
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(Long commandId,String notFinished,String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod) {
+    public List<Object> executeScanCommandByCommandId(String commandId,String notFinished,String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod) {
 
         //命令ID获取具体命令
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
@@ -563,7 +563,7 @@ public class SwitchInteraction {
         int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
         Long first_problem_scanLogic_Id = 0l;
-        if (commandLogic.getResultCheckId()==1l){
+        if (commandLogic.getResultCheckId().equals("1")){
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
                 System.err.print("\r\n"+"简单检验，命令正确，新命令"+commandLogic.getEndIndex());
@@ -572,7 +572,7 @@ public class SwitchInteraction {
             }
         }else {
             //分析第一条ID
-            first_problem_scanLogic_Id = Integer.valueOf(commandLogic.getProblemId().substring(3,commandLogic.getProblemId().length())).longValue();
+            first_problem_scanLogic_Id = Integer.valueOf(commandLogic.getProblemId()).longValue();
         }
         List<Object> objectList = new ArrayList<>();
         objectList.add(command_string);
@@ -596,7 +596,7 @@ public class SwitchInteraction {
                                         List<Object> executeScanCommandByCommandId_object,String operation){
 
         String resultString = executeScanCommandByCommandId_object.get(0).toString();
-        Long first_problem_scanLogic_Id = (Long) executeScanCommandByCommandId_object.get(1);
+        String first_problem_scanLogic_Id = executeScanCommandByCommandId_object.get(1)+"";
 
         //整理返回结果 去除 #
         resultString = resultString.replace("\r\n"+" # "+"\r\n","\r\n");
@@ -635,10 +635,10 @@ public class SwitchInteraction {
     public List<String> selectProblemScanLogicById(Map<String,String> user_String, SshMethod connectMethod, TelnetSwitchMethod telnetSwitchMethod,
 
                                                    String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
-                                                   int line_n, Long firstID, Long currentID,
+                                                   int line_n, String firstID, String currentID,
                                                    Integer insertsInteger) {
         //第一条分析ID
-        Long id = firstID;
+        String id = firstID;
         //如果当前分析ID不为空，则用当前分析ID
         if (currentID != null){
             id = currentID;
@@ -717,7 +717,7 @@ public class SwitchInteraction {
                         //logic_true_false:上一条分析结果true false ，insertsInteger：累计插入问题数据次数、为了“完成”
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),insertsInteger);
+                                line_n,firstID,analysis_true_string,insertsInteger);
 
                         //如果返回信息为null
                         if (ProblemScanLogic_returnstring!=null){
@@ -750,7 +750,7 @@ public class SwitchInteraction {
                         //当有结果的时候  考虑循环
                         if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
                             //选择则 循环的 起始ID
-                            firstID = problemScanLogic.getCycleStartId();
+                            firstID = problemScanLogic.getCycleStartId()+"";
                             List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,"",extractInformation_string,
                                     line_n,firstID,null,insertsInteger);
@@ -791,7 +791,7 @@ public class SwitchInteraction {
                             //返回 {总截取信息，true/false流程返回信息}
                             List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                    line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),insertsInteger);
+                                    line_n,firstID,analysis_false_string,insertsInteger);
                             //如果返回信息为null
                             if (ProblemScanLogic_returnstring!=null){
                                 //内分析传到上一层
@@ -811,7 +811,7 @@ public class SwitchInteraction {
 
                             //如果 可以是循环的，且 不是最后一行 则 尽行下一步分析
                             if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-                                firstID = problemScanLogic.getCycleStartId();
+                                firstID = problemScanLogic.getCycleStartId()+"";
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
                                         line_n,firstID,null,insertsInteger);
@@ -873,7 +873,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),insertsInteger);
+                                line_n,firstID,analysis_true_string,insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -891,7 +891,7 @@ public class SwitchInteraction {
                             getUnresolvedProblemInformationByData();
 
                             if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-                                firstID = problemScanLogic.getCycleStartId();
+                                firstID = problemScanLogic.getCycleStartId()+"";
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
                                         line_n,firstID,null,insertsInteger);
@@ -936,7 +936,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),insertsInteger);
+                                line_n,firstID,analysis_false_string,insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -951,7 +951,7 @@ public class SwitchInteraction {
 
                         //如果 可以是循环的，且 不是最后一行 则 尽行下一步分析
                         if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-                            firstID = problemScanLogic.getCycleStartId();
+                            firstID = problemScanLogic.getCycleStartId()+"";
                             List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                     return_information_array,"",extractInformation_string,
                                     line_n,firstID,null,insertsInteger);
@@ -1003,7 +1003,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_true_string).longValue(),insertsInteger);
+                                line_n,firstID,analysis_true_string,insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -1019,7 +1019,7 @@ public class SwitchInteraction {
 
                             if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
 
-                                firstID = problemScanLogic.getCycleStartId();
+                                firstID = problemScanLogic.getCycleStartId()+"";
 
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
@@ -1058,7 +1058,7 @@ public class SwitchInteraction {
 
                         List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,Integer.valueOf(analysis_false_string).longValue(),insertsInteger);
+                                line_n,firstID,analysis_false_string,insertsInteger);
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring.get(0);
                             return ProblemScanLogic_returnstring;
@@ -1074,7 +1074,7 @@ public class SwitchInteraction {
 
                             if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
 
-                                firstID = problemScanLogic.getCycleStartId();
+                                firstID = problemScanLogic.getCycleStartId()+"";
 
                                 List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                         return_information_array,"",extractInformation_string,
@@ -1224,7 +1224,7 @@ public class SwitchInteraction {
             //匹配成功则返回 true下一条ID
             int line_n = num;
             //  wh300011   去除 前3位  得到 下一条 分析 ID
-            long tNextId_Integer= Integer.valueOf(problemScanLogic.gettNextId().substring(3,problemScanLogic.gettNextId().length())).longValue();
+            long tNextId_Integer= Integer.valueOf(problemScanLogic.gettNextId()).longValue();
 
             //返回 下一条分析ID  和  光标位置
             return tNextId_Integer+"=:="+line_n;
@@ -1249,7 +1249,7 @@ public class SwitchInteraction {
                 //true 继续：代表需要执行命令才能进一步分析，看命令id
                 case "继续":
                     //返回待分析继续 命令id
-                    Long commandId =Integer.valueOf(problemScanLogic.gettComId()).longValue();
+                    String commandId =problemScanLogic.gettComId();
                     executeScanCommandByCommandId(commandId,user_String.get("notFinished"),way,connectMethod,telnetSwitchMethod);
                     return analysis_true = "继续=:=tComId=:="+commandId;
                 case "完成":
@@ -1302,7 +1302,7 @@ public class SwitchInteraction {
                 //false 继续：代表需要执行命令才能进一步分析，看命令id
                 case "继续":
                     //返回待分析继续 命令id
-                    long commandId = Integer.valueOf(problemScanLogic.getfComId()).longValue();
+                    String commandId = problemScanLogic.getfComId();
                     executeScanCommandByCommandId(commandId,user_String.get("notFinished"),way,connectMethod,telnetSwitchMethod);
                     return analysis_false = "继续=:=fComId=:="+commandId;
                 case "完成":

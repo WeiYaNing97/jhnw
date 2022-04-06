@@ -61,7 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectProblemScanLogicById" parameterType="Long" resultMap="ProblemScanLogicResult">
+    <select id="selectProblemScanLogicById" parameterType="String" resultMap="ProblemScanLogicResult">
         <include refid="selectProblemScanLogicVo"/>
         where id = #{id}
     </select>

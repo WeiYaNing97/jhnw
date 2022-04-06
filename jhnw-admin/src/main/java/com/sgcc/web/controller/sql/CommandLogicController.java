@@ -47,10 +47,10 @@ public class CommandLogicController extends BaseController
     @RequestMapping("/executeScanCommand")
     public void executeScanCommand()
     {
-        List<Long> commandIdList = TotalQuestionTableController.longList;
+        List<String> commandIdList = TotalQuestionTableController.longList;
         //返回信息集合
         List<String> return_strings = new ArrayList<>();
-        for (Long commandId:commandIdList){
+        for (String commandId:commandIdList){
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
             String command = commandLogic.getCommand();
             String command_string = null;
@@ -67,7 +67,7 @@ public class CommandLogicController extends BaseController
             returnRecord.setCurrentIdentifier(split[split.length-1].trim());
             int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
             //判断是否简单检验
-            if (commandLogic.getResultCheckId()==1l){
+            if (commandLogic.getResultCheckId().equals("1")){
                 //判断是否为错误命令 或是否执行成功  例如：返回信息是否包含：% Unrecognized command
                 //判断命令是否错误 错误为false 正确为true
                 if (!Utils.judgmentError(command_string)){
@@ -80,7 +80,7 @@ public class CommandLogicController extends BaseController
                     System.out.println("命令错误"+resultCheckId);
                 }
             }else {
-                ProblemScanLogicController.first_problem_scanLogic_Id = Integer.valueOf(commandLogic.getProblemId().substring(3,commandLogic.getProblemId().length())).longValue();
+                ProblemScanLogicController.first_problem_scanLogic_Id = commandLogic.getProblemId();
                 switch_return_string = command_string;//+"=:="+commandLogic.getProblemId();
                 System.err.print("\r\n交换机返回信息：\r\n"+switch_return_string);
                 //setWordList = new ArrayList();
@@ -97,7 +97,7 @@ public class CommandLogicController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public Long executeScanCommandByCommandId(Long commandId)
+    public Long executeScanCommandByCommandId(String commandId)
     {
         Long nextCommandID = 0L;
         //命令ID获取具体命令
@@ -124,7 +124,7 @@ public class CommandLogicController extends BaseController
         //返回信息表，返回插入条数
         int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
-        if (commandLogic.getResultCheckId()==1l){
+        if (commandLogic.getResultCheckId().equals("1")){
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
                 switch_return_string = command_string;
@@ -135,7 +135,7 @@ public class CommandLogicController extends BaseController
             }
         }else {
             //分析第一条ID
-            ProblemScanLogicController.first_problem_scanLogic_Id = Integer.valueOf(commandLogic.getProblemId().substring(3,commandLogic.getProblemId().length())).longValue();
+            ProblemScanLogicController.first_problem_scanLogic_Id = commandLogic.getProblemId();
             switch_return_string = command_string;//+"=:="+commandLogic.getProblemId();
             System.err.print("\r\n"+switch_return_string);
         }
@@ -176,7 +176,7 @@ public class CommandLogicController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('sql:command_logic:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(commandLogicService.selectCommandLogicById(id));
     }

@@ -37,7 +37,7 @@ public class TotalQuestionTable extends BaseEntity
     private String notFinished;
     /** 启动命令ID */
     @Excel(name = "启动命令ID")
-    private Long commandId;
+    private String commandId;
 
     /** 问题名称 */
     @Excel(name = "问题名称")
@@ -100,11 +100,11 @@ public class TotalQuestionTable extends BaseEntity
         this.subVersion = subVersion;
     }
 
-    public Long getCommandId() {
+    public String getCommandId() {
         return commandId;
     }
 
-    public void setCommandId(Long commandId) {
+    public void setCommandId(String commandId) {
         this.commandId = commandId;
     }
 

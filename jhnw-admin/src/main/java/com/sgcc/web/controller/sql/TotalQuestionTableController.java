@@ -28,7 +28,7 @@ public class TotalQuestionTableController extends BaseController
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
 
-    public static List<Long> longList;
+    public static List<String> longList;
     /**
      * @method: 根据交换机信息查询 扫描问题的 命令ID
      * @Param: []
@@ -37,7 +37,7 @@ public class TotalQuestionTableController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping(value = "/commandIdByInformation")
-    public List<Long> commandIdByInformation()//String brand,String type,String firewareVersion
+    public List<String> commandIdByInformation()//String brand,String type,String firewareVersion
     {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         /*totalQuestionTable.setBrand(brand);
@@ -49,7 +49,7 @@ public class TotalQuestionTableController extends BaseController
         totalQuestionTable.setSubVersion(Global.subversionNumber);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTables!=null){
-            List<Long> longList = new ArrayList<>();
+            List<String> longList = new ArrayList<>();
             for (TotalQuestionTable pojo:totalQuestionTables){
                 longList.add(pojo.getCommandId());
             }
