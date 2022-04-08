@@ -69,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertProblemScanLogic" parameterType="com.sgcc.sql.domain.ProblemScanLogic" useGeneratedKeys="true" keyProperty="id">
         insert into problem_scan_logic
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
             <if test="matched != null">matched,</if>
             <if test="relativePosition != null and relativePosition != ''">relative_position,</if>
             <if test="matchContent != null">match_content,</if>
@@ -91,6 +92,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cycleStartId != null">cycle_start_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
             <if test="matched != null">#{matched},</if>
             <if test="relativePosition != null and relativePosition != ''">#{relativePosition},</if>
             <if test="matchContent != null">#{matchContent},</if>

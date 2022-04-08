@@ -7,6 +7,7 @@ import com.sgcc.sql.domain.ProblemScanLogic;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/sql/DefinitionProblemController")
 //事务
-//@Transactional(rollbackFor = Exception.class)
+@Transactional(rollbackFor = Exception.class)
+
 public class DefinitionProblemController extends BaseController {
 
     @Autowired
@@ -215,98 +217,227 @@ public class DefinitionProblemController extends BaseController {
     }
 
     @RequestMapping("analysisProblemScanLogic")
-    private ProblemScanLogic analysisProblemScanLogic(String jsonPojo){
+    public ProblemScanLogic analysisProblemScanLogic(){//@RequestBody String jsonPojo
+
+
         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
-        /** 主键索引 */
-        String id = null;
-        /** 匹配 */
-        String matched= null;
-        /** 相对位置 */
-        String relativePosition= null;
-        /** 匹配内容 */
-        String matchContent= null;
-        /** 动作 */
-        String action= null;
-        /** 位置 */
-        Integer rPosition= null;
-        /** 长度 */
-        String length = null;
-        /** 是否显示 */
-        String exhibit = null;
-        /** 取词名称 */
-        String wordName= null;
-        /** 比较 */
-        String compare= null;
-        /** 内容 */
-        String content= null;
-        /** true下一条分析索引 */
-        String tNextId= null;
-        /** true下一条命令索引 */
-        String tComId= null;
-        /** true问题索引 */
-        String tProblemId= null;
-        /** false行号 */
-        String fLine= null;
-        /** true行号 */
-        String tLine= null;
-        /** false下一条分析索引 */
-        String fNextId= null;
-        /** false下一条命令索引 */
-        String fComId= null;
-        /** false问题索引 */
-        String fProblemId= null;
-        /** 返回命令 */
-        Long returnCmdId= null;
-        /** 循环起始ID */
-        Long cycleStartId= null;
+        HashMap<String,String> hashMap = new HashMap<>();
+
+        String jsonPojo = "{\"targetType\":\"match\",\"onlyIndex\":1649225359539,\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1649225363210,\"pageIndex\":2}";
+        jsonPojo = jsonPojo.replace("{","");
+        jsonPojo = jsonPojo.replace("}","");
+        String[]  jsonPojo_split = jsonPojo.split(",");
 
         /** 主键索引 */
-        problemScanLogic.setId(id);
+        hashMap.put("id",null);
         /** 匹配 */
-        problemScanLogic.setMatched(matched);
+        hashMap.put("matched",null);
         /** 相对位置 */
-        problemScanLogic.setRelativePosition(relativePosition);
+        hashMap.put("relativePosition",null);
+        /** 相对位置 行*/
+        hashMap.put("relative",null);
+        /** 相对位置 列*/
+        hashMap.put("position",null);
         /** 匹配内容 */
-        problemScanLogic.setMatchContent(matchContent);
+        hashMap.put("matchContent",null);
         /** 动作 */
-        problemScanLogic.setAction(action);
+        hashMap.put("action",null);
         /** 位置 */
-        problemScanLogic.setrPosition(rPosition);
+        hashMap.put("rPosition",null);
         /** 长度 */
-        problemScanLogic.setLength(length);
+        hashMap.put("length",null);
         /** 是否显示 */
-        problemScanLogic.setExhibit(exhibit);
+        hashMap.put("exhibit",null);
         /** 取词名称 */
-        problemScanLogic.setWordName(wordName);
+        hashMap.put("wordName",null);
         /** 比较 */
-        problemScanLogic.setCompare(compare);
+        hashMap.put("compare",null);
         /** 内容 */
-        problemScanLogic.setContent(content);
+        hashMap.put("content",null);
         /** true下一条分析索引 */
-        problemScanLogic.settNextId(tNextId);
+        hashMap.put("tNextId",null);
         /** true下一条命令索引 */
-        problemScanLogic.settComId(tComId);
+        hashMap.put("tComId",null);
         /** true问题索引 */
-        problemScanLogic.settProblemId(tProblemId);
+        hashMap.put("tProblemId",null);
         /** false行号 */
-        problemScanLogic.setfLine(fLine);
+        hashMap.put("fLine",null);
         /** true行号 */
-        problemScanLogic.settLine(tLine);
+        hashMap.put("tLine",null);
         /** false下一条分析索引 */
-        problemScanLogic.setfNextId(fNextId);
+        hashMap.put("fNextId",null);
         /** false下一条命令索引 */
-        problemScanLogic.setfComId(fComId);
+        hashMap.put("fComId",null);
         /** false问题索引 */
-        problemScanLogic.setfProblemId(fProblemId);
+        hashMap.put("fProblemId",null);
         /** 返回命令 */
-        problemScanLogic.setReturnCmdId(returnCmdId);
+        hashMap.put("returnCmdId",null);
         /** 循环起始ID */
-        problemScanLogic.setCycleStartId(cycleStartId);
+        hashMap.put("cycleStartId",null);
+
+        for (String pojo:jsonPojo_split){
+            String[] split = pojo.split(":");
+            String split0 = split[0].replace("\"","");
+            String split1 = split[1].replace("\"","");
+            switch (split0){
+                case "onlyIndex"://本层ID 主键ID
+                    hashMap.put("id",split1);
+                    break;
+                case "matched":// 匹配
+                    if (split1.equals("全文精确匹配")){
+                        /** 匹配 */
+                        hashMap.put("matched","精确匹配");
+                        /** 相对位置 */
+                        hashMap.put("relativePosition","null");
+                    }else if (split1.equals("全文模糊匹配")){
+                        /** 匹配 */
+                        hashMap.put("matched","模糊匹配");
+                        /** 相对位置 */
+                        hashMap.put("relativePosition","null");
+                    }else if (split1.equals("按行精确匹配")){
+                        /** 匹配 */
+                        hashMap.put("matched","精确匹配");
+                    }else if (split1.equals("按行模糊匹配")){
+                        /** 匹配 */
+                        hashMap.put("matched","模糊匹配");
+                    }
+                        break;
+                case "relative":
+                    /** 相对位置 行*/
+                    hashMap.put("relative",split1);
+                    break;
+                case "position":
+                    /** 相对位置 列*/
+                    hashMap.put("position",split1);
+                    break;
+                case "matchContent":
+                    /** 匹配内容 */
+                    hashMap.put("matchContent",split1);
+                    break;
+                case "action":
+                    /** 动作 */
+                    hashMap.put("action",split1);
+                    break;
+                case "rPosition":
+                    /** 位置 */
+                    hashMap.put("rPosition",split1);
+                    break;
+                case "length":
+                    /** 长度 */
+                    hashMap.put("length",split1);
+                    break;
+                case "exhibit":
+                    /** 是否显示 */
+                    hashMap.put("exhibit",split1);
+                    break;
+                case "compare":
+                    /** 比较 */
+                    hashMap.put("compare",split1);
+                case "content":
+                    /** 内容 */
+                    hashMap.put("content",split1);
+                case "nextIndex"://下一分析ID 也是 首分析ID
+                    /** true下一条分析索引 */
+                    hashMap.put("tNextId",split1);
+                    break;
+                case "pageIndex"://本层ID 主键ID
+                    /** true行号 */
+                    hashMap.put("tLine",split1);
+                    break;
+            }
+        }
+
+        if (hashMap.get("matched").indexOf("按行")!=-1){
+            /** 相对位置 */
+            hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
+        }
+
+        if ("命令&问题".equals("命令")){
+            /** true下一条命令索引 */
+            hashMap.put("tComId",hashMap.get("tNextId"));
+        }else if ("命令&问题".equals("问题")){
+            /** /** true问题索引 */
+            hashMap.put("tProblemId",hashMap.get("tNextId"));
+        }
+
+        if ("失败".equals("失败")){
+            /** false行号 */
+            hashMap.put("fLine",hashMap.get("tLine"));
+            /** false下一条分析索引 */
+            hashMap.put("fNextId",hashMap.get("tNextId"));
+            /** false下一条命令索引 */
+            hashMap.put("fComId",hashMap.get("tComId"));
+            /** false问题索引 */
+            hashMap.put("fProblemId",hashMap.get("tProblemId"));
+
+            /** true下一条分析索引 */
+            hashMap.put("tNextId",null);
+            /** true下一条命令索引 */
+            hashMap.put("tComId",null);
+            /** true问题索引 */
+            hashMap.put("tProblemId",null);
+            /** true行号 */
+            hashMap.put("tLine",null);
+        }
+
+
+        /** 主键索引 */
+        problemScanLogic.setId(hashMap.get("id"));
+        /** 匹配 */
+        problemScanLogic.setMatched(hashMap.get("matched"));
+        /** 相对位置 */
+        problemScanLogic.setRelativePosition(hashMap.get("relativePosition"));
+        /** 匹配内容 */
+        problemScanLogic.setMatchContent(hashMap.get("matchContent"));
+        /** 动作 */
+        problemScanLogic.setAction(hashMap.get("action"));
+        if (hashMap.get("rPosition")!=null){
+            /** 位置 */
+            problemScanLogic.setrPosition(Integer.valueOf(hashMap.get("rPosition")).intValue());
+        }
+        /** 长度 */
+        problemScanLogic.setLength(hashMap.get("length"));
+        /** 是否显示 */
+        problemScanLogic.setExhibit(hashMap.get("exhibit"));
+        /** 取词名称 */
+        problemScanLogic.setWordName(hashMap.get("wordName"));
+        /** 比较 */
+        problemScanLogic.setCompare(hashMap.get("compare"));
+        /** 内容 */
+        problemScanLogic.setContent(hashMap.get("content"));
+        /** true下一条分析索引 */
+        problemScanLogic.settNextId(hashMap.get("tNextId"));
+        /** true下一条命令索引 */
+        problemScanLogic.settComId(hashMap.get("tComId"));
+        /** true问题索引 */
+        problemScanLogic.settProblemId(hashMap.get("tProblemId"));
+        /** false行号 */
+        problemScanLogic.setfLine(hashMap.get("fLine"));
+        /** true行号 */
+        problemScanLogic.settLine(hashMap.get("tLine"));
+        /** false下一条分析索引 */
+        problemScanLogic.setfNextId(hashMap.get("fNextId"));
+        /** false下一条命令索引 */
+        problemScanLogic.setfComId(hashMap.get("fComId"));
+        /** false问题索引 */
+        problemScanLogic.setfProblemId(hashMap.get("fProblemId"));
+        if (hashMap.get("returnCmdId")!=null){
+            /** 返回命令 */
+            problemScanLogic.setReturnCmdId(Integer.valueOf(hashMap.get("returnCmdId")).longValue());
+        }
+        if (hashMap.get("cycleStartId")!=null){
+            /** 循环起始ID */
+            problemScanLogic.setCycleStartId(Integer.valueOf(hashMap.get("cycleStartId")).longValue());
+        }
+
+        int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
+
         return null;
     }
 
     @RequestMapping("analysisCommandLogic")
-    private CommandLogic analysisCommandLogic(String jsonPojo){
+    public CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
+        //String jsonPojo = "{\"targetType\":\"command\",\"onlyIndex\":164922535744,\"resultCheckId\":\"1\",\"command\":\"disply cu\",\"nextIndex\":1649225359539,\"pageIndex\":1}";
         CommandLogic commandLogic = new CommandLogic();
         jsonPojo = jsonPojo.replace("{","");
         jsonPojo = jsonPojo.replace("}","");
@@ -322,34 +453,48 @@ public class DefinitionProblemController extends BaseController {
 
         for (String pojo:jsonPojo_split){
             String[] split = pojo.split(":");
-            String split0 = split[0].substring(1, split[0].length() - 1);
-            String split1 = split[1].substring(1, split[1].length() - 1);
+            String split0 = split[0].replace("\"","");
+            String split1 = split[1].replace("\"","");
             switch (split0){
                 case "onlyIndex"://本层ID 主键ID
                     hashMap.put("onlyIndex",split1);
-                case "resultCheckId":// 常规校验0 自定义校验0
+                    break;
+                case "resultCheckId":// 常规校验1 自定义校验0
                     hashMap.put("resultCheckId",split1);
+                    break;
                 case "command":// 命令
                     hashMap.put("command",split1);
+                    break;
                 case "nextIndex"://下一分析ID 也是 首分析ID
                     hashMap.put("nextIndex",split1);
+                    break;
                 case "pageIndex"://本层ID 主键ID
                     hashMap.put("pageIndex",split1);
+                    break;
             }
         }
 
+        //如果 常规检验 的话 下一ID  应是 下一命令ID
+        //下一分析ID  应是  0
+        if (hashMap.get("resultCheckId").equals("1")){
+            hashMap.put("endIndex",hashMap.get("nextIndex"));
+            hashMap.put("nextIndex","0");
+        }
+
         /** 主键索引 */
-        //commandLogic.setId(hashMap.get("onlyIndex"));
+        commandLogic.setId(hashMap.get("onlyIndex"));
         /** 状态 */
         commandLogic.setState(null);
         /** 命令 */
         commandLogic.setCommand(hashMap.get("command"));
         /** 返回结果验证id */
-        //commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
+        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
         /** 返回分析id */
         commandLogic.setProblemId(hashMap.get("nextIndex"));
         /** 命令结束索引 */
-        //commandLogic.setEndIndex(hashMap.get("endIndex"));
+        commandLogic.setEndIndex(hashMap.get("endIndex"));
+
+        int i = commandLogicService.insertCommandLogic(commandLogic);
 
         return commandLogic;
     }

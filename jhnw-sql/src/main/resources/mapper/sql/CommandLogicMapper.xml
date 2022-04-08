@@ -36,6 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertCommandLogic" parameterType="com.sgcc.sql.domain.CommandLogic" useGeneratedKeys="true" keyProperty="id">
         insert into command_logic
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
             <if test="state != null">state,</if>
             <if test="command != null">command,</if>
             <if test="resultCheckId != null">result_check_id,</if>
@@ -43,6 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="endIndex != null">end_index,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
             <if test="state != null">#{state},</if>
             <if test="command != null">#{command},</if>
             <if test="resultCheckId != null">#{resultCheckId},</if>
