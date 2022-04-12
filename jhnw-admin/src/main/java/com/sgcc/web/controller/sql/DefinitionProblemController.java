@@ -6,11 +6,17 @@ import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ProblemScanLogic;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.BoundListOperations;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -29,6 +35,8 @@ public class DefinitionProblemController extends BaseController {
     private ICommandLogicService commandLogicService;
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 新增命令逻辑
@@ -67,92 +75,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
 
-    @RequestMapping("definitionProblem")
-    public void definitionProblem(){//@RequestBody List<ProblemScanLogic> problemScanLogicList
-
-        List<ProblemScanLogic> pojoList = new ArrayList<>();
-        ProblemScanLogic problemScanLogic = new ProblemScanLogic();
-        //匹配成功
-        problemScanLogic.setMatched("精确匹配");
-        problemScanLogic.setRelativePosition("null");
-        problemScanLogic.setMatchContent("local-user");
-        problemScanLogic.settLine("1");
-        problemScanLogic.settNextId("成功");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //取词
-        problemScanLogic.setAction("取词");
-        problemScanLogic.setRelativePosition("0,0");
-        problemScanLogic.setMatchContent("local-user");
-        problemScanLogic.setMatched("null");
-        problemScanLogic.settLine("2");
-        problemScanLogic.settNextId("null");
-        problemScanLogic.setrPosition(1);
-        problemScanLogic.setLength("1W");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //匹配成功
-        problemScanLogic.setMatched("精确匹配");
-        problemScanLogic.setRelativePosition("1,0");
-        problemScanLogic.setMatchContent("password simple");
-        problemScanLogic.settLine("3");
-        problemScanLogic.settNextId("成功");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //取词
-        problemScanLogic.setAction("取词");
-        problemScanLogic.setRelativePosition("0,0");
-        problemScanLogic.setMatchContent("password simple");
-        problemScanLogic.setMatched("null");
-        problemScanLogic.settLine("4");
-        problemScanLogic.settNextId("null");
-        problemScanLogic.setrPosition(1);
-        problemScanLogic.setLength("1W");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //匹配失败
-        problemScanLogic.settLine("5");
-        problemScanLogic.settNextId("失败");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //取词
-        problemScanLogic.setAction("取词");
-        problemScanLogic.setRelativePosition("0,0");
-        problemScanLogic.setMatchContent("password simple1234");
-        problemScanLogic.setMatched("null");
-        problemScanLogic.settLine("6");
-        problemScanLogic.settNextId("null");
-        problemScanLogic.setrPosition(1);
-        problemScanLogic.setLength("1W");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //取词
-        problemScanLogic.setAction("取词");
-        problemScanLogic.setRelativePosition("0,0");
-        problemScanLogic.setMatchContent("password simple5678");
-        problemScanLogic.setMatched("null");
-        problemScanLogic.settLine("7");
-        problemScanLogic.settNextId("null");
-        problemScanLogic.setrPosition(1);
-        problemScanLogic.setLength("1W");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //匹配失败
-        problemScanLogic.settLine("8");
-        problemScanLogic.settNextId("失败");
-        pojoList.add(problemScanLogic);
-        problemScanLogic = new ProblemScanLogic();
-        //比较
-        problemScanLogic.setAction("取词");
-        problemScanLogic.setRelativePosition("0,0");
-        problemScanLogic.setMatchContent("比较");
-        problemScanLogic.setMatched("null");
-        problemScanLogic.settLine("9");
-        problemScanLogic.settNextId("null");
-        problemScanLogic.setrPosition(1);
-        problemScanLogic.setLength("1W");
-        pojoList.add(problemScanLogic);
-
+    public void definitionProblem1(List<ProblemScanLogic> pojoList){
         //上一条ID
         String oneId = null;
         //当前插入条ID
@@ -210,20 +133,119 @@ public class DefinitionProblemController extends BaseController {
         }
 
     }
+    
+    /**
+    * @method: 将相同ID  时间戳 的 实体类 放到一个实体
+    * @Param: [pojoList]
+    * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    public List<ProblemScanLogic> definitionProblem(List<ProblemScanLogic> pojoList){
+        HashSet<String> hashSet = new HashSet<>();
+        for (ProblemScanLogic problemScanLogic:pojoList){
+            hashSet.add(problemScanLogic.getId());
+        }
+        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+        for (String problemScanLogicId:hashSet){
+            ProblemScanLogic problemScanLogic = new ProblemScanLogic();
+            problemScanLogic.setId(problemScanLogicId);
+            problemScanLogicList.add(problemScanLogic);
+        }
+        for (ProblemScanLogic pojo:pojoList){
+            for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                if (pojo.getId().equals(problemScanLogic.getId())){
+                    if (pojo.getfLine()==null
+                            && pojo.getfNextId()==null
+                            && pojo.getfComId()==null
+                            && pojo.getfProblemId()==null){
+                         BeanUtils.copyProperties(pojo,problemScanLogic);
+                    }else {
+                        problemScanLogic.setfLine(pojo.getfLine());
+                        problemScanLogic.setfNextId(pojo.getfNextId());
+                        problemScanLogic.setfComId(pojo.getfComId());
+                        problemScanLogic.setfProblemId(pojo.getfProblemId());
+                    }
+                }
+            }
+        }
+        return problemScanLogicList;
+    }
 
     @RequestMapping("definitionProblemJsonPojo")
-    public void definitionProblemJsonPojo(){
+    public void definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+        //List<String> jsonPojoList = new ArrayList<>();
+        //String s0="{\"targetType\":\"command\",\"onlyIndex\":1649662321060,\"trueFalse\":\"\",\"command\":\"sys\",\"nextIndex\":1649662324652,\"pageIndex\":1}";
+        //String s1="{\"targetType\":\"match\",\"onlyIndex\":1649662324652,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local\",\"nextIndex\":1649662331436,\"pageIndex\":2}";
+        //String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1649662331436,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1649662339524,\"pageIndex\":3,\"matchContent\":\"local\"}";
+        //String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1649662339524,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"pass\",\"nextIndex\":1649662346276,\"pageIndex\":4}";
+        //String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1649662346276,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1649662339524,\"pageIndex\":5,\"matchContent\":\"pass\"}";
+        //String s5="{\"targetType\":\"liprefal\",\"onlyIndex\":1649662339524,\"trueFalse\":\"失败\",\"nextIndex\":1649662324652,\"pageIndex\":6}";
+        //String s6="{\"targetType\":\"matchfal\",\"onlyIndex\":1649662324652,\"trueFalse\":\"失败\",\"pageIndex\":7}";
+        //jsonPojoList.add(s0);
+        //jsonPojoList.add(s1);
+        //jsonPojoList.add(s2);
+        //jsonPojoList.add(s3);
+        //jsonPojoList.add(s4);
+        //jsonPojoList.add(s5);
+        //jsonPojoList.add(s6);
+
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+        for (int number=0;number<jsonPojoList.size();number++){
+            if (jsonPojoList.get(number).indexOf("command")!=-1){
+                CommandLogic commandLogic = analysisCommandLogic(jsonPojoList.get(number));
+                commandLogicList.add(commandLogic);
+                continue;
+            }else if (jsonPojoList.get(number).indexOf("command") ==-1){
+                if (number+1<jsonPojoList.size()){
+                    if (jsonPojoList.get(number+1).indexOf("command") !=-1){
+                        //本条是分析 下一条是 问题
+                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "命令");
+                        problemScanLogicList.add(problemScanLogic);
+                        continue;
+                    }else if (jsonPojoList.get(number+1).indexOf("问题") !=-1){
+                        //本条是分析 下一条是 问题
+                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "问题");
+                        problemScanLogicList.add(problemScanLogic);
+                        continue;
+                    }else {
+                        //本条是分析 下一条是 问题
+                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+                        problemScanLogicList.add(problemScanLogic);
+                        continue;
+                    }
+                }else {
+                    //本条是分析 下一条是 问题
+                    ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+                    problemScanLogicList.add(problemScanLogic);
+                    continue;
+                }
+            }
+        }
+
+        List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
+
+        for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
+        }
+        for (CommandLogic commandLogic:commandLogicList){
+            int i = commandLogicService.insertCommandLogic(commandLogic);
+        }
 
     }
 
+    /**
+    * @method: 字符串解析 ProblemScanLogic 实体类 并返回
+    * @Param: [jsonPojo, ifCommand : 分析、命令、问题]
+    * @return: com.sgcc.sql.domain.ProblemScanLogic
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @RequestMapping("analysisProblemScanLogic")
-    public ProblemScanLogic analysisProblemScanLogic(){//@RequestBody String jsonPojo
-
-
+    public ProblemScanLogic analysisProblemScanLogic(@RequestBody String jsonPojo,String ifCommand){
         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
         HashMap<String,String> hashMap = new HashMap<>();
-
-        String jsonPojo = "{\"targetType\":\"match\",\"onlyIndex\":1649225359539,\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1649225363210,\"pageIndex\":2}";
         jsonPojo = jsonPojo.replace("{","");
         jsonPojo = jsonPojo.replace("}","");
         String[]  jsonPojo_split = jsonPojo.split(",");
@@ -231,9 +253,9 @@ public class DefinitionProblemController extends BaseController {
         /** 主键索引 */
         hashMap.put("id",null);
         /** 匹配 */
-        hashMap.put("matched",null);
+        hashMap.put("matched","null");
         /** 相对位置 */
-        hashMap.put("relativePosition",null);
+        hashMap.put("relativePosition","null");
         /** 相对位置 行*/
         hashMap.put("relative",null);
         /** 相对位置 列*/
@@ -241,7 +263,7 @@ public class DefinitionProblemController extends BaseController {
         /** 匹配内容 */
         hashMap.put("matchContent",null);
         /** 动作 */
-        hashMap.put("action",null);
+        hashMap.put("action","null");
         /** 位置 */
         hashMap.put("rPosition",null);
         /** 长度 */
@@ -274,6 +296,8 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("returnCmdId",null);
         /** 循环起始ID */
         hashMap.put("cycleStartId",null);
+        //成功失败
+        hashMap.put("trueFalse",null);
 
         for (String pojo:jsonPojo_split){
             String[] split = pojo.split(":");
@@ -286,20 +310,20 @@ public class DefinitionProblemController extends BaseController {
                 case "matched":// 匹配
                     if (split1.equals("全文精确匹配")){
                         /** 匹配 */
-                        hashMap.put("matched","精确匹配");
+                        hashMap.put("matched","全文精确匹配");
                         /** 相对位置 */
                         hashMap.put("relativePosition","null");
                     }else if (split1.equals("全文模糊匹配")){
                         /** 匹配 */
-                        hashMap.put("matched","模糊匹配");
+                        hashMap.put("matched","全文模糊匹配");
                         /** 相对位置 */
                         hashMap.put("relativePosition","null");
                     }else if (split1.equals("按行精确匹配")){
                         /** 匹配 */
-                        hashMap.put("matched","精确匹配");
+                        hashMap.put("matched","按行精确匹配");
                     }else if (split1.equals("按行模糊匹配")){
                         /** 匹配 */
-                        hashMap.put("matched","模糊匹配");
+                        hashMap.put("matched","按行模糊匹配");
                     }
                         break;
                 case "relative":
@@ -328,14 +352,20 @@ public class DefinitionProblemController extends BaseController {
                     break;
                 case "exhibit":
                     /** 是否显示 */
-                    hashMap.put("exhibit",split1);
+                    hashMap.put("exhibit",split1.equals("显示")?"是":"否");
+                    break;
+                case "wordName":
+                    /** 是否显示 */
+                    hashMap.put("wordName",split1);
                     break;
                 case "compare":
                     /** 比较 */
                     hashMap.put("compare",split1);
+                    break;
                 case "content":
                     /** 内容 */
                     hashMap.put("content",split1);
+                    break;
                 case "nextIndex"://下一分析ID 也是 首分析ID
                     /** true下一条分析索引 */
                     hashMap.put("tNextId",split1);
@@ -344,23 +374,41 @@ public class DefinitionProblemController extends BaseController {
                     /** true行号 */
                     hashMap.put("tLine",split1);
                     break;
+                case "trueFalse"://本层ID 主键ID
+                    /** true行号 */
+                    hashMap.put("trueFalse",split1);
+                    break;
             }
         }
 
-        if (hashMap.get("matched").indexOf("按行")!=-1){
+        if (hashMap.get("matched")!=null && hashMap.get("matched").indexOf("按行")!=-1){
             /** 相对位置 */
             hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
         }
 
-        if ("命令&问题".equals("命令")){
+        if (ifCommand.equals("命令")){
             /** true下一条命令索引 */
             hashMap.put("tComId",hashMap.get("tNextId"));
-        }else if ("命令&问题".equals("问题")){
+            hashMap.put("tNextId",null);
+        }else if (ifCommand.equals("问题")){
             /** /** true问题索引 */
             hashMap.put("tProblemId",hashMap.get("tNextId"));
+            hashMap.put("tNextId",null);
         }
 
-        if ("失败".equals("失败")){
+        if (hashMap.get("action")!=null && hashMap.get("action").equals("取词")){
+            List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
+            redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
+            for (ProblemScanLogic pojo:resultList){
+                if ((pojo.gettNextId()!=null && pojo.gettNextId().equals(hashMap.get("id")))
+                        ||(pojo.getfNextId()!=null && pojo.getfNextId().equals(hashMap.get("id")))){
+                    hashMap.put("matchContent",pojo.getMatchContent());
+                    break;
+                }
+            }
+        }
+
+        if (hashMap.get("trueFalse")!=null && hashMap.get("trueFalse").equals("失败")){
             /** false行号 */
             hashMap.put("fLine",hashMap.get("tLine"));
             /** false下一条分析索引 */
@@ -384,43 +432,77 @@ public class DefinitionProblemController extends BaseController {
         /** 主键索引 */
         problemScanLogic.setId(hashMap.get("id"));
         /** 匹配 */
-        problemScanLogic.setMatched(hashMap.get("matched"));
+        if (hashMap.get("matched")!="null"){
+            problemScanLogic.setMatched(hashMap.get("matched").substring(2,hashMap.get("matched").length()));
+        }
         /** 相对位置 */
-        problemScanLogic.setRelativePosition(hashMap.get("relativePosition"));
+        if (hashMap.get("relativePosition")!=null){
+            problemScanLogic.setRelativePosition(hashMap.get("relativePosition"));
+        }
         /** 匹配内容 */
-        problemScanLogic.setMatchContent(hashMap.get("matchContent"));
+        if (hashMap.get("matchContent")!=null){
+            problemScanLogic.setMatchContent(hashMap.get("matchContent"));
+        }
         /** 动作 */
-        problemScanLogic.setAction(hashMap.get("action"));
+        if (hashMap.get("action")!=null){
+            problemScanLogic.setAction(hashMap.get("action"));
+        }
         if (hashMap.get("rPosition")!=null){
             /** 位置 */
             problemScanLogic.setrPosition(Integer.valueOf(hashMap.get("rPosition")).intValue());
         }
         /** 长度 */
-        problemScanLogic.setLength(hashMap.get("length"));
+        if (hashMap.get("length")!=null){
+            problemScanLogic.setLength(hashMap.get("length"));
+        }
         /** 是否显示 */
-        problemScanLogic.setExhibit(hashMap.get("exhibit"));
+        if (hashMap.get("exhibit")!=null){
+            problemScanLogic.setExhibit(hashMap.get("exhibit"));
+        }
         /** 取词名称 */
-        problemScanLogic.setWordName(hashMap.get("wordName"));
+        if (hashMap.get("wordName")!=null){
+            problemScanLogic.setWordName(hashMap.get("wordName"));
+        }
         /** 比较 */
-        problemScanLogic.setCompare(hashMap.get("compare"));
+        if (hashMap.get("compare")!=null){
+            problemScanLogic.setCompare(hashMap.get("compare"));
+        }
         /** 内容 */
-        problemScanLogic.setContent(hashMap.get("content"));
+        if (hashMap.get("content")!=null){
+            problemScanLogic.setContent(hashMap.get("content"));
+        }
         /** true下一条分析索引 */
-        problemScanLogic.settNextId(hashMap.get("tNextId"));
+        if (hashMap.get("tNextId")!=null){
+            problemScanLogic.settNextId(hashMap.get("tNextId"));
+        }
         /** true下一条命令索引 */
-        problemScanLogic.settComId(hashMap.get("tComId"));
+        if (hashMap.get("tComId")!=null){
+            problemScanLogic.settComId(hashMap.get("tComId"));
+        }
         /** true问题索引 */
-        problemScanLogic.settProblemId(hashMap.get("tProblemId"));
+        if (hashMap.get("tProblemId")!=null){
+            problemScanLogic.settProblemId(hashMap.get("tProblemId"));
+        }
         /** false行号 */
-        problemScanLogic.setfLine(hashMap.get("fLine"));
+        if (hashMap.get("fLine")!=null){
+            problemScanLogic.setfLine(hashMap.get("fLine"));
+        }
         /** true行号 */
-        problemScanLogic.settLine(hashMap.get("tLine"));
+        if (hashMap.get("tLine")!=null){
+            problemScanLogic.settLine(hashMap.get("tLine"));
+        }
         /** false下一条分析索引 */
-        problemScanLogic.setfNextId(hashMap.get("fNextId"));
+        if (hashMap.get("fNextId")!=null){
+            problemScanLogic.setfNextId(hashMap.get("fNextId"));
+        }
         /** false下一条命令索引 */
-        problemScanLogic.setfComId(hashMap.get("fComId"));
+        if (hashMap.get("fComId")!=null){
+            problemScanLogic.setfComId(hashMap.get("fComId"));
+        }
         /** false问题索引 */
-        problemScanLogic.setfProblemId(hashMap.get("fProblemId"));
+        if (hashMap.get("fProblemId")!=null){
+            problemScanLogic.setfProblemId(hashMap.get("fProblemId"));
+        }
         if (hashMap.get("returnCmdId")!=null){
             /** 返回命令 */
             problemScanLogic.setReturnCmdId(Integer.valueOf(hashMap.get("returnCmdId")).longValue());
@@ -430,14 +512,25 @@ public class DefinitionProblemController extends BaseController {
             problemScanLogic.setCycleStartId(Integer.valueOf(hashMap.get("cycleStartId")).longValue());
         }
 
-        int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
+        //通过redisTemplate设置值
+        List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
+        resultList.add(problemScanLogic);
+        redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
 
-        return null;
+        //int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
+
+        return problemScanLogic;
     }
 
+    /***
+    * @method: 字符串解析 CommandLogic 实体类 并返回
+    * @Param: [jsonPojo]
+    * @return: com.sgcc.sql.domain.CommandLogic
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @RequestMapping("analysisCommandLogic")
     public CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
-        //String jsonPojo = "{\"targetType\":\"command\",\"onlyIndex\":164922535744,\"resultCheckId\":\"1\",\"command\":\"disply cu\",\"nextIndex\":1649225359539,\"pageIndex\":1}";
         CommandLogic commandLogic = new CommandLogic();
         jsonPojo = jsonPojo.replace("{","");
         jsonPojo = jsonPojo.replace("}","");
@@ -494,7 +587,7 @@ public class DefinitionProblemController extends BaseController {
         /** 命令结束索引 */
         commandLogic.setEndIndex(hashMap.get("endIndex"));
 
-        int i = commandLogicService.insertCommandLogic(commandLogic);
+        //int i = commandLogicService.insertCommandLogic(commandLogic);
 
         return commandLogic;
     }

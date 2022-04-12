@@ -562,7 +562,7 @@ public class SwitchInteraction {
         //返回信息表，返回插入条数
         int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
-        Long first_problem_scanLogic_Id = 0l;
+        String first_problem_scanLogic_Id = "";
         if (commandLogic.getResultCheckId().equals("1")){
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
@@ -572,7 +572,7 @@ public class SwitchInteraction {
             }
         }else {
             //分析第一条ID
-            first_problem_scanLogic_Id = Integer.valueOf(commandLogic.getProblemId()).longValue();
+            first_problem_scanLogic_Id = commandLogic.getProblemId();
         }
         List<Object> objectList = new ArrayList<>();
         objectList.add(command_string);
@@ -643,6 +643,7 @@ public class SwitchInteraction {
         if (currentID != null){
             id = currentID;
         }
+        System.err.print("\r\n走的分析ID:"+id+"\r\n");
         //根据ID查询  分析数据
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
         //相对位置——行(1,0)
@@ -682,7 +683,7 @@ public class SwitchInteraction {
             String compare = problemScanLogic.getCompare();
 
             //匹配逻辑
-            if (!matched.equals("null")){
+            if (!matched.equals("null") && !matched.equals("循环")){
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, string_line_n, matchContent);
 
@@ -1223,8 +1224,8 @@ public class SwitchInteraction {
                 && !tNextId_string.equals("")){
             //匹配成功则返回 true下一条ID
             int line_n = num;
-            //  wh300011   去除 前3位  得到 下一条 分析 ID
-            long tNextId_Integer= Integer.valueOf(problemScanLogic.gettNextId()).longValue();
+            //  得到 下一条 分析 ID
+            String tNextId_Integer= problemScanLogic.gettNextId();
 
             //返回 下一条分析ID  和  光标位置
             return tNextId_Integer+"=:="+line_n;
@@ -1282,7 +1283,7 @@ public class SwitchInteraction {
                 && !fNextId_string.equals("")){
             //返回 下一条分析ID  和  交换机返回信息索引位置(光标)
             int line_n = num;
-            long fNextId_Integer = Integer.valueOf(fNextId_string.substring(3, fNextId_string.length())).longValue();
+            String fNextId_Integer = fNextId_string;
             return fNextId_Integer+"=:="+line_n;
         }else {
             //如果 下一条分析ID 包含  没问题 有问题 继续
