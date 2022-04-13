@@ -118,6 +118,16 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
+     * 修改问题及命令 的 循环
+     */
+    public AjaxResult updateTotalQuestionTable(Long id,String ifCycle)
+    {
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
+        totalQuestionTable.setIfCycle(ifCycle);
+        return toAjax(totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable));
+    }
+
+    /**
      * 删除问题及命令
      */
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:remove')")

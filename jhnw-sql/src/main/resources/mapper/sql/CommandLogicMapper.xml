@@ -7,6 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="com.sgcc.sql.domain.CommandLogic" id="CommandLogicResult">
         <result property="id"    column="id"    />
         <result property="state"    column="state"    />
+        <result property="cLine"    column="c_line"    />
         <result property="command"    column="command"    />
         <result property="resultCheckId"    column="result_check_id"    />
         <result property="problemId"    column="problem_id"    />
@@ -14,13 +15,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCommandLogicVo">
-        select id, state, command, result_check_id, problem_id, end_index from command_logic
+        select id, state,c_line, command, result_check_id, problem_id, end_index from command_logic
     </sql>
 
     <select id="selectCommandLogicList" parameterType="com.sgcc.sql.domain.CommandLogic" resultMap="CommandLogicResult">
         <include refid="selectCommandLogicVo"/>
         <where>  
             <if test="state != null  and state != ''"> and state = #{state}</if>
+            <if test="cLine != null  and cLine != ''"> and c_line = #{cLine}</if>
             <if test="command != null  and command != ''"> and command = #{command}</if>
             <if test="resultCheckId != null "> and result_check_id = #{resultCheckId}</if>
             <if test="problemId != null "> and problem_id = #{problemId}</if>
@@ -38,6 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="state != null">state,</if>
+            <if test="cLine != null">c_line,</if>
             <if test="command != null">command,</if>
             <if test="resultCheckId != null">result_check_id,</if>
             <if test="problemId != null">problem_id,</if>
@@ -46,6 +49,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="state != null">#{state},</if>
+            <if test="cLine != null">#{cLine},</if>
             <if test="command != null">#{command},</if>
             <if test="resultCheckId != null">#{resultCheckId},</if>
             <if test="problemId != null">#{problemId},</if>
@@ -57,6 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update command_logic
         <trim prefix="SET" suffixOverrides=",">
             <if test="state != null">state = #{state},</if>
+            <if test="cLine != null">c_line = #{cLine},</if>
             <if test="command != null">command = #{command},</if>
             <if test="resultCheckId != null">result_check_id = #{resultCheckId},</if>
             <if test="problemId != null">problem_id = #{problemId},</if>

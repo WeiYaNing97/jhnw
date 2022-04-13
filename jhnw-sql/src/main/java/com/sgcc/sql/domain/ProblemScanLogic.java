@@ -96,7 +96,7 @@ public class ProblemScanLogic extends BaseEntity
 
     /** 循环起始ID */
     @Excel(name = "循环起始ID")
-    private Long cycleStartId;
+    private String cycleStartId;
 
 
     public static long getSerialVersionUID() {
@@ -263,11 +263,11 @@ public class ProblemScanLogic extends BaseEntity
         this.returnCmdId = returnCmdId;
     }
 
-    public Long getCycleStartId() {
+    public String getCycleStartId() {
         return cycleStartId;
     }
 
-    public void setCycleStartId(Long cycleStartId) {
+    public void setCycleStartId(String cycleStartId) {
         this.cycleStartId = cycleStartId;
     }
 

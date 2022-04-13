@@ -22,6 +22,10 @@ public class CommandLogic extends BaseEntity
     @Excel(name = "状态")
     private String state;
 
+    /** 命令行号 */
+    @Excel(name = "命令行号")
+    private String cLine;
+
     /** 命令 */
     @Excel(name = "命令")
     private String command;
@@ -56,6 +60,14 @@ public class CommandLogic extends BaseEntity
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getcLine() {
+        return cLine;
+    }
+
+    public void setcLine(String cLine) {
+        this.cLine = cLine;
     }
 
     public String getCommand() {
@@ -95,6 +107,7 @@ public class CommandLogic extends BaseEntity
         return "CommandLogic{" +
                 "id='" + id + '\'' +
                 ", state='" + state + '\'' +
+                ", cLine='" + cLine + '\'' +
                 ", command='" + command + '\'' +
                 ", resultCheckId='" + resultCheckId + '\'' +
                 ", problemId='" + problemId + '\'' +
