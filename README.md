@@ -17,3 +17,12 @@ http://localhost/dev-api/sql/SolveProblemController/batchSolution
 ##文件上传
 ###路径
 Utils  ： fileCreationWrite
+
+##问题数据插入
+###路径
+http://192.168.1.98/dev-api/sql/DefinitionProblemController/definitionProblemJsonPojo
+@RequestBody List<String> jsonPojoList
+##问题数据回显
+###路径
+http://192.168.1.98/dev-api/sql/DefinitionProblemController/getAnalysisList
+@RequestBody String brand,@RequestBody String type,@RequestBody String firewareVersion,@RequestBody String subVersion,@RequestBody String problemName

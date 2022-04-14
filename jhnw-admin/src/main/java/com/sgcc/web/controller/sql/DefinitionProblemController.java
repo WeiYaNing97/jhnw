@@ -5,6 +5,7 @@ import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sun.org.apache.xerces.internal.xs.StringList;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -227,6 +228,13 @@ public class DefinitionProblemController extends BaseController {
         return problemScanLogicList;
     }
 
+    /**
+    * @method: 插入 问题数据
+    * @Param: [jsonPojoList]
+    * @return: void
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @RequestMapping("definitionProblemJsonPojo")
     public void definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//
         //List<String> jsonPojoList = new ArrayList<>();
@@ -587,28 +595,66 @@ public class DefinitionProblemController extends BaseController {
         return problemScanLogic;
     }
 
+    /**
+    * @method: problemScanLogic   转化  Sting
+    * @Param: [problemScanLogic]
+    * @return: java.lang.String
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     public String problemScanLogicSting(ProblemScanLogic problemScanLogic){
+        ProblemScanLogicVO problemScanLogicVO = new ProblemScanLogicVO();
         String onlyIndex = problemScanLogic.getId();
+        problemScanLogicVO.setOnlyIndex(onlyIndex);
         String matched = problemScanLogic.getMatched();
         String relative = null;
         String position = null;
-        if (problemScanLogic.getMatched().equals("匹配") && problemScanLogic.getRelativePosition().equals("null")){
-            matched = "全文"+problemScanLogic.getMatched();
-        }else {
-            matched = "按行"+problemScanLogic.getMatched();
-            String relativePosition = problemScanLogic.getRelativePosition();
-            String[] relativePositionSplit = relativePosition.split(",");
-            relative = relativePositionSplit[0];
-            position = relativePositionSplit[1];
+        if (problemScanLogic.getMatched()!=null){
+            if (problemScanLogic.getMatched().equals("匹配") && problemScanLogic.getRelativePosition().equals("null")){
+                matched = "全文"+problemScanLogic.getMatched();
+            }else if (problemScanLogic.getMatched().equals("匹配")){
+                matched = "按行"+problemScanLogic.getMatched();
+                String relativePosition = problemScanLogic.getRelativePosition();
+                String[] relativePositionSplit = relativePosition.split(",");
+                relative = relativePositionSplit[0];
+                position = relativePositionSplit[1];
+            }
         }
-        String matchContent = problemScanLogic.getMatchContent();
-        String action = problemScanLogic.getAction();
-        String rPosition = problemScanLogic.getrPosition()+"";
-        String length = problemScanLogic.getLength();
-        String exhibit = problemScanLogic.getExhibit().equals("是")?"显示":"不显示";
-        String wordName = problemScanLogic.getWordName();
-        String compare = problemScanLogic.getCompare();
-        String content = problemScanLogic.getContent();
+        problemScanLogicVO.setMatched(matched);
+        problemScanLogicVO.setRelative(relative);
+        problemScanLogicVO.setPosition(position);
+        if (problemScanLogic.getMatchContent()!=null){
+            String matchContent = problemScanLogic.getMatchContent();
+            problemScanLogicVO.setMatchContent(matchContent);
+        }
+        if (problemScanLogic.getAction()!=null){
+            String action = problemScanLogic.getAction();
+            problemScanLogicVO.setAction(action);
+        }
+        if (problemScanLogic.getrPosition()!=null){
+            Integer rPosition = problemScanLogic.getrPosition();
+            problemScanLogicVO.setrPosition(rPosition);
+        }
+        if (problemScanLogic.getLength()!=null){
+            String length = problemScanLogic.getLength();
+            problemScanLogicVO.setLength(length);
+        }
+        if (problemScanLogic.getExhibit()!=null){
+            String exhibit = problemScanLogic.getExhibit().equals("是")?"显示":"不显示";
+            problemScanLogicVO.setExhibit(exhibit);
+        }
+        if (problemScanLogic.getWordName()!=null){
+            String wordName = problemScanLogic.getWordName();
+            problemScanLogicVO.setWordName(wordName);
+        }
+        if (problemScanLogic.getCompare()!=null){
+            String compare = problemScanLogic.getCompare();
+            problemScanLogicVO.setCompare(compare);
+        }
+        if (problemScanLogic.getContent()!=null){
+            String content = problemScanLogic.getContent();
+            problemScanLogicVO.setContent(content);
+        }
         String pageIndex = null;
         if (problemScanLogic.gettLine()!=null){
             pageIndex = problemScanLogic.gettLine();
@@ -616,6 +662,7 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getfLine()!=null){
             pageIndex = problemScanLogic.getfLine();
         }
+        problemScanLogicVO.setPageIndex(pageIndex);
         String nextIndex = null;
         if (problemScanLogic.gettNextId()!=null){
             nextIndex = problemScanLogic.gettNextId();
@@ -629,6 +676,7 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getfComId()!=null){
             nextIndex = problemScanLogic.getfComId();
         }
+        problemScanLogicVO.setNextIndex(nextIndex);
         String problemId = null;
         if (problemScanLogic.gettProblemId()!=null){
             problemId = problemScanLogic.gettProblemId();
@@ -636,12 +684,22 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getfProblemId()!=null){
             problemId = problemScanLogic.getfProblemId();
         }
+        problemScanLogicVO.setProblemId(problemId);
         String cycleStartId = null;
         if (problemScanLogic.getCycleStartId()!=null){
             cycleStartId = problemScanLogic.getCycleStartId();
         }
+        problemScanLogicVO.setCycleStartId(cycleStartId);
 
-        return null;
+        String problemScanLogicVOString = problemScanLogicVO.toString();
+        problemScanLogicVOString = problemScanLogicVOString.replace("'","\"");
+        problemScanLogicVOString = problemScanLogicVOString.replace(",",",\"");
+        problemScanLogicVOString = problemScanLogicVOString.replace("=","\"=");
+        problemScanLogicVOString = problemScanLogicVOString.replace("{","{\"");
+        problemScanLogicVOString = problemScanLogicVOString.replace("\" ","\"");
+        problemScanLogicVOString = problemScanLogicVOString.replace(" \"","\"");
+        problemScanLogicVOString = problemScanLogicVOString.replace("ProblemScanLogicVO",pageIndex+":");
+        return problemScanLogicVOString;
     }
 
     /***
@@ -753,6 +811,7 @@ public class DefinitionProblemController extends BaseController {
         commandLogicVOSting = commandLogicVOSting.replace("{","{\"");
         commandLogicVOSting = commandLogicVOSting.replace("\" ","\"");
         commandLogicVOSting = commandLogicVOSting.replace(" \"","\"");
+        commandLogicVOSting = commandLogicVOSting.replace("CommandLogicVO",pageIndex+":");
         return commandLogicVOSting;
     }
 
@@ -765,13 +824,15 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("getAnalysisList")
-    public List<String> getAnalysisList(){
+    public List<String> getAnalysisList(@RequestBody String brand,@RequestBody String type,
+                                        @RequestBody String firewareVersion,@RequestBody String subVersion,
+                                        @RequestBody String problemName){
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand("H3C");
-        totalQuestionTable.setType("S2152");
-        totalQuestionTable.setFirewareVersion("5.20.99");
-        totalQuestionTable.setSubVersion("1106");
-        totalQuestionTable.setProblemName("明文存储");
+        totalQuestionTable.setBrand(brand);
+        totalQuestionTable.setType(type);
+        totalQuestionTable.setFirewareVersion(firewareVersion);
+        totalQuestionTable.setSubVersion(subVersion);
+        totalQuestionTable.setProblemName(problemName);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
 
         String problemScanLogicID = totalQuestionTables.get(0).getCommandId();
@@ -799,11 +860,25 @@ public class DefinitionProblemController extends BaseController {
             }
         }while (problemScanLogicID.indexOf(":")!=-1);
 
+        HashMap<Long,String> hashMap = new HashMap<>();
+
         for (CommandLogic commandLogic:commandLogicList){
             String commandLogicString = commandLogicString(commandLogic);
+            String[] commandLogicStringsplit = commandLogicString.split(":");
+            hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
+        }
+        for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            String problemScanLogicString = problemScanLogicSting(problemScanLogic);
+            String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
+            hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
 
-        return null;
+        List<String> stringList = new ArrayList<>();
+        for (Long number=0L;number<hashMap.size();number++){
+            stringList.add(hashMap.get(number+1));
+        }
+
+        return stringList;
     }
 
     /**
