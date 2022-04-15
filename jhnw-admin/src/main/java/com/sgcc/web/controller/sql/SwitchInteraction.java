@@ -62,8 +62,6 @@ public class SwitchInteraction {
         //子版本号
         user_String.put("subversionNumber",null);
 
-        user_String.put("operation",null);
-
         //ssh连接
         SshMethod connectMethod = null;
         //telnet连接
@@ -121,10 +119,9 @@ public class SwitchInteraction {
         Long analysis_id = null;
         for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
             user_String.put("notFinished",totalQuestionTable.getNotFinished());
-            user_String.put("operation",totalQuestionTable.getIfCycle());
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
             String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
-                    executeScanCommandByCommandId_object,totalQuestionTable.getIfCycle());
+                    executeScanCommandByCommandId_object);
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
         }
         return null;
@@ -369,7 +366,6 @@ public class SwitchInteraction {
         //交换机返回结果 按行分割 交换机返回信息字符串
         String[] return_information_array =resultString.split("\r\n");
         //是否循环判断 loop循环 end 单次
-        user_String.put("operation","end");
         /* 传入参数[user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接,
                 交换机返回信息字符串, 单次分析提取数据，循环分析提取数据
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
@@ -418,7 +414,7 @@ public class SwitchInteraction {
     @RequestMapping("/executeScanCommand")
     public void executeScanCommand(Map<String,String> user_String,List<String> commandIdList,
                                    String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,
-                                   String firmwareVersion,String operation) {
+                                   String firmwareVersion) {
         for (String commandId:commandIdList){
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
             String command = commandLogic.getCommand();
@@ -493,7 +489,7 @@ public class SwitchInteraction {
                         executeScanCommandByCommandId_object.add(command_string);
                         executeScanCommandByCommandId_object.add(first_problem_scanLogic_Id);
                 // 分析
-                String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod, executeScanCommandByCommandId_object,operation);
+                String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod, executeScanCommandByCommandId_object);
             }
         }
     }
@@ -593,7 +589,7 @@ public class SwitchInteraction {
     @RequestMapping("analysisReturnResults")
     public String analysisReturnResults(Map<String,String> user_String,
                                         SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,
-                                        List<Object> executeScanCommandByCommandId_object,String operation){
+                                        List<Object> executeScanCommandByCommandId_object){
 
         String resultString = executeScanCommandByCommandId_object.get(0).toString();
         String first_problem_scanLogic_Id = executeScanCommandByCommandId_object.get(1)+"";
@@ -646,6 +642,19 @@ public class SwitchInteraction {
         System.err.print("\r\n走的分析ID:"+id+"\r\n");
         //根据ID查询  分析数据
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
+
+        if (problemScanLogic.getAction().equals("循环")){
+            firstID = problemScanLogic.getCycleStartId();
+            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                    return_information_array,"",extractInformation_string,
+                    line_n,firstID,null,insertsInteger);
+            if (loop_string!=null){
+                extractInformation_string = loop_string.get(0);
+                return loop_string;
+            }
+            return loop_string;
+        }
+
         //相对位置——行(1,0)
         String relativePosition = problemScanLogic.getRelativePosition();
         String relativePosition_line = relativePosition.split(",")[0];
@@ -748,19 +757,6 @@ public class SwitchInteraction {
                             stringList.add(analysis_true_string);
                             return stringList;
                         }
-                        //当有结果的时候  考虑循环
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-                            //选择则 循环的 起始ID
-                            firstID = problemScanLogic.getCycleStartId()+"";
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
-                                return loop_string;
-                            }
-                            return loop_string;
-                        }
 
                         List<String> stringList = new ArrayList<>();
                         stringList.add(extractInformation_string);
@@ -809,19 +805,6 @@ public class SwitchInteraction {
                             insertsInteger++;
                             current_Round_Extraction_String = "";
                             getUnresolvedProblemInformationByData();
-
-                            //如果 可以是循环的，且 不是最后一行 则 尽行下一步分析
-                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-                                firstID = problemScanLogic.getCycleStartId()+"";
-                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                        return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,insertsInteger);
-                                if (loop_string!=null){
-                                    extractInformation_string = loop_string.get(0);
-                                    return loop_string;
-                                }
-                                return loop_string;
-                            }
 
                         }else if (insertsInteger==0 && analysis_false_string.indexOf("完成") !=-1){
                             problemScanLogic.setfNextId("没问题");
@@ -891,17 +874,6 @@ public class SwitchInteraction {
                             current_Round_Extraction_String = "";
                             getUnresolvedProblemInformationByData();
 
-                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-                                firstID = problemScanLogic.getCycleStartId()+"";
-                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                        return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,insertsInteger);
-                                if (loop_string!=null){
-                                    extractInformation_string = loop_string.get(0);
-                                    return loop_string;
-                                }
-                                return loop_string;
-                            }
                         }else if (insertsInteger==0 && analysis_true_string.indexOf("完成") != -1){
                             problemScanLogic.setfNextId("没问题");
                             insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
@@ -949,19 +921,6 @@ public class SwitchInteraction {
                         insertsInteger++;
                         current_Round_Extraction_String = "";
                         getUnresolvedProblemInformationByData();
-
-                        //如果 可以是循环的，且 不是最后一行 则 尽行下一步分析
-                        if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-                            firstID = problemScanLogic.getCycleStartId()+"";
-                            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,"",extractInformation_string,
-                                    line_n,firstID,null,insertsInteger);
-                            if (loop_string!=null){
-                                extractInformation_string = loop_string.get(0);
-                                return loop_string;
-                            }
-                            return loop_string;
-                        }
 
                     }else if ((insertsInteger == 0 && analysis_false_string.indexOf("完成") !=-1)){
                         problemScanLogic.setfNextId("没问题");
@@ -1018,19 +977,6 @@ public class SwitchInteraction {
                             current_Round_Extraction_String = "";
                             getUnresolvedProblemInformationByData();
 
-                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                                firstID = problemScanLogic.getCycleStartId()+"";
-
-                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                        return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,insertsInteger);
-                                if (loop_string!=null){
-                                    extractInformation_string = loop_string.get(0);
-                                    return loop_string;
-                                }
-                                return loop_string;
-                            }
                         }else if (insertsInteger==0 && analysis_true_string.indexOf("完成") != -1){
                             problemScanLogic.setfNextId("没问题");
                             insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
@@ -1073,19 +1019,6 @@ public class SwitchInteraction {
                             current_Round_Extraction_String = "";
                             getUnresolvedProblemInformationByData();
 
-                            if (user_String.get("operation").equalsIgnoreCase("loop")&&num<return_information_array.length){
-
-                                firstID = problemScanLogic.getCycleStartId()+"";
-
-                                List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                        return_information_array,"",extractInformation_string,
-                                        line_n,firstID,null,insertsInteger);
-                                if (loop_string!=null){
-                                    extractInformation_string = loop_string.get(0);
-                                    return loop_string;
-                                }
-                                return loop_string;
-                            }
                         }else if (insertsInteger==0 && (analysis_false_string.indexOf("完成") != -1)){
                             insertvalueInformationService(user_String,compare_boolean,problemScanLogic,current_Round_Extraction_String);
                             insertsInteger++;
@@ -1276,11 +1209,12 @@ public class SwitchInteraction {
         String fNextId_string = problemScanLogic.getfNextId();
         //如果 下一条分析ID 不包含  没问题 有问题 继续
         //否则 为 具体ID
-        if (!fNextId_string.equals("没问题")
+        if ((!fNextId_string.equals("没问题")
                 && !fNextId_string.equals("有问题")
                 && !fNextId_string.equals("继续")
                 && !fNextId_string.equals("完成")
-                && !fNextId_string.equals("")){
+                && !fNextId_string.equals(""))
+        || (problemScanLogic.getMatched().indexOf("匹配")!=-1 && problemScanLogic.getRelativePosition().equals("null"))){
             //返回 下一条分析ID  和  交换机返回信息索引位置(光标)
             int line_n = num;
             String fNextId_Integer = fNextId_string;

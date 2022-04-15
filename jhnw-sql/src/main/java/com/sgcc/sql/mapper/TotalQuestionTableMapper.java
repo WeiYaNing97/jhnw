@@ -58,4 +58,6 @@ public interface TotalQuestionTableMapper
      * @return 结果
      */
     public int deleteTotalQuestionTableByIds(Long[] ids);
+
+    public List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable);
 }

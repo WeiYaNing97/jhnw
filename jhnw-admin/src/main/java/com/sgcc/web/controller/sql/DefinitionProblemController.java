@@ -189,37 +189,7 @@ public class DefinitionProblemController extends BaseController {
 
             }
         }
-        List<String> stringList = new ArrayList<>();
-        String ifCycle = "end";
-        Long TotalQuestionTableID=0l;
-        for (int number = problemScanLogics.length-1;number>=0;number--){
-            if (problemScanLogics[number].getAction().equals("循环")){
-                ifCycle = "loop";
-                stringList.add(problemScanLogics[number].gettLine()+":"+problemScanLogics[number].getCycleStartId());
-                if (TotalQuestionTableID !=0l && (problemScanLogics[number].getfProblemId()!=null || problemScanLogics[number].gettProblemId()!=null)){
-                    TotalQuestionTableID = Integer.valueOf(problemScanLogics[number].getfProblemId()).longValue();
-                }
-            }
-        }
 
-        //TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(TotalQuestionTableID);
-        //totalQuestionTable.setIfCycle(ifCycle);
-        //int i1 = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-
-        for (String stringLine:stringList){
-            String[] split = stringLine.split(":");
-            String tLine = split[0];
-            String cycleStartId = split[1];
-            for (int number = problemScanLogics.length-1;number>=0;number--){
-                if (problemScanLogics[number].gettLine().equals(tLine)
-                        || (Integer.valueOf(problemScanLogics[number].gettLine()).intValue() < Integer.valueOf(tLine).intValue())){
-                    problemScanLogics[number].setCycleStartId(cycleStartId);
-                    if (problemScanLogics[number].getId().equals(cycleStartId)){
-                        break;
-                    }
-                }
-            }
-        }
         problemScanLogicList = new ArrayList<>();
         for (int i =0;i<problemScanLogics.length;i++){
             problemScanLogicList.add(problemScanLogics[i]);
@@ -236,24 +206,26 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("definitionProblemJsonPojo")
-    public void definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//
-        //List<String> jsonPojoList = new ArrayList<>();
-        //String s0="{\"targetType\":\"command\",\"onlyIndex\":1649726277472,\"trueFalse\":\"\",\"command\":\"dis cu\",\"resultCheckId\":\"0\",\"nextIndex\":1649726283752,\"pageIndex\":1}";
-        //String s1="{\"targetType\":\"match\",\"onlyIndex\":1649726283752,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1649726290216,\"pageIndex\":2}";
-        //String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1649726290216,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1649726302464,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
-        //String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1649726302464,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1649726321377,\"pageIndex\":4}";
-        //String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1649726321377,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1649726331408,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
-        //String s5="{\"targetType\":\"wloop\",\"onlyIndex\":1649726331408,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1649726283752,\"nextIndex\":1649726302464,\"pageIndex\":6}";
-        //String s6="{\"targetType\":\"liprefal\",\"onlyIndex\":1649726302464,\"trueFalse\":\"失败\",\"nextIndex\":1649726283752,\"pageIndex\":7}";
-        //String s7="{\"targetType\":\"matchfal\",\"onlyIndex\":1649726283752,\"trueFalse\":\"失败\",\"pageIndex\":8}";
-        //jsonPojoList.add(s0);
-        //jsonPojoList.add(s1);
-        //jsonPojoList.add(s2);
-        //jsonPojoList.add(s3);
-        //jsonPojoList.add(s4);
-        //jsonPojoList.add(s5);
-        //jsonPojoList.add(s6);
-        //jsonPojoList.add(s7);
+    public void definitionProblemJsonPojo(){//@RequestBody List<String> jsonPojoList
+        List<String> jsonPojoList = new ArrayList<>();
+        String s0="{\"targetType\":\"command\",\"onlyIndex\":1650009428953,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650009464386,\"pageIndex\":1}";
+        String s1="{\"targetType\":\"match\",\"onlyIndex\":1650009464386,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650009472121,\"pageIndex\":2}";
+        String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650009472121,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650009481194,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
+        String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650009481194,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650009493738,\"pageIndex\":4}";
+        String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650009493738,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650009515433,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
+        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650009515433,\"trueFalse\":\"\",\"action\":\"问题\",\"tProblemId\":15,\"tNextId\":\"有问题\",\"nextIndex\":1650009539915,\"pageIndex\":6}";
+        String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650009539915,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650009464386,\"nextIndex\":1650009481194,\"pageIndex\":7}";
+        String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650009481194,\"trueFalse\":\"失败\",\"nextIndex\":1650009464386,\"pageIndex\":8}";
+        String s8="{\"targetType\":\"matchfal\",\"onlyIndex\":1650009464386,\"trueFalse\":\"失败\",\"pageIndex\":9}";
+        jsonPojoList.add(s0);
+        jsonPojoList.add(s1);
+        jsonPojoList.add(s2);
+        jsonPojoList.add(s3);
+        jsonPojoList.add(s4);
+        jsonPojoList.add(s5);
+        jsonPojoList.add(s6);
+        jsonPojoList.add(s7);
+        jsonPojoList.add(s8);
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
@@ -430,6 +402,13 @@ public class DefinitionProblemController extends BaseController {
                     /** 内容 */
                     hashMap.put("content",split1);
                     break;
+                case "tNextId"://下一分析ID 也是 首分析ID
+                    /** true下一条分析索引 */
+                    hashMap.put("tNextId",split1);
+                    if (split1.indexOf("问题")!=-1){
+                        hashMap.put("action",split1);
+                    }
+                    break;
                 case "nextIndex"://下一分析ID 也是 首分析ID
                     /** true下一条分析索引 */
                     hashMap.put("tNextId",split1);
@@ -437,13 +416,21 @@ public class DefinitionProblemController extends BaseController {
                 case "cycleStartId":
                     hashMap.put("cycleStartId",split1);
                     break;
-                case "pageIndex"://本层ID 主键ID
+                case "pageIndex"://行号
                     /** true行号 */
                     hashMap.put("tLine",split1);
                     break;
-                case "trueFalse"://本层ID 主键ID
+                case "trueFalse"://成功 失败
                     /** true行号 */
                     hashMap.put("trueFalse",split1);
+                    break;
+                case "tProblemId":
+                    /** true问题索引 */
+                    hashMap.put("tProblemId",split1);
+                    break;
+                case "fProblemId":
+                    /** false问题索引 */
+                    hashMap.put("fProblemId",split1);
                     break;
             }
         }
@@ -457,11 +444,8 @@ public class DefinitionProblemController extends BaseController {
             /** true下一条命令索引 */
             hashMap.put("tComId",hashMap.get("tNextId"));
             hashMap.put("tNextId",null);
-        }else if (ifCommand.equals("问题")){
-            /** /** true问题索引 */
-            hashMap.put("tProblemId",hashMap.get("tNextId"));
-            hashMap.put("tNextId",null);
         }
+
 
         if (hashMap.get("action")!=null && hashMap.get("action").equals("取词")){
             List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
@@ -604,6 +588,7 @@ public class DefinitionProblemController extends BaseController {
     */
     public String problemScanLogicSting(ProblemScanLogic problemScanLogic){
         ProblemScanLogicVO problemScanLogicVO = new ProblemScanLogicVO();
+        problemScanLogicVO.setTrueFalse("");
         String onlyIndex = problemScanLogic.getId();
         problemScanLogicVO.setOnlyIndex(onlyIndex);
         String matched = problemScanLogic.getMatched();
@@ -660,6 +645,7 @@ public class DefinitionProblemController extends BaseController {
             pageIndex = problemScanLogic.gettLine();
         }
         if (problemScanLogic.getfLine()!=null){
+            problemScanLogicVO.setTrueFalse("失败");
             pageIndex = problemScanLogic.getfLine();
         }
         problemScanLogicVO.setPageIndex(pageIndex);
@@ -690,6 +676,12 @@ public class DefinitionProblemController extends BaseController {
             cycleStartId = problemScanLogic.getCycleStartId();
         }
         problemScanLogicVO.setCycleStartId(cycleStartId);
+
+        if (!(matched.equals("null")) && problemScanLogic.gettLine()!=null){
+            problemScanLogicVO.setTrueFalse("成功");
+        }
+
+
 
         String problemScanLogicVOString = problemScanLogicVO.toString();
         problemScanLogicVOString = problemScanLogicVOString.replace("'","\"");
@@ -824,9 +816,9 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("getAnalysisList")
-    public List<String> getAnalysisList(@RequestBody String brand,@RequestBody String type,
-                                        @RequestBody String firewareVersion,@RequestBody String subVersion,
-                                        @RequestBody String problemName){
+    public List<String> getAnalysisList( String brand, String type,
+                                         String firewareVersion, String subVersion,
+                                        String problemName){
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setBrand(brand);
         totalQuestionTable.setType(type);
@@ -835,6 +827,10 @@ public class DefinitionProblemController extends BaseController {
         totalQuestionTable.setProblemName(problemName);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
 
+        if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
+            return null;
+        }
+
         String problemScanLogicID = totalQuestionTables.get(0).getCommandId();
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
@@ -842,8 +838,14 @@ public class DefinitionProblemController extends BaseController {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String problemID:problemScanLogicIDsplit){
                 CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
+                if (commandLogic==null || commandLogic.getProblemId()==null){
+                    return null;
+                }
                 commandLogicList.add(commandLogic);
                 List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
+                if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+                    return null;
+                }
                 problemScanLogicID = "";
                 for (ProblemScanLogic problemScanLogic:problemScanLogicList){
                     problemScanLogics.add(problemScanLogic);
@@ -899,6 +901,9 @@ public class DefinitionProblemController extends BaseController {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String id:problemScanLogicIDsplit){
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
+                if (problemScanLogic!=null){
+                    return null;
+                }
                 if (problemScanLogic.gettNextId()!="" && problemScanLogic.gettNextId()!=null && !(isContainChinese(problemScanLogic.gettNextId()))){
                     problemScanID += problemScanLogic.gettNextId()+":";
                 }
@@ -938,9 +943,7 @@ public class DefinitionProblemController extends BaseController {
         }
         List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
         for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
-            if (!problemScanLogic.getAction().equals("循环")){
-                problemScanLogic.setCycleStartId(null);
-            }
+
             if (problemScanLogic.getfLine()!=null){
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
                 problemScanLogicf.setId(problemScanLogic.getId());

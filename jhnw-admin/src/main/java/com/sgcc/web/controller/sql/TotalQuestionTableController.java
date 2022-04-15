@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -63,13 +64,42 @@ public class TotalQuestionTableController extends BaseController
     /**
      * 查询问题及命令列表
      */
-    @PreAuthorize("@ss.hasPermi('sql:total_question_table:list')")
-    @GetMapping("/list")
-    public TableDataInfo list(TotalQuestionTable totalQuestionTable)
+    //@PreAuthorize("@ss.hasPermi('sql:total_question_table:list')")
+    @RequestMapping("/list")
+    public TableDataInfo list(@RequestBody TotalQuestionTable totalQuestionTable)
     {
+        String selectCommandId = totalQuestionTable.getCommandId();
+        totalQuestionTable.setCommandId(null);
         startPage();
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        if (selectCommandId.equals("0")){
+            for (TotalQuestionTable pojo:list){
+                if (pojo.getCommandId() == null || pojo.getCommandId().equals("")){
+                    totalQuestionTables.add(pojo);
+                }
+            }
+            return getDataTable(totalQuestionTables);
+        }
         return getDataTable(list);
+    }
+
+    /**
+     * 查询问题及命令列表
+     */
+    //@PreAuthorize("@ss.hasPermi('sql:total_question_table:list')")
+    @RequestMapping("/typeProblemlist")
+    public List<String> typeProblemlist()//@RequestBody TotalQuestionTable totalQuestionTable
+    {
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setSubVersion("1510P09");
+        totalQuestionTable.setCommandId(null);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
+        List<String> stringList = new ArrayList<>();
+        for (TotalQuestionTable pojo:typeProblemlist){
+            stringList.add(pojo.getTypeProblem());
+        }
+        return stringList;
     }
 
     /**
@@ -98,12 +128,13 @@ public class TotalQuestionTableController extends BaseController
     /**
      * 新增问题及命令
      */
-    @PreAuthorize("@ss.hasPermi('sql:total_question_table:add')")
-    @Log(title = "问题及命令", businessType = BusinessType.INSERT)
-    @PostMapping
-    public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable)
+    //@PreAuthorize("@ss.hasPermi('sql:total_question_table:add')")
+    //@Log(title = "问题及命令", businessType = BusinessType.INSERT)
+    @RequestMapping("add")
+    public String add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-        return toAjax(totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable));
+        int i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
+        return totalQuestionTable.getId()+"";
     }
 
     /**
@@ -120,10 +151,9 @@ public class TotalQuestionTableController extends BaseController
     /**
      * 修改问题及命令 的 循环
      */
-    public AjaxResult updateTotalQuestionTable(Long id,String ifCycle)
+    public AjaxResult updateTotalQuestionTable(Long id)
     {
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
-        totalQuestionTable.setIfCycle(ifCycle);
         return toAjax(totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable));
     }
 

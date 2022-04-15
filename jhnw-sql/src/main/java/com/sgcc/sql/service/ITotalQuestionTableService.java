@@ -58,4 +58,7 @@ public interface ITotalQuestionTableService
      * @return 结果
      */
     public int deleteTotalQuestionTableById(Long id);
+
+
+    List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable);
 }

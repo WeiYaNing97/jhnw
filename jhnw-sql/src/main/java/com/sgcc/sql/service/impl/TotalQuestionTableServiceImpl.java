@@ -90,4 +90,9 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     {
         return totalQuestionTableMapper.deleteTotalQuestionTableById(id);
     }
+
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
+    }
 }

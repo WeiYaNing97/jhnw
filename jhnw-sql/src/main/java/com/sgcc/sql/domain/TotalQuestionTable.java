@@ -51,11 +51,6 @@ public class TotalQuestionTable extends BaseEntity
     @Excel(name = "问题详细说明和指导索引")
     private Long problemDescribeId;
 
-    /** 是否循环 */
-    @Excel(name = "是否循环")
-    private String ifCycle;
-
-
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
@@ -132,14 +127,6 @@ public class TotalQuestionTable extends BaseEntity
         this.problemDescribeId = problemDescribeId;
     }
 
-    public String getIfCycle() {
-        return ifCycle;
-    }
-
-    public void setIfCycle(String ifCycle) {
-        this.ifCycle = ifCycle;
-    }
-
     public String getNotFinished() {
         return notFinished;
     }
@@ -157,11 +144,10 @@ public class TotalQuestionTable extends BaseEntity
                 ", firewareVersion='" + firewareVersion + '\'' +
                 ", subVersion='" + subVersion + '\'' +
                 ", notFinished='" + notFinished + '\'' +
-                ", commandId=" + commandId +
+                ", commandId='" + commandId + '\'' +
                 ", problemName='" + problemName + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +
                 ", problemDescribeId=" + problemDescribeId +
-                ", ifCycle='" + ifCycle + '\'' +
                 '}';
     }
 }
