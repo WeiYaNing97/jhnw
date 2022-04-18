@@ -89,10 +89,8 @@ public class TotalQuestionTableController extends BaseController
      */
     //@PreAuthorize("@ss.hasPermi('sql:total_question_table:list')")
     @RequestMapping("/typeProblemlist")
-    public List<String> typeProblemlist()//@RequestBody TotalQuestionTable totalQuestionTable
+    public List<String> typeProblemlist(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setSubVersion("1510P09");
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
         List<String> stringList = new ArrayList<>();
@@ -133,6 +131,7 @@ public class TotalQuestionTableController extends BaseController
     @RequestMapping("add")
     public String add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
+        totalQuestionTable.setNotFinished(totalQuestionTable.getNotFinished());
         int i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
         return totalQuestionTable.getId()+"";
     }

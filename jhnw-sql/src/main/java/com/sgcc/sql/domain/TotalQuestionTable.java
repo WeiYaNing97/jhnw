@@ -95,6 +95,14 @@ public class TotalQuestionTable extends BaseEntity
         this.subVersion = subVersion;
     }
 
+    public String getNotFinished() {
+        return notFinished;
+    }
+
+    public void setNotFinished(String notFinished) {
+        this.notFinished = notFinished;
+    }
+
     public String getCommandId() {
         return commandId;
     }
@@ -125,14 +133,6 @@ public class TotalQuestionTable extends BaseEntity
 
     public void setProblemDescribeId(Long problemDescribeId) {
         this.problemDescribeId = problemDescribeId;
-    }
-
-    public String getNotFinished() {
-        return notFinished;
-    }
-
-    public void setNotFinished(String notFinished) {
-        this.notFinished = notFinished;
     }
 
     @Override

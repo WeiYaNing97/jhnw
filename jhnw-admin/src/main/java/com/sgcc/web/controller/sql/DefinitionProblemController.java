@@ -677,7 +677,7 @@ public class DefinitionProblemController extends BaseController {
         }
         problemScanLogicVO.setCycleStartId(cycleStartId);
 
-        if (!(matched.equals("null")) && problemScanLogic.gettLine()!=null){
+        if (matched!=null && !(matched.equals("null")) && problemScanLogic.gettLine()!=null){
             problemScanLogicVO.setTrueFalse("成功");
         }
 
@@ -838,7 +838,7 @@ public class DefinitionProblemController extends BaseController {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String problemID:problemScanLogicIDsplit){
                 CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
-                if (commandLogic==null || commandLogic.getProblemId()==null){
+                if (commandLogic == null || commandLogic.getProblemId() == null){
                     return null;
                 }
                 commandLogicList.add(commandLogic);
@@ -901,7 +901,7 @@ public class DefinitionProblemController extends BaseController {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String id:problemScanLogicIDsplit){
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
-                if (problemScanLogic!=null){
+                if (problemScanLogic ==null){
                     return null;
                 }
                 if (problemScanLogic.gettNextId()!="" && problemScanLogic.gettNextId()!=null && !(isContainChinese(problemScanLogic.gettNextId()))){
