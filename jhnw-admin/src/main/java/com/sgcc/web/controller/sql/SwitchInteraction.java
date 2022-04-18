@@ -1067,11 +1067,11 @@ public class SwitchInteraction {
         //下一条分析ID   问题索引     解决问题命令ID
         if (boo){
             getNextId = problemScanLogic.gettNextId();
-            problemId = problemScanLogic.gettProblemId();
+            problemId = problemScanLogic.getProblemId();
             comId = problemScanLogic.gettComId();
         }else {
             getNextId = problemScanLogic.getfNextId();
-            problemId = problemScanLogic.getfProblemId();
+            problemId = problemScanLogic.getProblemId();
             comId = problemScanLogic.getfComId();
         }
 
@@ -1170,7 +1170,7 @@ public class SwitchInteraction {
                 case "有问题":
                     //返回 下一条分析ID  和  交换机返回信息索引位置(光标)
                     Integer tComId =Integer.valueOf(problemScanLogic.gettComId());
-                    Integer tProblemIdx =Integer.valueOf(problemScanLogic.gettProblemId());
+                    Integer tProblemIdx =Integer.valueOf(problemScanLogic.getProblemId());
 
                     if (tComId==0){
                         return  analysis_true = "有问题=:="+"问题索引=:="+tProblemIdx+"=:=tComId=:=0";
@@ -1225,7 +1225,7 @@ public class SwitchInteraction {
                 //false 存在问题——问题：确认存在问题，是否返回看命令id
                 case "有问题":
                     Integer fComId =Integer.valueOf(problemScanLogic.getfComId());
-                    Integer fProblemIdx =Integer.valueOf(problemScanLogic.getfProblemId());
+                    Integer fProblemIdx =Integer.valueOf(problemScanLogic.getProblemId());
                     if (fComId==0){
                         return  analysis_false = "有问题=:="+"问题索引=:="+fProblemIdx+"=:=fComId=:=0";
                     }else {

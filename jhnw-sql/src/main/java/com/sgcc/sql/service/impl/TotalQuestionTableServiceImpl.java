@@ -91,8 +91,64 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.deleteTotalQuestionTableById(id);
     }
 
+    /**
+    * @method: 查询问题及命令列表
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @Override
     public List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable) {
         return totalQuestionTableMapper.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
     }
+
+    /**
+    * @method: 品牌列表
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTablebrandList(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.selectTotalQuestionTablebrandList(totalQuestionTable);
+    }
+
+    /**
+    * @method: 型号列表
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTabletypelist(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.selectTotalQuestionTabletypelist(totalQuestionTable);
+    }
+
+    /**
+    * @method: 内部固件版本
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTablefirewareVersionlist(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable);
+    }
+
+    /**
+    * @method: 子版本号
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTablesubVersionlist(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
+    }
+
 }

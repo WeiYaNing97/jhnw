@@ -66,9 +66,9 @@ public class ProblemScanLogic extends BaseEntity
     @Excel(name = "true下一条命令索引")
     private String tComId;
 
-    /** true问题索引 */
-    @Excel(name = "true问题索引")
-    private String tProblemId;
+    /** 问题索引 */
+    @Excel(name = "问题索引")
+    private String problemId;
 
 
     /** false行号 */
@@ -85,10 +85,6 @@ public class ProblemScanLogic extends BaseEntity
     /** false下一条命令索引 */
     @Excel(name = "false下一条命令索引")
     private String fComId;
-
-    /** false问题索引 */
-    @Excel(name = "false问题索引")
-    private String fProblemId;
 
     /** 返回命令 */
     @Excel(name = "返回命令")
@@ -207,12 +203,12 @@ public class ProblemScanLogic extends BaseEntity
         this.tComId = tComId;
     }
 
-    public String gettProblemId() {
-        return tProblemId;
+    public String getProblemId() {
+        return problemId;
     }
 
-    public void settProblemId(String tProblemId) {
-        this.tProblemId = tProblemId;
+    public void setProblemId(String problemId) {
+        this.problemId = problemId;
     }
 
     public String getfLine() {
@@ -247,14 +243,6 @@ public class ProblemScanLogic extends BaseEntity
         this.fComId = fComId;
     }
 
-    public String getfProblemId() {
-        return fProblemId;
-    }
-
-    public void setfProblemId(String fProblemId) {
-        this.fProblemId = fProblemId;
-    }
-
     public Long getReturnCmdId() {
         return returnCmdId;
     }
@@ -274,7 +262,7 @@ public class ProblemScanLogic extends BaseEntity
     @Override
     public String toString() {
         return "ProblemScanLogic{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", matched='" + matched + '\'' +
                 ", relativePosition='" + relativePosition + '\'' +
                 ", matchContent='" + matchContent + '\'' +
@@ -287,14 +275,13 @@ public class ProblemScanLogic extends BaseEntity
                 ", content='" + content + '\'' +
                 ", tNextId='" + tNextId + '\'' +
                 ", tComId='" + tComId + '\'' +
-                ", tProblemId='" + tProblemId + '\'' +
+                ", problemId='" + problemId + '\'' +
                 ", fLine='" + fLine + '\'' +
                 ", tLine='" + tLine + '\'' +
                 ", fNextId='" + fNextId + '\'' +
                 ", fComId='" + fComId + '\'' +
-                ", fProblemId='" + fProblemId + '\'' +
                 ", returnCmdId=" + returnCmdId +
-                ", cycleStartId=" + cycleStartId +
+                ", cycleStartId='" + cycleStartId + '\'' +
                 '}';
     }
 }

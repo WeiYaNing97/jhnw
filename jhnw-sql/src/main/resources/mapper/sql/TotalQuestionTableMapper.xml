@@ -51,6 +51,67 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
         </where>
     </select>
+
+    <select id="selectTotalQuestionTablebrandList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        select DISTINCT brand from total_question_table
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
+            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+        </where>
+    </select>
+
+
+    <select id="selectTotalQuestionTabletypelist" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        select DISTINCT(type) from total_question_table
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
+            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+        </where>
+    </select>
+
+    <select id="selectTotalQuestionTablefirewareVersionlist" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        select DISTINCT(fireware_version) from total_question_table
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
+            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+        </where>
+    </select>
+
+    <select id="selectTotalQuestionTablesubVersionlist" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        select DISTINCT(sub_version) from total_question_table
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
+            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+        </where>
+    </select>
     
     <select id="selectTotalQuestionTableById" parameterType="Long" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>

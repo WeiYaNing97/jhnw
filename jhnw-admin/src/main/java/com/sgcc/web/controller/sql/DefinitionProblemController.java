@@ -157,17 +157,14 @@ public class DefinitionProblemController extends BaseController {
         for (ProblemScanLogic pojo:pojoList){
             for (ProblemScanLogic problemScanLogic:problemScanLogicList){
                 if (pojo.getId().equals(problemScanLogic.getId())){
-                    if (pojo.getfLine()==null
-                            && pojo.getfNextId()==null
-                            && pojo.getfComId()==null
-                            && pojo.getfProblemId()==null){
+                    if (pojo.getfLine()==null){
                          BeanUtils.copyProperties(pojo,problemScanLogic);
                          problemScanLogic.setMatched(pojo.getMatched()!=null?pojo.getMatched():"null");
                     }else {
                         problemScanLogic.setfLine(pojo.getfLine());
                         problemScanLogic.setfNextId(pojo.getfNextId());
                         problemScanLogic.setfComId(pojo.getfComId());
-                        problemScanLogic.setfProblemId(pojo.getfProblemId());
+                        problemScanLogic.setProblemId(pojo.getProblemId());
                     }
                 }
             }
@@ -206,14 +203,14 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("definitionProblemJsonPojo")
-    public void definitionProblemJsonPojo(){//@RequestBody List<String> jsonPojoList
-        List<String> jsonPojoList = new ArrayList<>();
+    public void definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+        /*List<String> jsonPojoList = new ArrayList<>();
         String s0="{\"targetType\":\"command\",\"onlyIndex\":1650009428953,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650009464386,\"pageIndex\":1}";
         String s1="{\"targetType\":\"match\",\"onlyIndex\":1650009464386,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650009472121,\"pageIndex\":2}";
         String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650009472121,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650009481194,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
         String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650009481194,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650009493738,\"pageIndex\":4}";
         String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650009493738,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650009515433,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
-        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650009515433,\"trueFalse\":\"\",\"action\":\"问题\",\"tProblemId\":15,\"tNextId\":\"有问题\",\"nextIndex\":1650009539915,\"pageIndex\":6}";
+        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650009515433,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":15,\"tNextId\":\"有问题\",\"nextIndex\":1650009539915,\"pageIndex\":6}";
         String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650009539915,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650009464386,\"nextIndex\":1650009481194,\"pageIndex\":7}";
         String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650009481194,\"trueFalse\":\"失败\",\"nextIndex\":1650009464386,\"pageIndex\":8}";
         String s8="{\"targetType\":\"matchfal\",\"onlyIndex\":1650009464386,\"trueFalse\":\"失败\",\"pageIndex\":9}";
@@ -225,7 +222,7 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s5);
         jsonPojoList.add(s6);
         jsonPojoList.add(s7);
-        jsonPojoList.add(s8);
+        jsonPojoList.add(s8);*/
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
@@ -239,11 +236,6 @@ public class DefinitionProblemController extends BaseController {
                     if (jsonPojoList.get(number+1).indexOf("command") !=-1){
                         //本条是分析 下一条是 问题
                         ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "命令");
-                        problemScanLogicList.add(problemScanLogic);
-                        continue;
-                    }else if (jsonPojoList.get(number+1).indexOf("问题") !=-1){
-                        //本条是分析 下一条是 问题
-                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "问题");
                         problemScanLogicList.add(problemScanLogic);
                         continue;
                     }else {
@@ -316,8 +308,8 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("tNextId",null);
         /** true下一条命令索引 */
         hashMap.put("tComId",null);
-        /** true问题索引 */
-        hashMap.put("tProblemId",null);
+        /** 问题索引 */
+        hashMap.put("problemId",null);
         /** false行号 */
         hashMap.put("fLine",null);
         /** true行号 */
@@ -326,14 +318,14 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("fNextId",null);
         /** false下一条命令索引 */
         hashMap.put("fComId",null);
-        /** false问题索引 */
-        hashMap.put("fProblemId",null);
         /** 返回命令 */
         hashMap.put("returnCmdId",null);
         /** 循环起始ID */
         hashMap.put("cycleStartId",null);
         //成功失败
         hashMap.put("trueFalse",null);
+        //问题
+        hashMap.put("WTNextId",null);
 
         for (String pojo:jsonPojo_split){
             String[] split = pojo.split(":");
@@ -403,11 +395,7 @@ public class DefinitionProblemController extends BaseController {
                     hashMap.put("content",split1);
                     break;
                 case "tNextId"://下一分析ID 也是 首分析ID
-                    /** true下一条分析索引 */
-                    hashMap.put("tNextId",split1);
-                    if (split1.indexOf("问题")!=-1){
-                        hashMap.put("action",split1);
-                    }
+                    hashMap.put("WTNextId",split1);
                     break;
                 case "nextIndex"://下一分析ID 也是 首分析ID
                     /** true下一条分析索引 */
@@ -424,13 +412,9 @@ public class DefinitionProblemController extends BaseController {
                     /** true行号 */
                     hashMap.put("trueFalse",split1);
                     break;
-                case "tProblemId":
-                    /** true问题索引 */
-                    hashMap.put("tProblemId",split1);
-                    break;
-                case "fProblemId":
-                    /** false问题索引 */
-                    hashMap.put("fProblemId",split1);
+                case "problemId":
+                    /** 问题索引 */
+                    hashMap.put("problemId",split1);
                     break;
             }
         }
@@ -466,17 +450,21 @@ public class DefinitionProblemController extends BaseController {
             hashMap.put("fNextId",hashMap.get("tNextId"));
             /** false下一条命令索引 */
             hashMap.put("fComId",hashMap.get("tComId"));
-            /** false问题索引 */
-            hashMap.put("fProblemId",hashMap.get("tProblemId"));
 
             /** true下一条分析索引 */
             hashMap.put("tNextId",null);
             /** true下一条命令索引 */
             hashMap.put("tComId",null);
-            /** true问题索引 */
-            hashMap.put("tProblemId",null);
             /** true行号 */
             hashMap.put("tLine",null);
+        }
+
+        if (hashMap.get("action")!=null && hashMap.get("action").equals("循环")){
+            hashMap.put("action",null);
+        }
+        if (hashMap.get("action")!=null && hashMap.get("action").equals("问题")){
+            hashMap.put("problemId",hashMap.get("WTNextId")+hashMap.get("problemId"));
+            hashMap.put("action",null);
         }
 
 
@@ -531,8 +519,8 @@ public class DefinitionProblemController extends BaseController {
             problemScanLogic.settComId(hashMap.get("tComId"));
         }
         /** true问题索引 */
-        if (hashMap.get("tProblemId")!=null){
-            problemScanLogic.settProblemId(hashMap.get("tProblemId"));
+        if (hashMap.get("problemId")!=null){
+            problemScanLogic.setProblemId(hashMap.get("problemId"));
         }
         /** false行号 */
         if (hashMap.get("fLine")!=null){
@@ -550,10 +538,6 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("fComId")!=null){
             problemScanLogic.setfComId(hashMap.get("fComId"));
         }
-        /** false问题索引 */
-        if (hashMap.get("fProblemId")!=null){
-            problemScanLogic.setfProblemId(hashMap.get("fProblemId"));
-        }
         if (hashMap.get("returnCmdId")!=null){
             /** 返回命令 */
             problemScanLogic.setReturnCmdId(Integer.valueOf(hashMap.get("returnCmdId")).longValue());
@@ -565,11 +549,6 @@ public class DefinitionProblemController extends BaseController {
 
         //通过redisTemplate设置值
         List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
-
-        if (problemScanLogic.getAction().equals("循环")){
-            problemScanLogic.setfNextId(null);
-            problemScanLogic.settNextId(null);
-        }
 
         resultList.add(problemScanLogic);
         redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
@@ -664,11 +643,11 @@ public class DefinitionProblemController extends BaseController {
         }
         problemScanLogicVO.setNextIndex(nextIndex);
         String problemId = null;
-        if (problemScanLogic.gettProblemId()!=null){
-            problemId = problemScanLogic.gettProblemId();
+        if (problemScanLogic.getProblemId()!=null){
+            problemId = problemScanLogic.getProblemId();
         }
-        if (problemScanLogic.getfProblemId()!=null){
-            problemId = problemScanLogic.getfProblemId();
+        if (problemScanLogic.getProblemId()!=null){
+            problemId = problemScanLogic.getProblemId();
         }
         problemScanLogicVO.setProblemId(problemId);
         String cycleStartId = null;
@@ -681,8 +660,6 @@ public class DefinitionProblemController extends BaseController {
             problemScanLogicVO.setTrueFalse("成功");
         }
 
-
-
         String problemScanLogicVOString = problemScanLogicVO.toString();
         problemScanLogicVOString = problemScanLogicVOString.replace("'","\"");
         problemScanLogicVOString = problemScanLogicVOString.replace(",",",\"");
@@ -691,6 +668,7 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogicVOString = problemScanLogicVOString.replace("\" ","\"");
         problemScanLogicVOString = problemScanLogicVOString.replace(" \"","\"");
         problemScanLogicVOString = problemScanLogicVOString.replace("ProblemScanLogicVO",pageIndex+":");
+
         return problemScanLogicVOString;
     }
 
@@ -949,11 +927,11 @@ public class DefinitionProblemController extends BaseController {
                 problemScanLogicf.setId(problemScanLogic.getId());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
-                problemScanLogicf.setfProblemId(problemScanLogic.getfProblemId());
+                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
                 problemScanLogic.setfLine(null);
                 problemScanLogic.setfNextId(null);
-                problemScanLogic.setfProblemId(null);
+                problemScanLogic.setProblemId(null);
                 problemScanLogic.setfComId(null);
                 ProblemScanLogics.add(problemScanLogicf);
             }

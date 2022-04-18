@@ -101,6 +101,85 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
+    * @method: 品牌列表
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<java.lang.String>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @RequestMapping("/brandlist")
+    public List<String> brandlist()
+    {
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setCommandId(null);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
+        List<String> stringList = new ArrayList<>();
+        for (TotalQuestionTable pojo:typeProblemlist){
+            stringList.add(pojo.getBrand());
+        }
+        return stringList;
+    }
+
+    /**
+    * @method: 型号集合
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<java.lang.String>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @RequestMapping("/typelist")
+    public List<String> typelist(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+        totalQuestionTable.setCommandId(null);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypelist(totalQuestionTable);
+        List<String> stringList = new ArrayList<>();
+        for (TotalQuestionTable pojo:typeProblemlist){
+            stringList.add(pojo.getType());
+        }
+        return stringList;
+    }
+
+    /**
+    * @method: 内部固件版本
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<java.lang.String>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @RequestMapping("/firewareVersionlist")
+    public List<String> firewareVersionlist(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+        totalQuestionTable.setCommandId(null);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable);
+
+        List<String> stringList = new ArrayList<>();
+        for (TotalQuestionTable pojo:typeProblemlist){
+            stringList.add(pojo.getFirewareVersion());
+        }
+        return stringList;
+    }
+
+    /**
+    * @method: 子版本号
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<java.lang.String>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @RequestMapping("/subVersionlist")
+    public List<String> subVersionlist(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+        totalQuestionTable.setCommandId(null);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
+        List<String> stringList = new ArrayList<>();
+        for (TotalQuestionTable pojo:typeProblemlist){
+            stringList.add(pojo.getSubVersion());
+        }
+        return stringList;
+    }
+
+
+    /**
      * 导出问题及命令列表
      */
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:export')")

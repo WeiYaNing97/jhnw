@@ -311,11 +311,11 @@ public class ProblemScanLogicController extends BaseController
         String comId ="";
         if (boo){
             getNextId = problemScanLogic.gettNextId();
-            problemId = problemScanLogic.gettProblemId();
+            problemId = problemScanLogic.getProblemId();
             comId = problemScanLogic.gettComId();
         }else {
             getNextId = problemScanLogic.getfNextId();
-            problemId = problemScanLogic.getfProblemId();
+            problemId = problemScanLogic.getProblemId();
             comId = problemScanLogic.getfComId();
         }
         switch (getNextId){
@@ -425,7 +425,7 @@ public class ProblemScanLogicController extends BaseController
                 //true 存在问题——endmark：确认存在问题，是否返回看命令id
                 case "haveproblem_endmark":
                     Integer tComId =Integer.valueOf(problemScanLogic.gettComId());
-                    Integer tProblemIdx =Integer.valueOf(problemScanLogic.gettProblemId());
+                    Integer tProblemIdx =Integer.valueOf(problemScanLogic.getProblemId());
                     if (tComId==0){
                         return  analysis_true = "haveproblem_endmark=:="+"问题索引=:="+tProblemIdx+"=:=tComId=:=0";
                     }else {
@@ -466,7 +466,7 @@ public class ProblemScanLogicController extends BaseController
                 //true 存在问题——endmark：确认存在问题，是否返回看命令id
                 case "haveproblem_endmark":
                     Integer fComId =Integer.valueOf(problemScanLogic.getfComId());
-                    Integer fProblemIdx =Integer.valueOf(problemScanLogic.getfProblemId());
+                    Integer fProblemIdx =Integer.valueOf(problemScanLogic.getProblemId());
                     if (fComId==0){
                         return  analysis_false = "haveproblem_endmark=:="+"问题索引=:="+fProblemIdx+"=:=fComId=:=0";
                     }else {

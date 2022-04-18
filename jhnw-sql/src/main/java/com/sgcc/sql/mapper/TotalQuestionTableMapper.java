@@ -59,5 +59,48 @@ public interface TotalQuestionTableMapper
      */
     public int deleteTotalQuestionTableByIds(Long[] ids);
 
+    /**
+    * @method: 查询问题及命令列表
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     public List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable);
+
+    /**
+    * @method: 品牌列表
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    List<TotalQuestionTable> selectTotalQuestionTablebrandList(TotalQuestionTable totalQuestionTable);
+
+    /**
+    * @method: 型号列表
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    List<TotalQuestionTable> selectTotalQuestionTabletypelist(TotalQuestionTable totalQuestionTable);
+
+    /**
+    * @method: 内部固件版本
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    List<TotalQuestionTable> selectTotalQuestionTablefirewareVersionlist(TotalQuestionTable totalQuestionTable);
+
+    /**
+    * @method: 子版本号
+    * @Param: [totalQuestionTable]
+    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    List<TotalQuestionTable> selectTotalQuestionTablesubVersionlist(TotalQuestionTable totalQuestionTable);
 }

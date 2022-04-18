@@ -28,8 +28,8 @@ public class TotalQuestionTable extends BaseEntity
     @Excel(name = "内部固件版本")
     private String firewareVersion;
 
-    /** 内部固件版本 */
-    @Excel(name = "内部固件版本")
+    /** 子版本号 */
+    @Excel(name = "子版本号")
     private String subVersion;
 
     /** 未完成 */
