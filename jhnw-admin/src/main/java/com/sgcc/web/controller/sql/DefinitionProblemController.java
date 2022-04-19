@@ -203,17 +203,20 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("definitionProblemJsonPojo")
-    public void definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
-        /*List<String> jsonPojoList = new ArrayList<>();
-        String s0="{\"targetType\":\"command\",\"onlyIndex\":1650009428953,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650009464386,\"pageIndex\":1}";
-        String s1="{\"targetType\":\"match\",\"onlyIndex\":1650009464386,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650009472121,\"pageIndex\":2}";
-        String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650009472121,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650009481194,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
-        String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650009481194,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650009493738,\"pageIndex\":4}";
-        String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650009493738,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650009515433,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
-        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650009515433,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":15,\"tNextId\":\"有问题\",\"nextIndex\":1650009539915,\"pageIndex\":6}";
-        String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650009539915,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650009464386,\"nextIndex\":1650009481194,\"pageIndex\":7}";
-        String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650009481194,\"trueFalse\":\"失败\",\"nextIndex\":1650009464386,\"pageIndex\":8}";
-        String s8="{\"targetType\":\"matchfal\",\"onlyIndex\":1650009464386,\"trueFalse\":\"失败\",\"pageIndex\":9}";
+    public void definitionProblemJsonPojo(){//@RequestBody List<String> jsonPojoList
+        List<String> jsonPojoList = new ArrayList<>();
+        String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
+        String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
+        String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650329632023,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650329641078,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
+        String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650329641078,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650329651495,\"pageIndex\":4}";
+        String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650329651495,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650329663575,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
+        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650329663575,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"15\",\"tNextId\":\"有问题\",\"nextIndex\":1650329668383,\"pageIndex\":6}";
+        String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650329668383,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329641078,\"pageIndex\":7}";
+        String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650329641078,\"trueFalse\":\"失败\",\"nextIndex\":1650329690175,\"pageIndex\":8}";
+        String s8="{\"targetType\":\"prodes\",\"onlyIndex\":1650329690175,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"15\",\"tNextId\":\"无问题\",\"nextIndex\":1650329701191,\"pageIndex\":9}";
+        String s9="{\"targetType\":\"wloop\",\"onlyIndex\":1650329701191,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329626647,\"pageIndex\":10}";
+        String s10="{\"targetType\":\"matchfal\",\"onlyIndex\":1650329626647,\"trueFalse\":\"失败\",\"nextIndex\":1650329683167,\"pageIndex\":11}";
+        String s11="{\"targetType\":\"prodes\",\"onlyIndex\":1650329683167,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"15\",\"tNextId\":\"完成\",\"pageIndex\":12}";
         jsonPojoList.add(s0);
         jsonPojoList.add(s1);
         jsonPojoList.add(s2);
@@ -222,7 +225,10 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s5);
         jsonPojoList.add(s6);
         jsonPojoList.add(s7);
-        jsonPojoList.add(s8);*/
+        jsonPojoList.add(s8);
+        jsonPojoList.add(s9);
+        jsonPojoList.add(s10);
+        jsonPojoList.add(s11);
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
@@ -276,7 +282,14 @@ public class DefinitionProblemController extends BaseController {
         HashMap<String,String> hashMap = new HashMap<>();
         jsonPojo = jsonPojo.replace("{","");
         jsonPojo = jsonPojo.replace("}","");
-        String[]  jsonPojo_split = jsonPojo.split(",");
+        jsonPojo = jsonPojo.replace("'","\"");
+        jsonPojo = jsonPojo.replace("\":","\":\"");
+        jsonPojo = jsonPojo.replace(":\"","\":\"");
+        jsonPojo = jsonPojo.replace("\",","\",\"");
+        jsonPojo = jsonPojo.replace(",\"","\",\"");
+        jsonPojo = jsonPojo.replace("\"\"","\"");
+        jsonPojo = jsonPojo.replace("\"\"","\"");
+        String[]  jsonPojo_split = jsonPojo.split("\""+","+"\"");
 
         /** 主键索引 */
         hashMap.put("id",null);
@@ -330,7 +343,10 @@ public class DefinitionProblemController extends BaseController {
         for (String pojo:jsonPojo_split){
             String[] split = pojo.split(":");
             String split0 = split[0].replace("\"","");
-            String split1 = split[1].replace("\"","");
+            String split1 = null;
+            if (split.length>1){
+                split1 = split[1].replace("\"","");
+            }
             switch (split0){
                 case "onlyIndex"://本层ID 主键ID
                     hashMap.put("id",split1);
@@ -465,6 +481,9 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("action")!=null && hashMap.get("action").equals("问题")){
             hashMap.put("problemId",hashMap.get("WTNextId")+hashMap.get("problemId"));
             hashMap.put("action",null);
+            if(hashMap.get("WTNextId").equals("完成")){
+                hashMap.put("problemId",hashMap.get("WTNextId"));
+            }
         }
 
 

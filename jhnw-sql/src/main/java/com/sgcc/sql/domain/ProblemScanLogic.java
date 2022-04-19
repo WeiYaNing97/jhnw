@@ -99,6 +99,7 @@ public class ProblemScanLogic extends BaseEntity
         return serialVersionUID;
     }
 
+
     public String getId() {
         return id;
     }

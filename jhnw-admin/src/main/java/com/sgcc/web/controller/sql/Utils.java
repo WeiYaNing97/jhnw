@@ -176,71 +176,64 @@ public class Utils {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static String wordSelection(String action,String returnString,String matchContent,Integer integer,String length){
-        switch (action){
-            case "取版本":
-                return Global.firmwareVersion;
-
-            case "取词":
-                integer = integer - 1 ;
-                // 获取 W、L、S
-                String substring = length.substring(length.length() - 1, length.length());
-                //获取取值长度
-                int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();
-                String return_string = "";
-                switch (substring){
-                    // 取词和取字符串
-                    case "w":
-                    case "W":
-                    case "s":
-                    case "S":
-                        String get_word = "";
-                        get_word = "";
-                        String returnString_string = " "+returnString+" ";
-                        if (returnString_string.indexOf(" "+matchContent+" ")!=-1){
-                            String[] split_String = returnString.split(" "+matchContent+" ");
-                            String[] split_w = split_String[1].split(" ");
-                            //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度
-                            if (split_w.length<integer.intValue()+word_length){
-                                return null;
-                            }
-                            //取词位置
-                            int number = integer.intValue();
-                            for (int num = 0;num<word_length;num++){
-                                get_word = split_w[number]+" ";
-                                number++;
-                                return_string += get_word.trim();
-                            }
-                        }
-                        if (return_string.length()>0){
-                            return return_string;
-                        }else {
-                            return null;
-                        }
-                        // 取字母
-                    case "l":
-                    case "L":
-                        String takeLetters = "" ;
-                        takeLetters = "";
-                        //模糊匹配 位置
-                        int string_position=returnString.indexOf(matchContent);
-                        if (string_position!=-1){
-                            int word_position = string_position+matchContent.length()+integer.intValue();
-                            if (word_position+word_length>returnString.length()){
-                                takeLetters = "";
-                            }else {
-                                takeLetters = returnString.substring(word_position, word_position + word_length);
-                            }
-                            return_string =takeLetters.trim();
-                        }
+    public static String wordSelection(String returnString,String matchContent,Integer integer,String length){
+        integer = integer - 1 ;
+        // 获取 W、L、S
+        String substring = length.substring(length.length() - 1, length.length());
+        //获取取值长度
+        int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();
+        String return_string = "";
+        switch (substring){
+            // 取词和取字符串
+            case "w":
+            case "W":
+            case "s":
+            case "S":
+                String get_word = "";
+                get_word = "";
+                String returnString_string = " "+returnString+" ";
+                if (returnString_string.indexOf(" "+matchContent+" ")!=-1){
+                    String[] split_String = returnString.split(" "+matchContent+" ");
+                    String[] split_w = split_String[1].split(" ");
+                    //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度
+                    if (split_w.length<integer.intValue()+word_length){
+                        return null;
+                    }
+                    //取词位置
+                    int number = integer.intValue();
+                    for (int num = 0;num<word_length;num++){
+                        get_word = split_w[number]+" ";
+                        number++;
+                        return_string += get_word.trim();
+                    }
                 }
                 if (return_string.length()>0){
                     return return_string;
                 }else {
                     return null;
                 }
+                // 取字母
+            case "l":
+            case "L":
+                String takeLetters = "" ;
+                takeLetters = "";
+                //模糊匹配 位置
+                int string_position=returnString.indexOf(matchContent);
+                if (string_position!=-1){
+                    int word_position = string_position+matchContent.length()+integer.intValue();
+                    if (word_position+word_length>returnString.length()){
+                        takeLetters = "";
+                    }else {
+                        takeLetters = returnString.substring(word_position, word_position + word_length);
+                    }
+                    return_string =takeLetters.trim();
+                }
         }
-        return null;
+        if (return_string.length()>0){
+            return return_string;
+        }else {
+            return null;
+        }
     }
 
     /**

@@ -263,7 +263,7 @@ public class ProblemScanLogicController extends BaseController
             //取词
             if (!action.equals("null")){
                 //取词数
-                String wordSelection_string = Utils.wordSelection(action, //提取方法 ：取词 取版本
+                String wordSelection_string = Utils.wordSelection(
                         return_information_array[num], matchContent, //返回信息的一行 提取关键字
                         problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
 

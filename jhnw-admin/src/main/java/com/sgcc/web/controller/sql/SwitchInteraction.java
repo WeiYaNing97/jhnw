@@ -371,11 +371,11 @@ public class SwitchInteraction {
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
          */
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
-        List<String> strings = selectProblemScanLogicById(user_String, connectMethod, telnetSwitchMethod,
+        String strings = selectProblemScanLogicById(user_String, connectMethod, telnetSwitchMethod,
                 return_information_array, "", "",
                 0, first_problem_scanLogic_Id, null,0);// loop end
-
-        return strings.get(0);
+        System.err.print("\r\n基本信息："+strings+"\r\n");
+        return strings;
     }
 
 
@@ -505,6 +505,7 @@ public class SwitchInteraction {
     @RequestMapping("/executeScanCommandByCommandId")
     public List<Object> executeScanCommandByCommandId(String commandId,String notFinished,String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod) {
 
+        System.err.print("\r\n命令ID"+commandId+"\r\n");
         //命令ID获取具体命令
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         //具体命令
@@ -603,12 +604,12 @@ public class SwitchInteraction {
         //根据第一条分析ID 查询分析信息
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
         //根据ID去分析
-        List<String> problemScanLogic_stringList = selectProblemScanLogicById( user_String,connectMethod, telnetSwitchMethod,
+        String problemScanLogic_string = selectProblemScanLogicById( user_String,connectMethod, telnetSwitchMethod,
                 return_information_array,"","",
                 0,first_problem_scanLogic_Id,null,0);// loop end
 
-        if (problemScanLogic_stringList!=null){
-            return problemScanLogic_stringList.get(0);
+        if (problemScanLogic_string!=null){
+            return problemScanLogic_string;
         }else {
             return null;
         }
@@ -628,49 +629,89 @@ public class SwitchInteraction {
      * 集合行数  第一分析ID 当前循环ID  是否循环 内部固件版本号
      */
     // 是否用首ID ifFirstID 分析首ID firstID   现行ID currentID 是否循环
-    public List<String> selectProblemScanLogicById(Map<String,String> user_String, SshMethod connectMethod, TelnetSwitchMethod telnetSwitchMethod,
+    public String selectProblemScanLogicById(Map<String,String> user_String, SshMethod connectMethod, TelnetSwitchMethod telnetSwitchMethod,
 
                                                    String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                                                    int line_n, String firstID, String currentID,
                                                    Integer insertsInteger) {
         //第一条分析ID
-        String id = firstID;
+        String id = firstID; //用于第一次分析 和  循环分析
         //如果当前分析ID不为空，则用当前分析ID
         if (currentID != null){
             id = currentID;
         }
+
         System.err.print("\r\n走的分析ID:"+id+"\r\n");
+
         //根据ID查询  分析数据
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
 
-        if (problemScanLogic.getAction().equals("循环")){
+        //如果循环ID不为空的话 说明 分析数据为循环分析 所以 需要调出循环ID 当做第一分析ID 当前分析ID 为空 继续执行
+        if (problemScanLogic.getCycleStartId()!=null){
+            //调出循环ID 当做第一分析ID
             firstID = problemScanLogic.getCycleStartId();
-            List<String> loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+            String loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                     return_information_array,"",extractInformation_string,
                     line_n,firstID,null,insertsInteger);
-            if (loop_string!=null){
-                extractInformation_string = loop_string.get(0);
-                return loop_string;
-            }
+
             return loop_string;
         }
 
-        //相对位置——行(1,0)
+        //如果 问题索引字段 不为空 则 说明  分析数据 是 问题分析
+        if (problemScanLogic.getProblemId()!=null){
+            //有问题 无问题
+            if (problemScanLogic.getProblemId().indexOf("问题")!=-1){
+                insertvalueInformationService(user_String,problemScanLogic,current_Round_Extraction_String);
+                insertsInteger++;
+                current_Round_Extraction_String = "";
+                getUnresolvedProblemInformationByData();
+                currentID = problemScanLogic.gettNextId();
+                String loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                        return_information_array,"",extractInformation_string,
+                        line_n,firstID,currentID,insertsInteger);
+                //如果返回信息为null
+                if (loop_string!=null){
+                    //内分析传到上一层
+                    //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                    extractInformation_string = loop_string;
+                    return loop_string;
+                }
+            }
+
+            // 分析执行 完成
+            if (problemScanLogic.getProblemId().indexOf("完成")!=-1){
+
+                return extractInformation_string;
+
+            }
+        }
+
+        //相对位置——行,列(1,0)
         String relativePosition = problemScanLogic.getRelativePosition();
-        String relativePosition_line = relativePosition.split(",")[0];
+        //相对位置行
+        String relativePosition_line ="";
+        //相对位置列
+        String relativePosition_row ="";
+        if (!(relativePosition.equals("null")) && relativePosition!=null){
+            String[] relativePosition_split = relativePosition.split(",");
+            //相对位置行
+            relativePosition_line = relativePosition_split[0];
+            //相对位置列
+            relativePosition_row = relativePosition_split[1];
+        }
         //分析数据 的 关键字
-        String matchContent = problemScanLogic.getMatchContent();
+        String matchContent = "";
+        if (problemScanLogic.getMatchContent()!=null){
+            matchContent = problemScanLogic.getMatchContent();
+        }
 
         //标定从第line_n开始扫描
         //分析数据 相对位置为空 或者 line_n !=0 不为0
         //relativePosition_line = "null" 则从头开始匹配
         //如果 !relativePosition_line.equals("null")  则 根据 relativePosition_line 行来分析
-
-        String way = user_String.get("mode");
-
-        if (!relativePosition_line.equals("null") || line_n !=0){
+        if (!relativePosition_line.equals("") || line_n !=0){
             int line_number = 0;
-            if (!relativePosition_line.equals("null")){
+            if (!relativePosition_line.equals("")){
                 line_number = Integer.valueOf(relativePosition_line).intValue();
             }
             //line_n 为上一条分析的 成功确认索引  加 下一条相对位置 就是下一个索引位置
@@ -682,354 +723,137 @@ public class SwitchInteraction {
         //从line_n=0 开始检索集合 一直到最后一位
         for (int num = line_n;num<return_information_array.length; num++){
 
-            //返回信息的数组元素 第num 条
-            String string_line_n = return_information_array[num];
             //匹配逻辑
             String matched = problemScanLogic.getMatched();
             //取词逻辑
             String action = problemScanLogic.getAction();
-            //比较分析
+            //比较分析号
             String compare = problemScanLogic.getCompare();
+            //比较分析值
+            String content = problemScanLogic.getContent();
 
-            //匹配逻辑
-            if (!matched.equals("null") && !matched.equals("循环")){
+
+            //返回信息的数组元素 第num 条
+            String information_line_n = return_information_array[num];
+            //光标位置
+            line_n = num;
+
+            //匹配逻辑 有成功失败之分
+            if (!matched.equals("null")){
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
-                boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, string_line_n, matchContent);
-
+                //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
+                boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, information_line_n, matchContent);
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
-                    //执行 成功 逻辑
-                    //得到：下一条分析ID+"=:="+当前行数
-                    //（有问题-问题索引-命令索引
-                    //无问题-无问题
-                    //待定-下一命令ID
-                    //完成:结束分析 ）
-                    String analysis_true_string = analysis_true(user_String,connectMethod, telnetSwitchMethod,problemScanLogic, num);
-                    //不包含字体：有问题无问题  和  待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
-                    if ((analysis_true_string.indexOf("问题") ==-1)
-                            && (analysis_true_string.indexOf("继续") == -1)
-                            && (analysis_true_string.indexOf("完成") == -1)){
+                    //下一条true分析ID
+                    String tNextId = problemScanLogic.gettNextId();
 
-                        //得到的 ： 下一条分析ID+"=:="+当前行数
-                        String[] analysis_true_split = analysis_true_string.split("=:=");
 
-                        //下一条分析ID
-                        analysis_true_string =analysis_true_split[0];
-
-                        //当前行数
-                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
-                        //根据下一条分析ID 和 当前行 来进行 下条分析
-                        //返回 {总截取信息，true/false流程返回信息}
-                        //current_Round_Extraction_String : 单次分析提取数据
-                        //extractInformation_string : 循环分析提取数据
-                        //line_n:交换机返回信息字符串分析索引位置(光标)，firstID:第一条分析ID， currentID:当前分析ID ，
-                        //logic_true_false:上一条分析结果true false ，insertsInteger：累计插入问题数据次数、为了“完成”
-                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,analysis_true_string,insertsInteger);
-
-                        //如果返回信息为null
-                        if (ProblemScanLogic_returnstring!=null){
-                            //内分析传到上一层
-                            //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                            return ProblemScanLogic_returnstring;
-                        }
+                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                            return_information_array,current_Round_Extraction_String,extractInformation_string,
+                            line_n,firstID,tNextId,insertsInteger);
+                    //如果返回信息为null
+                    if (ProblemScanLogic_returnstring!=null){
+                        //内分析传到上一层
+                        //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                        extractInformation_string = ProblemScanLogic_returnstring;
                         return ProblemScanLogic_returnstring;
-                    }else {
-                        // 如果是 字体 有问题 无问题 继续 完成
-                        if ((analysis_true_string.indexOf("问题") !=-1)
-                                || (analysis_true_string.indexOf("继续") != -1)){
-                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-                        }else if ((insertsInteger==0 && analysis_true_string.indexOf("完成") != -1)){
-                            problemScanLogic.setfNextId("没问题");
-                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-
-                            List<String> stringList = new ArrayList<>();
-                            stringList.add(extractInformation_string);
-                            stringList.add(analysis_true_string);
-                            return stringList;
-                        }
-
-                        List<String> stringList = new ArrayList<>();
-                        stringList.add(extractInformation_string);
-                        stringList.add(analysis_true_string);
-                        return stringList;
                     }
+                    return ProblemScanLogic_returnstring;
                 //匹配失败
                 }else {
 
-                    //insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
-                    //current_Round_Extraction_String = "";
-                    String analysis_false_string = analysis_false(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
-
-                    //如果是最后一条信息 并且 匹配不上则
-                    // !false  &&   最后一条信息
-                    if ((!matchAnalysis_true_false && num == return_information_array.length-1) ){
-                        //才会 查询
-                        if ((analysis_false_string.indexOf("问题") ==-1)
-                                && (analysis_false_string.indexOf("继续") ==-1)
-                                && (analysis_false_string.indexOf("完成") ==-1)){
-                            //如果 不包含问题  继续  完成 说明 没有结果 是具体ID
-                            //下一条分析ID+"=:="+当前行数
-                            String[] analysis_true_split = analysis_false_string.split("=:=");
-                            //下一条分析ID
-                            analysis_false_string =analysis_true_split[0];
-                            //当前行数
-                            line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-                            //根据下一条分析ID 和 当前行 来进行 下条分析
-                            //返回 {总截取信息，true/false流程返回信息}
-                            List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                    return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                    line_n,firstID,analysis_false_string,insertsInteger);
-                            //如果返回信息为null
-                            if (ProblemScanLogic_returnstring!=null){
-                                //内分析传到上一层
-                                //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                                extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                                return ProblemScanLogic_returnstring;
-                            }
-
-                            return ProblemScanLogic_returnstring;
-                            //如果包含问题 说明存在问题或者 不存在问题 有结果
-                        }else if ((analysis_false_string.indexOf("问题") !=-1)
-                                || (analysis_false_string.indexOf("继续") !=-1)){
-                            insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-
-                        }else if (insertsInteger==0 && analysis_false_string.indexOf("完成") !=-1){
-                            problemScanLogic.setfNextId("没问题");
-                            insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-
-                            List<String> stringList = new ArrayList<>();
-                            stringList.add(extractInformation_string);
-                            stringList.add(analysis_false_string+"=:="+line_n);
-                            return stringList;
-                        }
-
-                        List<String> stringList = new ArrayList<>();
-                        stringList.add(extractInformation_string);
-                        stringList.add(analysis_false_string+"=:="+line_n);
-                        return stringList;
-                    }
                     // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
-                    if (relativePosition_line.equals("null")){
+                    if (relativePosition.equals("null") && num<return_information_array.length-1){
                         continue;
                     }
+
+                    //下一条frue分析ID
+                    String fNextId = problemScanLogic.getfNextId();
+                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                            return_information_array,current_Round_Extraction_String,extractInformation_string,
+                            line_n,firstID,fNextId,insertsInteger);
+                    //如果返回信息为null
+                    if (ProblemScanLogic_returnstring!=null){
+                        //内分析传到上一层
+                        //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                        extractInformation_string = ProblemScanLogic_returnstring;
+                        return ProblemScanLogic_returnstring;
+                    }
+                    return ProblemScanLogic_returnstring;
                 }
-                continue;
             }
 
             //取词
-            if (!action.equals("null") && !action.equals("取版本")){
+            if (action!=null && !action.equals("null")){
+
                 //取词数
-                String wordSelection_string = Utils.wordSelection(action, //提取方法 ：取词 取版本
+                String wordSelection_string = Utils.wordSelection(
                         return_information_array[num], matchContent, //返回信息的一行 提取关键字
                         problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
-
-                //取词结果 不为空 为正确
-                if (wordSelection_string!=null){
-                    extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+ wordSelection_string+"=:=";
-                    current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
-                    //分析结果为 true 有结果返回结果，没结果返回下一条分析ID
-                    String analysis_true_string = analysis_true(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
-
-                    //不包含：有问题无问题和待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
-                    if ((analysis_true_string.indexOf("问题") ==-1)
-                            && (analysis_true_string.indexOf("继续") == -1)
-                            && (analysis_true_string.indexOf("完成") == -1)){
-
-                        String[] analysis_true_split = analysis_true_string.split("=:=");
-                        analysis_true_string =analysis_true_split[0];
-                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
-                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,analysis_true_string,insertsInteger);
-                        if (ProblemScanLogic_returnstring!=null){
-                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                            return ProblemScanLogic_returnstring;
-                        }
-
-                        return ProblemScanLogic_returnstring;
-                    }else {
-
-                        //字体
-                        if ((analysis_true_string.indexOf("问题") !=-1)
-                                || (analysis_true_string.indexOf("继续") != -1)){
-                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-
-                        }else if (insertsInteger==0 && analysis_true_string.indexOf("完成") != -1){
-                            problemScanLogic.setfNextId("没问题");
-                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-                            List<String> stringList = new ArrayList<>();
-                            stringList.add(extractInformation_string);
-                            stringList.add(analysis_true_string);
-                            return stringList;
-                        }
-
-                        List<String> stringList = new ArrayList<>();
-                        stringList.add(extractInformation_string);
-                        stringList.add(analysis_true_string);
-                        return stringList;
-                    }
-
-                }else {
-                    //走 false 逻辑
-                    String analysis_false_string = analysis_false(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
-
-                    current_Round_Extraction_String = "";
-
-                    // 不为 字体 是下一个ID
-                    if ((analysis_false_string.indexOf("问题") ==-1)
-                            && (analysis_false_string.indexOf("继续") ==-1)
-                            && (analysis_false_string.indexOf("完成") ==-1)){
-
-                        String[] analysis_true_split = analysis_false_string.split("=:=");
-                        analysis_false_string =analysis_true_split[0];
-                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
-                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,analysis_false_string,insertsInteger);
-                        if (ProblemScanLogic_returnstring!=null){
-                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                            return ProblemScanLogic_returnstring;
-                        }
-                        return ProblemScanLogic_returnstring;
-                    //如果包含问题 说明存在问题或者 不存在问题 有结果
-                    }else if ((analysis_false_string.indexOf("问题") !=-1) || (analysis_false_string.indexOf("继续") !=-1)){
-                        insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
-                        insertsInteger++;
-                        current_Round_Extraction_String = "";
-                        getUnresolvedProblemInformationByData();
-
-                    }else if ((insertsInteger == 0 && analysis_false_string.indexOf("完成") !=-1)){
-                        problemScanLogic.setfNextId("没问题");
-                        insertvalueInformationService(user_String,false,problemScanLogic,current_Round_Extraction_String);
-                        insertsInteger++;
-                        current_Round_Extraction_String = "";
-                        getUnresolvedProblemInformationByData();
-                    }
+                //取词只有成功
+                extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+ wordSelection_string+"=:=";
+                current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
+                //下一ID
+                String tNextId = problemScanLogic.gettNextId();
+                String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                        return_information_array,current_Round_Extraction_String,extractInformation_string,
+                        line_n,firstID,tNextId,insertsInteger);
+                if (ProblemScanLogic_returnstring!=null){
+                    extractInformation_string = ProblemScanLogic_returnstring;
+                    return ProblemScanLogic_returnstring;
                 }
-                continue;
+                return ProblemScanLogic_returnstring;
             }
 
+
             //比较
-            if (compare!=null && !compare.equals("")){
+            if (compare!=null){
                 String remove_content = "";
                 switch (action){
-                    case "取版本":
+                    case "取品牌":
+                        remove_content = user_String.get("deviceBrand");
+                        break;
+                    case "取型号":
+                        remove_content = user_String.get("deviceModel");
+                        break;
+                    case "取固件版本":
                         remove_content = user_String.get("firmwareVersion");
                         break;
-                    case "":
+                    case "取子版本":
+                        remove_content = user_String.get("subversionNumber");
+                        break;
+                    case "取词":
                         //取词数
-                        remove_content = Utils.wordSelection(action, //提取方法 ：取词 取版本
+                        remove_content = Utils.wordSelection(
                                 return_information_array[num], matchContent, //返回信息的一行 提取关键字
                                 problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
                         break;
                 }
+                //比较
                 boolean compare_boolean = Utils.compareVersion(remove_content, compare, problemScanLogic.getContent());
 
                 if (compare_boolean){
-                    String analysis_true_string = analysis_true(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
-
-                    //不包含：有问题无问题和待确定 时 说明 是具体ID 则进行下一步：  加上 不能确定
-                    if ((analysis_true_string.indexOf("问题") ==-1)
-                            && (analysis_true_string.indexOf("继续") == -1)
-                            && (analysis_true_string.indexOf("完成") == -1)){
-
-                        String[] analysis_true_split = analysis_true_string.split("=:=");
-                        analysis_true_string =analysis_true_split[0];
-                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
-                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,analysis_true_string,insertsInteger);
-                        if (ProblemScanLogic_returnstring!=null){
-                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                            return ProblemScanLogic_returnstring;
-                        }
+                    String tNextId = problemScanLogic.gettNextId();
+                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                            return_information_array,current_Round_Extraction_String,extractInformation_string,
+                            line_n,firstID,tNextId,insertsInteger);
+                    if (ProblemScanLogic_returnstring!=null){
+                        extractInformation_string = ProblemScanLogic_returnstring;
                         return ProblemScanLogic_returnstring;
-                    }else {
-                        if ((analysis_true_string.indexOf("问题") !=-1)
-                                || (analysis_true_string.indexOf("继续") != -1)){
-                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-
-                        }else if (insertsInteger==0 && analysis_true_string.indexOf("完成") != -1){
-                            problemScanLogic.setfNextId("没问题");
-                            insertvalueInformationService(user_String,true,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-                        }
-
-                        List<String> stringList = new ArrayList<>();
-                        stringList.add(extractInformation_string);
-                        stringList.add(analysis_true_string);
-                        return stringList;
                     }
+                    return ProblemScanLogic_returnstring;
 
                 }else {
-
-                    String analysis_false_string = analysis_false(user_String,connectMethod,telnetSwitchMethod,problemScanLogic, num);
-
-                    if ((analysis_false_string.indexOf("问题") ==-1)
-                            && (analysis_false_string.indexOf("继续") == -1)
-                            && (analysis_false_string.indexOf("完成") == -1)){
-
-                        String[] analysis_true_split = analysis_false_string.split("=:=");
-                        analysis_false_string =analysis_true_split[0];
-                        line_n=Integer.valueOf(analysis_true_split[1]).intValue();
-
-                        List<String> ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,analysis_false_string,insertsInteger);
-                        if (ProblemScanLogic_returnstring!=null){
-                            extractInformation_string = ProblemScanLogic_returnstring.get(0);
-                            return ProblemScanLogic_returnstring;
-                        }
+                    String fNextId = problemScanLogic.getfNextId();
+                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                            return_information_array,current_Round_Extraction_String,extractInformation_string,
+                            line_n,firstID,fNextId,insertsInteger);
+                    if (ProblemScanLogic_returnstring!=null){
+                        extractInformation_string = ProblemScanLogic_returnstring;
                         return ProblemScanLogic_returnstring;
-                    }else {
-                        if ((analysis_false_string.indexOf("问题") !=-1)
-                                || (analysis_false_string.indexOf("继续") != -1)){
-                            insertvalueInformationService(user_String,compare_boolean,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-
-                        }else if (insertsInteger==0 && (analysis_false_string.indexOf("完成") != -1)){
-                            insertvalueInformationService(user_String,compare_boolean,problemScanLogic,current_Round_Extraction_String);
-                            insertsInteger++;
-                            current_Round_Extraction_String = "";
-                            getUnresolvedProblemInformationByData();
-                        }
-                        List<String> stringList = new ArrayList<>();
-                        stringList.add(extractInformation_string);
-                        stringList.add(analysis_false_string);
-                        return stringList;
                     }
+                    return ProblemScanLogic_returnstring;
                 }
             }
         }
@@ -1047,7 +871,7 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public void insertvalueInformationService(Map<String,String> user_String,boolean boo,ProblemScanLogic problemScanLogic,String parameterString){
+    public void insertvalueInformationService(Map<String,String> user_String,ProblemScanLogic problemScanLogic,String parameterString){
 
         //系统登录人 用户名
         String userName = GlobalVariable.userName;
@@ -1055,198 +879,59 @@ public class SwitchInteraction {
         //系统登录人 手机号
         String phonenumber = GlobalVariable.phonenumber;
 
-        //下一条分析ID : 有问题  没问题
-        String getNextId = "";
-        //问题索引
-        String problemId ="";
-        //解决问题命令ID
-        String comId ="";
+        String substring = problemScanLogic.getProblemId().substring(0, 3);
+        String problemId = problemScanLogic.getProblemId().substring(3, problemScanLogic.getProblemId().length());
 
-        //根据分析结果是 true  还是  false
-        //得到应该执行的分支
-        //下一条分析ID   问题索引     解决问题命令ID
-        if (boo){
-            getNextId = problemScanLogic.gettNextId();
-            problemId = problemScanLogic.getProblemId();
-            comId = problemScanLogic.gettComId();
-        }else {
-            getNextId = problemScanLogic.getfNextId();
-            problemId = problemScanLogic.getProblemId();
-            comId = problemScanLogic.getfComId();
-        }
+        //参数组中的 第一个参数ID  默认为 0
+        Long outId = 0l;
 
-        //下一条分析ID  有问题   没问题   完成
-        switch (getNextId){
-            case "有问题":
-            case "没问题":
-            case "完成":
-                //参数组中的 第一个参数ID  默认为 0
-                Long outId = 0l;
+        //提取信息 如果不为空 则有参数
+        if (parameterString!=null && !parameterString.equals("")){
+            //几个参数中间的 参数是 以  "=:=" 来分割的
+            //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
+            String[] parameterStringsplit = parameterString.split("=:=");
 
-                //提取信息 如果不为空 则有参数
-                if (parameterString!=null && !parameterString.equals("")){
-                    //几个参数中间的 参数是 以  "=:=" 来分割的
-                    //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-                    String[] parameterStringsplit = parameterString.split("=:=");
+            //判断提取参数 是否为空
+            if (parameterStringsplit.length>0){
+                //创建 参数 实体类
+                ValueInformation valueInformation = new ValueInformation();
 
-                    //判断提取参数 是否为空
-                    if (parameterStringsplit.length>0){
-                        //创建 参数 实体类
-                        ValueInformation valueInformation = new ValueInformation();
-
-                        //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
-                        //所以 参数组 要倒序插入
-                        for (int number=parameterStringsplit.length-1;number>0;number--){
-                            //插入参数
-                            //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
-                            String setDynamicInformation=parameterStringsplit[number];
-                            valueInformation.setDisplayInformation(setDynamicInformation);//动态信息(显示
-                            valueInformation.setDynamicInformation(setDynamicInformation);//动态信息
-                            --number;
-                            String setExhibit=parameterStringsplit[number];
-                            valueInformation.setExhibit(setExhibit);//是否显示
-                            --number;
-                            valueInformation.setDynamicVname(parameterStringsplit[number]);//动态信息名称
-                            valueInformation.setOutId(outId);
-                            valueInformationService.insertValueInformation(valueInformation);
-                            outId = valueInformation.getId();
-                        }
-                    }
+                //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
+                //所以 参数组 要倒序插入
+                for (int number=parameterStringsplit.length-1;number>0;number--){
+                    //插入参数
+                    //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
+                    String setDynamicInformation=parameterStringsplit[number];
+                    valueInformation.setDisplayInformation(setDynamicInformation);//动态信息(显示
+                    valueInformation.setDynamicInformation(setDynamicInformation);//动态信息
+                    --number;
+                    String setExhibit=parameterStringsplit[number];
+                    valueInformation.setExhibit(setExhibit);//是否显示
+                    --number;
+                    valueInformation.setDynamicVname(parameterStringsplit[number]);//动态信息名称
+                    valueInformation.setOutId(outId);
+                    valueInformationService.insertValueInformation(valueInformation);
+                    outId = valueInformation.getId();
                 }
-                //插入问题数据
-                SwitchProblem switchProblem = new SwitchProblem();
-                switchProblem.setSwitchIp(user_String.get("ip")); // ip
-                switchProblem.setSwitchName(user_String.get("name")); //name
-                switchProblem.setSwitchPassword(user_String.get("password")); //password
-
-
-                switchProblem.setProblemId(problemId); // 问题索引
-                switchProblem.setComId(comId);//命令索引
-                switchProblem.setValueId(outId);//参数索引
-                switchProblem.setIfQuestion(getNextId); //是否有问题
-
-                switchProblem.setUserName(userName);//参数索引
-                switchProblem.setPhonenumber(phonenumber); //是否有问题
-                switchProblemService.insertSwitchProblem(switchProblem);
-            case "":
+            }
         }
+        //插入问题数据
+        SwitchProblem switchProblem = new SwitchProblem();
+        switchProblem.setSwitchIp(user_String.get("ip")); // ip
+        switchProblem.setSwitchName(user_String.get("name")); //name
+        switchProblem.setSwitchPassword(user_String.get("password")); //password
+
+
+        switchProblem.setProblemId(substring); // 问题索引
+        switchProblem.setComId(problemScanLogic.gettComId());//命令索引
+        switchProblem.setValueId(outId);//参数索引
+        switchProblem.setIfQuestion(problemId); //是否有问题
+
+        switchProblem.setUserName(userName);//参数索引
+        switchProblem.setPhonenumber(phonenumber); //是否有问题
+        switchProblemService.insertSwitchProblem(switchProblem);
     };
 
-    /**
-     * @method: 分析结果正确
-     * @Param: [user_String 用户信息, connectMethod ssh连接, telnetSwitchMethod telnet连接,
-     *                problemScanLogic 扫描逻辑表数据信息, num 交换机返回信息索引位置(光标)]
-     * @return: java.lang.String 有结果返回结果，没结果返回下一条分析ID
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    public String analysis_true(Map<String,String> user_String,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,ProblemScanLogic problemScanLogic,int num){
-        //连接方式
-        String way = user_String.get("mode");
-        // 设置返回信息 初始化为空
-        String analysis_true = null;
-        //扫描逻辑表数据信息 true 结果 下一条分析ID
-        String tNextId_string = problemScanLogic.gettNextId();
-        //如果 下一条分析ID 不包含  没问题 有问题 继续
-        //否则 为 具体ID
-
-        if (!tNextId_string.equals("没问题")
-                && !tNextId_string.equals("有问题")
-                && !tNextId_string.equals("继续")
-                && !tNextId_string.equals("完成")
-                && !tNextId_string.equals("")){
-            //匹配成功则返回 true下一条ID
-            int line_n = num;
-            //  得到 下一条 分析 ID
-            String tNextId_Integer= problemScanLogic.gettNextId();
-
-            //返回 下一条分析ID  和  光标位置
-            return tNextId_Integer+"=:="+line_n;
-
-        }else {
-            //如果 下一条分析ID 包含  没问题 有问题 继续  完成
-            switch (tNextId_string){
-                //true 存在问题——问题：确认存在问题，是否返回看命令id
-                case "有问题":
-                    //返回 下一条分析ID  和  交换机返回信息索引位置(光标)
-                    Integer tComId =Integer.valueOf(problemScanLogic.gettComId());
-                    Integer tProblemIdx =Integer.valueOf(problemScanLogic.getProblemId());
-
-                    if (tComId==0){
-                        return  analysis_true = "有问题=:="+"问题索引=:="+tProblemIdx+"=:=tComId=:=0";
-                    }else {
-                        return  analysis_true = "有问题=:="+"问题索引=:="+tProblemIdx+"=:=tComId=:="+tComId;
-                    }
-                    //true 不存在问题——问题：确认不存在问题，返回同上
-                case "没问题":
-                    return analysis_true = "没问题";
-                //true 继续：代表需要执行命令才能进一步分析，看命令id
-                case "继续":
-                    //返回待分析继续 命令id
-                    String commandId =problemScanLogic.gettComId();
-                    executeScanCommandByCommandId(commandId,user_String.get("notFinished"),way,connectMethod,telnetSwitchMethod);
-                    return analysis_true = "继续=:=tComId=:="+commandId;
-                case "完成":
-                    return analysis_true = "完成";
-            }
-        }
-        return analysis_true;
-    }
-
-    /**
-     * @method: 分析结果错误
-     * @Param: [way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接,
-     *                 problemScanLogic 扫描逻辑表数据信息, num 交换机返回信息索引位置(光标)]
-     * @return: java.lang.String 有结果返回结果，没结果返回下一条分析ID
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    public String analysis_false(Map<String,String> user_String,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,ProblemScanLogic problemScanLogic,int num){
-        String way = user_String.get("mode");
-        // 设置返回信息 初始化为空
-        String analysis_false=null;
-        //扫描逻辑表数据信息 false 结果 下一条分析ID
-        String fNextId_string = problemScanLogic.getfNextId();
-        //如果 下一条分析ID 不包含  没问题 有问题 继续
-        //否则 为 具体ID
-        if ((!fNextId_string.equals("没问题")
-                && !fNextId_string.equals("有问题")
-                && !fNextId_string.equals("继续")
-                && !fNextId_string.equals("完成")
-                && !fNextId_string.equals(""))
-        || (problemScanLogic.getMatched().indexOf("匹配")!=-1 && problemScanLogic.getRelativePosition().equals("null"))){
-            //返回 下一条分析ID  和  交换机返回信息索引位置(光标)
-            int line_n = num;
-            String fNextId_Integer = fNextId_string;
-            return fNextId_Integer+"=:="+line_n;
-        }else {
-            //如果 下一条分析ID 包含  没问题 有问题 继续
-            switch ( fNextId_string ){
-                //false 存在问题——问题：确认存在问题，是否返回看命令id
-                case "有问题":
-                    Integer fComId =Integer.valueOf(problemScanLogic.getfComId());
-                    Integer fProblemIdx =Integer.valueOf(problemScanLogic.getProblemId());
-                    if (fComId==0){
-                        return  analysis_false = "有问题=:="+"问题索引=:="+fProblemIdx+"=:=fComId=:=0";
-                    }else {
-                        return  analysis_false = "有问题=:="+"问题索引=:="+fProblemIdx+"=:=fComId=:="+fComId;
-                    }
-                    //false 不存在问题——问题：确认不存在问题，返回同上
-                case "没问题":
-                    return analysis_false = "没问题";
-                //false 继续：代表需要执行命令才能进一步分析，看命令id
-                case "继续":
-                    //返回待分析继续 命令id
-                    String commandId = problemScanLogic.getfComId();
-                    executeScanCommandByCommandId(commandId,user_String.get("notFinished"),way,connectMethod,telnetSwitchMethod);
-                    return analysis_false = "继续=:=fComId=:="+commandId;
-                case "完成":
-                    return analysis_false = "完成";
-                case "":
-            }
-        }
-        return analysis_false;
-    }
 
     /**
      * @method: getUnresolvedProblemInformationByData
