@@ -30,6 +30,7 @@ public class TotalQuestionTableController extends BaseController
     private ITotalQuestionTableService totalQuestionTableService;
 
     public static List<String> longList;
+
     /**
      * @method: 根据交换机信息查询 扫描问题的 命令ID
      * @Param: []
@@ -82,6 +83,21 @@ public class TotalQuestionTableController extends BaseController
             return getDataTable(totalQuestionTables);
         }
         return getDataTable(list);
+    }
+
+
+
+    /**
+     * 查询问题及命令列表
+     */
+    //@PreAuthorize("@ss.hasPermi('sql:total_question_table:list')")
+    @RequestMapping("/select")
+    public Long select(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+
+        totalQuestionTable.setCommandId(null);
+        List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        return list.get(0).getId();
     }
 
     /**

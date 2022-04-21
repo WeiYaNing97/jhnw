@@ -88,7 +88,7 @@ public class CommandLogicServiceImpl implements ICommandLogicService
      * @return 结果
      */
     @Override
-    public int deleteCommandLogicById(Long id)
+    public int deleteCommandLogicById(String id)
     {
         return commandLogicMapper.deleteCommandLogicById(id);
     }

@@ -50,7 +50,7 @@ public interface CommandLogicMapper
      * @param id 命令逻辑主键
      * @return 结果
      */
-    public int deleteCommandLogicById(Long id);
+    public int deleteCommandLogicById(String id);
 
     /**
      * 批量删除命令逻辑

@@ -30,7 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
-            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
         </where>

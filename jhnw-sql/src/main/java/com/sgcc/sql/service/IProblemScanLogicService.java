@@ -1,5 +1,6 @@
 package com.sgcc.sql.service;
 
+import java.util.HashSet;
 import java.util.List;
 import com.sgcc.sql.domain.ProblemScanLogic;
 
@@ -49,7 +50,7 @@ public interface IProblemScanLogicService
      * @param ids 需要删除的问题扫描逻辑主键集合
      * @return 结果
      */
-    public int deleteProblemScanLogicByIds(Long[] ids);
+    public int deleteProblemScanLogicByIds(String[] ids);
 
     /**
      * 删除问题扫描逻辑信息
@@ -57,5 +58,6 @@ public interface IProblemScanLogicService
      * @param id 问题扫描逻辑主键
      * @return 结果
      */
-    public int deleteProblemScanLogicById(Long id);
+    public int deleteProblemScanLogicById(String id);
+
 }

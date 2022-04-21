@@ -1,6 +1,7 @@
 package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.connect.translate.Stack;
+import com.sgcc.framework.web.domain.server.Sys;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
@@ -203,20 +204,20 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("definitionProblemJsonPojo")
-    public void definitionProblemJsonPojo(){//@RequestBody List<String> jsonPojoList
-        List<String> jsonPojoList = new ArrayList<>();
+    public void definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+        /*List<String> jsonPojoList = new ArrayList<>();
         String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
         String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
         String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650329632023,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650329641078,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
         String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650329641078,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650329651495,\"pageIndex\":4}";
         String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650329651495,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650329663575,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
-        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650329663575,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"15\",\"tNextId\":\"有问题\",\"nextIndex\":1650329668383,\"pageIndex\":6}";
+        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650329663575,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"有问题\",\"nextIndex\":1650329668383,\"pageIndex\":6}";
         String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650329668383,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329641078,\"pageIndex\":7}";
         String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650329641078,\"trueFalse\":\"失败\",\"nextIndex\":1650329690175,\"pageIndex\":8}";
-        String s8="{\"targetType\":\"prodes\",\"onlyIndex\":1650329690175,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"15\",\"tNextId\":\"无问题\",\"nextIndex\":1650329701191,\"pageIndex\":9}";
+        String s8="{\"targetType\":\"prodes\",\"onlyIndex\":1650329690175,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"无问题\",\"nextIndex\":1650329701191,\"pageIndex\":9}";
         String s9="{\"targetType\":\"wloop\",\"onlyIndex\":1650329701191,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329626647,\"pageIndex\":10}";
         String s10="{\"targetType\":\"matchfal\",\"onlyIndex\":1650329626647,\"trueFalse\":\"失败\",\"nextIndex\":1650329683167,\"pageIndex\":11}";
-        String s11="{\"targetType\":\"prodes\",\"onlyIndex\":1650329683167,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"15\",\"tNextId\":\"完成\",\"pageIndex\":12}";
+        String s11="{\"targetType\":\"prodes\",\"onlyIndex\":1650329683167,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"完成\",\"pageIndex\":12}";
         jsonPojoList.add(s0);
         jsonPojoList.add(s1);
         jsonPojoList.add(s2);
@@ -228,7 +229,7 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s8);
         jsonPojoList.add(s9);
         jsonPojoList.add(s10);
-        jsonPojoList.add(s11);
+        jsonPojoList.add(s11);*/
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
@@ -261,12 +262,24 @@ public class DefinitionProblemController extends BaseController {
 
         List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
 
+        String totalQuestionTableById = null;
+        String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            if (problemScanLogic.getProblemId()!=null &&problemScanLogic.getProblemId().indexOf("问题")!=-1){
+                totalQuestionTableById = problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length());
+            }
             int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
         }
         for (CommandLogic commandLogic:commandLogicList){
+            if (commandLogic.getcLine().equals("1")){
+                commandId = commandLogic.getId();
+            }
             int i = commandLogicService.insertCommandLogic(commandLogic);
         }
+
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
+        totalQuestionTable.setCommandId(commandId);
+        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
 
     }
 
@@ -477,6 +490,7 @@ public class DefinitionProblemController extends BaseController {
 
         if (hashMap.get("action")!=null && hashMap.get("action").equals("循环")){
             hashMap.put("action",null);
+            hashMap.put("tNextId",null);
         }
         if (hashMap.get("action")!=null && hashMap.get("action").equals("问题")){
             hashMap.put("problemId",hashMap.get("WTNextId")+hashMap.get("problemId"));
@@ -593,9 +607,9 @@ public class DefinitionProblemController extends BaseController {
         String relative = null;
         String position = null;
         if (problemScanLogic.getMatched()!=null){
-            if (problemScanLogic.getMatched().equals("匹配") && problemScanLogic.getRelativePosition().equals("null")){
+            if (problemScanLogic.getMatched().indexOf("匹配")!=-1 && problemScanLogic.getRelativePosition().equals("null")){
                 matched = "全文"+problemScanLogic.getMatched();
-            }else if (problemScanLogic.getMatched().equals("匹配")){
+            }else if (problemScanLogic.getMatched().indexOf("匹配")!=-1){
                 matched = "按行"+problemScanLogic.getMatched();
                 String relativePosition = problemScanLogic.getRelativePosition();
                 String[] relativePositionSplit = relativePosition.split(",");
@@ -664,9 +678,14 @@ public class DefinitionProblemController extends BaseController {
         String problemId = null;
         if (problemScanLogic.getProblemId()!=null){
             problemId = problemScanLogic.getProblemId();
-        }
-        if (problemScanLogic.getProblemId()!=null){
-            problemId = problemScanLogic.getProblemId();
+            if (problemId.indexOf("问题")!=-1){
+                problemScanLogicVO.setAction(problemId.substring(0,3));
+                problemId = problemId.substring(3,problemId.length());
+            }
+            if (problemId.equals("完成")){
+                problemScanLogicVO.setAction(problemId);
+                problemId = null;
+            }
         }
         problemScanLogicVO.setProblemId(problemId);
         String cycleStartId = null;
@@ -813,16 +832,28 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("getAnalysisList")
-    public List<String> getAnalysisList( String brand, String type,
-                                         String firewareVersion, String subVersion,
-                                        String problemName){
+    public List<String> getAnalysisList(){//@RequestBody TotalQuestionTable totalQuestionTable
+
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        String brand = "H3C";
+        String type = "S2152";
+        String firewareVersion = "5.20.99";
+        String subVersion = "1106";
+        String problemName = "明文存储";
         totalQuestionTable.setBrand(brand);
         totalQuestionTable.setType(type);
         totalQuestionTable.setFirewareVersion(firewareVersion);
         totalQuestionTable.setSubVersion(subVersion);
         totalQuestionTable.setProblemName(problemName);
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
+        TotalQuestionTable pojo = new TotalQuestionTable();
+        pojo.setBrand(totalQuestionTable.getBrand());
+        pojo.setType(totalQuestionTable.getType());
+        pojo.setFirewareVersion(totalQuestionTable.getFirewareVersion());
+        pojo.setSubVersion(totalQuestionTable.getSubVersion());
+        pojo.setProblemName(totalQuestionTable.getProblemName());
+
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(pojo);
 
         if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
             return null;
@@ -839,6 +870,7 @@ public class DefinitionProblemController extends BaseController {
                     return null;
                 }
                 commandLogicList.add(commandLogic);
+                //根据第一个分析ID 查询出所有的数据条数
                 List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
                 if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
                     return null;
@@ -874,6 +906,7 @@ public class DefinitionProblemController extends BaseController {
 
         List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
+            System.err.println(hashMap.get(number+1));
             stringList.add(hashMap.get(number+1));
         }
 
@@ -968,5 +1001,76 @@ public class DefinitionProblemController extends BaseController {
         Pattern pattern = Pattern.compile(regex);
         Matcher match = pattern.matcher(str);
         return match.find();
+    }
+
+    @RequestMapping("queryProblemScanId")
+    public void queryProblemScanId(){//@RequestBody List<String> jsonPojoList
+        List<String> jsonPojoList = new ArrayList<>();
+        String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
+        String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
+        String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650329632023,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650329641078,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
+        String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650329641078,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650329651495,\"pageIndex\":4}";
+        String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650329651495,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650329663575,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
+        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650329663575,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"有问题\",\"nextIndex\":1650329668383,\"pageIndex\":6}";
+        String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650329668383,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329641078,\"pageIndex\":7}";
+        String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650329641078,\"trueFalse\":\"失败\",\"nextIndex\":1650329690175,\"pageIndex\":8}";
+        String s8="{\"targetType\":\"prodes\",\"onlyIndex\":1650329690175,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"无问题\",\"nextIndex\":1650329701191,\"pageIndex\":9}";
+        String s9="{\"targetType\":\"wloop\",\"onlyIndex\":1650329701191,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329626647,\"pageIndex\":10}";
+        String s10="{\"targetType\":\"matchfal\",\"onlyIndex\":1650329626647,\"trueFalse\":\"失败\",\"nextIndex\":1650329683167,\"pageIndex\":11}";
+        String s11="{\"targetType\":\"prodes\",\"onlyIndex\":1650329683167,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"完成\",\"pageIndex\":12}";
+        jsonPojoList.add(s0);
+        jsonPojoList.add(s1);
+        jsonPojoList.add(s2);
+        jsonPojoList.add(s3);
+        jsonPojoList.add(s4);
+        jsonPojoList.add(s5);
+        jsonPojoList.add(s6);
+        jsonPojoList.add(s7);
+        jsonPojoList.add(s8);
+        jsonPojoList.add(s9);
+        jsonPojoList.add(s10);
+        jsonPojoList.add(s11);
+
+        Long totalQuestionTableId = null;
+        String commandId = null;
+        for (String jsonPojo:jsonPojoList){
+            ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojo, "分析");
+            if (problemScanLogic.getProblemId()!=null && !(problemScanLogic.getProblemId().equals("") && problemScanLogic.getProblemId().indexOf("问题")!=-1)){
+                totalQuestionTableId = Integer.valueOf(problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length())).longValue();
+                TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+                commandId = totalQuestionTable.getCommandId();
+                break;
+            }
+        }
+        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
+        String problemId = commandLogic.getProblemId();
+        if (problemId==null || problemId.equals("")){
+            int i = commandLogicService.deleteCommandLogicById(commandId);
+        }else {
+            int i = commandLogicService.deleteCommandLogicById(commandId);
+            boolean b = deleteProblemScanLogicList(problemId);
+        }
+        definitionProblemJsonPojo(jsonPojoList);
+    }
+
+
+    public boolean deleteProblemScanLogicList(String problemScanId){
+        List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(problemScanId);
+        HashSet<String> problemScanLogicIdList = new HashSet<>();
+        for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+            problemScanLogicIdList.add(problemScanLogic.getId());
+        }
+        String[] problemScanLogicIdArray = new String[problemScanLogicIdList.size()];
+        int i = 0 ;
+        for (String problemScanLogicId:problemScanLogicIdList){
+            problemScanLogicIdArray[i] = problemScanLogicId;
+            i++;
+        }
+        int j = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicIdArray);
+        if (j>0){
+            return true;
+        }else {
+            return false;
+        }
     }
 }

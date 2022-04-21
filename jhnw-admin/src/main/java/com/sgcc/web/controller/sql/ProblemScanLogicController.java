@@ -621,7 +621,7 @@ public class ProblemScanLogicController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:remove')")
     @Log(title = "问题扫描逻辑", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable String[] ids)
     {
         return toAjax(problemScanLogicService.deleteProblemScanLogicByIds(ids));
     }

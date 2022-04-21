@@ -1,5 +1,6 @@
 package com.sgcc.sql.mapper;
 
+import java.util.HashSet;
 import java.util.List;
 import com.sgcc.sql.domain.ProblemScanLogic;
 
@@ -49,7 +50,7 @@ public interface ProblemScanLogicMapper
      * @param id 问题扫描逻辑主键
      * @return 结果
      */
-    public int deleteProblemScanLogicById(Long id);
+    public int deleteProblemScanLogicById(String id);
 
     /**
      * 批量删除问题扫描逻辑
@@ -57,5 +58,6 @@ public interface ProblemScanLogicMapper
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteProblemScanLogicByIds(Long[] ids);
+    public int deleteProblemScanLogicByIds(String[] ids);
+
 }

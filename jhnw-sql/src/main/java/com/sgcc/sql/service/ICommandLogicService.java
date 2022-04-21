@@ -58,6 +58,6 @@ public interface ICommandLogicService
      * @param id 命令逻辑主键
      * @return 结果
      */
-    public int deleteCommandLogicById(Long id);
+    public int deleteCommandLogicById(String id);
 
 }

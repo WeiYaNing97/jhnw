@@ -1,5 +1,6 @@
 package com.sgcc.sql.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -74,7 +75,7 @@ public class ProblemScanLogicServiceImpl implements IProblemScanLogicService
      * @return 结果
      */
     @Override
-    public int deleteProblemScanLogicByIds(Long[] ids)
+    public int deleteProblemScanLogicByIds(String[] ids)
     {
         return problemScanLogicMapper.deleteProblemScanLogicByIds(ids);
     }
@@ -86,7 +87,7 @@ public class ProblemScanLogicServiceImpl implements IProblemScanLogicService
      * @return 结果
      */
     @Override
-    public int deleteProblemScanLogicById(Long id)
+    public int deleteProblemScanLogicById(String id)
     {
         return problemScanLogicMapper.deleteProblemScanLogicById(id);
     }
