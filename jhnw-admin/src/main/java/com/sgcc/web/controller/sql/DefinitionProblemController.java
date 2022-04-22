@@ -145,19 +145,25 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     public List<ProblemScanLogic> definitionProblem(List<ProblemScanLogic> pojoList){
+        //根据 set 特性 获取分析ID、不重复
         HashSet<String> hashSet = new HashSet<>();
         for (ProblemScanLogic problemScanLogic:pojoList){
             hashSet.add(problemScanLogic.getId());
         }
+        //创建ProblemScanLogic 集合 放入获取分析ID 作为返回的 实体类集合
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
         for (String problemScanLogicId:hashSet){
             ProblemScanLogic problemScanLogic = new ProblemScanLogic();
             problemScanLogic.setId(problemScanLogicId);
             problemScanLogicList.add(problemScanLogic);
         }
+        //遍历前端返回的集合
         for (ProblemScanLogic pojo:pojoList){
+            //遍历 分析ID 不重复的 集合
             for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                //当 两个实体类的 分析ID 相等时 由前端返回的集合 赋值给 返回实体类
                 if (pojo.getId().equals(problemScanLogic.getId())){
+                    //pojo.getfLine()==null  时  前端返回的实体类 是成功或是不分成功失败的数据
                     if (pojo.getfLine()==null){
                          BeanUtils.copyProperties(pojo,problemScanLogic);
                          problemScanLogic.setMatched(pojo.getMatched()!=null?pojo.getMatched():"null");
@@ -171,8 +177,8 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
-
-        ProblemScanLogic[] problemScanLogics = new ProblemScanLogic[problemScanLogicList.size()];
+        //根据 gettLine  排序
+        /*ProblemScanLogic[] problemScanLogics = new ProblemScanLogic[problemScanLogicList.size()];
         for (int number=0;number<problemScanLogicList.size();number++){
             problemScanLogics[number] = problemScanLogicList.get(number);
         }
@@ -191,7 +197,7 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogicList = new ArrayList<>();
         for (int i =0;i<problemScanLogics.length;i++){
             problemScanLogicList.add(problemScanLogics[i]);
-        }
+        }*/
 
         return problemScanLogicList;
     }
@@ -204,7 +210,7 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("definitionProblemJsonPojo")
-    public void definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+    public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
         /*List<String> jsonPojoList = new ArrayList<>();
         String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
         String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
@@ -234,19 +240,22 @@ public class DefinitionProblemController extends BaseController {
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
         for (int number=0;number<jsonPojoList.size();number++){
+            // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
                 CommandLogic commandLogic = analysisCommandLogic(jsonPojoList.get(number));
                 commandLogicList.add(commandLogic);
                 continue;
-            }else if (jsonPojoList.get(number).indexOf("command") ==-1){
+            }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
+
                 if (number+1<jsonPojoList.size()){
+                    // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
                     if (jsonPojoList.get(number+1).indexOf("command") !=-1){
-                        //本条是分析 下一条是 问题
+                        //本条是分析 下一条是 命令
                         ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "命令");
                         problemScanLogicList.add(problemScanLogic);
                         continue;
                     }else {
-                        //本条是分析 下一条是 问题
+                        //本条是分析 下一条是 分析
                         ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "分析");
                         problemScanLogicList.add(problemScanLogic);
                         continue;
@@ -257,30 +266,43 @@ public class DefinitionProblemController extends BaseController {
                     problemScanLogicList.add(problemScanLogic);
                     continue;
                 }
+
             }
         }
+        //将相同ID  时间戳 的 实体类 放到一个实体
 
         List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
 
         String totalQuestionTableById = null;
         String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            //提取 问题ID
             if (problemScanLogic.getProblemId()!=null &&problemScanLogic.getProblemId().indexOf("问题")!=-1){
                 totalQuestionTableById = problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length());
             }
+
             int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
+            if (i<=0){
+                return false;
+            }
         }
         for (CommandLogic commandLogic:commandLogicList){
             if (commandLogic.getcLine().equals("1")){
                 commandId = commandLogic.getId();
             }
             int i = commandLogicService.insertCommandLogic(commandLogic);
+            if (i<=0){
+                return false;
+            }
         }
 
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
         totalQuestionTable.setCommandId(commandId);
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-
+        if (i<=0){
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -1003,9 +1025,9 @@ public class DefinitionProblemController extends BaseController {
         return match.find();
     }
 
-    @RequestMapping("queryProblemScanId")
-    public void queryProblemScanId(){//@RequestBody List<String> jsonPojoList
-        List<String> jsonPojoList = new ArrayList<>();
+    @RequestMapping("updateAnalysis")
+    public boolean updateAnalysis(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+        /*List<String> jsonPojoList = new ArrayList<>();
         String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
         String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
         String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650329632023,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650329641078,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
@@ -1029,7 +1051,7 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s8);
         jsonPojoList.add(s9);
         jsonPojoList.add(s10);
-        jsonPojoList.add(s11);
+        jsonPojoList.add(s11);*/
 
         Long totalQuestionTableId = null;
         String commandId = null;
@@ -1046,11 +1068,24 @@ public class DefinitionProblemController extends BaseController {
         String problemId = commandLogic.getProblemId();
         if (problemId==null || problemId.equals("")){
             int i = commandLogicService.deleteCommandLogicById(commandId);
+            if (i<=0){
+                return false;
+            }
         }else {
             int i = commandLogicService.deleteCommandLogicById(commandId);
+            if (i<=0){
+                return false;
+            }
             boolean b = deleteProblemScanLogicList(problemId);
+            if (!b){
+                return false;
+            }
         }
-        definitionProblemJsonPojo(jsonPojoList);
+        boolean b = definitionProblemJsonPojo(jsonPojoList);
+        if (!b){
+            return false;
+        }
+        return true;
     }
 
 
