@@ -51,6 +51,11 @@ public class TotalQuestionTable extends BaseEntity
     @Excel(name = "问题详细说明和指导索引")
     private Long problemDescribeId;
 
+
+    /** 解决问题命令ID */
+    @Excel(name = "解决问题命令ID")
+    private String problemSolvingId;
+
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
@@ -135,6 +140,14 @@ public class TotalQuestionTable extends BaseEntity
         this.problemDescribeId = problemDescribeId;
     }
 
+    public String getProblemSolvingId() {
+        return problemSolvingId;
+    }
+
+    public void setProblemSolvingId(String problemSolvingId) {
+        this.problemSolvingId = problemSolvingId;
+    }
+
     @Override
     public String toString() {
         return "TotalQuestionTable{" +
@@ -148,6 +161,7 @@ public class TotalQuestionTable extends BaseEntity
                 ", problemName='" + problemName + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +
                 ", problemDescribeId=" + problemDescribeId +
+                ", problemSolvingId='" + problemSolvingId + '\'' +
                 '}';
     }
 }

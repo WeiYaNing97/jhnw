@@ -746,20 +746,27 @@ public class SwitchInteraction {
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
                     //下一条true分析ID
-                    String tNextId = problemScanLogic.gettNextId();
+                    if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+                        String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
+                                executeScanCommandByCommandId_object);
+                        return analysisReturnResults_String;
+                    }
 
-
-                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                            return_information_array,current_Round_Extraction_String,extractInformation_string,
-                            line_n,firstID,tNextId,insertsInteger);
-                    //如果返回信息为null
-                    if (ProblemScanLogic_returnstring!=null){
-                        //内分析传到上一层
-                        //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                        extractInformation_string = ProblemScanLogic_returnstring;
+                    if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
+                        String tNextId = problemScanLogic.gettNextId();
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                return_information_array,current_Round_Extraction_String,extractInformation_string,
+                                line_n,firstID,tNextId,insertsInteger);
+                        //如果返回信息为null
+                        if (ProblemScanLogic_returnstring!=null){
+                            //内分析传到上一层
+                            //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                            extractInformation_string = ProblemScanLogic_returnstring;
+                            return ProblemScanLogic_returnstring;
+                        }
                         return ProblemScanLogic_returnstring;
                     }
-                    return ProblemScanLogic_returnstring;
                 //匹配失败
                 }else {
 
@@ -768,19 +775,29 @@ public class SwitchInteraction {
                         continue;
                     }
 
-                    //下一条frue分析ID
-                    String fNextId = problemScanLogic.getfNextId();
-                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                            return_information_array,current_Round_Extraction_String,extractInformation_string,
-                            line_n,firstID,fNextId,insertsInteger);
-                    //如果返回信息为null
-                    if (ProblemScanLogic_returnstring!=null){
-                        //内分析传到上一层
-                        //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                        extractInformation_string = ProblemScanLogic_returnstring;
+                    if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+                        String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
+                                executeScanCommandByCommandId_object);
+                        return analysisReturnResults_String;
+                    }
+
+                    if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
+                        //下一条frue分析ID
+                        String fNextId = problemScanLogic.getfNextId();
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                return_information_array,current_Round_Extraction_String,extractInformation_string,
+                                line_n,firstID,fNextId,insertsInteger);
+                        //如果返回信息为null
+                        if (ProblemScanLogic_returnstring!=null){
+                            //内分析传到上一层
+                            //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                            extractInformation_string = ProblemScanLogic_returnstring;
+                            return ProblemScanLogic_returnstring;
+                        }
                         return ProblemScanLogic_returnstring;
                     }
-                    return ProblemScanLogic_returnstring;
+
                 }
             }
 
@@ -794,16 +811,26 @@ public class SwitchInteraction {
                 //取词只有成功
                 extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+ wordSelection_string+"=:=";
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
-                //下一ID
-                String tNextId = problemScanLogic.gettNextId();
-                String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                        return_information_array,current_Round_Extraction_String,extractInformation_string,
-                        line_n,firstID,tNextId,insertsInteger);
-                if (ProblemScanLogic_returnstring!=null){
-                    extractInformation_string = ProblemScanLogic_returnstring;
+
+                if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
+                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+                    String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
+                            executeScanCommandByCommandId_object);
+                    return analysisReturnResults_String;
+                }
+
+                if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
+                    //下一ID
+                    String tNextId = problemScanLogic.gettNextId();
+                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                            return_information_array,current_Round_Extraction_String,extractInformation_string,
+                            line_n,firstID,tNextId,insertsInteger);
+                    if (ProblemScanLogic_returnstring!=null){
+                        extractInformation_string = ProblemScanLogic_returnstring;
+                        return ProblemScanLogic_returnstring;
+                    }
                     return ProblemScanLogic_returnstring;
                 }
-                return ProblemScanLogic_returnstring;
             }
 
 
@@ -834,26 +861,44 @@ public class SwitchInteraction {
                 boolean compare_boolean = Utils.compareVersion(remove_content, compare, problemScanLogic.getContent());
 
                 if (compare_boolean){
-                    String tNextId = problemScanLogic.gettNextId();
-                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                            return_information_array,current_Round_Extraction_String,extractInformation_string,
-                            line_n,firstID,tNextId,insertsInteger);
-                    if (ProblemScanLogic_returnstring!=null){
-                        extractInformation_string = ProblemScanLogic_returnstring;
-                        return ProblemScanLogic_returnstring;
-                    }
-                    return ProblemScanLogic_returnstring;
 
-                }else {
-                    String fNextId = problemScanLogic.getfNextId();
-                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
-                            return_information_array,current_Round_Extraction_String,extractInformation_string,
-                            line_n,firstID,fNextId,insertsInteger);
-                    if (ProblemScanLogic_returnstring!=null){
-                        extractInformation_string = ProblemScanLogic_returnstring;
+                    if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+                        String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
+                                executeScanCommandByCommandId_object);
+                        return analysisReturnResults_String;
+                    }
+
+                    if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
+                        String tNextId = problemScanLogic.gettNextId();
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                return_information_array,current_Round_Extraction_String,extractInformation_string,
+                                line_n,firstID,tNextId,insertsInteger);
+                        if (ProblemScanLogic_returnstring!=null){
+                            extractInformation_string = ProblemScanLogic_returnstring;
+                            return ProblemScanLogic_returnstring;
+                        }
                         return ProblemScanLogic_returnstring;
                     }
-                    return ProblemScanLogic_returnstring;
+                }else {
+
+                    if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+                        String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
+                                executeScanCommandByCommandId_object);
+                        return analysisReturnResults_String;
+                    }
+                    if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=""){
+                        String fNextId = problemScanLogic.getfNextId();
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
+                                return_information_array,current_Round_Extraction_String,extractInformation_string,
+                                line_n,firstID,fNextId,insertsInteger);
+                        if (ProblemScanLogic_returnstring!=null){
+                            extractInformation_string = ProblemScanLogic_returnstring;
+                            return ProblemScanLogic_returnstring;
+                        }
+                        return ProblemScanLogic_returnstring;
+                    }
                 }
             }
         }
@@ -922,10 +967,10 @@ public class SwitchInteraction {
         switchProblem.setSwitchPassword(user_String.get("password")); //password
 
 
-        switchProblem.setProblemId(substring); // 问题索引
+        switchProblem.setProblemId(problemId); // 问题索引
         switchProblem.setComId(problemScanLogic.gettComId());//命令索引
         switchProblem.setValueId(outId);//参数索引
-        switchProblem.setIfQuestion(problemId); //是否有问题
+        switchProblem.setIfQuestion(substring); //是否有问题
 
         switchProblem.setUserName(userName);//参数索引
         switchProblem.setPhonenumber(phonenumber); //是否有问题

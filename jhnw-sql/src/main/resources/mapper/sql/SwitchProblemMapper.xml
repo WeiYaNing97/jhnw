@@ -45,14 +45,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             problem.switch_password switch_password,
             problem.problem_id problem_id,
             problem.if_question if_question,
-            problem.com_id com_id,
             problem.value_id value_id,
             problem.resolved resolved,
             problem.create_time create_time,
             problem.id question_id,
             question.problem_name problem_name,
             question.type_problem type_problem,
-            question.command_id command_id
+            question.problem_solving_id com_id
         FROM
             ( SELECT id, switch_ip, switch_name, switch_password, problem_id,
             if_question, com_id, value_id, resolved, create_time

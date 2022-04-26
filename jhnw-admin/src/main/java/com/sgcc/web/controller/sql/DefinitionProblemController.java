@@ -211,19 +211,17 @@ public class DefinitionProblemController extends BaseController {
     */
     @RequestMapping("definitionProblemJsonPojo")
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+
         /*List<String> jsonPojoList = new ArrayList<>();
-        String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
-        String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
-        String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650329632023,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650329641078,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
-        String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650329641078,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650329651495,\"pageIndex\":4}";
-        String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650329651495,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650329663575,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
-        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650329663575,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"有问题\",\"nextIndex\":1650329668383,\"pageIndex\":6}";
-        String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650329668383,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329641078,\"pageIndex\":7}";
-        String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650329641078,\"trueFalse\":\"失败\",\"nextIndex\":1650329690175,\"pageIndex\":8}";
-        String s8="{\"targetType\":\"prodes\",\"onlyIndex\":1650329690175,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"无问题\",\"nextIndex\":1650329701191,\"pageIndex\":9}";
-        String s9="{\"targetType\":\"wloop\",\"onlyIndex\":1650329701191,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329626647,\"pageIndex\":10}";
-        String s10="{\"targetType\":\"matchfal\",\"onlyIndex\":1650329626647,\"trueFalse\":\"失败\",\"nextIndex\":1650329683167,\"pageIndex\":11}";
-        String s11="{\"targetType\":\"prodes\",\"onlyIndex\":1650329683167,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"完成\",\"pageIndex\":12}";
+        String s0="{\"targetType\":\"command\",\"onlyIndex\":1650850781848,\"trueFalse\":\"\",\"checked\":false,\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650850794816,\"pageIndex\":1}";
+        String s1="{\"targetType\":\"match\",\"onlyIndex\":1650850794816,\"trueFalse\":\"成功\",\"checked\":false,\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650850801664,\"pageIndex\":2}";
+        String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650850801664,\"trueFalse\":\"\",\"checked\":false,\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650850813960,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
+        String s3="{\"targetType\":\"command\",\"onlyIndex\":1650850813960,\"trueFalse\":\"\",\"checked\":false,\"command\":\"sys\",\"nextIndex\":1650850834416,\"pageIndex\":4}";
+        String s4="{\"targetType\":\"lipre\",\"onlyIndex\":1650850834416,\"trueFalse\":\"成功\",\"checked\":false,\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"pass simple\",\"nextIndex\":1650850842857,\"pageIndex\":5}";
+        String s5="{\"targetType\":\"takeword\",\"onlyIndex\":1650850842857,\"trueFalse\":\"\",\"checked\":false,\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650850834416,\"pageIndex\":6,\"matchContent\":\"pass simple\"}";
+        String s6="{\"targetType\":\"liprefal\",\"onlyIndex\":1650850834416,\"trueFalse\":\"失败\",\"nextIndex\":1650850794816,\"pageIndex\":7}";
+        String s7="{\"targetType\":\"matchfal\",\"onlyIndex\":1650850794816,\"trueFalse\":\"失败\",\"pageIndex\":8}";
+
         jsonPojoList.add(s0);
         jsonPojoList.add(s1);
         jsonPojoList.add(s2);
@@ -231,11 +229,7 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s4);
         jsonPojoList.add(s5);
         jsonPojoList.add(s6);
-        jsonPojoList.add(s7);
-        jsonPojoList.add(s8);
-        jsonPojoList.add(s9);
-        jsonPojoList.add(s10);
-        jsonPojoList.add(s11);*/
+        jsonPojoList.add(s7);*/
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
@@ -296,12 +290,15 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
-        totalQuestionTable.setCommandId(commandId);
-        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-        if (i<=0){
-            return false;
+        if(totalQuestionTableById!=null){
+            TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
+            totalQuestionTable.setCommandId(commandId);
+            int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+            if (i<=0){
+                return false;
+            }
         }
+
         return true;
     }
 
@@ -1081,7 +1078,7 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
-        boolean b = definitionProblemJsonPojo(jsonPojoList);
+        boolean b = definitionProblemJsonPojo(jsonPojoList);//jsonPojoList
         if (!b){
             return false;
         }
