@@ -46,6 +46,7 @@ public class SolveProblemController {
     */
     @RequestMapping("batchSolution")
     public AjaxResult batchSolution(String mode,String ip,String name,String password,String port,List<String> commandValueList){
+
         //用户信息
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode",mode);
@@ -53,6 +54,8 @@ public class SolveProblemController {
         user_String.put("name",name);
         user_String.put("password",password);
         user_String.put("port",port);
+
+
         //问题编码ID 参数ID
         List<String> command_value_String = new ArrayList<>();
         command_value_String.add("4:6");
@@ -61,15 +64,18 @@ public class SolveProblemController {
         command_value_String.add("4:12");
         command_value_String.add("4:14");
 
+
         //ssh连接
         SshMethod connectMethod = null;
         //telnet连接
         TelnetSwitchMethod telnetSwitchMethod = null;
+
         /* requestConnect方法：
         传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
+
         AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect(user_String,connectMethod, telnetSwitchMethod);
         //解析返回参数
         List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
@@ -81,12 +87,18 @@ public class SolveProblemController {
                 //将 问题id 和 参数ID 分离开来
                 String[] commandValueSplit = commandValue.split(":");
                 //传参 问题id 和 参数ID
-                //返回 命令集合 的 参数集合
+                //返回 命令集合 和 参数集合
                 AjaxResult ajaxResult = queryParameterSet(commandValueSplit[0], Long.valueOf(commandValueSplit[1]).longValue());
+
                 Object[] command_value =  (Object[])ajaxResult.get("data");
+                //命令集合
                 List<String> commandList = (List<String>) command_value[0];
+                //参数集合
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)command_value[1];
+
+                //解决问题
                 AjaxResult solveProblemAjaxResult = solveProblem(informationList, commandList, valueInformationVOList);
+
             }
         }
         return null;
@@ -94,7 +106,8 @@ public class SolveProblemController {
 
 
     /***
-    * @method: queryParameterSet 返回 命令集合 的 参数集合
+    * 返回 命令集合 和 参数集合
+     * @method: queryParameterSet
     * @Param: []
     * @return: com.sgcc.common.core.domain.AjaxResult
     * @Author: 天幕顽主
@@ -103,10 +116,12 @@ public class SolveProblemController {
     */
     @RequestMapping("queryParameterSet")
     public AjaxResult queryParameterSet(String commandID,Long valueID){
-        //根据 第一个命令 ID  查询 命令信息集合
+        //根据 第一个命令 ID
+        //查询 命令信息集合
         AjaxResult ajaxResult = queryCommandSet(commandID);
         List<CommandLogic> commandLogicList = (List<CommandLogic>)ajaxResult.get("data");
         List<String> commandList = new ArrayList<>();
+
         //将命令 放入 命令集合
         for (CommandLogic commandLogic:commandLogicList){
             commandList.add(commandLogic.getCommand());
@@ -114,6 +129,7 @@ public class SolveProblemController {
 
         //查询 参数信息集合
         List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
+
         while (valueID != 0){
             ValueInformation valueInformation = valueInformationService.selectValueInformationById(valueID);
             ValueInformationVO valueInformationVO = new ValueInformationVO();
@@ -125,10 +141,12 @@ public class SolveProblemController {
         Object[] command_value = new Object[2];
         command_value[0] = commandList;
         command_value[1] = valueInformationVOList;
+
         return AjaxResult.success(command_value);
     }
 
-    /***
+    /**
+     * 查询命令集合
      * @method: 根据 命令ID commandId 查询命令集合 用于解决问题
      * @Param: [commandId]
      * @return: com.sgcc.common.core.domain.AjaxResult
@@ -156,11 +174,16 @@ public class SolveProblemController {
     */
     @RequestMapping("solveProblem")
     public AjaxResult solveProblem(List<Object> informationList,
-            List<String> commandList,List<ValueInformationVO> valueInformationVOList){
-
+                                   List<String> commandList,
+                                   List<ValueInformationVO> valueInformationVOList){
+        //遍历命令集合    根据参数名称 获取真实命令
+        //local-user:用户名
+        //password cipher:密码
         for (int num = 0;num<commandList.size();num++){
             String[] command_split = commandList.get(num).split(":");
+            // command_split.length>1  说明有参数名称
             if (command_split.length>1){
+                //获取参数名称
                 String value_string= command_split[command_split.length-1];
                 for (ValueInformationVO valueInformationVO:valueInformationVOList){
                     if (valueInformationVO.getDynamicVname().equals(value_string)){

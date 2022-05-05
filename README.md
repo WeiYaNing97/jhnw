@@ -13,6 +13,8 @@ port=23
 http://localhost/dev-api/sql/switch_problem/getUnresolvedProblemInformationByData
 ##解决问题(一个或者多个问题)
 http://localhost/dev-api/sql/SolveProblemController/batchSolution
+##获取参数名集合
+http://localhost/dev-api/sql/problem_scan_logic/getParameterNameCollection?totalQuestionTableId=2
 
 ##文件上传
 ###路径

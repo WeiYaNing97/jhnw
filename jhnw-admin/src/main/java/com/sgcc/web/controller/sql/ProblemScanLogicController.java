@@ -13,7 +13,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 问题扫描逻辑Controller
@@ -35,6 +39,8 @@ public class ProblemScanLogicController extends BaseController
     private ISwitchProblemService switchProblemService;
     @Autowired
     private ICommandLogicService commandLogicService;
+    @Autowired
+    private ITotalQuestionTableService totalQuestionTableService;
 
     //行数记录
     public Integer line_n = 0;
@@ -54,6 +60,75 @@ public class ProblemScanLogicController extends BaseController
     private IBasicInformationService basicInformationService;
     public static List<BasicInformation> pojolist;
     public static String result_string;
+
+
+    /**
+     * 查询问题扫描逻辑列表
+     */
+    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:list')")
+    @GetMapping("/list")
+    public TableDataInfo list(ProblemScanLogic problemScanLogic)
+    {
+        startPage();
+        List<ProblemScanLogic> list = problemScanLogicService.selectProblemScanLogicList(problemScanLogic);
+        return getDataTable(list);
+    }
+
+    /**
+     * 导出问题扫描逻辑列表
+     */
+    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:export')")
+    @Log(title = "问题扫描逻辑", businessType = BusinessType.EXPORT)
+    @GetMapping("/export")
+    public AjaxResult export(ProblemScanLogic problemScanLogic)
+    {
+        List<ProblemScanLogic> list = problemScanLogicService.selectProblemScanLogicList(problemScanLogic);
+        ExcelUtil<ProblemScanLogic> util = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
+        return util.exportExcel(list, "问题扫描逻辑数据");
+    }
+
+    /**
+     * 获取问题扫描逻辑详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:query')")
+    @GetMapping(value = "/{id}")
+    public AjaxResult getInfo(@PathVariable("id") String id)
+    {
+        return AjaxResult.success(problemScanLogicService.selectProblemScanLogicById(id));
+    }
+
+    /**
+     * 新增问题扫描逻辑
+     */
+    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:add')")
+    @Log(title = "问题扫描逻辑", businessType = BusinessType.INSERT)
+    @PostMapping
+    public AjaxResult add(@RequestBody ProblemScanLogic problemScanLogic)
+    {
+        return toAjax(problemScanLogicService.insertProblemScanLogic(problemScanLogic));
+    }
+
+    /**
+     * 修改问题扫描逻辑
+     */
+    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:edit')")
+    @Log(title = "问题扫描逻辑", businessType = BusinessType.UPDATE)
+    @PutMapping
+    public AjaxResult edit(@RequestBody ProblemScanLogic problemScanLogic)
+    {
+        return toAjax(problemScanLogicService.updateProblemScanLogic(problemScanLogic));
+    }
+
+    /**
+     * 删除问题扫描逻辑
+     */
+    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:remove')")
+    @Log(title = "问题扫描逻辑", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable String[] ids)
+    {
+        return toAjax(problemScanLogicService.deleteProblemScanLogicByIds(ids));
+    }
 
 
     /**
@@ -558,71 +633,144 @@ public class ProblemScanLogicController extends BaseController
         return false;
     }
 
+
+    @RequestMapping("/getParameterNameCollection")
+    public List<String> getParameterNameCollection(Long totalQuestionTableId){
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        if (totalQuestionTable == null
+                || totalQuestionTable.getCommandId() == null
+                || totalQuestionTable.getCommandId().equals("")){
+            return null;
+        }
+        String commandIdString = totalQuestionTable.getCommandId();
+        HashSet<String> parameterName = new HashSet<>();
+        do {
+            List<CommandLogic> commandLogics = new ArrayList<>();
+            String[] commandIdSplit = commandIdString.split(":");
+            commandIdString = "";
+            for (String id:commandIdSplit){
+                CommandLogic commandLogic = commandLogicService.selectCommandLogicById(id);
+                commandLogics.add(commandLogic);
+            }
+
+            for (CommandLogic commandLogic:commandLogics){
+                if (!(commandLogic.getProblemId().equals("0"))){
+                    List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());
+                    for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                        //parameterName
+                        if (problemScanLogic.getWordName()!=null){
+                            parameterName.add(problemScanLogic.getWordName());
+                        }
+
+                        if (problemScanLogic.getfComId()!=null){
+                            commandIdString = commandIdString +problemScanLogic.getfComId() +":";
+                        }else if (problemScanLogic.gettComId()!=null){
+                            commandIdString = commandIdString +problemScanLogic.gettComId() +":";
+                        }
+                    }
+                }
+
+            }
+            if (commandIdString.indexOf(":")!=-1){
+                commandIdString = commandIdString.substring(0,commandIdString.length()-1);
+            }
+        }while (!(commandIdString.equals("")));
+
+        List<String> parameterNameList = new ArrayList<>();
+        for (String name:parameterName){
+            parameterNameList.add(name);
+        }
+        return parameterNameList;
+    }
+
+
     /**
-     * 查询问题扫描逻辑列表
+     * @method: 根据 首分析ID 获取全部分析 并拆分 成功失败合实体类
+     * @Param: [problemScanLogicID]
+     * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
      */
-    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:list')")
-    @GetMapping("/list")
-    public TableDataInfo list(ProblemScanLogic problemScanLogic)
-    {
-        startPage();
-        List<ProblemScanLogic> list = problemScanLogicService.selectProblemScanLogicList(problemScanLogic);
-        return getDataTable(list);
+    @RequestMapping("problemScanLogicList")
+    public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID){
+        //String problemScanLogicID = "1649726283752";
+        boolean contain = false;
+        HashSet<String> problemScanLogicIDList = new HashSet<>();
+        problemScanLogicIDList.add(problemScanLogicID);
+        do {
+            String  problemScanID = "";
+            String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
+            for (String id:problemScanLogicIDsplit){
+                ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
+                if (problemScanLogic ==null){
+                    return null;
+                }
+                if (problemScanLogic.gettNextId()!="" && problemScanLogic.gettNextId()!=null && !(isContainChinese(problemScanLogic.gettNextId()))){
+                    problemScanID += problemScanLogic.gettNextId()+":";
+                }
+                if (problemScanLogic.getfNextId()!="" && problemScanLogic.getfNextId()!=null && !(isContainChinese(problemScanLogic.getfNextId()))){
+                    problemScanID += problemScanLogic.getfNextId()+":";
+                }
+            }
+
+            if (problemScanID.equals("")){
+                break;
+            }
+
+            String[] problemScanIDsplit = problemScanID.split(":");
+            problemScanID = "";
+            for (String id:problemScanIDsplit){
+                for (String hashSetid:problemScanLogicIDList){
+                    if (!(id.equals(hashSetid))){
+                        problemScanLogicIDList.add(id);
+                        problemScanID += id+":";
+                    }
+                    break;
+                }
+            }
+
+            if (!(problemScanID.equals(""))){
+                contain = true;
+                problemScanLogicID = problemScanID.substring(0,problemScanID.length()-1);
+            }else {
+                contain = false;
+            }
+        }while (contain);
+
+        List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
+        for (String id:problemScanLogicIDList){
+            ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
+            ProblemScanLogicList.add(problemScanLogic);
+        }
+        List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
+        for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
+
+            if (problemScanLogic.getfLine()!=null){
+                ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
+                problemScanLogicf.setId(problemScanLogic.getId());
+                problemScanLogicf.setfLine(problemScanLogic.getfLine());
+                problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
+                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
+                problemScanLogicf.setfComId(problemScanLogic.getfComId());
+                problemScanLogic.setfLine(null);
+                problemScanLogic.setfNextId(null);
+                problemScanLogic.setProblemId(null);
+                problemScanLogic.setfComId(null);
+                ProblemScanLogics.add(problemScanLogicf);
+            }
+            ProblemScanLogics.add(problemScanLogic);
+        }
+
+        return ProblemScanLogics;
     }
 
     /**
-     * 导出问题扫描逻辑列表
+     * 根据正则表达式判断字符是否为汉字
      */
-    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:export')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.EXPORT)
-    @GetMapping("/export")
-    public AjaxResult export(ProblemScanLogic problemScanLogic)
-    {
-        List<ProblemScanLogic> list = problemScanLogicService.selectProblemScanLogicList(problemScanLogic);
-        ExcelUtil<ProblemScanLogic> util = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
-        return util.exportExcel(list, "问题扫描逻辑数据");
-    }
-
-    /**
-     * 获取问题扫描逻辑详细信息
-     */
-    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:query')")
-    @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") String id)
-    {
-        return AjaxResult.success(problemScanLogicService.selectProblemScanLogicById(id));
-    }
-
-    /**
-     * 新增问题扫描逻辑
-     */
-    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:add')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.INSERT)
-    @PostMapping
-    public AjaxResult add(@RequestBody ProblemScanLogic problemScanLogic)
-    {
-        return toAjax(problemScanLogicService.insertProblemScanLogic(problemScanLogic));
-    }
-
-    /**
-     * 修改问题扫描逻辑
-     */
-    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:edit')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.UPDATE)
-    @PutMapping
-    public AjaxResult edit(@RequestBody ProblemScanLogic problemScanLogic)
-    {
-        return toAjax(problemScanLogicService.updateProblemScanLogic(problemScanLogic));
-    }
-
-    /**
-     * 删除问题扫描逻辑
-     */
-    @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:remove')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable String[] ids)
-    {
-        return toAjax(problemScanLogicService.deleteProblemScanLogicByIds(ids));
+    public static boolean isContainChinese( String str) {
+        String regex = "[\u4e00-\u9fa5]";   //汉字的Unicode取值范围
+        Pattern pattern = Pattern.compile(regex);
+        Matcher match = pattern.matcher(str);
+        return match.find();
     }
 }
