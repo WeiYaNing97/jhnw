@@ -144,8 +144,14 @@ public class CommandLogicController extends BaseController
         }
         return nextCommandID;
     }
-
-
+    
+    /**
+    * @method: 解决问题集合插入 及 问题表数据修改
+    * @Param: [totalQuestionTableId, commandLogicList]
+    * @return: boolean
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     public boolean insertModifyProblemCommandSet(Long totalQuestionTableId,List<String> commandLogicList){
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         List<CommandLogic> commandLogics = new ArrayList<>();
