@@ -8,13 +8,16 @@ import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ReturnRecord;
+import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
+import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -31,8 +34,8 @@ public class CommandLogicController extends BaseController
     private ICommandLogicService commandLogicService;
     @Autowired
     private IReturnRecordService returnRecordService;
-
-    //public List<String> setWordList = new ArrayList<>();
+    @Autowired
+    private ITotalQuestionTableService totalQuestionTableService;
 
     public static String switch_return_string;
 
@@ -143,7 +146,90 @@ public class CommandLogicController extends BaseController
     }
 
 
+    public boolean insertModifyProblemCommandSet(Long totalQuestionTableId,List<String> commandLogicList){
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        List<CommandLogic> commandLogics = new ArrayList<>();
+        for (int number=0;number<commandLogicList.size();number++){
+            CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
+            commandLogics.add(commandLogic);
+        }
+        for (int number=0;number<commandLogics.size();number++){
+            int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
+            if (i<=0){
+                return false;
+            }
+            if (number == 0){
+                totalQuestionTable.setProblemSolvingId(commandLogics.get(number).getId());
+            }
+        }
+        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+        if (i<=0){
+            return false;
+        }
+        return true;
+    }
 
+    public CommandLogic analysisCommandLogicString(String CommandLogicString){
+        CommandLogic commandLogic = new CommandLogic();
+        CommandLogicString = CommandLogicString.replace("{","");
+        CommandLogicString = CommandLogicString.replace("}","");
+        String[]  jsonPojo_split = CommandLogicString.split(",");
+
+        HashMap<String,String> hashMap = new HashMap<>();
+        hashMap.put("onlyIndex",null);
+        hashMap.put("resultCheckId","0");
+        hashMap.put("command",null);
+        hashMap.put("nextIndex","0");
+        hashMap.put("pageIndex",null);
+        hashMap.put("endIndex","0");
+
+        for (String pojo:jsonPojo_split){
+            String[] split = pojo.split(":");
+            String split0 = split[0].replace("\"","");
+            String split1 = split[1].replace("\"","");
+            switch (split0){
+                case "onlyIndex"://本层ID 主键ID
+                    hashMap.put("onlyIndex",split1);
+                    break;
+                case "resultCheckId":// 常规校验1 自定义校验0
+                    hashMap.put("resultCheckId",split1);
+                    break;
+                case "command":// 命令
+                    hashMap.put("command",split1);
+                    break;
+                case "nextIndex"://下一分析ID 也是 首分析ID
+                    hashMap.put("nextIndex",split1);
+                    break;
+                case "pageIndex"://命令行号
+                    hashMap.put("pageIndex",split1);
+                    break;
+            }
+        }
+
+        //如果 常规检验 的话 下一ID  应是 下一命令ID
+        //下一分析ID  应是  0
+        if (hashMap.get("resultCheckId").equals("1")){
+            hashMap.put("endIndex",hashMap.get("nextIndex"));
+            hashMap.put("nextIndex","0");
+        }
+
+        /** 主键索引 */
+        commandLogic.setId(hashMap.get("onlyIndex"));
+        /** 状态 */
+        commandLogic.setState(null);
+        /** 命令 */
+        commandLogic.setCommand(hashMap.get("command"));
+        /** 返回结果验证id */
+        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
+        /** 返回分析id */
+        commandLogic.setProblemId(hashMap.get("nextIndex"));
+        /** 命令结束索引 */
+        commandLogic.setEndIndex(hashMap.get("endIndex"));
+        /** 命令行号 */
+        commandLogic.setcLine(hashMap.get("pageIndex"));
+
+        return commandLogic;
+    }
 
 
     /**
