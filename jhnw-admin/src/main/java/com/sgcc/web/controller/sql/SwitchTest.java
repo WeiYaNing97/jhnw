@@ -25,4 +25,12 @@ public class SwitchTest {
         String removeLoginInformation = Utils.removeLoginInformation(string);
         System.out.print(removeLoginInformation);
     }
+
+
+    @RequestMapping("/compareVersionText")
+    public void compareVersionText(){
+        String compare = "10.37.65<ver<=20.36.59";
+        boolean compareVersionBoolean = Utils.compareVersion(null,compare);
+    }
+
 }

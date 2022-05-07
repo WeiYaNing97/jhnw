@@ -93,35 +93,81 @@ public class Utils {
 
     /**
      * @method: 比较版本号
-     * @Param: [remove_content, compare, content] //交换机版本号  比较方法   数据库版本号
+     * @Param: [remove_content, compare, content] //交换机版本号  比较
      * 如果 交换机版本号  比较方法   数据库版本号 则返回 true
      * @return: boolean
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static boolean compareVersion(String remove_content,String compare,String content){
-        boolean compare_size = false;
-        switch (compare){
-            case ">":
-                compare_size = compareVersionNumber(remove_content, content);
-                return compare_size;
-            case "<":
-                compare_size = compareVersionNumber(content, remove_content);
-                return compare_size;
-            case "=":
-                compare_size = remove_content.equals(content);
-                return compare_size;
-            case ">=":
-                compare_size = compareVersionNumber(remove_content, content) || remove_content.equals(content);
-                return compare_size;
-            case "<=":
-                compare_size = compareVersionNumber(content, remove_content) || remove_content.equals(content);
-                return compare_size;
-            case "!=":
-                compare_size = !(remove_content.equals(content));
-                return compare_size;
+    @RequestMapping("compareVersion")
+    public static boolean compareVersion(String remove_content,String compare){
+
+        String getParameters = compare;
+        getParameters = getParameters.replace("<=",":");
+        getParameters = getParameters.replace(">=",":");
+        getParameters = getParameters.replace("!=",":");
+        getParameters = getParameters.replace("<",":");
+        getParameters = getParameters.replace(">",":");
+        getParameters = getParameters.replace("=",":");
+        String[] parameter = getParameters.split(":");
+
+        String getComparisonNumber = compare;
+        getComparisonNumber = getComparisonNumber.replace(parameter[0],":");
+        getComparisonNumber = getComparisonNumber.replace(parameter[1],":");
+        if (parameter.length == 3){
+            getComparisonNumber = getComparisonNumber.replace(parameter[2],":");
         }
-        return compare_size;
+        getComparisonNumber = getComparisonNumber.substring(1,getComparisonNumber.length()-1);
+        String[] comparisonNumber = getComparisonNumber.split(":");
+
+        List<String[]> compareList = new ArrayList<>();
+        if (comparisonNumber.length ==1){
+            String[] compareArray = new String[3];
+            compareArray[0] = parameter[0];
+            compareArray[1] = comparisonNumber[0];
+            compareArray[2] = parameter[1];
+            compareList.add(compareArray);
+        }else if (comparisonNumber.length ==2){
+
+            String[] compareArray1 = new String[3];
+            compareArray1[0] = parameter[0];
+            compareArray1[1] = comparisonNumber[0];
+            compareArray1[2] = parameter[1];
+            compareList.add(compareArray1);
+
+            String[] compareArray2 = new String[3];
+            compareArray2[0] = parameter[1];
+            compareArray2[1] = comparisonNumber[1];
+            compareArray2[2] = parameter[2];
+            compareList.add(compareArray2);
+
+        }
+
+        boolean compare_size = false;
+        for (String[] compareArray:compareList){
+            switch (compareArray[1]){
+                case ">":
+                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
+                    return compare_size;
+                case "<":
+                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
+                    return compare_size;
+                case "=":
+                    compare_size = compareArray[0].equals(compareArray[2]);
+                    return compare_size;
+                case ">=":
+                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
+                    return compare_size;
+                case "<=":
+                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
+                    return compare_size;
+                case "!=":
+                    compare_size = !(compareArray[0].equals(compareArray[2]));
+                    return compare_size;
+            }
+        }
+
+        return true;
     }
 
     /**

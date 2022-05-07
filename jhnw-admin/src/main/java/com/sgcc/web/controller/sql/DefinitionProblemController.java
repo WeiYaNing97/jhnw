@@ -558,10 +558,6 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("compare")!=null){
             problemScanLogic.setCompare(hashMap.get("compare"));
         }
-        /** 内容 */
-        if (hashMap.get("content")!=null){
-            problemScanLogic.setContent(hashMap.get("content"));
-        }
         /** true下一条分析索引 */
         if (hashMap.get("tNextId")!=null){
             problemScanLogic.settNextId(hashMap.get("tNextId"));
@@ -666,10 +662,6 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getCompare()!=null){
             String compare = problemScanLogic.getCompare();
             problemScanLogicVO.setCompare(compare);
-        }
-        if (problemScanLogic.getContent()!=null){
-            String content = problemScanLogic.getContent();
-            problemScanLogicVO.setContent(content);
         }
         String pageIndex = null;
         if (problemScanLogic.gettLine()!=null){

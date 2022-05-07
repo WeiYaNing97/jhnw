@@ -54,10 +54,6 @@ public class ProblemScanLogic extends BaseEntity
     @Excel(name = "比较")
     private String compare;
 
-    /** 内容 */
-    @Excel(name = "内容")
-    private String content;
-
     /** true下一条分析索引 */
     @Excel(name = "true下一条分析索引")
     private String tNextId;
@@ -180,14 +176,6 @@ public class ProblemScanLogic extends BaseEntity
         this.compare = compare;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
     public String gettNextId() {
         return tNextId;
     }
@@ -273,7 +261,6 @@ public class ProblemScanLogic extends BaseEntity
                 ", exhibit='" + exhibit + '\'' +
                 ", wordName='" + wordName + '\'' +
                 ", compare='" + compare + '\'' +
-                ", content='" + content + '\'' +
                 ", tNextId='" + tNextId + '\'' +
                 ", tComId='" + tComId + '\'' +
                 ", problemId='" + problemId + '\'' +

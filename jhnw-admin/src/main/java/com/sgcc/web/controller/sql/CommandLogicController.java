@@ -152,6 +152,7 @@ public class CommandLogicController extends BaseController
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
+    @RequestMapping("insertModifyProblemCommandSet")
     public boolean insertModifyProblemCommandSet(Long totalQuestionTableId,List<String> commandLogicList){
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         List<CommandLogic> commandLogics = new ArrayList<>();

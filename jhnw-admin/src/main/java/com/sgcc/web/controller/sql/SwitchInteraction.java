@@ -727,11 +727,8 @@ public class SwitchInteraction {
             String matched = problemScanLogic.getMatched();
             //取词逻辑
             String action = problemScanLogic.getAction();
-            //比较分析号
+            //比较分析
             String compare = problemScanLogic.getCompare();
-            //比较分析值
-            String content = problemScanLogic.getContent();
-
 
             //返回信息的数组元素 第num 条
             String information_line_n = return_information_array[num];
@@ -858,7 +855,7 @@ public class SwitchInteraction {
                         break;
                 }
                 //比较
-                boolean compare_boolean = Utils.compareVersion(remove_content, compare, problemScanLogic.getContent());
+                boolean compare_boolean = true;//Utils.compareVersion(remove_content, compare );
 
                 if (compare_boolean){
 

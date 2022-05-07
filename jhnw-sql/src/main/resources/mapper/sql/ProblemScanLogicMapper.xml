@@ -15,7 +15,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="exhibit"    column="exhibit"    />
         <result property="wordName"    column="word_name"    />
         <result property="compare"    column="compare"    />
-        <result property="content"    column="content"    />
         <result property="fLine"    column="f_line"    />
         <result property="tLine"    column="t_Line"    />
         <result property="tNextId"    column="t_next_id"    />
@@ -28,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectProblemScanLogicVo">
-        select id, matched, relative_position, match_content, action, r_position, length, exhibit, word_name, compare, content,
+        select id, matched, relative_position, match_content, action, r_position, length, exhibit, word_name, compare,
         f_line,t_Line,t_next_id, t_com_id, problem_id, f_next_id, f_com_id, return_cmd_id, cycle_start_id from problem_scan_logic
     </sql>
 
@@ -44,7 +43,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="exhibit != null  and exhibit != ''"> and exhibit = #{exhibit}</if>
             <if test="wordName != null  and wordName != ''"> and word_name like concat('%', #{wordName}, '%')</if>
             <if test="compare != null  and compare != ''"> and compare = #{compare}</if>
-            <if test="content != null  and content != ''"> and content = #{content}</if>
             <if test="fLine != null  and fLine != ''"> and f_line = #{fLine}</if>
             <if test="tLine != null  and tLine != ''"> and t_line = #{tLine}</if>
             <if test="tNextId != null  and tNextId != ''"> and t_next_id = #{tNextId}</if>
@@ -75,7 +73,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="exhibit != null">exhibit,</if>
             <if test="wordName != null">word_name,</if>
             <if test="compare != null">compare,</if>
-            <if test="content != null">content,</if>
             <if test="fLine != null">f_line,</if>
             <if test="tLine != null">t_line,</if>
             <if test="tNextId != null">t_next_id,</if>
@@ -97,7 +94,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="exhibit != null">#{exhibit},</if>
             <if test="wordName != null">#{wordName},</if>
             <if test="compare != null">#{compare},</if>
-            <if test="content != null">#{content},</if>
             <if test="fLine != null">#{fLine},</if>
             <if test="tLine != null">#{tLine},</if>
             <if test="tNextId != null">#{tNextId},</if>
@@ -122,7 +118,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="exhibit != null">exhibit = #{exhibit},</if>
             <if test="wordName != null">word_name = #{wordName},</if>
             <if test="compare != null">compare = #{compare},</if>
-            <if test="content != null">content = #{content},</if>
             <if test="fLine != null">f_line = #{fLine},</if>
             <if test="tLine != null">t_line = #{tLine},</if>
             <if test="tNextId != null">t_next_id = #{tNextId},</if>
