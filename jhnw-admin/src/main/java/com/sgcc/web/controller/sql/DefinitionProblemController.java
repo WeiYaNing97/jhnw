@@ -6,7 +6,6 @@ import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
-import com.sun.org.apache.xerces.internal.xs.StringList;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
