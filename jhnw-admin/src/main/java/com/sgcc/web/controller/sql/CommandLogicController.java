@@ -153,7 +153,22 @@ public class CommandLogicController extends BaseController
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("insertModifyProblemCommandSet")
-    public boolean insertModifyProblemCommandSet(Long totalQuestionTableId,List<String> commandLogicList){
+    public boolean insertModifyProblemCommandSet(Long totalQuestionTableId,@RequestParam List<String> commandLogicList){
+        String commandLogicString = "";
+        for (String commandLogic:commandLogicList){
+            commandLogicString = commandLogicString + commandLogic +",";
+        }
+        if (!commandLogicString.equals("")){
+            commandLogicList = new ArrayList<>();
+            commandLogicString = commandLogicString.substring(0,commandLogicString.length()-1);
+            commandLogicString = commandLogicString.replace("},","}\r\n");
+            String[] commandLogic_split = commandLogicString.split("\r\n");
+            for (int number=0; number<commandLogic_split.length; number++){
+                commandLogicList.add(commandLogic_split[number]);
+            }
+        }else {
+            return false;
+        }
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         List<CommandLogic> commandLogics = new ArrayList<>();
         for (int number=0;number<commandLogicList.size();number++){
@@ -203,6 +218,9 @@ public class CommandLogicController extends BaseController
                     break;
                 case "command":// 命令
                     hashMap.put("command",split1);
+                    break;
+                case "para":// 参数
+                    hashMap.put("command",hashMap.get("command")+":"+split1);
                     break;
                 case "nextIndex"://下一分析ID 也是 首分析ID
                     hashMap.put("nextIndex",split1);
