@@ -39,16 +39,18 @@ public class TotalQuestionTableController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping(value = "/commandIdByInformation")
-    public List<String> commandIdByInformation()//String brand,String type,String firewareVersion
+    public List<String> commandIdByInformation(String brand,
+                                               String type,
+                                               String firewareVersion,
+                                               String subversionNumber)
     {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        /*totalQuestionTable.setBrand(brand);
+
+        totalQuestionTable.setBrand(brand);
         totalQuestionTable.setType(type);
-        totalQuestionTable.setFirewareVersion(firewareVersion);*/
-        totalQuestionTable.setBrand(Global.deviceBrand);
-        totalQuestionTable.setType(Global.deviceModel);
-        totalQuestionTable.setFirewareVersion(Global.firmwareVersion);
-        totalQuestionTable.setSubVersion(Global.subversionNumber);
+        totalQuestionTable.setFirewareVersion(firewareVersion);
+        totalQuestionTable.setSubVersion(subversionNumber);
+
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTables!=null){
             List<String> longList = new ArrayList<>();
@@ -74,7 +76,7 @@ public class TotalQuestionTableController extends BaseController
         startPage();
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-        if (selectCommandId.equals("0")){
+        if (selectCommandId.equals("0")){//未定义解决问题命令
             for (TotalQuestionTable pojo:list){
                 if (pojo.getCommandId() == null || pojo.getCommandId().equals("")){
                     totalQuestionTables.add(pojo);
@@ -260,5 +262,41 @@ public class TotalQuestionTableController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(totalQuestionTableService.deleteTotalQuestionTableByIds(ids));
+    }
+
+    /**
+     * @method: 获取 解决问题 命令ID
+     * @Param: []
+     * @return: java.util.List<java.lang.Long>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping(value = "/totalQuestionTableId")
+    public Long totalQuestionTableId( String brand,
+                                      String type,
+                                      String firewareVersion,
+                                      String subversionNumber,
+                                      String problemName,
+                                      String typeProblem)
+    {
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+
+        totalQuestionTable.setBrand(brand);
+        totalQuestionTable.setType(type);
+        totalQuestionTable.setFirewareVersion(firewareVersion);
+        totalQuestionTable.setSubVersion(subversionNumber);
+        totalQuestionTable.setProblemName(problemName);
+        totalQuestionTable.setTypeProblem(typeProblem);
+        totalQuestionTable.setCommandId(null);
+
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        if (totalQuestionTables!=null){
+            /*List<Long> longList = new ArrayList<>();
+            for (TotalQuestionTable pojo:totalQuestionTables){
+                longList.add(pojo.getId());
+            }*/
+            return totalQuestionTables.get(0).getId();
+        }
+            return null;
     }
 }

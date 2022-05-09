@@ -143,31 +143,42 @@ public class Utils {
 
         }
 
-        boolean compare_size = false;
+        boolean compare_size = true;
         for (String[] compareArray:compareList){
             switch (compareArray[1]){
                 case ">":
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
-                    return compare_size;
+                    if (!compare_size){
+                        return compare_size;
+                    }
                 case "<":
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
-                    return compare_size;
+                    if (!compare_size){
+                        return compare_size;
+                    }
                 case "=":
                     compare_size = compareArray[0].equals(compareArray[2]);
-                    return compare_size;
+                    if (!compare_size){
+                        return compare_size;
+                    }
                 case ">=":
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
-                    return compare_size;
+                    if (!compare_size){
+                        return compare_size;
+                    }
                 case "<=":
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
-                    return compare_size;
+                    if (!compare_size){
+                        return compare_size;
+                    }
                 case "!=":
                     compare_size = !(compareArray[0].equals(compareArray[2]));
-                    return compare_size;
+                    if (!compare_size){
+                        return compare_size;
+                    }
             }
         }
-
-        return true;
+        return compare_size;
     }
 
     /**
