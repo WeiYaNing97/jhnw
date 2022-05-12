@@ -634,15 +634,26 @@ public class ProblemScanLogicController extends BaseController
     }
 
 
+    /**
+    * @method: getParameterNameCollection
+    * @Param: [totalQuestionTableId]
+    * @return: java.util.List<java.lang.String>
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @RequestMapping("/getParameterNameCollection")
     public List<String> getParameterNameCollection(Long totalQuestionTableId){
+        //根据问题ID 获取问题表数据
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        //如果问题表数据没有定义 扫描命令的ID 则 返回null
         if (totalQuestionTable == null
                 || totalQuestionTable.getCommandId() == null
                 || totalQuestionTable.getCommandId().equals("")){
             return null;
         }
+        //扫描命令的ID
         String commandIdString = totalQuestionTable.getCommandId();
+        //hashset 获得 参数名 唯一
         HashSet<String> parameterName = new HashSet<>();
         do {
             List<CommandLogic> commandLogics = new ArrayList<>();

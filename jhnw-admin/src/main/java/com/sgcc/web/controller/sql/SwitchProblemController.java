@@ -105,7 +105,7 @@ public class SwitchProblemController extends BaseController
     }
 
     /**
-     * @method: getUnresolvedProblemInformationByData
+     * @method: 获取当天扫描出来的问题
      * @Param: []
      * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
      * @Author: 天幕顽主

@@ -8,6 +8,9 @@ ip=192.168.1.100
 name=admin
 password=admin
 port=23
+##定义分析问题的数据
+/dev-api/sql/DefinitionProblemController/definitionProblemJsonPojo
+
 ##问题列表
 ###路径
 http://localhost/dev-api/sql/switch_problem/getUnresolvedProblemInformationByData

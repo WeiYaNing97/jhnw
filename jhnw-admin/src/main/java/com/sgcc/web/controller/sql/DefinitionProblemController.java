@@ -202,7 +202,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
     /**
-    * @method: 插入 问题数据
+    * @method: 插入分析问题的数据
     * @Param: [jsonPojoList]
     * @return: void
     * @Author: 天幕顽主
@@ -433,9 +433,25 @@ public class DefinitionProblemController extends BaseController {
                     /** 是否显示 */
                     hashMap.put("wordName",split1);
                     break;
-                case "compare":
-                    /** 比较 */
-                    hashMap.put("compare",split1);
+                case "compareOne":
+                    /** 比较1 */
+                    hashMap.put("compareOne",split1);
+                    break;
+                case "compareTwo":
+                    /** 比较2 */
+                    hashMap.put("compareTwo",split1);
+                    break;
+                case "compareThree":
+                    /** 比较3 */
+                    hashMap.put("compareThree",split1);
+                    break;
+                case "compareFour":
+                    /** 比较4 */
+                    hashMap.put("compareFour",split1);
+                    break;
+                case "compareFive":
+                    /** 比较5 */
+                    hashMap.put("compareFive",split1);
                     break;
                 case "content":
                     /** 内容 */
@@ -510,7 +526,7 @@ public class DefinitionProblemController extends BaseController {
             hashMap.put("action",null);
             hashMap.put("tNextId",null);
         }
-        if (hashMap.get("action")!=null && hashMap.get("action").equals("问题")){
+        if (hashMap.get("action")!=null && hashMap.get("action").indexOf("问题")!=-1){
             hashMap.put("problemId",hashMap.get("WTNextId")+hashMap.get("problemId"));
             hashMap.put("action",null);
             if(hashMap.get("WTNextId").equals("完成")){
@@ -518,6 +534,43 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
+        String compare = null;
+        if (hashMap.get("compareOne")!=null){
+            if (compare == null){
+                compare = hashMap.get("compareOne");
+            }else {
+                compare = compare+hashMap.get("compareOne");
+            }
+        }
+        if (hashMap.get("compareTwo")!=null){
+            if (compare == null){
+                compare = hashMap.get("compareTwo");
+            }else {
+                compare = compare+hashMap.get("compareTwo");
+            }
+        }
+        if (hashMap.get("compareThree")!=null){
+            if (compare == null){
+                compare = hashMap.get("compareThree");
+            }else {
+                compare = compare+hashMap.get("compareThree");
+            }
+        }
+        if (hashMap.get("compareFour")!=null){
+            if (compare == null){
+                compare = hashMap.get("compareFour");
+            }else {
+                compare = compare+hashMap.get("compareFour");
+            }
+        }
+        if (hashMap.get("compareFive")!=null){
+            if (compare == null){
+                compare = hashMap.get("compareFive");
+            }else {
+                compare = compare+hashMap.get("compareFive");
+            }
+        }
+        hashMap.put("compare",compare);
 
         /** 主键索引 */
         problemScanLogic.setId(hashMap.get("id"));
@@ -1053,7 +1106,7 @@ public class DefinitionProblemController extends BaseController {
         for (String jsonPojo:jsonPojoList){
             ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojo, "分析");
             if (problemScanLogic.getProblemId()!=null && (!problemScanLogic.getProblemId().equals("null")) && !(problemScanLogic.getProblemId().equals("") && problemScanLogic.getProblemId().indexOf("问题")!=-1)){
-                totalQuestionTableId = Integer.valueOf(problemScanLogic.getProblemId()).longValue();
+                totalQuestionTableId = Integer.valueOf(problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length())).longValue();
                 TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
                 commandId = totalQuestionTable.getCommandId();
                 break;
