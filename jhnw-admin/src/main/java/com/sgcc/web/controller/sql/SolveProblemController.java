@@ -3,12 +3,10 @@ package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
-import com.sgcc.sql.domain.CommandLogic;
-import com.sgcc.sql.domain.ReturnRecord;
-import com.sgcc.sql.domain.ValueInformation;
-import com.sgcc.sql.domain.ValueInformationVO;
+import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
+import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.service.IValueInformationService;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.BeanUtils;
@@ -36,6 +34,8 @@ public class SolveProblemController {
     private IValueInformationService valueInformationService;
     @Autowired
     private IReturnRecordService returnRecordService;
+    @Autowired
+    private ITotalQuestionTableService totalQuestionTableService;
 
     /***
     * @method: 批量解决问题
@@ -45,60 +45,46 @@ public class SolveProblemController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("batchSolution")
-    public AjaxResult batchSolution(String mode,String ip,String name,String password,String port,List<String> commandValueList){
-
+    public AjaxResult batchSolution(){//String mode,String ip,String name,String password,String port
         //用户信息
         Map<String,String> user_String = new HashMap<>();
-        user_String.put("mode",mode);
-        user_String.put("ip",ip);
-        user_String.put("name",name);
-        user_String.put("password",password);
-        user_String.put("port",port);
-
-
-        //问题编码ID 参数ID
-        List<String> command_value_String = new ArrayList<>();
-        command_value_String.add("4:6");
-        command_value_String.add("4:8");
-        command_value_String.add("4:10");
-        command_value_String.add("4:12");
-        command_value_String.add("4:14");
-
-
+        user_String.put("mode","ssh");
+        user_String.put("ip","192.168.1.100");
+        user_String.put("name","admin");
+        user_String.put("password","admin");
+        user_String.put("port","22");
+        //命令ID 参数ID
+        List<String> commandValueList = new ArrayList<>();
+        //commandValueList = new ArrayList<>();
+        commandValueList.add("1652081208570:1");
         //ssh连接
         SshMethod connectMethod = null;
         //telnet连接
         TelnetSwitchMethod telnetSwitchMethod = null;
-
         /* requestConnect方法：
         传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
-
         AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect(user_String,connectMethod, telnetSwitchMethod);
         //解析返回参数
         List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
         //是否连接成功
         boolean requestConnect_boolean = informationList.get(0).toString().equals("true");
-
         if (requestConnect_boolean){
-            for (String commandValue:command_value_String){
-                //将 问题id 和 参数ID 分离开来
+            for (String commandValue:commandValueList){
+                //将 命令ID 和 参数ID 分离开来
                 String[] commandValueSplit = commandValue.split(":");
-                //传参 问题id 和 参数ID
+                //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
                 AjaxResult ajaxResult = queryParameterSet(commandValueSplit[0], Long.valueOf(commandValueSplit[1]).longValue());
-
                 Object[] command_value =  (Object[])ajaxResult.get("data");
                 //命令集合
                 List<String> commandList = (List<String>) command_value[0];
                 //参数集合
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)command_value[1];
-
                 //解决问题
                 AjaxResult solveProblemAjaxResult = solveProblem(informationList, commandList, valueInformationVOList);
-
             }
         }
         return null;
@@ -161,12 +147,47 @@ public class SolveProblemController {
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId_Long);
             commandLogicList.add(commandLogic);
             commandId_Long = commandLogic.getEndIndex();
-        }while (commandId_Long.equals("0"));
+        }while (!(commandId_Long.equals("0")));
         return AjaxResult.success(commandLogicList);
     }
 
+
+
     /**
-    * @method: 解决问题
+    * @method: 根据问题ID 查询 解决问题ID命令 返回List<String>
+    * @Param: [totalQuestionTableId]
+    * @return: com.sgcc.common.core.domain.AjaxResult
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @RequestMapping("queryCommandListBytotalQuestionTableId")
+    public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
+
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        String problemSolvingId = totalQuestionTable.getProblemSolvingId();
+
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        do {
+            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
+            commandLogicList.add(commandLogic);
+            problemSolvingId = commandLogic.getEndIndex();
+        }while (!(problemSolvingId.equals("0")));
+
+        List<String> commandLogicStringList = new ArrayList<>();
+        for (CommandLogic commandLogic:commandLogicList){
+            String string = DefinitionProblemController.commandLogicString(commandLogic);
+            String[] split = string.split(":");
+            System.err.println("\r\n"+split[1]+"\r\n");
+            commandLogicStringList.add(split[1]);
+        }
+
+        return commandLogicStringList;
+    }
+
+
+
+    /**
+     * @method: 解决问题
     * @Param: [parameterID]
     * @return: com.sgcc.common.core.domain.AjaxResult
     * @Author: 天幕顽主

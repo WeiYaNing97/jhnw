@@ -28,6 +28,10 @@ public class CommandLogicVO extends BaseEntity
     @Excel(name = "命令")
     private String command;
 
+    /** 参数名 */
+    @Excel(name = "参数名")
+    private String para;
+
     /** 返回结果验证id */
     @Excel(name = "返回结果验证id")
     private String resultCheckId;
@@ -35,7 +39,6 @@ public class CommandLogicVO extends BaseEntity
     /** 下一ID */
     @Excel(name = "下一ID")
     private String nextIndex;
-
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -73,6 +76,14 @@ public class CommandLogicVO extends BaseEntity
         this.command = command;
     }
 
+    public String getPara() {
+        return para;
+    }
+
+    public void setPara(String para) {
+        this.para = para;
+    }
+
     public String getResultCheckId() {
         return resultCheckId;
     }
@@ -96,6 +107,7 @@ public class CommandLogicVO extends BaseEntity
                 ", trueFalse='" + trueFalse + '\'' +
                 ", pageIndex='" + pageIndex + '\'' +
                 ", command='" + command + '\'' +
+                ", para='" + para + '\'' +
                 ", resultCheckId='" + resultCheckId + '\'' +
                 ", nextIndex='" + nextIndex + '\'' +
                 '}';

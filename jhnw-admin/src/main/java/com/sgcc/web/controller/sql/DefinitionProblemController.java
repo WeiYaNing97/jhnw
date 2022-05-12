@@ -537,7 +537,7 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("action")!=null){
             problemScanLogic.setAction(hashMap.get("action"));
         }
-        if (hashMap.get("rPosition")!=null){
+        if (hashMap.get("rPosition")!=null && !(hashMap.get("rPosition").equals("null"))){
             /** 位置 */
             problemScanLogic.setrPosition(Integer.valueOf(hashMap.get("rPosition")).intValue());
         }
@@ -585,7 +585,7 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("fComId")!=null){
             problemScanLogic.setfComId(hashMap.get("fComId"));
         }
-        if (hashMap.get("returnCmdId")!=null){
+        if (hashMap.get("returnCmdId")!=null && !(hashMap.get("returnCmdId").equals("null"))){
             /** 返回命令 */
             problemScanLogic.setReturnCmdId(Integer.valueOf(hashMap.get("returnCmdId")).longValue());
         }
@@ -798,10 +798,16 @@ public class DefinitionProblemController extends BaseController {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public String commandLogicString(CommandLogic commandLogic){
+    public static String commandLogicString(CommandLogic commandLogic){
         String onlyIndex = commandLogic.getId();
         String trueFalse = "";
         String command = commandLogic.getCommand();
+        String para = "";
+        if (command.indexOf(":")!=-1){
+            String[] command_split = command.split(":");
+            command = command_split[0];
+            para = command_split[1];
+        }
         String resultCheckId =  commandLogic.getResultCheckId();
         String nextIndex;
         if (resultCheckId.equals("0")){
@@ -809,7 +815,7 @@ public class DefinitionProblemController extends BaseController {
             nextIndex = commandLogic.getProblemId();
         }else {
             //常规检验 执行下一命令
-            nextIndex = commandLogic.getProblemId();
+            nextIndex = commandLogic.getEndIndex();
         }
 
         String pageIndex = commandLogic.getcLine();
@@ -818,6 +824,7 @@ public class DefinitionProblemController extends BaseController {
         commandLogicVO.setOnlyIndex(onlyIndex);
         commandLogicVO.setTrueFalse(trueFalse);
         commandLogicVO.setCommand(command);
+        commandLogicVO.setPara(para);
         commandLogicVO.setResultCheckId(resultCheckId);
         commandLogicVO.setNextIndex(nextIndex);
         commandLogicVO.setPageIndex(pageIndex);
@@ -842,9 +849,9 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("getAnalysisList")
-    public List<String> getAnalysisList(){//@RequestBody TotalQuestionTable totalQuestionTable
+    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
 
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        /*TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         String brand = "H3C";
         String type = "S2152";
         String firewareVersion = "5.20.99";
@@ -854,7 +861,7 @@ public class DefinitionProblemController extends BaseController {
         totalQuestionTable.setType(type);
         totalQuestionTable.setFirewareVersion(firewareVersion);
         totalQuestionTable.setSubVersion(subVersion);
-        totalQuestionTable.setProblemName(problemName);
+        totalQuestionTable.setProblemName(problemName);*/
 
         TotalQuestionTable pojo = new TotalQuestionTable();
         pojo.setBrand(totalQuestionTable.getBrand());
@@ -1045,8 +1052,8 @@ public class DefinitionProblemController extends BaseController {
         String commandId = null;
         for (String jsonPojo:jsonPojoList){
             ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojo, "分析");
-            if (problemScanLogic.getProblemId()!=null && !(problemScanLogic.getProblemId().equals("") && problemScanLogic.getProblemId().indexOf("问题")!=-1)){
-                totalQuestionTableId = Integer.valueOf(problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length())).longValue();
+            if (problemScanLogic.getProblemId()!=null && (!problemScanLogic.getProblemId().equals("null")) && !(problemScanLogic.getProblemId().equals("") && problemScanLogic.getProblemId().indexOf("问题")!=-1)){
+                totalQuestionTableId = Integer.valueOf(problemScanLogic.getProblemId()).longValue();
                 TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
                 commandId = totalQuestionTable.getCommandId();
                 break;

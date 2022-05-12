@@ -256,6 +256,33 @@ public class CommandLogicController extends BaseController
         return commandLogic;
     }
 
+    /**
+     * @method: 根据问题ID 查询 解决问题ID命令 返回List<String>
+     * @Param: [totalQuestionTableId]
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("problemSolvingCommandEcho")
+    public boolean problemSolvingCommandEcho(Long totalQuestionTableId,List<String> commandLogics){
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        String problemSolvingId = totalQuestionTable.getProblemSolvingId();
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        do {
+            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
+            commandLogicList.add(commandLogic);
+            problemSolvingId = commandLogic.getEndIndex();
+        }while (!(problemSolvingId.equals("0")));
+        for (CommandLogic commandLogic:commandLogicList){
+            int i = commandLogicService.deleteCommandLogicById(commandLogic.getId());
+            if (i<=0){
+                return false;
+            }
+        }
+        boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
+        return insertModifyProblemCommand;
+    }
+
 
     /**
      * 查询命令逻辑列表

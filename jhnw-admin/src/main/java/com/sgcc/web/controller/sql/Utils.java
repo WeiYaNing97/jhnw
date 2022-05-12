@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 天幕顽主
@@ -100,7 +101,17 @@ public class Utils {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("compareVersion")
-    public static boolean compareVersion(String remove_content,String compare){
+    public static boolean compareVersion(Map<String,String> user_String, String compare){
+
+        if (compare.indexOf("deviceBrand")!=-1){
+            compare = compare.replace("deviceBrand",user_String.get("deviceBrand"));
+        }else if (compare.indexOf("deviceModel")!=-1){
+            compare = compare.replace("deviceModel",user_String.get("deviceModel"));
+        }else if (compare.indexOf("firmwareVersion")!=-1){
+            compare = compare.replace("firmwareVersion",user_String.get("firmwareVersion"));
+        }else if (compare.indexOf("subversionNumber")!=-1){
+            compare = compare.replace("subversionNumber",user_String.get("subversionNumber"));
+        }
 
         String getParameters = compare;
         getParameters = getParameters.replace("<=",":");
@@ -119,6 +130,8 @@ public class Utils {
         }
         getComparisonNumber = getComparisonNumber.substring(1,getComparisonNumber.length()-1);
         String[] comparisonNumber = getComparisonNumber.split(":");
+
+
 
         List<String[]> compareList = new ArrayList<>();
         if (comparisonNumber.length ==1){

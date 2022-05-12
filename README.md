@@ -11,8 +11,10 @@ port=23
 ##问题列表
 ###路径
 http://localhost/dev-api/sql/switch_problem/getUnresolvedProblemInformationByData
+
 ##解决问题(一个或者多个问题)
 http://localhost/dev-api/sql/SolveProblemController/batchSolution
+
 ##获取参数名集合
 http://localhost/dev-api/sql/problem_scan_logic/getParameterNameCollection?totalQuestionTableId=2
 
@@ -28,3 +30,10 @@ http://192.168.1.98/dev-api/sql/DefinitionProblemController/definitionProblemJso
 ###路径
 http://192.168.1.98/dev-api/sql/DefinitionProblemController/getAnalysisList
 @RequestBody String brand,@RequestBody String type,@RequestBody String firewareVersion,@RequestBody String subVersion,@RequestBody String problemName
+
+##解决问题命令集合插入 及 问题表数据修改
+###路径
+/sql/command_logic/insertModifyProblemCommandSet
+##解决问题命令集合修改
+###路径
+/sql/command_logic/

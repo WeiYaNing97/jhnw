@@ -833,29 +833,9 @@ public class SwitchInteraction {
 
             //比较
             if (compare!=null){
-                String remove_content = "";
-                switch (action){
-                    case "取品牌":
-                        remove_content = user_String.get("deviceBrand");
-                        break;
-                    case "取型号":
-                        remove_content = user_String.get("deviceModel");
-                        break;
-                    case "取固件版本":
-                        remove_content = user_String.get("firmwareVersion");
-                        break;
-                    case "取子版本":
-                        remove_content = user_String.get("subversionNumber");
-                        break;
-                    case "取词":
-                        //取词数
-                        remove_content = Utils.wordSelection(
-                                return_information_array[num], matchContent, //返回信息的一行 提取关键字
-                                problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
-                        break;
-                }
+
                 //比较
-                boolean compare_boolean = true;//Utils.compareVersion(remove_content, compare );
+                boolean compare_boolean = Utils.compareVersion(user_String,compare);
 
                 if (compare_boolean){
 
