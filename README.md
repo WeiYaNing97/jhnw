@@ -37,6 +37,9 @@ http://192.168.1.98/dev-api/sql/DefinitionProblemController/getAnalysisList
 ##解决问题命令集合插入 及 问题表数据修改
 ###路径
 /sql/command_logic/insertModifyProblemCommandSet
+##解决问题命令集合 回显
+###路径
+/dev-api/sql/SolveProblemController/queryCommandListBytotalQuestionTableId
 ##解决问题命令集合修改
 ###路径
-/sql/command_logic/
+/sql/command_logic/updateProblemSolvingCommand

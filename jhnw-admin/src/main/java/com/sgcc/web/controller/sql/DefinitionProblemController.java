@@ -230,6 +230,12 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s6);
         jsonPojoList.add(s7);*/
 
+        System.err.println("\r\n"+"前端出入数据：");
+        for (String s:jsonPojoList){
+            System.err.println(s);
+        }
+
+
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
         for (int number=0;number<jsonPojoList.size();number++){
@@ -366,9 +372,9 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("returnCmdId",null);
         /** 循环起始ID */
         hashMap.put("cycleStartId",null);
-        //成功失败
+        /** 成功失败 */
         hashMap.put("trueFalse",null);
-        //问题
+        /** 问题 */
         hashMap.put("WTNextId",null);
 
         for (String pojo:jsonPojo_split){
@@ -486,14 +492,11 @@ public class DefinitionProblemController extends BaseController {
             /** 相对位置 */
             hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
         }
-
         if (ifCommand.equals("命令")){
             /** true下一条命令索引 */
             hashMap.put("tComId",hashMap.get("tNextId"));
             hashMap.put("tNextId",null);
         }
-
-
         if (hashMap.get("action")!=null && hashMap.get("action").equals("取词")){
             List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
             redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
@@ -505,7 +508,6 @@ public class DefinitionProblemController extends BaseController {
                 }
             }
         }
-
         if (hashMap.get("trueFalse")!=null && hashMap.get("trueFalse").equals("失败")){
             /** false行号 */
             hashMap.put("fLine",hashMap.get("tLine"));
@@ -521,7 +523,6 @@ public class DefinitionProblemController extends BaseController {
             /** true行号 */
             hashMap.put("tLine",null);
         }
-
         if (hashMap.get("action")!=null && hashMap.get("action").equals("循环")){
             hashMap.put("action",null);
             hashMap.put("tNextId",null);
@@ -533,7 +534,6 @@ public class DefinitionProblemController extends BaseController {
                 hashMap.put("problemId",hashMap.get("WTNextId"));
             }
         }
-
         String compare = null;
         if (hashMap.get("compareOne")!=null){
             if (compare == null){
@@ -585,6 +585,9 @@ public class DefinitionProblemController extends BaseController {
         /** 匹配内容 */
         if (hashMap.get("matchContent")!=null){
             problemScanLogic.setMatchContent(hashMap.get("matchContent"));
+            if (problemScanLogic.getMatchContent().equals("null")){
+                problemScanLogic.setMatchContent(null);
+            }
         }
         /** 动作 */
         if (hashMap.get("action")!=null){
@@ -605,6 +608,9 @@ public class DefinitionProblemController extends BaseController {
         /** 取词名称 */
         if (hashMap.get("wordName")!=null){
             problemScanLogic.setWordName(hashMap.get("wordName"));
+            if (problemScanLogic.getWordName().equals("null")){
+                problemScanLogic.setWordName(null);
+            }
         }
         /** 比较 */
         if (hashMap.get("compare")!=null){
@@ -613,6 +619,9 @@ public class DefinitionProblemController extends BaseController {
         /** true下一条分析索引 */
         if (hashMap.get("tNextId")!=null){
             problemScanLogic.settNextId(hashMap.get("tNextId"));
+            if (problemScanLogic.gettNextId().equals("null")){
+                problemScanLogic.settNextId(null);
+            }
         }
         /** true下一条命令索引 */
         if (hashMap.get("tComId")!=null){
@@ -621,6 +630,9 @@ public class DefinitionProblemController extends BaseController {
         /** true问题索引 */
         if (hashMap.get("problemId")!=null){
             problemScanLogic.setProblemId(hashMap.get("problemId"));
+            if (problemScanLogic.getProblemId().equals("null")){
+                problemScanLogic.setProblemId(null);
+            }
         }
         /** false行号 */
         if (hashMap.get("fLine")!=null){
@@ -645,16 +657,15 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("cycleStartId")!=null){
             /** 循环起始ID */
             problemScanLogic.setCycleStartId(hashMap.get("cycleStartId"));
+            if (problemScanLogic.getCycleStartId().equals("null")){
+                problemScanLogic.setCycleStartId(null);
+            }
         }
-
         //通过redisTemplate设置值
         List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
-
         resultList.add(problemScanLogic);
         redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
-
         //int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
-
         return problemScanLogic;
     }
 
@@ -742,11 +753,13 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getProblemId()!=null){
             problemId = problemScanLogic.getProblemId();
             if (problemId.indexOf("问题")!=-1){
-                problemScanLogicVO.setAction(problemId.substring(0,3));
+                problemScanLogicVO.setAction("问题");
+                problemScanLogicVO.settNextId(problemId.substring(0,3));
                 problemId = problemId.substring(3,problemId.length());
             }
             if (problemId.equals("完成")){
-                problemScanLogicVO.setAction(problemId);
+                problemScanLogicVO.setAction("问题");
+                problemScanLogicVO.settNextId(problemId);
                 problemId = null;
             }
         }
@@ -759,6 +772,10 @@ public class DefinitionProblemController extends BaseController {
 
         if (matched!=null && !(matched.equals("null")) && problemScanLogic.gettLine()!=null){
             problemScanLogicVO.setTrueFalse("成功");
+        }
+
+        if (problemScanLogicVO.getCycleStartId()!=null && !(problemScanLogicVO.getCycleStartId().equals("null"))){
+            problemScanLogicVO.setAction("循环");
         }
 
         String problemScanLogicVOString = problemScanLogicVO.toString();
@@ -902,13 +919,13 @@ public class DefinitionProblemController extends BaseController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("getAnalysisList")
-    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
+    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){//@RequestBody TotalQuestionTable totalQuestionTable
 
         /*TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         String brand = "H3C";
         String type = "S2152";
         String firewareVersion = "5.20.99";
-        String subVersion = "1106";
+        String subVersion = "11061";
         String problemName = "明文存储";
         totalQuestionTable.setBrand(brand);
         totalQuestionTable.setType(type);
@@ -1000,14 +1017,20 @@ public class DefinitionProblemController extends BaseController {
             String  problemScanID = "";
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String id:problemScanLogicIDsplit){
+
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
                 if (problemScanLogic ==null){
                     return null;
                 }
-                if (problemScanLogic.gettNextId()!="" && problemScanLogic.gettNextId()!=null && !(isContainChinese(problemScanLogic.gettNextId()))){
+                if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
+                    continue;
+                }
+                if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
+                        && problemScanLogic.gettNextId()!="" &&  !(isContainChinese(problemScanLogic.gettNextId()))){
                     problemScanID += problemScanLogic.gettNextId()+":";
                 }
-                if (problemScanLogic.getfNextId()!="" && problemScanLogic.getfNextId()!=null && !(isContainChinese(problemScanLogic.getfNextId()))){
+                if (problemScanLogic.getfNextId()!=null && !(problemScanLogic.getfNextId().equals("null"))
+                        && problemScanLogic.getfNextId()!="" &&  !(isContainChinese(problemScanLogic.getfNextId()))){
                     problemScanID += problemScanLogic.getfNextId()+":";
                 }
             }

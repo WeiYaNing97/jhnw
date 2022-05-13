@@ -647,7 +647,7 @@ public class SwitchInteraction {
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
 
         //如果循环ID不为空的话 说明 分析数据为循环分析 所以 需要调出循环ID 当做第一分析ID 当前分析ID 为空 继续执行
-        if (problemScanLogic.getCycleStartId()!=null){
+        if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
             //调出循环ID 当做第一分析ID
             firstID = problemScanLogic.getCycleStartId();
             String loop_string = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,

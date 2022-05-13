@@ -191,6 +191,13 @@ public class CommandLogicController extends BaseController
         return true;
     }
 
+    /**
+    * @method: 命令表数据 有String 转化为 CommandLogic
+    * @Param: [CommandLogicString]
+    * @return: com.sgcc.sql.domain.CommandLogic
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     public CommandLogic analysisCommandLogicString(String CommandLogicString){
         CommandLogic commandLogic = new CommandLogic();
         CommandLogicString = CommandLogicString.replace("{","");
@@ -257,22 +264,29 @@ public class CommandLogicController extends BaseController
     }
 
     /**
-     * @method: 根据问题ID 查询 解决问题ID命令 返回List<String>
+     * @method: 修改解决问题命令List
      * @Param: [totalQuestionTableId]
      * @return: com.sgcc.common.core.domain.AjaxResult
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("problemSolvingCommandEcho")
-    public boolean problemSolvingCommandEcho(Long totalQuestionTableId,List<String> commandLogics){
+    @RequestMapping("updateProblemSolvingCommand")
+    public boolean updateProblemSolvingCommand(Long totalQuestionTableId,List<String> commandLogics){
+        //根据 问题表 问题ID 查询 问题数据
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        //问题表 解决问题ID
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
+        //解决问题命令集合
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {
+            // 根据解决问题ID 查询 解决问题命令
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
+            // 加入 解决问题命令集合
             commandLogicList.add(commandLogic);
             problemSolvingId = commandLogic.getEndIndex();
+            //当下一命令ID为0 的时候  结束
         }while (!(problemSolvingId.equals("0")));
+
         for (CommandLogic commandLogic:commandLogicList){
             int i = commandLogicService.deleteCommandLogicById(commandLogic.getId());
             if (i<=0){

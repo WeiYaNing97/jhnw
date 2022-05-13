@@ -40,6 +40,10 @@ public class ProblemScanLogicVO extends BaseEntity
     @Excel(name = "动作")
     private String action;
 
+    /** 动作 */
+    @Excel(name = "动作")
+    private String tNextId;
+
     /** 位置 */
     @Excel(name = "位置")
     private Integer rPosition;
@@ -220,6 +224,14 @@ public class ProblemScanLogicVO extends BaseEntity
         this.pageIndex = pageIndex;
     }
 
+    public String gettNextId() {
+        return tNextId;
+    }
+
+    public void settNextId(String tNextId) {
+        this.tNextId = tNextId;
+    }
+
     @Override
     public String toString() {
         return "ProblemScanLogicVO{" +
@@ -230,6 +242,7 @@ public class ProblemScanLogicVO extends BaseEntity
                 ", position='" + position + '\'' +
                 ", matchContent='" + matchContent + '\'' +
                 ", action='" + action + '\'' +
+                ", tNextId='" + tNextId + '\'' +
                 ", rPosition=" + rPosition +
                 ", length='" + length + '\'' +
                 ", exhibit='" + exhibit + '\'' +
