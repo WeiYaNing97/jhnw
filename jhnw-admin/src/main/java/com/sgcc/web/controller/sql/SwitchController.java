@@ -7,7 +7,6 @@ import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 /**

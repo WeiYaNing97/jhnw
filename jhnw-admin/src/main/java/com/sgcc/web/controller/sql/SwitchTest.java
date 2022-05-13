@@ -1,6 +1,5 @@
 package com.sgcc.web.controller.sql;
 
-import com.sgcc.connect.translate.TranSlate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

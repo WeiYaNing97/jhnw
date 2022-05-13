@@ -2,15 +2,11 @@ package com.sgcc.web.controller.sql;
 
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.entity.GlobalVariable;
-import com.sgcc.common.core.domain.entity.SysUser;
-import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
-import com.sgcc.framework.web.service.TokenService;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;

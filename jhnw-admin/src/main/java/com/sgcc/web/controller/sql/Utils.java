@@ -4,7 +4,6 @@ import com.sgcc.connect.translate.TranSlate;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

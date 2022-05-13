@@ -1,7 +1,6 @@
 package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.connect.translate.Stack;
-import com.sgcc.framework.web.domain.server.Sys;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
@@ -9,7 +8,6 @@ import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;

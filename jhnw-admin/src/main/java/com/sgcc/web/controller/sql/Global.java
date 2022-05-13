@@ -1,7 +1,5 @@
 package com.sgcc.web.controller.sql;
 
-import com.sgcc.common.annotation.Excel;
-
 import java.util.List;
 
 /**
