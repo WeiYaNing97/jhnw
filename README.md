@@ -8,8 +8,10 @@ ip=192.168.1.100
 name=admin
 password=admin
 port=23
-##定义分析问题的数据
+##定义分析问题的数据插入
 /dev-api/sql/DefinitionProblemController/definitionProblemJsonPojo
+##定义分析问题的数据回显
+/dev-api/sql/DefinitionProblemController/getAnalysisList
 
 ##问题列表
 ###路径

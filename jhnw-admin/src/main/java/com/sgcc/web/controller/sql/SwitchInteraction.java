@@ -688,7 +688,7 @@ public class SwitchInteraction {
         String relativePosition_line ="";
         //相对位置列
         String relativePosition_row ="";
-        if (!(relativePosition.equals("null")) && relativePosition!=null){
+        if (relativePosition!=null && !(relativePosition.equals("null"))){
             String[] relativePosition_split = relativePosition.split(",");
             //相对位置行
             relativePosition_line = relativePosition_split[0];
@@ -720,7 +720,10 @@ public class SwitchInteraction {
         for (int num = line_n;num<return_information_array.length; num++){
 
             //匹配逻辑
-            String matched = problemScanLogic.getMatched();
+            String matched = null;
+            if (problemScanLogic.getMatched()!=null){
+                matched = problemScanLogic.getMatched();
+            }
             //取词逻辑
             String action = problemScanLogic.getAction();
             //比较分析
@@ -732,7 +735,7 @@ public class SwitchInteraction {
             line_n = num;
 
             //匹配逻辑 有成功失败之分
-            if (!matched.equals("null")){
+            if (matched != null){
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
                 boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, information_line_n, matchContent);

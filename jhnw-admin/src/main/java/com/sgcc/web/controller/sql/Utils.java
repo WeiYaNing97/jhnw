@@ -102,14 +102,14 @@ public class Utils {
     @RequestMapping("compareVersion")
     public static boolean compareVersion(Map<String,String> user_String, String compare){
 
-        if (compare.indexOf("deviceBrand")!=-1){
-            compare = compare.replace("deviceBrand",user_String.get("deviceBrand"));
-        }else if (compare.indexOf("deviceModel")!=-1){
-            compare = compare.replace("deviceModel",user_String.get("deviceModel"));
-        }else if (compare.indexOf("firmwareVersion")!=-1){
-            compare = compare.replace("firmwareVersion",user_String.get("firmwareVersion"));
-        }else if (compare.indexOf("subversionNumber")!=-1){
-            compare = compare.replace("subversionNumber",user_String.get("subversionNumber"));
+        if (compare.indexOf("品牌")!=-1){
+            compare = compare.replace("品牌",user_String.get("deviceBrand"));
+        }else if (compare.indexOf("型号")!=-1){
+            compare = compare.replace("型号",user_String.get("deviceModel"));
+        }else if (compare.indexOf("固件版本")!=-1){
+            compare = compare.replace("固件版本",user_String.get("firmwareVersion"));
+        }else if (compare.indexOf("子版本")!=-1){
+            compare = compare.replace("子版本",user_String.get("subversionNumber"));
         }
 
         String getParameters = compare;
@@ -155,42 +155,51 @@ public class Utils {
 
         }
 
-        boolean compare_size = true;
+        boolean compare_size;
         for (String[] compareArray:compareList){
             switch (compareArray[1]){
                 case ">":
+                    //如果 str1 > str2  成功 返回 true
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
                     if (!compare_size){
-                        return compare_size;
+                        return false;
                     }
+                    break;
                 case "<":
+                    //如果 str1 < str2 成功  返回 false
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
-                    if (!compare_size){
-                        return compare_size;
+                    if (compare_size){
+                        return false;
                     }
-                case "=":
+                    break;
+                case "==":
+                    //相等 为  true
                     compare_size = compareArray[0].equals(compareArray[2]);
                     if (!compare_size){
                         return compare_size;
                     }
+                    break;
                 case ">=":
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
                     if (!compare_size){
-                        return compare_size;
+                        return false;
                     }
+                    break;
                 case "<=":
-                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
+                    compare_size = !(compareVersionNumber(compareArray[0], compareArray[2])) || compareArray[0].equals(compareArray[2]);
                     if (!compare_size){
-                        return compare_size;
+                        return false;
                     }
+                    break;
                 case "!=":
                     compare_size = !(compareArray[0].equals(compareArray[2]));
                     if (!compare_size){
-                        return compare_size;
+                        return false;
                     }
+                    break;
             }
         }
-        return compare_size;
+        return true;
     }
 
     /**
