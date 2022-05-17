@@ -286,13 +286,14 @@ public class CommandLogicController extends BaseController
             problemSolvingId = commandLogic.getEndIndex();
             //当下一命令ID为0 的时候  结束
         }while (!(problemSolvingId.equals("0")));
-
+        //删除解决问题命令
         for (CommandLogic commandLogic:commandLogicList){
             int i = commandLogicService.deleteCommandLogicById(commandLogic.getId());
             if (i<=0){
                 return false;
             }
         }
+        //重新插入解决问题命令
         boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
         return insertModifyProblemCommand;
     }

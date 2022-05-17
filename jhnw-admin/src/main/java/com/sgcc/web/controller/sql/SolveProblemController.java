@@ -164,6 +164,9 @@ public class SolveProblemController {
     public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
 
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
+            return null;
+        }
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
 
         List<CommandLogic> commandLogicList = new ArrayList<>();

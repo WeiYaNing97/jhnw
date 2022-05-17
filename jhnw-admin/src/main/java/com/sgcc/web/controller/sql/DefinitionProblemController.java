@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.apache.commons.lang3.ArrayUtils.toArray;
+
 /**
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com
@@ -994,7 +996,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
     @RequestMapping("updateAnalysis")
-    public boolean updateAnalysis(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+    public boolean updateAnalysis(Long totalQuestionTableId , List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
         /*List<String> jsonPojoList = new ArrayList<>();
         String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
         String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
@@ -1021,17 +1023,8 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s10);
         jsonPojoList.add(s11);*/
 
-        Long totalQuestionTableId = null;
-        String commandId = null;
-        for (String jsonPojo:jsonPojoList){
-            ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojo, "分析");
-            if (problemScanLogic.getProblemId()!=null && (!problemScanLogic.getProblemId().equals("null")) && !(problemScanLogic.getProblemId().equals("") && problemScanLogic.getProblemId().indexOf("问题")!=-1)){
-                totalQuestionTableId = Integer.valueOf(problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length())).longValue();
-                TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-                commandId = totalQuestionTable.getCommandId();
-                break;
-            }
-        }
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        String commandId = totalQuestionTable.getCommandId();
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         String problemId = commandLogic.getProblemId();
         if (problemId==null || problemId.equals("")){
@@ -1058,17 +1051,23 @@ public class DefinitionProblemController extends BaseController {
 
 
     public boolean deleteProblemScanLogicList(String problemScanId){
+        //根据 首分析ID 获取全部分析 并拆分 成功失败合实体类
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(problemScanId);
+        //获取唯一 分析ID
         HashSet<String> problemScanLogicIdList = new HashSet<>();
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
             problemScanLogicIdList.add(problemScanLogic.getId());
+
         }
+        // hashset 转化为 数组
+
         String[] problemScanLogicIdArray = new String[problemScanLogicIdList.size()];
         int i = 0 ;
         for (String problemScanLogicId:problemScanLogicIdList){
             problemScanLogicIdArray[i] = problemScanLogicId;
             i++;
         }
+        //删除多条
         int j = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicIdArray);
         if (j>0){
             return true;
