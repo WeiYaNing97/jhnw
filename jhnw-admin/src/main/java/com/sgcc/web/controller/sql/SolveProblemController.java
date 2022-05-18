@@ -45,7 +45,7 @@ public class SolveProblemController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("batchSolution")
-    public AjaxResult batchSolution(){//String mode,String ip,String name,String password,String port
+    public AjaxResult batchSolution(List<String> userinformation,List<String> commandValueList){//String mode,String ip,String name,String password,String port
         //用户信息
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode","ssh");
@@ -54,7 +54,7 @@ public class SolveProblemController {
         user_String.put("password","admin");
         user_String.put("port","22");
         //命令ID 参数ID
-        List<String> commandValueList = new ArrayList<>();
+        //List<String> commandValueList = new ArrayList<>();
         //commandValueList = new ArrayList<>();
         commandValueList.add("1652081208570:1");
         //ssh连接
