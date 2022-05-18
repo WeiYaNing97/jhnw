@@ -149,6 +149,22 @@ public class DefinitionProblemController extends BaseController {
     @RequestMapping("definitionProblemJsonPojo")
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
 
+        String problemScanLogicString = "";
+        for (String pojo:jsonPojoList){
+            problemScanLogicString = problemScanLogicString + pojo +",";
+        }
+        if (!problemScanLogicString.equals("")){
+            jsonPojoList = new ArrayList<>();
+            problemScanLogicString = problemScanLogicString.substring(0,problemScanLogicString.length()-1);
+            problemScanLogicString = problemScanLogicString.replace("},","}\r\n");
+            String[] commandLogic_split = problemScanLogicString.split("\r\n");
+            for (int number=0; number<commandLogic_split.length; number++){
+                jsonPojoList.add(commandLogic_split[number]);
+            }
+        }else {
+            return false;
+        }
+
         System.err.println("\r\n"+"前端出入数据：\r\n");
         for (String jsonPojo:jsonPojoList){
             System.err.println(jsonPojo);
@@ -987,7 +1003,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
     @RequestMapping("updateAnalysis")
-    public boolean updateAnalysis(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+    public boolean updateAnalysis(Long totalQuestionTableId,@RequestParam List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
         /*List<String> jsonPojoList = new ArrayList<>();
         String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
         String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
@@ -1014,17 +1030,25 @@ public class DefinitionProblemController extends BaseController {
         jsonPojoList.add(s10);
         jsonPojoList.add(s11);*/
 
-        Long totalQuestionTableId = null;
-        String commandId = null;
-        for (String jsonPojo:jsonPojoList){
-            ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojo, "分析");
-            if (problemScanLogic.getProblemId()!=null && (!problemScanLogic.getProblemId().equals("null")) && !(problemScanLogic.getProblemId().equals("") && problemScanLogic.getProblemId().indexOf("问题")!=-1)){
-                totalQuestionTableId = Integer.valueOf(problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length())).longValue();
-                TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-                commandId = totalQuestionTable.getCommandId();
-                break;
-            }
+        String problemScanLogicString = "";
+        for (String pojo:jsonPojoList){
+            problemScanLogicString = problemScanLogicString + pojo +",";
         }
+        if (!problemScanLogicString.equals("")){
+            jsonPojoList = new ArrayList<>();
+            problemScanLogicString = problemScanLogicString.substring(0,problemScanLogicString.length()-1);
+            problemScanLogicString = problemScanLogicString.replace("},","}\r\n");
+            String[] commandLogic_split = problemScanLogicString.split("\r\n");
+            for (int number=0; number<commandLogic_split.length; number++){
+                jsonPojoList.add(commandLogic_split[number]);
+            }
+        }else {
+            return false;
+        }
+
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        String commandId = totalQuestionTable.getCommandId();
+
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         String problemId = commandLogic.getProblemId();
         if (problemId==null || problemId.equals("")){

@@ -85,6 +85,28 @@ public class TotalQuestionTableController extends BaseController
         return getDataTable(list);
     }
 
+    @RequestMapping("/problemNameList")
+    public List<String> problemNameList(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+        String selectCommandId = totalQuestionTable.getCommandId();
+        totalQuestionTable.setCommandId(null);
+        startPage();
+        List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        List<String> totalQuestionTables = new ArrayList<>();
+        if (selectCommandId.equals("0")){//未定义解决问题命令
+            for (TotalQuestionTable pojo:list){
+                if (pojo.getCommandId() == null || pojo.getCommandId().equals("")){
+                    totalQuestionTables.add(pojo.getProblemName());
+                }
+            }
+            return totalQuestionTables;
+        }
+        for (TotalQuestionTable pojo:list){
+            totalQuestionTables.add(pojo.getProblemName());
+        }
+        return totalQuestionTables;
+    }
+
 
 
     /**
@@ -101,7 +123,7 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
-     * 查询问题及命令列表
+     * /dev-api/sql/total_question_table/typeProblemlist  问题类型
      */
     //@PreAuthorize("@ss.hasPermi('sql:total_question_table:list')")
     @RequestMapping("/typeProblemlist")
