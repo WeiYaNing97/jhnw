@@ -11,7 +11,7 @@
  Target Server Version : 50733
  File Encoding         : 65001
 
- Date: 26/04/2022 17:10:18
+ Date: 18/05/2022 15:01:24
 */
 
 SET NAMES utf8mb4;
@@ -43,29 +43,20 @@ CREATE TABLE `command_logic`  (
   `state` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '状态',
   `c_line` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '命令行号',
   `command` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '命令',
-  `result_check_id` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '返回结果验证id',
-  `problem_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '返回分析id',
-  `end_index` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '命令结束索引',
+  `result_check_id` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '结果检查id',
+  `problem_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '分析id',
+  `end_index` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0' COMMENT '下一结束索引',
   UNIQUE INDEX `id`(`id`) USING BTREE COMMENT '主键唯一'
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '命令逻辑表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of command_logic
 -- ----------------------------
-INSERT INTO `command_logic` VALUES ('1', '>', NULL, 'display device manuinfo', '0', '1', '0');
-INSERT INTO `command_logic` VALUES ('10', ']', NULL, 'display cu', '1', '0', '8');
-INSERT INTO `command_logic` VALUES ('1650329619087', NULL, '1', 'display cu', '0', '1650329626647', '0');
-INSERT INTO `command_logic` VALUES ('1650423250026', NULL, '1', 'display cu', '0', '1650423257723', '0');
-INSERT INTO `command_logic` VALUES ('1650850781848', NULL, '1', 'display cu', '0', '1650850794816', '0');
-INSERT INTO `command_logic` VALUES ('1650850813960', NULL, '4', 'sys', '0', '1650850834416', '0');
-INSERT INTO `command_logic` VALUES ('2', '>', NULL, 'display cu', '0', '4', '0');
-INSERT INTO `command_logic` VALUES ('3', '>', NULL, 'display cu', '0', '8', '0');
-INSERT INTO `command_logic` VALUES ('4', '>', NULL, 'sys', '1', '0', '5');
-INSERT INTO `command_logic` VALUES ('5', ']', NULL, 'local-user:用户名', '1', '0', '6');
-INSERT INTO `command_logic` VALUES ('6', ']', NULL, 'password cipher:密码', '1', '0', '10');
-INSERT INTO `command_logic` VALUES ('7', '>', NULL, 'display cu', '0', '7', '0');
-INSERT INTO `command_logic` VALUES ('8', ']', NULL, 'quit', '1', '0', '9');
-INSERT INTO `command_logic` VALUES ('9', ']', NULL, 'quit', '1', '7', '0');
+INSERT INTO `command_logic` VALUES ('1652841617419', NULL, '1', 'display cu', '0', '1652841626915', '0');
+INSERT INTO `command_logic` VALUES ('1652842127066', NULL, '1', 'sys:', '1', '0', '1652842130971');
+INSERT INTO `command_logic` VALUES ('1652842130971', NULL, '2', 'local-user:用户名', '1', '0', '1652842140468');
+INSERT INTO `command_logic` VALUES ('1652842140468', NULL, '3', 'password ciphe:密码', '1', '0', '1652842154363');
+INSERT INTO `command_logic` VALUES ('1652842154363', NULL, '4', 'return:', '1', '0', '0');
 
 -- ----------------------------
 -- Table structure for error_code
@@ -224,15 +215,14 @@ DROP TABLE IF EXISTS `problem_scan_logic`;
 CREATE TABLE `problem_scan_logic`  (
   `id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '主键索引',
   `matched` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '匹配',
-  `relative_position` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '相对位置',
+  `relative_position` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0,0' COMMENT '相对位置',
   `match_content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '匹配内容',
   `action` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '动作',
   `r_position` int(2) NULL DEFAULT 0 COMMENT '位置',
   `length` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0' COMMENT '长度',
   `exhibit` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '否' COMMENT '是否显示',
   `word_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '取词名称',
-  `compare` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '比较',
-  `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '内容',
+  `compare` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '比较',
   `t_line` varchar(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'true行号',
   `t_next_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'true下一条分析索引',
   `t_com_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'true下一条命令索引',
@@ -248,36 +238,27 @@ CREATE TABLE `problem_scan_logic`  (
 -- ----------------------------
 -- Records of problem_scan_logic
 -- ----------------------------
-INSERT INTO `problem_scan_logic` VALUES ('1650349702038', '精确匹配', 'null', 'DEVICE_NAME', 'null', 0, '0', '否', NULL, NULL, NULL, '1', '1650349712348', NULL, NULL, '15', '1650349794032', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349712348', 'null', '0,0', 'DEVICE_NAME', '取词', 2, '1w', '是', '设备型号', NULL, NULL, '2', '1650349726221', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349726221', '精确匹配', 'null', 'VENDOR_NAME', 'null', 0, '0', '否', NULL, NULL, NULL, '3', '1650349736318', NULL, NULL, '13', '1650349790733', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349736318', 'null', '0,0', 'VENDOR_NAME', '取词', 2, '1w', '是', '设备品牌', NULL, NULL, '4', '1650349749221', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349749221', '精确匹配', 'null', 'Comware Software, Version', 'null', 0, '0', '否', NULL, NULL, NULL, '5', '1650349755357', NULL, NULL, '11', '1650349787974', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349755357', 'null', '0,0', 'Comware Software, Version', '取词', 1, '1w', '是', '内部固件版本', NULL, NULL, '6', '1650349766069', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349766069', '精确匹配', 'null', 'Release', 'null', 0, '0', '否', NULL, NULL, NULL, '7', '1650349772765', NULL, NULL, '9', '1650349785037', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349772765', 'null', '0,0', 'Release', '取词', 1, '1w', '是', '子版本号', NULL, NULL, '8', '1650349785037', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349785037', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '10', '1650349749221', NULL, '完成', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349787974', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '12', '1650349726221', NULL, '完成', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349790733', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '14', '1650349702038', NULL, '完成', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650349794032', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '16', NULL, NULL, '完成', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650423257723', '模糊匹配', 'null', 'telnet server enable', 'null', 0, '0', '否', NULL, NULL, NULL, '2', '1650423273410', NULL, NULL, '5', '1650423279810', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650423273410', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '3', '1650423276299', NULL, '有问题21', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650423276299', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '4', '1650423257723', NULL, '完成', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650423279810', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '6', '1650423282738', NULL, '无问题21', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650423282738', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '7', NULL, NULL, '完成', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650329626647', '精确匹配', 'null', 'local-user', 'null', 0, '0', '否', NULL, NULL, NULL, '2', '1650329632023', NULL, NULL, '11', '1650329683167', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650329632023', 'null', 'null', 'local-user', '取词', 1, '1w', '是', '用户名', NULL, NULL, '3', '1650329641078', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650329641078', '精确匹配', '1,0', 'password simple', 'null', 0, '0', '否', NULL, NULL, NULL, '4', '1650329651495', NULL, NULL, '8', '1650329690175', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650329651495', 'null', 'null', 'password simple', '取词', 1, '1w', '否', '密码', NULL, NULL, '5', '1650329663575', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650329663575', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '6', '1650329668383', NULL, '有问题2', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650329668383', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '7', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1650329626647');
-INSERT INTO `problem_scan_logic` VALUES ('1650329690175', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '9', '1650329701191', NULL, '无问题2', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650329701191', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '10', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1650329626647');
-INSERT INTO `problem_scan_logic` VALUES ('1650329683167', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, NULL, '12', NULL, NULL, '完成', NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650850834416', '精确匹配', '1,0', 'pass simple', 'null', 0, '0', '否', NULL, NULL, NULL, '5', '1650850842857', NULL, NULL, '7', '1650850794816', NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650850842857', 'null', 'null', 'pass simple', '取词', 1, '1w', '否', '密码', NULL, NULL, '6', '1650850834416', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650850801664', 'null', 'null', 'local-user', '取词', 1, '1w', '是', '用户名', NULL, NULL, '3', '', '1650850813960', NULL, NULL, NULL, NULL, NULL, NULL);
-INSERT INTO `problem_scan_logic` VALUES ('1650850794816', '精确匹配', 'null', 'local-user', 'null', 0, '0', '否', NULL, NULL, NULL, '2', '1650850801664', NULL, NULL, '8', NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349702038', '精确匹配', 'null', 'DEVICE_NAME', 'null', 0, '0', '否', NULL, NULL, '1', '1650349712348', NULL, NULL, '15', '1650349794032', NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349712348', 'null', '0,0', 'DEVICE_NAME', '取词', 2, '1w', '是', '设备型号', NULL, '2', '1650349726221', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349726221', '精确匹配', 'null', 'VENDOR_NAME', 'null', 0, '0', '否', NULL, NULL, '3', '1650349736318', NULL, NULL, '13', '1650349790733', NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349736318', 'null', '0,0', 'VENDOR_NAME', '取词', 2, '1w', '是', '设备品牌', NULL, '4', '1650349749221', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349749221', '精确匹配', 'null', 'Comware Software, Version', 'null', 0, '0', '否', NULL, NULL, '5', '1650349755357', NULL, NULL, '11', '1650349787974', NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349755357', 'null', '0,0', 'Comware Software, Version', '取词', 1, '1w', '是', '内部固件版本', NULL, '6', '1650349766069', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349766069', '精确匹配', 'null', 'Release', 'null', 0, '0', '否', NULL, NULL, '7', '1650349772765', NULL, NULL, '9', '1650349785037', NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349772765', 'null', '0,0', 'Release', '取词', 1, '1w', '是', '子版本号', NULL, '8', '1650349785037', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349785037', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, '10', '1650349749221', NULL, '完成', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349787974', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, '12', '1650349726221', NULL, '完成', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349790733', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, '14', '1650349702038', NULL, '完成', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1650349794032', 'null', 'null', NULL, NULL, 0, '0', '否', NULL, NULL, '16', NULL, NULL, '完成', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1652841632442', NULL, '0,0', 'local-user', '取词', 1, '1w', '是', '用户名', NULL, '3', '1652841642635', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1652841626915', '精确匹配', 'null', 'local-user', NULL, 0, '0', '否', NULL, NULL, '2', '1652841632442', NULL, NULL, '11', '1652841685034', NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1652841672746', NULL, '0,0', 'null', NULL, 0, '0', '否', NULL, NULL, '10', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1652841626915');
+INSERT INTO `problem_scan_logic` VALUES ('1652841659659', NULL, '0,0', 'null', NULL, 0, '0', '否', NULL, NULL, '6', '1652841663530', NULL, '有问题40', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1652841650778', NULL, '0,0', 'password simple', '取词', 1, '1w', '否', '密码', NULL, '5', '1652841659659', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1652841642635', '精确匹配', '1,0', 'password simple', NULL, 0, '0', '否', NULL, NULL, '4', '1652841650778', NULL, NULL, '8', '1652841668962', NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1652841663530', NULL, '0,0', 'null', NULL, 0, '0', '否', NULL, NULL, '7', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1652841626915');
+INSERT INTO `problem_scan_logic` VALUES ('1652841685034', NULL, '0,0', 'null', NULL, 0, '0', '否', NULL, NULL, '12', NULL, NULL, '完成', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `problem_scan_logic` VALUES ('1652841668962', NULL, '0,0', 'null', NULL, 0, '0', '否', NULL, NULL, '9', '1652841672746', NULL, '无问题40', NULL, NULL, NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for qrtz_blob_triggers
@@ -427,7 +408,7 @@ CREATE TABLE `qrtz_scheduler_state`  (
 -- ----------------------------
 -- Records of qrtz_scheduler_state
 -- ----------------------------
-INSERT INTO `qrtz_scheduler_state` VALUES ('RuoyiScheduler', 'WINDOWS-FK65K2F1650955732434', 1650964214105, 15000);
+INSERT INTO `qrtz_scheduler_state` VALUES ('RuoyiScheduler', 'WINDOWS-FK65K2F1652842639133', 1652857284049, 15000);
 
 -- ----------------------------
 -- Table structure for qrtz_simple_triggers
@@ -504,9 +485,9 @@ CREATE TABLE `qrtz_triggers`  (
 -- ----------------------------
 -- Records of qrtz_triggers
 -- ----------------------------
-INSERT INTO `qrtz_triggers` VALUES ('RuoyiScheduler', 'TASK_CLASS_NAME1', 'DEFAULT', 'TASK_CLASS_NAME1', 'DEFAULT', NULL, 1650955740000, -1, 5, 'PAUSED', 'CRON', 1650955732000, 0, NULL, 2, '');
-INSERT INTO `qrtz_triggers` VALUES ('RuoyiScheduler', 'TASK_CLASS_NAME2', 'DEFAULT', 'TASK_CLASS_NAME2', 'DEFAULT', NULL, 1650955740000, -1, 5, 'PAUSED', 'CRON', 1650955732000, 0, NULL, 2, '');
-INSERT INTO `qrtz_triggers` VALUES ('RuoyiScheduler', 'TASK_CLASS_NAME3', 'DEFAULT', 'TASK_CLASS_NAME3', 'DEFAULT', NULL, 1650955740000, -1, 5, 'PAUSED', 'CRON', 1650955732000, 0, NULL, 2, '');
+INSERT INTO `qrtz_triggers` VALUES ('RuoyiScheduler', 'TASK_CLASS_NAME1', 'DEFAULT', 'TASK_CLASS_NAME1', 'DEFAULT', NULL, 1652842640000, -1, 5, 'PAUSED', 'CRON', 1652842639000, 0, NULL, 2, '');
+INSERT INTO `qrtz_triggers` VALUES ('RuoyiScheduler', 'TASK_CLASS_NAME2', 'DEFAULT', 'TASK_CLASS_NAME2', 'DEFAULT', NULL, 1652842650000, -1, 5, 'PAUSED', 'CRON', 1652842639000, 0, NULL, 2, '');
+INSERT INTO `qrtz_triggers` VALUES ('RuoyiScheduler', 'TASK_CLASS_NAME3', 'DEFAULT', 'TASK_CLASS_NAME3', 'DEFAULT', NULL, 1652842640000, -1, 5, 'PAUSED', 'CRON', 1652842639000, 0, NULL, 2, '');
 
 -- ----------------------------
 -- Table structure for return_record
@@ -519,15 +500,23 @@ CREATE TABLE `return_record`  (
   `current_identifier` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '当前标识符',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '返回信息表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '返回信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of return_record
 -- ----------------------------
-INSERT INTO `return_record` VALUES (1, 'display device manuinfo', 'Slot 1: \r\n DEVICE_NAME : S2152 \r\n DEVICE_SERIAL_NUMBER : 219801A0FQM167000321 \r\n MAC_ADDRESS : 600B-0308-710C \r\n MANUFACTURING_DATE : 2016-07 \r\n VENDOR_NAME : H3C', '<H3C-S2152-1>', '2022-04-26 14:40:46');
-INSERT INTO `return_record` VALUES (2, 'display ver', 'H3C Comware Platform Software \r\n Comware Software, Version 5.20.99, Release 1106 \r\n Copyright (c) 2004-2015 Hangzhou H3C Tech. Co., Ltd. All rights reserved. \r\n H3C S2152 uptime is 0 week, 2 days, 6 hours, 22 minutes \r\n H3C S2152 \r\n 128M bytes DRAM \r\n 32M bytes Flash Memory \r\n Config Register points to Flash \r\n Hardware Version is REV.A \r\n Bootrom Version is 110 \r\n [SubSlot 0] 48FE+4GE Hardware Version is REV.A', '<H3C-S2152-1>', '2022-04-26 14:40:47');
-INSERT INTO `return_record` VALUES (3, 'display cu', '# \r\n version 5.20.99, Release 1106 \r\n # \r\n sysname H3C-S2152-1 \r\n # \r\n domain default enable system \r\n # \r\n ipv6 \r\n # \r\n telnet server enable \r\n # \r\n password-recovery enable \r\n # \r\n vlan 1 \r\n # \r\n domain system \r\n access-limit disable \r\n state active \r\n idle-cut disable \r\n self-service-url disable \r\n # \r\n user-group system \r\n group-attribute allow-guest \r\n # \r\n local-user admin \r\n password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user1 \r\n password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user2 \r\n password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n # \r\n interface NULL0 \r\n # \r\n interface Vlan-interface1 \r\n ip address 192.168.1.100 255.255.255.0 \r\n # \r\n interface Ethernet1/0/1 \r\n # \r\n interface Ethernet1/0/2 \r\n # \r\n interface Ethernet1/0/3 \r\n # \r\n interface Ethernet1/0/4 \r\n # \r\n interface Ethernet1/0/5 \r\n # \r\n interface Ethernet1/0/6 \r\n # \r\n interface Ethernet1/0/7 \r\n # \r\n interface Ethernet1/0/8 \r\n # \r\n interface Ethernet1/0/9 \r\n # \r\n interface Ethernet1/0/10 \r\n # \r\n interface Ethernet1/0/11 \r\n # \r\n interface Ethernet1/0/12 \r\n # \r\n interface Ethernet1/0/13 \r\n # \r\n interface Ethernet1/0/14 \r\n # \r\n interface Ethernet1/0/15 \r\n # \r\n interface Ethernet1/0/16 \r\n # \r\n interface Ethernet1/0/17 \r\n # \r\n interface Ethernet1/0/18 \r\n # \r\n interface Ethernet1/0/19 \r\n # \r\n interface Ethernet1/0/20 \r\n # \r\n interface Ethernet1/0/21 \r\n # \r\n interface Ethernet1/0/22 \r\n # \r\n interface Ethernet1/0/23 \r\n # \r\n interface Ethernet1/0/24 \r\n # \r\n interface Ethernet1/0/25 \r\n # \r\n interface Ethernet1/0/26 \r\n # \r\n interface Ethernet1/0/27 \r\n # \r\n interface Ethernet1/0/28 \r\n # \r\n interface Ethernet1/0/29 \r\n # \r\n interface Ethernet1/0/30 \r\n # \r\n interface Ethernet1/0/31 \r\n # \r\n interface Ethernet1/0/32 \r\n # \r\n interface Ethernet1/0/33 \r\n # \r\n interface Ethernet1/0/34 \r\n # \r\n interface Ethernet1/0/35 \r\n # \r\n interface Ethernet1/0/36 \r\n # \r\n interface Ethernet1/0/37 \r\n # \r\n interface Ethernet1/0/38 \r\n # \r\n interface Ethernet1/0/39 \r\n # \r\n interface Ethernet1/0/40 \r\n # \r\n interface Ethernet1/0/41 \r\n # \r\n interface Ethernet1/0/42 \r\n # \r\n interface Ethernet1/0/43 \r\n # \r\n interface Ethernet1/0/44 \r\n # \r\n interface Ethernet1/0/45 \r\n # \r\n interface Ethernet1/0/46 \r\n # \r\n interface Ethernet1/0/47 \r\n # \r\n interface Ethernet1/0/48 \r\n # \r\n interface GigabitEthernet1/0/49 \r\n # \r\n interface GigabitEthernet1/0/50 \r\n # \r\n interface GigabitEthernet1/0/51 \r\n # \r\n interface GigabitEthernet1/0/52 \r\n # \r\n undo info-center logfile enable \r\n # \r\n ssh server enable \r\n ssh user admin service-type stelnet authentication-type password \r\n # \r\n load xml-configuration \r\n # \r\n load tr069-configuration \r\n # \r\n user-interface aux 0 \r\n user-interface vty 0 4 \r\n authentication-mode scheme \r\n user privilege level 3 \r\n set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ== \r\n user-interface vty 5 15 \r\n authentication-mode scheme \r\n # \r\n return', '<H3C-S2152-1>', '2022-04-26 14:40:55');
-INSERT INTO `return_record` VALUES (4, 'display cu', '# \r\n version 5.20.99, Release 1106 \r\n # \r\n sysname H3C-S2152-1 \r\n # \r\n domain default enable system \r\n # \r\n ipv6 \r\n # \r\n telnet server enable \r\n # \r\n password-recovery enable \r\n # \r\n vlan 1 \r\n # \r\n domain system \r\n access-limit disable \r\n state active \r\n idle-cut disable \r\n self-service-url disable \r\n # \r\n user-group system \r\n group-attribute allow-guest \r\n # \r\n local-user admin \r\n password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user1 \r\n password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user2 \r\n password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n # \r\n interface NULL0 \r\n # \r\n interface Vlan-interface1 \r\n ip address 192.168.1.100 255.255.255.0 \r\n # \r\n interface Ethernet1/0/1 \r\n # \r\n interface Ethernet1/0/2 \r\n # \r\n interface Ethernet1/0/3 \r\n # \r\n interface Ethernet1/0/4 \r\n # \r\n interface Ethernet1/0/5 \r\n # \r\n interface Ethernet1/0/6 \r\n # \r\n interface Ethernet1/0/7 \r\n # \r\n interface Ethernet1/0/8 \r\n # \r\n interface Ethernet1/0/9 \r\n # \r\n interface Ethernet1/0/10 \r\n # \r\n interface Ethernet1/0/11 \r\n # \r\n interface Ethernet1/0/12 \r\n # \r\n interface Ethernet1/0/13 \r\n # \r\n interface Ethernet1/0/14 \r\n # \r\n interface Ethernet1/0/15 \r\n # \r\n interface Ethernet1/0/16 \r\n # \r\n interface Ethernet1/0/17 \r\n # \r\n interface Ethernet1/0/18 \r\n # \r\n interface Ethernet1/0/19 \r\n # \r\n interface Ethernet1/0/20 \r\n # \r\n interface Ethernet1/0/21 \r\n # \r\n interface Ethernet1/0/22 \r\n # \r\n interface Ethernet1/0/23 \r\n # \r\n interface Ethernet1/0/24 \r\n # \r\n interface Ethernet1/0/25 \r\n # \r\n interface Ethernet1/0/26 \r\n # \r\n interface Ethernet1/0/27 \r\n # \r\n interface Ethernet1/0/28 \r\n # \r\n interface Ethernet1/0/29 \r\n # \r\n interface Ethernet1/0/30 \r\n # \r\n interface Ethernet1/0/31 \r\n # \r\n interface Ethernet1/0/32 \r\n # \r\n interface Ethernet1/0/33 \r\n # \r\n interface Ethernet1/0/34 \r\n # \r\n interface Ethernet1/0/35 \r\n # \r\n interface Ethernet1/0/36 \r\n # \r\n interface Ethernet1/0/37 \r\n # \r\n interface Ethernet1/0/38 \r\n # \r\n interface Ethernet1/0/39 \r\n # \r\n interface Ethernet1/0/40 \r\n # \r\n interface Ethernet1/0/41 \r\n # \r\n interface Ethernet1/0/42 \r\n # \r\n interface Ethernet1/0/43 \r\n # \r\n interface Ethernet1/0/44 \r\n # \r\n interface Ethernet1/0/45 \r\n # \r\n interface Ethernet1/0/46 \r\n # \r\n interface Ethernet1/0/47 \r\n # \r\n interface Ethernet1/0/48 \r\n # \r\n interface GigabitEthernet1/0/49 \r\n # \r\n interface GigabitEthernet1/0/50 \r\n # \r\n interface GigabitEthernet1/0/51 \r\n # \r\n interface GigabitEthernet1/0/52 \r\n # \r\n undo info-center logfile enable \r\n # \r\n ssh server enable \r\n ssh user admin service-type stelnet authentication-type password \r\n # \r\n load xml-configuration \r\n # \r\n load tr069-configuration \r\n # \r\n user-interface aux 0 \r\n user-interface vty 0 4 \r\n authentication-mode scheme \r\n user privilege level 3 \r\n set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ== \r\n user-interface vty 5 15 \r\n authentication-mode scheme \r\n # \r\n return', '<H3C-S2152-1>', '2022-04-26 14:41:04');
+INSERT INTO `return_record` VALUES (1, 'display device manuinfo', 'Slot 1: \r\n DEVICE_NAME : S2152 \r\n DEVICE_SERIAL_NUMBER : 219801A0FQM167000321 \r\n MAC_ADDRESS : 600B-0308-710C \r\n MANUFACTURING_DATE : 2016-07 \r\n VENDOR_NAME : H3C', '<H3C-S2152-1>', '2022-05-16 16:06:35');
+INSERT INTO `return_record` VALUES (2, 'display ver', 'H3C Comware Platform Software \r\n Comware Software, Version 5.20.99, Release 1106 \r\n Copyright (c) 2004-2015 Hangzhou H3C Tech. Co., Ltd. All rights reserved. \r\n H3C S2152 uptime is 0 week, 0 day, 7 hours, 54 minutes \r\n H3C S2152 \r\n 128M bytes DRAM \r\n 32M bytes Flash Memory \r\n Config Register points to Flash \r\n Hardware Version is REV.A \r\n Bootrom Version is 110 \r\n [SubSlot 0] 48FE+4GE Hardware Version is REV.A', '<H3C-S2152-1>', '2022-05-16 16:06:36');
+INSERT INTO `return_record` VALUES (3, 'display cu', '# \r\n version 5.20.99, Release 1106 \r\n # \r\n sysname H3C-S2152-1 \r\n # \r\n domain default enable system \r\n # \r\n ipv6 \r\n # \r\n telnet server enable \r\n # \r\n password-recovery enable \r\n # \r\n vlan 1 \r\n # \r\n domain system \r\n access-limit disable \r\n state active \r\n idle-cut disable \r\n self-service-url disable \r\n # \r\n user-group system \r\n group-attribute allow-guest \r\n # \r\n local-user admin \r\n password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user1 \r\n password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user2 \r\n password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n # \r\n interface NULL0 \r\n # \r\n interface Vlan-interface1 \r\n ip address 192.168.1.100 255.255.255.0 \r\n # \r\n interface Ethernet1/0/1 \r\n # \r\n interface Ethernet1/0/2 \r\n # \r\n interface Ethernet1/0/3 \r\n # \r\n interface Ethernet1/0/4 \r\n # \r\n interface Ethernet1/0/5 \r\n # \r\n interface Ethernet1/0/6 \r\n # \r\n interface Ethernet1/0/7 \r\n # \r\n interface Ethernet1/0/8 \r\n # \r\n interface Ethernet1/0/9 \r\n # \r\n interface Ethernet1/0/10 \r\n # \r\n interface Ethernet1/0/11 \r\n # \r\n interface Ethernet1/0/12 \r\n # \r\n interface Ethernet1/0/13 \r\n # \r\n interface Ethernet1/0/14 \r\n # \r\n interface Ethernet1/0/15 \r\n # \r\n interface Ethernet1/0/16 \r\n # \r\n interface Ethernet1/0/17 \r\n # \r\n interface Ethernet1/0/18 \r\n # \r\n interface Ethernet1/0/19 \r\n # \r\n interface Ethernet1/0/20 \r\n # \r\n interface Ethernet1/0/21 \r\n # \r\n interface Ethernet1/0/22 \r\n # \r\n interface Ethernet1/0/23 \r\n # \r\n interface Ethernet1/0/24 \r\n # \r\n interface Ethernet1/0/25 \r\n # \r\n interface Ethernet1/0/26 \r\n # \r\n interface Ethernet1/0/27 \r\n # \r\n interface Ethernet1/0/28 \r\n # \r\n interface Ethernet1/0/29 \r\n # \r\n interface Ethernet1/0/30 \r\n # \r\n interface Ethernet1/0/31 \r\n # \r\n interface Ethernet1/0/32 \r\n # \r\n interface Ethernet1/0/33 \r\n # \r\n interface Ethernet1/0/34 \r\n # \r\n interface Ethernet1/0/35 \r\n # \r\n interface Ethernet1/0/36 \r\n # \r\n interface Ethernet1/0/37 \r\n # \r\n interface Ethernet1/0/38 \r\n # \r\n interface Ethernet1/0/39 \r\n # \r\n interface Ethernet1/0/40 \r\n # \r\n interface Ethernet1/0/41 \r\n # \r\n interface Ethernet1/0/42 \r\n # \r\n interface Ethernet1/0/43 \r\n # \r\n interface Ethernet1/0/44 \r\n # \r\n interface Ethernet1/0/45 \r\n # \r\n interface Ethernet1/0/46 \r\n # \r\n interface Ethernet1/0/47 \r\n # \r\n interface Ethernet1/0/48 \r\n # \r\n interface GigabitEthernet1/0/49 \r\n # \r\n interface GigabitEthernet1/0/50 \r\n # \r\n interface GigabitEthernet1/0/51 \r\n # \r\n interface GigabitEthernet1/0/52 \r\n # \r\n undo info-center logfile enable \r\n # \r\n ssh server enable \r\n ssh user admin service-type stelnet authentication-type password \r\n # \r\n load xml-configuration \r\n # \r\n load tr069-configuration \r\n # \r\n user-interface aux 0 \r\n user-interface vty 0 4 \r\n authentication-mode scheme \r\n user privilege level 3 \r\n set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ== \r\n user-interface vty 5 15 \r\n authentication-mode scheme \r\n # \r\n return', '<H3C-S2152-1>', '2022-05-16 16:06:44');
+INSERT INTO `return_record` VALUES (4, 'display device manuinfo', 'Slot 1: \r\n DEVICE_NAME : S2152 \r\n DEVICE_SERIAL_NUMBER : 219801A0FQM167000321 \r\n MAC_ADDRESS : 600B-0308-710C \r\n MANUFACTURING_DATE : 2016-07 \r\n VENDOR_NAME : H3C', '<H3C-S2152-1>', '2022-05-16 16:10:01');
+INSERT INTO `return_record` VALUES (5, 'display ver', 'H3C Comware Platform Software \r\n Comware Software, Version 5.20.99, Release 1106 \r\n Copyright (c) 2004-2015 Hangzhou H3C Tech. Co., Ltd. All rights reserved. \r\n H3C S2152 uptime is 0 week, 0 day, 7 hours, 57 minutes \r\n H3C S2152 \r\n 128M bytes DRAM \r\n 32M bytes Flash Memory \r\n Config Register points to Flash \r\n Hardware Version is REV.A \r\n Bootrom Version is 110 \r\n [SubSlot 0] 48FE+4GE Hardware Version is REV.A', '<H3C-S2152-1>', '2022-05-16 16:10:02');
+INSERT INTO `return_record` VALUES (6, 'display cu', '# \r\n version 5.20.99, Release 1106 \r\n # \r\n sysname H3C-S2152-1 \r\n # \r\n domain default enable system \r\n # \r\n ipv6 \r\n # \r\n telnet server enable \r\n # \r\n password-recovery enable \r\n # \r\n vlan 1 \r\n # \r\n domain system \r\n access-limit disable \r\n state active \r\n idle-cut disable \r\n self-service-url disable \r\n # \r\n user-group system \r\n group-attribute allow-guest \r\n # \r\n local-user admin \r\n password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user1 \r\n password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user2 \r\n password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n # \r\n interface NULL0 \r\n # \r\n interface Vlan-interface1 \r\n ip address 192.168.1.100 255.255.255.0 \r\n # \r\n interface Ethernet1/0/1 \r\n # \r\n interface Ethernet1/0/2 \r\n # \r\n interface Ethernet1/0/3 \r\n # \r\n interface Ethernet1/0/4 \r\n # \r\n interface Ethernet1/0/5 \r\n # \r\n interface Ethernet1/0/6 \r\n # \r\n interface Ethernet1/0/7 \r\n # \r\n interface Ethernet1/0/8 \r\n # \r\n interface Ethernet1/0/9 \r\n # \r\n interface Ethernet1/0/10 \r\n # \r\n interface Ethernet1/0/11 \r\n # \r\n interface Ethernet1/0/12 \r\n # \r\n interface Ethernet1/0/13 \r\n # \r\n interface Ethernet1/0/14 \r\n # \r\n interface Ethernet1/0/15 \r\n # \r\n interface Ethernet1/0/16 \r\n # \r\n interface Ethernet1/0/17 \r\n # \r\n interface Ethernet1/0/18 \r\n # \r\n interface Ethernet1/0/19 \r\n # \r\n interface Ethernet1/0/20 \r\n # \r\n interface Ethernet1/0/21 \r\n # \r\n interface Ethernet1/0/22 \r\n # \r\n interface Ethernet1/0/23 \r\n # \r\n interface Ethernet1/0/24 \r\n # \r\n interface Ethernet1/0/25 \r\n # \r\n interface Ethernet1/0/26 \r\n # \r\n interface Ethernet1/0/27 \r\n # \r\n interface Ethernet1/0/28 \r\n # \r\n interface Ethernet1/0/29 \r\n # \r\n interface Ethernet1/0/30 \r\n # \r\n interface Ethernet1/0/31 \r\n # \r\n interface Ethernet1/0/32 \r\n # \r\n interface Ethernet1/0/33 \r\n # \r\n interface Ethernet1/0/34 \r\n # \r\n interface Ethernet1/0/35 \r\n # \r\n interface Ethernet1/0/36 \r\n # \r\n interface Ethernet1/0/37 \r\n # \r\n interface Ethernet1/0/38 \r\n # \r\n interface Ethernet1/0/39 \r\n # \r\n interface Ethernet1/0/40 \r\n # \r\n interface Ethernet1/0/41 \r\n # \r\n interface Ethernet1/0/42 \r\n # \r\n interface Ethernet1/0/43 \r\n # \r\n interface Ethernet1/0/44 \r\n # \r\n interface Ethernet1/0/45 \r\n # \r\n interface Ethernet1/0/46 \r\n # \r\n interface Ethernet1/0/47 \r\n # \r\n interface Ethernet1/0/48 \r\n # \r\n interface GigabitEthernet1/0/49 \r\n # \r\n interface GigabitEthernet1/0/50 \r\n # \r\n interface GigabitEthernet1/0/51 \r\n # \r\n interface GigabitEthernet1/0/52 \r\n # \r\n undo info-center logfile enable \r\n # \r\n ssh server enable \r\n ssh user admin service-type stelnet authentication-type password \r\n # \r\n load xml-configuration \r\n # \r\n load tr069-configuration \r\n # \r\n user-interface aux 0 \r\n user-interface vty 0 4 \r\n authentication-mode scheme \r\n user privilege level 3 \r\n set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ== \r\n user-interface vty 5 15 \r\n authentication-mode scheme \r\n # \r\n return', '<H3C-S2152-1>', '2022-05-16 16:10:10');
+INSERT INTO `return_record` VALUES (7, 'display device manuinfo', 'Slot 1: \r\n DEVICE_NAME : S2152 \r\n DEVICE_SERIAL_NUMBER : 219801A0FQM167000321 \r\n MAC_ADDRESS : 600B-0308-710C \r\n MANUFACTURING_DATE : 2016-07 \r\n VENDOR_NAME : H3C', '<H3C-S2152-1>', '2022-05-16 16:11:45');
+INSERT INTO `return_record` VALUES (8, 'display ver', 'H3C Comware Platform Software \r\n Comware Software, Version 5.20.99, Release 1106 \r\n Copyright (c) 2004-2015 Hangzhou H3C Tech. Co., Ltd. All rights reserved. \r\n H3C S2152 uptime is 0 week, 0 day, 7 hours, 59 minutes \r\n H3C S2152 \r\n 128M bytes DRAM \r\n 32M bytes Flash Memory \r\n Config Register points to Flash \r\n Hardware Version is REV.A \r\n Bootrom Version is 110 \r\n [SubSlot 0] 48FE+4GE Hardware Version is REV.A', '<H3C-S2152-1>', '2022-05-16 16:11:46');
+INSERT INTO `return_record` VALUES (9, 'display cu', '# \r\n version 5.20.99, Release 1106 \r\n # \r\n sysname H3C-S2152-1 \r\n # \r\n domain default enable system \r\n # \r\n ipv6 \r\n # \r\n telnet server enable \r\n # \r\n password-recovery enable \r\n # \r\n vlan 1 \r\n # \r\n domain system \r\n access-limit disable \r\n state active \r\n idle-cut disable \r\n self-service-url disable \r\n # \r\n user-group system \r\n group-attribute allow-guest \r\n # \r\n local-user admin \r\n password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user1 \r\n password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user2 \r\n password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n # \r\n interface NULL0 \r\n # \r\n interface Vlan-interface1 \r\n ip address 192.168.1.100 255.255.255.0 \r\n # \r\n interface Ethernet1/0/1 \r\n # \r\n interface Ethernet1/0/2 \r\n # \r\n interface Ethernet1/0/3 \r\n # \r\n interface Ethernet1/0/4 \r\n # \r\n interface Ethernet1/0/5 \r\n # \r\n interface Ethernet1/0/6 \r\n # \r\n interface Ethernet1/0/7 \r\n # \r\n interface Ethernet1/0/8 \r\n # \r\n interface Ethernet1/0/9 \r\n # \r\n interface Ethernet1/0/10 \r\n # \r\n interface Ethernet1/0/11 \r\n # \r\n interface Ethernet1/0/12 \r\n # \r\n interface Ethernet1/0/13 \r\n # \r\n interface Ethernet1/0/14 \r\n # \r\n interface Ethernet1/0/15 \r\n # \r\n interface Ethernet1/0/16 \r\n # \r\n interface Ethernet1/0/17 \r\n # \r\n interface Ethernet1/0/18 \r\n # \r\n interface Ethernet1/0/19 \r\n # \r\n interface Ethernet1/0/20 \r\n # \r\n interface Ethernet1/0/21 \r\n # \r\n interface Ethernet1/0/22 \r\n # \r\n interface Ethernet1/0/23 \r\n # \r\n interface Ethernet1/0/24 \r\n # \r\n interface Ethernet1/0/25 \r\n # \r\n interface Ethernet1/0/26 \r\n # \r\n interface Ethernet1/0/27 \r\n # \r\n interface Ethernet1/0/28 \r\n # \r\n interface Ethernet1/0/29 \r\n # \r\n interface Ethernet1/0/30 \r\n # \r\n interface Ethernet1/0/31 \r\n # \r\n interface Ethernet1/0/32 \r\n # \r\n interface Ethernet1/0/33 \r\n # \r\n interface Ethernet1/0/34 \r\n # \r\n interface Ethernet1/0/35 \r\n # \r\n interface Ethernet1/0/36 \r\n # \r\n interface Ethernet1/0/37 \r\n # \r\n interface Ethernet1/0/38 \r\n # \r\n interface Ethernet1/0/39 \r\n # \r\n interface Ethernet1/0/40 \r\n # \r\n interface Ethernet1/0/41 \r\n # \r\n interface Ethernet1/0/42 \r\n # \r\n interface Ethernet1/0/43 \r\n # \r\n interface Ethernet1/0/44 \r\n # \r\n interface Ethernet1/0/45 \r\n # \r\n interface Ethernet1/0/46 \r\n # \r\n interface Ethernet1/0/47 \r\n # \r\n interface Ethernet1/0/48 \r\n # \r\n interface GigabitEthernet1/0/49 \r\n # \r\n interface GigabitEthernet1/0/50 \r\n # \r\n interface GigabitEthernet1/0/51 \r\n # \r\n interface GigabitEthernet1/0/52 \r\n # \r\n undo info-center logfile enable \r\n # \r\n ssh server enable \r\n ssh user admin service-type stelnet authentication-type password \r\n # \r\n load xml-configuration \r\n # \r\n load tr069-configuration \r\n # \r\n user-interface aux 0 \r\n user-interface vty 0 4 \r\n authentication-mode scheme \r\n user privilege level 3 \r\n set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ== \r\n user-interface vty 5 15 \r\n authentication-mode scheme \r\n # \r\n return', '<H3C-S2152-1>', '2022-05-16 16:11:54');
+INSERT INTO `return_record` VALUES (10, 'display device manuinfo', 'Slot 1: \r\n DEVICE_NAME : S2152 \r\n DEVICE_SERIAL_NUMBER : 219801A0FQM167000321 \r\n MAC_ADDRESS : 600B-0308-710C \r\n MANUFACTURING_DATE : 2016-07 \r\n VENDOR_NAME : H3C', '<H3C-S2152-1>', '2022-05-17 15:04:39');
+INSERT INTO `return_record` VALUES (11, 'display ver', 'H3C Comware Platform Software \r\n Comware Software, Version 5.20.99, Release 1106 \r\n Copyright (c) 2004-2015 Hangzhou H3C Tech. Co., Ltd. All rights reserved. \r\n H3C S2152 uptime is 0 week, 1 day, 6 hours, 52 minutes \r\n H3C S2152 \r\n 128M bytes DRAM \r\n 32M bytes Flash Memory \r\n Config Register points to Flash \r\n Hardware Version is REV.A \r\n Bootrom Version is 110 \r\n [SubSlot 0] 48FE+4GE Hardware Version is REV.A', '<H3C-S2152-1>', '2022-05-17 15:04:40');
+INSERT INTO `return_record` VALUES (12, 'display cu', '# \r\n version 5.20.99, Release 1106 \r\n # \r\n sysname H3C-S2152-1 \r\n # \r\n domain default enable system \r\n # \r\n ipv6 \r\n # \r\n telnet server enable \r\n # \r\n password-recovery enable \r\n # \r\n vlan 1 \r\n # \r\n domain system \r\n access-limit disable \r\n state active \r\n idle-cut disable \r\n self-service-url disable \r\n # \r\n user-group system \r\n group-attribute allow-guest \r\n # \r\n local-user admin \r\n password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user1 \r\n password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n local-user user2 \r\n password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw== \r\n authorization-attribute level 3 \r\n service-type ssh telnet \r\n # \r\n interface NULL0 \r\n # \r\n interface Vlan-interface1 \r\n ip address 192.168.1.100 255.255.255.0 \r\n # \r\n interface Ethernet1/0/1 \r\n # \r\n interface Ethernet1/0/2 \r\n # \r\n interface Ethernet1/0/3 \r\n # \r\n interface Ethernet1/0/4 \r\n # \r\n interface Ethernet1/0/5 \r\n # \r\n interface Ethernet1/0/6 \r\n # \r\n interface Ethernet1/0/7 \r\n # \r\n interface Ethernet1/0/8 \r\n # \r\n interface Ethernet1/0/9 \r\n # \r\n interface Ethernet1/0/10 \r\n # \r\n interface Ethernet1/0/11 \r\n # \r\n interface Ethernet1/0/12 \r\n # \r\n interface Ethernet1/0/13 \r\n # \r\n interface Ethernet1/0/14 \r\n # \r\n interface Ethernet1/0/15 \r\n # \r\n interface Ethernet1/0/16 \r\n # \r\n interface Ethernet1/0/17 \r\n # \r\n interface Ethernet1/0/18 \r\n # \r\n interface Ethernet1/0/19 \r\n # \r\n interface Ethernet1/0/20 \r\n # \r\n interface Ethernet1/0/21 \r\n # \r\n interface Ethernet1/0/22 \r\n # \r\n interface Ethernet1/0/23 \r\n # \r\n interface Ethernet1/0/24 \r\n # \r\n interface Ethernet1/0/25 \r\n # \r\n interface Ethernet1/0/26 \r\n # \r\n interface Ethernet1/0/27 \r\n # \r\n interface Ethernet1/0/28 \r\n # \r\n interface Ethernet1/0/29 \r\n # \r\n interface Ethernet1/0/30 \r\n # \r\n interface Ethernet1/0/31 \r\n # \r\n interface Ethernet1/0/32 \r\n # \r\n interface Ethernet1/0/33 \r\n # \r\n interface Ethernet1/0/34 \r\n # \r\n interface Ethernet1/0/35 \r\n # \r\n interface Ethernet1/0/36 \r\n # \r\n interface Ethernet1/0/37 \r\n # \r\n interface Ethernet1/0/38 \r\n # \r\n interface Ethernet1/0/39 \r\n # \r\n interface Ethernet1/0/40 \r\n # \r\n interface Ethernet1/0/41 \r\n # \r\n interface Ethernet1/0/42 \r\n # \r\n interface Ethernet1/0/43 \r\n # \r\n interface Ethernet1/0/44 \r\n # \r\n interface Ethernet1/0/45 \r\n # \r\n interface Ethernet1/0/46 \r\n # \r\n interface Ethernet1/0/47 \r\n # \r\n interface Ethernet1/0/48 \r\n # \r\n interface GigabitEthernet1/0/49 \r\n # \r\n interface GigabitEthernet1/0/50 \r\n # \r\n interface GigabitEthernet1/0/51 \r\n # \r\n interface GigabitEthernet1/0/52 \r\n # \r\n undo info-center logfile enable \r\n # \r\n ssh server enable \r\n ssh user admin service-type stelnet authentication-type password \r\n # \r\n load xml-configuration \r\n # \r\n load tr069-configuration \r\n # \r\n user-interface aux 0 \r\n user-interface vty 0 4 \r\n authentication-mode scheme \r\n user privilege level 3 \r\n set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ== \r\n user-interface vty 5 15 \r\n authentication-mode scheme \r\n # \r\n return', '<H3C-S2152-1>', '2022-05-17 15:04:48');
 
 -- ----------------------------
 -- Table structure for scanquestion
@@ -565,15 +554,17 @@ CREATE TABLE `switch_problem`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `name`(`user_name`) USING BTREE COMMENT '姓名',
   INDEX `phone`(`phonenumber`) USING BTREE COMMENT '手机号'
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '交换机问题表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '交换机问题表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of switch_problem
 -- ----------------------------
-INSERT INTO `switch_problem` VALUES (1, '192.168.1.100', 'admin', 'admin', '2', '无问题', NULL, 1, '否', '2022-04-26 14:40:56', NULL, NULL);
-INSERT INTO `switch_problem` VALUES (2, '192.168.1.100', 'admin', 'admin', '2', '无问题', NULL, 2, '否', '2022-04-26 14:40:56', NULL, NULL);
-INSERT INTO `switch_problem` VALUES (3, '192.168.1.100', 'admin', 'admin', '2', '无问题', NULL, 3, '否', '2022-04-26 14:40:56', NULL, NULL);
-INSERT INTO `switch_problem` VALUES (4, '192.168.1.100', 'admin', 'admin', '21', '有问题', NULL, 0, '否', '2022-04-26 14:41:04', NULL, NULL);
+INSERT INTO `switch_problem` VALUES (1, '192.168.1.100', 'admin', 'admin', '34', '无问题', NULL, 1, '否', '2022-05-16 16:11:54', NULL, NULL);
+INSERT INTO `switch_problem` VALUES (2, '192.168.1.100', 'admin', 'admin', '34', '无问题', NULL, 2, '否', '2022-05-16 16:11:54', NULL, NULL);
+INSERT INTO `switch_problem` VALUES (3, '192.168.1.100', 'admin', 'admin', '34', '无问题', NULL, 3, '否', '2022-05-16 16:11:55', NULL, NULL);
+INSERT INTO `switch_problem` VALUES (4, '192.168.1.100', 'admin', 'admin', '34', '无问题', NULL, 4, '否', '2022-05-17 15:04:48', NULL, NULL);
+INSERT INTO `switch_problem` VALUES (5, '192.168.1.100', 'admin', 'admin', '34', '无问题', NULL, 5, '否', '2022-05-17 15:04:48', NULL, NULL);
+INSERT INTO `switch_problem` VALUES (6, '192.168.1.100', 'admin', 'admin', '34', '无问题', NULL, 6, '否', '2022-05-17 15:04:48', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for sys_config
@@ -787,7 +778,7 @@ CREATE TABLE `sys_logininfor`  (
   `msg` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '提示消息',
   `login_time` datetime NULL DEFAULT NULL COMMENT '访问时间',
   PRIMARY KEY (`info_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 367 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 379 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '系统访问记录' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_logininfor
@@ -1059,6 +1050,18 @@ INSERT INTO `sys_logininfor` VALUES (363, 'admin', '127.0.0.1', '内网IP', 'Chr
 INSERT INTO `sys_logininfor` VALUES (364, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-04-14 09:22:29');
 INSERT INTO `sys_logininfor` VALUES (365, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-04-18 08:54:45');
 INSERT INTO `sys_logininfor` VALUES (366, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-04-26 08:39:55');
+INSERT INTO `sys_logininfor` VALUES (367, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-04-27 09:06:48');
+INSERT INTO `sys_logininfor` VALUES (368, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-04-28 09:17:06');
+INSERT INTO `sys_logininfor` VALUES (369, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '1', '验证码已失效', '2022-04-29 10:35:17');
+INSERT INTO `sys_logininfor` VALUES (370, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-04-29 10:35:23');
+INSERT INTO `sys_logininfor` VALUES (371, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-05-05 08:56:42');
+INSERT INTO `sys_logininfor` VALUES (372, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-05-06 08:39:24');
+INSERT INTO `sys_logininfor` VALUES (373, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-05-07 10:23:28');
+INSERT INTO `sys_logininfor` VALUES (374, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-05-10 09:21:52');
+INSERT INTO `sys_logininfor` VALUES (375, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '1', '验证码已失效', '2022-05-11 09:41:48');
+INSERT INTO `sys_logininfor` VALUES (376, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '1', '验证码错误', '2022-05-11 09:41:51');
+INSERT INTO `sys_logininfor` VALUES (377, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-05-11 09:41:56');
+INSERT INTO `sys_logininfor` VALUES (378, 'admin', '127.0.0.1', '内网IP', 'Chrome 8', 'Windows 10', '0', '登录成功', '2022-05-13 17:01:39');
 
 -- ----------------------------
 -- Table structure for sys_menu
@@ -1667,7 +1670,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 103, 'admin', '若依', '00', 'jh@163.com', '18200098000', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2022-04-26 08:39:56', 'admin', '2021-10-25 11:19:04', '', '2022-04-26 08:39:55', '管理员');
+INSERT INTO `sys_user` VALUES (1, 103, 'admin', '若依', '00', 'jh@163.com', '18200098000', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2022-05-13 17:01:40', 'admin', '2021-10-25 11:19:04', '', '2022-05-13 17:01:39', '管理员');
 INSERT INTO `sys_user` VALUES (2, 105, 'ry', '若依', '00', 'ry@qq.com', '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', '2021-10-25 11:19:04', 'admin', '2021-10-25 11:19:04', '', NULL, '测试员');
 INSERT INTO `sys_user` VALUES (3, 100, '韦卫', 'weiwei', '00', '', '18200000222', '0', '', '$2a$10$eu4pXynDh2z/XepDUEBbHuZtjby9zI8Bbp2Nx8rRb.JEH76inOTQG', '0', '0', '127.0.0.1', '2022-02-09 15:48:47', '韦卫', '2022-02-09 14:03:20', '', '2022-02-09 15:48:46', NULL);
 INSERT INTO `sys_user` VALUES (4, 108, '韦卫1', 'wei', '00', '', '18222226666', '0', '', '$2a$10$82W0dve1t08WqCHlrlP1qeP1bGQadP7Y0F94ur8aCy9TswZE9BIXq', '0', '0', '', NULL, '韦卫1', '2022-02-09 14:05:07', '', NULL, NULL);
@@ -1726,19 +1729,12 @@ CREATE TABLE `total_question_table`  (
   `problem_describe_id` int(11) NULL DEFAULT 0 COMMENT '问题详细说明和指导索引',
   `problem_solving_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '解决问题命令ID',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '问题及命令表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 41 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '问题及命令表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of total_question_table
 -- ----------------------------
-INSERT INTO `total_question_table` VALUES (2, 'H3C', 'S2152', '5.20.99', '1106', '---- More ----', '1650329619087', '明文存储', '安全配置', 0, '解决问题命令ID');
-INSERT INTO `total_question_table` VALUES (3, 'H3C', 'S21521', '5.20.99', '1106', '---- More ----', '2', 'telnet开启状态', '安全配置', 0, '解决问题命令ID');
-INSERT INTO `total_question_table` VALUES (4, 'H3C', 'S21521', '5.20.99', '1106', '---- More ----', '7', '比较固件版本号', '设备缺陷', 0, '解决问题命令ID');
-INSERT INTO `total_question_table` VALUES (5, 'H3C', 'S3600-28P-EI', '3.10', '1510P09', '---- More ----', '3', '明文存储', '安全配置', 0, '解决问题命令ID');
-INSERT INTO `total_question_table` VALUES (6, 'H3C', 'S3600-28P-EI', '3.10', '1510P09', '---- More ----', '2', 'telnet开启状态', '安全配置', 0, '解决问题命令ID');
-INSERT INTO `total_question_table` VALUES (7, 'H3C', 'S3600-28P-EI', '3.10', '1510P09', '---- More ----', '7', '比较固件版本号', '设备缺陷', 0, '解决问题命令ID');
-INSERT INTO `total_question_table` VALUES (16, 'H3C', 'S21521', '5.20.99', '1106', '---- More ----', NULL, '明文存储', '安全配置', 0, '解决问题命令ID');
-INSERT INTO `total_question_table` VALUES (21, 'H3C', 'S2152', '5.20.99', '1106', '---- More ----', '1650423250026', 'telnet开启状态', '安全配置', 0, '解决问题命令ID');
+INSERT INTO `total_question_table` VALUES (40, 'H3C', 'S2152', '5.20.99', '1106', '---- More ----', '1652841617419', '明文存储', '安全配置', 0, '1652842127066');
 
 -- ----------------------------
 -- Table structure for value_information
@@ -1752,7 +1748,7 @@ CREATE TABLE `value_information`  (
   `out_id` int(11) NOT NULL DEFAULT 0 COMMENT '下一信息ID',
   `display_information` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '动态信息(显示)',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '取值信息存储表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '取值信息存储表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of value_information
@@ -1760,5 +1756,8 @@ CREATE TABLE `value_information`  (
 INSERT INTO `value_information` VALUES (1, '是', '用户名', 'admin', 0, 'admin');
 INSERT INTO `value_information` VALUES (2, '是', '用户名', 'user1', 0, 'user1');
 INSERT INTO `value_information` VALUES (3, '是', '用户名', 'user2', 0, 'user2');
+INSERT INTO `value_information` VALUES (4, '是', '用户名', 'admin', 0, 'admin');
+INSERT INTO `value_information` VALUES (5, '是', '用户名', 'user1', 0, 'user1');
+INSERT INTO `value_information` VALUES (6, '是', '用户名', 'user2', 0, 'user2');
 
 SET FOREIGN_KEY_CHECKS = 1;
