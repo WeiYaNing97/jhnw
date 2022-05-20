@@ -937,6 +937,9 @@ public class DefinitionProblemController extends BaseController {
                 if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
                     continue;
                 }
+                if (problemScanLogic.getProblemId()!=null && (problemScanLogic.getProblemId().equals("完成"))){
+                    continue;
+                }
                 if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
                         && problemScanLogic.gettNextId()!="" &&  !(isContainChinese(problemScanLogic.gettNextId()))){
                     problemScanID += problemScanLogic.gettNextId()+":";
@@ -1003,7 +1006,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
     @RequestMapping("updateAnalysis")
-    public boolean updateAnalysis(Long totalQuestionTableId,@RequestParam List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
+    public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
         /*List<String> jsonPojoList = new ArrayList<>();
         String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
         String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";

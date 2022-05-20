@@ -153,9 +153,9 @@ public class CommandLogicController extends BaseController
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("insertModifyProblemCommandSet")
-    public boolean insertModifyProblemCommandSet(Long totalQuestionTableId,@RequestParam List<String> commandLogicList){
+    public boolean insertModifyProblemCommandSet(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogicList){
 
-        String commandLogicString = "";
+        /*String commandLogicString = "";
         for (String commandLogic:commandLogicList){
             commandLogicString = commandLogicString + commandLogic +",";
         }
@@ -169,7 +169,7 @@ public class CommandLogicController extends BaseController
             }
         }else {
             return false;
-        }
+        }*/
 
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         List<CommandLogic> commandLogics = new ArrayList<>();
@@ -273,7 +273,7 @@ public class CommandLogicController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("updateProblemSolvingCommand")
-    public boolean updateProblemSolvingCommand(Long totalQuestionTableId,@RequestParam List<String> commandLogics){
+    public boolean updateProblemSolvingCommand(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogics){
         //根据 问题表 问题ID 查询 问题数据
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         //问题表 解决问题ID

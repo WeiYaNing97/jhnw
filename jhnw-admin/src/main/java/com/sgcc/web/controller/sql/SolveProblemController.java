@@ -11,6 +11,8 @@ import com.sgcc.sql.service.IValueInformationService;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,8 +46,8 @@ public class SolveProblemController {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    @RequestMapping("batchSolution")
-    public AjaxResult batchSolution(List<String> userinformation,List<String> commandValueList){//String mode,String ip,String name,String password,String port
+    @RequestMapping("/batchSolution/{userinformation}/{commandValueList}")
+    public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){//String mode,String ip,String name,String password,String port
         //用户信息
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode","ssh");
@@ -66,7 +68,7 @@ public class SolveProblemController {
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
-        AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect(user_String,connectMethod, telnetSwitchMethod);
+        AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( user_String , connectMethod , telnetSwitchMethod );
         //解析返回参数
         List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
         //是否连接成功

@@ -3,6 +3,8 @@ package com.sgcc.web.controller.sql;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.stream.Stream;
+
 /**
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com
@@ -32,4 +34,14 @@ public class SwitchTest {
         boolean compareVersionBoolean = Utils.compareVersion(null,compare);
     }
 
+    public static void main(String[] args) {
+        Integer cheng = cheng(add(1, 2));
+        System.err.println(cheng);
+    }
+    public static Integer add(int a, int b){
+        return a+b;
+    }
+    public static Integer cheng(Integer c){
+        return c<<2;
+    }
 }
