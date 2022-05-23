@@ -414,7 +414,7 @@ public class DefinitionProblemController extends BaseController {
             hashMap.put("tComId",hashMap.get("tNextId"));
             hashMap.put("tNextId",null);
         }
-        if (hashMap.get("action")!=null && hashMap.get("action").equals("取词")){
+        /*if (hashMap.get("action")!=null && hashMap.get("action").equals("取词")){
             List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
             redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
             for (ProblemScanLogic pojo:resultList){
@@ -424,7 +424,7 @@ public class DefinitionProblemController extends BaseController {
                     break;
                 }
             }
-        }
+        }*/
         if (hashMap.get("trueFalse")!=null && hashMap.get("trueFalse").equals("失败")){
             //如果实体类是 失败 则 把默认成功数据 赋值给 失败数据
             /** false行号 */hashMap.put("fLine",hashMap.get("tLine"));
@@ -556,9 +556,9 @@ public class DefinitionProblemController extends BaseController {
             }
         }
         //通过redisTemplate设置值
-        List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
+        /*List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
         resultList.add(problemScanLogic);
-        redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
+        redisTemplate.opsForList().leftPush("problemScanLogic",resultList);*/
         return problemScanLogic;
     }
 

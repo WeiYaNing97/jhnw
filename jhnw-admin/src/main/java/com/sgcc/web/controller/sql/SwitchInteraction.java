@@ -676,9 +676,7 @@ public class SwitchInteraction {
 
             // 分析执行 完成
             if (problemScanLogic.getProblemId().indexOf("完成")!=-1){
-
                 return extractInformation_string;
-
             }
         }
 
