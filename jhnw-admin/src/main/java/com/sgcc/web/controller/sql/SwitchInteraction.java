@@ -897,13 +897,10 @@ public class SwitchInteraction {
         String nickName = GlobalVariable.nickName;
         //系统登录人 手机号
         String phonenumber = GlobalVariable.phonenumber;
-
         String substring = problemScanLogic.getProblemId().substring(0, 3);
         String problemId = problemScanLogic.getProblemId().substring(3, problemScanLogic.getProblemId().length());
-
         //参数组中的 第一个参数ID  默认为 0
         Long outId = 0l;
-
         //提取信息 如果不为空 则有参数
         if (parameterString!=null && !parameterString.equals("")){
             //几个参数中间的 参数是 以  "=:=" 来分割的
@@ -914,7 +911,6 @@ public class SwitchInteraction {
             if (parameterStringsplit.length>0){
                 //创建 参数 实体类
                 ValueInformation valueInformation = new ValueInformation();
-
                 //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
                 //所以 参数组 要倒序插入
                 for (int number=parameterStringsplit.length-1;number>0;number--){

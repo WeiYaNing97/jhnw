@@ -4,10 +4,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.sql.domain.*;
-import com.sgcc.sql.service.ICommandLogicService;
-import com.sgcc.sql.service.IReturnRecordService;
-import com.sgcc.sql.service.ITotalQuestionTableService;
-import com.sgcc.sql.service.IValueInformationService;
+import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +27,18 @@ public class SolveProblemController {
 
     @Autowired
     private ICommandLogicService commandLogicService;
+
     @Autowired
     private IValueInformationService valueInformationService;
+
     @Autowired
     private IReturnRecordService returnRecordService;
+
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
+
+    @Autowired
+    private ISwitchProblemService switchProblemService;
 
     /***
     * @method: 批量修复问题
@@ -44,6 +47,7 @@ public class SolveProblemController {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
+
     @RequestMapping("/batchSolution/{userinformation}/{commandValueList}")
     public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){
         //String mode,String ip,String name,String password,String port
@@ -55,77 +59,36 @@ public class SolveProblemController {
         userInformationString = userInformationString.replace("\"","");
         String[] userinformationSplit = userInformationString.split(",");
         Map<String,String> user_String = new HashMap<>();
+
         for (String userString:userinformationSplit){
             String[] userStringsplit = userString.split(":");
             String key = userStringsplit[0];
             String value = userStringsplit[1];
             switch (key.trim()){
                 case "mode":
+                    //登录方式
                     user_String.put("mode",value);
                     break;
                 case "ip":
+                    //ip地址
                     user_String.put("ip",value);
                     break;
                 case "name":
+                    //用户名
                     user_String.put("name",value);
                     break;
                 case "password":
+                    //密码
                     user_String.put("password",value);
                     break;
                 case "port":
+                    //端口号
                     user_String.put("port",value);
                     break;
             }
         }
-        //命令ID 参数ID
-        String commandValueListString = commandValueList.toString();
-        commandValueList = new ArrayList<>();
-        commandValueListString = commandValueListString.replace("[{","");
-        commandValueListString = commandValueListString.replace("}]","");
-        //去掉 “
-        commandValueListString = commandValueListString.replace("\"","");
-        //将 },  改为 \r\n
-        commandValueListString = commandValueListString.replace("},","\r\n");
-        //去掉 {
-        commandValueListString = commandValueListString.replace("{","");
-        // 得到：comId:1,valueId:2
-        String[] commandValueSplit = commandValueListString.split("\r\n");
 
-        for (String commandValue:commandValueSplit){
-            String[] command_value = commandValue.split(",");
-            String commandvalueSting = null;
-            String comId = null;
-            String valueId = null;
-            for (String command_valueSting:command_value){
-                String[] command_value_split = command_valueSting.split(":");
-                switch (command_value_split[0].trim()){
-                    case "comId":
-                        comId = command_value_split[1];
-                        break;
-                    case "valueId":
-                        valueId = command_value_split[1];
-                        break;
-                }
-            }
-            //当命令不等于空时
-            if (comId!=null){
-                //命令赋值
-                commandvalueSting = comId;
-                //命令清空 方便下一轮命令判空
-                comId = null;
-                //修复问题 会出现 不需要参数的
-                //如果参数不为空
-                if (valueId!=null){
-                    //参数赋值
-                    commandvalueSting = commandvalueSting +":"+ valueId;
-                    //参数清空  方便下一轮参数判空
-                    valueId = null;
-                }
-                commandValueList.add(commandvalueSting);
-                commandvalueSting = null;
-            }
-        }
-
+        //连接交换机
         //ssh连接
         SshMethod connectMethod = null;
         //telnet连接
@@ -140,24 +103,89 @@ public class SolveProblemController {
         List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
         //是否连接成功
         boolean requestConnect_boolean = informationList.get(0).toString().equals("true");
+
         if (requestConnect_boolean){
-            for (String commandValue:commandValueList){
+            //commandValueList  命令ID 参数ID
+            String commandValueListString = commandValueList.toString();
+            commandValueListString = commandValueListString.replace("[{","");
+            commandValueListString = commandValueListString.replace("}]","");
+            //去掉 “
+            commandValueListString = commandValueListString.replace("\"","");
+            //将 },  改为 \r\n
+            commandValueListString = commandValueListString.replace("},","\r\n");
+            //去掉 {
+            commandValueListString = commandValueListString.replace("{","");
+            // 得到：comId:1,valueId:2
+            String[] commandValueSplit = commandValueListString.split("\r\n");
+
+            for (String commandValue:commandValueSplit){
+                String command_Value = null;
+                String[] command_value = commandValue.split(",");
+                String commandvalueSting = null;
+                String comId = null;
+                String valueId = null;
+
+                for (String command_valueSting:command_value){
+                    String[] command_value_split = command_valueSting.split(":");
+                    switch (command_value_split[0].trim()){
+                        case "comId":
+                            comId = command_value_split[1].trim();
+                            break;
+                        case "valueId":
+                            valueId = command_value_split[1].trim();
+                            break;
+                    }
+                }
+
+                //当命令不等于空时
+                if (comId!=null){
+                    //命令赋值
+                    commandvalueSting = comId;
+
+                    //修复问题 会出现 不需要参数的
+                    //如果参数不为空
+                    if (valueId!=null){
+                        //参数赋值
+                        commandvalueSting = commandvalueSting +":"+ valueId;
+
+                    }else if (valueId == null){
+                        //参数赋值
+                        commandvalueSting = commandvalueSting +":"+ 0;
+                    }
+                    command_Value = commandvalueSting;
+                    commandvalueSting = null;
+                }
+
                 //将 命令ID 和 参数ID 分离开来
-                String[] commandValuesplit = commandValue.split(":");
+                String[] commandValuesplit = command_Value.split(":");
                 //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
                 AjaxResult ajaxResult = queryParameterSet(commandValuesplit[0], Long.valueOf(commandValuesplit[1]).longValue());
-                Object[] command_value =  (Object[])ajaxResult.get("data");
+                Object[] commandvalue =  (Object[])ajaxResult.get("data");
                 //命令集合
-                List<String> commandList = (List<String>) command_value[0];
+                List<String> commandList = (List<String>) commandvalue[0];
                 //参数集合
-                List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)command_value[1];
+                List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
                 //解决问题
-                AjaxResult solveProblemAjaxResult = solveProblem(informationList, commandList, valueInformationVOList);
-                return solveProblemAjaxResult;
+                String solveProblem = solveProblem(informationList, commandList, valueInformationVOList);
+                if (solveProblem.equals("成功")){
+                    SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(valueId);
+                    switchProblem.setResolved("是");
+                    int i = switchProblemService.updateSwitchProblem(switchProblem);
+                    if (i<=0){
+                        return AjaxResult.error("失败");
+                    }
+                }
+
+                //命令清空 方便下一轮命令判空
+                comId = null;
+                //参数清空  方便下一轮参数判空
+                valueId = null;
+
+                return AjaxResult.error("失败");
             }
         }
-        return null;
+        return AjaxResult.error("连接交换机失败");
     }
 
 
@@ -173,19 +201,18 @@ public class SolveProblemController {
     @RequestMapping("queryParameterSet")
     public AjaxResult queryParameterSet(String commandID,Long valueID){
         //根据 第一个命令 ID
-        //查询 命令信息集合
+        //根据 命令ID commandID 查询命令集合
         AjaxResult ajaxResult = queryCommandSet(commandID);
         List<CommandLogic> commandLogicList = (List<CommandLogic>)ajaxResult.get("data");
+        //定义命令集合 commandList
         List<String> commandList = new ArrayList<>();
-
         //将命令 放入 命令集合
         for (CommandLogic commandLogic:commandLogicList){
             commandList.add(commandLogic.getCommand());
         }
-
         //查询 参数信息集合
         List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
-
+        //如果 参数ID 不为0 则 有参数 需要获取相关参数
         while (valueID != 0){
             ValueInformation valueInformation = valueInformationService.selectValueInformationById(valueID);
             ValueInformationVO valueInformationVO = new ValueInformationVO();
@@ -197,7 +224,6 @@ public class SolveProblemController {
         Object[] command_value = new Object[2];
         command_value[0] = commandList;
         command_value[1] = valueInformationVOList;
-
         return AjaxResult.success(command_value);
     }
 
@@ -267,7 +293,7 @@ public class SolveProblemController {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("solveProblem")
-    public AjaxResult solveProblem(List<Object> informationList,
+    public String solveProblem(List<Object> informationList,
                                    List<String> commandList,
                                    List<ValueInformationVO> valueInformationVOList){
         //遍历命令集合    根据参数名称 获取真实命令
@@ -349,7 +375,6 @@ public class SolveProblemController {
                 if (!current_return_log_substring_start.equals("\r\n")){
                     current_return_log = "\r\n"+current_return_log;
                 }
-
                 WebSocketService.sendMessage("badao",current_return_log);
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
@@ -372,11 +397,9 @@ public class SolveProblemController {
             //存储交换机返回数据 插入数据库
             int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
             if (insert_Int <= 0){
-                return AjaxResult.error("执行失败！");
+                return "失败";
             }
         }
-
-        return AjaxResult.success("执行成功！");
+        return "成功";
     }
-
 }

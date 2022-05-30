@@ -65,6 +65,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             LEFT JOIN ( SELECT * FROM total_question_table ) question ON problem.problem_id = question.id
     </select>
 
+    <select id="selectSwitchProblemByValueId"  parameterType="com.sgcc.sql.domain.SwitchProblem" resultMap="SwitchProblemResult" >
+        <include refid="selectSwitchProblemVo"/>
+        where value_id = #{valueId}
+    </select>
+
     <sql id="selectSwitchProblemVo">
         select id, switch_ip, switch_name, switch_password, problem_id, if_question,com_id, value_id, resolved, create_time,user_name,phonenumber from switch_problem
     </sql>

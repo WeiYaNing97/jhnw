@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.ProblemDescribeMapper">
+    
+    <resultMap type="ProblemDescribe" id="ProblemDescribeResult">
+        <result property="id"    column="id"    />
+        <result property="problemDescribe"    column="problem_describe"    />
+    </resultMap>
+
+    <sql id="selectProblemDescribeVo">
+        select id, problem_describe from problem_describe
+    </sql>
+
+    <select id="selectProblemDescribeList" parameterType="ProblemDescribe" resultMap="ProblemDescribeResult">
+        <include refid="selectProblemDescribeVo"/>
+        <where>  
+            <if test="problemDescribe != null  and problemDescribe != ''"> and problem_describe = #{problemDescribe}</if>
+        </where>
+    </select>
+    
+    <select id="selectProblemDescribeById" parameterType="Long" resultMap="ProblemDescribeResult">
+        <include refid="selectProblemDescribeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertProblemDescribe" parameterType="ProblemDescribe" useGeneratedKeys="true" keyProperty="id">
+        insert into problem_describe
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="problemDescribe != null">problem_describe,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="problemDescribe != null">#{problemDescribe},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProblemDescribe" parameterType="ProblemDescribe">
+        update problem_describe
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="problemDescribe != null">problem_describe = #{problemDescribe},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProblemDescribeById" parameterType="Long">
+        delete from problem_describe where id = #{id}
+    </delete>
+
+    <delete id="deleteProblemDescribeByIds" parameterType="String">
+        delete from problem_describe where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
