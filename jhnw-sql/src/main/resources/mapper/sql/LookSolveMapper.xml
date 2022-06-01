@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.LookSolveMapper">
+    
+    <resultMap type="LookSolve" id="LookSolveResult">
+        <result property="command"    column="command"    />
+        <result property="comvalue"    column="comValue"    />
+    </resultMap>
+
+    <sql id="selectLookSolveVo">
+        select command, comValue from look_solve
+    </sql>
+
+    <select id="selectLookSolveList" parameterType="LookSolve" resultMap="LookSolveResult">
+        <include refid="selectLookSolveVo"/>
+        <where>  
+            <if test="command != null  and command != ''"> and command = #{command}</if>
+            <if test="comvalue != null  and comvalue != ''"> and comValue = #{comvalue}</if>
+        </where>
+    </select>
+    
+    <select id="selectLookSolveByCommand" parameterType="String" resultMap="LookSolveResult">
+        <include refid="selectLookSolveVo"/>
+        where command = #{command}
+    </select>
+        
+    <insert id="insertLookSolve" parameterType="LookSolve">
+        insert into look_solve
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="command != null">command,</if>
+            <if test="comvalue != null">comValue,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="command != null">#{command},</if>
+            <if test="comvalue != null">#{comvalue},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLookSolve" parameterType="LookSolve">
+        update look_solve
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="comvalue != null">comValue = #{comvalue},</if>
+        </trim>
+        where command = #{command}
+    </update>
+
+    <delete id="deleteLookSolveByCommand" parameterType="String">
+        delete from look_solve where command = #{command}
+    </delete>
+
+    <delete id="deleteLookSolveByCommands" parameterType="String">
+        delete from look_solve where command in 
+        <foreach item="command" collection="array" open="(" separator="," close=")">
+            #{command}
+        </foreach>
+    </delete>
+</mapper>

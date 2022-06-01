@@ -1,0 +1,550 @@
+<template>
+  <div class="app-container">
+    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
+      <el-form-item label="设备基本信息:"></el-form-item>
+      <el-form-item label="品牌" prop="brand">
+        <el-select v-model="queryParams.brand" placeholder="品牌"
+                   filterable allow-create @blur="brandShu" @focus.once="brandLi" style="width: 150px">
+          <el-option v-for="(item,index) in brandList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="型号" prop="type">
+        <el-select v-model="queryParams.type" placeholder="型号"
+                   filterable allow-create @blur="typeShu" @focus.once="typeLi" style="width: 150px">
+          <el-option v-for="(item,index) in typeList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="固件版本" prop="firewareVersion">
+        <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
+                   filterable allow-create @blur="fireShu" @focus.once="fireLi" style="width: 150px">
+          <el-option v-for="(item,index) in fireList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="子版本" prop="subVersion">
+        <el-select v-model="queryParams.subVersion" placeholder="子版本"
+                   filterable allow-create @blur="subShu" @focus.once="subLi" style="width: 150px">
+          <el-option v-for="(item,index) in subList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="问题概要:"></el-form-item>
+      <el-form-item label="问题类型" prop="typeProblem">
+        <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
+                   filterable allow-create @focus.once="proType" @blur="typeProShu">
+          <el-option v-for="(item,index) in typeProList" :key="index"
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="问题名称">
+        <el-select v-model="queryParams.problemName" placeholder="请选择问题"
+                   filterable allow-create @focus.once="chawenti" @blur="proSelect">
+          <el-option v-for="(item,index) in proNameList" :key="index"
+                     :label="item.problemName" :value="item.problemName"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="chakan">查看解决命令</el-button>
+      </el-form-item>
+    </el-form>
+    <hr style='border:1px inset #D2E9FF;'>
+    <el-form ref="forms" :inline="true" :model="forms" v-show="showNo">
+      <el-form-item label="解决命令:"></el-form-item>
+      <el-form-item>
+        <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
+      </el-form-item>
+      <div v-for="(item,index) in forms.dynamicItem" :key="index" :label="index">
+        <el-form-item v-if="index!=0">
+          <el-checkbox v-model="item.checked"></el-checkbox>
+        </el-form-item>
+        <el-form-item v-if="index!=0">{{index}}</el-form-item>
+        <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+        <div v-if="item.targetType === 'command'" :key="index" style="display: inline-block">
+          <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
+            <el-input v-model="item.command"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-if="item.targetType === 'compar'" :key="index" style="display: inline-block">
+          <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
+            <el-input v-model="item.command"></el-input>
+          </el-form-item>
+          <el-form-item label="参数">
+            <el-select v-model="item.para" placeholder="参数"
+                       filterable allow-create @focus.once="paraLi" @blur="paraShu" style="width: 150px">
+              <el-option v-for="(item,index) in paraList"
+                         :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+          </el-form-item>
+        </div>
+        <el-form-item>
+          <el-dropdown trigger="click">
+            <el-button type="primary"><i class="el-icon-plus"></i></el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                <el-button @click="addItem('command',item)" type="primary">命令</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('compar',item)" type="primary">命令+参数</el-button>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+      </div>
+      <el-form-item>
+        <el-button @click="submitUseForm" type="primary">提交</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<script>
+import { listLook_solve, getLook_solve, delLook_solve, addLook_solve, updateLook_solve, exportLook_solve } from "@/api/sql/look_solve";
+import axios from 'axios'
+
+export default {
+  name: "Look_solve",
+  data() {
+    return {
+      // 遮罩层
+        proNameList:[],
+        typeProList:[],
+        brandList:[],
+        fireList:[],
+        typeList:[],
+        subList:[],
+        paraList:[],
+        wDa:[],
+        showNo:false,
+        proId:'',
+        checkedQ:false,
+        forms:{
+            dynamicItem:[
+                {
+                    test:'test',
+                    onlyIndex:''
+                }
+            ]
+        },
+      loading: true,
+      // 导出遮罩层
+      exportLoading: false,
+      // 选中数组
+      ids: [],
+      // 非单个禁用
+      single: true,
+      // 非多个禁用
+      multiple: true,
+      // 显示搜索条件
+      showSearch: true,
+      // 总条数
+      total: 0,
+      // 查看解决表格数据
+      look_solveList: [],
+      // 弹出层标题
+      title: "",
+      // 是否显示弹出层
+      open: false,
+      // 查询参数
+      queryParams: {
+          commandId:'1'
+      },
+      // 表单参数
+      form: {},
+      // 表单校验
+      rules: {
+      }
+    };
+  },
+  created() {
+    this.getList();
+  },
+  methods: {
+      //先返回该问题ID，然后回显
+      chakan(){
+          this.showNo = true
+          alert(JSON.stringify(this.queryParams))
+          let form = new FormData();
+          for (var key in this.queryParams){
+              form.append(key,this.queryParams[key]);
+          }
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/totalQuestionTableId',
+              headers:{
+                  "Content-Type": "multipart/form-data"
+              },
+              data:form
+          }).then(res=>{
+              console.log(res.data)
+              this.proId = res.data
+              let form = new FormData();
+              form.append('totalQuestionTableId',this.proId)
+              axios({
+                  method:'post',
+                  url:'http://192.168.1.98/dev-api/sql/SolveProblemController/queryCommandListBytotalQuestionTableId',
+                  headers:{
+                      "Content-Type": "multipart/form-data"
+                  },
+                  data:form
+              }).then(res=>{
+                  console.log(res.data)
+                  res.data.forEach(ee=>{
+                      const wei = ee.replace(/=/g,":")
+                      this.wDa.push(JSON.parse(wei))
+                  })
+                  const lookCha = []
+                  this.wDa.forEach(e=>{
+                      if (e.para == ''){
+                          this.$set(e,'targetType','command')
+                          lookCha.push(e)
+                      }else if (e.para != ''){
+                          this.$set(e,'targetType','compar')
+                          lookCha.push(e)
+                      }
+                  })
+                  lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+                  this.forms.dynamicItem = this.forms.dynamicItem.concat(lookCha)
+              })
+          })
+      },
+      //提交
+      submitUseForm(){
+          const useForm = []
+          const useLess = []
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.test === "test"){
+                  useLess.push(e)
+              }else {
+                  useForm.push(e)
+              }
+          })
+          useForm.forEach(e=>{
+              const thisIndex = useForm.indexOf(e)
+              if(useForm.length != thisIndex+1){
+                  const thisNext = useForm[thisIndex+1]
+                  this.$set(e,'nextIndex',thisNext.onlyIndex)
+              }
+              this.$set(e,'pageIndex',thisIndex+1)
+              this.$set(e,'resultCheckId','1')
+          })
+          const handForm = useForm.map(x => JSON.stringify(x))
+          axios({
+              method:'post',
+              // url:'/dev-api/sql/ConnectController/definitionProblem',
+              url:`http://192.168.1.98/dev-api/sql/command_logic/updateProblemSolvingCommand?totalQuestionTableId=${this.proId}`,
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:handForm
+          }).then(res=>{
+              console.log("成功")
+          })
+      },
+      //点击末尾删除图标
+      deleteItem (item, index) {
+          this.forms.dynamicItem.splice(index,1)
+      },
+      //下拉框输入
+      brandShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.brand = value
+          }
+      },
+      typeShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.type = value
+          }
+      },
+      fireShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.firewareVersion = value
+          }
+      },
+      subShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.subVersion = value
+          }
+      },
+      typeProShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.typeProblem = value
+          }
+      },
+      proSelect(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.problemName = value
+          }
+      },
+      paraShu(){
+          let value = e.target.value
+          if(value){
+              this.queryParams.para = value
+          }
+      },
+      //数字转换
+      numToStr(num){
+          num = num.toString()
+          return num
+      },
+      //新增表单项
+      addItem(type,item){
+          const thisData = Date.now()
+          const item1 = {
+              targetType: type,
+              onlyIndex:thisData,
+          }
+          const thisIndex = this.forms.dynamicItem.indexOf(item)
+          this.forms.dynamicItem.splice(thisIndex+1,0,item1)
+      },
+      //下拉框获取后台参数
+      paraLi(){
+          let form = new FormData();
+          form.append('totalQuestionTableId',this.proId)
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/problem_scan_logic/getParameterNameCollection',
+              headers:{
+                  "Content-Type": "multipart/form-data"
+              },
+              data:form
+          }).then(res=>{
+              this.paraList = res.data
+          })
+      },
+      brandLi(){
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
+          }).then(res=>{
+              this.brandList = res.data
+          })
+      },
+      typeLi(){
+          const typeOne = {}
+          const brandO = this.queryParams.brand
+          this.$set(typeOne,'brand',brandO)
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/typelist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(typeOne)
+          }).then(res=>{
+              this.typeList = res.data
+          })
+      },
+      fireLi(){
+          const fireOne = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          this.$set(fireOne,'brand',brandO)
+          this.$set(fireOne,'type',typeO)
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/firewareVersionlist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(fireOne)
+          }).then(res=>{
+              this.fireList = res.data
+          })
+      },
+      subLi(){
+          const subOne = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          const fireO = this.queryParams.firewareVersion
+          this.$set(subOne,'brand',brandO)
+          this.$set(subOne,'type',typeO)
+          this.$set(subOne,'firewareVersion',fireO)
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/subVersionlist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(subOne)
+          }).then(res=>{
+              this.subList = res.data
+          })
+      },
+      proType(){
+          // alert(JSON.stringify(this.queryParams))
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/typeProblemlist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(this.queryParams)
+          }).then(res=>{
+              this.typeProList = res.data
+          })
+      },
+      //下拉框问题
+      chawenti(){
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/list',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(this.queryParams)
+          }).then(res=>{
+              console.log(res.data.rows)
+              this.proNameList = res.data.rows
+          })
+      },
+      //全选
+      handleCheckAllChange() {
+          const useForm = []
+          const useLess = []
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.test === "test"){
+                  useLess.push(e)
+              }else {
+                  useForm.push(e)
+              }
+          })
+          const checkT = []
+          useForm.forEach(te=>{
+              if (te.checked === true){
+                  checkT.push(te)
+              }
+          })
+          if (checkT.length < useForm.length){
+              useForm.forEach(tte=>{
+                  this.$set(tte,'checked',true)
+              })
+              this.checkedQ = true
+          }else if (checkT.length === useForm.length){
+              useForm.forEach(ttte=>{
+                  this.$set(ttte,'checked',false)
+              })
+              this.checkedQ = false
+          }
+      },
+      shanchu(){
+          const shanLiu = this.forms.dynamicItem.filter(shan=>shan.checked != true)
+          this.forms.dynamicItem = shanLiu
+          this.forms.dynamicItem.forEach(liu=>{
+              this.$set(liu,'checked',false)
+          })
+      },
+    /** 查询查看解决列表 */
+    getList() {
+      this.loading = true;
+      listLook_solve(this.queryParams).then(response => {
+        this.look_solveList = response.rows;
+        this.total = response.total;
+        this.loading = false;
+      });
+    },
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+    // 表单重置
+    reset() {
+      this.form = {
+        command: null,
+        comvalue: null
+      };
+      this.resetForm("form");
+    },
+    /** 搜索按钮操作 */
+    handleQuery() {
+      this.queryParams.pageNum = 1;
+      this.getList();
+    },
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.resetForm("queryForm");
+      this.handleQuery();
+    },
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map(item => item.command)
+      this.single = selection.length!==1
+      this.multiple = !selection.length
+    },
+    /** 新增按钮操作 */
+    handleAdd() {
+      this.reset();
+      this.open = true;
+      this.title = "添加查看解决";
+    },
+    /** 修改按钮操作 */
+    handleUpdate(row) {
+      this.reset();
+      const command = row.command || this.ids
+      getLook_solve(command).then(response => {
+        this.form = response.data;
+        this.open = true;
+        this.title = "修改查看解决";
+      });
+    },
+    /** 提交按钮 */
+    submitForm() {
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          if (this.form.command != null) {
+            updateLook_solve(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功");
+              this.open = false;
+              this.getList();
+            });
+          } else {
+            addLook_solve(this.form).then(response => {
+              this.$modal.msgSuccess("新增成功");
+              this.open = false;
+              this.getList();
+            });
+          }
+        }
+      });
+    },
+    /** 删除按钮操作 */
+    handleDelete(row) {
+      const commands = row.command || this.ids;
+      this.$modal.confirm('是否确认删除查看解决编号为"' + commands + '"的数据项？').then(function() {
+        return delLook_solve(commands);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("删除成功");
+      }).catch(() => {});
+    },
+    /** 导出按钮操作 */
+    handleExport() {
+      const queryParams = this.queryParams;
+      this.$modal.confirm('是否确认导出所有查看解决数据项？').then(() => {
+        this.exportLoading = true;
+        return exportLook_solve(queryParams);
+      }).then(response => {
+        this.$download.name(response.msg);
+        this.exportLoading = false;
+      }).catch(() => {});
+    }
+  }
+};
+</script>

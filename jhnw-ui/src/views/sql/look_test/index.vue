@@ -1,0 +1,938 @@
+<template>
+  <div class="app-container">
+    <el-form :model="queryParams" ref="queryForm" :inline="true">
+      <el-form-item label="设备基本信息:"></el-form-item>
+      <el-form-item label="品牌" prop="brand">
+        <el-select v-model="queryParams.brand" placeholder="品牌"
+                   filterable allow-create @blur="brandShu" @focus.once="brandLi" style="width: 150px">
+          <el-option v-for="(item,index) in brandList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="型号" prop="type">
+        <el-select v-model="queryParams.type" placeholder="型号"
+                   filterable allow-create @blur="typeShu" @focus.once="typeLi" style="width: 150px">
+          <el-option v-for="(item,index) in typeList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="固件版本" prop="firewareVersion">
+        <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
+                   filterable allow-create @blur="fireShu" @focus.once="fireLi" style="width: 150px">
+          <el-option v-for="(item,index) in fireList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="子版本" prop="subversionNumber">
+        <el-select v-model="queryParams.subversionNumber" placeholder="子版本"
+                   filterable allow-create @blur="subShu" @focus.once="subLi" style="width: 150px">
+          <el-option v-for="(item,index) in subList"
+                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
+<!--          <el-option label="所有问题" value="1"></el-option>-->
+<!--          <el-option label="未定义问题" value="0"></el-option>-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+      <el-form-item label="问题概要:"></el-form-item>
+      <el-form-item label="问题类型" prop="typeProblem">
+        <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
+                   filterable allow-create @focus.once="proType" @blur="typeProShu">
+          <el-option v-for="(item,index) in typeProList" :key="index"
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="问题名称">
+        <el-select v-model="queryParams.problemName" placeholder="请选择问题"
+                   filterable allow-create @focus.once="chawenti"
+                   @blur="proSelect" @change="cproId">
+          <el-option v-for="(item,index) in proNameList" :key="index"
+                     :label="item.problemName" :value="item.problemName"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="chaxun" :disabled="!isNull">查看定义</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="xiugai" icon="el-icon-edit" :disabled="isUse">修改</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="gaibian">改变</el-button>
+      </el-form-item>
+    </el-form>
+
+    <hr style='border:1px inset #D2E9FF;'>
+
+    <el-form ref="forms" :inline="true" :model="forms" :disabled="zhidu" v-show="showNo">
+      <el-form-item label="检测方法:"></el-form-item>
+      <el-form-item>
+        <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
+      </el-form-item>
+      <div v-for="(item,index) in forms.dynamicItem" :key="index" :label="index">
+        <el-form-item v-if="index!=0">
+          <el-checkbox v-model="item.checked"></el-checkbox>
+        </el-form-item>
+        <el-form-item v-if="index!=0">{{index}}</el-form-item>
+        <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+        <div v-if="item.targetType === 'command'" :key="index"
+             style="display: inline-block">
+          <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
+            <el-input v-model="item.command"></el-input>
+          </el-form-item>
+          <el-form-item label="命令校验">
+            <el-select v-model="item.resultCheckId" placeholder="校验方式">
+              <el-option label="常规校验" value="1"></el-option>
+              <el-option label="自定义校验" value="0"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'match'" :key="index"
+             style="display: inline-block">
+          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
+            <el-input v-model="item.matchContent"></el-input>
+          </el-form-item>
+          <el-form-item label="成功"></el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'matchfal'"
+             style="display: inline-block;padding-left:308px">
+          <el-form-item label="失败"></el-form-item>
+        </div>
+
+        <div v-else-if="item.targetType === 'wloop'" :key="index"
+             style="display: inline-block">
+          <el-form-item label="循环" :prop="'dynamicItem.' + index + '.cycleStartId'">
+            <el-input v-model="item.cycleStartId" style="width: 150px"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+          </el-form-item>
+        </div>
+
+        <div v-else-if="item.targetType === 'dimmatch'" :key="index" style="display: inline-block">
+          <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
+            <el-input v-model="item.matchContent"></el-input>
+          </el-form-item>
+          <el-form-item label="成功"></el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 308px">
+          <el-form-item label="失败"></el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'lipre'" :key="index" style="display:inline-block">
+          <el-form-item label="按行精确匹配" :prop="'dynamicItem.' + index + '.relative'">
+            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
+          </el-form-item>
+          <el-form-item label="匹配内容">
+            <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
+          </el-form-item>
+          <el-form-item label="成功"></el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 470px">
+          <el-form-item label="失败"></el-form-item>
+        </div>
+
+        <div v-else-if="item.targetType === 'dimpre'" :key="index" style="display: inline-block">
+          <el-form-item label="按行模糊匹配" :prop="'dynamicItem.' + index + '.relative'">
+            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
+          </el-form-item>
+          <el-form-item label="匹配内容">
+            <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
+          </el-form-item>
+          <el-form-item label="成功"></el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 470px">
+          <el-form-item label="失败"></el-form-item>
+        </div>
+
+        <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
+          <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
+            <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
+            <el-input v-model="item.length" style="width: 80px" placeholder="几个词"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-radio-group v-model="item.exhibit">
+              <el-radio label="显示" style="margin-right: 5px"></el-radio>
+              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='显示'"></el-input>
+              <el-radio label="不显示" style="margin-right: 5px"></el-radio>
+              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='不显示'"></el-input>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
+          <el-form-item>
+            <el-input v-model="item.compare" v-show="bizui" @input="bihou"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-select v-model="item.bi" @change="bibi"
+                       v-show="bixiala" placeholder="例如:品牌<5.20.99">
+              <el-option v-for="(item,index) in biList"
+                         :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="成功"></el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
+        </div>
+        <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 237px">
+          <el-form-item label="失败"></el-form-item>
+        </div>
+
+        <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
+          <el-form-item label="有无问题">
+            <el-select v-model="item.tNextId" placeholder="有无问题、完成">
+              <el-option label="有问题" value="有问题"></el-option>
+              <el-option label="无问题" value="无问题"></el-option>
+              <el-option label="完成" value="完成"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+          </el-form-item>
+        </div>
+
+        <el-form-item>
+          <el-dropdown trigger="click">
+            <el-button type="primary"><i class="el-icon-plus"></i></el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                <el-button @click="addItem('command',item)" type="primary">命令</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('match',item)" type="primary">全文精确匹配</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('takeword',item)" type="primary">取词</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('analyse',item)" type="primary">分析比较</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('wloop',item)" type="primary">循环位置</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button @click="addItem('prodes',item)" type="primary">问题名称</el-button>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+      </div>
+
+      <el-form-item>
+        <el-button @click="submitUseForm" type="primary">提交</el-button>
+      </el-form-item>
+
+    </el-form>
+  </div>
+</template>
+
+<script>
+import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_test, exportLook_test } from "@/api/sql/look_test";
+import axios from 'axios'
+import  {MessageBox} from "element-ui";
+import log from "../../monitor/job/log";
+export default {
+  name: "Look_test",
+  data() {
+    return {
+        //新添加
+        checkedQ:false,
+        zhidu:false,
+        showNo:true,
+        checked:false,
+        proNameList:[],
+        typeProList:[],
+        brandList:[],
+        fireList:[],
+        typeList:[],
+        subList:[],
+        proId:'',
+        // isLog:true,
+      // 遮罩层
+      loading: true,
+      // 导出遮罩层
+      exportLoading: false,
+      // 选中数组
+      ids: [],
+      // 非单个禁用
+      single: true,
+      // 非多个禁用
+      multiple: true,
+      // 显示搜索条件
+      showSearch: true,
+      // 总条数
+      total: 0,
+      // 查看问题表格数据
+      look_testList: [],
+      // 弹出层标题
+      title: "",
+      // 是否显示弹出层
+      open: false,
+      // 查询参数
+      queryParams: {
+        problemName:'',
+        brand:'',
+        type:'',
+        firewareVersion:'',
+        subversionNumber:'',
+        commandId:'1'
+      },
+      // 表单参数
+      form: {},
+      isChange:false,
+      forms: {
+        dynamicItem:[
+          {
+             test:'test',
+             onlyIndex:''
+          }
+          ],
+        },
+        fDa:[],
+        newValue:[],
+        oldValue:[
+            {
+                test:'test',
+                onlyIndex:''
+            }
+        ],
+      // 表单校验
+      rules: {
+      }
+    };
+  },
+  created() {
+    this.getList();
+  },
+  watch:{
+      newValue:{
+          handler(val,oldVal){
+              for (let i in this.newValue){
+                  if (val[i] != this.oldValue[i]){
+                      this.isChange = true
+                      break
+                  }else {
+                      this.isChange = false
+                  }
+              }
+          },
+          deep:true,
+          immediate:true
+      }
+  },
+    computed:{
+      isNull(){
+          return this.queryParams.brand != '' && this.queryParams.type != ''
+              && this.queryParams.firewareVersion != '' && this.queryParams.subversionNumber != ''
+              && this.queryParams.problemName != ''
+      },
+      isUse(){
+          if (this.showNo == true){
+              return false
+          }
+          return true
+      }
+    },
+  methods: {
+      a(){
+          alert('sss')
+      },
+      gaibian(){
+          this.newValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+          alert(JSON.stringify(this.newValue))
+          alert(JSON.stringify(this.oldValue))
+          // this.beifen.dynamicItem = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+          if (this.isChange){
+              alert('改变')
+          }else {
+              alert('没变')
+          }
+      },
+      //提交
+      submitUseForm(){
+          const useForm = []
+          const useLess = []
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.test === "test"){
+                  useLess.push(e)
+              }else {
+                  useForm.push(e)
+              }
+          })
+          useForm.forEach(eeee=>{
+              const thisIndex = useForm.indexOf(eeee)
+              if(useForm.length != thisIndex+1){
+                  const thisNext = useForm[thisIndex+1]
+                  this.$set(eeee,'nextIndex',thisNext.onlyIndex)
+              }
+              this.$set(eeee,'pageIndex',thisIndex+1)
+              if (eeee.targetType == 'takeword'){
+                  const takeWordt = useForm.indexOf(eeee)
+                  var quciC = ''
+                  useForm.map((e11)=>{
+                      const takeWl = useForm.indexOf(e11)
+                      if(takeWl == takeWordt-1){
+                          quciC = e11.matchContent
+                      }
+                  })
+                  this.$set(eeee,'matchContent',quciC)
+              }
+          })
+          const handForm = useForm.map(x => JSON.stringify(x))
+          let form1 = new FormData();
+          form1.append('totalQuestionTableId',this.proId)
+          form1.append('jsonPojoList',handForm)
+          this.newValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+          // alert(JSON.stringify(this.newValue))
+          // alert(JSON.stringify(this.oldValue))
+          if (this.isChange){
+              // MessageBox.confirm('确定提交吗？','提示').then(c=>{
+              //     alert('sss')
+              // }).catch(ee=>{
+              //     alert('quxiao')
+              // })
+              alert('改变了'+this.isChange)
+              axios({
+                  method:'post',
+                  // url:'/dev-api/sql/ConnectController/definitionProblem',
+                  url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+                  headers:{
+                      "Content-Type": "application/json"
+                      // "Content-Type": "multipart/form-data"
+                  },
+                  data:handForm
+                  // data:form1
+              }).then(res=>{
+                  console.log("成功")
+              })
+          }else {
+              // alert(this.isChange)
+              MessageBox.confirm('未检测到修改，是否提交？','提示').then(c=>{
+                  axios({
+                      method:'post',
+                      // url:'/dev-api/sql/ConnectController/definitionProblem',
+                      url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+                      headers:{
+                          "Content-Type": "application/json"
+                          // "Content-Type": "multipart/form-data"
+                      },
+                      data:handForm
+                      // data:form1
+                  }).then(res=>{
+                      console.log("成功")
+                  })
+              }).catch(ee=>{
+                  console.log("取消提交")
+              })
+          }
+      },
+      //下拉框输入
+      brandShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.brand = value
+          }
+      },
+      typeShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.type = value
+          }
+      },
+      fireShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.firewareVersion = value
+          }
+      },
+      subShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.subversionNumber = value
+          }
+      },
+      typeProShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.typeProblem = value
+          }
+      },
+      //下拉框获取后台数据
+      brandLi(){
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
+          }).then(res=>{
+              this.brandList = res.data
+          })
+      },
+      typeLi(){
+          const typeOne = {}
+          const brandO = this.queryParams.brand
+          this.$set(typeOne,'brand',brandO)
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/typelist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(typeOne)
+          }).then(res=>{
+              this.typeList = res.data
+          })
+      },
+      fireLi(){
+          const fireOne = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          this.$set(fireOne,'brand',brandO)
+          this.$set(fireOne,'type',typeO)
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/firewareVersionlist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(fireOne)
+          }).then(res=>{
+              this.fireList = res.data
+          })
+      },
+      subLi(){
+          const subOne = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          const fireO = this.queryParams.firewareVersion
+          this.$set(subOne,'brand',brandO)
+          this.$set(subOne,'type',typeO)
+          this.$set(subOne,'firewareVersion',fireO)
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/subVersionlist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(subOne)
+          }).then(res=>{
+              this.subList = res.data
+          })
+      },
+      proType(){
+          alert(JSON.stringify(this.queryParams))
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/typeProblemlist',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(this.queryParams)
+          }).then(res=>{
+              this.typeProList = res.data
+          })
+      },
+      //下拉框问题
+      chawenti(){
+          // alert(JSON.stringify(this.queryParams))
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/list',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(this.queryParams)
+          }).then(res=>{
+              console.log(res.data.rows)
+              this.proNameList = res.data.rows
+          })
+      },
+      proSelect(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.problemName = value
+          }
+      },
+      //获取问题ID
+      cproId(){
+          this.$delete(this.queryParams,'commandId')
+          let form = new FormData();
+          for (var key in this.queryParams){
+              form.append(key,this.queryParams[key]);
+          }
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/total_question_table/totalQuestionTableId',
+              headers:{
+                  "Content-Type": "multipart/form-data"
+              },
+              data:form
+          }).then(res=>{
+              console.log(res.data)
+              this.proId = res.data
+          })
+      },
+      //删除
+      deleteItem (item, index) {
+          this.forms.dynamicItem.splice(index,1)
+      },
+      //删除(多选项选中的)
+      deleteItemp(item,index){
+          this.forms.dynamicItem.splice(index,1)
+          const shaIn = item.onlyIndex
+          const shaAll = this.forms.dynamicItem.findIndex(it=>{
+              if (it.onlyIndex === shaIn){
+                  return true
+              }
+          })
+          this.forms.dynamicItem.splice(shaAll,1)
+      },
+
+      //回显定义问题
+      chaxun(){
+          this.showNo= true
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/DefinitionProblemController/getAnalysisList',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              data:JSON.stringify(this.queryParams)
+          }).then(res=>{
+              console.log(res.data)
+              alert(res.data)
+              res.data.forEach(l=>{
+                  const wei = l.replace(/"=/g,'":')
+                  this.fDa.push(JSON.parse(wei))
+              })
+              alert(JSON.stringify(this.fDa))
+              const huicha = []
+              const quanjf = ''
+              const hangjf = ''
+              const quanmf = ''
+              const hangmf = ''
+              const bif = ''
+              this.fDa.forEach(chae=>{
+                  if (chae.hasOwnProperty('command') == true){
+                      this.$set(chae,'targetType','command')
+                      if (chae.resultCheckId === 0){
+                          this.$set(chae,'resultCheckId','自定义校验')
+                      }else  if (chae.resultCheckId === 1){
+                          this.$set(chae,'resultCheckId','常规校验')
+                      }
+                      huicha.push(chae)
+                  }else if (chae.matched === '全文精确匹配'){
+                      this.$set(chae,'targetType','match')
+                      huicha.push(chae)
+                      this.quanjf = chae.onlyIndex
+                  }else if(chae.onlyIndex === this.quanjf && chae.trueFalse === '失败'){
+                      this.$set(chae,'targetType','matchfal')
+                      huicha.push(chae)
+                  }else if (chae.matched === '按行精确匹配'){
+                      this.$set(chae,'targetType','lipre')
+                      huicha.push(chae)
+                      this.hangjf = chae.onlyIndex
+                  }else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败'){
+                      this.$set(chae,'targetType','liprefal')
+                      huicha.push(chae)
+                  }else if (chae.action === '取词'){
+                      this.$set(chae,'targetType','takeword')
+                      huicha.push(chae)
+                  }else if (chae.matched === '全文模糊匹配'){
+                      this.$set(chae,'targetType','dimmatch')
+                      huicha.push(chae)
+                      this.quanmf = chae.onlyIndex
+                  }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
+                      this.$set(chae,'targetType','dimmatchfal')
+                      huicha.push(chae)
+                  }else if (chae.matched === '按行模糊匹配'){
+                      this.$set(chae,'targetType','dimpre')
+                      huicha.push(chae)
+                      this.hangmf = chae.onlyIndex
+                  }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
+                      this.$set(chae,'targetType','dimprefal')
+                      huicha.push(chae)
+                  }else if (chae.action === '问题'){
+                      this.$set(chae,'targetType','prodes')
+                      huicha.push(chae)
+                  }else if (chae.action === '循环'){
+                      this.$set(chae,'targetType','wloop')
+                      huicha.push(chae)
+                  }else if (chae.action === '比较'){
+                      this.$set(chae,'targetType','analyse')
+                      huicha.push(chae)
+                      this.bif = chae.onlyIndex
+                  }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
+                      this.$set(chae,'targetType','analysefal')
+                      huicha.push(chae)
+                  }
+              })
+              huicha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+              this.forms.dynamicItem = this.forms.dynamicItem.concat(huicha)
+              this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+          })
+      },
+      //编辑
+      xiugai(){
+          MessageBox.confirm('确定去修改吗？','提示').then(c=>{
+              this.zhidu = false
+          }).catch(ee=>{
+              alert('quxiao')
+          })
+
+      },
+      //全选
+      handleCheckAllChange() {
+          const useForm = []
+          const useLess = []
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.test === "test"){
+                  useLess.push(e)
+              }else {
+                  useForm.push(e)
+              }
+          })
+          const checkT = []
+          useForm.forEach(te=>{
+              if (te.checked === true){
+                  checkT.push(te)
+              }
+          })
+          if (checkT.length < useForm.length){
+              useForm.forEach(tte=>{
+                  this.$set(tte,'checked',true)
+              })
+              this.checkedQ = true
+          }else if (checkT.length === useForm.length){
+              useForm.forEach(ttte=>{
+                  this.$set(ttte,'checked',false)
+              })
+              this.checkedQ = false
+          }
+      },
+      //选择删除
+      shanchu(){
+          const shanLiu = this.forms.dynamicItem.filter(shan=>shan.checked != true)
+          this.forms.dynamicItem = shanLiu
+          this.forms.dynamicItem.forEach(liu=>{
+              this.$set(liu,'checked',false)
+          })
+      },
+      chadingyi(){
+          alert()
+      },
+      //添加表单项
+      addItem(type,item){
+          const thisData = Date.now()
+          const item1 = {
+              targetType: type,
+              onlyIndex:thisData,
+              trueFalse:""
+          }
+          this.$set(item1,'checked',false)
+          const thisIndex = this.forms.dynamicItem.indexOf(item)
+          // this.$set(item,'nextIndex',thisData)
+          if(type == 'match'){
+              this.$set(item1,'matched','全文精确匹配')
+              this.$set(item1,'trueFalse','成功')
+              const item2 = {
+                  targetType:'matchfal',
+                  onlyIndex:thisData
+              }
+              this.$set(item2,'trueFalse','失败')
+              this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+          }
+          if(type == 'dimmatch'){
+              this.$set(item1,'matched','全文模糊匹配')
+              this.$set(item1,'trueFalse','成功')
+              const item2 = {
+                  targetType:'dimmatchfal',
+                  onlyIndex:thisData
+              }
+              this.$set(item2,'trueFalse','失败')
+              this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+          }
+          if(type == 'lipre'){
+              this.$set(item1,'matched','按行精确匹配')
+              this.$set(item1,'trueFalse','成功')
+              this.$set(item1,'position',0)
+              const item2 = {
+                  targetType:'liprefal',
+                  onlyIndex:thisData
+              }
+              this.$set(item2,'trueFalse','失败')
+              this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+          }
+          if(type == 'dimpre'){
+              this.$set(item1,'matched','按行模糊匹配')
+              this.$set(item1,'trueFalse','成功')
+              this.$set(item1,'position',0)
+              const item2 = {
+                  targetType:'dimprefal',
+                  onlyIndex:thisData
+              }
+              this.$set(item2,'trueFalse','失败')
+              this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+          }
+          if (type == 'analyse'){
+              this.$set(item1,'action','比较')
+              this.$set(item1,'trueFalse','成功')
+              const item2 = {
+                  targetType:'analysefal',
+                  onlyIndex:thisData
+              }
+              this.$set(item2,'trueFalse','失败')
+              this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+          }
+          if(type == 'takeword'){
+              this.$set(item1,'action','取词')
+          }
+          if (type == 'wloop'){
+              this.$set(item1,'action','循环')
+          }
+          if (type == 'prodes'){
+              this.$set(item1,'action','问题')
+              this.$set(item1,'problemId',this.wentiid)
+          }
+          this.forms.dynamicItem.splice(thisIndex+1,0,item1)
+      },
+      numToStr(num){
+          num = num.toString()
+          return num
+      },
+
+    /** 查询查看问题列表 */
+    getList() {
+      this.loading = true;
+      listLook_test(this.queryParams).then(response => {
+        this.look_testList = response.rows;
+        this.total = response.total;
+        this.loading = false;
+      });
+    },
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+    // 表单重置
+    reset() {
+      this.form = {
+        id: null,
+        brand: null,
+        version: null
+      };
+      this.resetForm("form");
+    },
+    /** 搜索按钮操作 */
+    handleQuery() {
+      this.queryParams.pageNum = 1;
+      this.getList();
+    },
+    /** 重置按钮操作 */
+    resetQuery() {
+      this.resetForm("queryForm");
+      this.handleQuery();
+    },
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map(item => item.id)
+      this.single = selection.length!==1
+      this.multiple = !selection.length
+    },
+    /** 新增按钮操作 */
+    handleAdd() {
+      this.reset();
+      this.open = true;
+      this.title = "添加查看问题";
+    },
+    /** 修改按钮操作 */
+    handleUpdate(row) {
+      this.reset();
+      const id = row.id || this.ids
+      getLook_test(id).then(response => {
+        this.form = response.data;
+        this.open = true;
+        this.title = "修改查看问题";
+      });
+    },
+    /** 提交按钮 */
+    submitForm() {
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          if (this.form.id != null) {
+            updateLook_test(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功");
+              this.open = false;
+              this.getList();
+            });
+          } else {
+            addLook_test(this.form).then(response => {
+              this.$modal.msgSuccess("新增成功");
+              this.open = false;
+              this.getList();
+            });
+          }
+        }
+      });
+    },
+    /** 删除按钮操作 */
+    handleDelete(row) {
+      const ids = row.id || this.ids;
+      this.$modal.confirm('是否确认删除查看问题编号为"' + ids + '"的数据项？').then(function() {
+        return delLook_test(ids);
+      }).then(() => {
+        this.getList();
+        this.$modal.msgSuccess("删除成功");
+      }).catch(() => {});
+    },
+    /** 导出按钮操作 */
+    handleExport() {
+      const queryParams = this.queryParams;
+      this.$modal.confirm('是否确认导出所有查看问题数据项？').then(() => {
+        this.exportLoading = true;
+        return exportLook_test(queryParams);
+      }).then(response => {
+        this.$download.name(response.msg);
+        this.exportLoading = false;
+      }).catch(() => {});
+    }
+  }
+};
+</script>
+
+<style>
+  .el-form-item{
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+</style>

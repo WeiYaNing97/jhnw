@@ -1,19 +1,37 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="会话ID" prop="sessionId">
+      <el-form-item label="前缀逻辑(是否存在:0不存在:1存在)" prop="prefixLogic">
         <el-input
-          v-model="queryParams.sessionId"
-          placeholder="请输入会话ID"
+          v-model="queryParams.prefixLogic"
+          placeholder="请输入前缀逻辑(是否存在:0不存在:1存在)"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="当前通信日志 current_comm_log" prop="command">
+      <el-form-item label="逻辑连接符(and与 or或 not非 空)" prop="logicalConnector">
         <el-input
-          v-model="queryParams.command"
-          placeholder="请输入当前通信日志 current_comm_log"
+          v-model="queryParams.logicalConnector"
+          placeholder="请输入逻辑连接符(and与 or或 not非 空)"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="下一种结果ID" prop="resultsId">
+        <el-input
+          v-model="queryParams.resultsId"
+          placeholder="请输入下一种结果ID"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="Ok命令指针" prop="commandId">
+        <el-input
+          v-model="queryParams.commandId"
+          placeholder="请输入Ok命令指针"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -33,7 +51,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['sql:return_record:add']"
+          v-hasPermi="['sql:return_results:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +62,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['sql:return_record:edit']"
+          v-hasPermi="['sql:return_results:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -55,7 +73,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['sql:return_record:remove']"
+          v-hasPermi="['sql:return_results:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -66,19 +84,20 @@
           size="mini"
           :loading="exportLoading"
           @click="handleExport"
-          v-hasPermi="['sql:return_record:export']"
+          v-hasPermi="['sql:return_results:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="return_recordList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="return_resultsList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="会话ID" align="center" prop="sessionId" />
-      <el-table-column label="当前通信日志 current_comm_log" align="center" prop="command" />
-      <el-table-column label="当前返回日志 " align="center" prop="currentReturnLog" />
-      <el-table-column label="当前标识符current_identifier" align="center" prop="charPrompt" />
+      <el-table-column label="主键(时间戳)" align="center" prop="id" />
+      <el-table-column label="前缀逻辑(是否存在:0不存在:1存在)" align="center" prop="prefixLogic" />
+      <el-table-column label="返回结果" align="center" prop="returnResult" />
+      <el-table-column label="逻辑连接符(and与 or或 not非 空)" align="center" prop="logicalConnector" />
+      <el-table-column label="下一种结果ID" align="center" prop="resultsId" />
+      <el-table-column label="Ok命令指针" align="center" prop="commandId" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -86,14 +105,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['sql:return_record:edit']"
+            v-hasPermi="['sql:return_results:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['sql:return_record:remove']"
+            v-hasPermi="['sql:return_results:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -107,20 +126,23 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改返回信息对话框 -->
+    <!-- 添加或修改返回信息对比逻辑对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="会话ID" prop="sessionId">
-          <el-input v-model="form.sessionId" placeholder="请输入会话ID" />
+        <el-form-item label="前缀逻辑(是否存在:0不存在:1存在)" prop="prefixLogic">
+          <el-input v-model="form.prefixLogic" placeholder="请输入前缀逻辑(是否存在:0不存在:1存在)" />
         </el-form-item>
-        <el-form-item label="当前通信日志 current_comm_log" prop="command">
-          <el-input v-model="form.command" placeholder="请输入当前通信日志 current_comm_log" />
+        <el-form-item label="返回结果" prop="returnResult">
+          <el-input v-model="form.returnResult" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="当前返回日志 " prop="currentReturnLog">
-          <el-input v-model="form.currentReturnLog" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="逻辑连接符(and与 or或 not非 空)" prop="logicalConnector">
+          <el-input v-model="form.logicalConnector" placeholder="请输入逻辑连接符(and与 or或 not非 空)" />
         </el-form-item>
-        <el-form-item label="当前标识符current_identifier" prop="charPrompt">
-          <el-input v-model="form.charPrompt" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="下一种结果ID" prop="resultsId">
+          <el-input v-model="form.resultsId" placeholder="请输入下一种结果ID" />
+        </el-form-item>
+        <el-form-item label="Ok命令指针" prop="commandId">
+          <el-input v-model="form.commandId" placeholder="请输入Ok命令指针" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -132,10 +154,10 @@
 </template>
 
 <script>
-import { listReturn_record, getReturn_record, delReturn_record, addReturn_record, updateReturn_record, exportReturn_record } from "@/api/sql/return_record";
+import { listReturn_results, getReturn_results, delReturn_results, addReturn_results, updateReturn_results, exportReturn_results } from "@/api/sql/return_results";
 
 export default {
-  name: "Return_record",
+  name: "Return_results",
   data() {
     return {
       // 遮罩层
@@ -152,8 +174,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 返回信息表格数据
-      return_recordList: [],
+      // 返回信息对比逻辑表格数据
+      return_resultsList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -162,23 +184,24 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        sessionId: null,
-        command: null,
-        currentReturnLog: null,
-        charPrompt: null,
+        prefixLogic: null,
+        returnResult: null,
+        logicalConnector: null,
+        resultsId: null,
+        commandId: null,
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        sessionId: [
-          { required: true, message: "会话ID不能为空", trigger: "blur" }
+        prefixLogic: [
+          { required: true, message: "前缀逻辑(是否存在:0不存在:1存在)不能为空", trigger: "blur" }
         ],
-        command: [
-          { required: true, message: "当前通信日志 current_comm_log不能为空", trigger: "blur" }
+        returnResult: [
+          { required: true, message: "返回结果不能为空", trigger: "blur" }
         ],
-        currentReturnLog: [
-          { required: true, message: "当前返回日志 不能为空", trigger: "blur" }
+        logicalConnector: [
+          { required: true, message: "逻辑连接符(and与 or或 not非 空)不能为空", trigger: "blur" }
         ],
         createTime: [
           { required: true, message: "创建时间不能为空", trigger: "blur" }
@@ -193,11 +216,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询返回信息列表 */
+    /** 查询返回信息对比逻辑列表 */
     getList() {
       this.loading = true;
-      listReturn_record(this.queryParams).then(response => {
-        this.return_recordList = response.rows;
+      listReturn_results(this.queryParams).then(response => {
+        this.return_resultsList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -211,10 +234,11 @@ export default {
     reset() {
       this.form = {
         id: null,
-        sessionId: null,
-        command: null,
-        currentReturnLog: null,
-        charPrompt: null,
+        prefixLogic: null,
+        returnResult: null,
+        logicalConnector: null,
+        resultsId: null,
+        commandId: null,
         createTime: null,
         updateTime: null
       };
@@ -240,16 +264,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加返回信息";
+      this.title = "添加返回信息对比逻辑";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getReturn_record(id).then(response => {
+      getReturn_results(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改返回信息";
+        this.title = "修改返回信息对比逻辑";
       });
     },
     /** 提交按钮 */
@@ -257,13 +281,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateReturn_record(this.form).then(response => {
+            updateReturn_results(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addReturn_record(this.form).then(response => {
+            addReturn_results(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -275,8 +299,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除返回信息编号为"' + ids + '"的数据项？').then(function() {
-        return delReturn_record(ids);
+      this.$modal.confirm('是否确认删除返回信息对比逻辑编号为"' + ids + '"的数据项？').then(function() {
+        return delReturn_results(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -285,9 +309,9 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$modal.confirm('是否确认导出所有返回信息数据项？').then(() => {
+      this.$modal.confirm('是否确认导出所有返回信息对比逻辑数据项？').then(() => {
         this.exportLoading = true;
-        return exportReturn_record(queryParams);
+        return exportReturn_results(queryParams);
       }).then(response => {
         this.$download.name(response.msg);
         this.exportLoading = false;

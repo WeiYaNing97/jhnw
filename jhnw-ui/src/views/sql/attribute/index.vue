@@ -1,19 +1,19 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="会话ID" prop="sessionId">
+      <el-form-item label="属性值Key" prop="attributeKey">
         <el-input
-          v-model="queryParams.sessionId"
-          placeholder="请输入会话ID"
+          v-model="queryParams.attributeKey"
+          placeholder="请输入属性值Key"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="当前通信日志 current_comm_log" prop="command">
+      <el-form-item label="属性值value" prop="attributeValue">
         <el-input
-          v-model="queryParams.command"
-          placeholder="请输入当前通信日志 current_comm_log"
+          v-model="queryParams.attributeValue"
+          placeholder="请输入属性值value"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -33,7 +33,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['sql:return_record:add']"
+          v-hasPermi="['sql:attribute:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +44,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['sql:return_record:edit']"
+          v-hasPermi="['sql:attribute:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -55,7 +55,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['sql:return_record:remove']"
+          v-hasPermi="['sql:attribute:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -66,19 +66,16 @@
           size="mini"
           :loading="exportLoading"
           @click="handleExport"
-          v-hasPermi="['sql:return_record:export']"
+          v-hasPermi="['sql:attribute:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="return_recordList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="attributeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="会话ID" align="center" prop="sessionId" />
-      <el-table-column label="当前通信日志 current_comm_log" align="center" prop="command" />
-      <el-table-column label="当前返回日志 " align="center" prop="currentReturnLog" />
-      <el-table-column label="当前标识符current_identifier" align="center" prop="charPrompt" />
+      <el-table-column label="属性值Key" align="center" prop="attributeKey" />
+      <el-table-column label="属性值value" align="center" prop="attributeValue" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -86,14 +83,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['sql:return_record:edit']"
+            v-hasPermi="['sql:attribute:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['sql:return_record:remove']"
+            v-hasPermi="['sql:attribute:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -107,20 +104,14 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改返回信息对话框 -->
+    <!-- 添加或修改基本信息属性对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="会话ID" prop="sessionId">
-          <el-input v-model="form.sessionId" placeholder="请输入会话ID" />
+        <el-form-item label="属性值Key" prop="attributeKey">
+          <el-input v-model="form.attributeKey" placeholder="请输入属性值Key" />
         </el-form-item>
-        <el-form-item label="当前通信日志 current_comm_log" prop="command">
-          <el-input v-model="form.command" placeholder="请输入当前通信日志 current_comm_log" />
-        </el-form-item>
-        <el-form-item label="当前返回日志 " prop="currentReturnLog">
-          <el-input v-model="form.currentReturnLog" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="当前标识符current_identifier" prop="charPrompt">
-          <el-input v-model="form.charPrompt" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="属性值value" prop="attributeValue">
+          <el-input v-model="form.attributeValue" placeholder="请输入属性值value" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -132,10 +123,10 @@
 </template>
 
 <script>
-import { listReturn_record, getReturn_record, delReturn_record, addReturn_record, updateReturn_record, exportReturn_record } from "@/api/sql/return_record";
+import { listAttribute, getAttribute, delAttribute, addAttribute, updateAttribute, exportAttribute } from "@/api/sql/attribute";
 
 export default {
-  name: "Return_record",
+  name: "Attribute",
   data() {
     return {
       // 遮罩层
@@ -152,8 +143,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 返回信息表格数据
-      return_recordList: [],
+      // 基本信息属性表格数据
+      attributeList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -162,29 +153,18 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        sessionId: null,
-        command: null,
-        currentReturnLog: null,
-        charPrompt: null,
+        attributeKey: null,
+        attributeValue: null
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        sessionId: [
-          { required: true, message: "会话ID不能为空", trigger: "blur" }
+        attributeKey: [
+          { required: true, message: "属性值Key不能为空", trigger: "blur" }
         ],
-        command: [
-          { required: true, message: "当前通信日志 current_comm_log不能为空", trigger: "blur" }
-        ],
-        currentReturnLog: [
-          { required: true, message: "当前返回日志 不能为空", trigger: "blur" }
-        ],
-        createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
-        ],
-        updateTime: [
-          { required: true, message: "更改时间不能为空", trigger: "blur" }
+        attributeValue: [
+          { required: true, message: "属性值value不能为空", trigger: "blur" }
         ]
       }
     };
@@ -193,11 +173,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询返回信息列表 */
+    /** 查询基本信息属性列表 */
     getList() {
       this.loading = true;
-      listReturn_record(this.queryParams).then(response => {
-        this.return_recordList = response.rows;
+      listAttribute(this.queryParams).then(response => {
+        this.attributeList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -210,13 +190,8 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        id: null,
-        sessionId: null,
-        command: null,
-        currentReturnLog: null,
-        charPrompt: null,
-        createTime: null,
-        updateTime: null
+        attributeKey: null,
+        attributeValue: null
       };
       this.resetForm("form");
     },
@@ -232,7 +207,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
+      this.ids = selection.map(item => item.attributeKey)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -240,30 +215,30 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加返回信息";
+      this.title = "添加基本信息属性";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const id = row.id || this.ids
-      getReturn_record(id).then(response => {
+      const attributeKey = row.attributeKey || this.ids
+      getAttribute(attributeKey).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改返回信息";
+        this.title = "修改基本信息属性";
       });
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.id != null) {
-            updateReturn_record(this.form).then(response => {
+          if (this.form.attributeKey != null) {
+            updateAttribute(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addReturn_record(this.form).then(response => {
+            addAttribute(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -274,9 +249,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除返回信息编号为"' + ids + '"的数据项？').then(function() {
-        return delReturn_record(ids);
+      const attributeKeys = row.attributeKey || this.ids;
+      this.$modal.confirm('是否确认删除基本信息属性编号为"' + attributeKeys + '"的数据项？').then(function() {
+        return delAttribute(attributeKeys);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -285,9 +260,9 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$modal.confirm('是否确认导出所有返回信息数据项？').then(() => {
+      this.$modal.confirm('是否确认导出所有基本信息属性数据项？').then(() => {
         this.exportLoading = true;
-        return exportReturn_record(queryParams);
+        return exportAttribute(queryParams);
       }).then(response => {
         this.$download.name(response.msg);
         this.exportLoading = false;

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.JhTest1Mapper">
+    
+    <resultMap type="JhTest1" id="JhTest1Result">
+        <result property="id"    column="id"    />
+        <result property="ip"    column="ip"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="password"    column="password"    />
+        <result property="end"    column="end"    />
+        <result property="port"    column="port"    />
+    </resultMap>
+
+    <sql id="selectJhTest1Vo">
+        select id, ip, name, type, password, end, port from jh_test1
+    </sql>
+
+    <select id="selectJhTest1List" parameterType="JhTest1" resultMap="JhTest1Result">
+        <include refid="selectJhTest1Vo"/>
+        <where>  
+            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="password != null  and password != ''"> and password = #{password}</if>
+            <if test="end != null  and end != ''"> and end = #{end}</if>
+            <if test="port != null  and port != ''"> and port = #{port}</if>
+        </where>
+    </select>
+    
+    <select id="selectJhTest1ById" parameterType="Long" resultMap="JhTest1Result">
+        <include refid="selectJhTest1Vo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertJhTest1" parameterType="JhTest1" useGeneratedKeys="true" keyProperty="id">
+        insert into jh_test1
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ip != null">ip,</if>
+            <if test="name != null">name,</if>
+            <if test="type != null">type,</if>
+            <if test="password != null">password,</if>
+            <if test="end != null">end,</if>
+            <if test="port != null">port,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ip != null">#{ip},</if>
+            <if test="name != null">#{name},</if>
+            <if test="type != null">#{type},</if>
+            <if test="password != null">#{password},</if>
+            <if test="end != null">#{end},</if>
+            <if test="port != null">#{port},</if>
+         </trim>
+    </insert>
+
+    <update id="updateJhTest1" parameterType="JhTest1">
+        update jh_test1
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="end != null">end = #{end},</if>
+            <if test="port != null">port = #{port},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteJhTest1ById" parameterType="Long">
+        delete from jh_test1 where id = #{id}
+    </delete>
+
+    <delete id="deleteJhTest1ByIds" parameterType="String">
+        delete from jh_test1 where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

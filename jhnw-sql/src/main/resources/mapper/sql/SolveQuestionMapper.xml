@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.SolveQuestionMapper">
+    
+    <resultMap type="SolveQuestion" id="SolveQuestionResult">
+        <result property="commond"    column="commond"    />
+        <result property="comValue"    column="com_value"    />
+    </resultMap>
+
+    <sql id="selectSolveQuestionVo">
+        select commond, com_value from solve_question
+    </sql>
+
+    <select id="selectSolveQuestionList" parameterType="SolveQuestion" resultMap="SolveQuestionResult">
+        <include refid="selectSolveQuestionVo"/>
+        <where>  
+            <if test="commond != null  and commond != ''"> and commond = #{commond}</if>
+            <if test="comValue != null  and comValue != ''"> and com_value = #{comValue}</if>
+        </where>
+    </select>
+    
+    <select id="selectSolveQuestionByCommond" parameterType="String" resultMap="SolveQuestionResult">
+        <include refid="selectSolveQuestionVo"/>
+        where commond = #{commond}
+    </select>
+        
+    <insert id="insertSolveQuestion" parameterType="SolveQuestion">
+        insert into solve_question
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="commond != null and commond != ''">commond,</if>
+            <if test="comValue != null">com_value,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="commond != null and commond != ''">#{commond},</if>
+            <if test="comValue != null">#{comValue},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSolveQuestion" parameterType="SolveQuestion">
+        update solve_question
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="comValue != null">com_value = #{comValue},</if>
+        </trim>
+        where commond = #{commond}
+    </update>
+
+    <delete id="deleteSolveQuestionByCommond" parameterType="String">
+        delete from solve_question where commond = #{commond}
+    </delete>
+
+    <delete id="deleteSolveQuestionByCommonds" parameterType="String">
+        delete from solve_question where commond in 
+        <foreach item="commond" collection="array" open="(" separator="," close=")">
+            #{commond}
+        </foreach>
+    </delete>
+</mapper>

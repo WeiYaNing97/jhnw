@@ -46,6 +46,15 @@ const user = {
       })
     },
 
+    // //连接ip
+    // con(data) {
+    //   return request({
+    //     url:'/ConnectController/requestConnect',
+    //     method:'post',
+    //     params
+    //   })
+    // },
+
     // 获取用户信息
     GetInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
@@ -66,7 +75,7 @@ const user = {
         })
       })
     },
-    
+
     // 退出系统
     LogOut({ commit, state }) {
       return new Promise((resolve, reject) => {

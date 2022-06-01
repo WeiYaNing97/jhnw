@@ -336,6 +336,7 @@ export default {
       this.loading = true;
       listMenu(this.queryParams).then(response => {
         this.menuList = this.handleTree(response.data, "menuId");
+        console.log(this.menuList);
         this.loading = false;
       });
     },
@@ -417,6 +418,8 @@ export default {
         this.form = response.data;
         this.open = true;
         this.title = "修改菜单";
+        console.log(row.menuId)
+          console.log(response.data)
       });
     },
     /** 提交按钮 */

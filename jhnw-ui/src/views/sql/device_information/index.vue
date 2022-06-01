@@ -1,19 +1,37 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="会话ID" prop="sessionId">
+      <el-form-item label="ip地址" prop="ip">
         <el-input
-          v-model="queryParams.sessionId"
-          placeholder="请输入会话ID"
+          v-model="queryParams.ip"
+          placeholder="请输入ip地址"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="当前通信日志 current_comm_log" prop="command">
+      <el-form-item label="设备品牌" prop="deviceBrand">
         <el-input
-          v-model="queryParams.command"
-          placeholder="请输入当前通信日志 current_comm_log"
+          v-model="queryParams.deviceBrand"
+          placeholder="请输入设备品牌"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="设备型号" prop="deviceModel">
+        <el-input
+          v-model="queryParams.deviceModel"
+          placeholder="请输入设备型号"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="内部固件版本" prop="firmwareVersion">
+        <el-input
+          v-model="queryParams.firmwareVersion"
+          placeholder="请输入内部固件版本"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -33,7 +51,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['sql:return_record:add']"
+          v-hasPermi="['sql:device_information:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +62,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['sql:return_record:edit']"
+          v-hasPermi="['sql:device_information:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -55,7 +73,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['sql:return_record:remove']"
+          v-hasPermi="['sql:device_information:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -66,19 +84,19 @@
           size="mini"
           :loading="exportLoading"
           @click="handleExport"
-          v-hasPermi="['sql:return_record:export']"
+          v-hasPermi="['sql:device_information:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="return_recordList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="device_informationList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="会话ID" align="center" prop="sessionId" />
-      <el-table-column label="当前通信日志 current_comm_log" align="center" prop="command" />
-      <el-table-column label="当前返回日志 " align="center" prop="currentReturnLog" />
-      <el-table-column label="当前标识符current_identifier" align="center" prop="charPrompt" />
+      <el-table-column label="ip地址" align="center" prop="ip" />
+      <el-table-column label="设备品牌" align="center" prop="deviceBrand" />
+      <el-table-column label="设备型号" align="center" prop="deviceModel" />
+      <el-table-column label="内部固件版本" align="center" prop="firmwareVersion" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -86,14 +104,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['sql:return_record:edit']"
+            v-hasPermi="['sql:device_information:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['sql:return_record:remove']"
+            v-hasPermi="['sql:device_information:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -107,20 +125,20 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改返回信息对话框 -->
+    <!-- 添加或修改设备基本信息对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="会话ID" prop="sessionId">
-          <el-input v-model="form.sessionId" placeholder="请输入会话ID" />
+        <el-form-item label="ip地址" prop="ip">
+          <el-input v-model="form.ip" placeholder="请输入ip地址" />
         </el-form-item>
-        <el-form-item label="当前通信日志 current_comm_log" prop="command">
-          <el-input v-model="form.command" placeholder="请输入当前通信日志 current_comm_log" />
+        <el-form-item label="设备品牌" prop="deviceBrand">
+          <el-input v-model="form.deviceBrand" placeholder="请输入设备品牌" />
         </el-form-item>
-        <el-form-item label="当前返回日志 " prop="currentReturnLog">
-          <el-input v-model="form.currentReturnLog" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="设备型号" prop="deviceModel">
+          <el-input v-model="form.deviceModel" placeholder="请输入设备型号" />
         </el-form-item>
-        <el-form-item label="当前标识符current_identifier" prop="charPrompt">
-          <el-input v-model="form.charPrompt" type="textarea" placeholder="请输入内容" />
+        <el-form-item label="内部固件版本" prop="firmwareVersion">
+          <el-input v-model="form.firmwareVersion" placeholder="请输入内部固件版本" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -132,10 +150,10 @@
 </template>
 
 <script>
-import { listReturn_record, getReturn_record, delReturn_record, addReturn_record, updateReturn_record, exportReturn_record } from "@/api/sql/return_record";
+import { listDevice_information, getDevice_information, delDevice_information, addDevice_information, updateDevice_information, exportDevice_information } from "@/api/sql/device_information";
 
 export default {
-  name: "Return_record",
+  name: "Device_information",
   data() {
     return {
       // 遮罩层
@@ -152,8 +170,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 返回信息表格数据
-      return_recordList: [],
+      // 设备基本信息表格数据
+      device_informationList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -162,24 +180,15 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        sessionId: null,
-        command: null,
-        currentReturnLog: null,
-        charPrompt: null,
+        ip: null,
+        deviceBrand: null,
+        deviceModel: null,
+        firmwareVersion: null,
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        sessionId: [
-          { required: true, message: "会话ID不能为空", trigger: "blur" }
-        ],
-        command: [
-          { required: true, message: "当前通信日志 current_comm_log不能为空", trigger: "blur" }
-        ],
-        currentReturnLog: [
-          { required: true, message: "当前返回日志 不能为空", trigger: "blur" }
-        ],
         createTime: [
           { required: true, message: "创建时间不能为空", trigger: "blur" }
         ],
@@ -193,11 +202,11 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询返回信息列表 */
+    /** 查询设备基本信息列表 */
     getList() {
       this.loading = true;
-      listReturn_record(this.queryParams).then(response => {
-        this.return_recordList = response.rows;
+      listDevice_information(this.queryParams).then(response => {
+        this.device_informationList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -211,10 +220,10 @@ export default {
     reset() {
       this.form = {
         id: null,
-        sessionId: null,
-        command: null,
-        currentReturnLog: null,
-        charPrompt: null,
+        ip: null,
+        deviceBrand: null,
+        deviceModel: null,
+        firmwareVersion: null,
         createTime: null,
         updateTime: null
       };
@@ -240,16 +249,16 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加返回信息";
+      this.title = "添加设备基本信息";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getReturn_record(id).then(response => {
+      getDevice_information(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改返回信息";
+        this.title = "修改设备基本信息";
       });
     },
     /** 提交按钮 */
@@ -257,13 +266,13 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
-            updateReturn_record(this.form).then(response => {
+            updateDevice_information(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
             });
           } else {
-            addReturn_record(this.form).then(response => {
+            addDevice_information(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -275,8 +284,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除返回信息编号为"' + ids + '"的数据项？').then(function() {
-        return delReturn_record(ids);
+      this.$modal.confirm('是否确认删除设备基本信息编号为"' + ids + '"的数据项？').then(function() {
+        return delDevice_information(ids);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
@@ -285,9 +294,9 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$modal.confirm('是否确认导出所有返回信息数据项？').then(() => {
+      this.$modal.confirm('是否确认导出所有设备基本信息数据项？').then(() => {
         this.exportLoading = true;
-        return exportReturn_record(queryParams);
+        return exportDevice_information(queryParams);
       }).then(response => {
         this.$download.name(response.msg);
         this.exportLoading = false;
