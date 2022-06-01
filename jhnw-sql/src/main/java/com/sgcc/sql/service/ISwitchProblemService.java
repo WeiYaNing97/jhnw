@@ -63,5 +63,5 @@ public interface ISwitchProblemService
 
     List<SwitchProblemVO> selectUnresolvedProblemInformationByData(String currentTime,String userName);
 
-    SwitchProblem selectSwitchProblemByValueId(String valueId);
+    SwitchProblem selectSwitchProblemByValueId(Long valueId);
 }

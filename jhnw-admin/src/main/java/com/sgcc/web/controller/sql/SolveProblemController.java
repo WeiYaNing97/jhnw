@@ -158,32 +158,36 @@ public class SolveProblemController {
 
                 //将 命令ID 和 参数ID 分离开来
                 String[] commandValuesplit = command_Value.split(":");
+
                 //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
                 AjaxResult ajaxResult = queryParameterSet(commandValuesplit[0], Long.valueOf(commandValuesplit[1]).longValue());
                 Object[] commandvalue =  (Object[])ajaxResult.get("data");
+
                 //命令集合
                 List<String> commandList = (List<String>) commandvalue[0];
+
                 //参数集合
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
+
                 //解决问题
                 String solveProblem = solveProblem(informationList, commandList, valueInformationVOList);
                 if (solveProblem.equals("成功")){
-                    SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(valueId);
+                    SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(Integer.valueOf(valueId).longValue());
                     switchProblem.setResolved("是");
                     int i = switchProblemService.updateSwitchProblem(switchProblem);
                     if (i<=0){
-                        return AjaxResult.error("失败");
+                        return AjaxResult.error("修复失败");
                     }
                 }
 
                 //命令清空 方便下一轮命令判空
                 comId = null;
+
                 //参数清空  方便下一轮参数判空
                 valueId = null;
-
-                return AjaxResult.error("失败");
             }
+            return AjaxResult.success("修复成功");
         }
         return AjaxResult.error("连接交换机失败");
     }

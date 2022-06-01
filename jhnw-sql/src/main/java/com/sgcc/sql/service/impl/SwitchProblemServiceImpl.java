@@ -101,7 +101,7 @@ public class SwitchProblemServiceImpl implements ISwitchProblemService
     }
 
     @Override
-    public SwitchProblem selectSwitchProblemByValueId(String valueId) {
+    public SwitchProblem selectSwitchProblemByValueId(Long valueId) {
         return switchProblemMapper.selectSwitchProblemByValueId(valueId);
     }
 }
