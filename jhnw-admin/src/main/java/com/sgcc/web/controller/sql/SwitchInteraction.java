@@ -43,11 +43,11 @@ public class SwitchInteraction {
     @PostMapping("logInToGetBasicInformation")
     public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port) {
         Map<String,String> user_String = new HashMap<>();
-        user_String.put("mode",mode);
-        user_String.put("ip",ip);
-        user_String.put("name",name);
-        user_String.put("password",password);
-        user_String.put("port",port+"");
+        user_String.put("mode",mode);//登录方式
+        user_String.put("ip",ip);//ip地址
+        user_String.put("name",name);//用户名
+        user_String.put("password",password);//用户密码
+        user_String.put("port",port+"");//登录端口号
 
         //设备型号
         user_String.put("deviceModel",null);
@@ -86,6 +86,7 @@ public class SwitchInteraction {
 
             //获取基本信息
             AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String, connectMethod, telnetSwitchMethod);
+            //获取 匹配的 交换机可执行的 命令ID  并 循环执行
             AjaxResult ajaxResult = scanProblem(
                     user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                     connectMethod, telnetSwitchMethod);
@@ -94,6 +95,13 @@ public class SwitchInteraction {
         return AjaxResult.error("连接交换机失败！");
     }
 
+    /**
+    * @method: 获取 匹配的 交换机可执行的 命令ID  并 循环执行
+    * @Param: [user_String, connectMethod, telnetSwitchMethod]
+    * @return: com.sgcc.common.core.domain.AjaxResult
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @PostMapping("scanProblem")
     public AjaxResult scanProblem(Map<String,String> user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                                   SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod){
@@ -111,11 +119,15 @@ public class SwitchInteraction {
         //获取可执行命令ID
         AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
         List<TotalQuestionTable> commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
+
         String command_return_information = null;
         Long analysis_id = null;
         for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
             user_String.put("notFinished",totalQuestionTable.getNotFinished());
+            //根据命令ID获取具体命令，执行
+            System.err.println("连接iP:"+user_String.get("ip"));
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+
             String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
                     executeScanCommandByCommandId_object);
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
@@ -182,7 +194,6 @@ public class SwitchInteraction {
      * @method: 获取交换机基本信息
      * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接]
      * @E-mail: WeiYaNing97@163.com
-     *
      * 通过null 查询初所有会的交换机基本信息的命令字符串集合
      * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
      * 通过返回提取的信息，给基本属性赋值

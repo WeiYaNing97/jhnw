@@ -3,6 +3,9 @@ package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.domain.AjaxResult;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com
@@ -12,25 +15,41 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyThread extends Thread {
 
-    public String[] informationArray;
-
-    public MyThread(String[] informationArray){
-        this.informationArray = informationArray;
-    }
+    static String mode = null;
+    static String ip = null;
+    static String name = null;
+    static String password = null;
+    static int port;
 
     @Override
     public void run() {
-        String mode =informationArray[0];
-        String ip = informationArray[1];
-        String name =informationArray[2];
-        String password =informationArray[3];
-        int port =  Integer.valueOf(informationArray[4]).intValue();
         SwitchInteraction switchInteraction = new SwitchInteraction();
         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port);
+        //System.err.println(MyThread.mode + MyThread.ip + MyThread.name + MyThread.password + MyThread.port);
         try {
             Thread.sleep(10);                 //1000 milliseconds is one second.
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    public static void main(String[] args) {
+        List<Object[]> objects = new ArrayList<>();
+        //String mode, String ip, String name, String password, int port
+        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22};
+
+        objects.add(objects1);
+        objects.add(objects2);
+
+        for (Object[] objects3:objects){
+             mode = (String)objects3[0];
+             ip = (String)objects3[1];
+             name = (String)objects3[2];
+             password = (String)objects3[3];
+             port = (int) objects3[4];
+            Thread thread = new MyThread();
+            thread.start();
         }
     }
 }
