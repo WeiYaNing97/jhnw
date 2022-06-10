@@ -2,6 +2,7 @@ package com.sgcc.sql.mapper;
 
 import java.util.List;
 import com.sgcc.sql.domain.TotalQuestionTable;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 问题及命令Mapper接口
@@ -49,7 +50,7 @@ public interface TotalQuestionTableMapper
      * @param id 问题及命令主键
      * @return 结果
      */
-    public int deleteTotalQuestionTableById(Long id);
+    public int deleteTotalQuestionTableById(@Param("id") Long id);
 
     /**
      * 批量删除问题及命令

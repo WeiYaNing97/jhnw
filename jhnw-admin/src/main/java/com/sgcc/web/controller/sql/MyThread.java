@@ -1,7 +1,11 @@
 package com.sgcc.web.controller.sql;
 
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.sql.service.IBasicInformationService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,23 +37,4 @@ public class MyThread extends Thread {
         }
     }
 
-    public static void main(String[] args) {
-        List<Object[]> objects = new ArrayList<>();
-        //String mode, String ip, String name, String password, int port
-        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22};
-
-        objects.add(objects1);
-        objects.add(objects2);
-
-        for (Object[] objects3:objects){
-             mode = (String)objects3[0];
-             ip = (String)objects3[1];
-             name = (String)objects3[2];
-             password = (String)objects3[3];
-             port = (int) objects3[4];
-            Thread thread = new MyThread();
-            thread.start();
-        }
-    }
 }

@@ -4,6 +4,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.entity.GlobalVariable;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -38,6 +39,31 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
+    @RequestMapping("testThread")
+    public void testThread() {
+        List<Object[]> objects = new ArrayList<>();
+        //String mode, String ip, String name, String password, int port
+        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects2 = {"ssh","192.168.1.1","admin","admin",22};
+
+        objects.add(objects1);
+        objects.add(objects2);
+
+        for (Object[] objects3:objects){
+            MyThread.mode = (String)objects3[0];
+            MyThread.ip = (String)objects3[1];
+            MyThread.name = (String)objects3[2];
+            MyThread.password = (String)objects3[3];
+            MyThread.port = (int) objects3[4];
+            try {
+                Thread.sleep(1000*3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Thread thread = new MyThread();
+            thread.start();
+        }
+    }
 
     //总方法
     @PostMapping("logInToGetBasicInformation")
@@ -68,8 +94,12 @@ public class SwitchInteraction {
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
         AjaxResult requestConnect_ajaxResult = requestConnect(user_String,connectMethod, telnetSwitchMethod);
+        if(requestConnect_ajaxResult.get("data").equals("交换机连接失败")){
+            return AjaxResult.error("connect0001","交换机连接失败");
+        }
         //解析返回参数
         List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
+        System.err.println("\r\nip:"+objectList.get(2));
         //是否连接成功
         boolean requestConnect_boolean = objectList.get(0).toString().equals("true");
         //如果连接成功
@@ -126,7 +156,8 @@ public class SwitchInteraction {
             user_String.put("notFinished",totalQuestionTable.getNotFinished());
             //根据命令ID获取具体命令，执行
             System.err.println("连接iP:"+user_String.get("ip"));
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"),
+                    user_String.get("mode"), connectMethod, telnetSwitchMethod);
 
             String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
                     executeScanCommandByCommandId_object);
@@ -172,6 +203,7 @@ public class SwitchInteraction {
         }
 
         List<Object> objectList = new ArrayList<>();  //设定返回值 list集合
+
         objectList.add(is_the_connection_successful); //元素0 ：是否连接成功
         objectList.add(way);                          //元素1 ：连接方法
         objectList.add(hostIp);                       //元素2 ：交换机ID
@@ -184,9 +216,13 @@ public class SwitchInteraction {
         /* 返回信息 ： [是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
                 connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）]*/
         if(is_the_connection_successful){
+
             return AjaxResult.success(objectList);
+
         }else {
-            return AjaxResult.error("connect0001","交换机连接失败！");
+
+            return AjaxResult.error("connect0001","交换机连接失败");
+
         }
     }
 
@@ -204,6 +240,8 @@ public class SwitchInteraction {
         //查询 获取基本信息命令表  中的全部命令
         //BasicInformation pojo_NULL = new BasicInformation(); //null
         //根据 null 查询 得到表中所有数据
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+
         List<BasicInformation> basicInformationList = basicInformationService.selectBasicInformationList(null);
         //遍历命令表命令 执行命令
         for (BasicInformation basicInformation:basicInformationList){
@@ -269,6 +307,9 @@ public class SwitchInteraction {
 
                 WebSocketService.sendMessage("badao",current_identifier);
                 //存储交换机返回数据 插入数据库
+
+                returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
+
                 int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
                 //当前命令字符串 返回命令总和("\r\n"分隔)
                 return_sum += commandString+"\r\n\r\n";
@@ -401,6 +442,9 @@ public class SwitchInteraction {
         totalQuestionTable.setType(deviceModel);
         totalQuestionTable.setFirewareVersion(firmwareVersion);
         totalQuestionTable.setSubVersion(subversionNumber);
+
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTables!=null){
             return AjaxResult.success(totalQuestionTables);
@@ -514,6 +558,7 @@ public class SwitchInteraction {
 
         System.err.print("\r\n命令ID"+commandId+"\r\n");
         //命令ID获取具体命令
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         //具体命令
         String command = commandLogic.getCommand();
@@ -609,6 +654,7 @@ public class SwitchInteraction {
         //获得第一条分析ID
         //因为前三个是 1位为操作类型（取词w、分析a、匹配m） 2,3位为品牌编码；后5位为随机生成的序号；
         //根据第一条分析ID 查询分析信息
+        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
         //根据ID去分析
         String problemScanLogic_string = selectProblemScanLogicById( user_String,connectMethod, telnetSwitchMethod,
@@ -648,8 +694,9 @@ public class SwitchInteraction {
             id = currentID;
         }
 
-        System.err.print("\r\n走的分析ID:"+id+"\r\n");
+        System.err.print("\r\n分析ID:"+id+"\r\n");
 
+        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         //根据ID查询  分析数据
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
 
@@ -936,6 +983,7 @@ public class SwitchInteraction {
                     --number;
                     valueInformation.setDynamicVname(parameterStringsplit[number]);//动态信息名称
                     valueInformation.setOutId(outId);
+                    valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);
                     valueInformationService.insertValueInformation(valueInformation);
                     outId = valueInformation.getId();
                 }
@@ -955,6 +1003,7 @@ public class SwitchInteraction {
 
         switchProblem.setUserName(userName);//参数索引
         switchProblem.setPhonenumber(phonenumber); //是否有问题
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         switchProblemService.insertSwitchProblem(switchProblem);
     };
 

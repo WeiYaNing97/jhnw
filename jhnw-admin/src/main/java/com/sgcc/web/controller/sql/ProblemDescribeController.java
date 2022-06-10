@@ -68,6 +68,16 @@ public class ProblemDescribeController extends BaseController
     }
 
     /**
+     * 获取问题描述详细信息
+     */
+    @RequestMapping("/selectProblemDescribe")
+    public ProblemDescribe selectProblemDescribe(Long totalQuestionTableId)
+    {
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        return problemDescribeService.selectProblemDescribeById(totalQuestionTable.getProblemDescribeId());
+    }
+
+    /**
      * 新增问题描述
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:add')")
@@ -82,18 +92,28 @@ public class ProblemDescribeController extends BaseController
      * 新增问题描述
      */
     @RequestMapping("/insertProblemDescribe")
-    public AjaxResult insertProblemDescribe(@RequestParam Long totalQuestionTableId,@RequestBody ProblemDescribe problemDescribe)
+    public AjaxResult insertProblemDescribe(@RequestParam Long totalQuestionTableId,@RequestBody String problemDescribe)
     {
-        int i = problemDescribeService.insertProblemDescribe(problemDescribe);
-        if (i>0){
-            TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-            totalQuestionTable.setProblemDescribeId(problemDescribe.getId());
-            i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        ProblemDescribe pojo = new ProblemDescribe();
+        pojo.setProblemDescribe(problemDescribe);
+
+        if (!(totalQuestionTable.getProblemDescribeId().equals(0l))){
+            pojo.setId(totalQuestionTable.getProblemDescribeId());
+            int i = problemDescribeService.updateProblemDescribe(pojo);
             if (i>0){
                 return AjaxResult.success("成功！");
             }
         }
 
+        int i = problemDescribeService.insertProblemDescribe(pojo);
+        if (i>0){
+            totalQuestionTable.setProblemDescribeId(pojo.getId());
+            i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+            if (i>0){
+                return AjaxResult.success("成功！");
+            }
+        }
         return AjaxResult.error("失败！");
     }
     /**
