@@ -48,21 +48,7 @@ public class SwitchInteraction {
 
         objects.add(objects1);
         objects.add(objects2);
-
-        for (Object[] objects3:objects){
-            MyThread.mode = (String)objects3[0];
-            MyThread.ip = (String)objects3[1];
-            MyThread.name = (String)objects3[2];
-            MyThread.password = (String)objects3[3];
-            MyThread.port = (int) objects3[4];
-            try {
-                Thread.sleep(1000*3);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            Thread thread = new MyThread();
-            thread.start();
-        }
+        MyThread.testThread(objects);
     }
 
     //总方法

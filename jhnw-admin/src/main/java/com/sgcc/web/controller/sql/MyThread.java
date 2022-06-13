@@ -37,4 +37,23 @@ public class MyThread extends Thread {
         }
     }
 
+    public static void testThread(List<Object[]> objects) {
+        for (Object[] objects3:objects){
+            mode = (String)objects3[0];
+            ip = (String)objects3[1];
+            name = (String)objects3[2];
+            password = (String)objects3[3];
+            port = (int) objects3[4];
+            Thread thread = new MyThread();
+
+            thread.start();
+
+            try {
+                Thread.sleep(1000*3);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
