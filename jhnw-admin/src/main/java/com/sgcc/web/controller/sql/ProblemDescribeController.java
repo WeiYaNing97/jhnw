@@ -68,16 +68,6 @@ public class ProblemDescribeController extends BaseController
     }
 
     /**
-     * 获取问题描述详细信息
-     */
-    @RequestMapping("/selectProblemDescribe")
-    public ProblemDescribe selectProblemDescribe(Long totalQuestionTableId)
-    {
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        return problemDescribeService.selectProblemDescribeById(totalQuestionTable.getProblemDescribeId());
-    }
-
-    /**
      * 新增问题描述
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:add')")
@@ -88,34 +78,6 @@ public class ProblemDescribeController extends BaseController
         return toAjax(problemDescribeService.insertProblemDescribe(problemDescribe));
     }
 
-    /**
-     * 新增问题描述
-     */
-    @RequestMapping("/insertProblemDescribe")
-    public AjaxResult insertProblemDescribe(@RequestParam Long totalQuestionTableId,@RequestBody String problemDescribe)
-    {
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        ProblemDescribe pojo = new ProblemDescribe();
-        pojo.setProblemDescribe(problemDescribe);
-
-        if (!(totalQuestionTable.getProblemDescribeId().equals(0l))){
-            pojo.setId(totalQuestionTable.getProblemDescribeId());
-            int i = problemDescribeService.updateProblemDescribe(pojo);
-            if (i>0){
-                return AjaxResult.success("成功！");
-            }
-        }
-
-        int i = problemDescribeService.insertProblemDescribe(pojo);
-        if (i>0){
-            totalQuestionTable.setProblemDescribeId(pojo.getId());
-            i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-            if (i>0){
-                return AjaxResult.success("成功！");
-            }
-        }
-        return AjaxResult.error("失败！");
-    }
     /**
      * 修改问题描述
      */
@@ -136,5 +98,73 @@ public class ProblemDescribeController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(problemDescribeService.deleteProblemDescribeByIds(ids));
+    }
+
+
+    /*=====================================================================================================================
+    =====================================================================================================================
+    =====================================================================================================================*/
+
+    /*可新增 可修改*/
+    /**
+     * 新增问题描述
+     */
+    @RequestMapping("/insertProblemDescribe")
+    public AjaxResult insertProblemDescribe(@RequestParam Long totalQuestionTableId,@RequestBody String problemDescribe)
+    {
+        //根据问题ID 查询问题表问题信息
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        //创建新的 问题描述表实体类
+        ProblemDescribe pojo = new ProblemDescribe();
+        //问题描述放入实体类
+        pojo.setProblemDescribe(problemDescribe);
+
+        //如果问题表 问题描述ID 不为0时 说明有问题描述，修改，只修改问题描述表描述字段
+        if (!(totalQuestionTable.getProblemDescribeId().equals(0l))){
+            pojo.setId(totalQuestionTable.getProblemDescribeId());
+            int i = problemDescribeService.updateProblemDescribe(pojo);
+            if (i>0){
+                return AjaxResult.success("成功！");
+            }
+        }
+        //如果问题表 问题描述ID 为0时 则插入问题描述信息
+        int i = problemDescribeService.insertProblemDescribe(pojo);
+        //插入成功后 ID添加到问题表 问题描述ID字段
+        if (i>0){
+            totalQuestionTable.setProblemDescribeId(pojo.getId());
+            i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+            if (i>0){
+                return AjaxResult.success("成功！");
+            }
+        }
+        return AjaxResult.error("失败！");
+    }
+
+    /**
+     * 获取问题描述详细信息
+     */
+    @RequestMapping("/selectProblemDescribe")
+    public ProblemDescribe selectProblemDescribe(Long totalQuestionTableId)
+    {
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        return problemDescribeService.selectProblemDescribeById(totalQuestionTable.getProblemDescribeId());
+    }
+
+    /**
+     *
+     * 删除问题描述
+     */
+    @RequestMapping("/deleteProblemDescribe")
+    public AjaxResult deleteProblemDescribe(Long id)
+    {
+        int deleteProblemDescribeById = problemDescribeService.deleteProblemDescribeById(id);
+        if (deleteProblemDescribeById>0){
+            //根据 问题描述表ID  查询 问题表实体类
+            TotalQuestionTable totalQuestionTable =  totalQuestionTableService.selectPojoByproblemDescribeId(id);
+            totalQuestionTable.setProblemDescribeId(0l);
+            int updateTotalQuestionTable = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+            return toAjax(updateTotalQuestionTable);
+        }
+        return toAjax(deleteProblemDescribeById);
     }
 }

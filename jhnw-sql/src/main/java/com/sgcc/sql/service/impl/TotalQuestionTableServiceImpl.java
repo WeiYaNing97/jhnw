@@ -151,4 +151,16 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
     }
 
+    /**
+    * @method: 根据 问题描述表ID  查询 问题表实体类
+    * @Param: [id]
+    * @return: com.sgcc.sql.domain.TotalQuestionTable
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @Override
+    public TotalQuestionTable selectPojoByproblemDescribeId(Long id) {
+        return totalQuestionTableMapper.selectPojoByproblemDescribeId(id);
+    }
+
 }

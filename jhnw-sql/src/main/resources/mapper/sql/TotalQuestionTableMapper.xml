@@ -119,6 +119,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
         </where>
     </select>
+
+    <select id="selectPojoByproblemDescribeId" parameterType="Long" resultMap="TotalQuestionTableResult">
+        select DISTINCT(sub_version) from total_question_table
+        <where>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+        </where>
+    </select>
     
     <select id="selectTotalQuestionTableById" parameterType="Long" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>

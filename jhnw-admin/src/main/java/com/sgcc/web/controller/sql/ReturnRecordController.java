@@ -98,7 +98,7 @@ public class ReturnRecordController extends BaseController
     /**
      * 查询返回信息列表
      */
-    @GetMapping("/getReturnRecordList")
+    /*@GetMapping("/getReturnRecordList")
     public AjaxResult getReturnRecordList()
     {
         String currentTime = Utils.getCurrentTime();
@@ -114,7 +114,8 @@ public class ReturnRecordController extends BaseController
             stringBuilder.append("\r\n");
             stringBuilder.append(returnRecord.getCurrentIdentifier());
         }
+
         System.err.print("\r\n"+stringBuilder+"\r\n");
         return AjaxResult.success(stringBuilder);
-    }
+    }*/
 }

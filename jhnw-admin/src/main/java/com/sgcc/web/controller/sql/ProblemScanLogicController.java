@@ -42,7 +42,7 @@ public class ProblemScanLogicController extends BaseController
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
 
-    //行数记录
+    /*//行数记录
     public Integer line_n = 0;
     //交换机返回信息 切割为字符串数组
     public String[] return_information_array;
@@ -52,14 +52,14 @@ public class ProblemScanLogicController extends BaseController
     public String current_Round_Extraction_String;
     //提取信息总和
     public String extractInformation_string;
+    public static List<BasicInformation> pojolist;
+    public static String result_string;*/
 
     @Autowired
     private IReturnRecordService returnRecordService;
 
     @Autowired
     private IBasicInformationService basicInformationService;
-    public static List<BasicInformation> pojolist;
-    public static String result_string;
 
 
     /**
@@ -134,7 +134,7 @@ public class ProblemScanLogicController extends BaseController
     /**
      * 获取交换机 基本信息命令 列表
      */
-    @GetMapping("/getBasicInformationList")
+    /*@GetMapping("/getBasicInformationList")
     public String getBasicInformationList() {
         BasicInformation pojo_NULL = new BasicInformation();
         List<BasicInformation> basicInformationList = basicInformationService.selectBasicInformationList(pojo_NULL);
@@ -214,11 +214,11 @@ public class ProblemScanLogicController extends BaseController
             }
         }
         return null;
-    }
+    }*/
     /**
      *  获取交换机 基本信息命令 列表 根据分析ID获取问题扫描逻辑详细信息
      */
-    public void analysisReturn(String resultString){
+    /*public void analysisReturn(String resultString){
         this.line_n = 0;
         this.extractInformation_string ="";
         this.current_Round_Extraction_String="";
@@ -230,7 +230,7 @@ public class ProblemScanLogicController extends BaseController
         //分析第一条ID
         String string = selectProblemScanLogicById(this.first_problem_scanLogic_Id,operation);// loop end
         System.err.print(string);
-    }
+    }*/
 
     /**
     * @method: 执行分析
@@ -239,7 +239,7 @@ public class ProblemScanLogicController extends BaseController
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    @RequestMapping("analysisReturnResults")
+    /*@RequestMapping("analysisReturnResults")
     public void analysisReturnResults(String resultString){
         resultString = CommandLogicController.switch_return_string;
         //标记 索引位置
@@ -264,12 +264,12 @@ public class ProblemScanLogicController extends BaseController
         System.err.print("\r\n"+this.extractInformation_string);
         System.err.print("\r\nstring:"+problemScanLogic_string);
 
-    }
+    }*/
 
     /**
      * 根据分析ID获取问题扫描逻辑详细信息
      */
-    public String selectProblemScanLogicById(String id,String operation) {
+    /*public String selectProblemScanLogicById(String id,String operation) {
         //根据ID查询第一条分析数据
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
         //相对位置——行
@@ -377,10 +377,10 @@ public class ProblemScanLogicController extends BaseController
             }
         }
         return "";
-    }
+    }*/
 
 
-    public void insertvalueInformationService(boolean boo,ProblemScanLogic problemScanLogic,String parameterString){
+    /*public void insertvalueInformationService(boolean boo,ProblemScanLogic problemScanLogic,String parameterString){
         String getNextId = "";
         String problemId ="";
         String comId ="";
@@ -421,7 +421,7 @@ public class ProblemScanLogicController extends BaseController
             case "noproblem_endmark":
             case "":
         }
-    };
+    };*/
 
     /**
      * @method: 根据命令ID获取具体命令，执行
@@ -430,7 +430,7 @@ public class ProblemScanLogicController extends BaseController
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("/executeScanCommandByCommandId")
+    /*@RequestMapping("/executeScanCommandByCommandId")
     public Long executeScanCommandByCommandId(String commandId)
     {
         Long nextCommandID = 0L;
@@ -474,7 +474,7 @@ public class ProblemScanLogicController extends BaseController
             System.err.print("\r\n"+CommandLogicController.switch_return_string);
         }
         return nextCommandID;
-    }
+    }*/
 
 
     /**
@@ -484,7 +484,7 @@ public class ProblemScanLogicController extends BaseController
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public String analysis_true(ProblemScanLogic problemScanLogic,int num){
+    /*public String analysis_true(ProblemScanLogic problemScanLogic,int num){
         String analysis_true = null;
         //true 下一层索引
         String tNextId_string = problemScanLogic.gettNextId();
@@ -517,7 +517,7 @@ public class ProblemScanLogicController extends BaseController
             }
         }
         return analysis_true;
-    }
+    }*/
 
     /**
     * @method: 分析结果错误
@@ -526,7 +526,7 @@ public class ProblemScanLogicController extends BaseController
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public String analysis_false(ProblemScanLogic problemScanLogic,int num){
+    /*public String analysis_false(ProblemScanLogic problemScanLogic,int num){
         String analysis_false=null;
         String fNextId_string = problemScanLogic.getfNextId();
         if (!fNextId_string.equals("noproblem_endmark")
@@ -534,7 +534,7 @@ public class ProblemScanLogicController extends BaseController
                 && !fNextId_string.equals("nextcmd")){
             line_n = num;
             long fNextId_Integer = Integer.valueOf(fNextId_string.substring(3, fNextId_string.length())).longValue();
-            /*analysis_false = selectProblemScanLogicById(fNextId_Integer);*/
+            *//*analysis_false = selectProblemScanLogicById(fNextId_Integer);*//*
             return fNextId_Integer+"";
         }else {
             switch ( fNextId_string ){
@@ -558,7 +558,7 @@ public class ProblemScanLogicController extends BaseController
             }
         }
         return analysis_false;
-    }
+    }*/
 
 
     /**
@@ -569,7 +569,7 @@ public class ProblemScanLogicController extends BaseController
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static boolean compareVersion(String remove_content,String compare,String content){
+    /*public static boolean compareVersion(String remove_content,String compare,String content){
         boolean compare_size = false;
         switch (compare){
             case ">":
@@ -592,7 +592,7 @@ public class ProblemScanLogicController extends BaseController
                 return compare_size;
         }
         return compare_size;
-    }
+    }*/
 
     /**
      * @method: 比较系统版本号大小
@@ -603,7 +603,7 @@ public class ProblemScanLogicController extends BaseController
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static boolean compareVersionNumber(String str1,String str2){
+    /*public static boolean compareVersionNumber(String str1,String str2){
         String[] split1 = str1.split("\\.");
         String[] split2 = str2.split("\\.");
         int j;
@@ -631,16 +631,22 @@ public class ProblemScanLogicController extends BaseController
         }
 
         return false;
-    }
+    }*/
 
 
+
+    /*=====================================================================================================================
+    =====================================================================================================================
+    =====================================================================================================================*/
+
+    /*获取参数名：用户名、密码*/
     /**
-    * @method: getParameterNameCollection
-    * @Param: [totalQuestionTableId]
-    * @return: java.util.List<java.lang.String>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
+     * @method: getParameterNameCollection
+     * @Param: [totalQuestionTableId]
+     * @return: java.util.List<java.lang.String>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
     @RequestMapping("/getParameterNameCollection")
     public List<String> getParameterNameCollection(Long totalQuestionTableId){
         //根据问题ID 获取问题表数据
@@ -693,7 +699,6 @@ public class ProblemScanLogicController extends BaseController
         }
         return parameterNameList;
     }
-
 
     /**
      * @method: 根据 首分析ID 获取全部分析 并拆分 成功失败合实体类
@@ -784,4 +789,5 @@ public class ProblemScanLogicController extends BaseController
         Matcher match = pattern.matcher(str);
         return match.find();
     }
+
 }

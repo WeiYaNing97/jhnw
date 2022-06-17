@@ -18,7 +18,7 @@ import java.util.UUID;
 @RequestMapping("/sql/switch_command")
 public class SwitchController {
 
-    public static SshMethod connectMethod;
+    /*public static SshMethod connectMethod;
     //连接方法
     public static String way;
     //ip地址
@@ -32,7 +32,7 @@ public class SwitchController {
     //结尾标识符
     private String endIdentifier;
 
-    public static TelnetSwitchMethod telnetSwitchMethod;
+    public static TelnetSwitchMethod telnetSwitchMethod;*/
 
     /***
      * @method: 登录时 创建 uuid 会话开始
@@ -41,7 +41,7 @@ public class SwitchController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("createuuid")
+    /*@RequestMapping("createuuid")
     public void createuuid(String mode,int port,String ip,String name, String password){
         this.way = mode;
         this.portID = port;
@@ -51,7 +51,9 @@ public class SwitchController {
         //会话记录 一次会话一个uuid
         Global.uuid = UUID.randomUUID().toString();
         System.out.print(Global.uuid+"\r\n");
-    }
+    }*/
+
+
     /***
      * @method: 连接交换机
      * @Param: [mode 连接方式, ip IP地址, port, name, password, end]
@@ -59,7 +61,7 @@ public class SwitchController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("requestConnect")
+    /*@RequestMapping("requestConnect")
     public boolean requestConnect(String mode,String ip, String name, String password) {
         this.way = mode;
         this.hostIp = ip;
@@ -79,9 +81,16 @@ public class SwitchController {
         }else {
             return is_the_connection_successful;
         }
-    }
+    }*/
 
-    @RequestMapping("sendMessage")
+    /**
+    * @method: 发送命令
+    * @Param: []
+    * @return: java.lang.String
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    /*@RequestMapping("sendMessage")
     public String sendMessage() {
         String way = this.way;
         String basicInformation = "display cu";
@@ -149,5 +158,5 @@ public class SwitchController {
             return_sum += commandString + "\r\n\r\n";
         }
         return null;
-    }
+    }*/
 }

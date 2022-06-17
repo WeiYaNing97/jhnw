@@ -40,26 +40,69 @@ public class SolveProblemController {
     @Autowired
     private ISwitchProblemService switchProblemService;
 
-    /***
-    * @method: 批量修复问题
-    * @Param: []
-    * @return: com.sgcc.common.core.domain.AjaxResult
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
 
+    /*=====================================================================================================================
+    =====================================================================================================================
+    =====================================================================================================================*/
+
+
+    /*解决问题命令回显*/
+    /**
+     * @method: 根据问题ID 查询 解决问题ID命令 返回List<String>
+     * @Param: [totalQuestionTableId]
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("queryCommandListBytotalQuestionTableId")
+    public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
+
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
+            return null;
+        }
+        String problemSolvingId = totalQuestionTable.getProblemSolvingId();
+
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        do {
+            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
+            commandLogicList.add(commandLogic);
+            problemSolvingId = commandLogic.getEndIndex();
+        }while (!(problemSolvingId.equals("0")));
+
+        List<String> commandLogicStringList = new ArrayList<>();
+        for (CommandLogic commandLogic:commandLogicList){
+            String string = DefinitionProblemController.commandLogicString(commandLogic);
+            String[] split = string.split(":");
+            System.err.println("\r\n"+split[1]+"\r\n");
+            commandLogicStringList.add(split[1]);
+        }
+
+        return commandLogicStringList;
+    }
+
+
+
+
+
+    /***
+     * @method: 批量修复问题
+     * @Param: []
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
     @RequestMapping("/batchSolution/{userinformation}/{commandValueList}")
     public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){
         //String mode,String ip,String name,String password,String port
-
         //用户信息
         String userInformationString = userinformation.toString();
         userInformationString = userInformationString.replace("[{","");
         userInformationString = userInformationString.replace("}]","");
         userInformationString = userInformationString.replace("\"","");
         String[] userinformationSplit = userInformationString.split(",");
-        Map<String,String> user_String = new HashMap<>();
 
+        Map<String,String> user_String = new HashMap<>();
         for (String userString:userinformationSplit){
             String[] userStringsplit = userString.split(":");
             String key = userStringsplit[0];
@@ -101,9 +144,9 @@ public class SolveProblemController {
         AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( user_String , connectMethod , telnetSwitchMethod );
         //解析返回参数
         List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
+
         //是否连接成功
         boolean requestConnect_boolean = informationList.get(0).toString().equals("true");
-
         if (requestConnect_boolean){
             //commandValueList  命令ID 参数ID
             String commandValueListString = commandValueList.toString();
@@ -141,13 +184,11 @@ public class SolveProblemController {
                 if (comId!=null){
                     //命令赋值
                     commandvalueSting = comId;
-
                     //修复问题 会出现 不需要参数的
                     //如果参数不为空
                     if (valueId!=null){
                         //参数赋值
                         commandvalueSting = commandvalueSting +":"+ valueId;
-
                     }else if (valueId == null){
                         //参数赋值
                         commandvalueSting = commandvalueSting +":"+ 0;
@@ -158,7 +199,6 @@ public class SolveProblemController {
 
                 //将 命令ID 和 参数ID 分离开来
                 String[] commandValuesplit = command_Value.split(":");
-
                 //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
                 AjaxResult ajaxResult = queryParameterSet(commandValuesplit[0], Long.valueOf(commandValuesplit[1]).longValue());
@@ -166,12 +206,11 @@ public class SolveProblemController {
 
                 //命令集合
                 List<String> commandList = (List<String>) commandvalue[0];
-
                 //参数集合
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
-
                 //解决问题
                 String solveProblem = solveProblem(informationList, commandList, valueInformationVOList);
+
                 if (solveProblem.equals("成功")){
                     SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(Integer.valueOf(valueId).longValue());
                     switchProblem.setResolved("是");
@@ -192,16 +231,15 @@ public class SolveProblemController {
         return AjaxResult.error("连接交换机失败");
     }
 
-
     /***
-    * 返回 命令集合 和 参数集合
+     * 返回 命令集合 和 参数集合
      * @method: queryParameterSet
-    * @Param: []
-    * @return: com.sgcc.common.core.domain.AjaxResult
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
+     * @Param: []
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
      * 传参 命令ID 和 参数ID
-    */
+     */
     @RequestMapping("queryParameterSet")
     public AjaxResult queryParameterSet(String commandID,Long valueID){
         //根据 第一个命令 ID
@@ -251,55 +289,17 @@ public class SolveProblemController {
         return AjaxResult.success(commandLogicList);
     }
 
-
-
-    /**
-    * @method: 根据问题ID 查询 解决问题ID命令 返回List<String>
-    * @Param: [totalQuestionTableId]
-    * @return: com.sgcc.common.core.domain.AjaxResult
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @RequestMapping("queryCommandListBytotalQuestionTableId")
-    public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
-
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
-            return null;
-        }
-        String problemSolvingId = totalQuestionTable.getProblemSolvingId();
-
-        List<CommandLogic> commandLogicList = new ArrayList<>();
-        do {
-            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
-            commandLogicList.add(commandLogic);
-            problemSolvingId = commandLogic.getEndIndex();
-        }while (!(problemSolvingId.equals("0")));
-
-        List<String> commandLogicStringList = new ArrayList<>();
-        for (CommandLogic commandLogic:commandLogicList){
-            String string = DefinitionProblemController.commandLogicString(commandLogic);
-            String[] split = string.split(":");
-            System.err.println("\r\n"+split[1]+"\r\n");
-            commandLogicStringList.add(split[1]);
-        }
-
-        return commandLogicStringList;
-    }
-
-
-
     /**
      * @method: 解决问题
-    * @Param: [parameterID]
-    * @return: com.sgcc.common.core.domain.AjaxResult
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
+     * @Param: [parameterID]
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
     @RequestMapping("solveProblem")
     public String solveProblem(List<Object> informationList,
-                                   List<String> commandList,
-                                   List<ValueInformationVO> valueInformationVOList){
+                               List<String> commandList,
+                               List<ValueInformationVO> valueInformationVOList){
         //遍历命令集合    根据参数名称 获取真实命令
         //local-user:用户名
         //password cipher:密码

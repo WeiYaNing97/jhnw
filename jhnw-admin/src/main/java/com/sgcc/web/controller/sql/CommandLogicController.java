@@ -47,7 +47,7 @@ public class CommandLogicController extends BaseController
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    @RequestMapping("/executeScanCommand")
+    /*@RequestMapping("/executeScanCommand")
     public void executeScanCommand()
     {
         List<String> commandIdList = TotalQuestionTableController.longList;
@@ -90,7 +90,7 @@ public class CommandLogicController extends BaseController
                 return_strings.add(switch_return_string);
             }
         }
-    }
+    }*/
 
    /**
      * @method: 根据命令ID获取具体命令，执行
@@ -99,7 +99,7 @@ public class CommandLogicController extends BaseController
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("/executeScanCommandByCommandId")
+    /*@RequestMapping("/executeScanCommandByCommandId")
     public Long executeScanCommandByCommandId(String commandId)
     {
         Long nextCommandID = 0L;
@@ -143,162 +143,7 @@ public class CommandLogicController extends BaseController
             System.err.print("\r\n"+switch_return_string);
         }
         return nextCommandID;
-    }
-    
-    /**
-    * @method: 解决问题集合插入 及 问题表数据修改
-    * @Param: [totalQuestionTableId, commandLogicList]
-    * @return: boolean
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @RequestMapping("insertModifyProblemCommandSet")
-    public boolean insertModifyProblemCommandSet(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogicList){
-
-        /*String commandLogicString = "";
-        for (String commandLogic:commandLogicList){
-            commandLogicString = commandLogicString + commandLogic +",";
-        }
-        if (!commandLogicString.equals("")){
-            commandLogicList = new ArrayList<>();
-            commandLogicString = commandLogicString.substring(0,commandLogicString.length()-1);
-            commandLogicString = commandLogicString.replace("},","}\r\n");
-            String[] commandLogic_split = commandLogicString.split("\r\n");
-            for (int number=0; number<commandLogic_split.length; number++){
-                commandLogicList.add(commandLogic_split[number]);
-            }
-        }else {
-            return false;
-        }*/
-
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        List<CommandLogic> commandLogics = new ArrayList<>();
-        for (int number=0;number<commandLogicList.size();number++){
-            CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
-            commandLogics.add(commandLogic);
-        }
-        for (int number=0;number<commandLogics.size();number++){
-            int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
-            if (i<=0){
-                return false;
-            }
-            if (number == 0){
-                totalQuestionTable.setProblemSolvingId(commandLogics.get(number).getId());
-            }
-        }
-        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-        if (i<=0){
-            return false;
-        }
-        return true;
-    }
-
-    /**
-    * @method: 命令表数据 有String 转化为 CommandLogic
-    * @Param: [CommandLogicString]
-    * @return: com.sgcc.sql.domain.CommandLogic
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    public CommandLogic analysisCommandLogicString(String CommandLogicString){
-        CommandLogic commandLogic = new CommandLogic();
-        CommandLogicString = CommandLogicString.replace("{","");
-        CommandLogicString = CommandLogicString.replace("}","");
-        String[]  jsonPojo_split = CommandLogicString.split(",");
-
-        HashMap<String,String> hashMap = new HashMap<>();
-        hashMap.put("onlyIndex",null);
-        hashMap.put("resultCheckId","0");
-        hashMap.put("command",null);
-        hashMap.put("nextIndex","0");
-        hashMap.put("pageIndex",null);
-        hashMap.put("endIndex","0");
-
-        for (String pojo:jsonPojo_split){
-            String[] split = pojo.split(":");
-            String split0 = split[0].replace("\"","");
-            String split1 = split[1].replace("\"","");
-            switch (split0){
-                case "onlyIndex"://本层ID 主键ID
-                    hashMap.put("onlyIndex",split1);
-                    break;
-                case "resultCheckId":// 常规校验1 自定义校验0
-                    hashMap.put("resultCheckId",split1);
-                    break;
-                case "command":// 命令
-                    hashMap.put("command",split1);
-                    break;
-                case "para":// 参数
-                    hashMap.put("command",hashMap.get("command")+":"+split1);
-                    break;
-                case "nextIndex"://下一分析ID 也是 首分析ID
-                    hashMap.put("nextIndex",split1);
-                    break;
-                case "pageIndex"://命令行号
-                    hashMap.put("pageIndex",split1);
-                    break;
-            }
-        }
-
-        //如果 常规检验 的话 下一ID  应是 下一命令ID
-        //下一分析ID  应是  0
-        if (hashMap.get("resultCheckId").equals("1")){
-            hashMap.put("endIndex",hashMap.get("nextIndex"));
-            hashMap.put("nextIndex","0");
-        }
-
-        /** 主键索引 */
-        commandLogic.setId(hashMap.get("onlyIndex"));
-        /** 状态 */
-        commandLogic.setState(null);
-        /** 命令 */
-        commandLogic.setCommand(hashMap.get("command"));
-        /** 返回结果验证id */
-        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
-        /** 返回分析id */
-        commandLogic.setProblemId(hashMap.get("nextIndex"));
-        /** 命令结束索引 */
-        commandLogic.setEndIndex(hashMap.get("endIndex"));
-        /** 命令行号 */
-        commandLogic.setcLine(hashMap.get("pageIndex"));
-
-        return commandLogic;
-    }
-
-    /**
-     * @method: 修改解决问题命令List
-     * @Param: [totalQuestionTableId]
-     * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    @RequestMapping("updateProblemSolvingCommand")
-    public boolean updateProblemSolvingCommand(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogics){
-        //根据 问题表 问题ID 查询 问题数据
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        //问题表 解决问题ID
-        String problemSolvingId = totalQuestionTable.getProblemSolvingId();
-        //解决问题命令集合
-        List<CommandLogic> commandLogicList = new ArrayList<>();
-        do {
-            // 根据解决问题ID 查询 解决问题命令
-            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
-            // 加入 解决问题命令集合
-            commandLogicList.add(commandLogic);
-            problemSolvingId = commandLogic.getEndIndex();
-            //当下一命令ID为0 的时候  结束
-        }while (!(problemSolvingId.equals("0")));
-        //删除解决问题命令
-        for (CommandLogic commandLogic:commandLogicList){
-            int i = commandLogicService.deleteCommandLogicById(commandLogic.getId());
-            if (i<=0){
-                return false;
-            }
-        }
-        //重新插入解决问题命令
-        boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
-        return insertModifyProblemCommand;
-    }
+    }*/
 
 
     /**
@@ -367,5 +212,152 @@ public class CommandLogicController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(commandLogicService.deleteCommandLogicByIds(ids));
+    }
+
+
+    /*=====================================================================================================================
+    =====================================================================================================================
+    =====================================================================================================================*/
+
+
+    /**
+     * @method: 解决问题集合插入 及 问题表数据修改
+     * @Param: [totalQuestionTableId, commandLogicList]
+     * @return: boolean
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+
+    @RequestMapping("insertModifyProblemCommandSet")
+    public boolean insertModifyProblemCommandSet(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogicList){
+
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        List<CommandLogic> commandLogics = new ArrayList<>();
+        for (int number=0;number<commandLogicList.size();number++){
+            CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
+            commandLogics.add(commandLogic);
+        }
+        for (int number=0;number<commandLogics.size();number++){
+            int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
+            if (i<=0){
+                return false;
+            }
+            if (number == 0){
+                totalQuestionTable.setProblemSolvingId(commandLogics.get(number).getId());
+            }
+        }
+        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+        if (i<=0){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * @method: 命令表数据 有String 转化为 CommandLogic
+     * @Param: [CommandLogicString]
+     * @return: com.sgcc.sql.domain.CommandLogic
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public CommandLogic analysisCommandLogicString(String CommandLogicString){
+        CommandLogic commandLogic = new CommandLogic();
+        CommandLogicString = CommandLogicString.replace("{","");
+        CommandLogicString = CommandLogicString.replace("}","");
+        String[]  jsonPojo_split = CommandLogicString.split(",");
+
+        HashMap<String,String> hashMap = new HashMap<>();
+        hashMap.put("onlyIndex",null);
+        hashMap.put("resultCheckId","0");
+        hashMap.put("command",null);
+        hashMap.put("nextIndex","0");
+        hashMap.put("pageIndex",null);
+        hashMap.put("endIndex","0");
+
+        for (String pojo:jsonPojo_split){
+            String[] split = pojo.split(":");
+            String split0 = split[0].replace("\"","");
+            String split1 = split[1].replace("\"","");
+            switch (split0){
+                case "onlyIndex"://本层ID 主键ID
+                    hashMap.put("onlyIndex",split1);
+                    break;
+                case "resultCheckId":// 常规校验1 自定义校验0
+                    hashMap.put("resultCheckId",split1);
+                    break;
+                case "command":// 命令
+                    hashMap.put("command",split1);
+                    break;
+                case "para":// 参数
+                    hashMap.put("command",hashMap.get("command")+":"+split1);
+                    break;
+                case "nextIndex"://下一分析ID 也是 首分析ID
+                    hashMap.put("nextIndex",split1);
+                    break;
+                case "pageIndex"://命令行号
+                    hashMap.put("pageIndex",split1);
+                    break;
+            }
+        }
+
+        //如果 常规检验 的话 下一ID  应是 下一命令ID
+        //下一分析ID  应是  0
+        if (hashMap.get("resultCheckId").equals("1")){
+            hashMap.put("endIndex",hashMap.get("nextIndex"));
+            hashMap.put("nextIndex","0");
+        }
+
+        /** 主键索引 */
+        commandLogic.setId(hashMap.get("onlyIndex"));
+        /** 状态 */
+        commandLogic.setState(null);
+        /** 命令 */
+        commandLogic.setCommand(hashMap.get("command"));
+        /** 返回结果验证id */
+        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
+        /** 返回分析id */
+        commandLogic.setProblemId(hashMap.get("nextIndex"));
+        /** 命令结束索引 */
+        commandLogic.setEndIndex(hashMap.get("endIndex"));
+        /** 命令行号 */
+        commandLogic.setcLine(hashMap.get("pageIndex"));
+
+        return commandLogic;
+    }
+
+
+    /**
+     * @method: 修改解决问题命令List
+     * @Param: [totalQuestionTableId]
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("updateProblemSolvingCommand")
+    public boolean updateProblemSolvingCommand(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogics){
+        //根据 问题表 问题ID 查询 问题数据
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        //问题表 解决问题ID
+        String problemSolvingId = totalQuestionTable.getProblemSolvingId();
+        //解决问题命令集合
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        do {
+            // 根据解决问题ID 查询 解决问题命令
+            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
+            // 加入 解决问题命令集合
+            commandLogicList.add(commandLogic);
+            problemSolvingId = commandLogic.getEndIndex();
+            //当下一命令ID为0 的时候  结束
+        }while (!(problemSolvingId.equals("0")));
+        //删除解决问题命令
+        for (CommandLogic commandLogic:commandLogicList){
+            int i = commandLogicService.deleteCommandLogicById(commandLogic.getId());
+            if (i<=0){
+                return false;
+            }
+        }
+        //重新插入解决问题命令
+        boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
+        return insertModifyProblemCommand;
     }
 }

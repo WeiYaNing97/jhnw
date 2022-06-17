@@ -51,74 +51,6 @@ public class SwitchInteraction {
         MyThread.testThread(objects);
     }
 
-    /**
-    * @method: 获取 匹配的 交换机可执行的 命令ID  并 循环执行
-    * @Param: [user_String, connectMethod, telnetSwitchMethod]
-    * @return: com.sgcc.common.core.domain.AjaxResult
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @PostMapping("scanProblem")
-    public AjaxResult scanProblem(Map<String,String> user_String, //登录交换机的 用户信息 登录方式、ip、name、password
-                                  SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod){
-        /*List<String> basicInformation_List = (List<String>) basicInformationList_ajaxResult.get("data");
-        String deviceModel = basicInformation_List.get(0);//设备型号
-        String deviceBrand = basicInformation_List.get(1);//设备品牌
-        String firmwareVersion = basicInformation_List.get(2);//内部固件版本
-        String subversionNumber = basicInformation_List.get(3);//子版本号*/
-
-        String deviceModel = user_String.get("deviceModel");//设备型号
-        String deviceBrand = user_String.get("deviceBrand");//设备品牌
-        String firmwareVersion = user_String.get("firmwareVersion");//内部固件版本
-        String subversionNumber = user_String.get("subversionNumber");//子版本号
-
-        //获取可执行命令ID
-        AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
-        List<TotalQuestionTable> commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
-
-        String command_return_information = null;
-        Long analysis_id = null;
-        for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
-            user_String.put("notFinished",totalQuestionTable.getNotFinished());
-            //根据命令ID获取具体命令，执行
-            System.err.println("连接iP:"+user_String.get("ip"));
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"),
-                    user_String.get("mode"), connectMethod, telnetSwitchMethod);
-
-            String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
-                    executeScanCommandByCommandId_object);
-            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
-        }
-        return null;
-    }
-
-
-    /**
-     * @method: 根据交换机信息查询 获取 扫描问题的
-     * @Param: []
-     * @return: java.util.List<java.lang.Long>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    @GetMapping(value = "/commandIdByInformation")
-    public AjaxResult commandIdByInformation(String deviceModel,String deviceBrand,String firmwareVersion,String subversionNumber)
-    {
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand(deviceBrand);
-        totalQuestionTable.setType(deviceModel);
-        totalQuestionTable.setFirewareVersion(firmwareVersion);
-        totalQuestionTable.setSubVersion(subversionNumber);
-
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
-        if (totalQuestionTables!=null){
-            return AjaxResult.success(totalQuestionTables);
-        }else {
-            return null;
-        }
-    }
-
 
     /**
      * @method: 根据命令ID集合的具体命令集合，执行
@@ -209,197 +141,6 @@ public class SwitchInteraction {
                 String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod, executeScanCommandByCommandId_object);
             }
         }
-    }
-
-    /**
-     * @method: 根据命令ID获取具体命令，执行
-     * @Param:
-     * @return:  返回的是 解决问题ID
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     * 分析ID 连接方式 ssh和telnet连接
-     */
-    @RequestMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(String commandId,String notFinished,String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod) {
-
-        System.err.print("\r\n命令ID"+commandId+"\r\n");
-        //命令ID获取具体命令
-        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-        //具体命令
-        String command = commandLogic.getCommand();
-        //执行命令
-        String command_string = null;
-        if (way.equalsIgnoreCase("ssh")){
-
-            WebSocketService.sendMessage("badao",command);
-            command_string = connectMethod.sendCommand(command,notFinished);
-        }else if (way.equalsIgnoreCase("telnet")){
-
-            WebSocketService.sendMessage("badao",command);
-            command_string = telnetSwitchMethod.sendCommand(command,notFinished);
-        }
-        //修整返回信息
-        command_string =Utils.trimString(command_string);
-
-        //按行切割
-        String[] split = command_string.split("\r\n");
-        ReturnRecord returnRecord = new ReturnRecord();
-        returnRecord.setCurrentCommLog(command.trim());
-        String current_return_log =command_string.substring(0,command_string.length()-split[split.length-1].length()-2).trim();
-        returnRecord.setCurrentReturnLog(current_return_log);
-        //返回日志前后都有\r\n
-        String current_return_log_substring_end = current_return_log.substring(current_return_log.length() - 2, current_return_log.length());
-        if (!current_return_log_substring_end.equals("\r\n")){
-            current_return_log = current_return_log+"\r\n";
-        }
-        String current_return_log_substring_start = current_return_log.substring(0, 2);
-        if (!current_return_log_substring_start.equals("\r\n")){
-            current_return_log = "\r\n"+current_return_log;
-        }
-
-        WebSocketService.sendMessage("badao",current_return_log);
-
-        //按行切割，最后一位应该是 标识符
-        String current_identifier = split[split.length-1].trim();
-        returnRecord.setCurrentIdentifier(current_identifier);
-        //当前标识符前后都没有\r\n
-        String current_identifier_substring_end = current_identifier.substring(current_identifier.length() - 2, current_identifier.length());
-        if (current_identifier_substring_end.equals("\r\n")){
-            current_identifier = current_identifier.substring(0,current_identifier.length()-2);
-        }
-        String current_identifier_substring_start = current_identifier.substring(0, 2);
-        if (current_identifier_substring_start.equals("\r\n")){
-            current_identifier = current_identifier.substring(2,current_identifier.length());
-        }
-
-        WebSocketService.sendMessage("badao",current_identifier);
-        //返回信息表，返回插入条数
-        int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
-        //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
-        String first_problem_scanLogic_Id = "";
-        if (commandLogic.getResultCheckId().equals("1")){
-            //判断命令是否错误 错误为false 正确为true
-            if (Utils.judgmentError(command_string)){
-                System.err.print("\r\n"+"简单检验，命令正确，新命令"+commandLogic.getEndIndex());
-                List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(),notFinished, way, connectMethod, telnetSwitchMethod);
-                return objectList;
-            }
-        }else {
-            //分析第一条ID
-            first_problem_scanLogic_Id = commandLogic.getProblemId();
-        }
-        List<Object> objectList = new ArrayList<>();
-        objectList.add(command_string);
-        objectList.add(first_problem_scanLogic_Id);
-        return objectList;
-    }
-
-
-    /**
-     * @method: 执行分析
-     * @Param: [resultString_ProblemScanLogicId]
-     * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     * 用户信息 连接方式 ssh、telnet
-     * 交换机返回信息 分析ID
-     */
-    @RequestMapping("analysisReturnResults")
-    public String analysisReturnResults(Map<String,String> user_String,
-                                        SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,
-                                        List<Object> executeScanCommandByCommandId_object){
-
-        String resultString = executeScanCommandByCommandId_object.get(0).toString();
-        String first_problem_scanLogic_Id = executeScanCommandByCommandId_object.get(1)+"";
-
-        //整理返回结果 去除 #
-        resultString = resultString.replace("\r\n"+" # "+"\r\n","\r\n");
-        //将交换机返回信息 按行来切割 字符串数组
-        String[] return_information_array =resultString.split("\r\n");
-        //获得第一条分析ID
-        //因为前三个是 1位为操作类型（取词w、分析a、匹配m） 2,3位为品牌编码；后5位为随机生成的序号；
-        //根据第一条分析ID 查询分析信息
-        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
-        ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
-        //根据ID去分析
-        String problemScanLogic_string = selectProblemScanLogicById( user_String,connectMethod, telnetSwitchMethod,
-                return_information_array,"","",
-                0,first_problem_scanLogic_Id,null,0);// loop end
-
-        if (problemScanLogic_string!=null){
-            return problemScanLogic_string;
-        }else {
-            return null;
-        }
-    }
-
-
-    /**
-     * @method: getUnresolvedProblemInformationByData
-     * @Param: []
-     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    @RequestMapping("getUnresolvedProblemInformationByData")
-    public List<ScanResultsVO> getUnresolvedProblemInformationByData(){
-
-        ScanResults scanResults = new ScanResults();
-
-        String userName = GlobalVariable.userName;
-        Long loginTime = GlobalVariable.loginTime;
-        if(loginTime == null){
-            loginTime = System.currentTimeMillis();
-        }
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateFormat = simpleDateFormat.format(loginTime);
-        dateFormat = dateFormat.split(" ")[0];
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName);
-        for (SwitchProblemVO switchProblemVO:switchProblemList){
-            Date date1 = new Date();
-            switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
-            List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
-            for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-                List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
-                for (ValueInformationVO valueInformationVO:valueInformationVOList){
-                    Date date2 = new Date();
-                    valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
-                }
-
-                Date date3 = new Date();
-                switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
-                switchProblemCO.setValueInformationVOList(valueInformationVOList);
-            }
-        }
-        //将IP地址去重放入set集合中
-        HashSet<String> ip_hashSet = new HashSet<>();
-        for (SwitchProblemVO switchProblemVO:switchProblemList){
-            ip_hashSet.add(switchProblemVO.getSwitchIp());
-        }
-        //将ip存入回显实体类
-        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
-        for (String ip_string:ip_hashSet){
-            ScanResultsVO scanResultsVO = new ScanResultsVO();
-            scanResultsVO.setSwitchIp(ip_string);
-            Date date4 = new Date();
-            scanResultsVO.hproblemId = Long.valueOf(Utils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
-            scanResultsVOList.add(scanResultsVO);
-        }
-
-
-        for (ScanResultsVO scanResultsVO:scanResultsVOList){
-            List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
-            for (SwitchProblemVO switchProblemVO:switchProblemList){
-                if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
-                    switchProblemVOList.add(switchProblemVO);
-                }
-            }
-            scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
-        }
-        scanResults.setScanResultsVOS(scanResultsVOList);
-        WebSocketService.sendMessage("loophole",scanResultsVOList);
-        return scanResultsVOList;
     }
 
 
@@ -812,12 +553,14 @@ public class SwitchInteraction {
                     extractInformation_string = loop_string;
                     return loop_string;
                 }
+
             }
 
             // 分析执行 完成
             if (problemScanLogic.getProblemId().indexOf("完成")!=-1){
                 return extractInformation_string;
             }
+
         }
 
         //相对位置——行,列(1,0)
@@ -879,7 +622,7 @@ public class SwitchInteraction {
                 boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, information_line_n, matchContent);
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
-                    //下一条true分析ID
+
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
                         String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
@@ -887,6 +630,7 @@ public class SwitchInteraction {
                         return analysisReturnResults_String;
                     }
 
+                    //下一条true分析ID
                     if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
                         String tNextId = problemScanLogic.gettNextId();
                         String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
@@ -901,7 +645,9 @@ public class SwitchInteraction {
                         }
                         return ProblemScanLogic_returnstring;
                     }
+
                     //匹配失败
+
                 }else {
 
                     // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
@@ -931,7 +677,6 @@ public class SwitchInteraction {
                         }
                         return ProblemScanLogic_returnstring;
                     }
-
                 }
             }
 
@@ -988,31 +733,40 @@ public class SwitchInteraction {
                         String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,tNextId,insertsInteger);
+
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring;
                             return ProblemScanLogic_returnstring;
                         }
+
                         return ProblemScanLogic_returnstring;
                     }
+
                 }else {
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), connectMethod, telnetSwitchMethod);
                         String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
                                 executeScanCommandByCommandId_object);
+
                         return analysisReturnResults_String;
+
                     }
+
                     if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=""){
                         String fNextId = problemScanLogic.getfNextId();
                         String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,connectMethod, telnetSwitchMethod,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,fNextId,insertsInteger);
+
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring;
                             return ProblemScanLogic_returnstring;
                         }
+
                         return ProblemScanLogic_returnstring;
                     }
+
                 }
             }
         }
@@ -1043,6 +797,7 @@ public class SwitchInteraction {
         Long outId = 0l;
         //提取信息 如果不为空 则有参数
         if (parameterString!=null && !parameterString.equals("")){
+
             //几个参数中间的 参数是 以  "=:=" 来分割的
             //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
             String[] parameterStringsplit = parameterString.split("=:=");
@@ -1089,5 +844,271 @@ public class SwitchInteraction {
         //插入问题
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         switchProblemService.insertSwitchProblem(switchProblem);
+
     };
+
+
+    /**
+     * @method: 查询扫描出的问题表 放入 websocket
+     * @Param: []
+     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("getUnresolvedProblemInformationByData")
+    public List<ScanResultsVO> getUnresolvedProblemInformationByData(){
+
+        ScanResults scanResults = new ScanResults();
+
+        String userName = GlobalVariable.userName;
+        Long loginTime = GlobalVariable.loginTime;
+
+        if(loginTime == null){
+            loginTime = System.currentTimeMillis();
+        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateFormat = simpleDateFormat.format(loginTime);
+        dateFormat = dateFormat.split(" ")[0];
+
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName);
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date date1 = new Date();
+            switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
+            for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+                List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    Date date2 = new Date();
+                    valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                }
+
+                Date date3 = new Date();
+                switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.setValueInformationVOList(valueInformationVOList);
+            }
+        }
+
+        //将IP地址去重放入set集合中
+        HashSet<String> ip_hashSet = new HashSet<>();
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            ip_hashSet.add(switchProblemVO.getSwitchIp());
+        }
+
+        //将ip存入回显实体类
+        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
+        for (String ip_string:ip_hashSet){
+            ScanResultsVO scanResultsVO = new ScanResultsVO();
+            scanResultsVO.setSwitchIp(ip_string);
+            Date date4 = new Date();
+            scanResultsVO.hproblemId = Long.valueOf(Utils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVOList.add(scanResultsVO);
+        }
+
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
+            for (SwitchProblemVO switchProblemVO:switchProblemList){
+                if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
+                    switchProblemVOList.add(switchProblemVO);
+                }
+            }
+            scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+        }
+
+        scanResults.setScanResultsVOS(scanResultsVOList);
+        WebSocketService.sendMessage("loophole",scanResultsVOList);
+
+        return scanResultsVOList;
+    }
+
+
+    /**
+     * @method: 根据命令ID获取具体命令，执行
+     * @Param:
+     * @return:  返回的是 解决问题ID
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     * 分析ID 连接方式 ssh和telnet连接
+     */
+    @RequestMapping("/executeScanCommandByCommandId")
+    public List<Object> executeScanCommandByCommandId(String commandId,String notFinished,String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod) {
+
+        System.err.print("\r\n命令ID"+commandId+"\r\n");
+        //命令ID获取具体命令
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
+
+        //具体命令
+        String command = commandLogic.getCommand();
+
+        //执行命令
+        //命令返回信息
+        String command_string = null;
+        if (way.equalsIgnoreCase("ssh")){
+            WebSocketService.sendMessage("badao",command);
+            command_string = connectMethod.sendCommand(command,notFinished);
+        }else if (way.equalsIgnoreCase("telnet")){
+            WebSocketService.sendMessage("badao",command);
+            command_string = telnetSwitchMethod.sendCommand(command,notFinished);
+        }
+
+        //修整返回信息
+        command_string =Utils.trimString(command_string);
+
+        //按行切割
+        String[] split = command_string.split("\r\n");
+        ReturnRecord returnRecord = new ReturnRecord();
+        returnRecord.setCurrentCommLog(command.trim());
+        String current_return_log =command_string.substring(0,command_string.length()-split[split.length-1].length()-2).trim();
+        returnRecord.setCurrentReturnLog(current_return_log);
+        //返回日志前后都有\r\n
+        String current_return_log_substring_end = current_return_log.substring(current_return_log.length() - 2, current_return_log.length());
+        if (!current_return_log_substring_end.equals("\r\n")){
+            current_return_log = current_return_log+"\r\n";
+        }
+        String current_return_log_substring_start = current_return_log.substring(0, 2);
+        if (!current_return_log_substring_start.equals("\r\n")){
+            current_return_log = "\r\n"+current_return_log;
+        }
+
+        WebSocketService.sendMessage("badao",current_return_log);
+
+        //按行切割，最后一位应该是 标识符
+        String current_identifier = split[split.length-1].trim();
+        returnRecord.setCurrentIdentifier(current_identifier);
+        //当前标识符前后都没有\r\n
+        String current_identifier_substring_end = current_identifier.substring(current_identifier.length() - 2, current_identifier.length());
+        if (current_identifier_substring_end.equals("\r\n")){
+            current_identifier = current_identifier.substring(0,current_identifier.length()-2);
+        }
+        String current_identifier_substring_start = current_identifier.substring(0, 2);
+        if (current_identifier_substring_start.equals("\r\n")){
+            current_identifier = current_identifier.substring(2,current_identifier.length());
+        }
+
+        WebSocketService.sendMessage("badao",current_identifier);
+
+        //返回信息表，返回插入条数
+        int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
+        //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
+        String first_problem_scanLogic_Id = "";
+        if (commandLogic.getResultCheckId().equals("1")){
+            //判断命令是否错误 错误为false 正确为true
+            if (Utils.judgmentError(command_string)){
+                System.err.print("\r\n"+"简单检验，命令正确，新命令"+commandLogic.getEndIndex());
+                List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(),notFinished, way, connectMethod, telnetSwitchMethod);
+                return objectList;
+            }
+        }else {
+            //分析第一条ID
+            first_problem_scanLogic_Id = commandLogic.getProblemId();
+        }
+
+        List<Object> objectList = new ArrayList<>();
+        objectList.add(command_string);//交换机返回信息
+        objectList.add(first_problem_scanLogic_Id);//分析第一条ID
+        return objectList;
+    }
+
+    /**
+     * @method: 执行分析
+     * @Param: [resultString_ProblemScanLogicId]
+     * @return: void
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     * 用户信息 连接方式 ssh、telnet
+     * 交换机返回信息 分析ID
+     */
+    @RequestMapping("analysisReturnResults")
+    public String analysisReturnResults(Map<String,String> user_String,
+                                        SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,
+                                        List<Object> executeScanCommandByCommandId_object){
+
+        String resultString = executeScanCommandByCommandId_object.get(0).toString();//交换机返回信息
+        String first_problem_scanLogic_Id = executeScanCommandByCommandId_object.get(1)+"";//第一条分析ID
+
+        //整理返回结果 去除 #
+        resultString = resultString.replace("\r\n"+" # "+"\r\n","\r\n");
+        //将交换机返回信息 按行来切割 字符串数组
+        String[] return_information_array =resultString.split("\r\n");
+        //获得第一条分析ID
+        //因为前三个是 1位为操作类型（取词w、分析a、匹配m） 2,3位为品牌编码；后5位为随机生成的序号；
+        //根据第一条分析ID 查询分析信息
+        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
+        ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
+        //根据ID去分析
+        String problemScanLogic_string = selectProblemScanLogicById( user_String,connectMethod, telnetSwitchMethod,
+                return_information_array,"","",
+                0,first_problem_scanLogic_Id,null,0);// loop end
+
+        if (problemScanLogic_string!=null){
+            return problemScanLogic_string;
+        }else {
+            return null;
+        }
+    }
+
+
+    /**
+     * @method: 获取 匹配的 交换机可执行的 命令ID  并 循环执行
+     * @Param: [user_String, connectMethod, telnetSwitchMethod]
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @PostMapping("scanProblem")
+    public AjaxResult scanProblem(Map<String,String> user_String, //登录交换机的 用户信息 登录方式、ip、name、password
+                                  SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod){
+
+        String deviceModel = user_String.get("deviceModel");//设备型号
+        String deviceBrand = user_String.get("deviceBrand");//设备品牌
+        String firmwareVersion = user_String.get("firmwareVersion");//内部固件版本
+        String subversionNumber = user_String.get("subversionNumber");//子版本号
+
+        //获取可执行命令ID
+        AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
+        List<TotalQuestionTable> commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
+
+        String command_return_information = null;
+        Long analysis_id = null;
+        for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
+            user_String.put("notFinished",totalQuestionTable.getNotFinished());
+            //根据命令ID获取具体命令，执行
+            System.err.println("连接iP:"+user_String.get("ip"));
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"),
+                    user_String.get("mode"), connectMethod, telnetSwitchMethod);
+
+            String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod,
+                    executeScanCommandByCommandId_object);
+            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
+        }
+        return null;
+    }
+
+
+    /**
+     * @method: 根据交换机信息查询 获取 扫描问题的
+     * @Param: []
+     * @return: java.util.List<java.lang.Long>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @GetMapping(value = "/commandIdByInformation")
+    public AjaxResult commandIdByInformation(String deviceModel,String deviceBrand,String firmwareVersion,String subversionNumber)
+    {
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setBrand(deviceBrand);
+        totalQuestionTable.setType(deviceModel);
+        totalQuestionTable.setFirewareVersion(firmwareVersion);
+        totalQuestionTable.setSubVersion(subversionNumber);
+
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        if (totalQuestionTables!=null){
+            return AjaxResult.success(totalQuestionTables);
+        }else {
+            return null;
+        }
+    }
+
 }

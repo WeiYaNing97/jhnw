@@ -104,4 +104,6 @@ public interface TotalQuestionTableMapper
     * @E-mail: WeiYaNing97@163.com
     */
     List<TotalQuestionTable> selectTotalQuestionTablesubVersionlist(TotalQuestionTable totalQuestionTable);
+
+    TotalQuestionTable selectPojoByproblemDescribeId(@Param("problemDescribeId") Long id);
 }

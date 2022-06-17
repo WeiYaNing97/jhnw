@@ -7,7 +7,6 @@ import com.sgcc.sql.service.IProblemScanLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
@@ -35,8 +34,6 @@ public class DefinitionProblemController extends BaseController {
     private IProblemScanLogicService problemScanLogicService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     /**
      * 新增命令逻辑
@@ -74,78 +71,18 @@ public class DefinitionProblemController extends BaseController {
         return problemScanLogic;
     }
 
-    /**
-    * @method: 将相同ID  时间戳 的 实体类 放到一个实体
-    * @Param: [pojoList]
-    * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    public List<ProblemScanLogic> definitionProblem(List<ProblemScanLogic> pojoList){
-        //根据 set 特性 获取分析ID、不重复
-        HashSet<String> hashSet = new HashSet<>();
-        for (ProblemScanLogic problemScanLogic:pojoList){
-            hashSet.add(problemScanLogic.getId());
-        }
-        //创建ProblemScanLogic 集合 放入获取分析ID 作为返回的 实体类集合
-        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
-        for (String problemScanLogicId:hashSet){
-            ProblemScanLogic problemScanLogic = new ProblemScanLogic();
-            problemScanLogic.setId(problemScanLogicId);
-            problemScanLogicList.add(problemScanLogic);
-        }
-        //遍历前端返回的集合
-        for (ProblemScanLogic pojo:pojoList){
-            //遍历 分析ID 不重复的 集合
-            for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-                //当 两个实体类的 分析ID 相等时 由前端返回的集合 赋值给 返回实体类
-                if (pojo.getId().equals(problemScanLogic.getId())){
-                    //pojo.getfLine()==null  时  前端返回的实体类 是成功或是不分成功失败的数据
-                    if (pojo.getfLine()==null){
-                         BeanUtils.copyProperties(pojo,problemScanLogic);
-                         problemScanLogic.setMatched(pojo.getMatched()!=null?pojo.getMatched():null);
-                    }else {
-                        problemScanLogic.setfLine(pojo.getfLine());
-                        problemScanLogic.setfNextId(pojo.getfNextId());
-                        problemScanLogic.setfComId(pojo.getfComId());
-                        problemScanLogic.setProblemId(pojo.getProblemId());
-                    }
-                }
-            }
-        }
 
-        //根据 gettLine  排序
-        /*ProblemScanLogic[] problemScanLogics = new ProblemScanLogic[problemScanLogicList.size()];
-        for (int number=0;number<problemScanLogicList.size();number++){
-            problemScanLogics[number] = problemScanLogicList.get(number);
-        }
-        ProblemScanLogic problemScan = null;
-        for (int i =0;i<problemScanLogics.length-1;i++){
-            for (int j =0;j<problemScanLogics.length - 1 - i;j++){
-                if (Integer.valueOf(problemScanLogics[j].gettLine()).intValue() > Integer.valueOf(problemScanLogics[j+1].gettLine()).intValue()){
-                    problemScan = problemScanLogics[j];
-                    problemScanLogics[j] = problemScanLogics[j+1];
-                    problemScanLogics[j+1] = problemScan;
-                }
-
-            }
-        }
-
-        problemScanLogicList = new ArrayList<>();
-        for (int i =0;i<problemScanLogics.length;i++){
-            problemScanLogicList.add(problemScanLogics[i]);
-        }*/
-
-        return problemScanLogicList;
-    }
+    /*=====================================================================================================================
+    =====================================================================================================================
+    =====================================================================================================================*/
 
     /**
-    * @method: 插入分析问题的数据
-    * @Param: [jsonPojoList]
-    * @return: void
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
+     * @method: 插入分析问题的数据
+     * @Param: [jsonPojoList]
+     * @return: void
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
     @RequestMapping("definitionProblemJsonPojo")
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
 
@@ -236,13 +173,85 @@ public class DefinitionProblemController extends BaseController {
         return true;
     }
 
+
+    /***
+     * @method: 字符串解析 CommandLogic 实体类 并返回
+     * @Param: [jsonPojo]
+     * @return: com.sgcc.sql.domain.CommandLogic
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
+        CommandLogic commandLogic = new CommandLogic();
+        jsonPojo = jsonPojo.replace("{","");
+        jsonPojo = jsonPojo.replace("}","");
+        String[]  jsonPojo_split = jsonPojo.split(",");
+
+        HashMap<String,String> hashMap = new HashMap<>();
+        hashMap.put("onlyIndex",null);
+        hashMap.put("resultCheckId","0");
+        hashMap.put("command",null);
+        hashMap.put("nextIndex","0");
+        hashMap.put("pageIndex",null);
+        hashMap.put("endIndex","0");
+
+        for (String pojo:jsonPojo_split){
+            String[] split = pojo.split(":");
+            String split0 = split[0].replace("\"","");
+            String split1 = split[1].replace("\"","");
+            switch (split0){
+                case "onlyIndex"://本层ID 主键ID
+                    hashMap.put("onlyIndex",split1);
+                    break;
+                case "resultCheckId":// 常规校验1 自定义校验0
+                    hashMap.put("resultCheckId",split1);
+                    break;
+                case "command":// 命令
+                    hashMap.put("command",split1);
+                    break;
+                case "nextIndex"://下一分析ID 也是 首分析ID
+                    hashMap.put("nextIndex",split1);
+                    break;
+                case "pageIndex"://命令行号
+                    hashMap.put("pageIndex",split1);
+                    break;
+            }
+        }
+
+        //如果 常规检验 的话 下一ID  应是 下一命令ID
+        //下一分析ID  应是  0
+        if (hashMap.get("resultCheckId").equals("1")){
+            hashMap.put("endIndex",hashMap.get("nextIndex"));
+            hashMap.put("nextIndex","0");
+        }
+
+        /** 主键索引 */
+        commandLogic.setId(hashMap.get("onlyIndex"));
+        /** 状态 */
+        commandLogic.setState(null);
+        /** 命令 */
+        commandLogic.setCommand(hashMap.get("command"));
+        /** 返回结果验证id */
+        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
+        /** 返回分析id */
+        commandLogic.setProblemId(hashMap.get("nextIndex"));
+        /** 命令结束索引 */
+        commandLogic.setEndIndex(hashMap.get("endIndex"));
+        /** 命令行号 */
+        commandLogic.setcLine(hashMap.get("pageIndex"));
+
+        //int i = commandLogicService.insertCommandLogic(commandLogic);
+
+        return commandLogic;
+    }
+
     /**
-    * @method: 字符串解析 ProblemScanLogic 实体类 并返回
-    * @Param: [jsonPojo, ifCommand : 分析、命令、问题]
-    * @return: com.sgcc.sql.domain.ProblemScanLogic
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
+     * @method: 字符串解析 ProblemScanLogic 实体类 并返回
+     * @Param: [jsonPojo, ifCommand : 分析、命令、问题]
+     * @return: com.sgcc.sql.domain.ProblemScanLogic
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
     public ProblemScanLogic analysisProblemScanLogic(@RequestBody String jsonPojo,String ifCommand){
         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
         HashMap<String,String> hashMap = new HashMap<>();
@@ -338,7 +347,7 @@ public class DefinitionProblemController extends BaseController {
                         /** 匹配 */
                         hashMap.put("matched","按行模糊匹配");
                     }
-                        break;
+                    break;
                 case "relative":
                     /** 相对位置 行*/
                     hashMap.put("relative",split1);
@@ -563,12 +572,297 @@ public class DefinitionProblemController extends BaseController {
     }
 
     /**
-    * @method: problemScanLogic   转化  Sting
-    * @Param: [problemScanLogic]
-    * @return: java.lang.String
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
+     * @method: 将相同ID  时间戳 的 实体类 放到一个实体
+     * @Param: [pojoList]
+     * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public List<ProblemScanLogic> definitionProblem(List<ProblemScanLogic> pojoList){
+        //根据 set 特性 获取分析ID、不重复
+        HashSet<String> hashSet = new HashSet<>();
+        for (ProblemScanLogic problemScanLogic:pojoList){
+            hashSet.add(problemScanLogic.getId());
+        }
+        //创建ProblemScanLogic 集合 放入获取分析ID 作为返回的 实体类集合
+        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+        for (String problemScanLogicId:hashSet){
+            ProblemScanLogic problemScanLogic = new ProblemScanLogic();
+            problemScanLogic.setId(problemScanLogicId);
+            problemScanLogicList.add(problemScanLogic);
+        }
+        //遍历前端返回的集合
+        for (ProblemScanLogic pojo:pojoList){
+            //遍历 分析ID 不重复的 集合
+            for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                //当 两个实体类的 分析ID 相等时 由前端返回的集合 赋值给 返回实体类
+                if (pojo.getId().equals(problemScanLogic.getId())){
+                    //pojo.getfLine()==null  时  前端返回的实体类 是成功或是不分成功失败的数据
+                    if (pojo.getfLine()==null){
+                        BeanUtils.copyProperties(pojo,problemScanLogic);
+                        problemScanLogic.setMatched(pojo.getMatched()!=null?pojo.getMatched():null);
+                    }else {
+                        problemScanLogic.setfLine(pojo.getfLine());
+                        problemScanLogic.setfNextId(pojo.getfNextId());
+                        problemScanLogic.setfComId(pojo.getfComId());
+                        problemScanLogic.setProblemId(pojo.getProblemId());
+                    }
+                }
+            }
+        }
+
+        //根据 gettLine  排序
+        /*ProblemScanLogic[] problemScanLogics = new ProblemScanLogic[problemScanLogicList.size()];
+        for (int number=0;number<problemScanLogicList.size();number++){
+            problemScanLogics[number] = problemScanLogicList.get(number);
+        }
+        ProblemScanLogic problemScan = null;
+        for (int i =0;i<problemScanLogics.length-1;i++){
+            for (int j =0;j<problemScanLogics.length - 1 - i;j++){
+                if (Integer.valueOf(problemScanLogics[j].gettLine()).intValue() > Integer.valueOf(problemScanLogics[j+1].gettLine()).intValue()){
+                    problemScan = problemScanLogics[j];
+                    problemScanLogics[j] = problemScanLogics[j+1];
+                    problemScanLogics[j+1] = problemScan;
+                }
+
+            }
+        }
+
+        problemScanLogicList = new ArrayList<>();
+        for (int i =0;i<problemScanLogics.length;i++){
+            problemScanLogicList.add(problemScanLogics[i]);
+        }*/
+
+        return problemScanLogicList;
+    }
+
+    /*定义分析问题数据回显*/
+    /***
+     * @method: 根据 交换机属性 问题 回显问题数据
+     * @Param: []
+     * @return: java.util.List<java.lang.String>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("getAnalysisList")
+    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
+
+        //给 问题表数据 赋值
+        TotalQuestionTable pojo = new TotalQuestionTable();
+        pojo.setBrand(totalQuestionTable.getBrand());
+        pojo.setType(totalQuestionTable.getType());
+        pojo.setFirewareVersion(totalQuestionTable.getFirewareVersion());
+        pojo.setSubVersion(totalQuestionTable.getSubVersion());
+        pojo.setProblemName(totalQuestionTable.getProblemName());
+
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(pojo);
+
+        if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
+            return null;
+        }
+
+        String problemScanLogicID = totalQuestionTables.get(0).getCommandId();
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
+        do {
+            String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
+            for (String problemID:problemScanLogicIDsplit){
+                CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
+                if (commandLogic == null || commandLogic.getProblemId() == null){
+                    return null;
+                }
+                commandLogicList.add(commandLogic);
+                //根据第一个分析ID 查询出所有的数据条数
+                List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
+                if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+                    return null;
+                }
+                problemScanLogicID = "";
+                for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                    problemScanLogics.add(problemScanLogic);
+                    if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
+                        problemScanLogicID += problemScanLogic.gettComId()+":";
+                    }
+                    if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
+                        problemScanLogicID += problemScanLogic.getfComId()+":";
+                    }
+                }
+                if (problemScanLogicID!=""){
+                    break;
+                }
+            }
+        }while (problemScanLogicID.indexOf(":")!=-1);
+
+        HashMap<Long,String> hashMap = new HashMap<>();
+
+        for (CommandLogic commandLogic:commandLogicList){
+            String commandLogicString = commandLogicString(commandLogic);
+            String[] commandLogicStringsplit = commandLogicString.split(":");
+            hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
+        }
+        for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            String problemScanLogicString = problemScanLogicSting(problemScanLogic);
+            String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
+            hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
+        }
+
+        List<String> stringList = new ArrayList<>();
+        for (Long number=0L;number<hashMap.size();number++){
+            System.err.println(hashMap.get(number+1));
+            stringList.add(hashMap.get(number+1));
+        }
+
+        return stringList;
+    }
+
+    /**
+     * @method: 根据 首分析ID 获取全部分析 并拆分 成功失败合实体类
+     * @Param: [problemScanLogicID]
+     * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("problemScanLogicList")
+    public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID){
+        //String problemScanLogicID = "1649726283752";
+        boolean contain = false;
+        HashSet<String> problemScanLogicIDList = new HashSet<>();
+        problemScanLogicIDList.add(problemScanLogicID);
+        do {
+            String  problemScanID = "";
+            String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
+            for (String id:problemScanLogicIDsplit){
+                ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
+                if (problemScanLogic ==null){
+                    return null;
+                }
+                if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
+                    continue;
+                }
+                if (problemScanLogic.getProblemId()!=null && (problemScanLogic.getProblemId().equals("完成"))){
+                    continue;
+                }
+                if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
+                        && problemScanLogic.gettNextId()!="" &&  !(isContainChinese(problemScanLogic.gettNextId()))){
+                    problemScanID += problemScanLogic.gettNextId()+":";
+                }
+                if (problemScanLogic.getfNextId()!=null && !(problemScanLogic.getfNextId().equals("null"))
+                        && problemScanLogic.getfNextId()!="" &&  !(isContainChinese(problemScanLogic.getfNextId()))){
+                    problemScanID += problemScanLogic.getfNextId()+":";
+                }
+            }
+            if (problemScanID.equals("")){
+                break;
+            }
+            String[] problemScanIDsplit = problemScanID.split(":");
+            problemScanID = "";
+            for (String id:problemScanIDsplit){
+                for (String hashSetid:problemScanLogicIDList){
+                    if (!(id.equals(hashSetid))){
+                        problemScanLogicIDList.add(id);
+                        problemScanID += id+":";
+                    }
+                    break;
+                }
+            }
+            if (!(problemScanID.equals(""))){
+                contain = true;
+                problemScanLogicID = problemScanID.substring(0,problemScanID.length()-1);
+            }else {
+                contain = false;
+            }
+        }while (contain);
+        List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
+        for (String id:problemScanLogicIDList){
+            ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
+            ProblemScanLogicList.add(problemScanLogic);
+        }
+        List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
+        for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
+            if (problemScanLogic.getfLine()!=null){
+                ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
+                problemScanLogicf.setId(problemScanLogic.getId());
+                problemScanLogicf.setfLine(problemScanLogic.getfLine());
+                problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
+                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
+                problemScanLogicf.setfComId(problemScanLogic.getfComId());
+                problemScanLogic.setfLine(null);
+                problemScanLogic.setfNextId(null);
+                problemScanLogic.setProblemId(null);
+                problemScanLogic.setfComId(null);
+                ProblemScanLogics.add(problemScanLogicf);
+            }
+            ProblemScanLogics.add(problemScanLogic);
+        }
+        return ProblemScanLogics;
+    }
+
+    /**
+     * 根据正则表达式判断字符是否为汉字
+     */
+    public static boolean isContainChinese( String str) {
+        String regex = "[\u4e00-\u9fa5]";   //汉字的Unicode取值范围
+        Pattern pattern = Pattern.compile(regex);
+        Matcher match = pattern.matcher(str);
+        return match.find();
+    }
+
+    /**
+     * @method: commandLogic  转化为   String
+     * @Param: [commandLogic]
+     * @return: java.lang.String
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public static String commandLogicString(CommandLogic commandLogic){
+        String onlyIndex = commandLogic.getId();
+        String trueFalse = "";
+        String command = commandLogic.getCommand();
+        String para = "";
+        if (command.indexOf(":")!=-1){
+            String[] command_split = command.split(":");
+            command = command_split[0];
+            para = command_split[1];
+        }
+        String resultCheckId =  commandLogic.getResultCheckId();
+        String nextIndex;
+        if (resultCheckId.equals("0")){
+            //resultCheckId.equals("0")  自定义
+            nextIndex = commandLogic.getProblemId();
+        }else {
+            //常规检验 执行下一命令
+            nextIndex = commandLogic.getEndIndex();
+        }
+
+        String pageIndex = commandLogic.getcLine();
+
+        CommandLogicVO commandLogicVO = new CommandLogicVO();
+        commandLogicVO.setOnlyIndex(onlyIndex);
+        commandLogicVO.setTrueFalse(trueFalse);
+        commandLogicVO.setCommand(command);
+        commandLogicVO.setPara(para);
+        commandLogicVO.setResultCheckId(resultCheckId);
+        commandLogicVO.setNextIndex(nextIndex);
+        commandLogicVO.setPageIndex(pageIndex);
+
+        String commandLogicVOSting = commandLogicVO.toString();
+        commandLogicVOSting = commandLogicVOSting.replace("'","\"");
+        commandLogicVOSting = commandLogicVOSting.replace(",",",\"");
+        commandLogicVOSting = commandLogicVOSting.replace("=","\"=");
+        commandLogicVOSting = commandLogicVOSting.replace("{","{\"");
+        commandLogicVOSting = commandLogicVOSting.replace("\" ","\"");
+        commandLogicVOSting = commandLogicVOSting.replace(" \"","\"");
+        commandLogicVOSting = commandLogicVOSting.replace("CommandLogicVO",pageIndex+":");
+        return commandLogicVOSting;
+    }
+
+    /**
+     * @method: problemScanLogic   转化  Sting
+     * @Param: [problemScanLogic]
+     * @return: java.lang.String
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
     public String problemScanLogicSting(ProblemScanLogic problemScanLogic){
         //定义一个 符合 前端字符串的 实体类
         ProblemScanLogicVO problemScanLogicVO = new ProblemScanLogicVO();
@@ -584,7 +878,7 @@ public class DefinitionProblemController extends BaseController {
         //按列匹配
         String position = null;
         if (problemScanLogic.getMatched()!=null && !(problemScanLogic.getMatched().equals("null"))){
-             //匹配 不为 null 且 不为“null” 则
+            //匹配 不为 null 且 不为“null” 则
             if (problemScanLogic.getMatched().indexOf("匹配")!=-1 && problemScanLogic.getRelativePosition().equals("null")){
                 matched = "全文"+problemScanLogic.getMatched();
             }else if (problemScanLogic.getMatched().indexOf("匹配")!=-1){
@@ -702,336 +996,9 @@ public class DefinitionProblemController extends BaseController {
         return problemScanLogicVOString;
     }
 
-    /***
-    * @method: 字符串解析 CommandLogic 实体类 并返回
-    * @Param: [jsonPojo]
-    * @return: com.sgcc.sql.domain.CommandLogic
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    public CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
-        CommandLogic commandLogic = new CommandLogic();
-        jsonPojo = jsonPojo.replace("{","");
-        jsonPojo = jsonPojo.replace("}","");
-        String[]  jsonPojo_split = jsonPojo.split(",");
-
-        HashMap<String,String> hashMap = new HashMap<>();
-        hashMap.put("onlyIndex",null);
-        hashMap.put("resultCheckId","0");
-        hashMap.put("command",null);
-        hashMap.put("nextIndex","0");
-        hashMap.put("pageIndex",null);
-        hashMap.put("endIndex","0");
-
-        for (String pojo:jsonPojo_split){
-            String[] split = pojo.split(":");
-            String split0 = split[0].replace("\"","");
-            String split1 = split[1].replace("\"","");
-            switch (split0){
-                case "onlyIndex"://本层ID 主键ID
-                    hashMap.put("onlyIndex",split1);
-                    break;
-                case "resultCheckId":// 常规校验1 自定义校验0
-                    hashMap.put("resultCheckId",split1);
-                    break;
-                case "command":// 命令
-                    hashMap.put("command",split1);
-                    break;
-                case "nextIndex"://下一分析ID 也是 首分析ID
-                    hashMap.put("nextIndex",split1);
-                    break;
-                case "pageIndex"://命令行号
-                    hashMap.put("pageIndex",split1);
-                    break;
-            }
-        }
-
-        //如果 常规检验 的话 下一ID  应是 下一命令ID
-        //下一分析ID  应是  0
-        if (hashMap.get("resultCheckId").equals("1")){
-            hashMap.put("endIndex",hashMap.get("nextIndex"));
-            hashMap.put("nextIndex","0");
-        }
-
-        /** 主键索引 */
-        commandLogic.setId(hashMap.get("onlyIndex"));
-        /** 状态 */
-        commandLogic.setState(null);
-        /** 命令 */
-        commandLogic.setCommand(hashMap.get("command"));
-        /** 返回结果验证id */
-        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
-        /** 返回分析id */
-        commandLogic.setProblemId(hashMap.get("nextIndex"));
-        /** 命令结束索引 */
-        commandLogic.setEndIndex(hashMap.get("endIndex"));
-        /** 命令行号 */
-        commandLogic.setcLine(hashMap.get("pageIndex"));
-
-        //int i = commandLogicService.insertCommandLogic(commandLogic);
-
-        return commandLogic;
-    }
-
-    /**
-    * @method: commandLogic  转化为   String
-    * @Param: [commandLogic]
-    * @return: java.lang.String
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    public static String commandLogicString(CommandLogic commandLogic){
-        String onlyIndex = commandLogic.getId();
-        String trueFalse = "";
-        String command = commandLogic.getCommand();
-        String para = "";
-        if (command.indexOf(":")!=-1){
-            String[] command_split = command.split(":");
-            command = command_split[0];
-            para = command_split[1];
-        }
-        String resultCheckId =  commandLogic.getResultCheckId();
-        String nextIndex;
-        if (resultCheckId.equals("0")){
-            //resultCheckId.equals("0")  自定义
-            nextIndex = commandLogic.getProblemId();
-        }else {
-            //常规检验 执行下一命令
-            nextIndex = commandLogic.getEndIndex();
-        }
-
-        String pageIndex = commandLogic.getcLine();
-
-        CommandLogicVO commandLogicVO = new CommandLogicVO();
-        commandLogicVO.setOnlyIndex(onlyIndex);
-        commandLogicVO.setTrueFalse(trueFalse);
-        commandLogicVO.setCommand(command);
-        commandLogicVO.setPara(para);
-        commandLogicVO.setResultCheckId(resultCheckId);
-        commandLogicVO.setNextIndex(nextIndex);
-        commandLogicVO.setPageIndex(pageIndex);
-
-        String commandLogicVOSting = commandLogicVO.toString();
-        commandLogicVOSting = commandLogicVOSting.replace("'","\"");
-        commandLogicVOSting = commandLogicVOSting.replace(",",",\"");
-        commandLogicVOSting = commandLogicVOSting.replace("=","\"=");
-        commandLogicVOSting = commandLogicVOSting.replace("{","{\"");
-        commandLogicVOSting = commandLogicVOSting.replace("\" ","\"");
-        commandLogicVOSting = commandLogicVOSting.replace(" \"","\"");
-        commandLogicVOSting = commandLogicVOSting.replace("CommandLogicVO",pageIndex+":");
-        return commandLogicVOSting;
-    }
-
-
-    /***
-    * @method: 根据 交换机属性 问题 回显问题数据
-    * @Param: []
-    * @return: java.util.List<java.lang.String>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @RequestMapping("getAnalysisList")
-    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){//@RequestBody TotalQuestionTable totalQuestionTable
-
-        /*TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        String brand = "H3C";
-        String type = "S2152";
-        String firewareVersion = "5.20.99";
-        String subVersion = "1106";
-        String problemName = "比较";
-        totalQuestionTable.setBrand(brand);
-        totalQuestionTable.setType(type);
-        totalQuestionTable.setFirewareVersion(firewareVersion);
-        totalQuestionTable.setSubVersion(subVersion);
-        totalQuestionTable.setProblemName(problemName);*/
-
-        //给 问题表数据 赋值
-        TotalQuestionTable pojo = new TotalQuestionTable();
-        pojo.setBrand(totalQuestionTable.getBrand());
-        pojo.setType(totalQuestionTable.getType());
-        pojo.setFirewareVersion(totalQuestionTable.getFirewareVersion());
-        pojo.setSubVersion(totalQuestionTable.getSubVersion());
-        pojo.setProblemName(totalQuestionTable.getProblemName());
-
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(pojo);
-
-        if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
-            return null;
-        }
-
-        String problemScanLogicID = totalQuestionTables.get(0).getCommandId();
-        List<CommandLogic> commandLogicList = new ArrayList<>();
-        List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
-        do {
-            String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
-            for (String problemID:problemScanLogicIDsplit){
-                CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
-                if (commandLogic == null || commandLogic.getProblemId() == null){
-                    return null;
-                }
-                commandLogicList.add(commandLogic);
-                //根据第一个分析ID 查询出所有的数据条数
-                List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
-                if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-                    return null;
-                }
-                problemScanLogicID = "";
-                for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-                    problemScanLogics.add(problemScanLogic);
-                    if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
-                        problemScanLogicID += problemScanLogic.gettComId()+":";
-                    }
-                    if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
-                        problemScanLogicID += problemScanLogic.getfComId()+":";
-                    }
-                }
-                if (problemScanLogicID!=""){
-                    break;
-                }
-            }
-        }while (problemScanLogicID.indexOf(":")!=-1);
-
-        HashMap<Long,String> hashMap = new HashMap<>();
-
-        for (CommandLogic commandLogic:commandLogicList){
-            String commandLogicString = commandLogicString(commandLogic);
-            String[] commandLogicStringsplit = commandLogicString.split(":");
-            hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
-        }
-        for (ProblemScanLogic problemScanLogic:problemScanLogics){
-            String problemScanLogicString = problemScanLogicSting(problemScanLogic);
-            String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
-            hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
-        }
-
-        List<String> stringList = new ArrayList<>();
-        for (Long number=0L;number<hashMap.size();number++){
-            System.err.println(hashMap.get(number+1));
-            stringList.add(hashMap.get(number+1));
-        }
-
-        return stringList;
-    }
-
-    /**
-    * @method: 根据 首分析ID 获取全部分析 并拆分 成功失败合实体类
-    * @Param: [problemScanLogicID]
-    * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @RequestMapping("problemScanLogicList")
-    public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID){
-        //String problemScanLogicID = "1649726283752";
-        boolean contain = false;
-        HashSet<String> problemScanLogicIDList = new HashSet<>();
-        problemScanLogicIDList.add(problemScanLogicID);
-        do {
-            String  problemScanID = "";
-            String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
-            for (String id:problemScanLogicIDsplit){
-                ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
-                if (problemScanLogic ==null){
-                    return null;
-                }
-                if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
-                    continue;
-                }
-                if (problemScanLogic.getProblemId()!=null && (problemScanLogic.getProblemId().equals("完成"))){
-                    continue;
-                }
-                if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
-                        && problemScanLogic.gettNextId()!="" &&  !(isContainChinese(problemScanLogic.gettNextId()))){
-                    problemScanID += problemScanLogic.gettNextId()+":";
-                }
-                if (problemScanLogic.getfNextId()!=null && !(problemScanLogic.getfNextId().equals("null"))
-                        && problemScanLogic.getfNextId()!="" &&  !(isContainChinese(problemScanLogic.getfNextId()))){
-                    problemScanID += problemScanLogic.getfNextId()+":";
-                }
-            }
-            if (problemScanID.equals("")){
-                break;
-            }
-            String[] problemScanIDsplit = problemScanID.split(":");
-            problemScanID = "";
-            for (String id:problemScanIDsplit){
-                for (String hashSetid:problemScanLogicIDList){
-                    if (!(id.equals(hashSetid))){
-                        problemScanLogicIDList.add(id);
-                        problemScanID += id+":";
-                    }
-                    break;
-                }
-            }
-            if (!(problemScanID.equals(""))){
-                contain = true;
-                problemScanLogicID = problemScanID.substring(0,problemScanID.length()-1);
-            }else {
-                contain = false;
-            }
-        }while (contain);
-        List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
-        for (String id:problemScanLogicIDList){
-            ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
-            ProblemScanLogicList.add(problemScanLogic);
-        }
-        List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
-        for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
-            if (problemScanLogic.getfLine()!=null){
-                ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
-                problemScanLogicf.setId(problemScanLogic.getId());
-                problemScanLogicf.setfLine(problemScanLogic.getfLine());
-                problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
-                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
-                problemScanLogicf.setfComId(problemScanLogic.getfComId());
-                problemScanLogic.setfLine(null);
-                problemScanLogic.setfNextId(null);
-                problemScanLogic.setProblemId(null);
-                problemScanLogic.setfComId(null);
-                ProblemScanLogics.add(problemScanLogicf);
-            }
-            ProblemScanLogics.add(problemScanLogic);
-        }
-        return ProblemScanLogics;
-    }
-
-    /**
-     * 根据正则表达式判断字符是否为汉字
-     */
-    public static boolean isContainChinese( String str) {
-        String regex = "[\u4e00-\u9fa5]";   //汉字的Unicode取值范围
-        Pattern pattern = Pattern.compile(regex);
-        Matcher match = pattern.matcher(str);
-        return match.find();
-    }
-
+    /*定义分析问题数据修改*/
     @RequestMapping("updateAnalysis")
-    public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
-        /*List<String> jsonPojoList = new ArrayList<>();
-        String s0="{\"targetType\":\"command\",\"onlyIndex\":1650329619087,\"trueFalse\":\"\",\"command\":\"display cu\",\"resultCheckId\":\"0\",\"nextIndex\":1650329626647,\"pageIndex\":1}";
-        String s1="{\"targetType\":\"match\",\"onlyIndex\":1650329626647,\"trueFalse\":\"成功\",\"matched\":\"全文精确匹配\",\"matchContent\":\"local-user\",\"nextIndex\":1650329632023,\"pageIndex\":2}";
-        String s2="{\"targetType\":\"takeword\",\"onlyIndex\":1650329632023,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"显示\",\"wordName\":\"用户名\",\"nextIndex\":1650329641078,\"pageIndex\":3,\"matchContent\":\"local-user\"}";
-        String s3="{\"targetType\":\"lipre\",\"onlyIndex\":1650329641078,\"trueFalse\":\"成功\",\"matched\":\"按行精确匹配\",\"position\":0,\"relative\":\"1\",\"matchContent\":\"password simple\",\"nextIndex\":1650329651495,\"pageIndex\":4}";
-        String s4="{\"targetType\":\"takeword\",\"onlyIndex\":1650329651495,\"trueFalse\":\"\",\"action\":\"取词\",\"rPosition\":\"1\",\"length\":\"1w\",\"exhibit\":\"不显示\",\"wordName\":\"密码\",\"nextIndex\":1650329663575,\"pageIndex\":5,\"matchContent\":\"password simple\"}";
-        String s5="{\"targetType\":\"prodes\",\"onlyIndex\":1650329663575,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"有问题\",\"nextIndex\":1650329668383,\"pageIndex\":6}";
-        String s6="{\"targetType\":\"wloop\",\"onlyIndex\":1650329668383,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329641078,\"pageIndex\":7}";
-        String s7="{\"targetType\":\"liprefal\",\"onlyIndex\":1650329641078,\"trueFalse\":\"失败\",\"nextIndex\":1650329690175,\"pageIndex\":8}";
-        String s8="{\"targetType\":\"prodes\",\"onlyIndex\":1650329690175,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"无问题\",\"nextIndex\":1650329701191,\"pageIndex\":9}";
-        String s9="{\"targetType\":\"wloop\",\"onlyIndex\":1650329701191,\"trueFalse\":\"\",\"action\":\"循环\",\"cycleStartId\":1650329626647,\"nextIndex\":1650329626647,\"pageIndex\":10}";
-        String s10="{\"targetType\":\"matchfal\",\"onlyIndex\":1650329626647,\"trueFalse\":\"失败\",\"nextIndex\":1650329683167,\"pageIndex\":11}";
-        String s11="{\"targetType\":\"prodes\",\"onlyIndex\":1650329683167,\"trueFalse\":\"\",\"action\":\"问题\",\"problemId\":\"2\",\"tNextId\":\"完成\",\"pageIndex\":12}";
-        jsonPojoList.add(s0);
-        jsonPojoList.add(s1);
-        jsonPojoList.add(s2);
-        jsonPojoList.add(s3);
-        jsonPojoList.add(s4);
-        jsonPojoList.add(s5);
-        jsonPojoList.add(s6);
-        jsonPojoList.add(s7);
-        jsonPojoList.add(s8);
-        jsonPojoList.add(s9);
-        jsonPojoList.add(s10);
-        jsonPojoList.add(s11);*/
+    public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
 
         String problemScanLogicString = "";
         for (String pojo:jsonPojoList){
@@ -1096,4 +1063,6 @@ public class DefinitionProblemController extends BaseController {
             return false;
         }
     }
+
+
 }
