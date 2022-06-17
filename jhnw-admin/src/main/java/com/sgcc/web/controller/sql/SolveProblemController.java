@@ -3,6 +3,7 @@ package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
+import com.sgcc.connect.util.SshConnect;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -225,6 +226,13 @@ public class SolveProblemController {
 
                 //参数清空  方便下一轮参数判空
                 valueId = null;
+
+                if (informationList.get(1).toString().equalsIgnoreCase("ssh")){
+                    connectMethod.closeConnect((SshConnect)informationList.get(8));
+                }else if (informationList.get(1).toString().equalsIgnoreCase("telnet")){
+                    telnetSwitchMethod.closeSession();
+                }
+
             }
             return AjaxResult.success("修复成功");
         }
@@ -329,8 +337,10 @@ public class SolveProblemController {
         String requestConnect_way = informationList.get(1).toString();
         //如果连接方式为ssh则 连接方法返回集合最后一个参数为 connectMethod参数
         //如果连接方式为telnet则 连接方法返回集合最后一个参数为 telnetSwitchMethod参数
+        SshConnect sshConnect = null;
         if (requestConnect_way.equalsIgnoreCase("ssh")){
             connectMethod = (SshMethod)informationList.get(6);
+            sshConnect = (SshConnect)informationList.get(8);
         }else if (requestConnect_way.equalsIgnoreCase("telnet")){
             telnetSwitchMethod = (TelnetSwitchMethod)informationList.get(6);
         }
@@ -345,7 +355,7 @@ public class SolveProblemController {
             if (requestConnect_way.equalsIgnoreCase("ssh")){
 
                 WebSocketService.sendMessage("badao",command);
-                commandString = connectMethod.sendCommand(command,null);
+                commandString = connectMethod.sendCommand(sshConnect,command,null);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
                 WebSocketService.sendMessage("badao",command);
@@ -404,6 +414,7 @@ public class SolveProblemController {
                 return "失败";
             }
         }
+
         return "成功";
     }
 }

@@ -19,17 +19,10 @@ import java.util.regex.Pattern;
 @RequestMapping("ConnectMethod")
 public class SshMethod {
 
-    //ip地址
-    private String hostIp;
-    //姓名
-    private String userName;
-    //密码
-    private String userPassword;
     //返回信息
     private String ReturnInformation;
     private String EndIdentifier = ">";
     private boolean quit=false;
-    public static SshConnect sshConnect;
 
 
     /***
@@ -40,18 +33,19 @@ public class SshMethod {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("requestConnect")
-    public boolean requestConnect(String ip, int port, String name, String password){
-        this.hostIp = ip;
-        this.userName = name;
-        this.userPassword = password;
+    public SshConnect requestConnect(String ip, int port, String name, String password){
+
         this.ReturnInformation = "";
         //创建连接 ip 端口号：22
-        sshConnect = new SshConnect(hostIp, port, null, null);
+        SshConnect sshConnect = new SshConnect(ip, port, null, null);
         //用户名、密码
-        String[] cmds = { userName, userPassword};
+        String[] cmds = { name, password};
         //连接方法
         boolean login = sshConnect.login(cmds);
-        return login;
+        if (login == true){
+            return sshConnect;
+        }
+        return null;
     }
 
     /***
@@ -62,7 +56,7 @@ public class SshMethod {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("sendCommand")
-    public String sendCommand(String command,String notFinished){
+    public String sendCommand(SshConnect sshConnect,String command,String notFinished){
         //ssh发送命令
         //将命令放到数组中，满足方法的参数要求
         String[] cmds = {command};
@@ -124,7 +118,7 @@ public class SshMethod {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("closeConnect")
-    public void closeConnect(){
+    public void closeConnect(SshConnect sshConnect){
         //ssh关闭连接
         sshConnect.close();
     }
