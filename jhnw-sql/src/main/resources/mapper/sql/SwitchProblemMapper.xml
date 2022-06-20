@@ -44,7 +44,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             problem.switch_name switch_name,
             problem.switch_password switch_password,
             problem.problem_id problem_id,
-            problem.if_question if_question,
+        CASE problem.if_question
+        WHEN '有问题' THEN '异常'
+        WHEN '无问题' THEN '安全'
+        WHEN '完成' THEN '完成'
+        END if_question,
             problem.value_id value_id,
             problem.resolved resolved,
             problem.create_time create_time,

@@ -952,7 +952,11 @@ public class DefinitionProblemController extends BaseController {
             problemId = problemScanLogic.getProblemId();
             if (problemId.indexOf("问题")!=-1){
                 problemScanLogicVO.setAction("问题");
-                problemScanLogicVO.settNextId(problemId.substring(0,3));
+                if(problemId.substring(0,3).equals("有问题")){
+                    problemScanLogicVO.settNextId("异常");
+                }else if(problemId.substring(0,3).equals("无问题")){
+                    problemScanLogicVO.settNextId("安全");
+                }
                 problemId = problemId.substring(3,problemId.length());
             }
             if (problemId.equals("完成")){
