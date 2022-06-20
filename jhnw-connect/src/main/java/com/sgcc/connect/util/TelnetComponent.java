@@ -74,6 +74,8 @@ public class TelnetComponent {
 
         returnInformation = removeGarbledCode(returnInformation);
 
+        //returnInformation = TelnetUtils.removeLoginInformation(returnInformation);
+
         System.err.print("\r\n"+returnInformation);
 
         return returnInformation;

@@ -1,5 +1,4 @@
 package com.sgcc.web.controller.sql;
-
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.entity.GlobalVariable;
 import com.sgcc.connect.method.SshMethod;
@@ -10,6 +9,7 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,21 +23,29 @@ import java.util.*;
  * 与交换机交互方法类
  * @date 2022年01月05日 14:18
  */
+
 @RestController
 @RequestMapping("/sql/SwitchInteraction")
 public class SwitchInteraction {
+
     @Autowired
     private ICommandLogicService commandLogicService;
+
     @Autowired
     private IReturnRecordService returnRecordService;
+
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
+
     @Autowired
     private IValueInformationService valueInformationService;
+
     @Autowired
     private ISwitchProblemService switchProblemService;
+
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
+
     @Autowired
     private IBasicInformationService basicInformationService;
 
@@ -45,11 +53,27 @@ public class SwitchInteraction {
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
         //String mode, String ip, String name, String password, int port
-        Object[] objects1 = {"telnet","192.168.1.100","admin","admin",23};
-        Object[] objects2 = {"telnet","192.168.1.100","admin","admin",23};
+        Object[] objects1 = {"ssh","192.168.1.1","admin","admin",22};
+        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects3 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects4 = {"ssh","192.168.1.1","admin","admin",22};
+        Object[] objects5 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects6 = {"ssh","192.168.1.1","admin","admin",22};
+        Object[] objects8 = {"ssh","192.168.1.1","admin","admin",22};
+        Object[] objects7 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects9 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22};
 
         objects.add(objects1);
         objects.add(objects2);
+        objects.add(objects3);
+        objects.add(objects4);
+        objects.add(objects5);
+        objects.add(objects6);
+        objects.add(objects7);
+        objects.add(objects8);
+        objects.add(objects9);
+        objects.add(objects10);
         MyThread.testThread(objects);
     }
 
