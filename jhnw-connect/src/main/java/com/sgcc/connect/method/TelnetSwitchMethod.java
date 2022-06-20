@@ -19,9 +19,10 @@ import java.io.*;
 @RequestMapping("/sql/telnet")
 public class TelnetSwitchMethod {
 
-    private static TelnetComponent telnetComponent;
+    //private static TelnetComponent telnetComponent;
 
-    public String moreEcho = "---- More ----";
+    //public String moreEcho = "---- More ----";
+
     /**
      * @Author MRC
      * @Description //TODO 打开telnet连接
@@ -30,42 +31,44 @@ public class TelnetSwitchMethod {
      * @return com.alibaba.fastjson.JSONObject
      **/
     @GetMapping("requestConnect")
-    public boolean requestConnect(String ip,Integer port,String name,String password,String end){
+    public TelnetComponent requestConnect(String ip,Integer port,String name,String password,String end){
 
-        boolean open = open(ip, port);
+        TelnetComponent open = open(ip, port);
+
         try {
             Thread.sleep(5*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if (open){
-            String namecommand = sendCommand(name,null);
+
+        if (open != null){
+            String namecommand = sendCommand(open,name,null);
             if (namecommand!=null){
-                String passwordcommand = sendCommand(password,null);
+                String passwordcommand = sendCommand(open,password,null);
                 if (passwordcommand!=null){
-                    return true;
+                    return open;
                 }
             }
         }
-        return false;
+
+        return null;
     }
 
-    public boolean open(String ip,Integer port){
-
+    public TelnetComponent open(String ip,Integer port){
+        TelnetComponent telnetComponent = null;
         try {
-            TelnetComponent telnet = new TelnetComponent();
-            this.telnetComponent = telnet;
+             telnetComponent = new TelnetComponent();
             telnetComponent.openSession(ip,port);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
-        return true;
+        return telnetComponent;
     }
 
     @GetMapping("sendCommand")
-    public String sendCommand(String common,String notFinished){
-        String returnStringCommand = dispatchOrders(common,notFinished);
+    public String sendCommand(TelnetComponent telnetComponent,String common,String notFinished){
+        String returnStringCommand = dispatchOrders(telnetComponent,common,notFinished);
 
         String endIdentifier = "<>,[]";
         String[] endIdentifierSplit = endIdentifier.split(",");
@@ -97,8 +100,8 @@ public class TelnetSwitchMethod {
      * @return java.lang.String
      **/
     @GetMapping("dispatchOrders")
-    public String dispatchOrders(String common,String notFinished) {
-
+    public String dispatchOrders(TelnetComponent telnetComponent,String common,String notFinished) {
+        String moreEcho = "---- More ----";
         if (notFinished != null){
             moreEcho = notFinished;
         }
@@ -106,13 +109,14 @@ public class TelnetSwitchMethod {
         if (null == common) {
             return "error";
         }
+
         try {
             String readFileContent = telnetComponent.sendCommand(common);
             try {
 
                 while (readFileContent.indexOf(moreEcho)!=-1){
                     readFileContent = readFileContent.replaceAll(moreEcho," ");
-                    String sendCommon = dispatchOrders(" ",moreEcho);
+                    String sendCommon = dispatchOrders(telnetComponent," ",moreEcho);
                     readFileContent = readFileContent + sendCommon;
                 }
                 return readFileContent;
@@ -135,7 +139,7 @@ public class TelnetSwitchMethod {
      * @return java.lang.String
      **/
     @GetMapping("close")
-    public String closeSession() {
+    public String closeSession(TelnetComponent telnetComponent) {
         try {
             telnetComponent.closeSession();
         } catch (IOException e) {

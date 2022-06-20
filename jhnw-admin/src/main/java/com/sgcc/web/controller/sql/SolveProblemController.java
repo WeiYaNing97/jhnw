@@ -4,6 +4,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SshConnect;
+import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -230,7 +231,7 @@ public class SolveProblemController {
                 if (informationList.get(1).toString().equalsIgnoreCase("ssh")){
                     connectMethod.closeConnect((SshConnect)informationList.get(8));
                 }else if (informationList.get(1).toString().equalsIgnoreCase("telnet")){
-                    telnetSwitchMethod.closeSession();
+                    telnetSwitchMethod.closeSession((TelnetComponent)informationList.get(9));
                 }
 
             }
@@ -338,11 +339,14 @@ public class SolveProblemController {
         //如果连接方式为ssh则 连接方法返回集合最后一个参数为 connectMethod参数
         //如果连接方式为telnet则 连接方法返回集合最后一个参数为 telnetSwitchMethod参数
         SshConnect sshConnect = null;
+        TelnetComponent telnetComponent = null;
+
         if (requestConnect_way.equalsIgnoreCase("ssh")){
             connectMethod = (SshMethod)informationList.get(6);
             sshConnect = (SshConnect)informationList.get(8);
         }else if (requestConnect_way.equalsIgnoreCase("telnet")){
             telnetSwitchMethod = (TelnetSwitchMethod)informationList.get(6);
+            telnetComponent = (TelnetComponent)informationList.get(9);
         }
 
         String commandString =""; //预设交换机返回结果
@@ -359,7 +363,7 @@ public class SolveProblemController {
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
                 WebSocketService.sendMessage("badao",command);
-                commandString = telnetSwitchMethod.sendCommand(command,null);
+                commandString = telnetSwitchMethod.sendCommand(telnetComponent,command,null);
             }
             //判断命令是否错误 错误为false 正确为true
             if (!Utils.judgmentError(commandString)){

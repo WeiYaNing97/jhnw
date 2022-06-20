@@ -19,10 +19,10 @@ import java.util.regex.Pattern;
 @RequestMapping("ConnectMethod")
 public class SshMethod {
 
-    //返回信息
-    private String ReturnInformation;
-    private String EndIdentifier = ">";
-    private boolean quit=false;
+    /*//返回信息 判断是否断开交换机的
+    private String ReturnInformation ;
+    private String EndIdentifier = ">" ;
+    private boolean quit = false ;*/
 
 
     /***
@@ -35,7 +35,7 @@ public class SshMethod {
     @RequestMapping("requestConnect")
     public SshConnect requestConnect(String ip, int port, String name, String password){
 
-        this.ReturnInformation = "";
+        //this.ReturnInformation = "";
         //创建连接 ip 端口号：22
         SshConnect sshConnect = new SshConnect(ip, port, null, null);
         //用户名、密码
@@ -61,11 +61,13 @@ public class SshMethod {
         //将命令放到数组中，满足方法的参数要求
         String[] cmds = {command};
 
-        if (this.ReturnInformation.endsWith(EndIdentifier) && command.equalsIgnoreCase("quit")) {
+        /*if (this.ReturnInformation.endsWith(EndIdentifier) && command.equalsIgnoreCase("quit")) {
             quit = true;
-        }
-        //发送命令
-        String string = sshConnect.batchCommand(cmds, notFinished,null,quit);
+        }*/
+
+        //发送命令 quit:涉及是否断开交换机连接
+
+        String string = sshConnect.batchCommand(cmds, notFinished,null,false);
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }
@@ -106,7 +108,7 @@ public class SshMethod {
         }
         string = string.replace(" "+notFinished+"\n","");
 
-        this.ReturnInformation = string;
+       // this.ReturnInformation = string;
         return string;
     }
 
