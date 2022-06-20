@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" @contextmenu="showMenu">
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="设备基本信息:"></el-form-item>
       <el-form-item label="品牌" prop="brand">
@@ -62,6 +62,9 @@
 
       <el-form-item>
         <el-button type="primary" @click="huoquid">提交问题</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="hand">出现</el-button>
       </el-form-item>
 
     </el-form>
@@ -209,8 +212,8 @@
 <!--            prop="'dynamicItem.' + index + '.prodes'"-->
 <!--            <el-input v-model="item.prodes"></el-input>-->
             <el-select v-model="item.tNextId" placeholder="有无问题、完成">
-              <el-option label="有问题" value="有问题"></el-option>
-              <el-option label="无问题" value="无问题"></el-option>
+              <el-option label="异常" value="有问题"></el-option>
+              <el-option label="安全" value="无问题"></el-option>
               <el-option label="完成" value="完成"></el-option>
             </el-select>
           </el-form-item>
@@ -257,25 +260,56 @@
 
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
-        <el-button @click="jiejue" type="primary">解决问题</el-button>
-        <el-button @click="proname" type="primary">问题名</el-button>
+<!--        有用-->
+<!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
+<!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="onSubmit">提交</el-button>-->
 <!--      </el-form-item>-->
 
     </el-form>
+
+    <TinymceEditor :proId="proId" v-show="showha"></TinymceEditor>
+
+    <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
+                      :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
+    </vue-context-menu>
+
   </div>
 </template>
 
 <script>
 import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, exportJh_test1 } from "@/api/sql/jh_test1";
-import axios from 'axios'
+import axios from 'axios';
+import TinymceEditor from "@/components/Tinymce/TinymceEditor";
 
 export default {
   name: "Jh_test1",
+    components:{
+        TinymceEditor,
+    },
   data() {
     return {
+        //右键
+        contextMenuData:{
+          menuName:"demo",
+            axis:{
+              x:null,
+                y:null
+            },
+            menulists:[
+                {
+                    fnHandler:'deletedata',
+                    btnName:'删除当前数据'
+                },
+                {
+                    fnHandler:'showhelp',
+                    btnName:'帮助'
+                }
+            ]
+        },
+        showha:false,
         jiaoyan:'自定义校验',
         bizui:false,
         bixiala:true,
@@ -289,7 +323,7 @@ export default {
         biList:['品牌','型号','固件版本','子版本'],
         checkedQ:false,
         // checked:false,
-        wentiid:'',
+        proId:'',
         zhidu:false,
       // 遮罩层
       loading: true,
@@ -329,6 +363,28 @@ export default {
 
   },
   methods: {
+      //出现
+      hand(){
+          this.showha = true
+      },
+      //右键
+      showMenu(){
+        event.preventDefault();
+        var x = event.clientX;
+        var y = event.clientY;
+        this.contextMenuData.axis = {
+            x,
+            y,
+        }
+      },
+      //帮助
+      deletedata(){
+          console.log('delete!')
+      },
+      showhelp(){
+        alert('sss')
+      },
+
       shaxun(){
           if (item.cycleStartId.length == 0){
               this.onfocus('clear')
@@ -496,7 +552,7 @@ export default {
               data:JSON.stringify(shasha)
           }).then(res=>{
               alert(res.data)
-              this.wentiid = res.data
+              this.proId = res.data
           })
       },
       chawenti(){
@@ -639,7 +695,7 @@ export default {
           }
           if (type == 'prodes'){
               this.$set(item1,'action','问题')
-              this.$set(item1,'problemId',this.wentiid)
+              this.$set(item1,'problemId',this.proId)
           }
           this.forms.dynamicItem.splice(thisIndex+1,0,item1)
       },
