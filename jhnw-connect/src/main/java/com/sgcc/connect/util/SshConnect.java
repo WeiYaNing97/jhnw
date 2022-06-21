@@ -12,10 +12,10 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 
 public class SshConnect implements Runnable {
     protected Logger logger = LogManager.getLogger();
-
     //退格
     private static final String BACKSPACE = new String(new byte[] { 8 });
     //ESC
@@ -30,6 +30,7 @@ public class SshConnect implements Runnable {
     private int sleepTime = 1000;
     //连接超时(单次命令总耗时)
     private int timeout = 40000;
+
     //保存当前命令的回显信息
     protected StringBuffer currEcho;
     //保存所有的回显信息
@@ -43,6 +44,9 @@ public class SshConnect implements Runnable {
     private Session session;
     private Channel channel;
     private boolean quit;
+
+    private HashMap<String,SshInformation> switchInformation = new HashMap<>();
+
     @Override
     public void run() {
         InputStream is;

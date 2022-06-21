@@ -53,8 +53,8 @@ public class SwitchInteraction {
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
         //String mode, String ip, String name, String password, int port
-        Object[] objects1 = {"ssh","192.168.1.1","admin","admin",22};
-        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22};
+        /*Object[] objects2 = {"ssh","192.168.1.1","admin","admin",22};
         Object[] objects3 = {"ssh","192.168.1.100","admin","admin",22};
         Object[] objects4 = {"ssh","192.168.1.1","admin","admin",22};
         Object[] objects5 = {"ssh","192.168.1.100","admin","admin",22};
@@ -62,10 +62,10 @@ public class SwitchInteraction {
         Object[] objects8 = {"ssh","192.168.1.1","admin","admin",22};
         Object[] objects7 = {"ssh","192.168.1.100","admin","admin",22};
         Object[] objects9 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22};
+        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22};*/
 
         objects.add(objects1);
-        objects.add(objects2);
+        /*objects.add(objects2);
         objects.add(objects3);
         objects.add(objects4);
         objects.add(objects5);
@@ -73,7 +73,7 @@ public class SwitchInteraction {
         objects.add(objects7);
         objects.add(objects8);
         objects.add(objects9);
-        objects.add(objects10);
+        objects.add(objects10);*/
         MyThread.testThread(objects);
     }
 
