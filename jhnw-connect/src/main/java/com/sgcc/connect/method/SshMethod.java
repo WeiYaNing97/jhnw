@@ -41,7 +41,7 @@ public class SshMethod {
         //用户名、密码
         String[] cmds = { name, password};
         //连接方法
-        boolean login = sshConnect.login(cmds);
+        boolean login = sshConnect.login(ip,cmds);
         if (login == true){
             return sshConnect;
         }
@@ -56,7 +56,7 @@ public class SshMethod {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("sendCommand")
-    public String sendCommand(SshConnect sshConnect,String command,String notFinished){
+    public String sendCommand(String ip,SshConnect sshConnect,String command,String notFinished){
         //ssh发送命令
         //将命令放到数组中，满足方法的参数要求
         String[] cmds = {command};
@@ -67,7 +67,8 @@ public class SshMethod {
 
         //发送命令 quit:涉及是否断开交换机连接
 
-        String string = sshConnect.batchCommand(cmds, notFinished,null,false);
+        String string = sshConnect.batchCommand(ip,cmds, notFinished,null,false);
+
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }

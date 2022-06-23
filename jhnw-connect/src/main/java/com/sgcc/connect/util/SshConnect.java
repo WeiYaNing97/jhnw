@@ -13,9 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 public class SshConnect implements Runnable {
     protected Logger logger = LogManager.getLogger();
+
     //退格
     private static final String BACKSPACE = new String(new byte[] { 8 });
     //ESC
@@ -30,7 +32,6 @@ public class SshConnect implements Runnable {
     private int sleepTime = 1000;
     //连接超时(单次命令总耗时)
     private int timeout = 40000;
-
     //保存当前命令的回显信息
     protected StringBuffer currEcho;
     //保存所有的回显信息
@@ -44,29 +45,63 @@ public class SshConnect implements Runnable {
     private Session session;
     private Channel channel;
     private boolean quit;
-
     private HashMap<String,SshInformation> switchInformation = new HashMap<>();
+
+    public HashMap<String,SshInformation> setSwitchInformation(String ip){
+        SshInformation sshInformation = new SshInformation();
+        sshInformation.setLogger(this.logger);
+        sshInformation.setBACKSPACE(this.BACKSPACE);
+        sshInformation.setESC(this.ESC);
+        sshInformation.setBLANKSPACE(this.BLANKSPACE);
+        sshInformation.setENTER(this.ENTER);
+        sshInformation.setPREFIX_STRS(this.PREFIX_STRS);
+        sshInformation.setSleepTime(this.sleepTime);
+        sshInformation.setTimeout(this.timeout);
+        sshInformation.setCurrEcho(null);
+        sshInformation.setTotalEcho(null);
+        sshInformation.setIp(this.ip);
+        sshInformation.setPort(22);
+        sshInformation.setEndEcho("#,?,>,:,]");
+        sshInformation.setMoreEcho("---- More ----");
+        sshInformation.setMoreCmd(sshInformation.getBLANKSPACE());
+        sshInformation.setJsch(null);
+        sshInformation.setSession(null);
+        sshInformation.setChannel(null);
+        sshInformation.setQuit(false);
+        switchInformation.put(ip,sshInformation);
+        return switchInformation;
+    }
 
     @Override
     public void run() {
         InputStream is;
         try {
             is = channel.getInputStream();
+            String ip = null;
+            SshInformation sshInformation = null;
+            for (Map.Entry<String,SshInformation> entry : switchInformation.entrySet()){
+                ip = entry.getKey();
+                sshInformation = entry.getValue();
+                if (sshInformation.getChannel().equals(channel)){
+                    break;
+                }
+            }
             //读取服务器执行命令后返回信息
             String echo = readOneEcho(is);
             while (echo != null) {
-                currEcho.append(echo);
+                sshInformation.getCurrEcho().append(echo);
                 String[] lineStr = echo.split("\\n");
                 if (lineStr != null && lineStr.length > 0) {
                     String lastLineStr = lineStr[lineStr.length - 1];
-                    if (lastLineStr != null && lastLineStr.indexOf(moreEcho) > 0) {
-                        totalEcho.append(echo.replace(lastLineStr, ""));
+                    if (lastLineStr != null && lastLineStr.indexOf(sshInformation.getMoreEcho()) > 0) {
+                        sshInformation.getTotalEcho().append(echo.replace(lastLineStr, ""));
                     } else {
-                        totalEcho.append(echo);
+                        sshInformation.getTotalEcho().append(echo);
                     }
                 }
                 echo = readOneEcho(is);
             }
+            switchInformation.put(ip,sshInformation);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,17 +134,23 @@ public class SshConnect implements Runnable {
     }
 
     public SshConnect(String ip, int port, String endEcho, String moreEcho) {
-        this.ip = ip;
-        this.port = port;
+        HashMap<String, SshInformation> stringSshInformationHashMap = setSwitchInformation(ip);
+        SshInformation sshInformation = stringSshInformationHashMap.get(ip);
+        sshInformation.setIp(ip);
+        sshInformation.setPort(port);
+
         if (endEcho != null) {
-            this.endEcho = endEcho;
+            sshInformation.setEndEcho(endEcho);
         }
         if (moreEcho != null) {
-            this.moreEcho = moreEcho;
+            sshInformation.setMoreEcho(moreEcho);
         }
-        totalEcho = new StringBuffer();
-        currEcho = new StringBuffer();
+
+        sshInformation.setTotalEcho(new StringBuffer());
+        sshInformation.setCurrEcho(new StringBuffer());
+        switchInformation.put(ip,sshInformation);
     }
+
     public void close() {
         if (session != null) {
             session.disconnect();
@@ -126,19 +167,21 @@ public class SshConnect implements Runnable {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public boolean login(String[] cmds) {
+    public boolean login(String ip,String[] cmds) {
+        SshInformation sshInformation = switchInformation.get(ip);
+
         //用户名 密码
         String user = cmds[0];
         String passWord = cmds[1];
         //ssh连接工具包 创建工具类
-        jsch = new JSch();
-
+        sshInformation.setJsch(new JSch());
         try {
             //@method: jsch 获取会话
             //@Param: [user 用户名, this.ip IP地址, this.port 端口号]
-            session = jsch.getSession(user, this.ip, this.port);
+            session = sshInformation.getJsch().getSession(user, sshInformation.getIp(), sshInformation.getPort());
+            sshInformation.setSession(session);
             //输入密码
-            session.setPassword(passWord);
+            sshInformation.getSession().setPassword(passWord);
             UserInfo ui = new SSHUserInfo() {
                 public void showMessage(String message) {
                 }
@@ -146,20 +189,26 @@ public class SshConnect implements Runnable {
                     return true;
                 }
             };
-            session.setUserInfo(ui);
-            session.connect(30000);
-            channel = session.openChannel("shell");
+            sshInformation.getSession().setUserInfo(ui);
+            sshInformation.getSession().connect(30000);
+
+            channel = sshInformation.getSession().openChannel("shell");
+            sshInformation.setChannel(channel);
             //jscn 连接 linux 解决高亮显示乱码问题
-            ((ChannelShell) channel).setPtyType("dumb");
+            ((ChannelShell) sshInformation.getChannel()).setPtyType("dumb");
             //((ChannelShell) channel).setPty(false);
-            channel.connect(3000);
+            sshInformation.getChannel().connect(3000);
+            switchInformation.put(ip,sshInformation);
+
             new Thread(this).start();
             try {
-                Thread.sleep(sleepTime);
+                Thread.sleep(sshInformation.getSleepTime());
             } catch (Exception e) {
             }
+
             return true;
         } catch (JSchException e) {
+            switchInformation.put(ip,sshInformation);
             return false;
         }
     }
@@ -171,36 +220,45 @@ public class SshConnect implements Runnable {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    protected String sendCommand(String command, boolean sendEnter) {
+    protected String sendCommand(String ip,String command, boolean sendEnter) {
+        SshInformation sshInformation = switchInformation.get(ip);
         try {
-            OutputStream os = channel.getOutputStream();
+
+            OutputStream os = sshInformation.getChannel().getOutputStream();
             os.write(command.getBytes());
             os.flush();
-            if (quit){
-                currEcho.append("遗失对主机的连接。");
+
+            if (sshInformation.isQuit()){
+                StringBuffer stringBufferCurrEcho = new StringBuffer("遗失对主机的连接。");
+                sshInformation.setCurrEcho(stringBufferCurrEcho);
                 return "遗失对主机的连接。";
             }
             if (sendEnter) {
-                currEcho = new StringBuffer();
-                os.write(ENTER.getBytes());
+                sshInformation.setCurrEcho(new StringBuffer());
+                os.write(sshInformation.getENTER().getBytes());
                 os.flush();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "";
+        switchInformation.put(ip,sshInformation);
+        return sshInformation.getCurrEcho().toString();
     }
 
     //测试此字符串是否以指定的后缀结尾
-    protected boolean containsEchoEnd(String echo) {
+    protected boolean containsEchoEnd(String ip,String echo) {
+        SshInformation sshInformation = switchInformation.get(ip);
         boolean contains = false;
+
         //如果 结尾标识符 为空 返回 错误
         //endEcho = "#,?,>,:";
-        if (endEcho == null || endEcho.trim().equals("")) {
+        if (sshInformation.getEndEcho() == null || sshInformation.getEndEcho().trim().equals("")) {
             return contains;
         }
+
         //结尾标识符数组
-        String[] eds = endEcho.split(",");
+        String[] eds = sshInformation.getEndEcho().split(",");
+
         //遍历结尾标识符数组
         for (String ed : eds) {
             //测试此字符串是否以指定的后缀结尾。
@@ -209,6 +267,7 @@ public class SshConnect implements Runnable {
                 break;
             }
         }
+
         return contains;
     }
 
@@ -219,28 +278,30 @@ public class SshConnect implements Runnable {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    private String runCommand(String command,String notFinished,boolean ifEnter) {
+    private String runCommand(String ip ,String command,String notFinished,boolean ifEnter) {
+        SshInformation sshInformation = switchInformation.get(ip);
 
         if (notFinished!=null && notFinished!=""){
-            moreEcho = notFinished;
+            sshInformation.setMoreEcho(notFinished);
         }
 
-        this.currEcho = new StringBuffer();
+        sshInformation.setCurrEcho(new StringBuffer());
         //向服务器发送命令
-        String str = sendCommand(command, ifEnter);
+        String str = sendCommand(ip,command, ifEnter);
+
         if (str =="遗失对主机的连接。"){
             return str;
         }
         int time = 0;
         //endEcho 不存在 为空
         //endEcho = "#,?,>,:";
-        if (endEcho == null || endEcho.equals("")) {
-            while (currEcho.toString().equals("")) {
+        if (sshInformation.getEndEcho() == null || sshInformation.getEndEcho().equals("")) {
+            while (sshInformation.getCurrEcho().toString().equals("")) {
                 try {
-                    Thread.sleep(sleepTime);
-                    time += sleepTime;
+                    Thread.sleep(sshInformation.getSleepTime());
+                    time += sshInformation.getSleepTime();
                     //连接超时(单次命令总耗时)
-                    if (time >= timeout) {
+                    if (time >= sshInformation.getTimeout()) {
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -250,20 +311,20 @@ public class SshConnect implements Runnable {
         } else {
             //endEcho 存在 不为空
             // containsEchoEnd 测试此字符串是否以指定的后缀结尾   是 true   否 false
-            while (!containsEchoEnd(currEcho.toString())) {
+            while (!containsEchoEnd(ip,sshInformation.getCurrEcho().toString())) {
                 try {
-                    Thread.sleep(sleepTime);
+                    Thread.sleep(sshInformation.getSleepTime());
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                time += sleepTime;
+                time += sshInformation.getSleepTime();
                 //连接超时(单次命令总耗时)
-                if (time >= timeout) {
+                if (time >= sshInformation.getTimeout()) {
                     break;
                 }
 
                 //接收交换机返回信息 转换为字符串数组
-                String[] lineStrs = currEcho.toString().split("\\n");
+                String[] lineStrs = sshInformation.getCurrEcho().toString().split("\\n");
 
 
                 //接收交换机返回信息不为空
@@ -271,20 +332,23 @@ public class SshConnect implements Runnable {
                     //private String moreEcho = "---- More ----";
                     //接收交换机返回信息的最后信息 lineStrs[lineStrs.length - 1]
                     //接收交换机返回信息的最后信息 是否是 "---- More ----" 是 则没有返回完全
-                    if (moreEcho != null && lineStrs[lineStrs.length - 1] != null
-                            && lineStrs[lineStrs.length - 1].contains(moreEcho)) {
+                    if ((sshInformation.getMoreEcho() != null && lineStrs[lineStrs.length - 1] != null
+                            && lineStrs[lineStrs.length - 1].contains(sshInformation.getMoreEcho())  || lineStrs[lineStrs.length - 1].trim().contains("#"))) {
                         //private String moreCmd = BLANKSPACE;
                         //空格  private static final String BLANKSPACE = new String(new byte[] { 32 });
-                        sendCommand(moreCmd, false);
-                        currEcho.append("\n");
+                        String command1 = sendCommand(ip, sshInformation.getMoreCmd(), false);
+                        StringBuffer stringBuffer = new StringBuffer(command1);
+                        sshInformation.setCurrEcho(stringBuffer);
                         time = 0;
                         continue;
                     }
                 }
-                return currEcho.toString();
+                switchInformation.put(ip,sshInformation);
+                return sshInformation.getCurrEcho().toString();
             }
         }
-        return currEcho.toString();
+        switchInformation.put(ip,sshInformation);
+        return sshInformation.getCurrEcho().toString();
     }
 
 
@@ -295,8 +359,11 @@ public class SshConnect implements Runnable {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public String batchCommand(String[] cmds,String notFinished, int[] othernEenterCmds,boolean quit) {
-        this.quit=quit;
+    public String batchCommand(String ip,String[] cmds,String notFinished, int[] othernEenterCmds,boolean quit) {
+        SshInformation sshInformation = switchInformation.get(ip);
+
+        sshInformation.setQuit(quit);
+
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < cmds.length; i++) {
             String cmd = cmds[i];
@@ -313,23 +380,26 @@ public class SshConnect implements Runnable {
                     }
                 }
             }
+
             // 命令结尾加上 "\n"
             cmd += (char) 10;
             //执行单个命令
-            String resultEcho = runCommand(cmd, notFinished,ifInputEnter);
+            String resultEcho = runCommand(ip,cmd, notFinished,ifInputEnter);
             sb.append(resultEcho);
         }
-        return currEcho.toString();
+        sshInformation.setCurrEcho(sb);
+        switchInformation.put(ip,sshInformation);
+        return sshInformation.getCurrEcho().toString();
     }
 
 
-    public String executive(String[] cmds,String notFinished, int[] othernEenterCmds) {
+    public String executive(String ip,String[] cmds,String notFinished, int[] othernEenterCmds) {
         if (cmds == null || cmds.length < 3) {
             logger.error("{} ssh cmds is null", this.ip);
             return null;
         }
-        if (login(cmds)) {
-            return batchCommand(cmds,notFinished,othernEenterCmds,quit);
+        if (login(ip,cmds)) {
+            return batchCommand(ip,cmds,notFinished,othernEenterCmds,quit);
         }
         logger.error("{} ssh login error", this.ip);
         return null;

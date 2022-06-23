@@ -1,6 +1,8 @@
 package com.sgcc.connect.util;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Copyright (C), 2015-2019
@@ -20,15 +22,24 @@ public class InputPrintThread extends Thread {
 
     @Override
     public void run() {
-
-        int num = 0;
-
-        char[] bytes = new char[1024];
-
-        int w =0;
+        
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+
+        String ip = null;
+        TelnetInformation telnetInformation = null;
+        for (Map.Entry<String,TelnetInformation> entry : TelnetComponent.switchInformation.entrySet()){
+            ip = entry.getKey();
+            telnetInformation = entry.getValue();
+            if (telnetInformation.getInputStream().equals(inputStream)){
+                break;
+            }
+        }
+        
+        
         try {
             //这里会发生阻塞，通过websocket推送进行
+            int num = telnetInformation.getNum();
+            char[] bytes = telnetInformation.getBytes();
             while (!interrupted() && (num = inputStreamReader.read(bytes)) != -1) {
                 StringBuilder stringBuilder = new StringBuilder();
                 for (int i = 0; i < num; i++) {
@@ -38,7 +49,10 @@ public class InputPrintThread extends Thread {
                     //WebSocketServer.sendInfo(ab + "", SocketIdEnum.TELNET.getValue());
                 }
 
-                TelnetComponent.returnInformation = TelnetComponent.returnInformation + stringBuilder.toString();
+                telnetInformation.setReturnInformation(telnetInformation.getReturnInformation() + stringBuilder.toString());
+
+                TelnetComponent.switchInformation.put(ip,telnetInformation);
+                
             }
         } catch (IOException e) {
             e.printStackTrace();

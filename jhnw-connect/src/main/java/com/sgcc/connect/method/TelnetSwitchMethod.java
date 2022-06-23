@@ -40,17 +40,15 @@ public class TelnetSwitchMethod {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         if (open != null){
-            String namecommand = sendCommand(open,name,null);
+            String namecommand = sendCommand(ip,open,name,null);
             if (namecommand!=null){
-                String passwordcommand = sendCommand(open,password,null);
+                String passwordcommand = sendCommand(ip,open,password,null);
                 if (passwordcommand!=null){
                     return open;
                 }
             }
         }
-
         return null;
     }
 
@@ -67,8 +65,8 @@ public class TelnetSwitchMethod {
     }
 
     @GetMapping("sendCommand")
-    public String sendCommand(TelnetComponent telnetComponent,String common,String notFinished){
-        String returnStringCommand = dispatchOrders(telnetComponent,common,notFinished);
+    public String sendCommand(String ip,TelnetComponent telnetComponent,String common,String notFinished){
+        String returnStringCommand = dispatchOrders(ip,telnetComponent,common,notFinished);
 
         String endIdentifier = "<>,[]";
         String[] endIdentifierSplit = endIdentifier.split(",");
@@ -100,7 +98,7 @@ public class TelnetSwitchMethod {
      * @return java.lang.String
      **/
     @GetMapping("dispatchOrders")
-    public String dispatchOrders(TelnetComponent telnetComponent,String common,String notFinished) {
+    public String dispatchOrders(String ip,TelnetComponent telnetComponent,String common,String notFinished) {
         String moreEcho = "---- More ----";
         if (notFinished != null){
             moreEcho = notFinished;
@@ -111,12 +109,12 @@ public class TelnetSwitchMethod {
         }
 
         try {
-            String readFileContent = telnetComponent.sendCommand(common);
+            String readFileContent = telnetComponent.sendCommand(ip,common);
             try {
 
                 while (readFileContent.indexOf(moreEcho)!=-1){
                     readFileContent = readFileContent.replaceAll(moreEcho," ");
-                    String sendCommon = dispatchOrders(telnetComponent," ",moreEcho);
+                    String sendCommon = dispatchOrders(ip,telnetComponent," ",moreEcho);
                     readFileContent = readFileContent + sendCommon;
                 }
                 return readFileContent;

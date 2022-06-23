@@ -1,7 +1,10 @@
 package com.sgcc.connect.util;
 import org.apache.commons.net.telnet.TelnetClient;
+import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.springframework.stereotype.Component;
 import java.io.*;
+import java.util.HashMap;
+import java.util.stream.Stream;
 
 /**
  * Copyright (C), 2015-2019
@@ -20,6 +23,23 @@ public class TelnetComponent {
     private Thread outputThread;
     public static String returnInformation;
 
+    public static HashMap<String,TelnetInformation> switchInformation = new HashMap<>();
+
+    private HashMap<String,TelnetInformation> setSwitchInformation(String ip){
+        TelnetInformation telnetInformation = new TelnetInformation();
+        telnetInformation.setIp(ip);
+        telnetInformation.setTelnetClient(null);
+        telnetInformation.setInputStream(null);
+        telnetInformation.setOutputStream(null);
+        telnetInformation.setOutputThread(null);
+        telnetInformation.setReturnInformation(null);
+        telnetInformation.setNum(0);
+        telnetInformation.setBytes(new char[1024]);
+
+        switchInformation.put(ip,telnetInformation);
+        return switchInformation;
+    }
+
     /**
      * @return void
      * @Author MRC
@@ -28,23 +48,34 @@ public class TelnetComponent {
      * @Param [user, pass]
      **/
     public void openSession(String ip,Integer port) throws IOException, InterruptedException {
-        if (outputThread != null) {
+        HashMap<String, TelnetInformation> stringTelnetInformationHashMap = setSwitchInformation(ip);
+        TelnetInformation telnetInformation = stringTelnetInformationHashMap.get(ip);
+
+        if (telnetInformation.getOutputThread() != null) {
             //关闭旧的
-            outputThread.interrupt();
+            telnetInformation.getOutputThread().interrupt();
         }
         telnetClient = new TelnetClient();
         telnetClient.connect(ip,port);
-        inputStream = telnetClient.getInputStream();
-        outputStream = telnetClient.getOutputStream();
+        telnetInformation.setTelnetClient(telnetClient);
+        inputStream = telnetInformation.getTelnetClient().getInputStream();
+        telnetInformation.setInputStream(inputStream);
+        outputStream = telnetInformation.getTelnetClient().getOutputStream();
+        telnetInformation.setOutputStream(outputStream);
         try {
             Thread.sleep(2*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        outputThread = new InputPrintThread(inputStream);
+        outputThread = new InputPrintThread(telnetInformation.getInputStream());
         //守护线程
         outputThread.setDaemon(true);
+        telnetInformation.setOutputThread(outputThread);
+        switchInformation.put(ip,telnetInformation);
+
         outputThread.start();
+        telnetInformation.setOutputThread(outputThread);
+        switchInformation.put(ip,telnetInformation);
     }
 
     /**
@@ -54,16 +85,17 @@ public class TelnetComponent {
      * @Date 16:53 2019/12/26
      * @Param [send]
      **/
-    public String sendCommand(String send) throws IOException {
-        returnInformation = "";
+    public String sendCommand(String ip,String send) throws IOException {
+        TelnetInformation telnetInformation = switchInformation.get(ip);
+
+        telnetInformation.setReturnInformation("");
         //加入换行符
          send = send + "\n";
-        if (null == telnetClient) {
+        if (null == telnetInformation.getTelnetClient()) {
             return "连接已关闭";
         }
-        outputStream.write(send.getBytes());
-        outputStream.flush();
-
+        telnetInformation.getOutputStream().write(send.getBytes());
+        telnetInformation.getOutputStream().flush();
 
         try {
             Thread.sleep(2*1000);
@@ -71,14 +103,11 @@ public class TelnetComponent {
             e.printStackTrace();
         }
 
+        telnetInformation.setReturnInformation(removeGarbledCode(telnetInformation.getReturnInformation()));
 
-        returnInformation = removeGarbledCode(returnInformation);
+        System.err.print("\r\n"+telnetInformation.getReturnInformation());
 
-        //returnInformation = TelnetUtils.removeLoginInformation(returnInformation);
-
-        System.err.print("\r\n"+returnInformation);
-
-        return returnInformation;
+        return telnetInformation.getReturnInformation();
     }
 
     /**
@@ -101,7 +130,7 @@ public class TelnetComponent {
     public static void main(String[] args) throws IOException, InterruptedException {
         TelnetComponent telnetComponent = new TelnetComponent();
         telnetComponent.openSession("192.168.1.1",23);
-        telnetComponent.sendCommand("admin");
+        telnetComponent.sendCommand("192.168.1.1","admin");
         telnetComponent.closeSession();
     }
 

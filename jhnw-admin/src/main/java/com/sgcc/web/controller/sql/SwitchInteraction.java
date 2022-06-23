@@ -52,21 +52,32 @@ public class SwitchInteraction {
     @RequestMapping("testThread")
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
-        //String mode, String ip, String name, String password, int port
+
         Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22};
-        /*Object[] objects2 = {"ssh","192.168.1.1","admin","admin",22};
+        Object[] objects2 = {"ssh","192.168.1.1","admin","admin",22};
         Object[] objects3 = {"ssh","192.168.1.100","admin","admin",22};
         Object[] objects4 = {"ssh","192.168.1.1","admin","admin",22};
         Object[] objects5 = {"ssh","192.168.1.100","admin","admin",22};
         Object[] objects6 = {"ssh","192.168.1.1","admin","admin",22};
-        Object[] objects8 = {"ssh","192.168.1.1","admin","admin",22};
-        Object[] objects7 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects8 = {"ssh","192.168.1.100","admin","admin",22};
+        Object[] objects7 = {"ssh","192.168.1.1","admin","admin",22};
         Object[] objects9 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22};*/
+        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22};
+
+        Object[] objects11 = {"telnet","192.168.1.1","admin","admin",23};
+        Object[] objects12 = {"telnet","192.168.1.100","admin","admin",23};
+        Object[] objects13 = {"telnet","192.168.1.100","admin","admin",23};
+        Object[] objects14 = {"telnet","192.168.1.1","admin","admin",23};
+        Object[] objects15 = {"telnet","192.168.1.100","admin","admin",23};
+        Object[] objects16 = {"telnet","192.168.1.1","admin","admin",23};
+        Object[] objects17 = {"telnet","192.168.1.100","admin","admin",23};
+        Object[] objects18 = {"telnet","192.168.1.1","admin","admin",23};
+        Object[] objects19 = {"telnet","192.168.1.100","admin","admin",23};
+        Object[] objects20 = {"telnet","192.168.1.1","admin","admin",23};
 
         objects.add(objects1);
-        /*objects.add(objects2);
-        objects.add(objects3);
+        objects.add(objects2);
+        /*objects.add(objects3);
         objects.add(objects4);
         objects.add(objects5);
         objects.add(objects6);
@@ -74,6 +85,20 @@ public class SwitchInteraction {
         objects.add(objects8);
         objects.add(objects9);
         objects.add(objects10);*/
+
+        objects.add(objects11);
+        objects.add(objects12);
+
+        /*objects.add(objects13);
+        objects.add(objects14);*/
+
+        /*objects.add(objects15);
+        objects.add(objects16);
+        objects.add(objects17);
+        objects.add(objects18);
+        objects.add(objects19);
+        objects.add(objects20);*/
+
         MyThread.testThread(objects);
     }
 
@@ -360,10 +385,12 @@ public class SwitchInteraction {
                 //并发送命令 接受返回结果
                 if (way.equalsIgnoreCase("ssh")){
                     WebSocketService.sendMessage("badao",command);
-                    commandString = connectMethod.sendCommand(sshConnect,command,user_String.get("notFinished"));
+                    commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
+                    commandString = Utils.removeLoginInformation(commandString);
                 }else if (way.equalsIgnoreCase("telnet")){
                     WebSocketService.sendMessage("badao",command);
-                    commandString = telnetSwitchMethod.sendCommand(telnetComponent,command,user_String.get("notFinished"));
+                    commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
+                    commandString = Utils.removeLoginInformation(commandString);
                 }
 
                 //判断命令是否错误 错误为false 正确为true
@@ -672,7 +699,7 @@ public class SwitchInteraction {
                 if (matchAnalysis_true_false){
 
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"), sshConnect,connectMethod,telnetComponent,telnetSwitchMethod);
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"), sshConnect,connectMethod,telnetComponent,telnetSwitchMethod);
                         String analysisReturnResults_String = analysisReturnResults(user_String, sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
                                 executeScanCommandByCommandId_object);
                         return analysisReturnResults_String;
@@ -704,7 +731,7 @@ public class SwitchInteraction {
                     }
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod);
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod);
                         String analysisReturnResults_String = analysisReturnResults(user_String, sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
                                 executeScanCommandByCommandId_object);
                         return analysisReturnResults_String;
@@ -740,7 +767,7 @@ public class SwitchInteraction {
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
 
                 if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod, telnetComponent, telnetSwitchMethod);
+                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod, telnetComponent, telnetSwitchMethod);
                     String analysisReturnResults_String = analysisReturnResults(user_String,sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod,
                             executeScanCommandByCommandId_object);
                     return analysisReturnResults_String;
@@ -770,7 +797,7 @@ public class SwitchInteraction {
                 if (compare_boolean){
 
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod);
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod);
                         String analysisReturnResults_String = analysisReturnResults(user_String,sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod,
                                 executeScanCommandByCommandId_object);
                         return analysisReturnResults_String;
@@ -793,7 +820,7 @@ public class SwitchInteraction {
                 }else {
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod, telnetComponent, telnetSwitchMethod);
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod, telnetComponent, telnetSwitchMethod);
                         String analysisReturnResults_String = analysisReturnResults(user_String,sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod,
                                 executeScanCommandByCommandId_object);
 
@@ -924,6 +951,7 @@ public class SwitchInteraction {
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+                valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
                 List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
                 for (ValueInformationVO valueInformationVO:valueInformationVOList){
                     Date date2 = new Date();
@@ -978,7 +1006,7 @@ public class SwitchInteraction {
      * 分析ID 连接方式 ssh和telnet连接
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(String commandId,String notFinished,String way,SshConnect sshConnect,SshMethod connectMethod,TelnetComponent telnetComponent,TelnetSwitchMethod telnetSwitchMethod) {
+    public List<Object> executeScanCommandByCommandId(Map<String,String> user_String,String commandId,String notFinished,String way,SshConnect sshConnect,SshMethod connectMethod,TelnetComponent telnetComponent,TelnetSwitchMethod telnetSwitchMethod) {
 
         System.err.print("\r\n命令ID"+commandId+"\r\n");
         //命令ID获取具体命令
@@ -993,10 +1021,12 @@ public class SwitchInteraction {
         String command_string = null;
         if (way.equalsIgnoreCase("ssh")){
             WebSocketService.sendMessage("badao",command);
-            command_string = connectMethod.sendCommand(sshConnect,command,notFinished);
+            command_string = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,notFinished);
+            command_string = Utils.removeLoginInformation(command_string);
         }else if (way.equalsIgnoreCase("telnet")){
             WebSocketService.sendMessage("badao",command);
-            command_string = telnetSwitchMethod.sendCommand(telnetComponent,command,notFinished);
+            command_string = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,notFinished);
+            command_string = Utils.removeLoginInformation(command_string);
         }
 
         //修整返回信息
@@ -1046,7 +1076,7 @@ public class SwitchInteraction {
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
                 System.err.print("\r\n"+"简单检验，命令正确，新命令"+commandLogic.getEndIndex());
-                List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(),notFinished, way,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod);
+                List<Object> objectList = executeScanCommandByCommandId(user_String,commandLogic.getEndIndex(),notFinished, way,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod);
                 return objectList;
             }
         }else {
@@ -1056,6 +1086,7 @@ public class SwitchInteraction {
 
         List<Object> objectList = new ArrayList<>();
         objectList.add(command_string);//交换机返回信息
+        System.err.println("交换机返回信息:\r\n"+command_string);
         objectList.add(first_problem_scanLogic_Id);//分析第一条ID
         return objectList;
     }
@@ -1125,7 +1156,7 @@ public class SwitchInteraction {
             user_String.put("notFinished",totalQuestionTable.getNotFinished());
             //根据命令ID获取具体命令，执行
             System.err.println("连接iP:"+user_String.get("ip"));
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(totalQuestionTable.getCommandId(),user_String.get("notFinished"),
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod);
 
             String analysisReturnResults_String = analysisReturnResults(user_String, sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod,

@@ -359,11 +359,13 @@ public class SolveProblemController {
             if (requestConnect_way.equalsIgnoreCase("ssh")){
 
                 WebSocketService.sendMessage("badao",command);
-                commandString = connectMethod.sendCommand(sshConnect,command,null);
+                commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
+                commandString = Utils.removeLoginInformation(commandString);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
                 WebSocketService.sendMessage("badao",command);
-                commandString = telnetSwitchMethod.sendCommand(telnetComponent,command,null);
+                commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
+                commandString = Utils.removeLoginInformation(commandString);
             }
             //判断命令是否错误 错误为false 正确为true
             if (!Utils.judgmentError(commandString)){
