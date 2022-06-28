@@ -1,12 +1,41 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.common.annotation.Excel;
+import com.sgcc.common.annotation.Log;
+import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.common.enums.BusinessType;
+import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
+import com.sgcc.connect.util.SshInformation;
 import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.web.controller.webSocket.WebSocketService;
+import org.apache.ibatis.annotations.Param;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -16,7 +45,109 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/sql/switch_command")
-public class SwitchController {
+public class SwitchController  {
+
+    @RequestMapping("/SwitchEntry")
+
+    public List<SwitchEntry> SwitchEntry(String file) {
+
+        file = "C:\\Users\\Administrator\\Desktop\\123.xls";
+
+        List<SwitchEntry> switchEntries = new ArrayList<>();
+
+        try {
+            List<Object> excel = excel(file);
+            for (Object object:excel){
+                List<String> stringList = (List<String>) object;
+                if (stringList.get(0) == null || stringList.get(0)==""
+                    ||stringList.get(1) == null || stringList.get(1)==""
+                        ||stringList.get(2) == null || stringList.get(2)==""){
+                    return switchEntries;
+                }
+                SwitchEntry switchEntry = new SwitchEntry();
+
+                switchEntry.setSwitchIp(stringList.get(0));
+                switchEntry.setSwitchName(stringList.get(1));
+                switchEntry.setSwitchPassword(stringList.get(2));
+                switchEntry.setConnectionMode(stringList.get(3));
+                switchEntry.setPortNumber(stringList.get(4));
+
+                switchEntries.add(switchEntry);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return switchEntries;
+    }
+
+
+    public static List<Object> excel(String file) throws Exception {
+        //用流的方式先读取到你想要的excel的文件
+        FileInputStream fis = new FileInputStream(new File(file));
+        //解析excel
+        POIFSFileSystem pSystem = new POIFSFileSystem(fis);
+        //获取整个excel
+        HSSFWorkbook hb = new HSSFWorkbook(pSystem);
+        //获取第一个表单sheet
+        HSSFSheet sheet = hb.getSheetAt(0);
+        //获取第一行
+        int firstrow = sheet.getFirstRowNum();
+        //获取最后一行
+        int lastrow = sheet.getLastRowNum();
+        List<Object> objectList = new ArrayList<>();
+        //循环行数依次获取列数
+        for (int i = firstrow; i < lastrow+2; i++) {
+            //获取哪一行i
+            Row row = sheet.getRow(i);
+            if (row != null) {
+                //获取这一行的第一列
+                int firstcell = row.getFirstCellNum();
+                //获取这一行的最后一列
+                int lastcell = row.getLastCellNum();
+                //创建一个集合，用处将每一行的每一列数据都存入集合中
+                List<String> list = new ArrayList<>();
+                for (int j = firstcell; j <lastcell; j++) {
+                    //获取第j列
+                    Cell cell = row.getCell(j);
+
+                    if (cell != null) {
+                        list.add(cell.toString());
+                    }else {
+                        list.add("");
+                    }
+
+                }
+                objectList.add(list);
+            }
+        }
+        fis.close();
+        return objectList;
+    }
+
+    @RequestMapping("/export")
+    public AjaxResult export()
+    {
+        List<SwitchEntry> list = new ArrayList<>();
+
+        ExcelUtil<SwitchEntry> util = new ExcelUtil<SwitchEntry>(SwitchEntry.class);
+
+        return util.exportExcel(list, "交换机登录信息","交换机登录信息");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /*public static SshMethod connectMethod;
     //连接方法

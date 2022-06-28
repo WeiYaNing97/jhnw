@@ -66,7 +66,9 @@ public class SysUserController extends BaseController
     public AjaxResult export(SysUser user)
     {
         List<SysUser> list = userService.selectUserList(user);
+
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
+
         return util.exportExcel(list, "用户数据");
     }
 

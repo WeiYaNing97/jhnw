@@ -3,9 +3,11 @@ package com.sgcc.web.controller.sql;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.common.core.domain.entity.GlobalVariable;
+import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ISwitchProblemService;
@@ -109,18 +111,24 @@ public class SwitchProblemController extends BaseController
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
     public List<ScanResultsVO> getUnresolvedProblemInformationByData(){
-
         ScanResults scanResults = new ScanResults();
 
-        String userName = GlobalVariable.userName;
-        Long loginTime = GlobalVariable.loginTime;
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        SysUser user = loginUser.getUser();
+
+        String userName = user.getUserName();
+        Long loginTime = loginUser.getLoginTime();
+
+        //系统登录人 手机号
+        String phonenumber = user.getPhonenumber();
+
         if(loginTime == null){
             loginTime = System.currentTimeMillis();
         }
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String dateFormat = simpleDateFormat.format(loginTime);
         dateFormat = dateFormat.split(" ")[0];
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName);
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName,phonenumber);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId = Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
