@@ -4,7 +4,7 @@
       <el-form-item label="设备基本信息:"></el-form-item>
       <el-form-item label="品牌" prop="brand">
         <el-select v-model="queryParams.brand" placeholder="品牌"
-                   filterable allow-create @blur="brandShu" @focus.once="brandLi" style="width: 150px">
+                   filterable allow-create @blur="brandShu" @focus="brandLi($event)" name="pinpai" style="width: 150px">
           <el-option v-for="(item,index) in brandList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
@@ -56,8 +56,13 @@
       <el-form-item label="标识符">
         <el-input v-model="queryParams.notFinished"
                   clearable
-                  @contextmenu="ssss"
-        ></el-input>
+                  @contextmenu="ssss" @focus="biaoshi($event)" name="biaoshi"></el-input>
+      </el-form-item>
+
+      <el-form-item label="标识符1">
+        <el-input v-model="queryParams.notFinished"
+                  clearable
+                  @contextmenu="ssss" @focus="youjian1($event)" name="biaoshi1"></el-input>
       </el-form-item>
 
       <el-form-item>
@@ -65,6 +70,9 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="hand">出现</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="qing">请求</el-button>
       </el-form-item>
 
     </el-form>
@@ -113,7 +121,6 @@
              style="display: inline-block;padding-left:308px">
           <el-form-item label="失败"></el-form-item>
         </div>
-
         <div v-else-if="item.targetType === 'wloop'" :key="index"
              style="display: inline-block">
           <el-form-item label="循环" :prop="'dynamicItem.' + index + '.cycleStartId'">
@@ -125,7 +132,6 @@
             <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
           </el-form-item>
         </div>
-
         <div v-else-if="item.targetType === 'dimmatch'" :key="index" style="display: inline-block">
           <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
@@ -211,7 +217,7 @@
           <el-form-item label="有无问题">
 <!--            prop="'dynamicItem.' + index + '.prodes'"-->
 <!--            <el-input v-model="item.prodes"></el-input>-->
-            <el-select v-model="item.tNextId" placeholder="有无问题、完成">
+            <el-select v-model="item.tNextId" placeholder="异常安全、完成">
               <el-option label="异常" value="有问题"></el-option>
               <el-option label="安全" value="无问题"></el-option>
               <el-option label="完成" value="完成"></el-option>
@@ -309,6 +315,7 @@ export default {
                 }
             ]
         },
+        who:'',
         showha:false,
         jiaoyan:'自定义校验',
         bizui:false,
@@ -363,6 +370,29 @@ export default {
 
   },
   methods: {
+      //请求
+      qing(){
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/switch_command/export',
+              headers:{
+                  "Content-Type": "application/json"
+              },
+              // data:JSON.stringify(subOne)
+          }).then(res=>{
+              // this.subList = res.data
+          })
+      },
+
+      //右键
+      biaoshi(e){
+          this.who = e.target.getAttribute('name')
+          console.log(this.who)
+      },
+      youjian1(e){
+          this.who = e.target.getAttribute('name')
+          console.log(this.who)
+      },
       //出现
       hand(){
           this.showha = true
@@ -382,7 +412,13 @@ export default {
           console.log('delete!')
       },
       showhelp(){
-        alert('sss')
+          if (this.who === 'biaoshi'){
+              alert('我是1')
+          }else if (this.who === 'biaoshi1'){
+              alert('我是2')
+          }else if (this.who === 'pinpai'){
+              alert('我是品牌')
+          }
       },
 
       shaxun(){
@@ -450,13 +486,14 @@ export default {
               this.typeList = res.data
           })
       },
-      brandLi(){
+      brandLi(e){
           axios({
               method:'post',
               url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
           }).then(res=>{
               this.brandList = res.data
           })
+          this.who = e.target.getAttribute('name')
       },
       proType(){
           alert(JSON.stringify(this.queryParams))
@@ -638,6 +675,9 @@ export default {
           if(type == 'match'){
               this.$set(item1,'matched','全文精确匹配')
               this.$set(item1,'trueFalse','成功')
+              // alert(event.target.getAttribute('label'))
+              // alert(this.event.target.getAttribute('label'))
+              alert(event.target.getAttribute('label'))
               const item2 = {
                   targetType:'matchfal',
                   onlyIndex:thisData

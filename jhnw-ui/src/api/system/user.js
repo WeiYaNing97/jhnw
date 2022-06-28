@@ -47,6 +47,7 @@ export function delUser(userId) {
 // 导出用户
 export function exportUser(query) {
   return request({
+    // url: 'http://192.168.1.98/dev-api/sql/switch_command/export',
     url: '/system/user/export',
     method: 'get',
     params: query

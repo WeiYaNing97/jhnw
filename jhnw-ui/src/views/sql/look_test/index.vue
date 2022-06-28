@@ -30,6 +30,7 @@
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
+      <br/>
 <!--      <el-form-item>-->
 <!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
 <!--          <el-option label="所有问题" value="1"></el-option>-->

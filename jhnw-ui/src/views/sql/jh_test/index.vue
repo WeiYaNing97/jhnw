@@ -41,10 +41,9 @@
       <el-form-item>
 <!--   @keyup.enter.native="handleQuery"-- 回车事件 >
 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">连接</el-button>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">开始扫描</el-button>
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="gettest">获取数据</el-button>-->
-        <el-button icon="el-icon-refresh" size="mini" @click="black" type="primary">黑框</el-button>
       </el-form-item>
     </el-form>
 
@@ -246,11 +245,6 @@ export default {
         this.loading = false;
       });
     },
-      black(){
-        axios.get('/dev-api/sql/ConnectController/testget').then(res =>{
-            // console.log(res.data)
-        })
-      },
       startsao(){
         ///dev-api/sql/ConnectController/testget
         axios.get('http://192.168.1.98/dev-api/sql/switch_problem/getUnresolvedProblemInformationByData').then(res=>{
@@ -322,7 +316,6 @@ export default {
       requestConnect(){
           this.$refs.queryForm.validate(valid => {
             if (valid){
-                // this.loading=true;
                 alert(JSON.stringify(this.queryParams));
                 // axios.post('/dev-api/sql/ConnectController/requestConnect',JSON.stringify(this.queryParams)).then(
                 //     this.$router.push({ path: this.redirect || "/" }).catch(()=>{})

@@ -1,7 +1,8 @@
 <template>
   <div>
+<!--    tableDataq  testData-->
     <el-table v-loading="loading"
-              :data="testData"
+              :data="tableDataq"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
@@ -16,7 +17,7 @@
           <el-button size="mini"
                      type="text"
                      icon="el-icon-edit"
-                     v-show="scope.row.ifQuestion==='无问题'"
+                     v-show="scope.row.ifQuestion==='异常'"
                      @click="xiufu(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
                      v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')"
@@ -26,6 +27,8 @@
       <!--      <el-table-column prop="planQuantity"  label="用户名"></el-table-column>-->
     </el-table>
 
+    <el-button @click="kan">看我</el-button>
+    <el-button @click="aaa">第二个</el-button>
     <!--  修复问题-->
     <el-dialog
       title="修复问题"
@@ -84,18 +87,37 @@
                         hproblemId:1,
                         children:[
                             {
+                            switchIp:'192.168.1.1',
                             typeProblem: '安全配置',
                             hproblemId:11,
                             children: [
                                 {
                                     problemName:'密码明文存储',
-                                    ifQuestion:'无问题',
-                                    hproblemId:111
+                                    ifQuestion:'异常',
+                                    hproblemId:111,
+                                    comId:'1653277339109',
+                                    valueId:1,
+                                    valueInformationVOList:[
+                                        {
+                                            hproblemId:111111,
+                                            dynamicVname:'用户名',
+                                            dynamicInformation:'admin'
+                                        }
+                                    ]
                                 },
                                 {
                                     problemName:'telnet开启',
-                                    ifQuestion:'有问题',
-                                    hproblemId:1111
+                                    ifQuestion:'安全',
+                                    hproblemId:1111,
+                                    comId:'1653277229109',
+                                    valueId:1,
+                                    valueInformationVOList:[
+                                        {
+                                            hproblemId:111111,
+                                            dynamicVname:'用户名',
+                                            dynamicInformation:'admin1'
+                                        }
+                                    ]
                                 }
                             ]
                         },
@@ -105,8 +127,17 @@
                                 children: [
                                     {
                                         problemName:'没有配置管理地址',
-                                        ifQuestion:'有问题',
-                                        hproblemId:112
+                                        ifQuestion:'异常',
+                                        hproblemId:112,
+                                        comId:'1653277339101',
+                                        valueId:1,
+                                        valueInformationVOList:[
+                                            {
+                                                hproblemId:111111,
+                                                dynamicVname:'用户名',
+                                                dynamicInformation:'admin2'
+                                            }
+                                        ]
                                     }
                                 ]
                             }
@@ -143,6 +174,22 @@
             this.wsInit()
         },
         methods: {
+            //笨方法
+            aaa(){
+                const shu = this.tableDataq
+                for (let i=0;i<shu.length;i++){
+                    for (let g=0;g<shu[i].children.length;g++){
+                        for (let m=0;m<shu[i].children[g].children.length;m++){
+                            if (shu[i].children[g].children[m].hasOwnProperty('valueInformationVOList')===true){
+                                const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
+                                const wenti = shu[i].children[g].children[m].problemName
+                                const zuihou = yonghu +" "+ wenti
+                                this.$set(shu[i].children[g].children[m],'problemName',zuihou)
+                            }
+                        }
+                    }
+                }
+            },
             //一键修复
             xiuall(row){
               const listAll = row.children
@@ -153,17 +200,20 @@
                     for (let g=0;g<listAll[i].children.length;g++){
                         // console.log(listAll[i].children[g].problemName)
                         const listC = {}
-                        this.$set(listC,'valueId',listAll[i].children[g].valueId)
-                        this.$set(listC,'comId',listAll[i].children[g].comId)
-                        list2.push(listC)
+                        if(listAll[i].children[g].ifQuestion === '异常'){
+                            this.$set(listC,'valueId',listAll[i].children[g].valueId)
+                            this.$set(listC,'comId',listAll[i].children[g].comId)
+                            list2.push(listC)
+                        }
                     }
                 }
                 list1.push(this.queryParams)
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const commandValueList = list2.map(x=>JSON.stringify(x))
+                alert(commandValueList)
                 axios({
                     method:'post',
-                    url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
+                    // url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
                     // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+commandValueList,
                     headers:{
                         "Content-Type": "application/json"
@@ -192,7 +242,7 @@
                 const commandValueList = list2.map(x=>JSON.stringify(x))
                 axios({
                     method:'post',
-                    url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
+                    // url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
                     // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+commandValueList,
                     headers:{
                         "Content-Type": "application/json"
@@ -250,8 +300,6 @@
             },
             wsMessageHanler(e) {
                 console.log('wsMessageHanler')
-                console.log(JSON.parse(e.data))
-
                 function changeTreeDate(arrayJsonObj,oldKey,newKey) {
                     let strtest = JSON.stringify(arrayJsonObj);
                     let reg = new RegExp(oldKey,'g');
@@ -260,22 +308,51 @@
                 }
                 let newJson = changeTreeDate(JSON.parse(e.data),'switchProblemVOList','children');
                 let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
-                // this.testData = newJson1
-                // if (newJson1[0].children[0] != null){
-                //     delete newJson1[0].children[0]
-                // }
-                // for (i=0;i<newJson1[0].children.length;i++){
-                //     delete newJson1[0].children[i].switchIp
-                // }
-
-                // var i = 0
-                // for(i;i<newJson1.length;i++){
-                //     for (i;i<newJson1[i].children.length;i++){
-                //
-                //     }
-                // }
                 this.testData = newJson1
+                const shu = this.testData
+                for (let i=0;i<shu.length;i++){
+                    for (let g=0;g<shu[i].children.length;g++){
+                        for (let m=0;m<shu[i].children[g].children.length;m++){
+                            if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
+                                const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
+                                const wenti = shu[i].children[g].children[m].problemName
+                                const zuihou = yonghu +" "+ wenti
+                                this.$set(shu[i].children[g].children[m],'problemName',zuihou)
+                            }
+                        }
+                    }
+                }
                 console.log(this.testData)
+            },
+            //看数据
+            kan(){
+                console.log(this.tableDataq)
+                this.tableDataq.forEach(items=>{
+                    // if (item.children.length>0){
+                    //     // alert('sss')
+                    //     // console.log(item)
+                    //     this.digui(item)
+                    //     console.log(item,'我们')
+                    // }
+                    console.log(items)
+                    this.has()
+                    this.digui(items)
+                })
+            },
+            //实验
+            has(){
+              console.log('sss')
+            },
+            //递归
+            digui(item){
+                if (item.children.length>0){
+                    item.children.forEach(ff=>{
+                        this.digui(ff)
+                        console.log(ff)
+                    })
+                }else{
+                    alert('没了')
+                }
             },
             /**
              * ws通信发生错误
