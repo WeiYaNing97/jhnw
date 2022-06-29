@@ -1,6 +1,9 @@
 package com.sgcc.web.controller.sql;
 
 import com.sgcc.common.annotation.Excel;
+import com.sgcc.common.annotation.Excel.ColumnType;
+import com.sgcc.common.annotation.Excel.Type;
+import com.sgcc.common.annotation.Excels;
 import com.sgcc.common.core.domain.BaseEntity;
 
 /**
@@ -11,7 +14,7 @@ import com.sgcc.common.core.domain.BaseEntity;
 public class SwitchEntry extends BaseEntity {
 
     /** 交换机ip */
-    @Excel(name = "交换机ip")
+    @Excel(name = "交换机ip", cellType = ColumnType.NUMERIC, prompt = "交换机ip")
     private String switchIp;
 
     /** 交换机姓名 */
@@ -29,7 +32,6 @@ public class SwitchEntry extends BaseEntity {
     /** 交换机连接端口号 */
     @Excel(name = "交换机连接端口号")
     private String portNumber;
-
 
     public String getSwitchIp() {
         return switchIp;
@@ -71,7 +73,6 @@ public class SwitchEntry extends BaseEntity {
         this.portNumber = portNumber;
     }
 
-
     @Override
     public String toString() {
         return "SwitchEntry{" +
@@ -82,4 +83,5 @@ public class SwitchEntry extends BaseEntity {
                 ", portNumber='" + portNumber + '\'' +
                 '}';
     }
+
 }

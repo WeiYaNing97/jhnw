@@ -161,6 +161,7 @@ public class ExcelUtil<T>
         this.clazz = clazz;
     }
 
+
     public void init(List<T> list, String sheetName, String title, Type type)
     {
         if (list == null)
