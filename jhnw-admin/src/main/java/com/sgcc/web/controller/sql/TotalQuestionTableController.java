@@ -27,8 +27,6 @@ public class TotalQuestionTableController extends BaseController
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
 
-    //public static List<String> longList;
-
     /**
      * @method: 根据交换机信息查询 扫描问题的 命令ID
      * @Param: []

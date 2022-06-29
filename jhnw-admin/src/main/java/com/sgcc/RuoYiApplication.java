@@ -36,5 +36,6 @@ public class RuoYiApplication
         } catch (SigarException e) {
             e.printStackTrace();
         }
+
     }
 }

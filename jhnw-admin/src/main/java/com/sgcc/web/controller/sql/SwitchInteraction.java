@@ -33,29 +33,21 @@ public class SwitchInteraction {
 
     @Autowired
     private ICommandLogicService commandLogicService;
-
     @Autowired
     private IReturnRecordService returnRecordService;
-
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
-
     @Autowired
     private IValueInformationService valueInformationService;
-
     @Autowired
     private ISwitchProblemService switchProblemService;
-
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
-
     @Autowired
     private IBasicInformationService basicInformationService;
-
     @RequestMapping("testThread")
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
-
         Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22};
         Object[] objects2 = {"ssh","192.168.1.1","admin","admin",22};
         Object[] objects3 = {"ssh","192.168.1.100","admin","admin",22};
@@ -102,100 +94,8 @@ public class SwitchInteraction {
         objects.add(objects19);
         objects.add(objects20);*/
 
-        MyThread.testThread(objects);
+        MyThread.switchLoginInformations(objects);
     }
-
-
-    /**
-     * @method: 根据命令ID集合的具体命令集合，执行
-     * 根据 命令ID 和 连接方式 ssh和telnet连接 获得
-     * @Param:
-     * @return:
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    /*@RequestMapping("/executeScanCommand")
-    public void executeScanCommand(Map<String,String> user_String,List<String> commandIdList,
-                                   String way,SshMethod connectMethod,TelnetSwitchMethod telnetSwitchMethod,
-                                   String firmwareVersion) {
-        for (String commandId:commandIdList){
-            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-            String command = commandLogic.getCommand();
-            String command_string = null;
-            if (way.equalsIgnoreCase("ssh")){
-
-                WebSocketService.sendMessage("badao",command);
-                command_string = connectMethod.sendCommand(command,user_String.get("notFinished"));
-            }else if (way.equalsIgnoreCase("telnet")){
-
-                WebSocketService.sendMessage("badao",command);
-                command_string = telnetSwitchMethod.sendCommand(command,user_String.get("notFinished"));
-            }
-
-            command_string =Utils.trimString(command_string);
-
-
-            String[] split = command_string.split("\r\n");
-            ReturnRecord returnRecord = new ReturnRecord();
-            returnRecord.setCurrentCommLog(command.trim());
-            //返回日志
-            if (split.length > 1){
-                String current_return_log = command_string.substring(0,command_string.length()-split[split.length-1].length()-2).trim();
-                returnRecord.setCurrentReturnLog(current_return_log);
-                //返回日志前后都有\r\n
-                String current_return_log_substring_end = current_return_log.substring(current_return_log.length() - 2, current_return_log.length());
-                if (!current_return_log_substring_end.equals("\r\n")){
-                    current_return_log = current_return_log+"\r\n";
-                }
-                String current_return_log_substring_start = current_return_log.substring(0, 2);
-                if (!current_return_log_substring_start.equals("\r\n")){
-                    current_return_log = "\r\n"+current_return_log;
-                }
-
-                WebSocketService.sendMessage("badao",current_return_log);
-                //当前标识符
-                String current_identifier = split[split.length-1].trim();
-                returnRecord.setCurrentIdentifier(current_identifier);
-                //当前标识符前后都没有\r\n
-                String current_identifier_substring_end = current_identifier.substring(current_identifier.length() - 2, current_identifier.length());
-                if (current_identifier_substring_end.equals("\r\n")){
-                    current_identifier = current_identifier.substring(0,current_identifier.length()-2);
-                }
-                String current_identifier_substring_start = current_identifier.substring(0, 2);
-                if (current_identifier_substring_start.equals("\r\n")){
-                    current_identifier = current_identifier.substring(2,current_identifier.length());
-                }
-
-                WebSocketService.sendMessage("badao",current_identifier);
-            }else if (split.length == 1){
-                returnRecord.setCurrentIdentifier("\r\n"+split[0]+"\r\n");
-                WebSocketService.sendMessage("badao","\r\n"+split[0]+"\r\n");
-            }
-
-            int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
-            //判断是否简单检验
-            if (commandLogic.getResultCheckId().equals("1")){
-                //判断命令是否错误 错误为false 正确为true
-                if (!Utils.judgmentError(command_string)){
-                    continue;
-                }else {
-                    System.err.print("简单检验，命令正确，新命令"+commandLogic.getEndIndex());
-                    List<Object> objectList = executeScanCommandByCommandId(commandLogic.getEndIndex(),user_String.get("notFinished"), way, connectMethod, telnetSwitchMethod);
-                    System.out.println("命令错误"+objectList.get(1));
-                }
-            }else {
-                Long first_problem_scanLogic_Id = Integer.valueOf(commandLogic.getProblemId().substring(3,commandLogic.getProblemId().length())).longValue();
-                System.err.print("\r\n交换机返回信息：\r\n"+command_string);
-
-
-                List<Object> executeScanCommandByCommandId_object = new ArrayList<>();
-                        executeScanCommandByCommandId_object.add(command_string);
-                        executeScanCommandByCommandId_object.add(first_problem_scanLogic_Id);
-                // 分析
-                String analysisReturnResults_String = analysisReturnResults(user_String, connectMethod, telnetSwitchMethod, executeScanCommandByCommandId_object);
-            }
-        }
-    }*/
 
 
     /*=====================================================================================================================
@@ -904,6 +804,7 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     public void insertvalueInformationService(Map<String,String> user_String,ProblemScanLogic problemScanLogic,String parameterString){
+
         LoginUser loginUser = SecurityUtils.getLoginUser();
         SysUser user = loginUser.getUser();
 

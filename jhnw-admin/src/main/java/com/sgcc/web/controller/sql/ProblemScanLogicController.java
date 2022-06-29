@@ -34,32 +34,9 @@ public class ProblemScanLogicController extends BaseController
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
     @Autowired
-    private IValueInformationService valueInformationService;
-    @Autowired
-    private ISwitchProblemService switchProblemService;
-    @Autowired
     private ICommandLogicService commandLogicService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
-
-    /*//行数记录
-    public Integer line_n = 0;
-    //交换机返回信息 切割为字符串数组
-    public String[] return_information_array;
-    //第一条分析ID
-    public static String first_problem_scanLogic_Id;
-    //单轮提取
-    public String current_Round_Extraction_String;
-    //提取信息总和
-    public String extractInformation_string;
-    public static List<BasicInformation> pojolist;
-    public static String result_string;*/
-
-    @Autowired
-    private IReturnRecordService returnRecordService;
-
-    @Autowired
-    private IBasicInformationService basicInformationService;
 
 
     /**

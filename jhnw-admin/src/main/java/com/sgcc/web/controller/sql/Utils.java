@@ -18,9 +18,6 @@ import java.util.Map;
  */
 public class Utils {
 
-    @Autowired
-    private IProblemScanLogicService problemScanLogicService;
-
     /**
      * @method: 修整字符串
      * @Param: [resultString] 交换机返回信息

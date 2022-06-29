@@ -38,7 +38,7 @@ public class MyThread extends Thread {
         }
     }
 
-    public static void testThread(List<Object[]> objects) {
+    public static void switchLoginInformations(List<Object[]> objects) {
         for (Object[] objects3:objects){
             mode = (String)objects3[0];
             ip = (String)objects3[1];
