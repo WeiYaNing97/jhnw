@@ -71,9 +71,6 @@
       <el-form-item>
         <el-button type="primary" @click="hand">出现</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="qing">请求</el-button>
-      </el-form-item>
 
     </el-form>
     <hr style='border:1px inset #D2E9FF;'>
@@ -370,20 +367,6 @@ export default {
 
   },
   methods: {
-      //请求
-      qing(){
-          axios({
-              method:'post',
-              url:'http://192.168.1.98/dev-api/sql/switch_command/export',
-              headers:{
-                  "Content-Type": "application/json"
-              },
-              // data:JSON.stringify(subOne)
-          }).then(res=>{
-              // this.subList = res.data
-          })
-      },
-
       //右键
       biaoshi(e){
           this.who = e.target.getAttribute('name')
