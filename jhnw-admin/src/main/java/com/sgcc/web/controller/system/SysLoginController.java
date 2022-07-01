@@ -1,5 +1,6 @@
 package com.sgcc.web.controller.system;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +35,30 @@ public class SysLoginController
     @Autowired
     private SysPermissionService permissionService;
 
+
     /**
      * 登录方法
-     * 
      * @param loginBody 登录信息
      * @return 结果
      */
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {
+
         AjaxResult ajax = AjaxResult.success();
+
         // 生成令牌
         String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
                 loginBody.getUuid());
+
+        if (token.equals("同一用户，禁止同时多次登录!")){
+            return AjaxResult.error("同一用户，禁止同时多次登录!");
+        }
+
         ajax.put(Constants.TOKEN, token);
+
         return ajax;
+
     }
 
     /**

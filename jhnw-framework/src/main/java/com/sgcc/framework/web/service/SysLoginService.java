@@ -1,6 +1,8 @@
 package com.sgcc.framework.web.service;
 
 import javax.annotation.Resource;
+
+import com.sgcc.common.core.domain.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +25,9 @@ import com.sgcc.framework.manager.AsyncManager;
 import com.sgcc.framework.manager.factory.AsyncFactory;
 import com.sgcc.system.service.ISysConfigService;
 import com.sgcc.system.service.ISysUserService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 登录校验方法
@@ -47,6 +52,8 @@ public class SysLoginService
     @Autowired
     private ISysConfigService configService;
 
+    public  static List<String> userNameList = new ArrayList<>();
+
     /**
      * 登录验证
      * 
@@ -58,6 +65,13 @@ public class SysLoginService
      */
     public String login(String username, String password, String code, String uuid)
     {
+
+        for (String name:userNameList) {
+            if (name.equals(username)) {
+                return "同一用户，禁止同时多次登录!";
+            }
+        }
+
         boolean captchaOnOff = configService.selectCaptchaOnOff();
 
         // 验证码开关
@@ -89,6 +103,8 @@ public class SysLoginService
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         recordLoginInfo(loginUser.getUserId());
+
+        userNameList.add(username);
         // 生成token
         return tokenService.createToken(loginUser);
     }

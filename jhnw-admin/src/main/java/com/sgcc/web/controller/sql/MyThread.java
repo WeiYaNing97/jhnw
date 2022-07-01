@@ -39,6 +39,13 @@ public class MyThread extends Thread {
         }
     }
 
+    /**
+    * @method: 接收多条 交换机登录信息 连接方式。ip，用户名，密码，端口号，登录系统人员名称
+    * @Param: [objects]
+    * @return: void
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     public static void switchLoginInformations(List<Object[]> objects) {
         for (Object[] objects3:objects){
             mode = (String)objects3[0];

@@ -139,8 +139,10 @@ public class SwitchInteraction {
 
         //ssh连接
         SshMethod connectMethod = null;
+        user_String.put("connectMethod",connectMethod.toString());
         //telnet连接
         TelnetSwitchMethod telnetSwitchMethod = null;
+        user_String.put("telnetSwitchMethod",telnetSwitchMethod.toString());
 
         //连接交换机  requestConnect：
         //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
