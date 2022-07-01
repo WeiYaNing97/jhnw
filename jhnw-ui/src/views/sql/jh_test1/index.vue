@@ -2,34 +2,39 @@
   <div class="app-container" @contextmenu="showMenu">
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="设备基本信息:"></el-form-item>
-      <el-form-item label="品牌" prop="brand">
-        <el-select v-model="queryParams.brand" placeholder="品牌"
-                   filterable allow-create @blur="brandShu" @focus="brandLi($event)" name="pinpai" style="width: 150px">
-          <el-option v-for="(item,index) in brandList"
-                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="型号" prop="type">
-        <el-select v-model="queryParams.type" placeholder="型号"
-                   filterable allow-create @blur="typeShu" @focus.once="typeLi" style="width: 150px">
-          <el-option v-for="(item,index) in typeList"
-                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="固件版本" prop="firewareVersion">
-        <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                   filterable allow-create @blur="fireShu" @focus.once="fireLi" style="width: 150px">
-          <el-option v-for="(item,index) in fireList"
-                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="子版本" prop="subVersion">
-        <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                   filterable allow-create @blur="subShu" @focus.once="subLi" style="width: 150px">
-          <el-option v-for="(item,index) in subList"
-                     :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
-        </el-select>
-      </el-form-item>
+      <div>
+        <el-form-item label="品牌" prop="brand">
+          <el-select v-model="queryParams.brand" placeholder="品牌"
+                     filterable allow-create @blur="brandShu" @focus="brandLi($event)" name="pinpai" style="width: 150px">
+            <el-option v-for="(item,index) in brandList"
+                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="型号" prop="type">
+          <el-select v-model="queryParams.type" placeholder="型号"
+                     filterable allow-create @blur="typeShu" @focus.once="typeLi" style="width: 150px">
+            <el-option v-for="(item,index) in typeList"
+                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="固件版本" prop="firewareVersion">
+          <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
+                     filterable allow-create @blur="fireShu" @focus.once="fireLi" style="width: 150px">
+            <el-option v-for="(item,index) in fireList"
+                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="子版本" prop="subVersion">
+          <el-select v-model="queryParams.subVersion" placeholder="子版本"
+                     filterable allow-create @blur="subShu" @focus.once="subLi" style="width: 150px">
+            <el-option v-for="(item,index) in subList"
+                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="tianjia(item)"><i class="el-icon-plus"></i></el-button>
+        </el-form-item>
+      </div>
       <br/>
 <!--      <el-form-item>-->
 <!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
@@ -70,6 +75,12 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="hand">出现</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="xiazai">下载</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="kanuser">看用户</el-button>
       </el-form-item>
 
     </el-form>
@@ -285,6 +296,7 @@
 <script>
 import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, exportJh_test1 } from "@/api/sql/jh_test1";
 import axios from 'axios';
+import Cookies from "js-cookie";
 import TinymceEditor from "@/components/Tinymce/TinymceEditor";
 
 export default {
@@ -367,6 +379,20 @@ export default {
 
   },
   methods: {
+      //添加
+      tianjia(item){
+          alert('添加')
+          this.$set(item)
+      },
+      //下载
+      kanuser(){
+          let usname = Cookies.get('usName')
+        console.log(usname)
+      },
+      xiazai(){
+          window.location.href = 'http://localhost:81/w.xlsx'
+          // this.$download.name('E:/61jhnw/jhnw/jhnw-ui/src/views/sql/jh_test1/w.xlsx')
+      },
       //右键
       biaoshi(e){
           this.who = e.target.getAttribute('name')

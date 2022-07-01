@@ -114,6 +114,7 @@ import WebSocket from '@/components/WebSocket/WebSocket';
 import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
 import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
 import axios from 'axios'
+import Cookies from "js-cookie";
 import log from "../../monitor/job/log";
 export default {
   name: "Jh_test",
@@ -232,7 +233,10 @@ export default {
     };
   },
   created() {
-    this.getList();
+      console.log('ssss')
+      let us = Cookies.get("userInfo")
+      console.log(us)
+      this.getList();
   },
   methods: {
     /** 查询嘉豪测试列表 */
@@ -314,9 +318,10 @@ export default {
     },
       //连接交换机
       requestConnect(){
+          let usname = Cookies.get('usName')
+          // console.log(usname)
           this.$refs.queryForm.validate(valid => {
             if (valid){
-                alert(JSON.stringify(this.queryParams));
                 // axios.post('/dev-api/sql/ConnectController/requestConnect',JSON.stringify(this.queryParams)).then(
                 //     this.$router.push({ path: this.redirect || "/" }).catch(()=>{})
                 // );
@@ -324,6 +329,7 @@ export default {
                 for (var key in this.queryParams){
                     form.append(key,this.queryParams[key]);
                 }
+                form.append('userName',usname)
                 console.log(JSON.stringify(this.queryParams))
                 axios({
                     method:'post',

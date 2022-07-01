@@ -650,6 +650,7 @@ export default {
         return exportUser(queryParams);
       }).then(response => {
         this.$download.name(response.msg);
+        console.log(response.msg)
         this.exportLoading = false;
       }).catch(() => {});
     },
