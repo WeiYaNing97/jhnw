@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/sql/SolveProblemController")
-public class SolveProblemController {
+public class SolveProblemController extends Thread {
 
     @Autowired
     private ICommandLogicService commandLogicService;
@@ -42,11 +42,36 @@ public class SolveProblemController {
     @Autowired
     private ISwitchProblemService switchProblemService;
 
+    private static List<String> userinformationList;
+    private static List<String> commandValueList;
 
     /*=====================================================================================================================
     =====================================================================================================================
     =====================================================================================================================*/
 
+
+
+    @Override
+    public void run() {
+        AjaxResult ajaxResult = batchSolution(userinformationList, commandValueList);
+    }
+
+    @RequestMapping("batchSolutionMultithreading")
+    public static void batchSolutionMultithreading(List<Object> userinformation,List<Object> commandValue) {
+        int number = userinformation.size();
+        for (int i = 0 ; i<number ; i++){
+            userinformationList = (List<String>) userinformation.get(i);
+            commandValueList = (List<String>) commandValue.get(i);
+            Thread thread = new SolveProblemController();
+            thread.start();
+            try {
+                //Thread.sleep(1000*3);
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /*解决问题命令回显*/
     /**
@@ -360,12 +385,12 @@ public class SolveProblemController {
 
                 WebSocketService.sendMessage("badao",command);
                 commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
-                commandString = Utils.removeLoginInformation(commandString);
+                //commandString = Utils.removeLoginInformation(commandString);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
                 WebSocketService.sendMessage("badao",command);
                 commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
-                commandString = Utils.removeLoginInformation(commandString);
+                //commandString = Utils.removeLoginInformation(commandString);
             }
             //判断命令是否错误 错误为false 正确为true
             if (!Utils.judgmentError(commandString)){

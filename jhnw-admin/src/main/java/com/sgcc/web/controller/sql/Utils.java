@@ -19,6 +19,17 @@ import java.util.Map;
 public class Utils {
 
     /**
+    * @method: 进度条
+    * @Param: [总数, 完成数]
+    * @return: java.lang.String
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    public static String progressBar(double number1,double number2) {
+        return (int)(number2/number1*100)+"%";
+    }
+
+    /**
      * @method: 修整字符串
      * @Param: [resultString] 交换机返回信息
      * @E-mail: WeiYaNing97@163.com

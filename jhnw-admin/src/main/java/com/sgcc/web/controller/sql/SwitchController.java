@@ -38,8 +38,8 @@ public class SwitchController  {
             long iowait = ticks[CentralProcessor.TickType.IOWAIT.getIndex()] - prevTicks[CentralProcessor.TickType.IOWAIT.getIndex()];
             long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
             long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
-            log.info("内存大小 = {},内存使用率 ={}",formatByte(totalByte),new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte));
-            log.info("CPU总数 = {},CPU利用率 ={}",processor.getLogicalProcessorCount(),new DecimalFormat("#.##%").format(1.0-(idle * 1.0 / totalCpu)));
+            //log.info("内存大小 = {},内存使用率 ={}",formatByte(totalByte),new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte));
+            //log.info("CPU总数 = {},CPU利用率 ={}",processor.getLogicalProcessorCount(),new DecimalFormat("#.##%").format(1.0-(idle * 1.0 / totalCpu)));
             String Memory_CPU = "内存大小 : "+formatByte(totalByte)+"\r\n"+
                     "内存使用率 : "+new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte)+"\r\n"+
                     "CPU总数 : "+processor.getLogicalProcessorCount()+"\r\n"+
@@ -52,19 +52,23 @@ public class SwitchController  {
     }
 
     public static String formatByte(long byteNumber){
+
         double FORMAT = 1024.0;
         double kbNumber = byteNumber/FORMAT;
         if(kbNumber<FORMAT){
             return new DecimalFormat("#.##KB").format(kbNumber);
         }
+
         double mbNumber = kbNumber/FORMAT;
         if(mbNumber<FORMAT){
             return new DecimalFormat("#.##MB").format(mbNumber);
         }
+
         double gbNumber = mbNumber/FORMAT;
         if(gbNumber<FORMAT){
             return new DecimalFormat("#.##GB").format(gbNumber);
         }
+
         double tbNumber = gbNumber/FORMAT;
         return new DecimalFormat("#.##TB").format(tbNumber);
     }

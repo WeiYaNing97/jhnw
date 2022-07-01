@@ -3,12 +3,14 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.common.utils.ServletUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 
+import com.sgcc.framework.web.service.TokenService;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -48,31 +51,31 @@ public class SwitchInteraction {
     @RequestMapping("testThread")
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
-        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects2 = {"ssh","192.168.1.1","admin","admin",22};
-        Object[] objects3 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects4 = {"ssh","192.168.1.1","admin","admin",22};
-        Object[] objects5 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects6 = {"ssh","192.168.1.1","admin","admin",22};
-        Object[] objects8 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects7 = {"ssh","192.168.1.1","admin","admin",22};
-        Object[] objects9 = {"ssh","192.168.1.100","admin","admin",22};
-        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22};
+        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
+        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
+        Object[] objects3 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
+        Object[] objects4 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
+        Object[] objects5 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
+        Object[] objects6 = {"ssh","192.168.1.1","admin","admin",22,"ruoyi"};
+        Object[] objects8 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
+        Object[] objects7 = {"ssh","192.168.1.1","admin","admin",22,"ruoyi"};
+        Object[] objects9 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
+        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22,"ruoyi"};
 
-        Object[] objects11 = {"telnet","192.168.1.1","admin","admin",23};
-        Object[] objects12 = {"telnet","192.168.1.100","admin","admin",23};
-        Object[] objects13 = {"telnet","192.168.1.100","admin","admin",23};
-        Object[] objects14 = {"telnet","192.168.1.1","admin","admin",23};
-        Object[] objects15 = {"telnet","192.168.1.100","admin","admin",23};
-        Object[] objects16 = {"telnet","192.168.1.1","admin","admin",23};
-        Object[] objects17 = {"telnet","192.168.1.100","admin","admin",23};
-        Object[] objects18 = {"telnet","192.168.1.1","admin","admin",23};
-        Object[] objects19 = {"telnet","192.168.1.100","admin","admin",23};
-        Object[] objects20 = {"telnet","192.168.1.1","admin","admin",23};
-
+        Object[] objects11 = {"telnet","192.168.1.100","admin","admin",23,"admin"};
+        Object[] objects12 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
+        Object[] objects13 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
+        Object[] objects14 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
+        Object[] objects15 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
+        Object[] objects16 = {"telnet","192.168.1.1","admin","admin",23,"ruoyi"};
+        Object[] objects17 = {"telnet","192.168.1.100","admin","admin",23,"admin"};
+        Object[] objects18 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
+        Object[] objects19 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
+        Object[] objects20 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
         objects.add(objects1);
-        objects.add(objects2);
-        /*objects.add(objects3);
+
+        /*objects.add(objects2);
+        objects.add(objects3);
         objects.add(objects4);
         objects.add(objects5);
         objects.add(objects6);
@@ -81,8 +84,8 @@ public class SwitchInteraction {
         objects.add(objects9);
         objects.add(objects10);*/
 
-        objects.add(objects11);
-        objects.add(objects12);
+        //objects.add(objects11);
+        //objects.add(objects12);
 
         /*objects.add(objects13);
         objects.add(objects14);*/
@@ -99,7 +102,9 @@ public class SwitchInteraction {
 
 
     /*=====================================================================================================================
+
     =====================================================================================================================
+
     =====================================================================================================================*/
 
 
@@ -111,7 +116,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @PostMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port) {
+    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,String userName) {
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
         //用户信息
@@ -120,6 +125,7 @@ public class SwitchInteraction {
         user_String.put("name",name);//用户名
         user_String.put("password",password);//用户密码
         user_String.put("port",port+"");//登录端口号
+        user_String.put("userName",userName);//登录端口号
 
         //交换机信息
         //设备型号
@@ -312,11 +318,11 @@ public class SwitchInteraction {
                 if (way.equalsIgnoreCase("ssh")){
                     WebSocketService.sendMessage("badao",command);
                     commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
-                    commandString = Utils.removeLoginInformation(commandString);
+                    //commandString = Utils.removeLoginInformation(commandString);
                 }else if (way.equalsIgnoreCase("telnet")){
                     WebSocketService.sendMessage("badao",command);
                     commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
-                    commandString = Utils.removeLoginInformation(commandString);
+                    //commandString = Utils.removeLoginInformation(commandString);
                 }
 
                 //判断命令是否错误 错误为false 正确为true
@@ -554,7 +560,7 @@ public class SwitchInteraction {
                 current_Round_Extraction_String = "";
                 //获取扫描出问题数据列表  集合 并放入 websocket
 
-                getUnresolvedProblemInformationByData();
+                getUnresolvedProblemInformationByData(user_String);
                 //获取下一条分析ID
                 if (problemScanLogic.gettNextId()!=null){
                     currentID = problemScanLogic.gettNextId();
@@ -805,15 +811,14 @@ public class SwitchInteraction {
      */
     public void insertvalueInformationService(Map<String,String> user_String,ProblemScanLogic problemScanLogic,String parameterString){
 
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        SysUser user = loginUser.getUser();
+        //HttpServletRequest request = ServletUtils.getRequest();
+
 
         //系统登录人 用户名
-        String userName = user.getUserName();
-        String nickName = user.getNickName();
+        String userName = user_String.get("userName");
 
         //系统登录人 手机号
-        String phonenumber = user.getPhonenumber();
+        String phonenumber = null;
 
 
         String substring = problemScanLogic.getProblemId().substring(0, 3);
@@ -886,18 +891,15 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
-    public List<ScanResultsVO> getUnresolvedProblemInformationByData(){
+    public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String){
 
         ScanResults scanResults = new ScanResults();
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        SysUser user = loginUser.getUser();
 
-        String userName = user.getUserName();
-        Long loginTime = loginUser.getLoginTime();
-        String phonenumber = user.getPhonenumber();
+        String userName = user_String.get("userName");
+        String phonenumber = null;
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateFormat = simpleDateFormat.format(loginTime);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String dateFormat = simpleDateFormat.format(new Date());
         dateFormat = dateFormat.split(" ")[0];
 
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName,phonenumber);
@@ -977,11 +979,11 @@ public class SwitchInteraction {
         if (way.equalsIgnoreCase("ssh")){
             WebSocketService.sendMessage("badao",command);
             command_string = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,notFinished);
-            command_string = Utils.removeLoginInformation(command_string);
+            //command_string = Utils.removeLoginInformation(command_string);
         }else if (way.equalsIgnoreCase("telnet")){
             WebSocketService.sendMessage("badao",command);
             command_string = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,notFinished);
-            command_string = Utils.removeLoginInformation(command_string);
+            //command_string = Utils.removeLoginInformation(command_string);
         }
 
         //修整返回信息
