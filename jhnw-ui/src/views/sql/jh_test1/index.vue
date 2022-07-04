@@ -376,7 +376,8 @@ export default {
     };
   },
   created() {
-
+      let usname = Cookies.get('usName')
+      console.log(usname)
   },
   methods: {
       //添加
@@ -386,8 +387,12 @@ export default {
       },
       //下载
       kanuser(){
-          let usname = Cookies.get('usName')
-        console.log(usname)
+          // let usname = Cookies.get('usName')
+        // console.log(usname)
+          var ip = window.location.host
+          console.log(ip)
+          console.log("ip",ip.split(":")[0])
+          console.log(process.env.VUE_APP_HOST)
       },
       xiazai(){
           window.location.href = 'http://localhost:81/w.xlsx'

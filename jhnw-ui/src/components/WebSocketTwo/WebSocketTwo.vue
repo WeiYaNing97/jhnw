@@ -64,6 +64,7 @@
 <script>
     import log from "../../views/monitor/job/log";
     import axios from 'axios'
+    import Cookies from "js-cookie";
     export default {
         name: "WebSocketTwo",
         props:{
@@ -173,6 +174,10 @@
             this.wsIsRun = true
             this.wsInit()
         },
+        created(){
+            // const usname = Cookies.get('usName')
+            // console.log(usname)
+        },
         methods: {
             //笨方法
             aaa(){
@@ -268,7 +273,8 @@
              */
             wsInit() {
                 // localhost 192.168.1.98
-                const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
+                // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
+                const wsuri = `ws://192.168.1.98/dev-api/websocket/loophole${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws

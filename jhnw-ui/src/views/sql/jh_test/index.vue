@@ -233,10 +233,12 @@ export default {
     };
   },
   created() {
-      console.log('ssss')
-      let us = Cookies.get("userInfo")
-      console.log(us)
-      this.getList();
+      // console.log('ssss')
+      // let us = Cookies.get("userInfo")
+      // console.log(us)
+      // this.getList();
+      // let usname = Cookies.get('usName')
+      // console.log(usname)
   },
   methods: {
     /** 查询嘉豪测试列表 */
