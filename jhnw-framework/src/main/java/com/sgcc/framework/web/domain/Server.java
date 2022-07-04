@@ -48,7 +48,7 @@ public class Server
     /**
      * 服务器相关信息
      */
-    private Sys sys = new Sys();
+    public Sys sys = new Sys();
 
     /**
      * 磁盘相关信息

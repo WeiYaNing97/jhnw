@@ -44,6 +44,7 @@ public class SolveProblemController extends Thread {
 
     private static List<String> userinformationList;
     private static List<String> commandValueList;
+    private static String username;
 
     /*=====================================================================================================================
     =====================================================================================================================
@@ -53,11 +54,12 @@ public class SolveProblemController extends Thread {
 
     @Override
     public void run() {
-        AjaxResult ajaxResult = batchSolution(userinformationList, commandValueList);
+        AjaxResult ajaxResult = batchSolution(userinformationList, commandValueList,username);
     }
 
     @RequestMapping("batchSolutionMultithreading")
-    public static void batchSolutionMultithreading(List<Object> userinformation,List<Object> commandValue) {
+    public static void batchSolutionMultithreading(List<Object> userinformation,List<Object> commandValue,String userName) {
+        username = userName;
         int number = userinformation.size();
         for (int i = 0 ; i<number ; i++){
             userinformationList = (List<String>) userinformation.get(i);
@@ -119,8 +121,8 @@ public class SolveProblemController extends Thread {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("/batchSolution/{userinformation}/{commandValueList}")
-    public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){
+    @RequestMapping("/batchSolution/{userinformation}/{commandValueList}/{userName}")
+    public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList,@PathVariable String userName){
         //String mode,String ip,String name,String password,String port
         //用户信息
         String userInformationString = userinformation.toString();
@@ -236,7 +238,7 @@ public class SolveProblemController extends Thread {
                 //参数集合
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
                 //解决问题
-                String solveProblem = solveProblem(informationList, commandList, valueInformationVOList);
+                String solveProblem = solveProblem(informationList, commandList, valueInformationVOList,userName);
 
                 if (solveProblem.equals("成功")){
                     SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(Integer.valueOf(valueId).longValue());
@@ -333,7 +335,8 @@ public class SolveProblemController extends Thread {
     @RequestMapping("solveProblem")
     public String solveProblem(List<Object> informationList,
                                List<String> commandList,
-                               List<ValueInformationVO> valueInformationVOList){
+                               List<ValueInformationVO> valueInformationVOList,
+                               String userName){
         //遍历命令集合    根据参数名称 获取真实命令
         //local-user:用户名
         //password cipher:密码
@@ -383,12 +386,12 @@ public class SolveProblemController extends Thread {
             System.err.print("\r\n"+"命令："+command+"\r\n");
             if (requestConnect_way.equalsIgnoreCase("ssh")){
 
-                WebSocketService.sendMessage("badao",command);
+                WebSocketService.sendMessage("badao"+userName,command);
                 commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
                 //commandString = Utils.removeLoginInformation(commandString);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
-                WebSocketService.sendMessage("badao",command);
+                WebSocketService.sendMessage("badao"+userName,command);
                 commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
                 //commandString = Utils.removeLoginInformation(commandString);
             }
@@ -420,7 +423,7 @@ public class SolveProblemController extends Thread {
                 if (!current_return_log_substring_start.equals("\r\n")){
                     current_return_log = "\r\n"+current_return_log;
                 }
-                WebSocketService.sendMessage("badao",current_return_log);
+                WebSocketService.sendMessage("badao"+userName,current_return_log);
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
                 returnRecord.setCurrentIdentifier(current_identifier);
@@ -434,10 +437,10 @@ public class SolveProblemController extends Thread {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage("badao",current_identifier);
+                WebSocketService.sendMessage("badao"+userName,current_identifier);
             }else if (commandString_split.length == 1){
                 returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
-                WebSocketService.sendMessage("badao","\r\n"+commandString_split[0]+"\r\n");
+                WebSocketService.sendMessage("badao"+userName,"\r\n"+commandString_split[0]+"\r\n");
             }
             //存储交换机返回数据 插入数据库
             int insert_Int = returnRecordService.insertReturnRecord(returnRecord);

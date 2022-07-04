@@ -1,4 +1,6 @@
 package com.sgcc.web.controller.sql;
+import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +10,7 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import org.hyperic.sigar.SigarException;
 import java.text.DecimalFormat;
+import java.util.Set;
 
 /**
  * @author 天幕顽主
@@ -44,7 +47,7 @@ public class SwitchController  {
                     "内存使用率 : "+new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte)+"\r\n"+
                     "CPU总数 : "+processor.getLogicalProcessorCount()+"\r\n"+
                     "CPU利用率 : "+new DecimalFormat("#.##%").format(1.0-(idle * 1.0 / totalCpu));
-            WebSocketService.sendMessage("Memory_CPU",Memory_CPU);
+            //WebSocketService.sendMessage("Memory_CPU",Memory_CPU);
             //System.out.println(Memory_CPU);
             Thread.sleep(1000);
         }
@@ -72,5 +75,4 @@ public class SwitchController  {
         double tbNumber = gbNumber/FORMAT;
         return new DecimalFormat("#.##TB").format(tbNumber);
     }
-
 }

@@ -1,12 +1,16 @@
 package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.domain.AjaxResult;
 
+import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 
+import com.sgcc.framework.web.domain.Server;
+import com.sgcc.framework.web.domain.server.Sys;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -329,11 +333,11 @@ public class SwitchInteraction {
                 //根据 连接方法 判断 实际连接方式
                 //并发送命令 接受返回结果
                 if (way.equalsIgnoreCase("ssh")){
-                    WebSocketService.sendMessage("badao",command);
+                    WebSocketService.sendMessage("badao"+user_String.get("userName"),command);
                     commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (way.equalsIgnoreCase("telnet")){
-                    WebSocketService.sendMessage("badao",command);
+                    WebSocketService.sendMessage("badao"+user_String.get("userName"),command);
                     commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
                     //commandString = Utils.removeLoginInformation(commandString);
                 }
@@ -378,7 +382,7 @@ public class SwitchInteraction {
 
                 }
 
-                WebSocketService.sendMessage("badao",current_return_log);
+                WebSocketService.sendMessage("badao"+user_String.get("userName"),current_return_log);
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
                 returnRecord.setCurrentIdentifier(current_identifier);
@@ -392,7 +396,7 @@ public class SwitchInteraction {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage("badao",current_identifier);
+                WebSocketService.sendMessage("badao"+user_String.get("userName"),current_identifier);
 
                 //存储交换机返回数据 插入数据库
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
@@ -455,7 +459,7 @@ public class SwitchInteraction {
                     stringList.add(subversionNumber);
                     /*return AjaxResult.success(stringList);*/
 
-                    WebSocketService.sendMessage("basicinformation",stringList);
+                    WebSocketService.sendMessage("basicinformation"+user_String.get("userName"),stringList);
 
                     HashMap<String,String> map = new HashMap<>();
                     map.put("pinpai",deviceBrand);
@@ -472,10 +476,6 @@ public class SwitchInteraction {
                     //子版本号
                     user_String.put("subversionNumber",subversionNumber);
 
-                    /*WebSocketService.sendMessage("pinpai",deviceBrand);
-                    WebSocketService.sendMessage("xinghao",deviceModel);
-                    WebSocketService.sendMessage("banben",firmwareVersion);
-                    WebSocketService.sendMessage("zibanben",subversionNumber);*/
                     return AjaxResult.success(map);
                 }
             }
@@ -963,7 +963,7 @@ public class SwitchInteraction {
         }
 
         scanResults.setScanResultsVOS(scanResultsVOList);
-        WebSocketService.sendMessage("loophole",scanResultsVOList);
+        WebSocketService.sendMessage("loophole"+user_String.get("userName"),scanResultsVOList);
 
         return scanResultsVOList;
     }
@@ -997,11 +997,11 @@ public class SwitchInteraction {
         //命令返回信息
         String command_string = null;
         if (way.equalsIgnoreCase("ssh")){
-            WebSocketService.sendMessage("badao",command);
+            WebSocketService.sendMessage("badao"+user_String.get("userName"),command);
             command_string = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,notFinished);
             //command_string = Utils.removeLoginInformation(command_string);
         }else if (way.equalsIgnoreCase("telnet")){
-            WebSocketService.sendMessage("badao",command);
+            WebSocketService.sendMessage("badao"+user_String.get("userName"),command);
             command_string = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,notFinished);
             //command_string = Utils.removeLoginInformation(command_string);
         }
@@ -1028,7 +1028,7 @@ public class SwitchInteraction {
             }
         }
 
-        WebSocketService.sendMessage("badao",current_return_log);
+        WebSocketService.sendMessage("badao"+user_String.get("userName"),current_return_log);
 
         //按行切割，最后一位应该是 标识符
         String current_identifier = split[split.length-1].trim();
@@ -1043,7 +1043,7 @@ public class SwitchInteraction {
             current_identifier = current_identifier.substring(2,current_identifier.length());
         }
 
-        WebSocketService.sendMessage("badao",current_identifier);
+        WebSocketService.sendMessage("badao"+user_String.get("userName"),current_identifier);
 
         //返回信息表，返回插入条数
         int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
