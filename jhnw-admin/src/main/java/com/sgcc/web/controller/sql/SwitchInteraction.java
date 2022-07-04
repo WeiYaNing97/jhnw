@@ -1,16 +1,12 @@
 package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.common.core.domain.entity.SysUser;
-import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.common.utils.SecurityUtils;
-import com.sgcc.common.utils.ServletUtils;
+
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 
-import com.sgcc.framework.web.service.TokenService;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -72,10 +67,11 @@ public class SwitchInteraction {
         Object[] objects18 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
         Object[] objects19 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
         Object[] objects20 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
-        objects.add(objects1);
 
-        /*objects.add(objects2);
-        objects.add(objects3);
+        objects.add(objects1);
+        objects.add(objects2);
+
+        /*objects.add(objects3);
         objects.add(objects4);
         objects.add(objects5);
         objects.add(objects6);
@@ -90,7 +86,7 @@ public class SwitchInteraction {
         /*objects.add(objects13);
         objects.add(objects14);*/
 
-        /*objects.add(objects15);
+      /*objects.add(objects15);
         objects.add(objects16);
         objects.add(objects17);
         objects.add(objects18);
@@ -137,12 +133,13 @@ public class SwitchInteraction {
         //子版本号
         user_String.put("subversionNumber",null);
 
+        Map<String,Object> user_Object = new HashMap<>();
         //ssh连接
         SshMethod connectMethod = null;
-        user_String.put("connectMethod",connectMethod.toString());
+        user_Object.put("connectMethod",connectMethod);
         //telnet连接
         TelnetSwitchMethod telnetSwitchMethod = null;
-        user_String.put("telnetSwitchMethod",telnetSwitchMethod.toString());
+        user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
 
         //连接交换机  requestConnect：
         //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
@@ -150,7 +147,7 @@ public class SwitchInteraction {
         //返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
         //                         connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）
         //                         SshConnect ssh连接工具 或者 TelnetComponent telnet连接工具（其中一个，为空者不存在）]
-        AjaxResult requestConnect_ajaxResult = requestConnect(user_String,connectMethod, telnetSwitchMethod);
+        AjaxResult requestConnect_ajaxResult = requestConnect(user_String);
 
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("data").equals("交换机连接失败")){
@@ -184,23 +181,33 @@ public class SwitchInteraction {
             SshConnect sshConnect = null;
             //SSH 连接工具
             TelnetComponent telnetComponent = null;
+
+            user_Object.put("connectMethod",connectMethod);
+            user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+            user_Object.put("sshConnect",sshConnect);
+            user_Object.put("telnetComponent",telnetComponent);
+
             //如果连接方式为ssh则 连接方法返回集合参数为 connectMethod参数
             //如果连接方式为telnet则 连接方法返回集合参数为 telnetSwitchMethod参数
             if (requestConnect_way.equalsIgnoreCase("ssh")){
                 connectMethod = (SshMethod)objectList.get(6);
                 sshConnect = (SshConnect)objectList.get(8);
+                user_Object.put("connectMethod",connectMethod);
+                user_Object.put("sshConnect",sshConnect);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
                 telnetSwitchMethod = (TelnetSwitchMethod)objectList.get(7);
                 telnetComponent = (TelnetComponent)objectList.get(9);
+                user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+                user_Object.put("telnetComponent",telnetComponent);
             }
 
             //获取交换机基本信息
-            AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,sshConnect, connectMethod, telnetComponent,telnetSwitchMethod);
+            AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);
 
             //获取 匹配的 交换机可执行的 命令ID  并 循环执行
             AjaxResult ajaxResult = scanProblem(
                     user_String, //登录交换机的 用户信息 登录方式、ip、name、password
-                    sshConnect,connectMethod, telnetComponent, telnetSwitchMethod);
+                    user_Object);
 
             if (requestConnect_way.equalsIgnoreCase("ssh")){
                 connectMethod.closeConnect(sshConnect);
@@ -226,8 +233,7 @@ public class SwitchInteraction {
      *返回信息为 是否连接成功 + 全部传入参数 ，此时 connectMethod(telnetSwitchMethod) 已经连接交换机
      */
     @RequestMapping("requestConnect")
-    public static AjaxResult requestConnect(Map<String,String> user_String,
-                                            SshMethod connectMethod, TelnetSwitchMethod telnetSwitchMethod) {
+    public static AjaxResult requestConnect(Map<String,String> user_String) {
         //用户信息
         String way = user_String.get("mode");//连接方法
         String hostIp = user_String.get("ip") ;//ip地址
@@ -240,6 +246,8 @@ public class SwitchInteraction {
         SshConnect sshConnect = null;
         TelnetComponent telnetComponent = null;
         //连接方法
+        SshMethod connectMethod = null;
+        TelnetSwitchMethod telnetSwitchMethod = null;
         if (way.equalsIgnoreCase("ssh")){
             //创建ssh连接方法
             connectMethod = new SshMethod();
@@ -292,9 +300,12 @@ public class SwitchInteraction {
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      */
     @GetMapping("/getBasicInformationList")
-    public AjaxResult getBasicInformationList(Map<String,String> user_String,
-                                              SshConnect sshConnect,SshMethod connectMethod,
-                                              TelnetComponent telnetComponent , TelnetSwitchMethod telnetSwitchMethod) {
+    public AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
+        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
+        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
+        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
+        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
+
         //查询 获取基本信息命令表  中的全部命令
         //BasicInformation pojo_NULL = new BasicInformation(); //null
         //根据 null 查询 得到表中所有数据
@@ -398,7 +409,7 @@ public class SwitchInteraction {
             //分析第一条ID basicInformation.getProblemId() (为 问题扫描逻辑表  ID)
             String first_problem_scanLogic_Id = basicInformation.getProblemId();
             //返回总提取信息
-            String extractInformation_string1 = analysisReturn(user_String, sshConnect,connectMethod,telnetComponent,telnetSwitchMethod,
+            String extractInformation_string1 = analysisReturn(user_String, user_Object ,
                     return_sum, first_problem_scanLogic_Id);
 
             if (extractInformation_string1.equals("") || extractInformation_string1 == null){
@@ -481,9 +492,7 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public String analysisReturn(Map<String,String> user_String,
-                                 SshConnect sshConnect,SshMethod connectMethod,
-                                 TelnetComponent telnetComponent,TelnetSwitchMethod telnetSwitchMethod,
+    public String analysisReturn(Map<String,String> user_String,Map<String,Object> user_Object,
                                  String resultString,String first_problem_scanLogic_Id){
 
         //整理返回结果 去除 #
@@ -498,7 +507,7 @@ public class SwitchInteraction {
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
          */
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
-        String strings = selectProblemScanLogicById(user_String, sshConnect,connectMethod,telnetComponent,telnetSwitchMethod,
+        String strings = selectProblemScanLogicById(user_String, user_Object,
                 return_information_array, "", "",
                 0, first_problem_scanLogic_Id, null,0);// loop end
         //控制台 输出  交换机 基本信息
@@ -520,11 +529,17 @@ public class SwitchInteraction {
      * 集合行数  第一分析ID 当前循环ID  是否循环 内部固件版本号
      */
     // 是否用首ID ifFirstID 分析首ID firstID   现行ID currentID 是否循环
-    public String selectProblemScanLogicById(Map<String,String> user_String,SshConnect sshConnect, SshMethod connectMethod,TelnetComponent telnetComponent,TelnetSwitchMethod telnetSwitchMethod,
-
+    public String selectProblemScanLogicById(Map<String,String> user_String,
+                                             Map<String,Object> user_Object,
                                              String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                                              int line_n, String firstID, String currentID,
                                              Integer insertsInteger) {
+
+        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
+        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
+        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
+        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
+
         //第一条分析ID
         String id = firstID; //用于第一次分析 和  循环分析
         //如果当前分析ID不为空，则用当前分析ID
@@ -544,7 +559,7 @@ public class SwitchInteraction {
         if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
             //调出循环ID 当做第一分析ID
             firstID = problemScanLogic.getCycleStartId();
-            String loop_string = selectProblemScanLogicById(user_String,sshConnect,connectMethod,telnetComponent, telnetSwitchMethod,
+            String loop_string = selectProblemScanLogicById(user_String,user_Object,
                     return_information_array,"",extractInformation_string,
                     line_n,firstID,null,insertsInteger);
             return loop_string;
@@ -570,7 +585,7 @@ public class SwitchInteraction {
                     currentID = null;
                 }
 
-                String loop_string = selectProblemScanLogicById(user_String,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
+                String loop_string = selectProblemScanLogicById(user_String,user_Object,
                         return_information_array,"",extractInformation_string,
                         line_n,firstID,currentID,insertsInteger);
                 //如果返回信息为null
@@ -651,8 +666,9 @@ public class SwitchInteraction {
                 if (matchAnalysis_true_false){
 
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"), sshConnect,connectMethod,telnetComponent,telnetSwitchMethod);
-                        String analysisReturnResults_String = analysisReturnResults(user_String, sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"),
+                                user_String.get("mode"), user_Object);
+                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,
                                 executeScanCommandByCommandId_object);
                         return analysisReturnResults_String;
                     }
@@ -660,7 +676,7 @@ public class SwitchInteraction {
                     //下一条true分析ID
                     if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
                         String tNextId = problemScanLogic.gettNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,tNextId,insertsInteger);
                         //如果返回信息为null
@@ -683,8 +699,8 @@ public class SwitchInteraction {
                     }
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod);
-                        String analysisReturnResults_String = analysisReturnResults(user_String, sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), user_Object);
+                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,
                                 executeScanCommandByCommandId_object);
                         return analysisReturnResults_String;
                     }
@@ -692,7 +708,7 @@ public class SwitchInteraction {
                     if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
                         //下一条frue分析ID
                         String fNextId = problemScanLogic.getfNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,sshConnect,connectMethod,telnetComponent, telnetSwitchMethod,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,fNextId,insertsInteger);
                         //如果返回信息为null
@@ -719,8 +735,8 @@ public class SwitchInteraction {
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
 
                 if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod, telnetComponent, telnetSwitchMethod);
-                    String analysisReturnResults_String = analysisReturnResults(user_String,sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod,
+                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+                    String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
                             executeScanCommandByCommandId_object);
                     return analysisReturnResults_String;
                 }
@@ -728,7 +744,7 @@ public class SwitchInteraction {
                 if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
                     //下一ID
                     String tNextId = problemScanLogic.gettNextId();
-                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
+                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
                             return_information_array,current_Round_Extraction_String,extractInformation_string,
                             line_n,firstID,tNextId,insertsInteger);
                     if (ProblemScanLogic_returnstring!=null){
@@ -749,15 +765,15 @@ public class SwitchInteraction {
                 if (compare_boolean){
 
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod);
-                        String analysisReturnResults_String = analysisReturnResults(user_String,sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod,
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
                                 executeScanCommandByCommandId_object);
                         return analysisReturnResults_String;
                     }
 
                     if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
                         String tNextId = problemScanLogic.gettNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,tNextId,insertsInteger);
 
@@ -772,8 +788,8 @@ public class SwitchInteraction {
                 }else {
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),sshConnect, connectMethod, telnetComponent, telnetSwitchMethod);
-                        String analysisReturnResults_String = analysisReturnResults(user_String,sshConnect, connectMethod,  telnetComponent,telnetSwitchMethod,
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
                                 executeScanCommandByCommandId_object);
 
                         return analysisReturnResults_String;
@@ -782,7 +798,7 @@ public class SwitchInteraction {
 
                     if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=""){
                         String fNextId = problemScanLogic.getfNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,fNextId,insertsInteger);
 
@@ -812,9 +828,6 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     public void insertvalueInformationService(Map<String,String> user_String,ProblemScanLogic problemScanLogic,String parameterString){
-
-        //HttpServletRequest request = ServletUtils.getRequest();
-
 
         //系统登录人 用户名
         String userName = user_String.get("userName");
@@ -965,7 +978,12 @@ public class SwitchInteraction {
      * 分析ID 连接方式 ssh和telnet连接
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(Map<String,String> user_String,String commandId,String notFinished,String way,SshConnect sshConnect,SshMethod connectMethod,TelnetComponent telnetComponent,TelnetSwitchMethod telnetSwitchMethod) {
+    public List<Object> executeScanCommandByCommandId(Map<String,String> user_String,String commandId,String notFinished,String way,Map<String,Object> user_Object) {
+
+        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
+        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
+        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
+        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
 
         System.err.print("\r\n命令ID"+commandId+"\r\n");
         //命令ID获取具体命令
@@ -1035,7 +1053,7 @@ public class SwitchInteraction {
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
                 System.err.print("\r\n"+"简单检验，命令正确，新命令"+commandLogic.getEndIndex());
-                List<Object> objectList = executeScanCommandByCommandId(user_String,commandLogic.getEndIndex(),notFinished, way,sshConnect,connectMethod, telnetComponent, telnetSwitchMethod);
+                List<Object> objectList = executeScanCommandByCommandId(user_String,commandLogic.getEndIndex(),notFinished, way,user_Object);
                 return objectList;
             }
         }else {
@@ -1061,7 +1079,7 @@ public class SwitchInteraction {
      */
     @RequestMapping("analysisReturnResults")
     public String analysisReturnResults(Map<String,String> user_String,
-                                        SshConnect sshConnect,SshMethod connectMethod,TelnetComponent telnetComponent,TelnetSwitchMethod telnetSwitchMethod,
+                                        Map<String,Object> user_Object,
                                         List<Object> executeScanCommandByCommandId_object){
 
         String resultString = executeScanCommandByCommandId_object.get(0).toString();//交换机返回信息
@@ -1077,7 +1095,7 @@ public class SwitchInteraction {
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
         //根据ID去分析
-        String problemScanLogic_string = selectProblemScanLogicById( user_String,sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod,
+        String problemScanLogic_string = selectProblemScanLogicById( user_String,user_Object,
                 return_information_array,"","",
                 0,first_problem_scanLogic_Id,null,0);// loop end
 
@@ -1098,12 +1116,17 @@ public class SwitchInteraction {
      */
     @PostMapping("scanProblem")
     public AjaxResult scanProblem(Map<String,String> user_String, //登录交换机的 用户信息 登录方式、ip、name、password
-                                  SshConnect sshConnect,SshMethod connectMethod,TelnetComponent telnetComponent,TelnetSwitchMethod telnetSwitchMethod){
+                                  Map<String,Object> user_Object){
 
         String deviceModel = user_String.get("deviceModel");//设备型号
         String deviceBrand = user_String.get("deviceBrand");//设备品牌
         String firmwareVersion = user_String.get("firmwareVersion");//内部固件版本
         String subversionNumber = user_String.get("subversionNumber");//子版本号
+
+        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
+        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
+        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
+        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
 
         //获取可执行命令ID
         AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
@@ -1116,9 +1139,9 @@ public class SwitchInteraction {
             //根据命令ID获取具体命令，执行
             System.err.println("连接iP:"+user_String.get("ip"));
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
-                    user_String.get("mode"), sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod);
+                    user_String.get("mode"), user_Object);
 
-            String analysisReturnResults_String = analysisReturnResults(user_String, sshConnect,connectMethod,  telnetComponent,telnetSwitchMethod,
+            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
                     executeScanCommandByCommandId_object);
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
         }

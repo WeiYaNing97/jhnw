@@ -168,7 +168,7 @@ public class SolveProblemController extends Thread {
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
-        AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( user_String , connectMethod , telnetSwitchMethod );
+        AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( user_String );
         //解析返回参数
         List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
 
