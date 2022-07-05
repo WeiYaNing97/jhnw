@@ -1,7 +1,5 @@
 package com.sgcc;
 
-import com.sgcc.web.controller.sql.SwitchController;
-import org.hyperic.sigar.SigarException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -28,14 +26,5 @@ public class RuoYiApplication
                 " |  | \\ `'   /|   `-'  /           \n" +
                 " |  |  \\    /  \\      /           \n" +
                 " ''-'   `'-'    `-..-'              ");
-
-        try {
-            SwitchController.Memory_CPU();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (SigarException e) {
-            e.printStackTrace();
-        }
-
     }
 }

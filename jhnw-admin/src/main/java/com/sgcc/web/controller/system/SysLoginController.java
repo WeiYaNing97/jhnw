@@ -3,6 +3,11 @@ package com.sgcc.web.controller.system;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import com.sgcc.common.core.page.TableDataInfo;
+import com.sgcc.framework.web.service.TokenService;
+import com.sgcc.system.domain.SysUserOnline;
+import com.sgcc.web.controller.monitor.SysUserOnlineController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +40,6 @@ public class SysLoginController
     @Autowired
     private SysPermissionService permissionService;
 
-
     /**
      * 登录方法
      * @param loginBody 登录信息
@@ -44,21 +48,25 @@ public class SysLoginController
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {
-
         AjaxResult ajax = AjaxResult.success();
+
+        String username = loginBody.getUsername();
+        SysUserOnlineController sysUserOnlineController = new SysUserOnlineController();
+        TableDataInfo list = sysUserOnlineController.queryOnlineUsers();
+        List<SysUserOnline> rows = (List<SysUserOnline>) list.getRows();
+        for (SysUserOnline sysUserOnline:rows){
+            if (sysUserOnline.getUserName().equals(username)){
+                return AjaxResult.error("同一用户，禁止同时多次登录!");
+            }
+        }
 
         // 生成令牌
         String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
                 loginBody.getUuid());
 
-        if (token.equals("同一用户，禁止同时多次登录!")){
-            return AjaxResult.error("同一用户，禁止同时多次登录!");
-        }
-
         ajax.put(Constants.TOKEN, token);
 
         return ajax;
-
     }
 
     /**

@@ -52,7 +52,6 @@ public class SysLoginService
     @Autowired
     private ISysConfigService configService;
 
-    public  static List<String> userNameList = new ArrayList<>();
 
     /**
      * 登录验证
@@ -65,12 +64,6 @@ public class SysLoginService
      */
     public String login(String username, String password, String code, String uuid)
     {
-
-        for (String name:userNameList) {
-            if (name.equals(username)) {
-                return "同一用户，禁止同时多次登录!";
-            }
-        }
 
         boolean captchaOnOff = configService.selectCaptchaOnOff();
 
@@ -104,9 +97,9 @@ public class SysLoginService
         LoginUser loginUser = (LoginUser) authentication.getPrincipal();
         recordLoginInfo(loginUser.getUserId());
 
-        userNameList.add(username);
         // 生成token
-        return tokenService.createToken(loginUser);
+        String token = tokenService.createToken(loginUser);
+        return token;
     }
 
     /**

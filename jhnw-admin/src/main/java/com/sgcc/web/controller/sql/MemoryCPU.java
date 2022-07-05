@@ -18,11 +18,12 @@ import java.util.Set;
  * @date 2021年11月19日 15:57
  */
 @RestController
-@RequestMapping("/sql/switch_command")
+@RequestMapping("/sql")
 @Slf4j
-public class SwitchController  {
+public class MemoryCPU {
 
-    public static void Memory_CPU() throws InterruptedException, SigarException {
+    @RequestMapping("/Memory_CPU")
+    public static void Memory_CPU(String userName) throws InterruptedException, SigarException {
 
         while(true) {
             SystemInfo systemInfo = new SystemInfo();
@@ -47,7 +48,7 @@ public class SwitchController  {
                     "内存使用率 : "+new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte)+"\r\n"+
                     "CPU总数 : "+processor.getLogicalProcessorCount()+"\r\n"+
                     "CPU利用率 : "+new DecimalFormat("#.##%").format(1.0-(idle * 1.0 / totalCpu));
-            //WebSocketService.sendMessage("Memory_CPU",Memory_CPU);
+            WebSocketService.sendMessage("Memory_CPU"+userName,Memory_CPU);
             //System.out.println(Memory_CPU);
             Thread.sleep(1000);
         }
