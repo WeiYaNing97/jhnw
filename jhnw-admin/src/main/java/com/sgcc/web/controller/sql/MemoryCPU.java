@@ -22,8 +22,21 @@ import java.util.Set;
 @Slf4j
 public class MemoryCPU {
 
-    @RequestMapping("/Memory_CPU")
-    public static void Memory_CPU(String userName) throws InterruptedException, SigarException {
+    private static String MemorySize = null;//内存大小
+    private static String MemoryUsage = null;//内存使用率
+    private static int TotalCPUs;//CPU总数
+    private static String CPUUtilization = null;//CPU利用率
+
+    @RequestMapping("/get_Memory_CPU")
+    public String get_Memory_CPU() {
+        String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+
+                "内存使用率 : "+MemoryUsage+"\r\n"+
+                "CPU总数 : "+TotalCPUs+"\r\n"+
+                "CPU利用率 : "+CPUUtilization+"\r\n";
+        return Memory_CPU;
+    }
+
+    public static void Memory_CPU() throws InterruptedException, SigarException {
 
         while(true) {
             SystemInfo systemInfo = new SystemInfo();
@@ -42,14 +55,12 @@ public class MemoryCPU {
             long iowait = ticks[CentralProcessor.TickType.IOWAIT.getIndex()] - prevTicks[CentralProcessor.TickType.IOWAIT.getIndex()];
             long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
             long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
-            //log.info("内存大小 = {},内存使用率 ={}",formatByte(totalByte),new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte));
-            //log.info("CPU总数 = {},CPU利用率 ={}",processor.getLogicalProcessorCount(),new DecimalFormat("#.##%").format(1.0-(idle * 1.0 / totalCpu)));
-            String Memory_CPU = "内存大小 : "+formatByte(totalByte)+"\r\n"+
-                    "内存使用率 : "+new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte)+"\r\n"+
-                    "CPU总数 : "+processor.getLogicalProcessorCount()+"\r\n"+
-                    "CPU利用率 : "+new DecimalFormat("#.##%").format(1.0-(idle * 1.0 / totalCpu));
-            WebSocketService.sendMessage("Memory_CPU"+userName,Memory_CPU);
-            //System.out.println(Memory_CPU);
+
+            MemorySize =formatByte(totalByte);
+            MemoryUsage = new DecimalFormat("#.##%").format((totalByte-acaliableByte)*1.0/totalByte);
+            TotalCPUs = processor.getLogicalProcessorCount();
+            CPUUtilization = new DecimalFormat("#.##%").format(1.0-(idle * 1.0 / totalCpu));
+
             Thread.sleep(1000);
         }
 
