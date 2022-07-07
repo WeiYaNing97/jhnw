@@ -233,12 +233,9 @@ export default {
     };
   },
   created() {
-      // console.log('ssss')
       // let us = Cookies.get("userInfo")
       // console.log(us)
       // this.getList();
-      // let usname = Cookies.get('usName')
-      // console.log(usname)
   },
   methods: {
     /** 查询嘉豪测试列表 */
@@ -251,47 +248,6 @@ export default {
         this.loading = false;
       });
     },
-      startsao(){
-        ///dev-api/sql/ConnectController/testget
-        axios.get('http://192.168.1.98/dev-api/sql/switch_problem/getUnresolvedProblemInformationByData').then(res=>{
-           // console.log(res.data);
-           function changeTreeDate(arrayJsonObj,oldKey,newKey) {
-              let strtest = JSON.stringify(arrayJsonObj);
-              let reg = new RegExp(oldKey,'g');
-              let newStr = strtest.replace(reg,newKey);
-              return JSON.parse(newStr);
-           }
-            let newJson = changeTreeDate(res.data,'switchProblemVOList','children');
-           let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
-            // console.log(newJson);
-            this.tableData = newJson1;
-           // console.log(this.tableData);
-            // console.log(this.tableData);
-            // this.tableData.forEach((value,index) =>{
-            //   value["proid"] = 0;
-            // });
-            this.tableData[0].children.forEach((value,index) =>{
-                value["problemId"] = 111;
-            });
-            this.tableData[0].children[0].children.forEach((value,index) =>{
-                value["problemId"] = 22;
-            });
-            // for (let i=0;i<this.tableData.length;i++){
-            //   this.tableData[i].children.forEach((value,index) =>{
-            //         value["problemId"] = 111;
-            //       }
-            //   )
-            // };
-            // this.tableData[0].children[0].children.forEach((value,index) =>{
-            //     value["proid"] = 2;
-            // });
-            // this.tableData[0].children.children.forEach((value,index) =>{
-            //     value["proid"]=1;
-            // });
-            console.log(this.tableData);
-        });
-
-      },
     // 取消按钮
     cancel() {
       this.open = false;
@@ -324,9 +280,6 @@ export default {
           // console.log(usname)
           this.$refs.queryForm.validate(valid => {
             if (valid){
-                // axios.post('/dev-api/sql/ConnectController/requestConnect',JSON.stringify(this.queryParams)).then(
-                //     this.$router.push({ path: this.redirect || "/" }).catch(()=>{})
-                // );
                 let form = new FormData();
                 for (var key in this.queryParams){
                     form.append(key,this.queryParams[key]);
@@ -336,8 +289,6 @@ export default {
                 axios({
                     method:'post',
                     // http://192.168.1.98/dev-api/sql/SwitchTest/totalMethod
-                    // http://192.168.1.98/dev-api/sql/SwitchInteraction/logInToGetBasicInformation
-                // /dev-api/sql/ConnectController/requestConnect
                 //     url:'/dev-api/sql/ConnectController/requestConnect',
                     url:'http://192.168.1.98/dev-api/sql/SwitchInteraction/logInToGetBasicInformation',
                     headers:{

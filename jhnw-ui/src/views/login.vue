@@ -138,7 +138,6 @@ export default {
           }
           this.$store.dispatch("Login", this.loginForm).then(() => {
             this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
-            console.log(this.$router)
           }).catch(() => {
             this.loading = false;
             if (this.captchaOnOff) {

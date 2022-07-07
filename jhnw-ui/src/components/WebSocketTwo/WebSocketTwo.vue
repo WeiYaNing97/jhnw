@@ -2,7 +2,7 @@
   <div>
 <!--    tableDataq  testData-->
     <el-table v-loading="loading"
-              :data="tableDataq"
+              :data="testData"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
@@ -174,10 +174,6 @@
             this.wsIsRun = true
             this.wsInit()
         },
-        created(){
-            // const usname = Cookies.get('usName')
-            // console.log(usname)
-        },
         methods: {
             //笨方法
             aaa(){
@@ -218,7 +214,7 @@
                 alert(commandValueList)
                 axios({
                     method:'post',
-                    // url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
+                    url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
                     // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+commandValueList,
                     headers:{
                         "Content-Type": "application/json"
@@ -247,7 +243,7 @@
                 const commandValueList = list2.map(x=>JSON.stringify(x))
                 axios({
                     method:'post',
-                    // url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
+                    url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
                     // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+commandValueList,
                     headers:{
                         "Content-Type": "application/json"

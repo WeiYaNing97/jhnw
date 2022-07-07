@@ -2,7 +2,7 @@
   <div class="app-container" @contextmenu="showMenu">
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="设备基本信息:"></el-form-item>
-      <div>
+<!--      <div>-->
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
                      filterable allow-create @blur="brandShu" @focus="brandLi($event)" name="pinpai" style="width: 150px">
@@ -31,10 +31,10 @@
                        :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="tianjia(item)"><i class="el-icon-plus"></i></el-button>
-        </el-form-item>
-      </div>
+<!--        <el-form-item>-->
+<!--          <el-button type="primary" @click="tianjia(item)"><i class="el-icon-plus"></i></el-button>-->
+<!--        </el-form-item>-->
+<!--      </div>-->
       <br/>
 <!--      <el-form-item>-->
 <!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
@@ -73,15 +73,19 @@
       <el-form-item>
         <el-button type="primary" @click="huoquid">提交问题</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="hand">出现</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="xiazai">下载</el-button>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="kanuser">看用户</el-button>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="hand">出现</el-button>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="xiazai">下载</el-button>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--&lt;!&ndash;        v-trigger&ndash;&gt;-->
+<!--        <el-button type="primary" @click="lunxun">轮询</el-button>-->
+<!--      </el-form-item>-->
 
     </el-form>
     <hr style='border:1px inset #D2E9FF;'>
@@ -286,6 +290,8 @@
 
     <TinymceEditor :proId="proId" v-show="showha"></TinymceEditor>
 
+<!--    <daoru></daoru>-->
+
     <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
     </vue-context-menu>
@@ -298,15 +304,18 @@ import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, ex
 import axios from 'axios';
 import Cookies from "js-cookie";
 import TinymceEditor from "@/components/Tinymce/TinymceEditor";
+import daoru from "@/components/daoru/daoru"
 
 export default {
   name: "Jh_test1",
     components:{
         TinymceEditor,
+        // daoru
     },
   data() {
     return {
         //右键
+        cpus:'',
         contextMenuData:{
           menuName:"demo",
             axis:{
@@ -375,11 +384,41 @@ export default {
       }
     };
   },
+    mounted(){
+
+    },
   created() {
       let usname = Cookies.get('usName')
       console.log(usname)
+      // this.jiazai()
   },
+    //自动触发事件
+    // directives:{
+    //     // trigger:{
+    //     //     inserted(el,binging){
+    //     //         el.click()
+    //     //     }
+    //     // }
+    // },
   methods: {
+      //轮询
+      lun(){
+          axios({
+              method:'post',
+              url:'http://192.168.1.98/dev-api/sql/get_Memory_CPU',
+          }).then(res=>{
+              // console.log(res)
+              this.cpus = res.data
+          })
+          console.log(this.cpus)
+      },
+      lunxun(){
+          window.setInterval(this.lun,3000)
+      },
+
+      jiazai(){
+        alert('加载')
+      },
       //添加
       tianjia(item){
           alert('添加')
