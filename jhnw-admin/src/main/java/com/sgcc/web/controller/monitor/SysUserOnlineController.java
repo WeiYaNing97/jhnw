@@ -45,8 +45,13 @@ public class SysUserOnlineController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(String ipaddr, String userName)
     {
+
+
+
         Collection<String> keys = redisCache.keys(Constants.LOGIN_TOKEN_KEY + "*");
+
         List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
+
         for (String key : keys)
         {
             LoginUser user = redisCache.getCacheObject(key);

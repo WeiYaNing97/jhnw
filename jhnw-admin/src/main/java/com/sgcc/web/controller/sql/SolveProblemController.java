@@ -243,6 +243,7 @@ public class SolveProblemController extends Thread {
                 if (solveProblem.equals("成功")){
                     SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(Integer.valueOf(valueId).longValue());
                     switchProblem.setResolved("是");
+                    switchProblem.setIfQuestion("无问题");
                     int i = switchProblemService.updateSwitchProblem(switchProblem);
                     if (i<=0){
                         return AjaxResult.error("修复失败");

@@ -64,7 +64,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
             <if test="currentTime != null  and currentTime != ''"> and create_time > #{currentTime}</if>
-            <if test="currentTime != null  and currentTime != ''"> and phonenumber = #{phonenumber}</if>
         </where>
             ) problem
             LEFT JOIN ( SELECT * FROM total_question_table ) question ON problem.problem_id = question.id

@@ -1,7 +1,12 @@
 package com.sgcc.web.controller.sql;
+import com.sgcc.common.annotation.Log;
+import com.sgcc.common.constant.Constants;
 import com.sgcc.common.core.domain.AjaxResult;
 
 import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.common.core.redis.RedisCache;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -13,9 +18,11 @@ import com.sgcc.framework.web.domain.Server;
 import com.sgcc.framework.web.domain.server.Sys;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
+import com.sgcc.system.domain.SysUserOnline;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,55 +54,19 @@ public class SwitchInteraction {
     private ITotalQuestionTableService totalQuestionTableService;
     @Autowired
     private IBasicInformationService basicInformationService;
+    @Autowired
+    private static RedisCache redisCache;
+
+
     @RequestMapping("testThread")
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
         Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
         Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
-        Object[] objects3 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
-        Object[] objects4 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
-        Object[] objects5 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
-        Object[] objects6 = {"ssh","192.168.1.1","admin","admin",22,"ruoyi"};
-        Object[] objects8 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
-        Object[] objects7 = {"ssh","192.168.1.1","admin","admin",22,"ruoyi"};
-        Object[] objects9 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
-        Object[] objects10 = {"ssh","192.168.1.1","admin","admin",22,"ruoyi"};
 
-        Object[] objects11 = {"telnet","192.168.1.100","admin","admin",23,"admin"};
-        Object[] objects12 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
-        Object[] objects13 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
-        Object[] objects14 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
-        Object[] objects15 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
-        Object[] objects16 = {"telnet","192.168.1.1","admin","admin",23,"ruoyi"};
-        Object[] objects17 = {"telnet","192.168.1.100","admin","admin",23,"admin"};
-        Object[] objects18 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
-        Object[] objects19 = {"telnet","192.168.1.100","admin","admin",23,"ruoyi"};
-        Object[] objects20 = {"telnet","192.168.1.1","admin","admin",23,"admin"};
 
         objects.add(objects1);
         objects.add(objects2);
-
-        /*objects.add(objects3);
-        objects.add(objects4);
-        objects.add(objects5);
-        objects.add(objects6);
-        objects.add(objects7);
-        objects.add(objects8);
-        objects.add(objects9);
-        objects.add(objects10);*/
-
-        //objects.add(objects11);
-        //objects.add(objects12);
-
-        /*objects.add(objects13);
-        objects.add(objects14);*/
-
-      /*objects.add(objects15);
-        objects.add(objects16);
-        objects.add(objects17);
-        objects.add(objects18);
-        objects.add(objects19);
-        objects.add(objects20);*/
 
         MyThread.switchLoginInformations(objects);
     }
@@ -126,6 +97,13 @@ public class SwitchInteraction {
         user_String.put("password",password);//用户密码
         user_String.put("port",port+"");//登录端口号
         user_String.put("userName",userName);//登录端口号
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        Long loginTimeByName = getLoginTimeByName(userName);
+        Date date = new Date(loginTimeByName);
+        String loginTime = simpleDateFormat.format(date);
+        user_String.put("loginTime",loginTime);//登录端口号
+
 
         //交换机信息
         //设备型号
@@ -911,13 +889,9 @@ public class SwitchInteraction {
         ScanResults scanResults = new ScanResults();
 
         String userName = user_String.get("userName");
-        String phonenumber = null;
+        String loginTime = user_String.get("loginTime");
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String dateFormat = simpleDateFormat.format(new Date());
-        dateFormat = dateFormat.split(" ")[0];
-
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(dateFormat,userName,phonenumber);
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(loginTime,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -966,6 +940,20 @@ public class SwitchInteraction {
         WebSocketService.sendMessage("loophole"+user_String.get("userName"),scanResultsVOList);
 
         return scanResultsVOList;
+    }
+
+
+    public Long getLoginTimeByName(String userName) {
+        redisCache = SpringBeanUtil.getBean(RedisCache.class);
+        Collection<String> keys = redisCache.keys(Constants.LOGIN_TOKEN_KEY + "*");
+        LoginUser user = null;
+        for (String key : keys) {
+            user = redisCache.getCacheObject(key);
+            if (user.getUsername().equals(userName)){
+                break;
+            }
+        }
+        return user.getLoginTime();
     }
 
 

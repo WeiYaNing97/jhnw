@@ -62,7 +62,7 @@ public interface ISwitchProblemService
     public int deleteSwitchProblemById(Long id);
 
 
-    List<SwitchProblemVO> selectUnresolvedProblemInformationByData(String currentTime,String userName,String phonenumber);
+    List<SwitchProblemVO> selectUnresolvedProblemInformationByData(String currentTime,String userName);
 
     SwitchProblem selectSwitchProblemByValueId(Long valueId);
 }

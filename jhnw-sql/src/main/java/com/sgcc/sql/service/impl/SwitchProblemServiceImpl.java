@@ -96,8 +96,8 @@ public class SwitchProblemServiceImpl implements ISwitchProblemService
     }
 
     @Override
-    public List<SwitchProblemVO> selectUnresolvedProblemInformationByData(String currentTime,String userName,String phonenumber) {
-        return switchProblemMapper.selectUnresolvedProblemInformationByData(currentTime,userName,phonenumber);
+    public List<SwitchProblemVO> selectUnresolvedProblemInformationByData(String currentTime,String userName) {
+        return switchProblemMapper.selectUnresolvedProblemInformationByData(currentTime,userName);
     }
 
     @Override
