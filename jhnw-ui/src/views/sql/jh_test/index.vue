@@ -235,7 +235,7 @@ export default {
   created() {
       // let us = Cookies.get("userInfo")
       // console.log(us)
-      // this.getList();
+      this.getList();
   },
   methods: {
     /** 查询嘉豪测试列表 */
