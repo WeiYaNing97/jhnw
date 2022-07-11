@@ -1,6 +1,8 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
@@ -84,6 +86,7 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("definitionProblemJsonPojo")
+    //@Log(title = "定义分析", businessType = BusinessType.OTHER)
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
 
         String problemScanLogicString = "";

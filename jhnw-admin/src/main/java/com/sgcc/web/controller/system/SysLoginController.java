@@ -50,6 +50,7 @@ public class SysLoginController
     {
         AjaxResult ajax = AjaxResult.success();
         String username = loginBody.getUsername();
+
         SysUserOnlineController sysUserOnlineController = new SysUserOnlineController();
         TableDataInfo list = sysUserOnlineController.queryOnlineUsers();
         List<SysUserOnline> rows = (List<SysUserOnline>) list.getRows();

@@ -117,8 +117,9 @@ public class CommandLogicController extends BaseController
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-
+    @PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
     @RequestMapping("insertModifyProblemCommandSet")
+    //@Log(title = "解决问题集合插入", businessType = BusinessType.INSERT)
     public boolean insertModifyProblemCommandSet(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogicList){
 
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);

@@ -54,16 +54,12 @@ public class SwitchInteraction {
     private ITotalQuestionTableService totalQuestionTableService;
     @Autowired
     private IBasicInformationService basicInformationService;
-    @Autowired
-    private static RedisCache redisCache;
-
 
     @RequestMapping("testThread")
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
         Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
         Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
-
 
         objects.add(objects1);
         objects.add(objects2);
@@ -88,6 +84,7 @@ public class SwitchInteraction {
     */
     @PostMapping("logInToGetBasicInformation")
     public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,String userName) {
+
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
         //用户信息
@@ -99,9 +96,7 @@ public class SwitchInteraction {
         user_String.put("userName",userName);//登录端口号
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        Long loginTimeByName = getLoginTimeByName(userName);
-        Date date = new Date(loginTimeByName);
-        String loginTime = simpleDateFormat.format(date);
+        String loginTime = simpleDateFormat.format(new Date());
         user_String.put("loginTime",loginTime);//登录端口号
 
 
@@ -943,19 +938,6 @@ public class SwitchInteraction {
     }
 
 
-    public Long getLoginTimeByName(String userName) {
-        redisCache = SpringBeanUtil.getBean(RedisCache.class);
-        Collection<String> keys = redisCache.keys(Constants.LOGIN_TOKEN_KEY + "*");
-        LoginUser user = null;
-        for (String key : keys) {
-            user = redisCache.getCacheObject(key);
-            if (user.getUsername().equals(userName)){
-                break;
-            }
-        }
-        return user.getLoginTime();
-    }
-
 
     /**
      * @method: 根据命令ID获取具体命令，执行
@@ -1157,7 +1139,13 @@ public class SwitchInteraction {
 
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTables!=null){
-            return AjaxResult.success(totalQuestionTables);
+            List<TotalQuestionTable> pojoList = new ArrayList<>();
+            for (TotalQuestionTable pojo:totalQuestionTables){
+                if (pojo.getCommandId()!=null && pojo.getCommandId()!=""){
+                    pojoList.add(pojo);
+                }
+            }
+            return AjaxResult.success(pojoList);
         }else {
             return null;
         }

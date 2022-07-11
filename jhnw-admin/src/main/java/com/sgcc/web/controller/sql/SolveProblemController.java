@@ -3,6 +3,7 @@ package com.sgcc.web.controller.sql;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
@@ -13,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * 与交换机交互方法类
@@ -54,7 +53,7 @@ public class SolveProblemController extends Thread {
 
     @Override
     public void run() {
-        AjaxResult ajaxResult = batchSolution(userinformationList, commandValueList,username);
+        AjaxResult ajaxResult = batchSolution(userinformationList, commandValueList);
     }
 
     @RequestMapping("batchSolutionMultithreading")
@@ -122,7 +121,7 @@ public class SolveProblemController extends Thread {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("/batchSolution/{userinformation}/{commandValueList}/{userName}")
-    public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList,@PathVariable String userName){
+    public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){//,@PathVariable String userName
         //String mode,String ip,String name,String password,String port
         //用户信息
         String userInformationString = userinformation.toString();
@@ -238,7 +237,7 @@ public class SolveProblemController extends Thread {
                 //参数集合
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
                 //解决问题
-                String solveProblem = solveProblem(informationList, commandList, valueInformationVOList,userName);
+                String solveProblem = solveProblem(informationList, commandList, valueInformationVOList);//userName
 
                 if (solveProblem.equals("成功")){
                     SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(Integer.valueOf(valueId).longValue());
@@ -336,8 +335,7 @@ public class SolveProblemController extends Thread {
     @RequestMapping("solveProblem")
     public String solveProblem(List<Object> informationList,
                                List<String> commandList,
-                               List<ValueInformationVO> valueInformationVOList,
-                               String userName){
+                               List<ValueInformationVO> valueInformationVOList){//, String userName
         //遍历命令集合    根据参数名称 获取真实命令
         //local-user:用户名
         //password cipher:密码
@@ -387,12 +385,12 @@ public class SolveProblemController extends Thread {
             System.err.print("\r\n"+"命令："+command+"\r\n");
             if (requestConnect_way.equalsIgnoreCase("ssh")){
 
-                WebSocketService.sendMessage("badao"+userName,command);
+                WebSocketService.sendMessage("badao",command);
                 commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
                 //commandString = Utils.removeLoginInformation(commandString);
             }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
-                WebSocketService.sendMessage("badao"+userName,command);
+                WebSocketService.sendMessage("badao",command);
                 commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
                 //commandString = Utils.removeLoginInformation(commandString);
             }
@@ -424,7 +422,7 @@ public class SolveProblemController extends Thread {
                 if (!current_return_log_substring_start.equals("\r\n")){
                     current_return_log = "\r\n"+current_return_log;
                 }
-                WebSocketService.sendMessage("badao"+userName,current_return_log);
+                WebSocketService.sendMessage("badao",current_return_log);
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
                 returnRecord.setCurrentIdentifier(current_identifier);
@@ -438,10 +436,10 @@ public class SolveProblemController extends Thread {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage("badao"+userName,current_identifier);
+                WebSocketService.sendMessage("badao",current_identifier);
             }else if (commandString_split.length == 1){
                 returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
-                WebSocketService.sendMessage("badao"+userName,"\r\n"+commandString_split[0]+"\r\n");
+                WebSocketService.sendMessage("badao","\r\n"+commandString_split[0]+"\r\n");
             }
             //存储交换机返回数据 插入数据库
             int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
@@ -452,4 +450,74 @@ public class SolveProblemController extends Thread {
 
         return "成功";
     }
+
+
+
+    /**
+     * @method: 查询扫描出的问题表 放入 websocket
+     * @Param: []
+     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("getUnresolvedProblemInformationByData")
+    public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String){
+
+        ScanResults scanResults = new ScanResults();
+
+        String userName = user_String.get("userName");
+        String loginTime = user_String.get("loginTime");
+
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(loginTime,userName);
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date date1 = new Date();
+            switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
+            for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+                valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
+                List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    Date date2 = new Date();
+                    valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                }
+
+                Date date3 = new Date();
+                switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.setValueInformationVOList(valueInformationVOList);
+            }
+        }
+
+        //将IP地址去重放入set集合中
+        HashSet<String> ip_hashSet = new HashSet<>();
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            ip_hashSet.add(switchProblemVO.getSwitchIp());
+        }
+
+        //将ip存入回显实体类
+        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
+        for (String ip_string:ip_hashSet){
+            ScanResultsVO scanResultsVO = new ScanResultsVO();
+            scanResultsVO.setSwitchIp(ip_string);
+            Date date4 = new Date();
+            scanResultsVO.hproblemId = Long.valueOf(Utils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVOList.add(scanResultsVO);
+        }
+
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
+            for (SwitchProblemVO switchProblemVO:switchProblemList){
+                if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
+                    switchProblemVOList.add(switchProblemVO);
+                }
+            }
+            scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+        }
+
+        scanResults.setScanResultsVOS(scanResultsVOList);
+        WebSocketService.sendMessage("loophole"+user_String.get("userName"),scanResultsVOList);
+
+        return scanResultsVOList;
+    }
+
+
 }
