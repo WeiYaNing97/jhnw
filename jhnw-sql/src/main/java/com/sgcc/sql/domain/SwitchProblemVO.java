@@ -3,6 +3,7 @@ package com.sgcc.sql.domain;
 import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.core.domain.BaseEntity;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,6 +32,9 @@ public class SwitchProblemVO extends BaseEntity
     @Excel(name = "问题种类")
     private String typeProblem;
 
+    /** 扫描时间 */
+    @Excel(name = "扫描时间")
+    private Date createTime;
 
     public List<SwitchProblemCO> switchProblemCOList;
 
@@ -82,6 +86,15 @@ public class SwitchProblemVO extends BaseEntity
         this.hproblemId = hproblemId;
     }
 
+    @Override
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
     @Override
     public String toString() {
@@ -91,6 +104,7 @@ public class SwitchProblemVO extends BaseEntity
                 ", switchName='" + switchName + '\'' +
                 ", switchPassword='" + switchPassword + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +
+                ", createTime=" + createTime +
                 ", switchProblemCOList=" + switchProblemCOList +
                 '}';
     }

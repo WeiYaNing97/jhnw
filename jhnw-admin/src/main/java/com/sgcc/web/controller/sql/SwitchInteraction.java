@@ -1,4 +1,6 @@
 package com.sgcc.web.controller.sql;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.constant.Constants;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -864,6 +866,12 @@ public class SwitchInteraction {
         switchProblem.setUserName(userName);//参数索引
         switchProblem.setPhonenumber(phonenumber); //是否有问题
 
+        String loginTime = user_String.get("loginTime");
+
+        DateTime dateTime = new DateTime(loginTime, DatePattern.NORM_DATETIME_FORMAT);
+
+        switchProblem.setCreateTime(dateTime);
+
         //插入问题
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         switchProblemService.insertSwitchProblem(switchProblem);
@@ -881,12 +889,10 @@ public class SwitchInteraction {
     @RequestMapping("getUnresolvedProblemInformationByData")
     public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String){
 
-        ScanResults scanResults = new ScanResults();
-
         String userName = user_String.get("userName");
         String loginTime = user_String.get("loginTime");
 
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(loginTime,userName);
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -930,8 +936,6 @@ public class SwitchInteraction {
             }
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
-
-        scanResults.setScanResultsVOS(scanResultsVOList);
         WebSocketService.sendMessage("loophole"+user_String.get("userName"),scanResultsVOList);
 
         return scanResultsVOList;

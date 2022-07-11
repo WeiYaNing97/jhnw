@@ -25,6 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="switchName"    column="switch_name"    />
         <result property="switchPassword"    column="switch_password"    />
         <result property="typeProblem"    column="type_problem"    />
+        <result property="createTime"    column="createTime"    />
         <collection property="switchProblemCOList"  ofType="com.sgcc.sql.domain.SwitchProblemCO"
                     javaType="java.util.ArrayList">
             <result property="questionId"    column="question_id"    />
@@ -38,35 +39,39 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </collection>
     </resultMap>
 
-    <select id="selectUnresolvedProblemInformationByData" resultMap="SwitchProblemVO">
+    <select id="selectUnresolvedProblemInformationByDataAndUserName" resultMap="SwitchProblemVO">
         SELECT
-            problem.switch_ip switch_ip,
-            problem.switch_name switch_name,
-            problem.switch_password switch_password,
-            problem.problem_id problem_id,
+        problem.switch_ip switch_ip,
+        problem.switch_name switch_name,
+        problem.switch_password switch_password,
+        problem.problem_id problem_id,
         CASE problem.if_question
         WHEN '有问题' THEN '异常'
         WHEN '无问题' THEN '安全'
         WHEN '完成' THEN '完成'
         END if_question,
-            problem.value_id value_id,
-            problem.resolved resolved,
-            problem.create_time create_time,
-            problem.id question_id,
-            question.problem_name problem_name,
-            question.type_problem type_problem,
-            question.problem_solving_id com_id
+        problem.value_id value_id,
+        problem.resolved resolved,
+        problem.create_time create_time,
+        problem.create_time createTime,
+        problem.id question_id,
+
+        question.problem_name problem_name,
+        question.type_problem type_problem,
+        question.problem_solving_id com_id
         FROM
-            ( SELECT id, switch_ip, switch_name, switch_password, problem_id,
-            if_question, com_id, value_id, resolved, create_time
-            FROM switch_problem
+        ( SELECT id, switch_ip, switch_name, switch_password, problem_id,
+        if_question, com_id, value_id, resolved, create_time
+        FROM switch_problem
 
         <where>
             <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
-            <if test="currentTime != null  and currentTime != ''"> and create_time > #{currentTime}</if>
+            <if test="currentTime != null  and currentTime != ''"> and create_time = #{currentTime}</if>
         </where>
-            ) problem
-            LEFT JOIN ( SELECT * FROM total_question_table ) question ON problem.problem_id = question.id
+
+        ) problem , (SELECT id,problem_name,type_problem,problem_solving_id FROM total_question_table) question WHERE
+        problem.problem_id = question.id
+        ORDER BY problem.switch_ip DESC , problem.create_time DESC, problem.if_question DESC
     </select>
 
     <select id="selectSwitchProblemByValueId"  parameterType="com.sgcc.sql.domain.SwitchProblem" resultMap="SwitchProblemResult" >

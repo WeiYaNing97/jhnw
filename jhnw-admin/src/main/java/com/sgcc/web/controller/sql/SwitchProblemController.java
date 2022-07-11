@@ -7,6 +7,7 @@ import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
+import com.sgcc.common.utils.DateUtils;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.*;
@@ -77,6 +78,7 @@ public class SwitchProblemController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody SwitchProblem switchProblem)
     {
+        switchProblem.setCreateTime(DateUtils.getNowDate());
         return toAjax(switchProblemService.insertSwitchProblem(switchProblem));
     }
 

@@ -55,7 +55,6 @@ public class SwitchProblemServiceImpl implements ISwitchProblemService
     @Override
     public int insertSwitchProblem(SwitchProblem switchProblem)
     {
-        switchProblem.setCreateTime(DateUtils.getNowDate());
         return switchProblemMapper.insertSwitchProblem(switchProblem);
     }
 
@@ -96,8 +95,8 @@ public class SwitchProblemServiceImpl implements ISwitchProblemService
     }
 
     @Override
-    public List<SwitchProblemVO> selectUnresolvedProblemInformationByData(String currentTime,String userName) {
-        return switchProblemMapper.selectUnresolvedProblemInformationByData(currentTime,userName);
+    public List<SwitchProblemVO> selectUnresolvedProblemInformationByDataAndUserName(String currentTime,String userName) {
+        return switchProblemMapper.selectUnresolvedProblemInformationByDataAndUserName(currentTime,userName);
     }
 
     @Override

@@ -62,7 +62,7 @@ public interface SwitchProblemMapper
      */
     public int deleteSwitchProblemByIds(Long[] ids);
 
-    List<SwitchProblemVO> selectUnresolvedProblemInformationByData(@Param("currentTime")String currentTime, @Param("userName")String userName);
+    List<SwitchProblemVO> selectUnresolvedProblemInformationByDataAndUserName(@Param("currentTime")String currentTime, @Param("userName")String userName);
 
     SwitchProblem selectSwitchProblemByValueId(@Param("valueId") Long valueId);
 }

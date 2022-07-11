@@ -2,6 +2,7 @@ package com.sgcc.sql.domain;
 
 import com.sgcc.common.annotation.Excel;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,6 +19,10 @@ public class ScanResultsVO {
     /** 交换机ip */
     @Excel(name = "交换机ip")
     private String switchIp;
+
+    /** 扫描时间 */
+    @Excel(name = "扫描时间")
+    private String createTime;
 
     public List<SwitchProblemVO> switchProblemVOList;
 
@@ -53,12 +58,21 @@ public class ScanResultsVO {
         this.id = id;
     }
 
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
     @Override
     public String toString() {
         return "ScanResultsVO{" +
                 "hproblemId=" + hproblemId +
                 ", id=" + id +
                 ", switchIp='" + switchIp + '\'' +
+                ", createTime=" + createTime +
                 ", switchProblemVOList=" + switchProblemVOList +
                 '}';
     }

@@ -1,5 +1,7 @@
 package com.sgcc.web.controller.sql;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -461,14 +464,8 @@ public class SolveProblemController extends Thread {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
-    public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String){
-
-        ScanResults scanResults = new ScanResults();
-
-        String userName = user_String.get("userName");
-        String loginTime = user_String.get("loginTime");
-
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByData(loginTime,userName);
+    public List<ScanResultsVO> getUnresolvedProblemInformationByData(String userName){
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -480,44 +477,44 @@ public class SolveProblemController extends Thread {
                     Date date2 = new Date();
                     valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
                 }
-
                 Date date3 = new Date();
                 switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
-
         //将IP地址去重放入set集合中
-        HashSet<String> ip_hashSet = new HashSet<>();
+        HashSet<String> time_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
-            ip_hashSet.add(switchProblemVO.getSwitchIp());
+            Date createTime = switchProblemVO.getCreateTime();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String time = simpleDateFormat.format(createTime);
+            time_hashSet.add(time);
         }
-
-        //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
-        for (String ip_string:ip_hashSet){
+        for (String time:time_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
-            scanResultsVO.setSwitchIp(ip_string);
-            Date date4 = new Date();
-            scanResultsVO.hproblemId = Long.valueOf(Utils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVO.setCreateTime(time);
             scanResultsVOList.add(scanResultsVO);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
-            List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
+            String createTime = scanResultsVO.getCreateTime();
             for (SwitchProblemVO switchProblemVO:switchProblemList){
-                if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
-                    switchProblemVOList.add(switchProblemVO);
+                Date time = switchProblemVO.getCreateTime();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String format_time = simpleDateFormat.format(time);
+                if (format_time.equals(createTime)){
+                    List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
+                    if (switchProblemVOList == null){
+                        List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
+                        switchProblemVOS.add(switchProblemVO);
+                        scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
+                    }else {
+                        switchProblemVOList.add(switchProblemVO);
+                        scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+                    }
                 }
             }
-            scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
-
-        scanResults.setScanResultsVOS(scanResultsVOList);
-        WebSocketService.sendMessage("loophole"+user_String.get("userName"),scanResultsVOList);
-
         return scanResultsVOList;
     }
-
-
 }

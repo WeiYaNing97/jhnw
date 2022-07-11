@@ -41,8 +41,8 @@ public class SwitchProblemCO
     @Excel(name = "问题名称")
     private String problemName;
 
-    /** 问题种类 */
-    @Excel(name = "问题种类")
+    /** 扫描时间 */
+    @Excel(name = "扫描时间")
     private Date createTime;
 
     public List<ValueInformationVO> valueInformationVOList;
