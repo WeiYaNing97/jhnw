@@ -1,35 +1,20 @@
 package com.sgcc.web.controller.sql;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
-import com.sgcc.common.annotation.Log;
-import com.sgcc.common.constant.Constants;
 import com.sgcc.common.core.domain.AjaxResult;
-
-import com.sgcc.common.core.domain.entity.SysUser;
-import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.common.core.redis.RedisCache;
-import com.sgcc.common.enums.BusinessType;
-import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
-
-import com.sgcc.framework.web.domain.Server;
-import com.sgcc.framework.web.domain.server.Sys;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
-import com.sgcc.system.domain.SysUserOnline;
 import com.sgcc.web.controller.webSocket.WebSocketService;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -75,7 +60,21 @@ public class SwitchInteraction {
     =====================================================================================================================
 
     =====================================================================================================================*/
+    @RequestMapping("getMain")
+    public  AjaxResult getMain() {
 
+        try{
+            System.out.println("hello1");
+            System.out.println("hello2");
+            System.out.println("hello3");
+            String string = null;
+            //System.out.println(string.charAt(2));
+            String[] split = string.split(":");
+        }catch(NullPointerException e){
+            return AjaxResult.error("同一用户，禁止同时多次登录!");
+        }
+        return AjaxResult.success("成功登录!");
+    }
 
     /**
     * @method: 扫描方法 logInToGetBasicInformation

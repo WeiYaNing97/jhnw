@@ -18,13 +18,6 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("ConnectMethod")
 public class SshMethod {
-
-    /*//返回信息 判断是否断开交换机的
-    private String ReturnInformation ;
-    private String EndIdentifier = ">" ;
-    private boolean quit = false ;*/
-
-
     /***
     * @method: 连接telnet 或者 ssh
     * @Param: [mode 连接方法, ip, port, name, password, end:telnet结尾标识符]

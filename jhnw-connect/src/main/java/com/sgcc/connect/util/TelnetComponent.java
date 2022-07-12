@@ -21,7 +21,6 @@ public class TelnetComponent {
     private InputStream inputStream;
     private OutputStream outputStream;
     private Thread outputThread;
-    public static String returnInformation;
 
     public static HashMap<String,TelnetInformation> switchInformation = new HashMap<>();
 
