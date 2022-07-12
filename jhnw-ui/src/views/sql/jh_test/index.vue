@@ -285,11 +285,11 @@ export default {
                 for (var key in this.queryParams){
                     form.append(key,this.queryParams[key]);
                 }
-                form.append('userName',usname)
-                console.log(JSON.stringify(this.queryParams))
+                // form.append('userName',usname)
+                // console.log(JSON.stringify(this.queryParams))
                 return request({
                     url:'/sql/SwitchInteraction/logInToGetBasicInformation',
-                    methods: 'post',
+                    method:'post',
                     data:form
                 }).then(response=>{
                     console.log('成功')
