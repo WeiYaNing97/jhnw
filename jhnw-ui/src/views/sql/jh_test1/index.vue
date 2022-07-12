@@ -303,8 +303,9 @@
 import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, exportJh_test1 } from "@/api/sql/jh_test1";
 import axios from 'axios';
 import Cookies from "js-cookie";
-import TinymceEditor from "@/components/Tinymce/TinymceEditor";
+import TinymceEditor from "@/components/Tinymce/TinymceEditor"
 import daoru from "@/components/daoru/daoru"
+import request from '@/utils/request'
 
 export default {
   name: "Jh_test1",
@@ -390,7 +391,7 @@ export default {
   created() {
       let usname = Cookies.get('usName')
       console.log(usname)
-      this.getList();
+      // this.getList();
 
       // this.jiazai()
   },
@@ -542,12 +543,19 @@ export default {
           })
       },
       brandLi(e){
-          axios({
-              method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
+          return request({
+              url:'/sql/total_question_table/brandlist',
+              methods: 'get'
           }).then(res=>{
-              this.brandList = res.data
+              this.brandList = res
+              console.log('我是实验')
           })
+          // axios({
+          //     method:'post',
+          //     url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
+          // }).then(res=>{
+          //     this.brandList = res.data
+          // })
           this.who = e.target.getAttribute('name')
       },
       proType(){

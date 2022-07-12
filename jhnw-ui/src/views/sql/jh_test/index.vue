@@ -116,6 +116,7 @@ import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
 import axios from 'axios'
 import Cookies from "js-cookie";
 import log from "../../monitor/job/log";
+import request from '@/utils/request';
 export default {
   name: "Jh_test",
     components:{
@@ -274,7 +275,7 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-      //连接交换机
+      //开始扫描
       requestConnect(){
           let usname = Cookies.get('usName')
           // console.log(usname)
@@ -286,22 +287,30 @@ export default {
                 }
                 form.append('userName',usname)
                 console.log(JSON.stringify(this.queryParams))
-                axios({
-                    method:'post',
-                    // http://192.168.1.98/dev-api/sql/SwitchTest/totalMethod
-                //     url:'/dev-api/sql/ConnectController/requestConnect',
-                    url:'http://192.168.1.98/dev-api/sql/SwitchInteraction/logInToGetBasicInformation',
-                    headers:{
-                        "Content-Type": "multipart/form-data"
-                    },
+                return request({
+                    url:'/sql/SwitchInteraction/logInToGetBasicInformation',
+                    methods: 'post',
                     data:form
-                }).then(res=>{
-                        console.log('成功'),
-                        console.log(res.data),
-                        this.xinxi = res.data.data;
-                        console.log(this.xinxi);
-                },
-                )
+                }).then(response=>{
+                    console.log('成功')
+                    console.log(response)
+                })
+                // axios({
+                //     method:'post',
+                //     // http://192.168.1.98/dev-api/sql/SwitchTest/totalMethod
+                // //     url:'/dev-api/sql/ConnectController/requestConnect',
+                //     url:'http://192.168.1.98/dev-api/sql/SwitchInteraction/logInToGetBasicInformation',
+                //     headers:{
+                //         "Content-Type": "multipart/form-data"
+                //     },
+                //     data:form
+                // }).then(res=>{
+                //         console.log('成功'),
+                //         console.log(res.data),
+                //         this.xinxi = res.data.data;
+                //         console.log(this.xinxi);
+                // },
+                // )
             }
           }
           );
