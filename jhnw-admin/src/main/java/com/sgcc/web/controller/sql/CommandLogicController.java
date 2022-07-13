@@ -118,6 +118,7 @@ public class CommandLogicController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
+    //@Log(title = "修复问题命令插入", businessType = BusinessType.OTHER)
     @RequestMapping("insertModifyProblemCommandSet")
     //@Log(title = "解决问题集合插入", businessType = BusinessType.INSERT)
     public boolean insertModifyProblemCommandSet(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogicList){
@@ -225,6 +226,7 @@ public class CommandLogicController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("updateProblemSolvingCommand")
+    //@Log(title = "修改修复问题命令", businessType = BusinessType.OTHER)
     public boolean updateProblemSolvingCommand(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogics){
         //根据 问题表 问题ID 查询 问题数据
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);

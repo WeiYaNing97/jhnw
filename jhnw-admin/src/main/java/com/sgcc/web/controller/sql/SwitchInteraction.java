@@ -1,7 +1,11 @@
 package com.sgcc.web.controller.sql;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
+import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.common.enums.BusinessType;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
@@ -11,10 +15,12 @@ import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -60,20 +66,23 @@ public class SwitchInteraction {
     =====================================================================================================================
 
     =====================================================================================================================*/
-    @RequestMapping("getMain")
-    public  AjaxResult getMain() {
 
+    public static void main(String[] args) {
         try{
-            System.out.println("hello1");
-            System.out.println("hello2");
-            System.out.println("hello3");
+
+            int a = 10;
+
+            int b = a/0;
+
             String string = null;
-            //System.out.println(string.charAt(2));
-            String[] split = string.split(":");
+
+            System.out.println(string.charAt(2));
+
         }catch(NullPointerException e){
-            return AjaxResult.error("同一用户，禁止同时多次登录!");
+            throw new NullPointerException("第二个异常被处理掉");
+        }catch(ArithmeticException e){
+            throw new ArithmeticException("保险公司报销");
         }
-        return AjaxResult.success("成功登录!");
     }
 
     /**
@@ -83,22 +92,23 @@ public class SwitchInteraction {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    @PostMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,String userName) {
+    @RequestMapping("logInToGetBasicInformation")
+    @Log(title = "扫描方法", businessType = BusinessType.INSERT)
+    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port) {
 
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
+
         //用户信息
         user_String.put("mode",mode);//登录方式
         user_String.put("ip",ip);//ip地址
         user_String.put("name",name);//用户名
         user_String.put("password",password);//用户密码
         user_String.put("port",port+"");//登录端口号
-        user_String.put("userName",userName);//登录端口号
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String loginTime = simpleDateFormat.format(new Date());
-        user_String.put("loginTime",loginTime);//登录端口号
+        String ScanningTime = simpleDateFormat.format(new Date());
+        user_String.put("ScanningTime",ScanningTime);//扫描时间
 
 
         //交换机信息
@@ -804,7 +814,8 @@ public class SwitchInteraction {
     public void insertvalueInformationService(Map<String,String> user_String,ProblemScanLogic problemScanLogic,String parameterString){
 
         //系统登录人 用户名
-        String userName = user_String.get("userName");
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        String userName = loginUser.getUsername();
 
         //系统登录人 手机号
         String phonenumber = null;
@@ -865,7 +876,7 @@ public class SwitchInteraction {
         switchProblem.setUserName(userName);//参数索引
         switchProblem.setPhonenumber(phonenumber); //是否有问题
 
-        String loginTime = user_String.get("loginTime");
+        String loginTime = user_String.get("ScanningTime");
 
         DateTime dateTime = new DateTime(loginTime, DatePattern.NORM_DATETIME_FORMAT);
 
@@ -888,10 +899,10 @@ public class SwitchInteraction {
     @RequestMapping("getUnresolvedProblemInformationByData")
     public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String){
 
-        String userName = user_String.get("userName");
+        LoginUser loginUser = SecurityUtils.getLoginUser();
         String loginTime = user_String.get("loginTime");
 
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,userName);
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,loginUser.getUsername());
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();

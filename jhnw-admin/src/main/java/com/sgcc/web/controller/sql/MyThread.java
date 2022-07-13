@@ -30,7 +30,7 @@ public class MyThread extends Thread {
     public void run() {
         SwitchInteraction switchInteraction = new SwitchInteraction();
         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port,userName);
+        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port);
         //System.err.println(MyThread.mode + MyThread.ip + MyThread.name + MyThread.password + MyThread.port);
         try {
             Thread.sleep(10);                 //1000 milliseconds is one second.

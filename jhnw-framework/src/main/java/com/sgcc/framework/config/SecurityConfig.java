@@ -114,7 +114,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
                 .antMatchers("/druid/**").anonymous()
                 //自己加的postman测试
 
-                .antMatchers("/sql/**").anonymous()
+                .antMatchers("/sql/**").permitAll()
                 .antMatchers("/websocket/**").anonymous()
 
                 // 除上面外的所有请求全部需要鉴权认证

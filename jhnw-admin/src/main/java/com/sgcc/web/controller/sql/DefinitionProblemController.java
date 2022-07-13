@@ -86,7 +86,7 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("definitionProblemJsonPojo")
-    //@Log(title = "定义分析", businessType = BusinessType.OTHER)
+    @Log(title = "定义分析", businessType = BusinessType.OTHER)
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
 
         String problemScanLogicString = "";

@@ -151,7 +151,7 @@ public class TotalQuestionTableController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:brandlist')")
-    //@Log(title = "查询所有品牌", businessType = BusinessType.OTHER)
+    @Log(title = "查询所有品牌", businessType = BusinessType.OTHER)
     @RequestMapping("/brandlist")
     public List<String> brandlist()
     {
