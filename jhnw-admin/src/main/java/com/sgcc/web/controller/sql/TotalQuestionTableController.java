@@ -152,7 +152,6 @@ public class TotalQuestionTableController extends BaseController
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @PreAuthorize("@ss.hasPermi('sql:total_question_table:brandlist')")
     @RequestMapping("/brandlist")
     public List<String> brandlist()
     {

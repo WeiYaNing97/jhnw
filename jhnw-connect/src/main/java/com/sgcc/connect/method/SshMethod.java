@@ -4,7 +4,6 @@ import com.sgcc.connect.util.SshConnect;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import sun.plugin.com.Utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
