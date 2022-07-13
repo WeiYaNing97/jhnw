@@ -95,27 +95,4 @@ public class ReturnRecordController extends BaseController
         return toAjax(returnRecordService.deleteReturnRecordByIds(ids));
     }
 
-    /**
-     * 查询返回信息列表
-     */
-    /*@GetMapping("/getReturnRecordList")
-    public AjaxResult getReturnRecordList()
-    {
-        String currentTime = Utils.getCurrentTime();
-        String[] data_day = currentTime.split(" ");
-        List<ReturnRecord> ReturnRecord_list = returnRecordService.selectReturnRecordListByDataTime(data_day[0]);
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (ReturnRecord returnRecord:ReturnRecord_list){
-            stringBuilder.append(returnRecord.getCurrentCommLog());
-            stringBuilder.append("\r\n");
-            stringBuilder.append(returnRecord.getCurrentReturnLog());
-            stringBuilder.append("\r\n");
-            stringBuilder.append(returnRecord.getCurrentIdentifier());
-        }
-
-        System.err.print("\r\n"+stringBuilder+"\r\n");
-        return AjaxResult.success(stringBuilder);
-    }*/
 }

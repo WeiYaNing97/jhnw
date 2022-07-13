@@ -2,6 +2,7 @@ package com.sgcc.web.controller.sql;
 
 import java.util.List;
 
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -110,6 +111,7 @@ public class ProblemDescribeController extends BaseController
      * 新增问题描述
      */
     @RequestMapping("/insertProblemDescribe")
+    @MyLog(title = "新增问题描述", businessType = BusinessType.INSERT)
     public AjaxResult insertProblemDescribe(@RequestParam Long totalQuestionTableId,@RequestBody String problemDescribe)
     {
         //根据问题ID 查询问题表问题信息

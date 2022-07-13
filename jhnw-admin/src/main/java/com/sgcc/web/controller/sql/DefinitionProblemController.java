@@ -1,6 +1,7 @@
 package com.sgcc.web.controller.sql;
 
 import com.sgcc.common.annotation.Log;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.sql.domain.*;
@@ -86,7 +87,7 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("definitionProblemJsonPojo")
-    @Log(title = "定义分析", businessType = BusinessType.OTHER)
+    @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.INSERT)
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
 
         String problemScanLogicString = "";
@@ -648,6 +649,7 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("getAnalysisList")
+    @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
     public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
 
         //给 问题表数据 赋值
@@ -1005,6 +1007,7 @@ public class DefinitionProblemController extends BaseController {
 
     /*定义分析问题数据修改*/
     @RequestMapping("updateAnalysis")
+    @MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
     public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
 
         String problemScanLogicString = "";

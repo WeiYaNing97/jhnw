@@ -1,6 +1,8 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.sql.service.IBasicInformationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -46,6 +48,7 @@ public class MyThread extends Thread {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
+    @MyLog(title = "批量扫描交换机", businessType = BusinessType.OTHER)
     public static void switchLoginInformations(List<Object[]> objects) {
         for (Object[] objects3:objects){
             mode = (String)objects3[0];

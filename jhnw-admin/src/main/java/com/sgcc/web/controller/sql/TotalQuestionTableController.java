@@ -1,6 +1,7 @@
 package com.sgcc.web.controller.sql;
 
 import com.sgcc.common.annotation.Log;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.page.TableDataInfo;
@@ -136,6 +137,7 @@ public class TotalQuestionTableController extends BaseController
      * 新增问题及命令
      */
     @RequestMapping("add")
+    @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public String add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setNotFinished(totalQuestionTable.getNotFinished());
@@ -151,7 +153,6 @@ public class TotalQuestionTableController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:brandlist')")
-    @Log(title = "查询所有品牌", businessType = BusinessType.OTHER)
     @RequestMapping("/brandlist")
     public List<String> brandlist()
     {
@@ -304,6 +305,7 @@ public class TotalQuestionTableController extends BaseController
      */
     //@PreAuthorize("@ss.hasPermi('sql:total_question_table:list')")
     @RequestMapping("/list")
+    @MyLog(title = "查询问题及命令列表", businessType = BusinessType.OTHER)
     public TableDataInfo list(@RequestBody TotalQuestionTable totalQuestionTable)
     {
         String selectCommandId = totalQuestionTable.getCommandId();

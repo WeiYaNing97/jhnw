@@ -1,6 +1,13 @@
 package com.sgcc.framework.manager.factory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimerTask;
+
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
+import com.sgcc.system.domain.SwitchOperLog;
+import com.sgcc.system.service.ISwitchOperLogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.sgcc.common.constant.Constants;
@@ -99,4 +106,25 @@ public class AsyncFactory
             }
         };
     }
+
+    /**
+     * 操作日志记录
+     *
+     * @param operLog 操作日志信息
+     * @return 任务task
+     */
+    public static TimerTask recordOper(final SwitchOperLog operLog)
+    {
+        return new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                // 远程查询操作地点
+                operLog.setOperLocation(AddressUtils.getRealAddressByIP(operLog.getOperIp()));
+                SpringUtils.getBean(ISwitchOperLogService.class).insertSwitchOperLog(operLog);
+            }
+        };
+    }
+
 }

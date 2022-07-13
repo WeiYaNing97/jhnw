@@ -545,7 +545,7 @@ export default {
       brandLi(e){
           return request({
               url:'/sql/total_question_table/brandlist',
-              methods: 'get'
+              method: 'get'
           }).then(res=>{
               this.brandList = res
               console.log('我是实验')

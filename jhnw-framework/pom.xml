@@ -58,6 +58,12 @@
             <groupId>com.sgcc</groupId>
             <artifactId>jhnw-system</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.7.19</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

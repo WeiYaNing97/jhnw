@@ -1,7 +1,9 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -59,6 +61,7 @@ public class SolveProblemController extends Thread {
     }
 
     @RequestMapping("batchSolutionMultithreading")
+    @MyLog(title = "批量修复问题", businessType = BusinessType.OTHER)
     public static void batchSolutionMultithreading(List<Object> userinformation,List<Object> commandValue) {
         int number = userinformation.size();
         for (int i = 0 ; i<number ; i++){
@@ -84,6 +87,7 @@ public class SolveProblemController extends Thread {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("queryCommandListBytotalQuestionTableId")
+    @MyLog(title = "查询解决问题命令", businessType = BusinessType.OTHER)
     public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
 
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
@@ -122,6 +126,7 @@ public class SolveProblemController extends Thread {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("/batchSolution/{userinformation}/{commandValueList}")
+    @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
     public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){
         //String mode,String ip,String name,String password,String port
         //用户信息
@@ -336,7 +341,7 @@ public class SolveProblemController extends Thread {
     @RequestMapping("solveProblem")
     public String solveProblem(List<Object> informationList,
                                List<String> commandList,
-                               List<ValueInformationVO> valueInformationVOList){//, String userName
+                               List<ValueInformationVO> valueInformationVOList){
         //遍历命令集合    根据参数名称 获取真实命令
         //local-user:用户名
         //password cipher:密码
@@ -465,7 +470,12 @@ public class SolveProblemController extends Thread {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
-    public List<ScanResultsVO> getUnresolvedProblemInformationByData(String userName){
+    @MyLog(title = "查询扫描出的问题列表", businessType = BusinessType.OTHER)
+    public List<ScanResultsVO> getUnresolvedProblemInformationByData(){
+
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        String userName = loginUser.getUsername();
+
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
