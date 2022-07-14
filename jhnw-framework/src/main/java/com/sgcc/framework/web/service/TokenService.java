@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 
+import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.system.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -49,6 +51,9 @@ public class TokenService
 
     @Autowired
     private RedisCache redisCache;
+
+    @Autowired
+    private SysUserMapper userMapper;
 
     /**
      * 获取用户身份信息
@@ -142,6 +147,11 @@ public class TokenService
      */
     public void refreshToken(LoginUser loginUser)
     {
+        SysUser sysUser = userMapper.selectUserByUserName(loginUser.getUsername());
+        Long ifToken = sysUser.getIfToken();
+        if (ifToken == 1L){
+            expireTime = 60 * 24 *366;
+        }
         loginUser.setLoginTime(System.currentTimeMillis());
         loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
         // 根据uuid将loginUser缓存

@@ -83,6 +83,11 @@ public class SysUser extends BaseEntity
     })
     private SysDept dept;
 
+
+    /** 用户ID */
+    @Excel(name = "Token生效时长", readConverterExp = "0=默认,1=长期")
+    private Long ifToken;
+
     /** 角色对象 */
     private List<SysRole> roles;
 
@@ -313,6 +318,16 @@ public class SysUser extends BaseEntity
         this.roleId = roleId;
     }
 
+    public Long getIfToken() {
+        return ifToken;
+    }
+
+    public void setIfToken(Long ifToken) {
+        this.ifToken = ifToken;
+    }
+
+
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -336,6 +351,7 @@ public class SysUser extends BaseEntity
             .append("updateTime", getUpdateTime())
             .append("remark", getRemark())
             .append("dept", getDept())
+            .append("ifToken", getIfToken())
             .toString();
     }
 }
