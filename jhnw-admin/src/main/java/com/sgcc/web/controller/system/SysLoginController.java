@@ -51,6 +51,7 @@ public class SysLoginController
         AjaxResult ajax = AjaxResult.success();
         String username = loginBody.getUsername();
 
+        //同一用户，禁止同时多次登录!
         SysUserOnlineController sysUserOnlineController = new SysUserOnlineController();
         TableDataInfo list = sysUserOnlineController.queryOnlineUsers();
         List<SysUserOnline> rows = (List<SysUserOnline>) list.getRows();
@@ -59,6 +60,7 @@ public class SysLoginController
                 return AjaxResult.error("同一用户，禁止同时多次登录!");
             }
         }
+
         // 生成令牌
         String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
                 loginBody.getUuid());

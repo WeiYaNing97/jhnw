@@ -24,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
-        <where>  
+        <where>
             <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
             <if test="type != null  and type != ''"> and type = #{type}</if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
@@ -131,7 +131,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectTotalQuestionTableVo"/>
         where id = #{id}
     </select>
-        
+
+
     <insert id="insertTotalQuestionTable" parameterType="com.sgcc.sql.domain.TotalQuestionTable" useGeneratedKeys="true" keyProperty="id">
         insert into total_question_table
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -187,4 +188,5 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
 </mapper>

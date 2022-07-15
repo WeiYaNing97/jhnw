@@ -16,7 +16,6 @@ import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +48,160 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
+    @RequestMapping("getmain")
+    public  void getmain() {
+        //用户信息  及   交换机信息
+        Map<String,String> user_String = new HashMap<>();
+
+        //用户信息
+        user_String.put("mode","ssh");//登录方式
+        user_String.put("ip","192.168.1.100");//ip地址
+        user_String.put("name","admin");//用户名
+        user_String.put("password","admin");//用户密码
+        user_String.put("port","22");//登录端口号
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String ScanningTime = simpleDateFormat.format(new Date());
+        user_String.put("ScanningTime",ScanningTime);//扫描时间
+
+
+        //交换机信息
+        //设备型号
+        user_String.put("deviceModel",null);
+        //设备品牌
+        user_String.put("deviceBrand",null);
+        //内部固件版本
+        user_String.put("firmwareVersion",null);
+        //子版本号
+        user_String.put("subversionNumber",null);
+
+        Map<String,Object> user_Object = new HashMap<>();
+        //ssh连接
+        SshMethod connectMethod = null;
+        user_Object.put("connectMethod",connectMethod);
+        //telnet连接
+        TelnetSwitchMethod telnetSwitchMethod = null;
+        user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+
+        //连接交换机  requestConnect：
+        //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
+        //                          connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
+        //返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
+        //                         connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）
+        //                         SshConnect ssh连接工具 或者 TelnetComponent telnet连接工具（其中一个，为空者不存在）]
+        AjaxResult requestConnect_ajaxResult = requestConnect(user_String);
+
+        //解析返回参数 data
+        /*返回值 list集合
+        元素0 ：是否连接成功
+        元素1 ：连接方法
+        元素2 ：交换机IP
+        元素3 ：交换机登录用户
+        元素4 ：交换机登录用户密码
+        元素5 ：交换机连接端口号
+        元素6 ：ssh连接对象：如果连接方法为telnet则connectMethod为空，插入connectMethod失败
+        元素7 ：telnet连接对象：如果连接方法为ssh则telnetSwitchMethod为空，插入telnetSwitchMethod失败
+        元素8 ：ssh连接工具对象
+        元素9 ：telnet连接工具对象*/
+
+        List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
+        //控制台输出 连接交换机IP
+        System.err.println("\r\n连接交换机ip地址:"+objectList.get(2)+"\r\n");
+        //是否连接成功 返回信息集合的 第一项 为 是否连接成功
+        boolean requestConnect_boolean = objectList.get(0).toString().equals("true");
+
+        //如果连接成功
+        if(requestConnect_boolean){
+            //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
+            String requestConnect_way = objectList.get(1).toString();
+            //SSH 连接工具
+            SshConnect sshConnect = null;
+            //SSH 连接工具
+            TelnetComponent telnetComponent = null;
+
+            user_Object.put("connectMethod",connectMethod);
+            user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+            user_Object.put("sshConnect",sshConnect);
+            user_Object.put("telnetComponent",telnetComponent);
+
+            //如果连接方式为ssh则 连接方法返回集合参数为 connectMethod参数
+            //如果连接方式为telnet则 连接方法返回集合参数为 telnetSwitchMethod参数
+            if (requestConnect_way.equalsIgnoreCase("ssh")){
+                connectMethod = (SshMethod)objectList.get(6);
+                sshConnect = (SshConnect)objectList.get(8);
+                user_Object.put("connectMethod",connectMethod);
+                user_Object.put("sshConnect",sshConnect);
+            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                telnetSwitchMethod = (TelnetSwitchMethod)objectList.get(7);
+                telnetComponent = (TelnetComponent)objectList.get(9);
+                user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+                user_Object.put("telnetComponent",telnetComponent);
+            }
+
+            //获取交换机基本信息
+            AjaxResult basicInformationList_ajaxResult = getBasicInformation(user_String,user_Object);
+
+            if (requestConnect_way.equalsIgnoreCase("ssh")){
+                connectMethod.closeConnect(sshConnect);
+            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                telnetSwitchMethod.closeSession(telnetComponent);
+            }
+        }
+    }
+
+    /**
+     * @method: 获取交换机基本信息
+     * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法,
+     * SshConnect ssh连接工具，connectMethod ssh连接,
+     * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
+     * @E-mail: WeiYaNing97@163.com
+     * 通过null 查询初所有会的交换机基本信息的命令字符串集合
+     * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
+     * 通过返回提取的信息，给基本属性赋值
+     * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
+     */
+    //@MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
+    public AjaxResult getBasicInformation(Map<String,String> user_String,Map<String,Object> user_Object) {
+
+        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
+        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
+        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
+        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
+
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        String userName = loginUser.getUsername();
+
+        //查询 获取基本信息命令表  中的全部命令
+        //BasicInformation pojo_NULL = new BasicInformation();
+        //null
+        //根据 null 查询 得到表中所有数据
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
+        String problemName = "获取基本信息";
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setProblemName(problemName);
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
+        String command_return_information = null;
+        Long analysis_id = null;
+        for (TotalQuestionTable pojo:totalQuestionTables){
+            user_String.put("notFinished",pojo.getNotFinished());
+            //根据命令ID获取具体命令，执行
+            System.err.println("连接iP:"+user_String.get("ip"));
+
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,pojo.getCommandId(),user_String.get("notFinished"),
+                    user_String.get("mode"), user_Object);
+
+            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
+                    executeScanCommandByCommandId_object);
+            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
+        }
+
+        return null;
+    }
+
+
+
+
     @RequestMapping("testThread")
     public void testThread() {
         List<Object[]> objects = new ArrayList<>();
@@ -68,24 +221,6 @@ public class SwitchInteraction {
 
     =====================================================================================================================*/
 
-    public static void main(String[] args) {
-        try{
-
-            int a = 10;
-
-            int b = a/0;
-
-            String string = null;
-
-            System.out.println(string.charAt(2));
-
-        }catch(NullPointerException e){
-            throw new NullPointerException("第二个异常被处理掉");
-        }catch(ArithmeticException e){
-            throw new ArithmeticException("保险公司报销");
-        }
-    }
-
     /**
     * @method: 扫描方法 logInToGetBasicInformation
     * @Param: [mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
@@ -94,8 +229,8 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("logInToGetBasicInformation")
-    @PreAuthorize("@ss.hasPermi('sql:SwitchInteraction:list')")
-    @MyLog(title = "扫描交换机", businessType = BusinessType.OTHER)
+    //@PreAuthorize("@ss.hasPermi('sql:SwitchInteraction:list')")
+    //@MyLog(title = "扫描交换机", businessType = BusinessType.OTHER)
     public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port) {
 
         //用户信息  及   交换机信息
@@ -223,7 +358,7 @@ public class SwitchInteraction {
      *返回信息为 是否连接成功 + 全部传入参数 ，此时 connectMethod(telnetSwitchMethod) 已经连接交换机
      */
     @RequestMapping("requestConnect")
-    @MyLog(title = "连接交换机", businessType = BusinessType.OTHER)
+    //@MyLog(title = "连接交换机", businessType = BusinessType.OTHER)
     public static AjaxResult requestConnect(Map<String,String> user_String) {
         //用户信息
         String way = user_String.get("mode");//连接方法
@@ -291,7 +426,7 @@ public class SwitchInteraction {
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      */
     @GetMapping("/getBasicInformationList")
-    @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
+   // @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
     public AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
@@ -818,7 +953,7 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @MyLog(title = "问题数据及参数插人", businessType = BusinessType.INSERT)
+    //@MyLog(title = "问题数据及参数插人", businessType = BusinessType.INSERT)
     public void insertvalueInformationService(Map<String,String> user_String,ProblemScanLogic problemScanLogic,String parameterString){
 
         //系统登录人 用户名
@@ -989,6 +1124,8 @@ public class SwitchInteraction {
         //具体命令
         String command = commandLogic.getCommand();
 
+        System.err.print("\r\n命令"+command+"\r\n");
+
         //执行命令
         //命令返回信息
         String command_string = null;
@@ -1004,6 +1141,8 @@ public class SwitchInteraction {
 
         //修整返回信息
         command_string =Utils.trimString(command_string);
+
+        System.err.println(command_string);
 
         //按行切割
         String[] split = command_string.split("\r\n");
@@ -1042,6 +1181,7 @@ public class SwitchInteraction {
         WebSocketService.sendMessage("badao"+userName,current_identifier);
 
         //返回信息表，返回插入条数
+        returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
         int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
         String first_problem_scanLogic_Id = "";

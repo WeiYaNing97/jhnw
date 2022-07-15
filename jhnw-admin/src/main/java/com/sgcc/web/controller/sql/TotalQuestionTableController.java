@@ -162,6 +162,10 @@ public class TotalQuestionTableController extends BaseController
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getBrand());
         }
+
+        SwitchInteraction switchInteraction = new SwitchInteraction();
+        switchInteraction.getmain();
+
         return stringList;
     }
 

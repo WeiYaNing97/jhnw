@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.service.IBasicInformationService;
+import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,6 +46,7 @@ public class SysUserOnlineController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(String ipaddr, String userName)
     {
+        redisCache = SpringBeanUtil.getBean(RedisCache.class);
         Collection<String> keys = redisCache.keys(Constants.LOGIN_TOKEN_KEY + "*");
 
         List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
