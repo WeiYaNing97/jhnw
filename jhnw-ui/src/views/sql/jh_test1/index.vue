@@ -404,14 +404,13 @@ export default {
     //     // }
     // },
   methods: {
-      //轮询
+      //轮询CPU
       lun(){
-          axios({
+          return request({
+              url:'/sql/get_Memory_CPU',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/get_Memory_CPU',
-          }).then(res=>{
-              // console.log(res)
-              this.cpus = res.data
+          }).then(response=>{
+              this.cpus = response
           })
           console.log(this.cpus)
       },
@@ -496,15 +495,12 @@ export default {
           this.$set(subOne,'type',typeO)
           this.$set(subOne,'firewareVersion',fireO)
           // alert(JSON.stringify(subOne))
-          axios({
+          return request({
+              url:'/sql/total_question_table/subVersionlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/subVersionlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(subOne)
-          }).then(res=>{
-              this.subList = res.data
+          }).then(response=>{
+              this.subList = response
           })
       },
       fireLi(){
@@ -514,15 +510,12 @@ export default {
           this.$set(fireOne,'brand',brandO)
           this.$set(fireOne,'type',typeO)
           // alert(JSON.stringify(fireOne))
-          axios({
+          return request({
+              url:'/sql/total_question_table/firewareVersionlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/firewareVersionlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(fireOne)
-          }).then(res=>{
-              this.fireList = res.data
+          }).then(response=>{
+              this.fireList = response
           })
       },
       typeLi(){
@@ -530,45 +523,31 @@ export default {
           const typeOne = {}
           const brandO = this.queryParams.brand
           this.$set(typeOne,'brand',brandO)
-          // alert(JSON.stringify(typeOne))
-          axios({
+          return request({
+              url:'/sql/total_question_table/typelist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/typelist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(typeOne)
-          }).then(res=>{
-              this.typeList = res.data
+          }).then(response=>{
+              this.typeList = response
           })
       },
       brandLi(e){
           return request({
               url:'/sql/total_question_table/brandlist',
-              method: 'get'
-          }).then(res=>{
-              this.brandList = res
+              method:'get'
+          }).then(response=>{
+              this.brandList = response
               console.log('我是实验')
           })
-          // axios({
-          //     method:'post',
-          //     url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
-          // }).then(res=>{
-          //     this.brandList = res.data
-          // })
           this.who = e.target.getAttribute('name')
       },
       proType(){
-          alert(JSON.stringify(this.queryParams))
-          axios({
+          return request({
+              url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/typeProblemlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(this.queryParams)
-          }).then(res=>{
-              this.typeProList = res.data
+          }).then(response=>{
+              this.typeProList = response
           })
       },
       //比较选中触发
@@ -641,32 +620,21 @@ export default {
       huoquid(){
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
           this.$delete(shasha,'commandId')
-          alert(JSON.stringify(shasha))
-          // alert(JSON.stringify(this.queryParams))
-          axios({
+          return request({
+              url:'/sql/total_question_table/add',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/add',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(shasha)
-          }).then(res=>{
-              alert(res.data)
-              this.proId = res.data
+          }).then(response=>{
+              this.proId = response
           })
       },
       chawenti(){
-          alert(JSON.stringify(this.queryParams))
-          axios({
+          return request({
+              url:'/sql/total_question_table/problemNameList',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/problemNameList',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(this.queryParams)
-          }).then(res=>{
-              console.log(res.data)
-              this.proNameList = res.data
+          }).then(response=>{
+              this.proNameList = response
           })
       },
       //全选
@@ -886,16 +854,12 @@ export default {
           })
           const handForm = useForm.map(x => JSON.stringify(x))
           alert(handForm)
-          axios({
+          return request({
+              url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
               method:'post',
-              // url:'/dev-api/sql/ConnectController/definitionProblem',
-              url:'http://192.168.1.98/dev-api/sql/DefinitionProblemController/definitionProblemJsonPojo',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:handForm
               // data:[JSON.stringify(oneOne),JSON.stringify(twoTwo)]
-          }).then(res=>{
+          }).then(response=>{
               console.log("成功")
           })
           // window.location.reload()   刷新页面

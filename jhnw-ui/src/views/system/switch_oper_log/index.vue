@@ -154,16 +154,16 @@
       <el-table-column label="日志主键" align="center" prop="operId" />
       <el-table-column label="模块标题" align="center" prop="title" />
       <el-table-column label="业务类型" align="center" prop="businessType" />
-      <el-table-column label="方法名称" align="center" prop="method" />
+<!--      <el-table-column label="方法名称" align="center" prop="method" />-->
       <el-table-column label="请求方式" align="center" prop="requestMethod" />
-      <el-table-column label="操作类别" align="center" prop="operatorType" />
+<!--      <el-table-column label="操作类别" align="center" prop="operatorType" />-->
       <el-table-column label="操作人员" align="center" prop="operName" />
-      <el-table-column label="部门名称" align="center" prop="deptName" />
-      <el-table-column label="请求URL" align="center" prop="operUrl" />
+<!--      <el-table-column label="部门名称" align="center" prop="deptName" />-->
+<!--      <el-table-column label="请求URL" align="center" prop="operUrl" />-->
       <el-table-column label="主机地址" align="center" prop="operIp" />
       <el-table-column label="操作地点" align="center" prop="operLocation" />
-      <el-table-column label="请求参数" align="center" prop="operParam" />
-      <el-table-column label="返回参数" align="center" prop="jsonResult" />
+<!--      <el-table-column label="请求参数" align="center" prop="operParam" />-->
+<!--      <el-table-column label="返回参数" align="center" prop="jsonResult" />-->
       <el-table-column label="操作状态" align="center" prop="status" />
       <el-table-column label="错误消息" align="center" prop="errorMsg" />
       <el-table-column label="操作时间" align="center" prop="operTime" width="180">
@@ -176,21 +176,32 @@
           <el-button
             size="mini"
             type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:switch_oper_log:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:switch_oper_log:remove']"
-          >删除</el-button>
+            icon="el-icon-view"
+            @click="handleView(scope.row,scope.index)"
+          >详细</el-button>
+<!--          v-hasPermi="['monitor:operlog:query']"-->
         </template>
       </el-table-column>
+<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-edit"-->
+<!--            @click="handleUpdate(scope.row)"-->
+<!--            v-hasPermi="['system:switch_oper_log:edit']"-->
+<!--          >修改</el-button>-->
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-delete"-->
+<!--            @click="handleDelete(scope.row)"-->
+<!--            v-hasPermi="['system:switch_oper_log:remove']"-->
+<!--          >删除</el-button>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -329,6 +340,7 @@ export default {
     getList() {
       this.loading = true;
       listSwitch_oper_log(this.queryParams).then(response => {
+          console.log(response.rows)
         this.switch_oper_logList = response.rows;
         this.total = response.total;
         this.loading = false;
@@ -413,6 +425,11 @@ export default {
         }
       });
     },
+      /** 详细按钮操作 */
+      handleView(row) {
+          this.open = true;
+          this.form = row;
+      },
     /** 删除按钮操作 */
     handleDelete(row) {
       const operIds = row.operId || this.ids;

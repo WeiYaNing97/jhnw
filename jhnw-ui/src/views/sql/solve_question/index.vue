@@ -112,6 +112,8 @@
 <script>
 import { listSolve_question, getSolve_question, delSolve_question, addSolve_question, updateSolve_question, exportSolve_question } from "@/api/sql/solve_question";
 import axios from 'axios'
+import request from '@/utils/request'
+
 export default {
   name: "Solve_question",
     components:{
@@ -192,16 +194,12 @@ export default {
           for (var key in this.queryParams){
               form.append(key,this.queryParams[key]);
           }
-          axios({
+          return request({
+              url:'/sql/total_question_table/totalQuestionTableId',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/totalQuestionTableId',
-              headers:{
-                  "Content-Type": "multipart/form-data"
-              },
               data:form
-          }).then(res=>{
-              console.log(res.data)
-              this.proId = res.data
+          }).then(response=>{
+              this.proId = response
           })
       },
       //提交
@@ -235,27 +233,21 @@ export default {
           const a1 = {"ip":"1"}
           form1.append("commandLogicList",handForm)
           form1.append("commandValueList",handForm)
-          axios({
+          return request({
+              url:`/sql/command_logic/insertModifyProblemCommandSet?totalQuestionTableId=${this.proId}`,
               method:'post',
-              // url:'/dev-api/sql/ConnectController/definitionProblem1/\'+handForm+\'/\'+handForm',
-              // url:'/dev-api/sql/ConnectController/definitionProblem?totalQuestionTableId=23&aaa=33',
-              // url:`/dev-api/sql/ConnectController/definitionProblem?totalQuestionTableId=${this.queryParams.brand}&aaa=${this.proId}`,
-              url:`http://192.168.1.98/dev-api/sql/command_logic/insertModifyProblemCommandSet?totalQuestionTableId=${this.proId}`,
-              headers:{
-                  "Content-Type": "application/json"
-                  // "Content-Type": "multipart/form-data"
-              },
-              // data:form1
-              // data:{
-              //     "commandLogicList":handForm,
-              //     "commandValueList":handForm
-              // }
               data:handForm
-              // data:{commandLogicList:handForm,aaa:handForm}
-              // data:aaa
-          }).then(res=>{
+          }).then(response=>{
               console.log("成功")
           })
+          //     // url:'/dev-api/sql/ConnectController/definitionProblem1/\'+handForm+\'/\'+handForm',
+          //     // url:'/dev-api/sql/ConnectController/definitionProblem?totalQuestionTableId=23&aaa=33',
+          //     // url:`/dev-api/sql/ConnectController/definitionProblem?totalQuestionTableId=${this.queryParams.brand}&aaa=${this.proId}`,
+          //     url:`http://192.168.1.98/dev-api/sql/command_logic/insertModifyProblemCommandSet?totalQuestionTableId=${this.proId}`,
+          //     // data:{
+          //     //     "commandLogicList":handForm,
+          //     //     "commandValueList":handForm
+          //     // }
       },
       numToStr(num){
           num = num.toString()
@@ -353,38 +345,32 @@ export default {
       paraLi(){
           let form = new FormData();
           form.append('totalQuestionTableId',this.proId)
-          axios({
+          return request({
+              url:'/sql/problem_scan_logic/getParameterNameCollection',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/problem_scan_logic/getParameterNameCollection',
-              headers:{
-                  "Content-Type": "multipart/form-data"
-              },
               data:form
-          }).then(res=>{
-              this.paraList = res.data
+          }).then(response=>{
+              this.paraList = response
           })
       },
       brandLi(){
-          axios({
+          return request({
+              url:'/sql/total_question_table/brandlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
-          }).then(res=>{
-              this.brandList = res.data
+          }).then(response=>{
+              this.brandList = response
           })
       },
       typeLi(){
           const typeOne = {}
           const brandO = this.queryParams.brand
           this.$set(typeOne,'brand',brandO)
-          axios({
+          return request({
+              url:'/sql/total_question_table/typelist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/typelist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(typeOne)
-          }).then(res=>{
-              this.typeList = res.data
+          }).then(response=>{
+              this.typeList = response
           })
       },
       fireLi(){
@@ -393,15 +379,12 @@ export default {
           const typeO = this.queryParams.type
           this.$set(fireOne,'brand',brandO)
           this.$set(fireOne,'type',typeO)
-          axios({
+          return request({
+              url:'/sql/total_question_table/firewareVersionlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/firewareVersionlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(fireOne)
-          }).then(res=>{
-              this.fireList = res.data
+          }).then(response=>{
+              this.fireList = response
           })
       },
       subLi(){
@@ -412,42 +395,31 @@ export default {
           this.$set(subOne,'brand',brandO)
           this.$set(subOne,'type',typeO)
           this.$set(subOne,'firewareVersion',fireO)
-          axios({
+          return request({
+              url:'/sql/total_question_table/subVersionlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/subVersionlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(subOne)
-          }).then(res=>{
-              this.subList = res.data
+          }).then(response=>{
+              this.subList = response
           })
       },
       proType(){
-          // alert(JSON.stringify(this.queryParams))
-          axios({
+          return request({
+              url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/typeProblemlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(this.queryParams)
-          }).then(res=>{
-              this.typeProList = res.data
+          }).then(response=>{
+              this.typeProList = response
           })
       },
       //下拉框问题
       chawenti(){
-          axios({
+          return request({
+              url:'/sql/total_question_table/list',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/list',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(this.queryParams)
-          }).then(res=>{
-              console.log(res.data.rows)
-              this.proNameList = res.data.rows
+          }).then(response=>{
+              this.proNameList = response.rows
           })
       },
 

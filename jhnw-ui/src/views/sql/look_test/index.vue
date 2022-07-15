@@ -54,7 +54,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="chaxun" :disabled="!isNull">查看定义</el-button>
+        <el-button type="primary" @click="chaxun">查看定义</el-button>
+<!--        :disabled="!isNull"-->
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="xiugai" icon="el-icon-edit" :disabled="isUse">修改</el-button>
@@ -262,7 +263,9 @@
 import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_test, exportLook_test } from "@/api/sql/look_test";
 import axios from 'axios'
 import  {MessageBox} from "element-ui";
+import request from '@/utils/request'
 import log from "../../monitor/job/log";
+
 export default {
   name: "Look_test",
   data() {
@@ -353,11 +356,11 @@ export default {
       }
   },
     computed:{
-      isNull(){
-          return this.queryParams.brand != '' && this.queryParams.type != ''
-              && this.queryParams.firewareVersion != '' && this.queryParams.subversionNumber != ''
-              && this.queryParams.problemName != ''
-      },
+      // isNull(){
+      //     return this.queryParams.brand != '' && this.queryParams.type != ''
+      //         && this.queryParams.firewareVersion != '' && this.queryParams.subversionNumber != ''
+      //         && this.queryParams.problemName != ''
+      // },
       isUse(){
           if (this.showNo == true){
               return false
@@ -491,26 +494,23 @@ export default {
       },
       //下拉框获取后台数据
       brandLi(){
-          axios({
+          return request({
+              url:'/sql/total_question_table/brandlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/brandlist',
-          }).then(res=>{
-              this.brandList = res.data
+          }).then(response=>{
+              this.brandList = response
           })
       },
       typeLi(){
           const typeOne = {}
           const brandO = this.queryParams.brand
           this.$set(typeOne,'brand',brandO)
-          axios({
+          return request({
+              url:'/sql/total_question_table/typelist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/typelist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(typeOne)
-          }).then(res=>{
-              this.typeList = res.data
+          }).then(response=>{
+              this.typeList = response
           })
       },
       fireLi(){
@@ -519,15 +519,12 @@ export default {
           const typeO = this.queryParams.type
           this.$set(fireOne,'brand',brandO)
           this.$set(fireOne,'type',typeO)
-          axios({
+          return request({
+              url:'/sql/total_question_table/firewareVersionlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/firewareVersionlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(fireOne)
-          }).then(res=>{
-              this.fireList = res.data
+          }).then(response=>{
+              this.fireList = response
           })
       },
       subLi(){
@@ -538,43 +535,31 @@ export default {
           this.$set(subOne,'brand',brandO)
           this.$set(subOne,'type',typeO)
           this.$set(subOne,'firewareVersion',fireO)
-          axios({
+          return request({
+              url:'/sql/total_question_table/subVersionlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/subVersionlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(subOne)
-          }).then(res=>{
-              this.subList = res.data
+          }).then(response=>{
+              this.subList = response
           })
       },
       proType(){
-          alert(JSON.stringify(this.queryParams))
-          axios({
+          return request({
+              url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/typeProblemlist',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(this.queryParams)
-          }).then(res=>{
-              this.typeProList = res.data
+          }).then(response=>{
+              this.typeProList = response
           })
       },
       //下拉框问题
       chawenti(){
-          // alert(JSON.stringify(this.queryParams))
-          axios({
+          return request({
+              url:'/sql/total_question_table/list',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/list',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(this.queryParams)
-          }).then(res=>{
-              console.log(res.data.rows)
-              this.proNameList = res.data.rows
+          }).then(response=>{
+              this.proNameList = response.rows
           })
       },
       proSelect(e){
@@ -590,16 +575,12 @@ export default {
           for (var key in this.queryParams){
               form.append(key,this.queryParams[key]);
           }
-          axios({
+          return request({
+              url:'/sql/total_question_table/totalQuestionTableId',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/total_question_table/totalQuestionTableId',
-              headers:{
-                  "Content-Type": "multipart/form-data"
-              },
               data:form
-          }).then(res=>{
-              console.log(res.data)
-              this.proId = res.data
+          }).then(response=>{
+              this.proId = response
           })
       },
       //删除
@@ -621,21 +602,15 @@ export default {
       //回显定义问题
       chaxun(){
           this.showNo= true
-          axios({
+          return request({
+              url:'/sql/DefinitionProblemController/getAnalysisList',
               method:'post',
-              url:'http://192.168.1.98/dev-api/sql/DefinitionProblemController/getAnalysisList',
-              headers:{
-                  "Content-Type": "application/json"
-              },
               data:JSON.stringify(this.queryParams)
-          }).then(res=>{
-              console.log(res.data)
-              alert(res.data)
-              res.data.forEach(l=>{
+          }).then(response=>{
+              response.forEach(l=>{
                   const wei = l.replace(/"=/g,'":')
                   this.fDa.push(JSON.parse(wei))
               })
-              alert(JSON.stringify(this.fDa))
               const huicha = []
               const quanjf = ''
               const hangjf = ''
@@ -701,6 +676,84 @@ export default {
               this.forms.dynamicItem = this.forms.dynamicItem.concat(huicha)
               this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
           })
+          // axios({
+          //     method:'post',
+          //     url:'http://192.168.1.98/dev-api/sql/DefinitionProblemController/getAnalysisList',
+          //     headers:{
+          //         "Content-Type": "application/json"
+          //     },
+          //     data:JSON.stringify(this.queryParams)
+          // }).then(res=>{
+          //     res.data.forEach(l=>{
+          //         const wei = l.replace(/"=/g,'":')
+          //         this.fDa.push(JSON.parse(wei))
+          //     })
+          //     alert(JSON.stringify(this.fDa))
+          //     const huicha = []
+          //     const quanjf = ''
+          //     const hangjf = ''
+          //     const quanmf = ''
+          //     const hangmf = ''
+          //     const bif = ''
+          //     this.fDa.forEach(chae=>{
+          //         if (chae.hasOwnProperty('command') == true){
+          //             this.$set(chae,'targetType','command')
+          //             if (chae.resultCheckId === 0){
+          //                 this.$set(chae,'resultCheckId','自定义校验')
+          //             }else  if (chae.resultCheckId === 1){
+          //                 this.$set(chae,'resultCheckId','常规校验')
+          //             }
+          //             huicha.push(chae)
+          //         }else if (chae.matched === '全文精确匹配'){
+          //             this.$set(chae,'targetType','match')
+          //             huicha.push(chae)
+          //             this.quanjf = chae.onlyIndex
+          //         }else if(chae.onlyIndex === this.quanjf && chae.trueFalse === '失败'){
+          //             this.$set(chae,'targetType','matchfal')
+          //             huicha.push(chae)
+          //         }else if (chae.matched === '按行精确匹配'){
+          //             this.$set(chae,'targetType','lipre')
+          //             huicha.push(chae)
+          //             this.hangjf = chae.onlyIndex
+          //         }else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败'){
+          //             this.$set(chae,'targetType','liprefal')
+          //             huicha.push(chae)
+          //         }else if (chae.action === '取词'){
+          //             this.$set(chae,'targetType','takeword')
+          //             huicha.push(chae)
+          //         }else if (chae.matched === '全文模糊匹配'){
+          //             this.$set(chae,'targetType','dimmatch')
+          //             huicha.push(chae)
+          //             this.quanmf = chae.onlyIndex
+          //         }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
+          //             this.$set(chae,'targetType','dimmatchfal')
+          //             huicha.push(chae)
+          //         }else if (chae.matched === '按行模糊匹配'){
+          //             this.$set(chae,'targetType','dimpre')
+          //             huicha.push(chae)
+          //             this.hangmf = chae.onlyIndex
+          //         }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
+          //             this.$set(chae,'targetType','dimprefal')
+          //             huicha.push(chae)
+          //         }else if (chae.action === '问题'){
+          //             this.$set(chae,'targetType','prodes')
+          //             huicha.push(chae)
+          //         }else if (chae.action === '循环'){
+          //             this.$set(chae,'targetType','wloop')
+          //             huicha.push(chae)
+          //         }else if (chae.action === '比较'){
+          //             this.$set(chae,'targetType','analyse')
+          //             huicha.push(chae)
+          //             this.bif = chae.onlyIndex
+          //         }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
+          //             this.$set(chae,'targetType','analysefal')
+          //             huicha.push(chae)
+          //         }
+          //     })
+          //     huicha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+          //     this.forms.dynamicItem = this.forms.dynamicItem.concat(huicha)
+          //     this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+          // })
       },
       //编辑
       xiugai(){
