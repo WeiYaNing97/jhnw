@@ -45,6 +45,29 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
+
+
+
+
+    @RequestMapping("testThread")
+    public void testThread() {
+        List<Object[]> objects = new ArrayList<>();
+        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
+        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
+
+        objects.add(objects1);
+        objects.add(objects2);
+
+        MyThread.switchLoginInformations(objects);
+    }
+
+
+    /*=====================================================================================================================
+
+    =====================================================================================================================
+
+    =====================================================================================================================*/
+
     @RequestMapping("getBasicInformation")
     public  void commandTableToGetBasicInformation() {
         //用户信息  及   交换机信息
@@ -261,27 +284,6 @@ public class SwitchInteraction {
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
     }
 
-
-
-
-    @RequestMapping("testThread")
-    public void testThread() {
-        List<Object[]> objects = new ArrayList<>();
-        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
-        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
-
-        objects.add(objects1);
-        objects.add(objects2);
-
-        MyThread.switchLoginInformations(objects);
-    }
-
-
-    /*=====================================================================================================================
-
-    =====================================================================================================================
-
-    =====================================================================================================================*/
 
     /**
     * @method: 扫描方法 logInToGetBasicInformation
@@ -524,11 +526,9 @@ public class SwitchInteraction {
                 if (way.equalsIgnoreCase("ssh")){
                     WebSocketService.sendMessage("badao"+userName,command);
                     commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
-                    //commandString = Utils.removeLoginInformation(commandString);
                 }else if (way.equalsIgnoreCase("telnet")){
                     WebSocketService.sendMessage("badao"+userName,command);
                     commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
-                    //commandString = Utils.removeLoginInformation(commandString);
                 }
 
                 //判断命令是否错误 错误为false 正确为true
@@ -536,6 +536,9 @@ public class SwitchInteraction {
                     //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
                     break;
                 }
+
+                //去除其他 交换机登录信息
+                commandString = Utils.removeLoginInformation(commandString);
 
                 //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
                 commandString = Utils.trimString(commandString);
@@ -669,7 +672,7 @@ public class SwitchInteraction {
                 }
             }
         }
-        return null;
+        return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
     }
 
 
@@ -1289,7 +1292,6 @@ public class SwitchInteraction {
         //将交换机返回信息 按行来切割 字符串数组
         String[] return_information_array =resultString.split("\r\n");
         //获得第一条分析ID
-        //因为前三个是 1位为操作类型（取词w、分析a、匹配m） 2,3位为品牌编码；后5位为随机生成的序号；
         //根据第一条分析ID 查询分析信息
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
@@ -1299,9 +1301,13 @@ public class SwitchInteraction {
                 0,first_problem_scanLogic_Id,null,0);// loop end
 
         if (problemScanLogic_string!=null){
+
             return problemScanLogic_string;
+
         }else {
+
             return null;
+
         }
     }
 
