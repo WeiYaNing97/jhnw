@@ -342,7 +342,8 @@ public class SwitchInteraction {
         }
 
         //解析返回参数 data
-        /*返回值 list集合
+        /*
+        返回值 list集合
         元素0 ：是否连接成功
         元素1 ：连接方法
         元素2 ：交换机IP

@@ -1,5 +1,6 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
@@ -850,14 +851,15 @@ public class DefinitionProblemController extends BaseController {
         commandLogicVO.setNextIndex(nextIndex);
         commandLogicVO.setPageIndex(pageIndex);
 
-        String commandLogicVOSting = commandLogicVO.toString();
-        commandLogicVOSting = commandLogicVOSting.replace("'","\"");
-        commandLogicVOSting = commandLogicVOSting.replace(",",",\"");
-        commandLogicVOSting = commandLogicVOSting.replace("=","\"=");
-        commandLogicVOSting = commandLogicVOSting.replace("{","{\"");
-        commandLogicVOSting = commandLogicVOSting.replace("\" ","\"");
-        commandLogicVOSting = commandLogicVOSting.replace(" \"","\"");
-        commandLogicVOSting = commandLogicVOSting.replace("CommandLogicVO",pageIndex+":");
+        String commandLogicVOSting =commandLogicVO.getPageIndex()+":"+"{"
+                +"\"onlyIndex\"" +"="+ "\""+ commandLogicVO.getOnlyIndex() +"\","
+                +"\"trueFalse\"" +"="+ "\""+ commandLogicVO.getTrueFalse() +"\","
+                +"\"pageIndex\"" +"="+ "\""+ commandLogicVO.getPageIndex() +"\","
+                +"\"command\"" +"="+ "\""+ commandLogicVO.getCommand() +"\","
+                +"\"para\"" +"="+ "\""+ commandLogicVO.getPara() +"\","
+                +"\"resultCheckId\"" +"="+ "\""+ commandLogicVO.getResultCheckId() +"\","
+                +"\"nextIndex\"" +"="+ "\""+ commandLogicVO.getNextIndex() +"\"" +"}";
+
         return commandLogicVOSting;
     }
 
@@ -986,21 +988,25 @@ public class DefinitionProblemController extends BaseController {
             problemScanLogicVO.setAction("循环");
         }
 
-        String problemScanLogicVOString = problemScanLogicVO.toString();
-        problemScanLogicVOString = problemScanLogicVOString.replace("'","\"");
-        problemScanLogicVOString = problemScanLogicVOString.replace(",",",\"");
-        //  将 "="改为"\"=" 会对 比较中的  <=  >=  ==  !=  有影响
-        problemScanLogicVOString = problemScanLogicVOString.replace("=","\"=");
-        //消除上一步的影响
-        problemScanLogicVOString = problemScanLogicVOString.replace("<\"=","<=");
-        problemScanLogicVOString = problemScanLogicVOString.replace(">\"=",">=");
-        problemScanLogicVOString = problemScanLogicVOString.replace("!\"=","!=");
-        problemScanLogicVOString = problemScanLogicVOString.replace("\"=\"=","==");
-
-        problemScanLogicVOString = problemScanLogicVOString.replace("{","{\"");
-        problemScanLogicVOString = problemScanLogicVOString.replace("\" ","\"");
-        problemScanLogicVOString = problemScanLogicVOString.replace(" \"","\"");
-        problemScanLogicVOString = problemScanLogicVOString.replace("ProblemScanLogicVO",pageIndex+":");
+        String problemScanLogicVOString = problemScanLogicVO.getPageIndex()+":"+"{"
+                +"\"onlyIndex\"" +"="+ "\""+ problemScanLogicVO.getOnlyIndex() +"\","
+                +"\"trueFalse\"" +"="+ "\""+ problemScanLogicVO.getTrueFalse() +"\","
+                +"\"matched\"" +"="+ "\""+ problemScanLogicVO.getMatched() +"\","
+                +"\"relative\"" +"="+ "\""+ problemScanLogicVO.getRelative() +"\","
+                +"\"position\"" +"="+ "\""+ problemScanLogicVO.getPosition() +"\","
+                +"\"matchContent\"" +"="+ "\""+ problemScanLogicVO.getMatchContent() +"\","
+                +"\"action\"" +"="+ "\""+ problemScanLogicVO.getAction() +"\","
+                +"\"tNextId\"" +"="+ "\""+ problemScanLogicVO.gettNextId() +"\","
+                +"\"rPosition\"" +"="+ "\""+ problemScanLogicVO.getrPosition() +"\","
+                +"\"length\"" +"="+ "\""+ problemScanLogicVO.getLength() +"\","
+                +"\"exhibit\"" +"="+ "\""+ problemScanLogicVO.getExhibit() +"\","
+                +"\"wordName\"" +"="+ "\""+ problemScanLogicVO.getWordName() +"\","
+                +"\"compare\"" +"="+ "\""+ problemScanLogicVO.getCompare() +"\","
+                +"\"content\"" +"="+ "\""+ problemScanLogicVO.getContent() +"\","
+                +"\"nextIndex\"" +"="+ "\""+ problemScanLogicVO.getNextIndex() +"\","
+                +"\"problemId\"" +"="+ "\""+ problemScanLogicVO.getProblemId() +"\","
+                +"\"cycleStartId\"" +"="+ "\""+ problemScanLogicVO.getCycleStartId() +"\","
+                +"\"pageIndex\"" +"="+ "\""+ problemScanLogicVO.getPageIndex() +"\""+"}";
 
         return problemScanLogicVOString;
     }
