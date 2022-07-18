@@ -163,9 +163,6 @@ public class TotalQuestionTableController extends BaseController
             stringList.add(pojo.getBrand());
         }
 
-        SwitchInteraction switchInteraction = new SwitchInteraction();
-        switchInteraction.getmain();
-
         return stringList;
     }
 

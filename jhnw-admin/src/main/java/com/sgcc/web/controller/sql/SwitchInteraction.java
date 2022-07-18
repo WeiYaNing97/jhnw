@@ -1,11 +1,8 @@
 package com.sgcc.web.controller.sql;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
-import com.sgcc.common.annotation.Log;
-import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -48,8 +45,8 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
-    @RequestMapping("getmain")
-    public  void getmain() {
+    @RequestMapping("getBasicInformation")
+    public  void commandTableToGetBasicInformation() {
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
 
@@ -192,11 +189,76 @@ public class SwitchInteraction {
                     user_String.get("mode"), user_Object);
 
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
-                    executeScanCommandByCommandId_object);
+                    executeScanCommandByCommandId_object,"", "");
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
+
+
+            if (analysisReturnResults_String.equals("") || analysisReturnResults_String == null){
+                continue;
+            }
+            //设备型号
+            String deviceModel= "";
+            //设备品牌
+            String deviceBrand = "";
+            //内部固件版本
+            String firmwareVersion = "";
+            //子版本号
+            String subversionNumber = "";
+            analysisReturnResults_String = analysisReturnResults_String.replace(",","");
+            String[] return_result_split = analysisReturnResults_String.split("=:=");
+            for (int num = 0;num<return_result_split.length;num++){
+                //设备型号
+                if (return_result_split[num].equals("设备型号")){
+                    num = num + 2;
+                    deviceModel=return_result_split[num];
+                }
+                //设备品牌
+                if (return_result_split[num].equals("设备品牌")) {
+                    num = num + 2;
+                    deviceBrand = return_result_split[num];
+                }
+                //内部固件版本
+                if (return_result_split[num].equals("内部固件版本")) {
+                    num = num + 2;
+                    firmwareVersion = return_result_split[num];
+                }
+                //子版本号
+                if (return_result_split[num].equals("子版本号")) {
+                    num = num + 2;
+                    subversionNumber = return_result_split[num];
+                }
+                if (!deviceModel.equals("") && !deviceBrand.equals("") && !firmwareVersion.equals("") && !subversionNumber.equals("")){
+                    // 根据交换机信息查询 获取 扫描问题的 命令ID
+                    List<String> stringList = new ArrayList<>();
+                    stringList.add(deviceBrand);
+                    stringList.add(deviceModel);
+                    stringList.add(firmwareVersion);
+                    stringList.add(subversionNumber);
+                    /*return AjaxResult.success(stringList);*/
+
+                    WebSocketService.sendMessage("basicinformation"+userName,stringList);
+
+                    HashMap<String,String> map = new HashMap<>();
+                    map.put("pinpai",deviceBrand);
+                    map.put("xinghao",deviceModel);
+                    map.put("banben",firmwareVersion);
+                    map.put("zibanben",subversionNumber);
+
+                    //设备型号
+                    user_String.put("deviceModel",deviceModel);
+                    //设备品牌
+                    user_String.put("deviceBrand",deviceBrand);
+                    //内部固件版本
+                    user_String.put("firmwareVersion",firmwareVersion);
+                    //子版本号
+                    user_String.put("subversionNumber",subversionNumber);
+
+                    return AjaxResult.success(map);
+                }
+            }
         }
 
-        return null;
+        return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
     }
 
 
@@ -795,7 +857,7 @@ public class SwitchInteraction {
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"),
                                 user_String.get("mode"), user_Object);
                         String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,
-                                executeScanCommandByCommandId_object);
+                                executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
                         return analysisReturnResults_String;
                     }
 
@@ -827,7 +889,7 @@ public class SwitchInteraction {
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), user_Object);
                         String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,
-                                executeScanCommandByCommandId_object);
+                                executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                         return analysisReturnResults_String;
                     }
 
@@ -857,13 +919,13 @@ public class SwitchInteraction {
                         return_information_array[num], matchContent, //返回信息的一行 提取关键字
                         problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
                 //取词只有成功
-                extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+ wordSelection_string+"=:=";
+                extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
 
                 if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
                     List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
                     String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
-                            executeScanCommandByCommandId_object);
+                            executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                     return analysisReturnResults_String;
                 }
 
@@ -893,7 +955,7 @@ public class SwitchInteraction {
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
                         String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
-                                executeScanCommandByCommandId_object);
+                                executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                         return analysisReturnResults_String;
                     }
 
@@ -916,7 +978,7 @@ public class SwitchInteraction {
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
                         String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
-                                executeScanCommandByCommandId_object);
+                                executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
 
                         return analysisReturnResults_String;
 
@@ -1216,7 +1278,7 @@ public class SwitchInteraction {
     @RequestMapping("analysisReturnResults")
     public String analysisReturnResults(Map<String,String> user_String,
                                         Map<String,Object> user_Object,
-                                        List<Object> executeScanCommandByCommandId_object){
+                                        List<Object> executeScanCommandByCommandId_object,String current_Round_Extraction_String,String extractInformation_string){
 
         String resultString = executeScanCommandByCommandId_object.get(0).toString();//交换机返回信息
         String first_problem_scanLogic_Id = executeScanCommandByCommandId_object.get(1)+"";//第一条分析ID
@@ -1232,7 +1294,7 @@ public class SwitchInteraction {
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
         //根据ID去分析
         String problemScanLogic_string = selectProblemScanLogicById( user_String,user_Object,
-                return_information_array,"","",
+                return_information_array,current_Round_Extraction_String,extractInformation_string,
                 0,first_problem_scanLogic_Id,null,0);// loop end
 
         if (problemScanLogic_string!=null){
@@ -1278,7 +1340,7 @@ public class SwitchInteraction {
                     user_String.get("mode"), user_Object);
 
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
-                    executeScanCommandByCommandId_object);
+                    executeScanCommandByCommandId_object,  "",  "");
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
         }
         return null;
