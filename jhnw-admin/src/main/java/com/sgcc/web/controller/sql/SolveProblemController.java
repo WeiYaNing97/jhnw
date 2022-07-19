@@ -126,7 +126,7 @@ public class SolveProblemController extends Thread {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("/batchSolution/{userinformation}/{commandValueList}")
-    @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
+    //@MyLog(title = "修复问题", businessType = BusinessType.OTHER)
     public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){
         //String mode,String ip,String name,String password,String port
         //用户信息

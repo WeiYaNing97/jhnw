@@ -68,221 +68,6 @@ public class SwitchInteraction {
 
     =====================================================================================================================*/
 
-    @RequestMapping("getBasicInformation")
-    public  void commandTableToGetBasicInformation() {
-        //用户信息  及   交换机信息
-        Map<String,String> user_String = new HashMap<>();
-
-        //用户信息
-        user_String.put("mode","ssh");//登录方式
-        user_String.put("ip","192.168.1.100");//ip地址
-        user_String.put("name","admin");//用户名
-        user_String.put("password","admin");//用户密码
-        user_String.put("port","22");//登录端口号
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String ScanningTime = simpleDateFormat.format(new Date());
-        user_String.put("ScanningTime",ScanningTime);//扫描时间
-
-
-        //交换机信息
-        //设备型号
-        user_String.put("deviceModel",null);
-        //设备品牌
-        user_String.put("deviceBrand",null);
-        //内部固件版本
-        user_String.put("firmwareVersion",null);
-        //子版本号
-        user_String.put("subversionNumber",null);
-
-        Map<String,Object> user_Object = new HashMap<>();
-        //ssh连接
-        SshMethod connectMethod = null;
-        user_Object.put("connectMethod",connectMethod);
-        //telnet连接
-        TelnetSwitchMethod telnetSwitchMethod = null;
-        user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
-
-        //连接交换机  requestConnect：
-        //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
-        //                          connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
-        //返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
-        //                         connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）
-        //                         SshConnect ssh连接工具 或者 TelnetComponent telnet连接工具（其中一个，为空者不存在）]
-        AjaxResult requestConnect_ajaxResult = requestConnect(user_String);
-
-        //解析返回参数 data
-        /*返回值 list集合
-        元素0 ：是否连接成功
-        元素1 ：连接方法
-        元素2 ：交换机IP
-        元素3 ：交换机登录用户
-        元素4 ：交换机登录用户密码
-        元素5 ：交换机连接端口号
-        元素6 ：ssh连接对象：如果连接方法为telnet则connectMethod为空，插入connectMethod失败
-        元素7 ：telnet连接对象：如果连接方法为ssh则telnetSwitchMethod为空，插入telnetSwitchMethod失败
-        元素8 ：ssh连接工具对象
-        元素9 ：telnet连接工具对象*/
-
-        List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
-        //控制台输出 连接交换机IP
-        System.err.println("\r\n连接交换机ip地址:"+objectList.get(2)+"\r\n");
-        //是否连接成功 返回信息集合的 第一项 为 是否连接成功
-        boolean requestConnect_boolean = objectList.get(0).toString().equals("true");
-
-        //如果连接成功
-        if(requestConnect_boolean){
-            //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
-            String requestConnect_way = objectList.get(1).toString();
-            //SSH 连接工具
-            SshConnect sshConnect = null;
-            //SSH 连接工具
-            TelnetComponent telnetComponent = null;
-
-            user_Object.put("connectMethod",connectMethod);
-            user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
-            user_Object.put("sshConnect",sshConnect);
-            user_Object.put("telnetComponent",telnetComponent);
-
-            //如果连接方式为ssh则 连接方法返回集合参数为 connectMethod参数
-            //如果连接方式为telnet则 连接方法返回集合参数为 telnetSwitchMethod参数
-            if (requestConnect_way.equalsIgnoreCase("ssh")){
-                connectMethod = (SshMethod)objectList.get(6);
-                sshConnect = (SshConnect)objectList.get(8);
-                user_Object.put("connectMethod",connectMethod);
-                user_Object.put("sshConnect",sshConnect);
-            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                telnetSwitchMethod = (TelnetSwitchMethod)objectList.get(7);
-                telnetComponent = (TelnetComponent)objectList.get(9);
-                user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
-                user_Object.put("telnetComponent",telnetComponent);
-            }
-
-            //获取交换机基本信息
-            AjaxResult basicInformationList_ajaxResult = getBasicInformation(user_String,user_Object);
-
-            if (requestConnect_way.equalsIgnoreCase("ssh")){
-                connectMethod.closeConnect(sshConnect);
-            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                telnetSwitchMethod.closeSession(telnetComponent);
-            }
-        }
-    }
-
-    /**
-     * @method: 获取交换机基本信息
-     * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法,
-     * SshConnect ssh连接工具，connectMethod ssh连接,
-     * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
-     * @E-mail: WeiYaNing97@163.com
-     * 通过null 查询初所有会的交换机基本信息的命令字符串集合
-     * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
-     * 通过返回提取的信息，给基本属性赋值
-     * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
-     */
-    //@MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
-    public AjaxResult getBasicInformation(Map<String,String> user_String,Map<String,Object> user_Object) {
-
-        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
-        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
-        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
-        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
-
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        String userName = loginUser.getUsername();
-
-        //查询 获取基本信息命令表  中的全部命令
-        //BasicInformation pojo_NULL = new BasicInformation();
-        //null
-        //根据 null 查询 得到表中所有数据
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
-        String problemName = "获取基本信息";
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setProblemName(problemName);
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
-
-        String command_return_information = null;
-        Long analysis_id = null;
-        for (TotalQuestionTable pojo:totalQuestionTables){
-            user_String.put("notFinished",pojo.getNotFinished());
-            //根据命令ID获取具体命令，执行
-            System.err.println("连接iP:"+user_String.get("ip"));
-
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,pojo.getCommandId(),user_String.get("notFinished"),
-                    user_String.get("mode"), user_Object);
-
-            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
-                    executeScanCommandByCommandId_object,"", "");
-            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
-
-
-            if (analysisReturnResults_String.equals("") || analysisReturnResults_String == null){
-                continue;
-            }
-            //设备型号
-            String deviceModel= "";
-            //设备品牌
-            String deviceBrand = "";
-            //内部固件版本
-            String firmwareVersion = "";
-            //子版本号
-            String subversionNumber = "";
-            analysisReturnResults_String = analysisReturnResults_String.replace(",","");
-            String[] return_result_split = analysisReturnResults_String.split("=:=");
-            for (int num = 0;num<return_result_split.length;num++){
-                //设备型号
-                if (return_result_split[num].equals("设备型号")){
-                    num = num + 2;
-                    deviceModel=return_result_split[num];
-                }
-                //设备品牌
-                if (return_result_split[num].equals("设备品牌")) {
-                    num = num + 2;
-                    deviceBrand = return_result_split[num];
-                }
-                //内部固件版本
-                if (return_result_split[num].equals("内部固件版本")) {
-                    num = num + 2;
-                    firmwareVersion = return_result_split[num];
-                }
-                //子版本号
-                if (return_result_split[num].equals("子版本号")) {
-                    num = num + 2;
-                    subversionNumber = return_result_split[num];
-                }
-                if (!deviceModel.equals("") && !deviceBrand.equals("") && !firmwareVersion.equals("") && !subversionNumber.equals("")){
-                    // 根据交换机信息查询 获取 扫描问题的 命令ID
-                    List<String> stringList = new ArrayList<>();
-                    stringList.add(deviceBrand);
-                    stringList.add(deviceModel);
-                    stringList.add(firmwareVersion);
-                    stringList.add(subversionNumber);
-                    /*return AjaxResult.success(stringList);*/
-
-                    WebSocketService.sendMessage("basicinformation"+userName,stringList);
-
-                    HashMap<String,String> map = new HashMap<>();
-                    map.put("pinpai",deviceBrand);
-                    map.put("xinghao",deviceModel);
-                    map.put("banben",firmwareVersion);
-                    map.put("zibanben",subversionNumber);
-
-                    //设备型号
-                    user_String.put("deviceModel",deviceModel);
-                    //设备品牌
-                    user_String.put("deviceBrand",deviceBrand);
-                    //内部固件版本
-                    user_String.put("firmwareVersion",firmwareVersion);
-                    //子版本号
-                    user_String.put("subversionNumber",subversionNumber);
-
-                    return AjaxResult.success(map);
-                }
-            }
-        }
-
-        return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
-    }
 
 
     /**
@@ -392,7 +177,7 @@ public class SwitchInteraction {
             }
 
             //获取交换机基本信息
-            AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);
+            AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
 
             //获取 匹配的 交换机可执行的 命令ID  并 循环执行
             AjaxResult ajaxResult = scanProblem(
@@ -480,7 +265,7 @@ public class SwitchInteraction {
     }
 
     /**
-     * @method: 获取交换机基本信息
+     * @method: 获取交换机基本信息  多个命令依次执行 按，分割
      * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法,
      * SshConnect ssh连接工具，connectMethod ssh连接,
      * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
@@ -490,6 +275,7 @@ public class SwitchInteraction {
      * 通过返回提取的信息，给基本属性赋值
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      */
+
     @GetMapping("/getBasicInformationList")
    // @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
     public AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
@@ -624,22 +410,22 @@ public class SwitchInteraction {
             for (int num = 0;num<return_result_split.length;num++){
                 //设备型号
                 if (return_result_split[num].equals("设备型号")){
-                    num++;
+                    num = num+2;
                     deviceModel=return_result_split[num];
                 }
                 //设备品牌
                 if (return_result_split[num].equals("设备品牌")) {
-                    num++;
+                    num = num+2;
                     deviceBrand = return_result_split[num];
                 }
                 //内部固件版本
                 if (return_result_split[num].equals("内部固件版本")) {
-                    num++;
+                    num = num+2;
                     firmwareVersion = return_result_split[num];
                 }
                 //子版本号
                 if (return_result_split[num].equals("子版本号")) {
-                    num++;
+                    num = num+2;
                     subversionNumber = return_result_split[num];
                 }
                 if (!deviceModel.equals("") && !deviceBrand.equals("") && !firmwareVersion.equals("") && !subversionNumber.equals("")){
@@ -672,8 +458,127 @@ public class SwitchInteraction {
                 }
             }
         }
+
+        return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+
+    }
+
+
+    /**
+     * @method: 根据命令表 获取交换机基本信息  多个命令非依次执行
+     * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法,
+     * SshConnect ssh连接工具，connectMethod ssh连接,
+     * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
+     * @E-mail: WeiYaNing97@163.com
+     * 通过null 查询初所有会的交换机基本信息的命令字符串集合
+     * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
+     * 通过返回提取的信息，给基本属性赋值
+     * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
+     */
+    //@MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
+    public AjaxResult getBasicInformation(Map<String,String> user_String,Map<String,Object> user_Object) {
+
+        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
+        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
+        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
+        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
+
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        String userName = loginUser.getUsername();
+
+        //查询 获取基本信息命令表  中的全部命令
+        //BasicInformation pojo_NULL = new BasicInformation();
+        //null
+        //根据 null 查询 得到表中所有数据
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
+        String problemName = "获取基本信息";
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setProblemName(problemName);
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
+        String command_return_information = null;
+        Long analysis_id = null;
+        for (TotalQuestionTable pojo:totalQuestionTables){
+            user_String.put("notFinished",pojo.getNotFinished());
+            //根据命令ID获取具体命令，执行
+            System.err.println("连接iP:"+user_String.get("ip"));
+
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,pojo.getCommandId(),user_String.get("notFinished"),
+                    user_String.get("mode"), user_Object);
+
+            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
+                    executeScanCommandByCommandId_object,"", "");
+            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
+
+
+            if (analysisReturnResults_String.equals("") || analysisReturnResults_String == null){
+                continue;
+            }
+            //设备型号
+            String deviceModel= "";
+            //设备品牌
+            String deviceBrand = "";
+            //内部固件版本
+            String firmwareVersion = "";
+            //子版本号
+            String subversionNumber = "";
+            analysisReturnResults_String = analysisReturnResults_String.replace(",","");
+            String[] return_result_split = analysisReturnResults_String.split("=:=");
+            for (int num = 0;num<return_result_split.length;num++){
+                //设备型号
+                if (return_result_split[num].equals("设备型号")){
+                    num = num + 2;
+                    deviceModel=return_result_split[num];
+                }
+                //设备品牌
+                if (return_result_split[num].equals("设备品牌")) {
+                    num = num + 2;
+                    deviceBrand = return_result_split[num];
+                }
+                //内部固件版本
+                if (return_result_split[num].equals("内部固件版本")) {
+                    num = num + 2;
+                    firmwareVersion = return_result_split[num];
+                }
+                //子版本号
+                if (return_result_split[num].equals("子版本号")) {
+                    num = num + 2;
+                    subversionNumber = return_result_split[num];
+                }
+                if (!deviceModel.equals("") && !deviceBrand.equals("") && !firmwareVersion.equals("") && !subversionNumber.equals("")){
+                    // 根据交换机信息查询 获取 扫描问题的 命令ID
+                    List<String> stringList = new ArrayList<>();
+                    stringList.add(deviceBrand);
+                    stringList.add(deviceModel);
+                    stringList.add(firmwareVersion);
+                    stringList.add(subversionNumber);
+                    /*return AjaxResult.success(stringList);*/
+
+                    WebSocketService.sendMessage("basicinformation"+userName,stringList);
+
+                    HashMap<String,String> map = new HashMap<>();
+                    map.put("pinpai",deviceBrand);
+                    map.put("xinghao",deviceModel);
+                    map.put("banben",firmwareVersion);
+                    map.put("zibanben",subversionNumber);
+
+                    //设备型号
+                    user_String.put("deviceModel",deviceModel);
+                    //设备品牌
+                    user_String.put("deviceBrand",deviceBrand);
+                    //内部固件版本
+                    user_String.put("firmwareVersion",firmwareVersion);
+                    //子版本号
+                    user_String.put("subversionNumber",subversionNumber);
+
+                    return AjaxResult.success(map);
+                }
+            }
+        }
+
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
     }
+
 
 
     /**
@@ -1205,8 +1110,13 @@ public class SwitchInteraction {
             //command_string = Utils.removeLoginInformation(command_string);
         }
 
+
+        //去除其他 交换机登录信息
+        command_string = Utils.removeLoginInformation(command_string);
         //修整返回信息
         command_string =Utils.trimString(command_string);
+
+        command_string = command_string.replaceAll(user_String.get("notFinished"),"");
 
         System.err.println(command_string);
 
