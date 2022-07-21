@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
+
 import java.util.*;
 
 /**
@@ -47,7 +48,7 @@ public class SolveProblemController extends Thread {
     private ISwitchProblemService switchProblemService;
 
     private static List<String> userinformationList;
-    private static List<String> commandValueList;
+    private static Long problemId;
 
     /*=====================================================================================================================
     =====================================================================================================================
@@ -57,16 +58,16 @@ public class SolveProblemController extends Thread {
 
     @Override
     public void run() {
-        AjaxResult ajaxResult = batchSolution(userinformationList, commandValueList);
+        AjaxResult ajaxResult = batchSolution(userinformationList,problemId);
     }
 
     @RequestMapping("batchSolutionMultithreading")
     @MyLog(title = "批量修复问题", businessType = BusinessType.OTHER)
-    public static void batchSolutionMultithreading(List<Object> userinformation,List<Object> commandValue) {
+    public static void batchSolutionMultithreading(List<Object> userinformation,List<String> problemIdList) {
         int number = userinformation.size();
         for (int i = 0 ; i<number ; i++){
             userinformationList = (List<String>) userinformation.get(i);
-            commandValueList = (List<String>) commandValue.get(i);
+            problemId = Integer.valueOf(problemIdList.get(i)).longValue();
             Thread thread = new SolveProblemController();
             thread.start();
             try {
@@ -125,9 +126,9 @@ public class SolveProblemController extends Thread {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("/batchSolution/{userinformation}/{commandValueList}")
+    @RequestMapping("/batchSolution/{userinformation}/{problemId}")
     //@MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public AjaxResult batchSolution(@PathVariable List<String> userinformation,@PathVariable List<String> commandValueList){
+    public AjaxResult batchSolution(@PathVariable List<String> userinformation,Long problemId){
         //String mode,String ip,String name,String password,String port
         //用户信息
         String userInformationString = userinformation.toString();
@@ -181,61 +182,14 @@ public class SolveProblemController extends Thread {
 
         //是否连接成功
         boolean requestConnect_boolean = informationList.get(0).toString().equals("true");
+
         if (requestConnect_boolean){
-            //commandValueList  命令ID 参数ID
-            String commandValueListString = commandValueList.toString();
-            commandValueListString = commandValueListString.replace("[{","");
-            commandValueListString = commandValueListString.replace("}]","");
-            //去掉 “
-            commandValueListString = commandValueListString.replace("\"","");
-            //将 },  改为 \r\n
-            commandValueListString = commandValueListString.replace("},","\r\n");
-            //去掉 {
-            commandValueListString = commandValueListString.replace("{","");
-            // 得到：comId:1,valueId:2
-            String[] commandValueSplit = commandValueListString.split("\r\n");
 
-            for (String commandValue:commandValueSplit){
-                String command_Value = null;
-                String[] command_value = commandValue.split(",");
-                String commandvalueSting = null;
-                String comId = null;
-                String valueId = null;
 
-                for (String command_valueSting:command_value){
-                    String[] command_value_split = command_valueSting.split(":");
-                    switch (command_value_split[0].trim()){
-                        case "comId":
-                            comId = command_value_split[1].trim();
-                            break;
-                        case "valueId":
-                            valueId = command_value_split[1].trim();
-                            break;
-                    }
-                }
-
-                //当命令不等于空时
-                if (comId!=null){
-                    //命令赋值
-                    commandvalueSting = comId;
-                    //修复问题 会出现 不需要参数的
-                    //如果参数不为空
-                    if (valueId!=null){
-                        //参数赋值
-                        commandvalueSting = commandvalueSting +":"+ valueId;
-                    }else if (valueId == null){
-                        //参数赋值
-                        commandvalueSting = commandvalueSting +":"+ 0;
-                    }
-                    command_Value = commandvalueSting;
-                    commandvalueSting = null;
-                }
-
-                //将 命令ID 和 参数ID 分离开来
-                String[] commandValuesplit = command_Value.split(":");
-                //传参 命令ID 和 参数ID
+            SwitchProblem pojo = switchProblemService.selectSwitchProblemById(problemId);
+            //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
-                AjaxResult ajaxResult = queryParameterSet(commandValuesplit[0], Long.valueOf(commandValuesplit[1]).longValue());
+                AjaxResult ajaxResult = queryParameterSet(pojo.getComId(), pojo.getValueId());
                 Object[] commandvalue =  (Object[])ajaxResult.get("data");
 
                 //命令集合
@@ -246,20 +200,13 @@ public class SolveProblemController extends Thread {
                 String solveProblem = solveProblem(informationList, commandList, valueInformationVOList);//userName
 
                 if (solveProblem.equals("成功")){
-                    SwitchProblem switchProblem = switchProblemService.selectSwitchProblemByValueId(Integer.valueOf(valueId).longValue());
-                    switchProblem.setResolved("是");
-                    switchProblem.setIfQuestion("无问题");
-                    int i = switchProblemService.updateSwitchProblem(switchProblem);
+                    pojo.setResolved("是");
+                    pojo.setIfQuestion("无问题");
+                    int i = switchProblemService.updateSwitchProblem(pojo);
                     if (i<=0){
                         return AjaxResult.error("修复失败");
                     }
                 }
-
-                //命令清空 方便下一轮命令判空
-                comId = null;
-
-                //参数清空  方便下一轮参数判空
-                valueId = null;
 
                 if (informationList.get(1).toString().equalsIgnoreCase("ssh")){
                     connectMethod.closeConnect((SshConnect)informationList.get(8));
@@ -267,7 +214,6 @@ public class SolveProblemController extends Thread {
                     telnetSwitchMethod.closeSession((TelnetComponent)informationList.get(9));
                 }
 
-            }
             return AjaxResult.success("修复成功");
         }
         return AjaxResult.error("连接交换机失败");
@@ -408,6 +354,10 @@ public class SolveProblemController extends Thread {
                 //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
                 break;
             }
+
+            //去除其他 交换机登录信息
+            commandString = Utils.removeLoginInformation(commandString);
+
             //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
             commandString = Utils.trimString(commandString);
             System.err.print("\r\n"+"交换机返回信息："+commandString+"\r\n");

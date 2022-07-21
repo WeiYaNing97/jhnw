@@ -66,6 +66,8 @@ public class SwitchInteraction {
 
     =====================================================================================================================
 
+    =====================================================================================================================
+
     =====================================================================================================================*/
 
 
@@ -391,7 +393,7 @@ public class SwitchInteraction {
             //分析第一条ID basicInformation.getProblemId() (为 问题扫描逻辑表  ID)
             String first_problem_scanLogic_Id = basicInformation.getProblemId();
             //返回总提取信息
-            String extractInformation_string1 = analysisReturn(user_String, user_Object ,
+            String extractInformation_string1 = analysisReturn(user_String, user_Object ,null,
                     return_sum, first_problem_scanLogic_Id);
 
             if (extractInformation_string1.equals("") || extractInformation_string1 == null){
@@ -506,7 +508,7 @@ public class SwitchInteraction {
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,pojo.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
 
-            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
+            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,pojo,
                     executeScanCommandByCommandId_object,"", "");
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
 
@@ -589,7 +591,7 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public String analysisReturn(Map<String,String> user_String,Map<String,Object> user_Object,
+    public String analysisReturn(Map<String,String> user_String,Map<String,Object> user_Object,TotalQuestionTable totalQuestionTable,
                                  String resultString,String first_problem_scanLogic_Id){
 
         //整理返回结果 去除 #
@@ -604,7 +606,7 @@ public class SwitchInteraction {
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
          */
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
-        String strings = selectProblemScanLogicById(user_String, user_Object,
+        String strings = selectProblemScanLogicById(user_String, user_Object, totalQuestionTable,
                 return_information_array, "", "",
                 0, first_problem_scanLogic_Id, null,0);// loop end
         //控制台 输出  交换机 基本信息
@@ -628,6 +630,7 @@ public class SwitchInteraction {
     // 是否用首ID ifFirstID 分析首ID firstID   现行ID currentID 是否循环
     public String selectProblemScanLogicById(Map<String,String> user_String,
                                              Map<String,Object> user_Object,
+                                             TotalQuestionTable totalQuestionTable,
                                              String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                                              int line_n, String firstID, String currentID,
                                              Integer insertsInteger) {
@@ -656,7 +659,7 @@ public class SwitchInteraction {
         if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
             //调出循环ID 当做第一分析ID
             firstID = problemScanLogic.getCycleStartId();
-            String loop_string = selectProblemScanLogicById(user_String,user_Object,
+            String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                     return_information_array,"",extractInformation_string,
                     line_n,firstID,null,insertsInteger);
             return loop_string;
@@ -667,7 +670,7 @@ public class SwitchInteraction {
             //有问题 无问题
             if (problemScanLogic.getProblemId().indexOf("问题")!=-1){
                 //问题数据 插入问题表 如果有参数 及插入
-                insertvalueInformationService(user_String,problemScanLogic,current_Round_Extraction_String);
+                insertvalueInformationService(user_String, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
                 //插入问题数据次数 加一
                 insertsInteger++;
 
@@ -682,7 +685,7 @@ public class SwitchInteraction {
                     currentID = null;
                 }
 
-                String loop_string = selectProblemScanLogicById(user_String,user_Object,
+                String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                         return_information_array,"",extractInformation_string,
                         line_n,firstID,currentID,insertsInteger);
                 //如果返回信息为null
@@ -765,7 +768,7 @@ public class SwitchInteraction {
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"),
                                 user_String.get("mode"), user_Object);
-                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,
+                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
                         return analysisReturnResults_String;
                     }
@@ -773,7 +776,7 @@ public class SwitchInteraction {
                     //下一条true分析ID
                     if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
                         String tNextId = problemScanLogic.gettNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,tNextId,insertsInteger);
                         //如果返回信息为null
@@ -797,7 +800,7 @@ public class SwitchInteraction {
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), user_Object);
-                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,
+                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                         return analysisReturnResults_String;
                     }
@@ -805,7 +808,7 @@ public class SwitchInteraction {
                     if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
                         //下一条frue分析ID
                         String fNextId = problemScanLogic.getfNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,fNextId,insertsInteger);
                         //如果返回信息为null
@@ -833,7 +836,7 @@ public class SwitchInteraction {
 
                 if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
                     List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
-                    String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
+                    String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
                             executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                     return analysisReturnResults_String;
                 }
@@ -841,7 +844,7 @@ public class SwitchInteraction {
                 if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
                     //下一ID
                     String tNextId = problemScanLogic.gettNextId();
-                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
+                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                             return_information_array,current_Round_Extraction_String,extractInformation_string,
                             line_n,firstID,tNextId,insertsInteger);
                     if (ProblemScanLogic_returnstring!=null){
@@ -863,14 +866,14 @@ public class SwitchInteraction {
 
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
-                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
+                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                         return analysisReturnResults_String;
                     }
 
                     if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
                         String tNextId = problemScanLogic.gettNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,tNextId,insertsInteger);
 
@@ -886,7 +889,7 @@ public class SwitchInteraction {
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
-                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,
+                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
 
                         return analysisReturnResults_String;
@@ -895,7 +898,7 @@ public class SwitchInteraction {
 
                     if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=""){
                         String fNextId = problemScanLogic.getfNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,
+                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                                 line_n,firstID,fNextId,insertsInteger);
 
@@ -925,7 +928,7 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     //@MyLog(title = "问题数据及参数插人", businessType = BusinessType.INSERT)
-    public void insertvalueInformationService(Map<String,String> user_String,ProblemScanLogic problemScanLogic,String parameterString){
+    public void insertvalueInformationService(Map<String,String> user_String,TotalQuestionTable totalQuestionTable,ProblemScanLogic problemScanLogic,String parameterString){
 
         //系统登录人 用户名
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -986,7 +989,7 @@ public class SwitchInteraction {
         switchProblem.setComId(problemScanLogic.gettComId());//命令索引
         switchProblem.setValueId(outId);//参数索引
         switchProblem.setIfQuestion(substring); //是否有问题
-
+        switchProblem.setComId(totalQuestionTable.getProblemSolvingId());
         switchProblem.setUserName(userName);//参数索引
         switchProblem.setPhonenumber(phonenumber); //是否有问题
 
@@ -1192,6 +1195,7 @@ public class SwitchInteraction {
     @RequestMapping("analysisReturnResults")
     public String analysisReturnResults(Map<String,String> user_String,
                                         Map<String,Object> user_Object,
+                                        TotalQuestionTable totalQuestionTable,
                                         List<Object> executeScanCommandByCommandId_object,String current_Round_Extraction_String,String extractInformation_string){
 
         String resultString = executeScanCommandByCommandId_object.get(0).toString();//交换机返回信息
@@ -1206,7 +1210,7 @@ public class SwitchInteraction {
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
         //根据ID去分析
-        String problemScanLogic_string = selectProblemScanLogicById( user_String,user_Object,
+        String problemScanLogic_string = selectProblemScanLogicById( user_String,user_Object, totalQuestionTable,
                 return_information_array,current_Round_Extraction_String,extractInformation_string,
                 0,first_problem_scanLogic_Id,null,0);// loop end
 
@@ -1256,7 +1260,7 @@ public class SwitchInteraction {
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
 
-            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,
+            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                     executeScanCommandByCommandId_object,  "",  "");
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
         }

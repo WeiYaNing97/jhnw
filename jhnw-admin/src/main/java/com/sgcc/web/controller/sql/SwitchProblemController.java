@@ -32,8 +32,6 @@ public class SwitchProblemController extends BaseController
 {
     @Autowired
     private ISwitchProblemService switchProblemService;
-    @Autowired
-    private IValueInformationService valueInformationService;
 
     /**
      * 查询交换机问题列表
