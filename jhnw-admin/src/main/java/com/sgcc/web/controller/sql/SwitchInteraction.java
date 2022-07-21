@@ -13,10 +13,7 @@ import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -45,20 +42,43 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
+    @RequestMapping("multipleScans")
+    public void multipleScans(@RequestBody List<String> switchInformation) {//待测
+
+        List<Object[]> objectsList = new ArrayList<>();
+        for (String information:switchInformation){
+            information = information.replace("{","");
+            information = information.replace("}","");
+            String[] information_split = information.split(",");
+            String ip = "";
+            String name = "";
+            String password = "";
+            String mode = "";
+            int port = 22;
+            for (String string:information_split){
+                string = string.replace("\"","");
+                String[] string_split = string.split(":");
+                switch (string_split[0]){
+                    case "ip" :  ip=string_split[1];
+                        break;
+                    case "name" :  name=string_split[1];
+                        break;
+                    case "password" :  password=string_split[1];
+                        break;
+                    case "mode" :  mode=string_split[1];
+                        break;
+                    case "port" :  port= Integer.valueOf(string_split[1]).intValue() ;
+                        break;
+                }
+
+            }
+            Object[] objects = {mode,ip,name,password,port};
+            objectsList.add(objects);
+        }
 
 
 
-
-    @RequestMapping("testThread")
-    public void testThread() {
-        List<Object[]> objects = new ArrayList<>();
-        Object[] objects1 = {"ssh","192.168.1.100","admin","admin",22,"admin"};
-        Object[] objects2 = {"ssh","192.168.1.100","admin","admin",22,"ruoyi"};
-
-        objects.add(objects1);
-        objects.add(objects2);
-
-        MyThread.switchLoginInformations(objects);
+        MyThread.switchLoginInformations(objectsList);
     }
 
 

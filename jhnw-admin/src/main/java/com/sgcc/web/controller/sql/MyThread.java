@@ -26,7 +26,6 @@ public class MyThread extends Thread {
     static String name = null;
     static String password = null;
     static int port;
-    static String userName;
 
     @Override
     public void run() {
@@ -56,7 +55,6 @@ public class MyThread extends Thread {
             name = (String)objects3[2];
             password = (String)objects3[3];
             port = (int) objects3[4];
-            userName = (String) objects3[5];
             Thread thread = new MyThread();
 
             thread.start();
