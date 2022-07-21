@@ -65,4 +65,6 @@ public interface SwitchProblemMapper
     List<SwitchProblemVO> selectUnresolvedProblemInformationByDataAndUserName(@Param("currentTime")String currentTime, @Param("userName")String userName);
 
     SwitchProblem selectSwitchProblemByValueId(@Param("valueId") Long valueId);
+
+    List<SwitchProblemVO> selectUnresolvedProblemInformationByIds(@Param("ids") String ids);
 }

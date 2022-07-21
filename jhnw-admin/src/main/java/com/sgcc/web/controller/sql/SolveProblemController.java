@@ -49,7 +49,7 @@ public class SolveProblemController extends Thread {
 
     private static List<String> userinformationList;
     private static Long problemId;
-
+    private static List<String> problemIds;
     /*=====================================================================================================================
     =====================================================================================================================
     =====================================================================================================================*/
@@ -58,7 +58,7 @@ public class SolveProblemController extends Thread {
 
     @Override
     public void run() {
-        AjaxResult ajaxResult = batchSolution(userinformationList,problemId);
+        AjaxResult ajaxResult = batchSolution(userinformationList,problemId,problemIds);
     }
 
     @RequestMapping("batchSolutionMultithreading")
@@ -68,6 +68,7 @@ public class SolveProblemController extends Thread {
         for (int i = 0 ; i<number ; i++){
             userinformationList = (List<String>) userinformation.get(i);
             problemId = Integer.valueOf(problemIdList.get(i)).longValue();
+            problemIds = problemIdList;
             Thread thread = new SolveProblemController();
             thread.start();
             try {
@@ -128,7 +129,7 @@ public class SolveProblemController extends Thread {
      */
     @RequestMapping("/batchSolution/{userinformation}/{problemId}")
     //@MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public AjaxResult batchSolution(@PathVariable List<String> userinformation,Long problemId){
+    public AjaxResult batchSolution(@PathVariable List<String> userinformation,Long problemId,List<String> problemIds){
         //String mode,String ip,String name,String password,String port
         //用户信息
         String userInformationString = userinformation.toString();
@@ -207,6 +208,8 @@ public class SolveProblemController extends Thread {
                         return AjaxResult.error("修复失败");
                     }
                 }
+
+                getUnresolvedProblemInformationByIds(problemIds);
 
                 if (informationList.get(1).toString().equalsIgnoreCase("ssh")){
                     connectMethod.closeConnect((SshConnect)informationList.get(8));
@@ -411,7 +414,6 @@ public class SolveProblemController extends Thread {
     }
 
 
-
     /**
      * @method: 查询扫描出的问题表 放入 websocket
      * @Param: []
@@ -419,15 +421,18 @@ public class SolveProblemController extends Thread {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("getUnresolvedProblemInformationByData")
-    @MyLog(title = "查询扫描出的问题列表", businessType = BusinessType.OTHER)
-    public List<ScanResultsVO> getUnresolvedProblemInformationByData(){
+    @RequestMapping("getUnresolvedProblemInformationByIds")
+    public List<ScanResultsVO> getUnresolvedProblemInformationByIds(List<String> problemIds){//待测
 
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        String userName = loginUser.getUsername();
+        Long[] id = new Long[problemIds.size()];
+        for (int idx = 0; idx < problemIds.size(); idx++){
+            id[idx] = Long.parseLong(problemIds.get(idx));
+        }
 
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByIds(id);
+
         for (SwitchProblemVO switchProblemVO:switchProblemList){
+
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
@@ -442,6 +447,7 @@ public class SolveProblemController extends Thread {
                 switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
+
         }
         //将IP地址去重放入set集合中
         HashSet<String> time_hashSet = new HashSet<>();

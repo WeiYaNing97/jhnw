@@ -75,9 +75,6 @@ public class SwitchInteraction {
             Object[] objects = {mode,ip,name,password,port};
             objectsList.add(objects);
         }
-
-
-
         MyThread.switchLoginInformations(objectsList);
     }
 

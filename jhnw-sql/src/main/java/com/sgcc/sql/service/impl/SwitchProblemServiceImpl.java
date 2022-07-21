@@ -100,6 +100,19 @@ public class SwitchProblemServiceImpl implements ISwitchProblemService
     }
 
     @Override
+    public List<SwitchProblemVO> selectUnresolvedProblemInformationByIds(Long[] ids) {
+
+        String sqlString = "where id in (";
+        for (Long id:ids){
+            sqlString +=  id +",";
+        }
+        sqlString = sqlString.substring(0,sqlString.length()-1);
+        sqlString = sqlString +")";
+
+        return switchProblemMapper.selectUnresolvedProblemInformationByIds(sqlString);
+    }
+
+    @Override
     public SwitchProblem selectSwitchProblemByValueId(Long valueId) {
         return switchProblemMapper.selectSwitchProblemByValueId(valueId);
     }
