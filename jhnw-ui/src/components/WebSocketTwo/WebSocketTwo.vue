@@ -2,7 +2,7 @@
   <div>
 <!--    tableDataq  testData-->
     <el-table v-loading="loading"
-              :data="testData"
+              :data="tableDataq"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
@@ -64,7 +64,6 @@
 <script>
     import log from "../../views/monitor/job/log";
     import axios from 'axios'
-    import Cookies from "js-cookie";
     export default {
         name: "WebSocketTwo",
         props:{
@@ -211,10 +210,11 @@
                 list1.push(this.queryParams)
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const commandValueList = list2.map(x=>JSON.stringify(x))
+                alert(userinformation)
                 alert(commandValueList)
                 axios({
                     method:'post',
-                    url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
+                    // url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
                     // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+commandValueList,
                     headers:{
                         "Content-Type": "application/json"
@@ -226,7 +226,6 @@
                 }).then(res=>{
                     console.log("成功")
                 })
-                console.log(list2)
             },
             // 修复问题
             xiufu(row){
@@ -241,9 +240,11 @@
                 list2.push(listv)
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const commandValueList = list2.map(x=>JSON.stringify(x))
+                alert(userinformation)
+                alert(commandValueList)
                 axios({
                     method:'post',
-                    url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
+                    // url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
                     // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+commandValueList,
                     headers:{
                         "Content-Type": "application/json"
@@ -270,7 +271,6 @@
             wsInit() {
                 // localhost 192.168.1.98
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
-                const wsuri = `ws://192.168.1.98/dev-api/websocket/loophole${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws

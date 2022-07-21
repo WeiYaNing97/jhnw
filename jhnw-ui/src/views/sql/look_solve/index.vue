@@ -4,28 +4,28 @@
       <el-form-item label="设备基本信息:"></el-form-item>
       <el-form-item label="品牌" prop="brand">
         <el-select v-model="queryParams.brand" placeholder="品牌"
-                   filterable allow-create @blur="brandShu" @focus.once="brandLi" style="width: 150px">
+                   filterable allow-create @blur="brandShu" @focus="brandLi" style="width: 150px">
           <el-option v-for="(item,index) in brandList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="型号" prop="type">
         <el-select v-model="queryParams.type" placeholder="型号"
-                   filterable allow-create @blur="typeShu" @focus.once="typeLi" style="width: 150px">
+                   filterable allow-create @blur="typeShu" @focus="typeLi" style="width: 150px">
           <el-option v-for="(item,index) in typeList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="固件版本" prop="firewareVersion">
         <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                   filterable allow-create @blur="fireShu" @focus.once="fireLi" style="width: 150px">
+                   filterable allow-create @blur="fireShu" @focus="fireLi" style="width: 150px">
           <el-option v-for="(item,index) in fireList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="子版本" prop="subVersion">
         <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                   filterable allow-create @blur="subShu" @focus.once="subLi" style="width: 150px">
+                   filterable allow-create @blur="subShu" @focus="subLi" style="width: 150px">
           <el-option v-for="(item,index) in subList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
@@ -33,14 +33,14 @@
       <el-form-item label="问题概要:"></el-form-item>
       <el-form-item label="问题类型" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
-                   filterable allow-create @focus.once="proType" @blur="typeProShu">
+                   filterable allow-create @focus="proType" @blur="typeProShu">
           <el-option v-for="(item,index) in typeProList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="问题名称">
         <el-select v-model="queryParams.problemName" placeholder="请选择问题"
-                   filterable allow-create @focus.once="chawenti" @blur="proSelect">
+                   filterable allow-create @focus="chawenti" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
                      :label="item.problemName" :value="item.problemName"></el-option>
         </el-select>
@@ -78,7 +78,7 @@
           </el-form-item>
           <el-form-item label="参数">
             <el-select v-model="item.para" placeholder="参数"
-                       filterable allow-create @focus.once="paraLi" @blur="paraShu" style="width: 150px">
+                       filterable allow-create @focus="paraLi" @blur="paraShu" style="width: 150px">
               <el-option v-for="(item,index) in paraList"
                          :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
             </el-select>

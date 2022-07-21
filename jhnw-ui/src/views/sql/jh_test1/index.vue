@@ -1,32 +1,37 @@
 <template>
   <div class="app-container" @contextmenu="showMenu">
+<!--    @contextmenu="showMenu"-->
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="设备基本信息:"></el-form-item>
 <!--      <div>-->
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
-                     filterable allow-create @blur="brandShu" @focus="brandLi($event)" name="pinpai" style="width: 150px">
+                     filterable allow-create @blur="brandShu" @focus="brandLi($event)"
+                     name="brand" style="width: 150px">
             <el-option v-for="(item,index) in brandList"
                        :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="型号" prop="type">
           <el-select v-model="queryParams.type" placeholder="型号"
-                     filterable allow-create @blur="typeShu" @focus="typeLi" style="width: 150px">
+                     filterable allow-create @blur="typeShu"
+                     @focus="typeLi($event)" name="type" style="width: 150px">
             <el-option v-for="(item,index) in typeList"
                        :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="固件版本" prop="firewareVersion">
           <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                     filterable allow-create @blur="fireShu" @focus="fireLi" style="width: 150px">
+                     filterable allow-create @blur="fireShu" @focus="fireLi($event)"
+                     name="firewareVersion" style="width: 150px">
             <el-option v-for="(item,index) in fireList"
                        :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="子版本" prop="subVersion">
           <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                     filterable allow-create @blur="subShu" @focus="subLi" style="width: 150px">
+                     filterable allow-create @blur="subShu"
+                     @focus="subLi($event)" name="subVersion" style="width: 150px">
             <el-option v-for="(item,index) in subList"
                        :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
           </el-select>
@@ -53,7 +58,7 @@
 
       <el-form-item label="问题名称">
         <el-select v-model="queryParams.problemName" placeholder="请选择问题"
-                   filterable allow-create @focus.once="chawenti" @blur="proSelect">
+                   filterable allow-create @focus="chawenti" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
@@ -61,15 +66,8 @@
       <el-form-item label="标识符">
         <el-input v-model="queryParams.notFinished"
                   clearable
-                  @contextmenu="ssss" @focus="biaoshi($event)" name="biaoshi"></el-input>
+                  @focus="biaoshi($event)" name="biaoshi"></el-input>
       </el-form-item>
-
-      <el-form-item label="标识符1">
-        <el-input v-model="queryParams.notFinished"
-                  clearable
-                  @contextmenu="ssss" @focus="youjian1($event)" name="biaoshi1"></el-input>
-      </el-form-item>
-
       <el-form-item>
         <el-button type="primary" @click="huoquid">提交问题</el-button>
       </el-form-item>
@@ -98,7 +96,7 @@
       <el-form-item>
         <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
       </el-form-item>
-      <div v-for="(item,index) in forms.dynamicItem" :key="index" :label="index">
+      <div v-for="(item,index) in forms.dynamicItem" ref="btn" style="padding-left: 10px" :key="index" :label="index">
         <el-form-item v-if="index!=0">
           <el-checkbox v-model="item.checked"></el-checkbox>
         </el-form-item>
@@ -119,8 +117,9 @@
             <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'match'" :key="index"
-             style="display: inline-block">
+<!--        style="display: inline-block;padding-left: 20px"-->
+        <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block">
+<!--          :style="{display:display,paddingLeft:paddingLeft}"-->
           <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
@@ -132,6 +131,9 @@
         <div v-else-if="item.targetType === 'matchfal'"
              style="display: inline-block;padding-left:308px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'wloop'" :key="index"
              style="display: inline-block">
@@ -155,6 +157,9 @@
         </div>
         <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 308px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'lipre'" :key="index" style="display:inline-block">
           <el-form-item label="按行精确匹配" :prop="'dynamicItem.' + index + '.relative'">
@@ -168,8 +173,11 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 470px">
+        <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 466px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
 
         <div v-else-if="item.targetType === 'dimpre'" :key="index" style="display: inline-block">
@@ -184,8 +192,11 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 470px">
+        <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 466px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
 
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
@@ -206,10 +217,10 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
-          <el-form-item label="比较">
-            <el-input v-model="item.compare" v-show="bizui" @input="bihou"></el-input>
+          <el-form-item label="比较" v-show="bizui">
+            <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item label="比较" v-show="bixiala">
             <el-select v-model="item.bi" @change="bibi"
                        v-show="bixiala" placeholder="例如:品牌<5.20.99">
               <el-option v-for="(item,index) in biList"
@@ -221,8 +232,11 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 278px">
+        <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 268px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
 
         <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
@@ -248,7 +262,7 @@
                 <el-button @click="addItem('command',item)" type="primary">命令</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button @click="addItem('match',item)" type="primary">全文精确匹配</el-button>
+                <el-button @click="addItem('match',item,index)" type="primary">全文精确匹配</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>
@@ -301,8 +315,6 @@
 
 <script>
 import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, exportJh_test1 } from "@/api/sql/jh_test1";
-import axios from 'axios';
-import Cookies from "js-cookie";
 import TinymceEditor from "@/components/Tinymce/TinymceEditor"
 import daoru from "@/components/daoru/daoru"
 import request from '@/utils/request'
@@ -315,6 +327,9 @@ export default {
     },
   data() {
     return {
+        display:'inline-block',
+        paddingLeft:'0px',
+        // padqj
         //右键
         cpus:'',
         contextMenuData:{
@@ -335,6 +350,7 @@ export default {
             ]
         },
         who:'',
+        helpT:'',
         showha:false,
         jiaoyan:'自定义校验',
         bizui:false,
@@ -389,10 +405,7 @@ export default {
 
     },
   created() {
-      let usname = Cookies.get('usName')
-      console.log(usname)
       // this.getList();
-
       // this.jiazai()
   },
     //自动触发事件
@@ -428,8 +441,6 @@ export default {
       },
       //下载
       kanuser(){
-          // let usname = Cookies.get('usName')
-        // console.log(usname)
           var ip = window.location.host
           console.log(ip)
           console.log("ip",ip.split(":")[0])
@@ -441,10 +452,6 @@ export default {
       },
       //右键
       biaoshi(e){
-          this.who = e.target.getAttribute('name')
-          console.log(this.who)
-      },
-      youjian1(e){
           this.who = e.target.getAttribute('name')
           console.log(this.who)
       },
@@ -468,12 +475,23 @@ export default {
       },
       showhelp(){
           if (this.who === 'biaoshi'){
-              alert('我是1')
-          }else if (this.who === 'biaoshi1'){
-              alert('我是2')
-          }else if (this.who === 'pinpai'){
-              alert('我是品牌')
+              this.helpT = '请输入标识符'
+          }else if (this.who === 'brand'){
+              this.helpT = '请输入交换机品牌'
+          }else if (this.who === 'type' ){
+              this.helpT = '请输入交换机型号'
+          }else if (this.who === 'firewareVersion' ){
+              this.helpT = '请输入交换机版本'
+          }else if (this.who === 'subVersion' ){
+              this.helpT = '请输入交换机子版本'
+          }else if (this.who === '' ){
+              this.helpT = ''
+          }else if (this.who === '' ){
+              this.helpT = ''
           }
+          this.$alert(this.helpT, '标题名称', {
+              confirmButtonText: '确定'
+          });
       },
 
       shaxun(){
@@ -486,7 +504,8 @@ export default {
         alert('sss')
       },
       //基本信息获取列表
-      subLi(){
+      subLi(e){
+          this.who = e.target.getAttribute('name')
           const subOne = {}
           const brandO = this.queryParams.brand
           const typeO = this.queryParams.type
@@ -503,7 +522,8 @@ export default {
               this.subList = response
           })
       },
-      fireLi(){
+      fireLi(e){
+          this.who = e.target.getAttribute('name')
           const fireOne = {}
           const brandO = this.queryParams.brand
           const typeO = this.queryParams.type
@@ -518,8 +538,8 @@ export default {
               this.fireList = response
           })
       },
-      typeLi(){
-          // const fff = JSON.parse(JSON.stringify(this.queryParams))
+      typeLi(e){
+          this.who = e.target.getAttribute('name')
           const typeOne = {}
           const brandO = this.queryParams.brand
           this.$set(typeOne,'brand',brandO)
@@ -532,14 +552,13 @@ export default {
           })
       },
       brandLi(e){
+          this.who = e.target.getAttribute('name')
           return request({
               url:'/sql/total_question_table/brandlist',
               method:'get'
           }).then(response=>{
               this.brandList = response
-              console.log('我是实验')
           })
-          this.who = e.target.getAttribute('name')
       },
       proType(){
           return request({
@@ -693,7 +712,7 @@ export default {
           return num
       },
       //添加表单项
-      addItem(type,item){
+      addItem(type,item,index){
           const thisData = Date.now()
           const item1 = {
               targetType: type,
@@ -707,14 +726,22 @@ export default {
               this.$set(item1,'matched','全文精确匹配')
               this.$set(item1,'trueFalse','成功')
               // alert(event.target.getAttribute('label'))
-              // alert(this.event.target.getAttribute('label'))
-              alert(event.target.getAttribute('label'))
+              if (item.trueFalse === '成功'){
+                  var iii = this.$refs.btn[index].style.paddingLeft
+                  console.log(index)
+                  var num = iii.replace(/[^0-9]/ig,"")
+                  var zuinum = parseInt(num)+20*index
+                  // console.log(zuinum)
+                  this.$refs.btn[index+1].style.paddingLeft = `${zuinum}px`
+                  // console.log(document.querySelector(item).style.paddingLeft)
+              }
               const item2 = {
                   targetType:'matchfal',
                   onlyIndex:thisData
               }
               this.$set(item2,'trueFalse','失败')
               this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+              // console.log(item2.style.paddingLeft)
           }
           if(type == 'dimmatch'){
               this.$set(item1,'matched','全文模糊匹配')

@@ -211,68 +211,44 @@
     />
 
     <!-- 添加或修改操作日志记录对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="模块标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入模块标题" />
-        </el-form-item>
-        <el-form-item label="业务类型" prop="businessType">
-          <el-select v-model="form.businessType" placeholder="请选择业务类型">
-            <el-option label="请选择字典生成" value="" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="方法名称" prop="method">
-          <el-input v-model="form.method" placeholder="请输入方法名称" />
-        </el-form-item>
-        <el-form-item label="请求方式" prop="requestMethod">
-          <el-input v-model="form.requestMethod" placeholder="请输入请求方式" />
-        </el-form-item>
-        <el-form-item label="操作类别" prop="operatorType">
-          <el-select v-model="form.operatorType" placeholder="请选择操作类别">
-            <el-option label="请选择字典生成" value="" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="操作人员" prop="operName">
-          <el-input v-model="form.operName" placeholder="请输入操作人员" />
-        </el-form-item>
-        <el-form-item label="部门名称" prop="deptName">
-          <el-input v-model="form.deptName" placeholder="请输入部门名称" />
-        </el-form-item>
-        <el-form-item label="请求URL" prop="operUrl">
-          <el-input v-model="form.operUrl" placeholder="请输入请求URL" />
-        </el-form-item>
-        <el-form-item label="主机地址" prop="operIp">
-          <el-input v-model="form.operIp" placeholder="请输入主机地址" />
-        </el-form-item>
-        <el-form-item label="操作地点" prop="operLocation">
-          <el-input v-model="form.operLocation" placeholder="请输入操作地点" />
-        </el-form-item>
-        <el-form-item label="请求参数" prop="operParam">
-          <el-input v-model="form.operParam" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="返回参数" prop="jsonResult">
-          <el-input v-model="form.jsonResult" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="操作状态">
-          <el-radio-group v-model="form.status">
-            <el-radio label="1">请选择字典生成</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="错误消息" prop="errorMsg">
-          <el-input v-model="form.errorMsg" type="textarea" placeholder="请输入内容" />
-        </el-form-item>
-        <el-form-item label="操作时间" prop="operTime">
-          <el-date-picker clearable size="small"
-            v-model="form.operTime"
-            type="date"
-            value-format="yyyy-MM-dd"
-            placeholder="选择操作时间">
-          </el-date-picker>
-        </el-form-item>
+    <el-dialog title="操作日志详细" :visible.sync="open" width="700px" append-to-body>
+      <el-form ref="form" :model="form" label-width="100px" size="mini">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="操作模块：">{{ form.title }} / {{ typeFormat(form) }}</el-form-item>
+            <el-form-item
+              label="登录信息："
+            >{{ form.operName }} / {{ form.operIp }} / {{ form.operLocation }}</el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="请求地址：">{{ form.operUrl }}</el-form-item>
+            <el-form-item label="请求方式：">{{ form.requestMethod }}</el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="操作方法：">{{ form.method }}</el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="请求参数：">{{ form.operParam }}</el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="返回参数：">{{ form.jsonResult }}</el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="操作状态：">
+              <div v-if="form.status === 0">正常</div>
+              <div v-else-if="form.status === 1">失败</div>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="操作时间：">{{ parseTime(form.operTime) }}</el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="异常信息：" v-if="form.status === 1">{{ form.errorMsg }}</el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
+        <el-button @click="open = false">关 闭</el-button>
       </div>
     </el-dialog>
   </div>
@@ -283,6 +259,7 @@ import { listSwitch_oper_log, getSwitch_oper_log, delSwitch_oper_log, addSwitch_
 
 export default {
   name: "Switch_oper_log",
+    dicts: ['sys_oper_type', 'sys_common_status'],
   data() {
     return {
       // 遮罩层
@@ -373,6 +350,10 @@ export default {
       };
       this.resetForm("form");
     },
+      // 操作日志类型字典翻译
+      typeFormat(row, column) {
+          return this.selectDictLabel(this.dict.type.sys_oper_type, row.businessType);
+      },
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1;

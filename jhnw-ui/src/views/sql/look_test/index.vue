@@ -4,28 +4,28 @@
       <el-form-item label="设备基本信息:"></el-form-item>
       <el-form-item label="品牌" prop="brand">
         <el-select v-model="queryParams.brand" placeholder="品牌"
-                   filterable allow-create @blur="brandShu" @focus.once="brandLi" style="width: 150px">
+                   filterable allow-create @blur="brandShu" @focus="brandLi" style="width: 150px">
           <el-option v-for="(item,index) in brandList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="型号" prop="type">
         <el-select v-model="queryParams.type" placeholder="型号"
-                   filterable allow-create @blur="typeShu" @focus.once="typeLi" style="width: 150px">
+                   filterable allow-create @blur="typeShu" @focus="typeLi" style="width: 150px">
           <el-option v-for="(item,index) in typeList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="固件版本" prop="firewareVersion">
         <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                   filterable allow-create @blur="fireShu" @focus.once="fireLi" style="width: 150px">
+                   filterable allow-create @blur="fireShu" @focus="fireLi" style="width: 150px">
           <el-option v-for="(item,index) in fireList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="子版本" prop="subversionNumber">
         <el-select v-model="queryParams.subversionNumber" placeholder="子版本"
-                   filterable allow-create @blur="subShu" @focus.once="subLi" style="width: 150px">
+                   filterable allow-create @blur="subShu" @focus="subLi" style="width: 150px">
           <el-option v-for="(item,index) in subList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
@@ -40,14 +40,14 @@
       <el-form-item label="问题概要:"></el-form-item>
       <el-form-item label="问题类型" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
-                   filterable allow-create @focus.once="proType" @blur="typeProShu">
+                   filterable allow-create @focus="proType" @blur="typeProShu">
           <el-option v-for="(item,index) in typeProList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="问题名称">
         <el-select v-model="queryParams.problemName" placeholder="请选择问题"
-                   filterable allow-create @focus.once="chawenti"
+                   filterable allow-create @focus="chawenti"
                    @blur="proSelect" @change="cproId">
           <el-option v-for="(item,index) in proNameList" :key="index"
                      :label="item.problemName" :value="item.problemName"></el-option>
@@ -109,6 +109,9 @@
         <div v-else-if="item.targetType === 'matchfal'"
              style="display: inline-block;padding-left:308px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
 
         <div v-else-if="item.targetType === 'wloop'" :key="index"
@@ -132,6 +135,9 @@
         </div>
         <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 308px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'lipre'" :key="index" style="display:inline-block">
           <el-form-item label="按行精确匹配" :prop="'dynamicItem.' + index + '.relative'">
@@ -145,8 +151,11 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 470px">
+        <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 466px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
 
         <div v-else-if="item.targetType === 'dimpre'" :key="index" style="display: inline-block">
@@ -161,8 +170,11 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 470px">
+        <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 466px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
 
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
@@ -183,10 +195,10 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
-          <el-form-item>
-            <el-input v-model="item.compare" v-show="bizui" @input="bihou"></el-input>
+          <el-form-item label="比较" v-show="bizui">
+            <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item label="比较" v-show="bixiala">
             <el-select v-model="item.bi" @change="bibi"
                        v-show="bixiala" placeholder="例如:品牌<5.20.99">
               <el-option v-for="(item,index) in biList"
@@ -198,8 +210,11 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 237px">
+        <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 268px">
           <el-form-item label="失败"></el-form-item>
+          <el-form-item style="visibility: hidden">
+            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+          </el-form-item>
         </div>
 
         <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
@@ -270,10 +285,14 @@ export default {
   name: "Look_test",
   data() {
     return {
+        //比较隐藏
+        bizui:false,
+        bixiala:true,
+        biList:['品牌','型号','固件版本','子版本'],
         //新添加
         checkedQ:false,
         zhidu:false,
-        showNo:true,
+        showNo:false,
         checked:false,
         proNameList:[],
         typeProList:[],
@@ -383,6 +402,29 @@ export default {
               alert('没变')
           }
       },
+      //比较选中触发
+      bibi(){
+          this.bizui = true
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.targetType === 'analyse'){
+                  const bixuan = e.bi
+                  this.$set(e,'compare',bixuan)
+              }
+          })
+          this.bixiala = false
+      },
+      //比较输入框为空后
+      bihou(){
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.targetType === 'analyse'){
+                  if (e.compare === ''){
+                      this.bixiala = true
+                      this.bizui = false
+                  }
+              }
+          })
+      },
+
       //提交
       submitUseForm(){
           const useForm = []
@@ -607,9 +649,13 @@ export default {
               method:'post',
               data:JSON.stringify(this.queryParams)
           }).then(response=>{
+              console.log(response)
               response.forEach(l=>{
                   const wei = l.replace(/"=/g,'":')
                   this.fDa.push(JSON.parse(wei))
+                  // const weizai = eval(wei)
+                  // this.fDa.push(JSON.parse(weizai))
+                  // this.fDa.push(eval(wei))
               })
               const huicha = []
               const quanjf = ''
@@ -665,6 +711,9 @@ export default {
                       huicha.push(chae)
                   }else if (chae.action === '比较'){
                       this.$set(chae,'targetType','analyse')
+                      // bixiala bizui
+                      this.bizui = true
+                      this.bixiala = false
                       huicha.push(chae)
                       this.bif = chae.onlyIndex
                   }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
@@ -678,12 +727,14 @@ export default {
           })
           // axios({
           //     method:'post',
-          //     url:'http://192.168.1.98/dev-api/sql/DefinitionProblemController/getAnalysisList',
+          //     url:'/dev-api/sql/DefinitionProblemController/getAnalysisList',
           //     headers:{
           //         "Content-Type": "application/json"
           //     },
           //     data:JSON.stringify(this.queryParams)
           // }).then(res=>{
+          //     console.log(res.data)
+          //     console.log(typeof (res.data))
           //     res.data.forEach(l=>{
           //         const wei = l.replace(/"=/g,'":')
           //         this.fDa.push(JSON.parse(wei))

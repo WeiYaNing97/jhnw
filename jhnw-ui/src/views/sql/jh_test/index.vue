@@ -35,17 +35,49 @@
         </el-select>
       </el-form-item>
       <el-form-item label="端口" prop="port">
-        <el-input style="width: 50px;" v-model="queryParams.port" size="small" :disabled="true" clearable>
-        </el-input>
+        <el-input style="width: 50px;" v-model="queryParams.port" size="small" :disabled="true" clearable></el-input>
       </el-form-item>
       <el-form-item>
 <!--   @keyup.enter.native="handleQuery"-- 回车事件 >
 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">开始扫描</el-button>
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">单台扫描</el-button>
+        <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="gettest">获取数据</el-button>-->
       </el-form-item>
     </el-form>
+    <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
+      <el-form :inline="true" label-width="50px" :rule="rules">
+        <el-form-item label="ip">
+          <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
+        </el-form-item>
+        <el-form-item label="用户">
+          <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="item.password" placeholder="密码" size="small" style="width: 150px"></el-input>
+        </el-form-item>
+        <el-form-item label="方式">
+          <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">
+            <el-option label="telnet" value="telnet"></el-option>
+            <el-option label="ssh" value="ssh"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="端口">
+          <el-input v-model="item.port" style="width: 50px" size="small"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button v-if="index+1 == forms.dynamicItem.length"
+                     type="primary" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>
+          <el-button v-if="index !== 0" type="danger" size="mini" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" size="mini" @click="duosao">多台扫描</el-button>
+          <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <el-button @click="xinzeng">看新增</el-button>
 
     <el-divider></el-divider>
 <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
@@ -114,7 +146,6 @@ import WebSocket from '@/components/WebSocket/WebSocket';
 import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
 import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
 import axios from 'axios'
-import Cookies from "js-cookie";
 import log from "../../monitor/job/log";
 import request from '@/utils/request';
 export default {
@@ -126,6 +157,8 @@ export default {
     },
   data() {
     return {
+        //多台隐身
+        duoShow:false,
       // 遮罩层
       loading: false,
       // 导出遮罩层
@@ -147,7 +180,19 @@ export default {
       // 是否显示弹出层
       open: false,
         aaa:'1',
-      // 查询参数
+        //动态增加交换机
+        forms:{
+            dynamicItem:[
+                {
+                    ip: '',
+                    name: '',
+                    password:'',
+                    mode:'',
+                    port:22
+                }
+            ]
+        },
+        // 查询参数
       queryParams: {
           ip: '192.168.1.100',
           name: 'admin',
@@ -239,6 +284,73 @@ export default {
       this.getList();
   },
   methods: {
+      xinzeng(){
+        console.log(this.forms.dynamicItem)
+          alert(JSON.stringify(this.forms.dynamicItem))
+      },
+      //多台扫描
+      duosao(){
+          const duoshuju = []
+          this.forms.dynamicItem.forEach(e=>{
+              duoshuju.push(e)
+          })
+          const duoshuju1 = duoshuju.map(e=>JSON.stringify(e))
+          alert(typeof duoshuju1)
+          alert(typeof this.forms.dynamicItem)
+          return request({
+              url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
+              // url:'/sql/SwitchInteraction/multipleScans',
+              method:'post',
+              data:JSON.stringify(this.forms.dynamicItem)
+              // data:duoshuju1
+          }).then(response=>{
+              console.log(response)
+              console.log('成功')
+          })
+      },
+      //切换单/多台模式
+      danduo(){
+          if (this.showSearch === true){
+              this.showSearch = false
+              this.duoShow = true
+          }else {
+              this.showSearch = true
+              this.duoShow = false
+          }
+
+      },
+      //新增表单项
+      addItem(length) {
+          if (length >= 5) {
+              this.$message({
+                  type: 'warning',
+                  message: '最多可存在5行!'
+              })
+          } else {
+              this.forms.dynamicItem.push({
+                  ip: '',
+                  name: '',
+                  password:'',
+                  mode:'',
+                  port:''
+              })
+          }
+      },
+      //删减表单项
+      deleteItem(item, index) {
+          this.forms.dynamicItem.splice(index, 1)
+      },
+      //新增指定端口号
+      chooseTT(item){
+          var val = item.mode;
+          if (val == 'telnet'){
+              item.port=23;
+          }else if (val == 'ssh'){
+              item.port=22;
+          }else {
+              item.port=22;
+          }
+      },
     /** 查询嘉豪测试列表 */
     getList() {
       this.loading = true;
@@ -277,16 +389,12 @@ export default {
     },
       //开始扫描
       requestConnect(){
-          let usname = Cookies.get('usName')
-          // console.log(usname)
           this.$refs.queryForm.validate(valid => {
             if (valid){
                 let form = new FormData();
                 for (var key in this.queryParams){
                     form.append(key,this.queryParams[key]);
                 }
-                // form.append('userName',usname)
-                // console.log(JSON.stringify(this.queryParams))
                 return request({
                     url:'/sql/SwitchInteraction/logInToGetBasicInformation',
                     method:'post',
