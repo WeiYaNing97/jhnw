@@ -1,82 +1,84 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="50px" :show-message="false">
-      <el-form-item label="ip" prop="ip">
-        <el-input
-          v-model="queryParams.ip"
-          placeholder="请输入ip"
-          clearable
-          size="small"
-          style="width: 150px;"
-        />
+      <el-form-item style="margin-left: 25px">
+        <el-button type="primary" icon="el-icon-search" size="mini" @click="saomiao">开始扫描</el-button>
       </el-form-item>
-      <el-form-item label="用户" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入用户名"
-          clearable
-          size="small"
-          style="width: 150px;"
-        />
-      </el-form-item>
-      <el-form-item label="密码" prop="password">
-        <el-input
-          v-model="queryParams.password"
-          placeholder="请输入密码"
-          clearable
-          size="small"
-          style="width: 150px;"
-        />
-      </el-form-item>
-      <el-form-item label="方式" prop="mode">
-        <el-select style="width: 100px;" v-model="queryParams.mode" placeholder="请选择" clearable size="small" @change="chooseT">
-          <el-option label="telnet" value="telnet"></el-option>
-          <el-option label="ssh" value="ssh"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="端口" prop="port">
-        <el-input style="width: 50px;" v-model="queryParams.port" size="small" :disabled="true" clearable></el-input>
-      </el-form-item>
-      <el-form-item>
+      <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
+        <el-form :inline="true" label-width="50px" :rule="rules">
+          <el-form-item label="ip">
+            <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
+          </el-form-item>
+          <el-form-item label="用户">
+            <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>
+          </el-form-item>
+          <el-form-item label="密码">
+            <el-input v-model="item.password" placeholder="密码" size="small" style="width: 150px"></el-input>
+          </el-form-item>
+          <el-form-item label="方式">
+            <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">
+              <el-option label="telnet" value="telnet"></el-option>
+              <el-option label="ssh" value="ssh"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="端口">
+            <el-input v-model="item.port" style="width: 50px" size="small"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button v-if="index+1 == forms.dynamicItem.length"
+                       type="primary" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>
+            <el-button v-if="index !== 0" type="danger" size="mini" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>
+          </el-form-item>
+<!--          <el-form-item>-->
+<!--            <el-button type="primary" icon="el-icon-search" size="mini" @click="duosao">多台扫描</el-button>-->
+<!--            <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>-->
+<!--          </el-form-item>-->
+        </el-form>
+      </div>
+
+<!--      <el-form-item label="ip" prop="ip">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.ip"-->
+<!--          placeholder="请输入ip"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          style="width: 150px;"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="用户" prop="name">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.name"-->
+<!--          placeholder="请输入用户名"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          style="width: 150px;"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="密码" prop="password">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.password"-->
+<!--          placeholder="请输入密码"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          style="width: 150px;"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="方式" prop="mode">-->
+<!--        <el-select style="width: 100px;" v-model="queryParams.mode" placeholder="请选择" clearable size="small" @change="chooseT">-->
+<!--          <el-option label="telnet" value="telnet"></el-option>-->
+<!--          <el-option label="ssh" value="ssh"></el-option>-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="端口" prop="port">-->
+<!--        <el-input style="width: 50px;" v-model="queryParams.port" size="small" :disabled="true" clearable></el-input>-->
+<!--      </el-form-item>-->
 <!--   @keyup.enter.native="handleQuery"-- 回车事件 >
 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">单台扫描</el-button>
-        <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>
+<!--        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">单台扫描</el-button>-->
+<!--        <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="gettest">获取数据</el-button>-->
-      </el-form-item>
     </el-form>
-    <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
-      <el-form :inline="true" label-width="50px" :rule="rules">
-        <el-form-item label="ip">
-          <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
-        </el-form-item>
-        <el-form-item label="用户">
-          <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>
-        </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="item.password" placeholder="密码" size="small" style="width: 150px"></el-input>
-        </el-form-item>
-        <el-form-item label="方式">
-          <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">
-            <el-option label="telnet" value="telnet"></el-option>
-            <el-option label="ssh" value="ssh"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="端口">
-          <el-input v-model="item.port" style="width: 50px" size="small"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button v-if="index+1 == forms.dynamicItem.length"
-                     type="primary" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>
-          <el-button v-if="index !== 0" type="danger" size="mini" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="el-icon-search" size="mini" @click="duosao">多台扫描</el-button>
-          <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
     <el-button @click="xinzeng">看新增</el-button>
 
     <el-divider></el-divider>
@@ -158,7 +160,7 @@ export default {
   data() {
     return {
         //多台隐身
-        duoShow:false,
+        duoShow:true,
       // 遮罩层
       loading: false,
       // 导出遮罩层
@@ -289,22 +291,14 @@ export default {
           alert(JSON.stringify(this.forms.dynamicItem))
       },
       //多台扫描
-      duosao(){
-          const duoshuju = []
-          this.forms.dynamicItem.forEach(e=>{
-              duoshuju.push(e)
-          })
-          const duoshuju1 = duoshuju.map(e=>JSON.stringify(e))
-          alert(typeof duoshuju1)
-          alert(typeof this.forms.dynamicItem)
+      saomiao(){
+          const manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
           return request({
-              url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              // url:'/sql/SwitchInteraction/multipleScans',
+              // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
+              url:'/sql/SwitchInteraction/multipleScans',
               method:'post',
-              data:JSON.stringify(this.forms.dynamicItem)
-              // data:duoshuju1
+              data:manycon
           }).then(response=>{
-              console.log(response)
               console.log('成功')
           })
       },
@@ -317,7 +311,6 @@ export default {
               this.showSearch = true
               this.duoShow = false
           }
-
       },
       //新增表单项
       addItem(length) {

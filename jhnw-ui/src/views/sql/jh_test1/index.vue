@@ -513,7 +513,6 @@ export default {
           this.$set(subOne,'brand',brandO)
           this.$set(subOne,'type',typeO)
           this.$set(subOne,'firewareVersion',fireO)
-          // alert(JSON.stringify(subOne))
           return request({
               url:'/sql/total_question_table/subVersionlist',
               method:'post',
