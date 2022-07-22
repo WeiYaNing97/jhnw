@@ -1,8 +1,10 @@
 package com.sgcc.web.controller.sql;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -43,6 +45,7 @@ public class SwitchInteraction {
     private IBasicInformationService basicInformationService;
 
     @RequestMapping("multipleScans")
+    @MyLog(title = "扫描交换机", businessType = BusinessType.OTHER)
     public void multipleScans(@RequestBody List<String> switchInformation) {//待测
 
         List<Object[]> objectsList = new ArrayList<>();
@@ -97,8 +100,6 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("logInToGetBasicInformation")
-    //@PreAuthorize("@ss.hasPermi('sql:SwitchInteraction:list')")
-    //@MyLog(title = "扫描交换机", businessType = BusinessType.OTHER)
     public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port) {
 
         //用户信息  及   交换机信息
@@ -296,7 +297,6 @@ public class SwitchInteraction {
      */
 
     @GetMapping("/getBasicInformationList")
-   // @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
     public AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");

@@ -50,6 +50,7 @@ public class SolveProblemController extends Thread {
     private static List<String> userinformationList;
     private static Long problemId;
     private static List<String> problemIds;
+    private static SwitchProblem switchProblem;
     /*=====================================================================================================================
     =====================================================================================================================
     =====================================================================================================================*/
@@ -58,25 +59,31 @@ public class SolveProblemController extends Thread {
 
     @Override
     public void run() {
-        AjaxResult ajaxResult = batchSolution(userinformationList,problemId,problemIds);
+        AjaxResult ajaxResult = batchSolution(userinformationList,switchProblem,problemIds);
     }
 
-    @RequestMapping("batchSolutionMultithreading")
-    @MyLog(title = "批量修复问题", businessType = BusinessType.OTHER)
-    public static void batchSolutionMultithreading(List<Object> userinformation,List<String> problemIdList) {
+    @RequestMapping("batchSolutionMultithreading/{userinformation}/{problemIdList}")
+    @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
+    public void batchSolutionMultithreading(@PathVariable List<Object> userinformation,@PathVariable  List<String> problemIdList) {
+
         int number = userinformation.size();
         for (int i = 0 ; i<number ; i++){
-            userinformationList = (List<String>) userinformation.get(i);
+
             problemId = Integer.valueOf(problemIdList.get(i)).longValue();
-            problemIds = problemIdList;
-            Thread thread = new SolveProblemController();
-            thread.start();
-            try {
-                //Thread.sleep(1000*3);
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            switchProblem = switchProblemService.selectSwitchProblemById(problemId);
+            if (switchProblem.getIfQuestion().equals("有问题")){
+                userinformationList = (List<String>) userinformation.get(i);
+                problemIds = problemIdList;
+                Thread thread = new SolveProblemController();
+                thread.start();
+                try {
+                    //Thread.sleep(1000*3);
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+            continue;
         }
     }
 
@@ -129,7 +136,7 @@ public class SolveProblemController extends Thread {
      */
     @RequestMapping("/batchSolution/{userinformation}/{problemId}")
     //@MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public AjaxResult batchSolution(@PathVariable List<String> userinformation,Long problemId,List<String> problemIds){
+    public AjaxResult batchSolution(@PathVariable List<String> userinformation, SwitchProblem switchProblem ,List<String> problemIds){
         //String mode,String ip,String name,String password,String port
         //用户信息
         String userInformationString = userinformation.toString();
@@ -186,11 +193,9 @@ public class SolveProblemController extends Thread {
 
         if (requestConnect_boolean){
 
-
-            SwitchProblem pojo = switchProblemService.selectSwitchProblemById(problemId);
             //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
-                AjaxResult ajaxResult = queryParameterSet(pojo.getComId(), pojo.getValueId());
+                AjaxResult ajaxResult = queryParameterSet(switchProblem.getComId(), switchProblem.getValueId());
                 Object[] commandvalue =  (Object[])ajaxResult.get("data");
 
                 //命令集合
@@ -201,10 +206,17 @@ public class SolveProblemController extends Thread {
                 String solveProblem = solveProblem(informationList, commandList, valueInformationVOList);//userName
 
                 if (solveProblem.equals("成功")){
-                    pojo.setResolved("是");
-                    pojo.setIfQuestion("无问题");
-                    int i = switchProblemService.updateSwitchProblem(pojo);
+                    switchProblem.setResolved("是");
+                    switchProblem.setIfQuestion("无问题");
+                    int i = switchProblemService.updateSwitchProblem(switchProblem);
                     if (i<=0){
+
+                        if (informationList.get(1).toString().equalsIgnoreCase("ssh")){
+                            connectMethod.closeConnect((SshConnect)informationList.get(8));
+                        }else if (informationList.get(1).toString().equalsIgnoreCase("telnet")){
+                            telnetSwitchMethod.closeSession((TelnetComponent)informationList.get(9));
+                        }
+
                         return AjaxResult.error("修复失败");
                     }
                 }
@@ -434,6 +446,7 @@ public class SolveProblemController extends Thread {
         for (SwitchProblemVO switchProblemVO:switchProblemList){
 
             Date date1 = new Date();
+
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
@@ -447,8 +460,8 @@ public class SolveProblemController extends Thread {
                 switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
-
         }
+
         //将IP地址去重放入set集合中
         HashSet<String> time_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
