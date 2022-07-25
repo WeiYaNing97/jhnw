@@ -48,20 +48,53 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
+    /*==================================================================================================================
+    ====================================================================================================================
+    ====================================================================================================================
+    ==================================================================================================================*/
+
+    /***
+    * @method: 多线程扫描 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
+    * @Param: [switchInformation]
+    * @return: void
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @RequestMapping("multipleScans")
     public void multipleScans(@RequestBody List<String> switchInformation) {//待测
+        // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
         for (String information:switchInformation){
+            // information  : {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
+            // 去除花括号得到： "ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"
             information = information.replace("{","");
             information = information.replace("}","");
+            /*以逗号分割 获取到 集合 集合为：
+                information_split.get(0)  "ip":"192.168.1.100"
+                information_split.get(1)  "name":"admin"
+                information_split.get(2)  "password":"admin"
+                information_split.get(3)  "mode":"ssh"
+                information_split.get(4)  "port":"22"
+            */
             String[] information_split = information.split(",");
+            // 四个参数 设默认值
             String ip = "";
             String name = "";
             String password = "";
             String mode = "";
-            int port = 22;
+            int port = 0;
+
             for (String string:information_split){
+                // string  参数为  ip:192.168.1.100  或  name:admin 或 password:admin 或 mode:ssh 或 port:22
                 string = string.replace("\"","");
+                // 以 ： 分割 得到
+                /*
+                string_split[0] ip           string_split[1] 192.168.1.100
+                string_split[0] name         string_split[1] admin
+                string_split[0] password     string_split[1] admin
+                string_split[0] mode         string_split[1] ssh
+                string_split[0] port         string_split[1] 22
+                */
                 String[] string_split = string.split(":");
                 switch (string_split[0]){
                     case "ip" :  ip=string_split[1];
@@ -76,15 +109,16 @@ public class SwitchInteraction {
                         break;
                 }
             }
+            //以多线程中的格式 存放数组中
+            //连接方式，ip，用户名，密码，端口号
             Object[] objects = {mode,ip,name,password,port};
             objectsList.add(objects);
         }
         MyThread.switchLoginInformations(objectsList);
     }
-    /*==================================================================================================================
-    ====================================================================================================================
-    ====================================================================================================================
-    ==================================================================================================================*/
+
+
+
     /**
     * @method: 扫描方法 logInToGetBasicInformation
     * @Param: [mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
@@ -107,8 +141,7 @@ public class SwitchInteraction {
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String ScanningTime = simpleDateFormat.format(new Date());
-        user_String.put("ScanningTime",ScanningTime);//扫描时间
-
+        user_String.put("ScanningTime",ScanningTime);//扫描时间 获取当前时间  时间格式为 "yyyy-MM-dd hh:mm:ss"  字符串
 
 
         //交换机信息
@@ -158,8 +191,7 @@ public class SwitchInteraction {
         元素9 ：telnet连接工具对象*/
 
         List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
-        //控制台输出 连接交换机IP
-        System.err.println("\r\n连接交换机ip地址:"+objectList.get(2)+"\r\n");
+
         //是否连接成功 返回信息集合的 第一项 为 是否连接成功
         boolean requestConnect_boolean = objectList.get(0).toString().equals("true");
 
@@ -192,19 +224,26 @@ public class SwitchInteraction {
             }
 
             //获取交换机基本信息
+            //getBasicInformationList 通过 特定方式 获取 基本信息
+            //getBasicInformationList 通过扫描方式 获取 基本信息
             AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
 
-            //获取 匹配的 交换机可执行的 命令ID  并 循环执行
-            AjaxResult ajaxResult = scanProblem(
-                    user_String, //登录交换机的 用户信息 登录方式、ip、name、password
-                    user_Object);
+            if (!(basicInformationList_ajaxResult.get("data").equals("未定义该交换机获取基本信息命令及分析"))){
 
-            if (requestConnect_way.equalsIgnoreCase("ssh")){
-                connectMethod.closeConnect(sshConnect);
-            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                telnetSwitchMethod.closeSession(telnetComponent);
+                //获取 匹配的 交换机可执行的 命令ID  并 循环执行分析操作
+                AjaxResult ajaxResult = scanProblem(
+                        user_String, //登录交换机的 用户信息 登录方式、ip、name、password
+                        user_Object);
+
+                if (requestConnect_way.equalsIgnoreCase("ssh")){
+                    connectMethod.closeConnect(sshConnect);
+                }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                    telnetSwitchMethod.closeSession(telnetComponent);
+                }
+                return basicInformationList_ajaxResult;
+
             }
-            return basicInformationList_ajaxResult;
+            return AjaxResult.error("未定义该交换机获取基本信息命令及分析！");
         }
         return AjaxResult.error("连接交换机失败！");
     }
@@ -282,6 +321,7 @@ public class SwitchInteraction {
     /**
      * @method: 获取交换机基本信息  多个命令依次执行 按，分割
      * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法,
+     * user_Object ：
      * SshConnect ssh连接工具，connectMethod ssh连接,
      * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
      * @E-mail: WeiYaNing97@163.com
@@ -294,11 +334,12 @@ public class SwitchInteraction {
     @GetMapping("/getBasicInformationList")
    // @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
     public AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
+        //四个参数 赋值
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
         TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
         TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
-
+        //获取登录系统用户信息
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
 
@@ -310,6 +351,7 @@ public class SwitchInteraction {
 
         //遍历命令表命令 执行命令
         for (BasicInformation basicInformation:basicInformationList){
+            //basicInformation : display device manuinfo,display ver
             //连接方式 ssh telnet
             String way = user_String.get("mode");
             //目前获取基本信息命令是多个命令是由,号分割的，
@@ -405,7 +447,8 @@ public class SwitchInteraction {
 
             //分析第一条ID basicInformation.getProblemId() (为 问题扫描逻辑表  ID)
             String first_problem_scanLogic_Id = basicInformation.getProblemId();
-            //返回总提取信息
+            // 获取交换机 基本信息命令 列表 根据分析ID获取问题扫描逻辑详细信息
+            //进行分析 返回总提取信息
             String extractInformation_string1 = analysisReturn(user_String, user_Object ,null,
                     return_sum, first_problem_scanLogic_Id);
 
@@ -515,8 +558,6 @@ public class SwitchInteraction {
         Long analysis_id = null;
         for (TotalQuestionTable pojo:totalQuestionTables){
             user_String.put("notFinished",pojo.getNotFinished());
-            //根据命令ID获取具体命令，执行
-            System.err.println("连接iP:"+user_String.get("ip"));
 
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,pojo.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
@@ -648,27 +689,23 @@ public class SwitchInteraction {
                                              int line_n, String firstID, String currentID,
                                              Integer insertsInteger) {
 
-        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
-        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
-        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
-        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
-
         //第一条分析ID
         String id = firstID; //用于第一次分析 和  循环分析
-        //如果当前分析ID不为空，则用当前分析ID
+        //如果当前分析ID  currentID  不为空，则用当前分析ID
         if (currentID != null){
             id = currentID;
         }
 
         //控制台输出 分析表 分析ID
-        System.err.print("\r\n执行分析ID:"+id+"\r\n");
+        System.err.print("\r\n执行分析ID:\r\n"+id+"\r\n");
 
         //根据ID查询分析数据
+        //根据第一条分析ID 查询分析信息
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
 
-        //如果循环ID不为空的话 说明 分析数据为循环分析 所以 需要调出循环ID 当做第一分析ID 当前分析ID 为空 继续执行
-        //循环分析数据 不需要分析 指向循环位置
+        //如果循环ID不为空的话 说明 分析数据为循环分析 则 需要调出循环ID 当做第一分析ID 当前分析ID 为空 继续执行
+        //循环分析数据 不需要分析 功能指向循环位置
         if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
             //调出循环ID 当做第一分析ID
             firstID = problemScanLogic.getCycleStartId();
@@ -678,7 +715,8 @@ public class SwitchInteraction {
             return loop_string;
         }
 
-        //如果 问题索引字段 不为空 则 说明  分析数据 是 问题分析
+        //如果 问题索引字段 不为空 null 则 说明  分析数据 是 分析出问题或者可以结束了
+        // problemScanLogic.getProblemId() 可以为 有问题(前端显示:异常) 无问题(前端显示:安全) 完成
         if (problemScanLogic.getProblemId()!=null){
             //有问题 无问题
             if (problemScanLogic.getProblemId().indexOf("问题")!=-1){
@@ -686,12 +724,12 @@ public class SwitchInteraction {
                 insertvalueInformationService(user_String,user_Object, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
                 //插入问题数据次数 加一
                 insertsInteger++;
-
                 current_Round_Extraction_String = "";
                 //获取扫描出问题数据列表  集合 并放入 websocket
-
+                //根据 用户信息 和 扫描时间
                 getUnresolvedProblemInformationByData(user_String,user_Object);
-                //获取下一条分析ID
+
+                /*//获取下一条分析ID
                 if (problemScanLogic.gettNextId()!=null){
                     currentID = problemScanLogic.gettNextId();
                 }else {
@@ -707,7 +745,9 @@ public class SwitchInteraction {
                     //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
                     extractInformation_string = loop_string;
                     return loop_string;
-                }
+                }*/
+
+                return extractInformation_string;
 
             }
 
@@ -765,16 +805,17 @@ public class SwitchInteraction {
             //比较分析
             String compare = problemScanLogic.getCompare();
 
-            //返回信息的数组元素 第num 条
-            String information_line_n = return_information_array[num];
             //光标位置
             line_n = num;
+            //返回信息的数组元素 第num 条
+            String information_line_n = return_information_array[num];
 
             //匹配逻辑 有成功失败之分
             if (matched != null){
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
                 boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, information_line_n, matchContent);
+
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
 
@@ -803,9 +844,9 @@ public class SwitchInteraction {
                     }
 
                     //匹配失败
-
                 }else {
 
+                    //relativePosition.equals("null") 全文检索
                     // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
                     if (relativePosition.equals("null") && num<return_information_array.length-1){
                         continue;
@@ -843,7 +884,11 @@ public class SwitchInteraction {
                 String wordSelection_string = Utils.wordSelection(
                         return_information_array[num], matchContent, //返回信息的一行 提取关键字
                         problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
-                //取词只有成功
+                //取词逻辑只有成功，但是如果取出为空 则为 取词失败
+                if (wordSelection_string == null){
+                    return "取词失败！";
+                }
+
                 extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
 
@@ -940,18 +985,19 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    //@MyLog(title = "问题数据及参数插人", businessType = BusinessType.INSERT)
-    public void insertvalueInformationService(Map<String,String> user_String,Map<String,Object> user_Object,TotalQuestionTable totalQuestionTable,ProblemScanLogic problemScanLogic,String parameterString){
+    public void insertvalueInformationService(Map<String,String> user_String,Map<String,Object> user_Object,
+                                              TotalQuestionTable totalQuestionTable,
+                                              ProblemScanLogic problemScanLogic,
+                                              String parameterString){
 
         //系统登录人 用户名
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
-
         //系统登录人 手机号
         String phonenumber = loginUser.getUser().getPhonenumber();
-
-
+        //截取 有问题 还是 无问题
         String substring = problemScanLogic.getProblemId().substring(0, 3);
+        //截取 问题代码
         String problemId = problemScanLogic.getProblemId().substring(3, problemScanLogic.getProblemId().length());
 
         //参数组中的 第一个参数ID  默认为 0
@@ -1005,17 +1051,14 @@ public class SwitchInteraction {
         switchProblem.setComId(totalQuestionTable.getProblemSolvingId());
         switchProblem.setUserName(userName);//参数索引
         switchProblem.setPhonenumber(phonenumber); //是否有问题
-
+        //插入 扫描时间
         String loginTime = user_String.get("ScanningTime");
-
         DateTime dateTime = new DateTime(loginTime, DatePattern.NORM_DATETIME_FORMAT);
-
         switchProblem.setCreateTime(dateTime);
 
         //插入问题
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         switchProblemService.insertSwitchProblem(switchProblem);
-
     };
 
 
@@ -1028,8 +1071,10 @@ public class SwitchInteraction {
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
     public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String,Map<String,Object> user_Object){
+        //用户名
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String loginName = loginUser.getUsername();
+        //扫描时间
         String loginTime = user_String.get("ScanningTime");
 
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,loginName);
@@ -1094,7 +1139,7 @@ public class SwitchInteraction {
      */
     @RequestMapping("/executeScanCommandByCommandId")
     public List<Object> executeScanCommandByCommandId(Map<String,String> user_String,String commandId,String notFinished,String way,Map<String,Object> user_Object) {
-
+        //四参数赋值
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
         TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
@@ -1103,15 +1148,13 @@ public class SwitchInteraction {
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
 
-        System.err.print("\r\n命令ID"+commandId+"\r\n");
         //命令ID获取具体命令
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
 
         //具体命令
         String command = commandLogic.getCommand();
-
-        System.err.print("\r\n命令"+command+"\r\n");
+        System.err.print("\r\n执行命令：\r\n"+command+"\r\n");
 
         //执行命令
         //命令返回信息
@@ -1134,11 +1177,10 @@ public class SwitchInteraction {
 
         command_string = command_string.replaceAll(user_String.get("notFinished"),"");
 
-        System.err.println(command_string);
-
+        //交换机返回信息 插入 数据库
+        ReturnRecord returnRecord = new ReturnRecord();
         //按行切割
         String[] split = command_string.split("\r\n");
-        ReturnRecord returnRecord = new ReturnRecord();
         returnRecord.setCurrentCommLog(command.trim());
         String current_return_log = "";
         if (split.length != 1){
@@ -1180,7 +1222,7 @@ public class SwitchInteraction {
         if (commandLogic.getResultCheckId().equals("1")){
             //判断命令是否错误 错误为false 正确为true
             if (Utils.judgmentError(command_string)){
-                System.err.print("\r\n"+"简单检验，命令正确，新命令"+commandLogic.getEndIndex());
+                //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
                 List<Object> objectList = executeScanCommandByCommandId(user_String,commandLogic.getEndIndex(),notFinished, way,user_Object);
                 return objectList;
             }
@@ -1212,16 +1254,14 @@ public class SwitchInteraction {
                                         List<Object> executeScanCommandByCommandId_object,String current_Round_Extraction_String,String extractInformation_string){
 
         String resultString = executeScanCommandByCommandId_object.get(0).toString();//交换机返回信息
-        String first_problem_scanLogic_Id = executeScanCommandByCommandId_object.get(1)+"";//第一条分析ID
+        String first_problem_scanLogic_Id = executeScanCommandByCommandId_object.get(1)+"";//分析第一条ID
 
         //整理返回结果 去除 #
         resultString = resultString.replace("\r\n"+" # "+"\r\n","\r\n");
+
         //将交换机返回信息 按行来切割 字符串数组
         String[] return_information_array =resultString.split("\r\n");
-        //获得第一条分析ID
-        //根据第一条分析ID 查询分析信息
-        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
-        ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(first_problem_scanLogic_Id);
+
         //根据ID去分析
         String problemScanLogic_string = selectProblemScanLogicById( user_String,user_Object, totalQuestionTable,
                 return_information_array,current_Round_Extraction_String,extractInformation_string,
@@ -1240,7 +1280,7 @@ public class SwitchInteraction {
 
 
     /**
-     * @method: 获取 匹配的 交换机可执行的 命令ID  并 循环执行
+     * @method: 获取 匹配的 交换机可执行的 命令ID  并 循环执行分析操作
      * @Param: [user_String, connectMethod, telnetSwitchMethod]
      * @return: com.sgcc.common.core.domain.AjaxResult
      * @Author: 天幕顽主
@@ -1249,30 +1289,25 @@ public class SwitchInteraction {
     @PostMapping("scanProblem")
     public AjaxResult scanProblem(Map<String,String> user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                                   Map<String,Object> user_Object){
-
+        //交换机基本信息
         String deviceModel = user_String.get("deviceModel");//设备型号
         String deviceBrand = user_String.get("deviceBrand");//设备品牌
         String firmwareVersion = user_String.get("firmwareVersion");//内部固件版本
         String subversionNumber = user_String.get("subversionNumber");//子版本号
 
-        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
-        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
-        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
-        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
-
-        //获取可执行命令ID
+        //根据交换机基本信息 查询 可执行命令的 命令信息
         AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
         List<TotalQuestionTable> commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
 
-        String command_return_information = null;
-        Long analysis_id = null;
         for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
+            // ---- More ----
             user_String.put("notFinished",totalQuestionTable.getNotFinished());
+
             //根据命令ID获取具体命令，执行
-            System.err.println("连接iP:"+user_String.get("ip"));
+            //返回  交换机返回信息 和  第一条分析ID
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
-
+            //分析
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                     executeScanCommandByCommandId_object,  "",  "");
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);

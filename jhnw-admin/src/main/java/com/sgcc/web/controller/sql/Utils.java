@@ -253,28 +253,29 @@ public class Utils {
     /**
      * @method: 取词
      *         //取词方法
-     * @Param: [action提取方法 ：取词 取版本,
-     * returnString 返回信息的一行,
-     * matchContent 提取关键字,
-     * integer 位置, length 长度WLs]
+     * @Param: [     action提取方法 ：取词 取版本, returnString 返回信息的一行, matchContent 提取关键字, integer 位置, length 长度WLs]
      * 提取方法 ：取词 取版本  返回信息的一行 提取关键字 位置 长度WLs
      * @return: java.lang.String
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
     public static String wordSelection(String returnString,String matchContent,Integer integer,String length){
-        integer = integer - 1 ;
         // 获取 W、L、S
         String substring = length.substring(length.length() - 1, length.length());
         //获取取值长度
         int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();
+        //预设返回值
         String return_string = "";
+
         switch (substring){
             // 取词和取字符串
             case "w":
             case "W":
             case "s":
             case "S":
+                //以matchContent 为参照  获取位置 因为后期转化为数组，关键词后第一位为 [0]
+                integer = integer - 1 ;
+
                 String get_word = "";
                 get_word = "";
                 String returnString_string = " "+returnString.trim()+" ";
@@ -288,7 +289,7 @@ public class Utils {
                     //取词位置
                     int number = integer.intValue();
                     for (int num = 0;num<word_length;num++){
-                        get_word = split_w[number]+" ";
+                        get_word = " "+split_w[number]+" ";
                         number++;
                         return_string += get_word.trim();
                     }
@@ -306,11 +307,14 @@ public class Utils {
                 //模糊匹配 位置
                 int string_position=returnString.indexOf(matchContent);
                 if (string_position!=-1){
+                    //string_position+matchContent.length() 取词关键字 最后一位字母位置
+                    int num =string_position+matchContent.length();
                     int word_position = string_position+matchContent.length()+integer.intValue();
-                    if (word_position+word_length>returnString.length()){
+                    String removeKeywords = returnString.substring(word_position,returnString.length()).trim();
+                    if (word_length>removeKeywords.length()){
                         takeLetters = "";
                     }else {
-                        takeLetters = returnString.substring(word_position, word_position + word_length);
+                        takeLetters = removeKeywords.substring(0,word_length);
                     }
                     return_string =takeLetters.trim();
                 }
@@ -324,6 +328,7 @@ public class Utils {
 
     /**
      * @method: 匹配方法
+     * matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
      * @Param: [matchType  精确匹配  模糊匹配  不存在
      * returnString  交换机返回信息
      * matchString]  分析表 关键字 --- 匹配的信息
@@ -365,15 +370,6 @@ public class Utils {
             default :
                 return false;
         }
-    }
-
-    public static String getCurrentTime(){
-        SimpleDateFormat sdf = new SimpleDateFormat();// 格式化时间
-
-        sdf.applyPattern("yyyy-MM-dd HH:mm:ss a");// a为am/pm的标记
-
-        Date date = new Date();// 获取当前时间
-        return sdf.format(date);// 输出已经格式化的现在时间(24小时制)
     }
 
     /**
