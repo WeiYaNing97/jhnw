@@ -1,10 +1,8 @@
 package com.sgcc.web.controller.sql;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
-import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -31,23 +29,27 @@ public class SwitchInteraction {
 
     @Autowired
     private ICommandLogicService commandLogicService;
+
     @Autowired
     private IReturnRecordService returnRecordService;
+
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
+
     @Autowired
     private IValueInformationService valueInformationService;
+
     @Autowired
     private ISwitchProblemService switchProblemService;
+
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
+
     @Autowired
     private IBasicInformationService basicInformationService;
 
     @RequestMapping("multipleScans")
-    @MyLog(title = "扫描交换机", businessType = BusinessType.OTHER)
     public void multipleScans(@RequestBody List<String> switchInformation) {//待测
-
         List<Object[]> objectsList = new ArrayList<>();
         for (String information:switchInformation){
             information = information.replace("{","");
@@ -73,25 +75,16 @@ public class SwitchInteraction {
                     case "port" :  port= Integer.valueOf(string_split[1]).intValue() ;
                         break;
                 }
-
             }
             Object[] objects = {mode,ip,name,password,port};
             objectsList.add(objects);
         }
         MyThread.switchLoginInformations(objectsList);
     }
-
-
-    /*=====================================================================================================================
-
-    =====================================================================================================================
-
-    =====================================================================================================================
-
-    =====================================================================================================================*/
-
-
-
+    /*==================================================================================================================
+    ====================================================================================================================
+    ====================================================================================================================
+    ==================================================================================================================*/
     /**
     * @method: 扫描方法 logInToGetBasicInformation
     * @Param: [mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
@@ -100,7 +93,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port) {
+    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,LoginUser loginUser) {
 
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
@@ -115,6 +108,7 @@ public class SwitchInteraction {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String ScanningTime = simpleDateFormat.format(new Date());
         user_String.put("ScanningTime",ScanningTime);//扫描时间
+
 
 
         //交换机信息
@@ -134,6 +128,7 @@ public class SwitchInteraction {
         //telnet连接
         TelnetSwitchMethod telnetSwitchMethod = null;
         user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+        user_Object.put("loginUser",loginUser);
 
         //连接交换机  requestConnect：
         //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
@@ -297,13 +292,14 @@ public class SwitchInteraction {
      */
 
     @GetMapping("/getBasicInformationList")
+   // @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
     public AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
         TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
         TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
 
-        LoginUser loginUser = SecurityUtils.getLoginUser();
+        LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
 
         //查询 获取基本信息命令表  中的全部命令
@@ -502,7 +498,7 @@ public class SwitchInteraction {
         TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
         TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
 
-        LoginUser loginUser = SecurityUtils.getLoginUser();
+        LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
 
         //查询 获取基本信息命令表  中的全部命令
@@ -687,14 +683,14 @@ public class SwitchInteraction {
             //有问题 无问题
             if (problemScanLogic.getProblemId().indexOf("问题")!=-1){
                 //问题数据 插入问题表 如果有参数 及插入
-                insertvalueInformationService(user_String, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
+                insertvalueInformationService(user_String,user_Object, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
                 //插入问题数据次数 加一
                 insertsInteger++;
 
                 current_Round_Extraction_String = "";
                 //获取扫描出问题数据列表  集合 并放入 websocket
 
-                getUnresolvedProblemInformationByData(user_String);
+                getUnresolvedProblemInformationByData(user_String,user_Object);
                 //获取下一条分析ID
                 if (problemScanLogic.gettNextId()!=null){
                     currentID = problemScanLogic.gettNextId();
@@ -945,10 +941,10 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     //@MyLog(title = "问题数据及参数插人", businessType = BusinessType.INSERT)
-    public void insertvalueInformationService(Map<String,String> user_String,TotalQuestionTable totalQuestionTable,ProblemScanLogic problemScanLogic,String parameterString){
+    public void insertvalueInformationService(Map<String,String> user_String,Map<String,Object> user_Object,TotalQuestionTable totalQuestionTable,ProblemScanLogic problemScanLogic,String parameterString){
 
         //系统登录人 用户名
-        LoginUser loginUser = SecurityUtils.getLoginUser();
+        LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
 
         //系统登录人 手机号
@@ -1031,12 +1027,12 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
-    public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String){
-
-        LoginUser loginUser = SecurityUtils.getLoginUser();
+    public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String,Map<String,Object> user_Object){
+        LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
+        String loginName = loginUser.getUsername();
         String loginTime = user_String.get("ScanningTime");
 
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,loginUser.getUsername());
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,loginName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -1081,7 +1077,7 @@ public class SwitchInteraction {
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
 
-        WebSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);
+        WebSocketService.sendMessage("loophole"+loginName,scanResultsVOList);
 
         return scanResultsVOList;
     }
@@ -1104,7 +1100,7 @@ public class SwitchInteraction {
         TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
         TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
 
-        LoginUser loginUser = SecurityUtils.getLoginUser();
+        LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
 
         System.err.print("\r\n命令ID"+commandId+"\r\n");

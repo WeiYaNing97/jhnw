@@ -28,11 +28,12 @@ public class MyThread extends Thread {
     static String name = null;
     static String password = null;
     static int port;
+    static LoginUser loginUser;
     @Override
     public void run() {
         SwitchInteraction switchInteraction = new SwitchInteraction();
         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port);
+        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser);
         //System.err.println(MyThread.mode + MyThread.ip + MyThread.name + MyThread.password + MyThread.port);
         try {
             Thread.sleep(10);                 //1000 milliseconds is one second.
@@ -49,12 +50,14 @@ public class MyThread extends Thread {
     * @E-mail: WeiYaNing97@163.com
     */
     public static void switchLoginInformations(List<Object[]> objects) {
+        LoginUser login = SecurityUtils.getLoginUser();
         for (Object[] objects3:objects){
             mode = (String)objects3[0];
             ip = (String)objects3[1];
             name = (String)objects3[2];
             password = (String)objects3[3];
             port = (int) objects3[4];
+            loginUser = login;
             Thread thread = new MyThread();
             thread.start();
 
