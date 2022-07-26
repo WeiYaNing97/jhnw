@@ -1,7 +1,4 @@
 package com.sgcc.web.controller.sql;
-import com.sgcc.common.core.domain.entity.SysUser;
-import com.sgcc.common.utils.SecurityUtils;
-import com.sgcc.web.controller.webSocket.WebSocketService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,8 +7,6 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import org.hyperic.sigar.SigarException;
 import java.text.DecimalFormat;
-import java.util.Set;
-
 /**
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com
@@ -87,4 +82,5 @@ public class MemoryCPU {
         double tbNumber = gbNumber/FORMAT;
         return new DecimalFormat("#.##TB").format(tbNumber);
     }
+
 }

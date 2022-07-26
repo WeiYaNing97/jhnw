@@ -163,11 +163,6 @@ public class TotalQuestionTableController extends BaseController
             stringList.add(pojo.getBrand());
         }
 
-        List<String> strings = new ArrayList<>();
-        strings.add("1");
-        strings.add("3");
-        strings.add("5");
-
         return stringList;
     }
 

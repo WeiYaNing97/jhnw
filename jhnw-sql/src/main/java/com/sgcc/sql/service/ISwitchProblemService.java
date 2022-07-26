@@ -62,6 +62,7 @@ public interface ISwitchProblemService
     public int deleteSwitchProblemById(Long id);
 
     SwitchProblem selectSwitchProblemByValueId(Long valueId);
+
     //根据名字 和 扫描时间
     List<SwitchProblemVO> selectUnresolvedProblemInformationByDataAndUserName(String currentTime,String userName);
     //根据 问题ID List

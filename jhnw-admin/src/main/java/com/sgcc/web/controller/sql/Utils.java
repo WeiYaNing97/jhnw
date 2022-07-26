@@ -100,6 +100,26 @@ public class Utils {
     }
 
     /**
+     * @method: 判断是否为错误命令 或是否执行成功  简单判断
+     * @Param: [str] 交换机返回信息
+     * @return: boolean  判断命令是否错误 错误为false 正确为true
+     * @E-mail: WeiYaNing97@163.com
+     */
+    /*
+    #Apr  3 06:17:59:728 2000 H3C DEV/2/FAN STATE CHANGE TO FAILURE:- 1 -
+    Trap 1.3.6.1.4.1.2011.2.23.1.12.1.6: fan ID is 1
+
+    %Apr  3 06:17:59:729 2000 H3C DEV/5/DEV_LOG:- 1 -
+    Fan 1 failed
+     */
+    public static boolean switchfailure(String str){
+        if (str.indexOf("STATE CHANGE TO FAILURE") != -1)
+        return false;
+        return true;
+    }
+
+
+    /**
      * @method: 比较版本号
      * @Param: [remove_content, compare, content] //交换机版本号  比较
      * 如果 交换机版本号  比较方法   数据库版本号 则返回 true
@@ -110,6 +130,7 @@ public class Utils {
     @RequestMapping("compareVersion")
     public static boolean compareVersion(Map<String,String> user_String, String compare){
 
+        //由 汉字 转化为 单词
         if (compare.indexOf("品牌")!=-1){
             compare = compare.replace("品牌",user_String.get("deviceBrand"));
         }else if (compare.indexOf("型号")!=-1){
@@ -120,6 +141,7 @@ public class Utils {
             compare = compare.replace("子版本",user_String.get("subversionNumber"));
         }
 
+        // 获取比较参数
         String getParameters = compare;
         getParameters = getParameters.replace("<=",":");
         getParameters = getParameters.replace(">=",":");
@@ -130,31 +152,39 @@ public class Utils {
         String[] parameter = getParameters.split(":");
 
         String getComparisonNumber = compare;
+        //参数一 替换 ：
         getComparisonNumber = getComparisonNumber.replace(parameter[0],":");
+        //参数二 替换 ：
         getComparisonNumber = getComparisonNumber.replace(parameter[1],":");
+        //如果参数数组长度为3 则有三个参数
         if (parameter.length == 3){
+            //参数三 替换 ：
             getComparisonNumber = getComparisonNumber.replace(parameter[2],":");
         }
+        //假设有三个参数 ： 5.20.99<固件版本<5.20.100   5.20.98<5.20.99<5.20.100
+        //替换 “:”后 ： :<:<:
+        //截取后 去掉了前后 得到：     <:<
         getComparisonNumber = getComparisonNumber.substring(1,getComparisonNumber.length()-1);
+        //comparisonNumber : [<,<]
         String[] comparisonNumber = getComparisonNumber.split(":");
 
-
-
         List<String[]> compareList = new ArrayList<>();
+        //comparisonNumber.length ==1  有 一个比较
         if (comparisonNumber.length ==1){
             String[] compareArray = new String[3];
             compareArray[0] = parameter[0];
             compareArray[1] = comparisonNumber[0];
             compareArray[2] = parameter[1];
             compareList.add(compareArray);
+            //comparisonNumber.length == 2  有 两个比较
         }else if (comparisonNumber.length ==2){
-
+            //第一组比较
             String[] compareArray1 = new String[3];
             compareArray1[0] = parameter[0];
             compareArray1[1] = comparisonNumber[0];
             compareArray1[2] = parameter[1];
             compareList.add(compareArray1);
-
+            //第二组比较
             String[] compareArray2 = new String[3];
             compareArray2[0] = parameter[1];
             compareArray2[1] = comparisonNumber[1];
@@ -164,18 +194,24 @@ public class Utils {
         }
 
         boolean compare_size;
+        //循环 比较数组
         for (String[] compareArray:compareList){
             switch (compareArray[1]){
                 case ">":
-                    //如果 str1 > str2  成功 返回 true
+                    //如果 str1 > str2  返回 true
+                    //如果 str1 < str2  返回 false
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
+                    //如果 str1 < str2  返回 false
+                    // !false 则会进入
                     if (!compare_size){
                         return false;
                     }
                     break;
                 case "<":
-                    //如果 str1 < str2 成功  返回 false
+                    //如果 str1 > str2  返回 true
+                    //如果 str1 < str2  返回 false
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
+                    //如果 str1 > str2  返回 true 则会进入
                     if (compare_size){
                         return false;
                     }
@@ -183,23 +219,34 @@ public class Utils {
                 case "==":
                     //相等 为  true
                     compare_size = compareArray[0].equals(compareArray[2]);
+                    //不相等 则 false
+                    //!false 则会进入 返回 false
                     if (!compare_size){
-                        return compare_size;
+                        return false;
                     }
                     break;
                 case ">=":
+                    //如果 str1 > str2  返回 true
+                    //如果 str1 < str2  返回 false
+                    //如果 str1 == str2  返回 true
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
+                    //如果 str1 < str2  返回 false
+                    // !false  会进入
                     if (!compare_size){
                         return false;
                     }
                     break;
                 case "<=":
+                    //如果 str1 > str2  返回 false
+                    //如果 str1 < str2  返回 true
+                    //如果 str1 == str2  返回 true
                     compare_size = !(compareVersionNumber(compareArray[0], compareArray[2])) || compareArray[0].equals(compareArray[2]);
                     if (!compare_size){
                         return false;
                     }
                     break;
                 case "!=":
+                    //如果 str1 == str2  返回 false
                     compare_size = !(compareArray[0].equals(compareArray[2]));
                     if (!compare_size){
                         return false;
@@ -211,7 +258,7 @@ public class Utils {
     }
 
     /**
-     * @method: 比较系统版本号大小
+     * @method: 比较系统版本号大小 参数一是否大于参数二
      * 如果 str1 > str2 返回 true
      * 如果 str1 < str2 返回 false
      * @Param: [str1, str2]
@@ -223,6 +270,7 @@ public class Utils {
         String[] split1 = str1.split("\\.");
         String[] split2 = str2.split("\\.");
         int j;
+        //取得最短数组长度 只比较大版本
         if (split1.length < split2.length){
             j=split1.length;
         }else if (split2.length < split1.length){
@@ -230,6 +278,7 @@ public class Utils {
         }else{
             j=split1.length;
         }
+        //比较大版本
         for (int i=0;i<j;i++){
             int i1 = Integer.valueOf(split1[i]).intValue();
             int i2 = Integer.valueOf(split2[i]).intValue();
@@ -239,7 +288,8 @@ public class Utils {
                 return false;
             }
         }
-
+        //大版本一致
+        //比较长度 长度长的 是大版本
         if (split1.length < split2.length){
             return false;
         }else if (split2.length < split1.length){

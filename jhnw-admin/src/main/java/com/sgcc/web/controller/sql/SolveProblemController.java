@@ -132,14 +132,13 @@ public class SolveProblemController extends Thread {
 
 
     /***
-     * @method: 批量修复问题
+     * @method: 修复问题
      * @Param: []
      * @return: com.sgcc.common.core.domain.AjaxResult
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
     public AjaxResult batchSolution( List<String> userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
-        //String mode,String ip,String name,String password,String port
         //用户信息
         String userInformationString = userinformation.toString();
         userInformationString = userInformationString.replace("[{","");
@@ -181,23 +180,27 @@ public class SolveProblemController extends Thread {
         SshMethod connectMethod = null;
         //telnet连接
         TelnetSwitchMethod telnetSwitchMethod = null;
+        //解析返回参数
+        List<Object> informationList = null;
+        //是否连接成功
+        boolean requestConnect_boolean = false;
         /* requestConnect方法：
         传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
+
         AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( user_String );
         //解析返回参数
-        List<Object> informationList = (List<Object>) requestConnect_ajaxResult.get("data");
-
+        informationList = (List<Object>) requestConnect_ajaxResult.get("data");
         //是否连接成功
-        boolean requestConnect_boolean = informationList.get(0).toString().equals("true");
+        requestConnect_boolean = informationList.get(0).toString().equals("true");
 
         if (requestConnect_boolean){
-
             //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
                 AjaxResult ajaxResult = queryParameterSet(switchProblem.getComId(), switchProblem.getValueId());
+
                 Object[] commandvalue =  (Object[])ajaxResult.get("data");
 
                 //命令集合
@@ -432,12 +435,12 @@ public class SolveProblemController extends Thread {
 
 
     /**
-     * @method: 查询扫描出的问题表 放入 websocket
-     * @Param: []
-     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
+    * @method: 根据用户名 和 修复问题ID 列表
+    * @Param:
+    * @return:
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
     @RequestMapping("getUnresolvedProblemInformationByIds")
     public List<ScanResultsVO> getUnresolvedProblemInformationByIds(LoginUser loginUser,List<String> problemIds){//待测
 
@@ -505,4 +508,73 @@ public class SolveProblemController extends Thread {
 
         return scanResultsVOList;
     }
+
+
+    /**
+     * @method: 根据当前登录人 获取 以往扫描信息
+     * @Param: []
+     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("getUnresolvedProblemInformationByUserName")
+    public List<ScanResultsVO> getUnresolvedProblemInformationByUserName(){
+
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        String userName = loginUser.getUsername();
+
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date date1 = new Date();
+            switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
+            for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+                valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
+                List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    Date date2 = new Date();
+                    valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                }
+                Date date3 = new Date();
+                switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.setValueInformationVOList(valueInformationVOList);
+            }
+        }
+        //将IP地址去重放入set集合中
+        HashSet<String> time_hashSet = new HashSet<>();
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date createTime = switchProblemVO.getCreateTime();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String time = simpleDateFormat.format(createTime);
+            time_hashSet.add(time);
+        }
+        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
+        for (String time:time_hashSet){
+            ScanResultsVO scanResultsVO = new ScanResultsVO();
+            scanResultsVO.setCreateTime(time);
+            scanResultsVOList.add(scanResultsVO);
+        }
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            String createTime = scanResultsVO.getCreateTime();
+            for (SwitchProblemVO switchProblemVO:switchProblemList){
+                Date time = switchProblemVO.getCreateTime();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String format_time = simpleDateFormat.format(time);
+                if (format_time.equals(createTime)){
+                    List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
+                    if (switchProblemVOList == null){
+                        List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
+                        switchProblemVOS.add(switchProblemVO);
+                        scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
+                    }else {
+                        switchProblemVOList.add(switchProblemVO);
+                        scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+                    }
+                }
+            }
+        }
+        return scanResultsVOList;
+    }
+
+
 }
