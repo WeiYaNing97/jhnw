@@ -5,7 +5,6 @@
     <div :class="{hasTagsView:needTagsView}" class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
         <navbar />
-        <cpu></cpu>
         <tags-view v-if="needTagsView" />
       </div>
       <app-main />
@@ -22,7 +21,6 @@ import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
 import variables from '@/assets/styles/variables.scss'
-import cpu from '@/components/cpu/cpu'
 
 export default {
   name: 'Layout',
@@ -33,7 +31,6 @@ export default {
     Settings,
     Sidebar,
     TagsView,
-    cpu
   },
   mixins: [ResizeMixin],
   computed: {

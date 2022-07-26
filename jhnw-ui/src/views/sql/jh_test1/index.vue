@@ -75,14 +75,9 @@
 <!--        <el-button type="primary" @click="hand">出现</el-button>-->
 <!--      </el-form-item>-->
 <!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="xiazai">下载</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
 <!--      </el-form-item>-->
 <!--      <el-form-item>-->
-<!--&lt;!&ndash;        v-trigger&ndash;&gt;-->
-<!--        <el-button type="primary" @click="lunxun">轮询</el-button>-->
 <!--      </el-form-item>-->
 
     </el-form>
@@ -304,7 +299,7 @@
 
     <TinymceEditor :proId="proId" v-show="showha"></TinymceEditor>
 
-<!--    <daoru></daoru>-->
+    <daoru></daoru>
 
     <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
@@ -323,7 +318,7 @@ export default {
   name: "Jh_test1",
     components:{
         TinymceEditor,
-        // daoru
+        daoru
     },
   data() {
     return {
@@ -408,29 +403,7 @@ export default {
       // this.getList();
       // this.jiazai()
   },
-    //自动触发事件
-    // directives:{
-    //     // trigger:{
-    //     //     inserted(el,binging){
-    //     //         el.click()
-    //     //     }
-    //     // }
-    // },
   methods: {
-      //轮询CPU
-      lun(){
-          return request({
-              url:'/sql/get_Memory_CPU',
-              method:'post',
-          }).then(response=>{
-              this.cpus = response
-          })
-          console.log(this.cpus)
-      },
-      lunxun(){
-          window.setInterval(this.lun,3000)
-      },
-
       jiazai(){
         alert('加载')
       },
@@ -445,10 +418,6 @@ export default {
           console.log(ip)
           console.log("ip",ip.split(":")[0])
           console.log(process.env.VUE_APP_HOST)
-      },
-      xiazai(){
-          window.location.href = 'http://localhost:81/w.xlsx'
-          // this.$download.name('E:/61jhnw/jhnw/jhnw-ui/src/views/sql/jh_test1/w.xlsx')
       },
       //右键
       biaoshi(e){

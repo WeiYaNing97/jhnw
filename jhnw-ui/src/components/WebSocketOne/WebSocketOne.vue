@@ -34,6 +34,7 @@
 </template>
 
 <script>
+    import Cookies from "js-cookie"
     export default {
         name: "WebSocketOne",
         data() {
@@ -70,7 +71,8 @@
              */
             wsInit() {
                 // localhost 192.168.1.98
-                const wsuri = 'ws://192.168.1.98/dev-api/websocket/basicinformation'
+                // const wsuri = 'ws://192.168.1.98/dev-api/websocket/basicinformation'
+                const wsuri = `ws://192.168.1.98/dev-api/websocket/basicinformation${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws

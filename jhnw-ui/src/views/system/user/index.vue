@@ -1,53 +1,83 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
+      <!--部门数据-->
+      <el-col :span="4" :xs="24">
+        <div class="head-container">
+          <el-input
+            v-model="deptName"
+            placeholder="请输入部门名称"
+            clearable
+            size="small"
+            prefix-icon="el-icon-search"
+            style="margin-bottom: 20px"
+          />
+        </div>
+        <div class="head-container">
+          <el-tree
+            :data="deptOptions"
+            :props="defaultProps"
+            :expand-on-click-node="false"
+            :filter-node-method="filterNode"
+            ref="tree"
+            default-expand-all
+            @node-click="handleNodeClick"
+          />
+        </div>
+      </el-col>
+      <!--用户数据-->
       <el-col :span="20" :xs="24">
-        <el-form :model="queryParams" :rules="ConnectRules" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-          <el-form-item label="ip地址" prop="ip">
-            <el-input
-              v-model="queryParams.ip"
-              placeholder="请输入ip"
-              clearable
-              size="small"
-              style="width: 240px"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="用户名" prop="userName">
+        <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+          <el-form-item label="用户名称" prop="userName">
             <el-input
               v-model="queryParams.userName"
-              placeholder="请输入用户名"
+              placeholder="请输入用户名称"
               clearable
               size="small"
               style="width: 240px"
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="密码" prop="password">
+          <el-form-item label="手机号码" prop="phonenumber">
             <el-input
-              v-model="queryParams.password"
-              placeholder="请输入密码"
+              v-model="queryParams.phonenumber"
+              placeholder="请输入手机号码"
               clearable
               size="small"
-              style="width:240px"
+              style="width: 240px"
               @keyup.enter.native="handleQuery"
-            ></el-input>
+            />
           </el-form-item>
-          <el-form-item label="连接方式" prop="status">
-            <el-select v-model="queryParams.status" placeholder="请选择"
-            clearable size="small" style="width: 240px" @change="sss"
+          <el-form-item label="状态" prop="status">
+            <el-select
+              v-model="queryParams.status"
+              placeholder="用户状态"
+              clearable
+              size="small"
+              style="width: 240px"
             >
-              <el-option label="telnet" value="telnet"></el-option>
-              <el-option label="ssh" value="ssh"></el-option>
+              <el-option
+                v-for="dict in dict.type.sys_normal_disable"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
-          <el-form-item label="端口" prop="port">
-            <el-input v-model="queryParams.port" size="small" v-bind:disabled="true" clearable style="width: 240px;">
-            </el-input>
+          <el-form-item label="创建时间">
+            <el-date-picker
+              v-model="dateRange"
+              size="small"
+              style="width: 240px"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            ></el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">连接</el-button>
-<!--            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
+            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
             <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
           </el-form-item>
         </el-form>
@@ -387,16 +417,9 @@ export default {
         pageSize: 10,
         userName: undefined,
         phonenumber: undefined,
-          password:undefined,
         status: undefined,
-        deptId: undefined,
-          port:undefined
+        deptId: undefined
       },
-        ConnectRules:{
-            ip:[
-                { required: true, trigger: "blur", message: "请输入您的账号" }
-            ]
-        },
       // 列信息
       columns: [
         { key: 0, label: `用户编号`, visible: true },
@@ -516,30 +539,6 @@ export default {
       this.queryParams.pageNum = 1;
       this.getList();
     },
-      //连接按钮
-      requestConnect(ip,name,pass,way,port){
-          ip=this.queryParams.ip;
-          name=this.queryParams.userName;
-          pass=this.queryParams.password;
-          way=this.queryParams.status;
-          port=this.queryParams.port;
-          const data =[ip,
-              name,
-              pass,
-              way,
-          port];
-          alert(data);
-      },
-      sss(){
-          var val=this.queryParams.status;
-          if (val=='telnet'){
-              this.queryParams.port=23;
-          }else if (val=='ssh'){
-              this.queryParams.port=22;
-          }else {
-              this.queryParams.port='';
-          }
-      },
     /** 重置按钮操作 */
     resetQuery() {
       this.dateRange = [];
@@ -650,7 +649,6 @@ export default {
         return exportUser(queryParams);
       }).then(response => {
         this.$download.name(response.msg);
-        console.log(response.msg)
         this.exportLoading = false;
       }).catch(() => {});
     },

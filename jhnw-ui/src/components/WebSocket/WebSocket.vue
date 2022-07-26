@@ -10,6 +10,7 @@
 </template>
 
 <script>
+    import Cookies from "js-cookie"
     export default {
         name: "WebSocket",
         data() {
@@ -29,6 +30,10 @@
             this.wsIsRun = true
             this.wsInit()
         },
+        created(){
+            const usname = Cookies.get('usName')
+            console.log(usname)
+        },
         methods: {
             sendDataToServer() {
                 if (this.webSocket.readyState === 1) {
@@ -42,7 +47,8 @@
              */
             wsInit() {
                 // localhost 192.168.1.98
-                const wsuri = 'ws://192.168.1.98/dev-api/websocket/badao'
+                // const wsuri = 'ws://192.168.1.98/dev-api/websocket/badao'
+                const wsuri = `ws://192.168.1.98/dev-api/websocket/badao${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws

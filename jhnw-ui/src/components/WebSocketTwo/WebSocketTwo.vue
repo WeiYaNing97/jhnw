@@ -2,7 +2,7 @@
   <div>
 <!--    tableDataq  testData-->
     <el-table v-loading="loading"
-              :data="testData"
+              :data="tableDataq"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
@@ -65,6 +65,7 @@
     import log from "../../views/monitor/job/log";
     import axios from 'axios'
     import request from '@/utils/request'
+    import Cookies from "js-cookie"
     export default {
         name: "WebSocketTwo",
         props:{
@@ -177,6 +178,9 @@
             this.wsIsRun = true
             this.wsInit()
         },
+        created(){
+            const usname = Cookies.get('usName')
+        },
         methods: {
             //笨方法
             aaa(){
@@ -246,32 +250,43 @@
             // 修复问题
             xiufu(row){
               // this.dislogopen = true
-                // alert(row)
+                alert(JSON.stringify(row))
                 const list1 = []
                 const list2 = []
                 const listv = {}
-                this.$set(listv,'valueId',row.valueId)
-                this.$set(listv,'comId',row.comId)
+                // this.$set(listv,'valueId',row.valueId)
+                // this.$set(listv,'comId',row.comId)
+                this.$set(listv,'questionId',row.questionId)
                 list1.push(this.queryParams)
                 list2.push(listv)
                 const userinformation = list1.map(x=>JSON.stringify(x))
-                const commandValueList = list2.map(x=>JSON.stringify(x))
+                const problemIdList = list2.map(x=>JSON.stringify(x))
                 alert(userinformation)
-                alert(commandValueList)
-                axios({
+                alert(problemIdList)
+                return request({
+                    //老的路径 url:'/sql/ConnectController/definitionProblem1/'+userinformation+'/'+problemIdList,
+                    // url:'/sql/SolveProblemController/batchSolution/'+userinformation+'/'+problemIdList,
                     method:'post',
-                    // url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+commandValueList,
-                    // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+commandValueList,
-                    headers:{
-                        "Content-Type": "application/json"
-                    },
                     data:{
                         "userinformation":userinformation,
-                        "commandValueList":commandValueList
+                        "problemIdList":problemIdList
                     }
-                }).then(res=>{
-                    console.log("成功")
+                }).then(response=>{
+                    console.log('成功')
                 })
+                // axios({
+                //     method:'post',
+                //     url:'/sql/ConnectController/definitionProblem1/'+userinformation+'/'+problemIdList,
+                //     headers:{
+                //         "Content-Type": "application/json"
+                //     },
+                //     data:{
+                //         "userinformation":userinformation,
+                //         "problemIdList":problemIdList
+                //     }
+                // }).then(res=>{
+                //     console.log("成功")
+                // })
             },
 
             sendDataToServer() {
@@ -286,7 +301,8 @@
              */
             wsInit() {
                 // localhost 192.168.1.98
-                const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
+                // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
+                const wsuri = `ws://192.168.1.98/dev-api/websocket/loophole${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws

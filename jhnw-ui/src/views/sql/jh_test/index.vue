@@ -1,12 +1,16 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="50px" :show-message="false">
-      <el-form-item style="margin-left: 25px">
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="saomiao">开始扫描</el-button>
+      <el-form-item style="margin-left: 15px">
+        <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">开始扫描</el-button>
+        <el-button type="primary" icon="el-icon-upload2" size="small" style="margin-left: 20px">批量导入</el-button>
+        <input type="file" id="importBtn" @click="handleClick" @change="handleImport"
+               style="height: 30px;margin-left: -97px;opacity:0%;cursor: pointer;width:100px">
+        <el-button type="primary" size="small" icon="el-icon-download"
+                   @click="xiazai" style="margin-left: 20px">下载模板</el-button>
       </el-form-item>
       <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
-        <el-form :inline="true" label-width="50px" :rule="rules">
-          <el-form-item label="ip">
+          <el-form-item label="ip" :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">
             <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
           </el-form-item>
           <el-form-item label="用户">
@@ -25,15 +29,13 @@
             <el-input v-model="item.port" style="width: 50px" size="small"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button v-if="index+1 == forms.dynamicItem.length"
-                       type="primary" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>
-            <el-button v-if="index !== 0" type="danger" size="mini" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>
+            <el-button v-if="index+1 == forms.dynamicItem.length" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>
+            <el-button v-if="index !== 0" size="small" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>
           </el-form-item>
 <!--          <el-form-item>-->
 <!--            <el-button type="primary" icon="el-icon-search" size="mini" @click="duosao">多台扫描</el-button>-->
 <!--            <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>-->
 <!--          </el-form-item>-->
-        </el-form>
       </div>
 
 <!--      <el-form-item label="ip" prop="ip">-->
@@ -147,8 +149,8 @@ import { listJh_test, getJh_test, delJh_test, addJh_test, updateJh_test, exportJ
 import WebSocket from '@/components/WebSocket/WebSocket';
 import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
 import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
-import axios from 'axios'
-import log from "../../monitor/job/log";
+import log from "../../monitor/job/log"
+import * as XLSX from 'xlsx'
 import request from '@/utils/request';
 export default {
   name: "Jh_test",
@@ -159,6 +161,12 @@ export default {
     },
   data() {
     return {
+        //表格上传
+        importData:[],
+
+        fileList:[],
+        tableHead: [], //表头
+        tableData: [],
         //多台隐身
         duoShow:true,
       // 遮罩层
@@ -192,7 +200,12 @@ export default {
                     mode:'',
                     port:22
                 }
-            ]
+            ],
+            rules:{
+                ip:[
+                    { required: true, trigger: "blur",message:null }
+                ]
+            }
         },
         // 查询参数
       queryParams: {
@@ -286,6 +299,58 @@ export default {
       this.getList();
   },
   methods: {
+      //下载模板
+      xiazai(){
+          window.location.href = 'http://localhost:81/w.xlsx'
+          // this.$download.name('E:/61jhnw/jhnw/jhnw-ui/src/views/sql/jh_test1/w.xlsx')
+      },
+      //批量导入
+      handleClick() {
+          let dom = document.getElementById("importBtn");
+          if (dom) {
+              dom.value = "";
+          }
+      },
+      handleImport(event) {
+          let fileReader = new FileReader();
+          var file = event.currentTarget.files[0];
+          if (!file) {
+              return;
+          }
+          // 成功回调函数
+          fileReader.onload = async (ev) => {
+              try {
+                  let datas = ev.target.result;
+                  let workbook = XLSX.read(datas, {
+                      type: "binary",
+                  });
+                  // excelData为excel读取出的数据,可以用来制定校验条件,如数据长度等
+                  let excelData = XLSX.utils.sheet_to_json(
+                      workbook.Sheets[workbook.SheetNames[0]]
+                  );
+                  // 将上面数据转换成需要的数据
+                  let arr = [];
+                  //item[]中的内容为Excel中数据的表头,上传的数据表头必须根据标题填写,否则无法读取
+                  excelData.forEach((item) => {
+                      let obj = {};
+                      obj.ip= item["ip"];
+                      obj.name= item["用户名"];
+                      obj.password= item["密码"];
+                      obj.mode=item["登录方式"]
+                      obj.port=item["端口号"]
+                      arr.push(obj);
+                  });
+                  this.importData = [...arr];
+                  // this.importData则为最终获取到的数据
+                  console.log(this.importData);
+              } catch (e) {
+                  window.alert("文件类型不正确!请下载模板!");
+                  return false;
+              }
+          };
+          // 读取文件 成功后执行上面的回调函数
+          fileReader.readAsBinaryString(file);
+      },
       xinzeng(){
         console.log(this.forms.dynamicItem)
           alert(JSON.stringify(this.forms.dynamicItem))
@@ -293,9 +358,10 @@ export default {
       //多台扫描
       saomiao(){
           const manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
+          console.log(manycon)
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              url:'/sql/SwitchInteraction/multipleScans',
+              // url:'/sql/SwitchInteraction/multipleScans',
               method:'post',
               data:manycon
           }).then(response=>{

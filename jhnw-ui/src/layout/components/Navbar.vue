@@ -7,21 +7,32 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
-        <search id="header-search" class="right-menu-item" />
-        
-        <el-tooltip content="源码地址" effect="dark" placement="bottom">
-          <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
-        </el-tooltip>
+<!--        <search id="header-search" class="right-menu-item" />-->
+        <div v-text="CPU" class="right-menu-item" style="width:130px"></div>
+        <div v-text="RAM" class="right-menu-item" style="width:130px"></div>
+<!--        <v-text class="right-menu-item" style="width: 150px">RAM:{{ aaa }}</v-text>-->
 
-        <el-tooltip content="文档地址" effect="dark" placement="bottom">
-          <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
-        </el-tooltip>
+<!--        v-trigger  自动执行，必须有-->
+        <el-button type="primary" @click="lunxun" v-show="false">轮询</el-button>
 
-        <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
-        <el-tooltip content="布局大小" effect="dark" placement="bottom">
-          <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
+<!--        <el-tooltip content="cpu" effect="dark" placement="bottom">-->
+<!--          <ruo-yi-cpu id="ruoyi-cpu" class="right-menu-item el-icon-cpu hover-effect" />-->
+<!--        </el-tooltip>-->
+
+<!--        <el-tooltip content="源码地址" effect="dark" placement="bottom">-->
+<!--          <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />-->
+<!--        </el-tooltip>-->
+
+<!--        <el-tooltip content="文档地址" effect="dark" placement="bottom">-->
+<!--          <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />-->
+<!--        </el-tooltip>-->
+
+<!--        <screenfull id="screenfull" class="right-menu-item hover-effect" />-->
+
+<!--        <el-tooltip content="布局大小" effect="dark" placement="bottom">-->
+<!--          <size-select id="size-select" class="right-menu-item hover-effect" />-->
+<!--        </el-tooltip>-->
 
       </template>
 
@@ -56,8 +67,15 @@ import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
 import RuoYiGit from '@/components/RuoYi/Git'
 import RuoYiDoc from '@/components/RuoYi/Doc'
+import request from '@/utils/request'
 
 export default {
+    data(){
+      return {
+          CPU:'',
+          RAM:'',
+      }
+    },
   components: {
     Breadcrumb,
     TopNav,
@@ -91,7 +109,33 @@ export default {
       }
     }
   },
+    // 自动触发事件
+    directives:{
+        trigger:{
+            inserted(el,binging){
+                el.click()
+            }
+        }
+    },
   methods: {
+        //CPU轮询
+      lun(){
+          return request({
+              url:'/sql/get_Memory_CPU',
+              method:'post',
+          }).then(response=>{
+              var R1 = response.indexOf('内存使用率')
+              var R2 = response.indexOf('CPU总数')
+              var C1 = response.indexOf('CPU利用率')
+              var RAMN = response.substring(R1+8,R2-2)
+              this.RAM = 'RAM:'+ RAMN
+              var CPUN = response.substring(C1+9,response.length-2)
+              this.CPU = 'CPU:'+ CPUN
+          })
+      },
+      lunxun(){
+         setInterval(this.lun,3000)
+      },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },
