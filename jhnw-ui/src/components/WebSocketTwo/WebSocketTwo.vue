@@ -2,7 +2,7 @@
   <div>
 <!--    tableDataq  testData-->
     <el-table v-loading="loading"
-              :data="tableDataq"
+              :data="testData"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
@@ -29,6 +29,7 @@
 
     <el-button @click="kan">看我</el-button>
     <el-button @click="aaa">第二个</el-button>
+    <el-button @click="zizujian">看子组件</el-button>
     <!--  修复问题-->
     <el-dialog
       title="修复问题"
@@ -69,7 +70,10 @@
     export default {
         name: "WebSocketTwo",
         props:{
-            queryParams:''
+            queryParams:'',
+            forms:{
+
+            }
         },
         data() {
             return {
@@ -97,7 +101,7 @@
                                     problemName:'密码明文存储',
                                     ifQuestion:'异常',
                                     hproblemId:111,
-                                    questionId:1,
+                                    questionId:12222,
                                     comId:'1653277339109',
                                     valueId:1,
                                     valueInformationVOList:[
@@ -189,6 +193,9 @@
             const usname = Cookies.get('usName')
         },
         methods: {
+            zizujian(){
+              alert(JSON.stringify(this.forms.dynamicItem))
+            },
             //笨方法
             aaa(){
                 const shu = this.tableDataq
@@ -205,55 +212,45 @@
                     }
                 }
             },
-            //一键修复
+            //单台一键修复
             xiuall(row){
               const listAll = row.children
-                // const b = row.children[0].children[0].problemName
                 const list1 = []
-                const list2 = []
+                // const list2 = []
+                const problemIdList = []
                 for (let i=0;i<listAll.length;i++){
                     for (let g=0;g<listAll[i].children.length;g++){
                         // console.log(listAll[i].children[g].problemName)
-                        const listC = {}
+                        // const listC = {}
                         // if(listAll[i].children[g].ifQuestion === '异常'){
                         //     this.$set(listC,'valueId',listAll[i].children[g].valueId)
                         //     this.$set(listC,'comId',listAll[i].children[g].comId)
                         //     list2.push(listC)
                         // }
-                        this.$set(listC,'questionId',listAll[i].children[g].questionId)
-                        list2.push(listC)
+                        // this.$set(listC,'questionId',listAll[i].children[g].questionId)
+                        // list2.push(listC)
+                        problemIdList.push(listAll[i].children[g].questionId)
                     }
                 }
-                list1.push(this.queryParams)
+                for (let i = 0;i<problemIdList.length;i++){
+                    list1.push(this.forms.dynamicItem)
+                }
+                // list1.push(this.queryParams)
                 const userinformation = list1.map(x=>JSON.stringify(x))
-                const problemIdList = list2.map(x=>JSON.stringify(x))
-                // const problemIdList = JSON.stringify(['1','111'])
-                alert(userinformation)
+                // const problemIdList = list2.map(x=>JSON.stringify(x))
+                console.log(userinformation)
                 console.log(problemIdList)
-                axios({
+                return request({
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
                     method:'post',
-                    // url:'http://192.168.1.98/dev-api/sql/ConnectController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
-                    headers:{
-                        "Content-Type": "application/json"
-                    },
                     data:{
                         "userinformation":userinformation,
                         "problemIdList":problemIdList
                     }
-                }).then(res=>{
-                    console.log("成功")
+                }).then(response=>{
+                    console.log('成功')
+                    this.$message.success('修复请求以提交!')
                 })
-                // return request({
-                //     url:'/sql/SolveProblemController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
-                //     method:'post',
-                //     data:{
-                //         "userinformation":userinformation,
-                //         "problemIdList":problemIdList
-                //     }
-                // }).then(response=>{
-                //     console.log('成功')
-                //     this.$message.success('修复请求以提交!')
-                // })
             },
             // 修复问题
             xiufu(row){

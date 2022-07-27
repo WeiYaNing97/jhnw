@@ -9,6 +9,7 @@
         <el-button type="primary" size="small" icon="el-icon-download"
                    @click="xiazai" style="margin-left: 20px">下载模板</el-button>
       </el-form-item>
+      <el-divider></el-divider>
       <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
           <el-form-item label="ip" :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">
             <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
@@ -100,7 +101,7 @@
 <!--      <div slot="tip" class="el-upload__tip">只 能 上 传 xlsx / xls 文 件</div>-->
 <!--    </el-upload>-->
 
-    <WebSocketTwo :queryParams="queryParams"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" :forms="forms"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
@@ -211,7 +212,7 @@ export default {
           ip: '192.168.1.100',
           name: 'admin',
           password: 'admin',
-          mode: null,
+          mode: 'ssh',
           port: 22,
       },
         //新添加的
