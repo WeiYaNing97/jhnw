@@ -2,7 +2,7 @@
   <div>
 <!--    tableDataq  testData-->
     <el-table v-loading="loading"
-              :data="testData"
+              :data="tableDataq"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
@@ -216,7 +216,6 @@
             xiuall(row){
               const listAll = row.children
                 const list1 = []
-                // const list2 = []
                 const problemIdList = []
                 for (let i=0;i<listAll.length;i++){
                     for (let g=0;g<listAll[i].children.length;g++){
@@ -228,25 +227,20 @@
                         //     list2.push(listC)
                         // }
                         // this.$set(listC,'questionId',listAll[i].children[g].questionId)
-                        // list2.push(listC)
                         problemIdList.push(listAll[i].children[g].questionId)
                     }
                 }
                 for (let i = 0;i<problemIdList.length;i++){
-                    list1.push(this.forms.dynamicItem)
+                    list1.push(this.queryParams)
                 }
-                // list1.push(this.queryParams)
                 const userinformation = list1.map(x=>JSON.stringify(x))
-                // const problemIdList = list2.map(x=>JSON.stringify(x))
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
+                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
                     method:'post',
-                    data:{
-                        "userinformation":userinformation,
-                        "problemIdList":problemIdList
-                    }
+                    data:userinformation
                 }).then(response=>{
                     console.log('成功')
                     this.$message.success('修复请求以提交!')
