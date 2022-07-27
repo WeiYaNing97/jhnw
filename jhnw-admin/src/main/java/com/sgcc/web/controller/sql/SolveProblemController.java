@@ -102,7 +102,7 @@ public class SolveProblemController {
         LoginUser login = SecurityUtils.getLoginUser();
         for (int i = 0 ; i<number ; i++){
             Long id = Integer.valueOf(problemIdList.get(i)).longValue();
-            List<String> information = (List<String>) userinformation.get(i);
+            String information = (String) userinformation.get(i);
             RepairThread repairThread = new RepairThread();
             repairThread.Solution(login,information,id,problemIdList);
         }
@@ -117,9 +117,9 @@ public class SolveProblemController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public AjaxResult batchSolution( List<String> userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
+    public AjaxResult batchSolution( String userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
         //用户信息
-        String userInformationString = userinformation.toString();
+        String userInformationString = userinformation;
         userInformationString = userInformationString.replace("{","");
         userInformationString = userInformationString.replace("}","");
         userInformationString = userInformationString.replace("\"","");

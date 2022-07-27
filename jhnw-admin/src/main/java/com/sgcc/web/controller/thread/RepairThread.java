@@ -5,8 +5,10 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.SwitchProblem;
 import com.sgcc.sql.service.ISwitchProblemService;
+import com.sgcc.sql.service.IValueInformationService;
 import com.sgcc.web.controller.sql.SolveProblemController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +26,7 @@ public class RepairThread extends Thread  {
     @Autowired
     private ISwitchProblemService switchProblemService;
 
-    private static List<String> userinformationList;
+    private static String userinformationList;
     private static Long problemId;
     private static List<String> problemIds;
     private static SwitchProblem switchProblem;
@@ -37,9 +39,9 @@ public class RepairThread extends Thread  {
         AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
     }
 
-    public void Solution(LoginUser user,List<String> userinformation,Long id,List<String> problemIdList) {
+    public void Solution(LoginUser user,String userinformation,Long id,List<String> problemIdList) {
         problemId = id;
-
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         switchProblem = switchProblemService.selectSwitchProblemById(problemId);
 
         if (switchProblem.getIfQuestion().equals("有问题")){
