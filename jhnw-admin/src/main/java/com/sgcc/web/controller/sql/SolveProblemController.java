@@ -21,6 +21,7 @@ import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -94,9 +95,9 @@ public class SolveProblemController {
     }
 
 
-    @RequestMapping("batchSolutionMultithreading/{userinformation}/{problemIdList}")
+    @RequestMapping("batchSolutionMultithreading/{problemIdList}")
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@PathVariable List<Object> userinformation, @PathVariable  List<String> problemIdList) {
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation, @PathVariable  List<String> problemIdList) {
         int number = userinformation.size();
         LoginUser login = SecurityUtils.getLoginUser();
         for (int i = 0 ; i<number ; i++){
@@ -119,8 +120,8 @@ public class SolveProblemController {
     public AjaxResult batchSolution( List<String> userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
         //用户信息
         String userInformationString = userinformation.toString();
-        userInformationString = userInformationString.replace("[{","");
-        userInformationString = userInformationString.replace("}]","");
+        userInformationString = userInformationString.replace("{","");
+        userInformationString = userInformationString.replace("}","");
         userInformationString = userInformationString.replace("\"","");
         String[] userinformationSplit = userInformationString.split(",");
 
