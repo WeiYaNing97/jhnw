@@ -159,6 +159,13 @@
                                     problemName:'密码明文存储',
                                     ifQuestion:'无问题',
                                     hproblemId:222,
+                                    valueInformationVOList:[
+                                        {
+                                            hproblemId:111111,
+                                            dynamicVname:'用户名',
+                                            dynamicInformation:'admin2'
+                                        }
+                                    ]
                                 }
                             ]
                         },
@@ -220,31 +227,32 @@
                 list1.push(this.queryParams)
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const problemIdList = list2.map(x=>JSON.stringify(x))
+                // const problemIdList = JSON.stringify(['1','111'])
                 alert(userinformation)
-                alert(problemIdList)
-                return request({
-                    url:'/sql/SolveProblemController/batchSolution/'+userinformation+'/'+problemIdList,
+                console.log(problemIdList)
+                axios({
                     method:'post',
+                    // url:'http://192.168.1.98/dev-api/sql/ConnectController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
+                    headers:{
+                        "Content-Type": "application/json"
+                    },
                     data:{
                         "userinformation":userinformation,
                         "problemIdList":problemIdList
                     }
-                }).then(response=>{
-                    console.log('成功')
+                }).then(res=>{
+                    console.log("成功")
                 })
-                // axios({
+                // return request({
+                //     url:'/sql/SolveProblemController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
                 //     method:'post',
-                //     url:'http://192.168.1.98/dev-api/sql/SolveProblemController/batchSolution/'+userinformation+'/'+problemIdList,
-                //     // url:'/dev-api/sql/ConnectController/definitionProblem1/'+userinformation+'/'+problemIdList,
-                //     headers:{
-                //         "Content-Type": "application/json"
-                //     },
                 //     data:{
                 //         "userinformation":userinformation,
                 //         "problemIdList":problemIdList
                 //     }
-                // }).then(res=>{
-                //     console.log("成功")
+                // }).then(response=>{
+                //     console.log('成功')
+                //     this.$message.success('修复请求以提交!')
                 // })
             },
             // 修复问题

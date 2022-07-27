@@ -81,7 +81,6 @@
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="gettest">获取数据</el-button>-->
     </el-form>
-    <el-button @click="xinzeng">看新增</el-button>
 
     <el-divider></el-divider>
 <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
@@ -194,10 +193,10 @@ export default {
         forms:{
             dynamicItem:[
                 {
-                    ip: '',
-                    name: '',
-                    password:'',
-                    mode:'',
+                    ip: '192.168.1.100',
+                    name: 'admin',
+                    password:'admin',
+                    mode:'ssh',
                     port:22
                 }
             ],
@@ -301,8 +300,7 @@ export default {
   methods: {
       //下载模板
       xiazai(){
-          window.location.href = 'http://localhost:81/w.xlsx'
-          // this.$download.name('E:/61jhnw/jhnw/jhnw-ui/src/views/sql/jh_test1/w.xlsx')
+          window.location.href = '/w.xlsx'
       },
       //批量导入
       handleClick() {
@@ -351,17 +349,13 @@ export default {
           // 读取文件 成功后执行上面的回调函数
           fileReader.readAsBinaryString(file);
       },
-      xinzeng(){
-        console.log(this.forms.dynamicItem)
-          alert(JSON.stringify(this.forms.dynamicItem))
-      },
-      //多台扫描
+      //开始扫描
       saomiao(){
           const manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
           console.log(manycon)
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              // url:'/sql/SwitchInteraction/multipleScans',
+              url:'/sql/SwitchInteraction/multipleScans',
               method:'post',
               data:manycon
           }).then(response=>{

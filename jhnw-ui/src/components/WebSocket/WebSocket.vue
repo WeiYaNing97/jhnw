@@ -32,7 +32,6 @@
         },
         created(){
             const usname = Cookies.get('usName')
-            console.log(usname)
         },
         methods: {
             sendDataToServer() {

@@ -299,8 +299,6 @@
 
     <TinymceEditor :proId="proId" v-show="showha"></TinymceEditor>
 
-    <daoru></daoru>
-
     <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
     </vue-context-menu>
@@ -311,14 +309,12 @@
 <script>
 import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, exportJh_test1 } from "@/api/sql/jh_test1";
 import TinymceEditor from "@/components/Tinymce/TinymceEditor"
-import daoru from "@/components/daoru/daoru"
 import request from '@/utils/request'
 
 export default {
   name: "Jh_test1",
     components:{
-        TinymceEditor,
-        daoru
+        TinymceEditor
     },
   data() {
     return {
