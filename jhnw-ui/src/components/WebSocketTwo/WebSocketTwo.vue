@@ -194,7 +194,7 @@
         },
         methods: {
             zizujian(){
-              alert(JSON.stringify(this.forms.dynamicItem))
+              alert(JSON.stringify(this.forms.dynamicItem[0]))
             },
             //笨方法
             aaa(){
@@ -231,7 +231,8 @@
                     }
                 }
                 for (let i = 0;i<problemIdList.length;i++){
-                    list1.push(this.queryParams)
+                    // list1.push(this.queryParams)
+                    list1.push(this.forms.dynamicItem[0])
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 console.log(userinformation)
