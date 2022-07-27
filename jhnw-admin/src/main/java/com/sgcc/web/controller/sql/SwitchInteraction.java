@@ -10,6 +10,7 @@ import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
+import com.sgcc.web.controller.thread.ScanThread;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -113,7 +114,7 @@ public class SwitchInteraction {
             Object[] objects = {mode,ip,name,password,port};
             objectsList.add(objects);
         }
-        MyThread.switchLoginInformations(objectsList);
+        ScanThread.switchLoginInformations(objectsList);
     }
 
 
@@ -365,13 +366,27 @@ public class SwitchInteraction {
 
                 //根据 连接方法 判断 实际连接方式
                 //并发送命令 接受返回结果
-                if (way.equalsIgnoreCase("ssh")){
-                    WebSocketService.sendMessage("badao"+userName,command);
-                    commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
-                }else if (way.equalsIgnoreCase("telnet")){
-                    WebSocketService.sendMessage("badao"+userName,command);
-                    commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
-                }
+                boolean deviceBrand = true;
+                do {
+                    deviceBrand = true;
+                    if (way.equalsIgnoreCase("ssh")){
+                        WebSocketService.sendMessage("badao"+userName,command);
+                        commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
+                    }else if (way.equalsIgnoreCase("telnet")){
+                        WebSocketService.sendMessage("badao"+userName,command);
+                        commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
+                    }
+
+                    String[] commandStringSplit = commandString.split("\r\n");
+
+                    for (String returnString:commandStringSplit){
+                        deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
+                        if (!deviceBrand){
+                            break;
+                        }
+                    }
+
+                }while (!deviceBrand);
 
                 //判断命令是否错误 错误为false 正确为true
                 if (!Utils.judgmentError(commandString)){
@@ -1115,6 +1130,7 @@ public class SwitchInteraction {
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
+                    switchProblemVO.setSwitchIp(null);
                     switchProblemVOList.add(switchProblemVO);
                 }
             }

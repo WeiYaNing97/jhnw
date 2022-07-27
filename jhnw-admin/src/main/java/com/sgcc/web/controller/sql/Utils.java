@@ -1,15 +1,14 @@
 package com.sgcc.web.controller.sql;
 
 import com.sgcc.connect.translate.TranSlate;
+import com.sgcc.sql.domain.SwitchFailure;
 import com.sgcc.sql.service.IProblemScanLogicService;
+import com.sgcc.sql.service.ISwitchFailureService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author 天幕顽主
@@ -28,6 +27,8 @@ public class Utils {
     public static String progressBar(double number1,double number2) {
         return (int)(number2/number1*100)+"%";
     }
+
+    public static HashMap<String,List<SwitchFailure>> switchFailureHashMap = new HashMap<>();
 
     /**
      * @method: 修整字符串
@@ -100,9 +101,9 @@ public class Utils {
     }
 
     /**
-     * @method: 判断是否为错误命令 或是否执行成功  简单判断
+     * @method: 判断是否故障
      * @Param: [str] 交换机返回信息
-     * @return: boolean  判断命令是否错误 错误为false 正确为true
+     * @return: boolean  判断命令是否故障 故障为false 正常为true
      * @E-mail: WeiYaNing97@163.com
      */
     /*
@@ -117,6 +118,41 @@ public class Utils {
         return false;
         return true;
     }
+
+    /**
+     * @method: 判断是否故障
+     * @Param: [str] 交换机返回信息
+     * @return: boolean  判断命令是否故障 故障为false 正常为true
+     * @E-mail: WeiYaNing97@163.com
+     */
+    /*
+    #Apr  3 06:17:59:728 2000 H3C DEV/2/FAN STATE CHANGE TO FAILURE:- 1 -
+    Trap 1.3.6.1.4.1.2011.2.23.1.12.1.6: fan ID is 1
+
+    %Apr  3 06:17:59:729 2000 H3C DEV/5/DEV_LOG:- 1 -
+    Fan 1 failed
+     */
+    public static boolean switchfailure(String brand,String switchInformation){
+        SwitchFailureController switchFailureController = new SwitchFailureController();
+        if (switchFailureHashMap.get(brand) == null){
+            List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureList(brand);
+            if (switchFailures == null){
+                return true;
+            }
+            switchFailureHashMap.put(brand,switchFailures);
+        }
+        List<SwitchFailure> switchFailures = switchFailureHashMap.get(brand);
+
+        for (SwitchFailure switchFailure:switchFailures){
+            //包含 返回 false
+            if (switchInformation.indexOf(switchFailure.getFailureKeyword()) !=-1){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 
 
     /**
@@ -477,6 +513,9 @@ public class Utils {
         //交换机返回信息 按行分割为 字符串数组
         switchInformation = switchInformation.trim();
         //因为登录信息 会另起一行 所以 登录信息 会是 % 开头
+        if (switchInformation.length()<1){
+            return switchInformation;
+        }
         String iInformation_substring = switchInformation.substring(0, 1);
         /*判断是否是首字母是% 或者包含 %
         判断是否包含 SHELL
@@ -559,7 +598,9 @@ public class Utils {
                 //登录信息
                 String login_Information= login_return_Information[0];
                 //登录信息翻译
-                TranSlate.tranSlate(login_Information);
+                //TranSlate.tranSlate(login_Information);
+
+                System.err.println("\r\n登录信息==\r\n"+login_Information);
 
                 //登录信息 后面信息  需要返回
                 String return_Information= login_return_Information[1];

@@ -1,17 +1,11 @@
-package com.sgcc.web.controller.sql;
+package com.sgcc.web.controller.thread;
 
-import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
-import com.sgcc.sql.service.IBasicInformationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.sgcc.web.controller.sql.SwitchInteraction;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +15,7 @@ import java.util.List;
  */
 //线程
 @Component
-public class MyThread extends Thread {
+public class ScanThread extends Thread {
 
     static String mode = null;
     static String ip = null;
@@ -58,7 +52,7 @@ public class MyThread extends Thread {
             password = (String)objects3[3];
             port = (int) objects3[4];
             loginUser = login;
-            Thread thread = new MyThread();
+            Thread thread = new ScanThread();
             thread.start();
 
             try {

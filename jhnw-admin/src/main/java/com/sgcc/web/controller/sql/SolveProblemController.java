@@ -15,6 +15,7 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 
+import com.sgcc.web.controller.thread.RepairThread;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
 import org.springframework.beans.BeanUtils;
@@ -34,7 +35,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/sql/SolveProblemController")
-public class SolveProblemController extends Thread {
+public class SolveProblemController {
 
     @Autowired
     private ICommandLogicService commandLogicService;
@@ -51,45 +52,10 @@ public class SolveProblemController extends Thread {
     @Autowired
     private ISwitchProblemService switchProblemService;
 
-    private static List<String> userinformationList;
-    private static Long problemId;
-    private static List<String> problemIds;
-    private static SwitchProblem switchProblem;
-    private static LoginUser loginUser;
-
     /*=====================================================================================================================
     =====================================================================================================================
     =====================================================================================================================*/
 
-    @Override
-    public void run() {
-        AjaxResult ajaxResult = batchSolution(userinformationList,loginUser,switchProblem,problemIds);
-    }
-
-    @RequestMapping("batchSolutionMultithreading/{userinformation}/{problemIdList}")
-    @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@PathVariable List<Object> userinformation,@PathVariable  List<String> problemIdList) {
-        int number = userinformation.size();
-        LoginUser login = SecurityUtils.getLoginUser();
-        for (int i = 0 ; i<number ; i++){
-            problemId = Integer.valueOf(problemIdList.get(i)).longValue();
-            switchProblem = switchProblemService.selectSwitchProblemById(problemId);
-            if (switchProblem.getIfQuestion().equals("有问题")){
-                userinformationList = (List<String>) userinformation.get(i);
-                problemIds = problemIdList;
-                loginUser = login;
-                Thread thread = new SolveProblemController();
-                thread.start();
-                try {
-                    //Thread.sleep(1000*3);
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            continue;
-        }
-    }
 
     /*解决问题命令回显*/
     /**
@@ -128,6 +94,18 @@ public class SolveProblemController extends Thread {
     }
 
 
+    @RequestMapping("batchSolutionMultithreading/{userinformation}/{problemIdList}")
+    @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
+    public void batchSolutionMultithreading(@PathVariable List<Object> userinformation, @PathVariable  List<String> problemIdList) {
+        int number = userinformation.size();
+        LoginUser login = SecurityUtils.getLoginUser();
+        for (int i = 0 ; i<number ; i++){
+            Long id = Integer.valueOf(problemIdList.get(i)).longValue();
+            List<String> information = (List<String>) userinformation.get(i);
+            RepairThread repairThread = new RepairThread();
+            repairThread.Solution(login,information,id,problemIdList);
+        }
+    }
 
 
 
@@ -494,9 +472,11 @@ public class SolveProblemController extends Thread {
                     List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                     if (switchProblemVOList == null){
                         List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
+                        switchProblemVO.setSwitchIp(null);
                         switchProblemVOS.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
                     }else {
+                        switchProblemVO.setSwitchIp(null);
                         switchProblemVOList.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
                     }
@@ -564,9 +544,11 @@ public class SolveProblemController extends Thread {
                     List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                     if (switchProblemVOList == null){
                         List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
+                        switchProblemVO.setSwitchIp(null);
                         switchProblemVOS.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
                     }else {
+                        switchProblemVO.setSwitchIp(null);
                         switchProblemVOList.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
                     }

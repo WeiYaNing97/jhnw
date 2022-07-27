@@ -1,6 +1,10 @@
-package com.sgcc.sql.controller;
+package com.sgcc.web.controller.sql;
 
 import java.util.List;
+
+import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.sql.service.IProblemScanLogicService;
+import com.sgcc.web.controller.sql.Utils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,6 +49,22 @@ public class SwitchFailureController extends BaseController
         return getDataTable(list);
     }
 
+
+    /**
+     * 根据品牌查询交换机故障列表
+     */
+    public List<SwitchFailure> selectSwitchFailureList(String brand)
+    {
+        SwitchFailure switchFailure = new SwitchFailure();
+        switchFailure.setBrand(brand);
+        switchFailureService = SpringBeanUtil.getBean(ISwitchFailureService.class);
+        List<SwitchFailure> list = switchFailureService.selectSwitchFailureList(switchFailure);
+        if (list == null){
+            return null;
+        }
+        return list;
+    }
+
     /**
      * 导出交换机故障列表
      */
@@ -76,7 +96,16 @@ public class SwitchFailureController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody SwitchFailure switchFailure)
     {
-        return toAjax(switchFailureService.insertSwitchFailure(switchFailure));
+        int i = switchFailureService.insertSwitchFailure(switchFailure);
+
+        if (i>0){
+            SwitchFailure pojo = new SwitchFailure();
+            pojo.setBrand(switchFailure.getBrand());
+            List<SwitchFailure> switchFailures = switchFailureService.selectSwitchFailureList(pojo);
+            Utils.switchFailureHashMap.put(switchFailure.getBrand(),switchFailures);
+        }
+
+        return toAjax(i);
     }
 
     /**
