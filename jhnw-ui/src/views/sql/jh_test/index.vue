@@ -3,9 +3,24 @@
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="50px" :show-message="false">
       <el-form-item style="margin-left: 15px">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">开始扫描</el-button>
-        <el-button type="primary" icon="el-icon-upload2" size="small" style="margin-left: 20px">批量导入</el-button>
-        <input type="file" id="importBtn" @click="handleClick" @change="handleImport"
-               style="height: 30px;margin-left: -97px;opacity:0%;cursor: pointer;width:100px">
+        <el-button type="primary" icon="el-icon-upload2"
+                   size="small" style="margin-left: 20px" @click="dialogVisible = true">批量导入</el-button>
+        <el-button type="primary" @click="kandaoru" size="small">查看导入数据</el-button>
+        <el-dialog
+          title="交换机信息导入"
+          :visible.sync="dialogVisible"
+          width="30%"
+          :before-close="handleClose">
+          <input type="file" id="importBtn" @click="handleClick" @change="handleImport"
+                 style="height: 30px;cursor: pointer">
+          <br/>
+          <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>
+          <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+  </span>
+        </el-dialog>
+<!--        margin-left: -97px;opacity:0%;width:100px-->
         <el-button type="primary" size="small" icon="el-icon-download"
                    @click="xiazai" style="margin-left: 20px">下载模板</el-button>
       </el-form-item>
@@ -18,7 +33,7 @@
             <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>
           </el-form-item>
           <el-form-item label="密码">
-            <el-input v-model="item.password" placeholder="密码" size="small" style="width: 150px"></el-input>
+            <el-input v-model="item.password" show-password placeholder="密码" size="small" style="width: 150px"></el-input>
           </el-form-item>
           <el-form-item label="方式">
             <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">
@@ -101,7 +116,7 @@
 <!--      <div slot="tip" class="el-upload__tip">只 能 上 传 xlsx / xls 文 件</div>-->
 <!--    </el-upload>-->
 
-    <WebSocketTwo :queryParams="queryParams" :forms="forms"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" :forms="forms" :alljiao="alljiao"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
@@ -163,6 +178,14 @@ export default {
     return {
         //表格上传
         importData:[],
+        dialogVisible:false,
+
+        //缓存交换机信息
+        alljiao:{
+            allInfo:[
+
+            ]
+        },
 
         fileList:[],
         tableHead: [], //表头
@@ -299,9 +322,17 @@ export default {
       this.getList();
   },
   methods: {
+      //关闭导入弹窗
+      handleClose(done) {
+          this.$confirm('确认关闭？')
+              .then(_ => {
+                  done();
+              })
+              .catch(_ => {});
+      },
       //下载模板
       xiazai(){
-          window.location.href = '/w.xlsx'
+          window.location.href = '/交换机信息模板.xlsx'
       },
       //批量导入
       handleClick() {
@@ -340,6 +371,9 @@ export default {
                       arr.push(obj);
                   });
                   this.importData = [...arr];
+                  if (this.importData[0].ip === undefined){
+                      window.alert("文件数据格式不正确!请下载模板!");
+                  }
                   // this.importData则为最终获取到的数据
                   console.log(this.importData);
               } catch (e) {
@@ -350,9 +384,24 @@ export default {
           // 读取文件 成功后执行上面的回调函数
           fileReader.readAsBinaryString(file);
       },
+      //看导入
+      kandaoru(){
+          for (let i = 0;i<this.importData.length;i++){
+              this.forms.dynamicItem.push(this.importData[i])
+          }
+          // this.forms.dynamicItem.push(this.importData[0])
+      },
       //开始扫描
       saomiao(){
-          const manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
+          let manycon = []
+          manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
+          // manycon.push(this.importData.map(x=>JSON.stringify(x)))
+          for (let i=0;i<this.importData.length;i++){
+              const bianhua = this.importData.map(x=>JSON.stringify(x))
+              manycon.push(bianhua[i])
+          }
+          this.alljiao.allInfo = manycon
+          console.log(this.alljiao.allInfo)
           console.log(manycon)
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
@@ -361,6 +410,7 @@ export default {
               data:manycon
           }).then(response=>{
               console.log('成功')
+              this.$message.success('扫描请求以提交!')
           })
       },
       //切换单/多台模式

@@ -71,6 +71,11 @@
         name: "WebSocketTwo",
         props:{
             queryParams:'',
+            alljiao:{
+                allInfo:[
+
+                ]
+            },
             forms:{
 
             }
@@ -89,24 +94,24 @@
                 // aaa:false,
                 tableDataq: [
                     {
-                        switchIp:'192.168.1.1',
-                        hproblemId:1,
+                        switchIp:'192.168.1.100',
+                        hproblemId:13462523456,
                         children:[
                             {
-                            switchIp:'192.168.1.1',
+                            switchIp:null,
                             typeProblem: '安全配置',
-                            hproblemId:11,
+                            hproblemId:12345671,
                             children: [
                                 {
                                     problemName:'密码明文存储',
                                     ifQuestion:'异常',
-                                    hproblemId:111,
-                                    questionId:12222,
+                                    hproblemId:12345711,
+                                    questionId:1,
                                     comId:'1653277339109',
                                     valueId:1,
                                     valueInformationVOList:[
                                         {
-                                            hproblemId:111111,
+                                            hproblemId:11123462567111,
                                             dynamicVname:'用户名',
                                             dynamicInformation:'admin'
                                         }
@@ -115,13 +120,13 @@
                                 {
                                     problemName:'telnet开启',
                                     ifQuestion:'安全',
-                                    hproblemId:1111,
-                                    questionId:11111111,
+                                    hproblemId:11423511,
+                                    questionId:12,
                                     comId:'1653277229109',
                                     valueId:1,
                                     valueInformationVOList:[
                                         {
-                                            hproblemId:111111,
+                                            hproblemId:1157155555461111,
                                             dynamicVname:'用户名',
                                             dynamicInformation:'admin1'
                                         }
@@ -131,18 +136,18 @@
                         },
                             {
                                 typeProblem: '设备缺陷',
-                                hproblemId:12,
+                                hproblemId:1135242,
                                 children: [
                                     {
                                         problemName:'没有配置管理地址',
                                         ifQuestion:'异常',
-                                        hproblemId:112,
-                                        questionId:111111112222,
+                                        hproblemId:113456771342,
+                                        questionId:112,
                                         comId:'1653277339101',
                                         valueId:1,
                                         valueInformationVOList:[
                                             {
-                                                hproblemId:111111,
+                                                hproblemId:11113456753411,
                                                 dynamicVname:'用户名',
                                                 dynamicInformation:'admin2'
                                             }
@@ -153,19 +158,21 @@
                         ]
                     },
                     {
-                        switchIp:'192.168.1.100',
-                        hproblemId:2,
+                        switchIp:'192.168.1.1',
+                        hproblemId:212543,
                         children:[{
+                            switchIp:null,
                             typeProblem: '安全配置',
-                            hproblemId:22,
+                            hproblemId:22356472,
                             children: [
                                 {
                                     problemName:'密码明文存储',
                                     ifQuestion:'无问题',
-                                    hproblemId:222,
+                                    hproblemId:254676522,
+                                    questionId:10,
                                     valueInformationVOList:[
                                         {
-                                            hproblemId:111111,
+                                            hproblemId:1134523541111,
                                             dynamicVname:'用户名',
                                             dynamicInformation:'admin2'
                                         }
@@ -194,7 +201,8 @@
         },
         methods: {
             zizujian(){
-              alert(JSON.stringify(this.forms.dynamicItem[0]))
+              // alert(JSON.stringify(this.forms.dynamicItem))
+                alert(this.alljiao.allInfo)
             },
             //笨方法
             aaa(){
@@ -214,12 +222,13 @@
             },
             //单台一键修复
             xiuall(row){
-              const listAll = row.children
+                //当前点击一键修复交换机
+                const thisip = row.switchIp
+                const listAll = row.children
                 const list1 = []
                 const problemIdList = []
                 for (let i=0;i<listAll.length;i++){
                     for (let g=0;g<listAll[i].children.length;g++){
-                        // console.log(listAll[i].children[g].problemName)
                         // const listC = {}
                         // if(listAll[i].children[g].ifQuestion === '异常'){
                         //     this.$set(listC,'valueId',listAll[i].children[g].valueId)
@@ -230,9 +239,13 @@
                         problemIdList.push(listAll[i].children[g].questionId)
                     }
                 }
-                for (let i = 0;i<problemIdList.length;i++){
-                    // list1.push(this.queryParams)
-                    list1.push(this.forms.dynamicItem[0])
+                for (let i = 0;i<this.alljiao.allInfo.length;i++){
+                    const chaip = JSON.parse(this.alljiao.allInfo[i])
+                    if (chaip['ip'] === thisip){
+                        for (let g=0;g<problemIdList.length;g++){
+                            list1.push(chaip)
+                        }
+                    }
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 console.log(userinformation)
@@ -250,43 +263,48 @@
             // 修复问题
             xiufu(row){
               // this.dislogopen = true
-                alert(JSON.stringify(row))
+                console.log(row.hproblemId)
+                const thisid = row.hproblemId
+                let thisparid = ''
+                console.log(this.tableDataq)
+                const allwenti = this.tableDataq
+                for(let i = 0;i<allwenti.length;i++){
+                    for (let g = 0;g<allwenti[i].children.length;g++){
+                        for (let m = 0;m<allwenti[i].children[g].children.length;m++){
+                            if (allwenti[i].children[g].children[m].hproblemId === thisid){
+                                thisparid = allwenti[i].switchIp
+                                console.log(thisparid)
+                            }
+                        }
+                    }
+                }
                 const list1 = []
-                const list2 = []
-                const listv = {}
-                // this.$set(listv,'valueId',row.valueId)
-                // this.$set(listv,'comId',row.comId)
-                this.$set(listv,'questionId',row.questionId)
-                list1.push(this.queryParams)
-                list2.push(listv)
+                const problemIdList = []
+                // this.$set(listv,'questionId',row.questionId)
+                problemIdList.push(row.questionId)
+                console.log(problemIdList)
+                // list1.push(this.forms.dynamicItem[0])
+                // list2.push(listv)
+                for (let i = 0;i<this.alljiao.allInfo.length;i++){
+                    const chaip = JSON.parse(this.alljiao.allInfo[i])
+                    if (chaip['ip'] === thisparid){
+                        for (let g=0;g<problemIdList.length;g++){
+                            list1.push(chaip)
+                        }
+                    }
+                }
                 const userinformation = list1.map(x=>JSON.stringify(x))
-                const problemIdList = list2.map(x=>JSON.stringify(x))
-                alert(userinformation)
-                alert(problemIdList)
+                // const problemIdList = list2.map(x=>JSON.stringify(x))
+                console.log(userinformation)
                 return request({
                     //老的路径 url:'/sql/ConnectController/definitionProblem1/'+userinformation+'/'+problemIdList,
-                    // url:'/sql/SolveProblemController/batchSolution/'+userinformation+'/'+problemIdList,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
                     method:'post',
-                    data:{
-                        "userinformation":userinformation,
-                        "problemIdList":problemIdList
-                    }
+                    data:userinformation
                 }).then(response=>{
                     console.log('成功')
+                    this.$message.success('修复请求以提交!')
                 })
-                // axios({
-                //     method:'post',
-                //     url:'/sql/ConnectController/definitionProblem1/'+userinformation+'/'+problemIdList,
-                //     headers:{
-                //         "Content-Type": "application/json"
-                //     },
-                //     data:{
-                //         "userinformation":userinformation,
-                //         "problemIdList":problemIdList
-                //     }
-                // }).then(res=>{
-                //     console.log("成功")
-                // })
             },
 
             sendDataToServer() {
