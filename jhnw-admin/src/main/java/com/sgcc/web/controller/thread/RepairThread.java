@@ -31,15 +31,19 @@ public class RepairThread extends Thread  {
     private static List<String> problemIds;
     private static SwitchProblem switchProblem;
     private static LoginUser loginUser;
-
+    private static Thread myThread;
 
     @Override
     public void run() {
+        Thread thread = myThread;
         SolveProblemController solveProblemController = new SolveProblemController();
         AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
+
+        thread.interrupt();
     }
 
     public void Solution(LoginUser user,String userinformation,Long id,List<String> problemIdList) {
+
         problemId = id;
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         switchProblem = switchProblemService.selectSwitchProblemById(problemId);
@@ -53,6 +57,7 @@ public class RepairThread extends Thread  {
             loginUser = user;
             Thread thread = new RepairThread();
             thread.start();
+            myThread = thread;
             try {
                 //Thread.sleep(1000*3);
                 Thread.sleep(1000);

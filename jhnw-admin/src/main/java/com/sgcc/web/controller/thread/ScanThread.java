@@ -23,14 +23,18 @@ public class ScanThread extends Thread {
     static String password = null;
     static int port;
     static LoginUser loginUser;
+    private static Thread myThread;
+
     @Override
     public void run() {
+        Thread thread = myThread;
         SwitchInteraction switchInteraction = new SwitchInteraction();
         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser);
         //System.err.println(MyThread.mode + MyThread.ip + MyThread.name + MyThread.password + MyThread.port);
         try {
-            Thread.sleep(10);                 //1000 milliseconds is one second.
+            thread.sleep(10);                 //1000 milliseconds is one second.
+            thread.interrupt();
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
@@ -53,6 +57,7 @@ public class ScanThread extends Thread {
             port = (int) objects3[4];
             loginUser = login;
             Thread thread = new ScanThread();
+            myThread = thread;
             thread.start();
             try {
                 //Thread.sleep(1000*3);
