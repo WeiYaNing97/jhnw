@@ -266,8 +266,9 @@
                 console.log(row.hproblemId)
                 const thisid = row.hproblemId
                 let thisparid = ''
-                console.log(this.tableDataq)
-                const allwenti = this.tableDataq
+                // tableDataq
+                console.log(this.testData)
+                const allwenti = this.testData
                 for(let i = 0;i<allwenti.length;i++){
                     for (let g = 0;g<allwenti[i].children.length;g++){
                         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
