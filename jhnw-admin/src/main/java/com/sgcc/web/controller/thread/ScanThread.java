@@ -54,7 +54,6 @@ public class ScanThread extends Thread {
             loginUser = login;
             Thread thread = new ScanThread();
             thread.start();
-
             try {
                 //Thread.sleep(1000*3);
                 Thread.sleep(1000);

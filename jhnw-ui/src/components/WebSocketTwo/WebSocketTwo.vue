@@ -2,7 +2,7 @@
   <div>
 <!--    tableDataq  testData-->
     <el-table v-loading="loading"
-              :data="tableDataq"
+              :data="testData"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"

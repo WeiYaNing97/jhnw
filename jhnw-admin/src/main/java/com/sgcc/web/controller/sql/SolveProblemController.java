@@ -69,7 +69,7 @@ public class SolveProblemController {
     @RequestMapping("queryCommandListBytotalQuestionTableId")
     @MyLog(title = "查询解决问题命令", businessType = BusinessType.OTHER)
     public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
-
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
             return null;
@@ -78,6 +78,7 @@ public class SolveProblemController {
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {
+            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
             commandLogicList.add(commandLogic);
             problemSolvingId = commandLogic.getEndIndex();
@@ -95,9 +96,13 @@ public class SolveProblemController {
     }
 
 
-    @RequestMapping("batchSolutionMultithreading/{problemIdList}")
+    @RequestMapping("batchSolutionMultithreading/{problemIdList}")//{problemIdList}
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation, @PathVariable  List<String> problemIdList) {
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList) {//
+        /*List<Object> userinformation = new ArrayList<>();
+        userinformation.add("{\"ip\":\"192.168.1.1\",\"name\":\"admin\",\"password\":\"admin\",\"mode\":\"telnet\",\"port\":23}");
+        List<String> problemIdList = new ArrayList<>();
+        problemIdList.add("1");*/
         int number = userinformation.size();
         LoginUser login = SecurityUtils.getLoginUser();
         for (int i = 0 ; i<number ; i++){
@@ -170,6 +175,26 @@ public class SolveProblemController {
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
 
         AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( user_String );
+        List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
+        //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
+        String requestConnect_way = objectList.get(1).toString();
+        //SSH 连接工具
+        SshConnect sshConnect = null;
+        //SSH 连接工具
+        TelnetComponent telnetComponent = null;
+
+        //如果连接方式为ssh则 连接方法返回集合参数为 connectMethod参数
+        //如果连接方式为telnet则 连接方法返回集合参数为 telnetSwitchMethod参数
+        if (requestConnect_way.equalsIgnoreCase("ssh")){
+            connectMethod = (SshMethod)objectList.get(6);
+            sshConnect = (SshConnect)objectList.get(8);
+        }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+            telnetSwitchMethod = (TelnetSwitchMethod)objectList.get(7);
+            telnetComponent = (TelnetComponent)objectList.get(9);
+        }
+
+
+
         //解析返回参数
         informationList = (List<Object>) requestConnect_ajaxResult.get("data");
         //是否连接成功
@@ -192,13 +217,14 @@ public class SolveProblemController {
                 if (solveProblem.equals("成功")){
                     switchProblem.setResolved("是");
                     switchProblem.setIfQuestion("无问题");
+                    switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
                     int i = switchProblemService.updateSwitchProblem(switchProblem);
                     if (i<=0){
 
-                        if (informationList.get(1).toString().equalsIgnoreCase("ssh")){
-                            connectMethod.closeConnect((SshConnect)informationList.get(8));
-                        }else if (informationList.get(1).toString().equalsIgnoreCase("telnet")){
-                            telnetSwitchMethod.closeSession((TelnetComponent)informationList.get(9));
+                        if (requestConnect_way.equalsIgnoreCase("ssh")){
+                            connectMethod.closeConnect(sshConnect);
+                        }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                            telnetSwitchMethod.closeSession(telnetComponent);
                         }
 
                         return AjaxResult.error("修复失败");
@@ -207,11 +233,12 @@ public class SolveProblemController {
 
                 getUnresolvedProblemInformationByIds(loginUser,problemIds);
 
-                if (informationList.get(1).toString().equalsIgnoreCase("ssh")){
-                    connectMethod.closeConnect((SshConnect)informationList.get(8));
-                }else if (informationList.get(1).toString().equalsIgnoreCase("telnet")){
-                    telnetSwitchMethod.closeSession((TelnetComponent)informationList.get(9));
-                }
+
+            if (requestConnect_way.equalsIgnoreCase("ssh")){
+                connectMethod.closeConnect(sshConnect);
+            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                telnetSwitchMethod.closeSession(telnetComponent);
+            }
 
             return AjaxResult.success("修复成功");
         }
@@ -243,6 +270,7 @@ public class SolveProblemController {
         List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
         //如果 参数ID 不为0 则 有参数 需要获取相关参数
         while (valueID != 0){
+            valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);
             ValueInformation valueInformation = valueInformationService.selectValueInformationById(valueID);
             ValueInformationVO valueInformationVO = new ValueInformationVO();
             BeanUtils.copyProperties(valueInformation,valueInformationVO);
@@ -269,6 +297,7 @@ public class SolveProblemController {
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {
+            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId_Long);
             commandLogicList.add(commandLogic);
             commandId_Long = commandLogic.getEndIndex();
@@ -320,11 +349,12 @@ public class SolveProblemController {
         SshConnect sshConnect = null;
         TelnetComponent telnetComponent = null;
 
+
         if (requestConnect_way.equalsIgnoreCase("ssh")){
             connectMethod = (SshMethod)informationList.get(6);
             sshConnect = (SshConnect)informationList.get(8);
         }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-            telnetSwitchMethod = (TelnetSwitchMethod)informationList.get(6);
+            telnetSwitchMethod = (TelnetSwitchMethod)informationList.get(7);
             telnetComponent = (TelnetComponent)informationList.get(9);
         }
 
@@ -403,6 +433,7 @@ public class SolveProblemController {
                 WebSocketService.sendMessage("badao"+loginUser.getUsername(),"\r\n"+commandString_split[0]+"\r\n");
             }
             //存储交换机返回数据 插入数据库
+            returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
             int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
             if (insert_Int <= 0){
                 return "失败";
@@ -427,7 +458,7 @@ public class SolveProblemController {
         for (int idx = 0; idx < problemIds.size(); idx++){
             id[idx] = Long.parseLong(problemIds.get(idx));
         }
-
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByIds(id);
 
         for (SwitchProblemVO switchProblemVO:switchProblemList){
@@ -503,7 +534,7 @@ public class SolveProblemController {
 
         LoginUser loginUser = SecurityUtils.getLoginUser();
         String userName = loginUser.getUsername();
-
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();

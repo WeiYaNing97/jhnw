@@ -209,11 +209,11 @@ export default {
         },
         // 查询参数
       queryParams: {
-          ip: '192.168.1.100',
+          ip: '192.168.1.1',
           name: 'admin',
           password: 'admin',
-          mode: 'ssh',
-          port: 22,
+          mode: 'telnet',
+          port: 23,
       },
         //新添加的
         textarea:'',

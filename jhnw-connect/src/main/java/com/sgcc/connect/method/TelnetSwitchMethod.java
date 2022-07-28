@@ -72,8 +72,49 @@ public class TelnetSwitchMethod {
         String[] endIdentifierSplit = endIdentifier.split(",");
         String returnString = "";
         for (String end:endIdentifierSplit){
-            if (returnStringCommand.indexOf(end.substring(0,1)) != -1){
-                String[] split1 = returnStringCommand.split(end.substring(0,1));
+            String substring = end.substring(0, 1);
+            if (returnStringCommand.indexOf(substring) != -1){
+
+                switch (substring){
+                    case "[" :
+                        substring = "\\[";
+                        break;
+                    case "+" :
+                        substring = "\\+";
+                        break;
+                    case "\\" :
+                        substring = "\\\\";
+                        break;
+                    case "^" :
+                        substring = "\\^";
+                        break;
+                    case "?" :
+                        substring = "\\?";
+                        break;
+                    case "*" :
+                        substring = "\\*";
+                        break;
+                    case "." :
+                        substring = "\\.";
+                        break;
+                    case "$" :
+                        substring = "\\$";
+                        break;
+                    case "|" :
+                        substring = "\\|";
+                        break;
+                    case "(" :
+                        substring = "\\(";
+                        break;
+                    case ")" :
+                        substring = "\\)";
+                        break;
+                    case "()" :
+                        substring = "\\()";
+                        break;
+                }
+
+                String[] split1 = returnStringCommand.split(substring);
                 String[] split2 = split1[split1.length-1].split(end.substring(1,2));
                 String end_split = split2[0];
                 String end_substring = end.substring(0,1) + end_split+end.substring(1,2);
@@ -141,11 +182,9 @@ public class TelnetSwitchMethod {
         try {
             telnetComponent.closeSession();
         } catch (IOException e) {
-
             e.printStackTrace();
             return "error";
         }
-
         return "success";
     }
 
