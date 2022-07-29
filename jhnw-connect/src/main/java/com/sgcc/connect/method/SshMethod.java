@@ -64,7 +64,7 @@ public class SshMethod {
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }
-        if (string.substring(0, 1).equals("\n")){
+        if (string.length()>1 && string.substring(0, 1).equals("\n")){
             //字符串删除子字符串
             string = trimStr(string, string.substring(0, 1));
         }

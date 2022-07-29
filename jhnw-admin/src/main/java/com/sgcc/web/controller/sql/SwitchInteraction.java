@@ -114,7 +114,10 @@ public class SwitchInteraction {
             Object[] objects = {mode,ip,name,password,port};
             objectsList.add(objects);
         }
-        ScanThread.switchLoginInformations(objectsList);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String ScanningTime = simpleDateFormat.format(new Date());
+
+        ScanThread.switchLoginInformations(objectsList,ScanningTime);
     }
 
 
@@ -127,7 +130,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,LoginUser loginUser) {
+    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,LoginUser loginUser,String ScanningTime) {
 
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
@@ -138,9 +141,6 @@ public class SwitchInteraction {
         user_String.put("name",name);//用户名
         user_String.put("password",password);//用户密码
         user_String.put("port",port+"");//登录端口号
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        String ScanningTime = simpleDateFormat.format(new Date());
         user_String.put("ScanningTime",ScanningTime);//扫描时间 获取当前时间  时间格式为 "yyyy-MM-dd hh:mm:ss"  字符串
 
 
@@ -377,13 +377,20 @@ public class SwitchInteraction {
                         commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
                     }
 
-                    String[] commandStringSplit = commandString.split("\r\n");
+                    //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
+                    boolean switchfailure = Utils.switchfailure(user_String.get("deviceBrand"), commandString);
+                    // 存在故障返回 false
+                    if (!switchfailure){
 
-                    for (String returnString:commandStringSplit){
-                        deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
-                        if (!deviceBrand){
-                            break;
+                        String[] commandStringSplit = commandString.split("\r\n");
+
+                        for (String returnString:commandStringSplit){
+                            deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
+                            if (!deviceBrand){
+                                break;
+                            }
                         }
+
                     }
 
                 }while (!deviceBrand);
@@ -734,6 +741,13 @@ public class SwitchInteraction {
         if (problemScanLogic.getProblemId()!=null){
             //有问题 无问题
             if (problemScanLogic.getProblemId().indexOf("问题")!=-1){
+
+                try {
+                    Thread.sleep(1000*3);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 //问题数据 插入问题表 如果有参数 及插入
                 insertvalueInformationService(user_String,user_Object, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
                 //插入问题数据次数 加一
@@ -741,25 +755,8 @@ public class SwitchInteraction {
                 current_Round_Extraction_String = "";
                 //获取扫描出问题数据列表  集合 并放入 websocket
                 //根据 用户信息 和 扫描时间
+
                 getUnresolvedProblemInformationByData(user_String,user_Object);
-
-                /*//获取下一条分析ID
-                if (problemScanLogic.gettNextId()!=null){
-                    currentID = problemScanLogic.gettNextId();
-                }else {
-                    currentID = null;
-                }
-
-                String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
-                        return_information_array,"",extractInformation_string,
-                        line_n,firstID,currentID,insertsInteger);
-                //如果返回信息为null
-                if (loop_string!=null){
-                    //内分析传到上一层
-                    //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                    extractInformation_string = loop_string;
-                    return loop_string;
-                }*/
 
                 return extractInformation_string;
 
@@ -1085,13 +1082,15 @@ public class SwitchInteraction {
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
     public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String,Map<String,Object> user_Object){
+
         //用户名
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String loginName = loginUser.getUsername();
         //扫描时间
         String loginTime = user_String.get("ScanningTime");
-
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,loginName);
+
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -1129,7 +1128,7 @@ public class SwitchInteraction {
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
             for (SwitchProblemVO switchProblemVO:switchProblemList){
-                if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
+                if (switchProblemVO.getSwitchIp() == scanResultsVO.getSwitchIp()){
                     switchProblemVO.setSwitchIp(null);
                     switchProblemVOList.add(switchProblemVO);
                 }
@@ -1170,19 +1169,41 @@ public class SwitchInteraction {
         //具体命令
         String command = commandLogic.getCommand();
         System.err.print("\r\n执行命令：\r\n"+command+"\r\n");
-
         //执行命令
         //命令返回信息
         String command_string = null;
-        if (way.equalsIgnoreCase("ssh")){
-            WebSocketService.sendMessage("badao"+userName,command);
-            command_string = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,notFinished);
-            //command_string = Utils.removeLoginInformation(command_string);
-        }else if (way.equalsIgnoreCase("telnet")){
-            WebSocketService.sendMessage("badao"+userName,command);
-            command_string = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,notFinished);
-            //command_string = Utils.removeLoginInformation(command_string);
-        }
+
+        boolean deviceBrand = true;
+        do {
+            deviceBrand = true;
+
+            if (way.equalsIgnoreCase("ssh")) {
+                WebSocketService.sendMessage("badao" + userName, command);
+                command_string = connectMethod.sendCommand(user_String.get("ip"), sshConnect, command, notFinished);
+                //command_string = Utils.removeLoginInformation(command_string);
+            } else if (way.equalsIgnoreCase("telnet")) {
+                WebSocketService.sendMessage("badao" + userName, command);
+                command_string = telnetSwitchMethod.sendCommand(user_String.get("ip"), telnetComponent, command, notFinished);
+                //command_string = Utils.removeLoginInformation(command_string);
+            }
+
+            //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
+            boolean switchfailure = Utils.switchfailure(user_String.get("deviceBrand"), command_string);
+            // 存在故障返回 false
+            if (!switchfailure) {
+
+                String[] commandStringSplit = command_string.split("\r\n");
+
+                for (String returnString : commandStringSplit) {
+                    deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
+                    if (!deviceBrand) {
+                        break;
+                    }
+                }
+
+            }
+
+        }while (!deviceBrand);
 
 
         //去除其他 交换机登录信息

@@ -462,9 +462,7 @@ public class SolveProblemController {
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByIds(id);
 
         for (SwitchProblemVO switchProblemVO:switchProblemList){
-
             Date date1 = new Date();
-
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
@@ -474,6 +472,7 @@ public class SolveProblemController {
                     Date date2 = new Date();
                     valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
                 }
+
                 Date date3 = new Date();
                 switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
@@ -481,39 +480,30 @@ public class SolveProblemController {
         }
 
         //将IP地址去重放入set集合中
-        HashSet<String> time_hashSet = new HashSet<>();
+        HashSet<String> ip_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
-            Date createTime = switchProblemVO.getCreateTime();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-            String time = simpleDateFormat.format(createTime);
-            time_hashSet.add(time);
+            ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
+
+        //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
-        for (String time:time_hashSet){
+        for (String ip_string:ip_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
-            scanResultsVO.setCreateTime(time);
+            scanResultsVO.setSwitchIp(ip_string);
+            Date date4 = new Date();
+            scanResultsVO.hproblemId = Long.valueOf(Utils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
+
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
-            String createTime = scanResultsVO.getCreateTime();
+            List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
             for (SwitchProblemVO switchProblemVO:switchProblemList){
-                Date time = switchProblemVO.getCreateTime();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                String format_time = simpleDateFormat.format(time);
-                if (format_time.equals(createTime)){
-                    List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
-                    if (switchProblemVOList == null){
-                        List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
-                        switchProblemVO.setSwitchIp(null);
-                        switchProblemVOS.add(switchProblemVO);
-                        scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
-                    }else {
-                        switchProblemVO.setSwitchIp(null);
-                        switchProblemVOList.add(switchProblemVO);
-                        scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
-                    }
+                if (switchProblemVO.getSwitchIp() == scanResultsVO.getSwitchIp()){
+                    switchProblemVO.setSwitchIp(null);
+                    switchProblemVOList.add(switchProblemVO);
                 }
             }
+            scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
 
         WebSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);

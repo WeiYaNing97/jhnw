@@ -13,6 +13,7 @@ import java.util.List;
  * @E-mail: WeiYaNing97@163.com
  * @date 2022年01月05日 11:34
  */
+
 //线程
 @Component
 public class ScanThread extends Thread {
@@ -24,20 +25,19 @@ public class ScanThread extends Thread {
     static int port;
     static LoginUser loginUser;
     private static Thread myThread;
+    private static String time;
 
     @Override
     public void run() {
+
         Thread thread = myThread;
+
         SwitchInteraction switchInteraction = new SwitchInteraction();
         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser);
-        //System.err.println(MyThread.mode + MyThread.ip + MyThread.name + MyThread.password + MyThread.port);
-        try {
-            thread.sleep(10);                 //1000 milliseconds is one second.
-            thread.interrupt();
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
+        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time);
+
+        thread.interrupt();
+
     }
 
     /**
@@ -47,7 +47,7 @@ public class ScanThread extends Thread {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public static void switchLoginInformations(List<Object[]> objects) {
+    public static void switchLoginInformations(List<Object[]> objects,String ScanningTime) {
         LoginUser login = SecurityUtils.getLoginUser();
         for (Object[] objects3:objects){
             mode = (String)objects3[0];
@@ -56,6 +56,7 @@ public class ScanThread extends Thread {
             password = (String)objects3[3];
             port = (int) objects3[4];
             loginUser = login;
+            time = ScanningTime;
             Thread thread = new ScanThread();
             myThread = thread;
             thread.start();
