@@ -4,7 +4,7 @@
       <el-form-item style="margin-left: 15px">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">开始扫描</el-button>
         <el-button type="primary" icon="el-icon-upload2"
-                   size="small" style="margin-left: 20px" @click="dialogVisible = true">批量导入</el-button>
+                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
         <el-button type="primary" @click="kandaoru" size="small">查看导入数据</el-button>
         <el-dialog
           title="交换机信息导入"
@@ -22,7 +22,7 @@
         </el-dialog>
 <!--        margin-left: -97px;opacity:0%;width:100px-->
         <el-button type="primary" size="small" icon="el-icon-download"
-                   @click="xiazai" style="margin-left: 20px">下载模板</el-button>
+                   @click="xiazai" style="margin-left: 10px">下载模板</el-button>
       </el-form-item>
       <el-divider></el-divider>
       <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
@@ -33,7 +33,8 @@
             <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>
           </el-form-item>
           <el-form-item label="密码">
-            <el-input v-model="item.password" show-password placeholder="密码" size="small" style="width: 150px"></el-input>
+            <el-input v-model="item.password" type="password"
+                      autocomplete="off" show-password placeholder="密码" size="small" style="width: 150px"></el-input>
           </el-form-item>
           <el-form-item label="方式">
             <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">

@@ -1,14 +1,18 @@
 <template>
   <div>
 <!--    tableDataq  testData-->
+<!--    <p style="display: inline-block;padding-right: 20px">智能扫描已经结束,可以启用一键修复</p>-->
+    <el-button type="success" size="small" @click="allxiu">一键修复</el-button>
+    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
     <el-table v-loading="loading"
-              :data="testData"
+              :data="tableDataq"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
               default-expand-all
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
-      <el-table-column prop="switchIp" label="主机" width="150px"></el-table-column>
+      <el-table-column prop="createTime" label="主机" width="200px"></el-table-column>
+      <el-table-column prop="switchIp" label="主机" width="200px"></el-table-column>
       <el-table-column prop="typeProblem" label="问题类型" width="100px"></el-table-column>
       <el-table-column prop="problemName" label="问题" ></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
@@ -21,7 +25,7 @@
                      @click="xiufu(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
                      v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')"
-                     @click="xiuall(scope.row)">一键修复</el-button>
+                     @click="xiuall(scope.row)">单台修复</el-button>
         </template>
       </el-table-column>
       <!--      <el-table-column prop="planQuantity"  label="用户名"></el-table-column>-->
@@ -30,35 +34,6 @@
     <el-button @click="kan">看我</el-button>
     <el-button @click="aaa">第二个</el-button>
     <el-button @click="zizujian">看子组件</el-button>
-    <!--  修复问题-->
-    <el-dialog
-      title="修复问题"
-      :visible.sync="dislogopen"
-    >
-      <el-button type="text">新增</el-button>
-
-      <el-form :model="xiuform">
-        <el-row>
-          <el-col>
-            <el-form-item label="命令" :label-width="formLabelWidth">
-              <el-input
-                style="width: 150px"
-                placeholder="命令"
-              ></el-input>
-              +
-              <el-select v-model="xiuform.xiala" placeholder="参数">
-                <el-option v-for="item in depss" :key="item.id" :label="item.name" :value="item.name"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -91,7 +66,6 @@
                 // ws定时器
                 wsTimer: null,
                 testData:[],
-                // aaa:false,
                 tableDataq: [
                     {
                         switchIp:'192.168.1.100',
@@ -184,7 +158,6 @@
                     }
                 ],
                 loading:false,
-                dislogopen:false,
                 formLabelWidth:'50px',
                 xiuform:{
                     xiala:''
@@ -200,6 +173,26 @@
             const usname = Cookies.get('usName')
         },
         methods: {
+            //历史扫描
+            lishi(){
+                return request({
+                    url:'/sql/SolveProblemController/getUnresolvedProblemInformationByUserName',
+                    method:'post',
+                }).then(response=>{
+                    console.log(response)
+                    console.log(typeof response)
+                    function changeTreeDate(arrayJsonObj,oldKey,newKey) {
+                        let strtest = JSON.stringify(arrayJsonObj);
+                        let reg = new RegExp(oldKey,'g');
+                        let newStr = strtest.replace(reg,newKey);
+                        return JSON.parse(newStr);
+                    }
+                    let newJson = changeTreeDate(response,'switchProblemVOList','children');
+                    let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
+                    this.tableDataq = newJson1
+                    console.log(response)
+                })
+            },
             zizujian(){
               // alert(JSON.stringify(this.forms.dynamicItem))
                 alert(this.alljiao.allInfo)
@@ -220,6 +213,43 @@
                     }
                 }
             },
+            //一键修复所有
+            allxiu(){
+                //问题ID集合
+                const problemIdList = []
+                const iplist = []
+                const yijian = this.tableDataq
+                console.log(this.tableDataq)
+                for (let i = 0;i<yijian.length;i++){
+                    for (let g = 0;g<yijian[i].children.length;g++){
+                        for (let m = 0;m<yijian[i].children[g].children.length;m++){
+                            iplist.push(yijian[i]['switchIp'])
+                            problemIdList.push(yijian[i].children[g].children[m].questionId)
+                        }
+                    }
+                }
+                const list1 = []
+                for(let i = 0;i<this.alljiao.allInfo.length;i++){
+                    const chaip = JSON.parse(this.alljiao.allInfo[i])
+                    for(let g = 0;g<iplist.length;g++){
+                        const ipone = iplist[g]
+                        if(chaip['ip'] === ipone){
+                            list1.push(chaip)
+                        }
+                    }
+                }
+                const userinformation = list1.map(x=>JSON.stringify(x))
+                console.log(userinformation)
+                console.log(problemIdList)
+                return request({
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    method:'post',
+                    data:userinformation
+                }).then(response=>{
+                    console.log('成功')
+                    this.$message.success('修复请求以提交!')
+                })
+            },
             //单台一键修复
             xiuall(row){
                 //当前点击一键修复交换机
@@ -229,13 +259,6 @@
                 const problemIdList = []
                 for (let i=0;i<listAll.length;i++){
                     for (let g=0;g<listAll[i].children.length;g++){
-                        // const listC = {}
-                        // if(listAll[i].children[g].ifQuestion === '异常'){
-                        //     this.$set(listC,'valueId',listAll[i].children[g].valueId)
-                        //     this.$set(listC,'comId',listAll[i].children[g].comId)
-                        //     list2.push(listC)
-                        // }
-                        // this.$set(listC,'questionId',listAll[i].children[g].questionId)
                         problemIdList.push(listAll[i].children[g].questionId)
                     }
                 }
@@ -262,7 +285,6 @@
             },
             // 修复问题
             xiufu(row){
-              // this.dislogopen = true
                 console.log(row.hproblemId)
                 const thisid = row.hproblemId
                 let thisparid = ''
@@ -281,7 +303,6 @@
                 }
                 const list1 = []
                 const problemIdList = []
-                // this.$set(listv,'questionId',row.questionId)
                 problemIdList.push(row.questionId)
                 console.log(problemIdList)
                 // list1.push(this.forms.dynamicItem[0])
@@ -359,6 +380,8 @@
                     let newStr = strtest.replace(reg,newKey);
                     return JSON.parse(newStr);
                 }
+                console.log(e.data)
+                console.log(typeof e.data)
                 let newJson = changeTreeDate(JSON.parse(e.data),'switchProblemVOList','children');
                 let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
                 this.testData = newJson1
