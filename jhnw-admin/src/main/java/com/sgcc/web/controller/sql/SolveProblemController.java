@@ -567,18 +567,26 @@ public class SolveProblemController {
                     if (switchProblemVOList == null){
                         List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
                         //switchProblemVO.setSwitchIp(null); 时间
-                        switchProblemVO.setCreateTime(null);
                         switchProblemVOS.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
                     }else {
                         //switchProblemVO.setSwitchIp(null); 时间
-                        switchProblemVO.setCreateTime(null);
                         switchProblemVOList.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
                     }
                 }
             }
         }
+
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            for (SwitchProblemVO switchProblemVO:scanResultsVO.getSwitchProblemVOList()){
+                switchProblemVO.setCreateTime(null);
+                for (SwitchProblemCO switchProblemCO:switchProblemVO.getSwitchProblemCOList()){
+                    switchProblemCO.setCreateTime(null);
+                }
+            }
+        }
+
         return scanResultsVOList;
     }
 
