@@ -566,11 +566,11 @@ public class SolveProblemController {
                     List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                     if (switchProblemVOList == null){
                         List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
-                        switchProblemVO.setSwitchIp(null);
+                        //switchProblemVO.setSwitchIp(null);
                         switchProblemVOS.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
                     }else {
-                        switchProblemVO.setSwitchIp(null);
+                        //switchProblemVO.setSwitchIp(null);
                         switchProblemVOList.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
                     }
