@@ -15,6 +15,7 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 
+import com.sgcc.web.controller.thread.RepairFixedThreadPoolTest;
 import com.sgcc.web.controller.thread.RepairThread;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
@@ -99,17 +100,15 @@ public class SolveProblemController {
     @RequestMapping("batchSolutionMultithreading/{problemIdList}")//{problemIdList}
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList) {//
-        /*List<Object> userinformation = new ArrayList<>();
-        userinformation.add("{\"ip\":\"192.168.1.1\",\"name\":\"admin\",\"password\":\"admin\",\"mode\":\"telnet\",\"port\":23}");
-        List<String> problemIdList = new ArrayList<>();
-        problemIdList.add("1");*/
-        int number = userinformation.size();
         LoginUser login = SecurityUtils.getLoginUser();
-        for (int i = 0 ; i<number ; i++){
-            Long id = Integer.valueOf(problemIdList.get(i)).longValue();
-            String information = (String) userinformation.get(i);
-            RepairThread repairThread = new RepairThread();
-            repairThread.Solution(login,information,id,problemIdList);
+        RepairThread repairThread = new RepairThread();
+        //repairThread.Solution(login,userinformation,problemIdList);
+
+        try {
+            RepairFixedThreadPoolTest repairFixedThreadPoolTest = new RepairFixedThreadPoolTest();
+            repairFixedThreadPoolTest.Solution(login,userinformation,problemIdList,1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -542,6 +541,7 @@ public class SolveProblemController {
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
+
         //将IP地址去重放入set集合中
         HashSet<String> time_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
@@ -550,6 +550,7 @@ public class SolveProblemController {
             String time = simpleDateFormat.format(createTime);
             time_hashSet.add(time);
         }
+
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String time:time_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
@@ -566,11 +567,9 @@ public class SolveProblemController {
                     List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                     if (switchProblemVOList == null){
                         List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
-                        //switchProblemVO.setSwitchIp(null); 时间
                         switchProblemVOS.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
                     }else {
-                        //switchProblemVO.setSwitchIp(null); 时间
                         switchProblemVOList.add(switchProblemVO);
                         scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
                     }

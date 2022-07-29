@@ -3,6 +3,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
@@ -10,6 +11,7 @@ import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
+import com.sgcc.web.controller.thread.ScanFixedThreadPool;
 import com.sgcc.web.controller.thread.ScanThread;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,8 +118,15 @@ public class SwitchInteraction {
         }
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         String ScanningTime = simpleDateFormat.format(new Date());
+        LoginUser login = SecurityUtils.getLoginUser();
 
-        ScanThread.switchLoginInformations(objectsList,ScanningTime);
+        //ScanThread.switchLoginInformations(objectsList,ScanningTime,login);
+        //线程池
+        try {
+            ScanFixedThreadPool.switchLoginInformations(objectsList,ScanningTime,login,1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 

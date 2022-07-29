@@ -47,8 +47,7 @@ public class ScanThread extends Thread {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public static void switchLoginInformations(List<Object[]> objects,String ScanningTime) {
-        LoginUser login = SecurityUtils.getLoginUser();
+    public static void switchLoginInformations(List<Object[]> objects,String ScanningTime,LoginUser login) {
         for (Object[] objects3:objects){
             mode = (String)objects3[0];
             ip = (String)objects3[1];

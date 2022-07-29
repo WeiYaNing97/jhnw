@@ -42,30 +42,32 @@ public class RepairThread extends Thread  {
         thread.interrupt();
     }
 
-    public void Solution(LoginUser user,String userinformation,Long id,List<String> problemIdList) {
+    public void Solution(LoginUser user,List<Object> userinformation,List<String> problemIdList) {
+        int number = userinformation.size();
+        for (int i = 0 ; i<number ; i++){
+            // 扫描出问题列表 问题ID
+            problemId = Integer.valueOf(problemIdList.get(i)).longValue();
+            // 根据 问题ID  查询 扫描出的问题
+            switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
+            switchProblem = switchProblemService.selectSwitchProblemById(problemId);
+            // 查看 扫描出的问题 是否有问题
+            if (switchProblem.getIfQuestion().equals("有问题")){
+                // 如果有问题 查询对应交换机登录信息
+                userinformationList = (String) userinformation.get(i);
+                // 所有问题
+                problemIds = problemIdList;
+                loginUser = user;
 
-        problemId = id;
-        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
-        switchProblem = switchProblemService.selectSwitchProblemById(problemId);
-
-        if (switchProblem.getIfQuestion().equals("有问题")){
-
-            userinformationList = userinformation;
-
-            problemIds = problemIdList;
-
-            loginUser = user;
-            Thread thread = new RepairThread();
-            thread.start();
-            myThread = thread;
-            try {
-                //Thread.sleep(1000*3);
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread thread = new RepairThread();
+                thread.start();
+                myThread = thread;
+                try {
+                    //Thread.sleep(1000*3);
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
-
-
 }
