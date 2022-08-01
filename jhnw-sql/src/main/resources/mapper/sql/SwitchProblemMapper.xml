@@ -9,6 +9,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="switchIp"    column="switch_ip"    />
         <result property="switchName"    column="switch_name"    />
         <result property="switchPassword"    column="switch_password"    />
+        <result property="loginMethod"    column="login_method"    />
+        <result property="portNumber"    column="port_number"    />
         <result property="problemId"    column="problem_id"    />
         <result property="ifQuestion"    column="if_question"    />
         <result property="comId"    column="com_id"    />
@@ -29,6 +31,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <collection property="switchProblemCOList"  ofType="com.sgcc.sql.domain.SwitchProblemCO"
                     javaType="java.util.ArrayList">
             <result property="questionId"    column="question_id"    />
+            <result property="loginMethod"    column="login_method"    />
+            <result property="portNumber"    column="port_number"    />
             <result property="problemId"    column="problem_id"    />
             <result property="ifQuestion"    column="if_question"    />
             <result property="comId"    column="com_id"    />
@@ -44,6 +48,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         problem.switch_ip switch_ip,
         problem.switch_name switch_name,
         problem.switch_password switch_password,
+        problem.login_method login_method,
+        problem.port_number port_number,
         problem.problem_id problem_id,
         CASE problem.if_question
         WHEN '有问题' THEN '异常'
@@ -60,7 +66,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         question.type_problem type_problem,
         question.problem_solving_id com_id
         FROM
-        ( SELECT id, switch_ip, switch_name, switch_password, problem_id,
+        ( SELECT id, switch_ip, switch_name, switch_password ,login_method,port_number, problem_id,
         if_question, com_id, value_id, resolved, create_time
         FROM switch_problem
 
@@ -79,6 +85,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         problem.switch_ip switch_ip,
         problem.switch_name switch_name,
         problem.switch_password switch_password,
+        problem.login_method login_method,
+        problem.port_number port_number,
         problem.problem_id problem_id,
         CASE problem.if_question
         WHEN '有问题' THEN '异常'
@@ -95,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         question.type_problem type_problem,
         question.problem_solving_id com_id
         FROM
-        ( SELECT id, switch_ip, switch_name, switch_password, problem_id,
+        ( SELECT id, switch_ip, switch_name, switch_password,login_method,port_number, problem_id,
         if_question, com_id, value_id, resolved, create_time
         FROM switch_problem
         ${ids}
@@ -110,7 +118,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <sql id="selectSwitchProblemVo">
-        select id, switch_ip, switch_name, switch_password, problem_id, if_question,com_id, value_id, resolved, create_time,user_name,phonenumber from switch_problem
+        select id, switch_ip, switch_name, switch_password,login_method,port_number, problem_id, if_question,com_id, value_id, resolved, create_time,user_name,phonenumber from switch_problem
     </sql>
 
     <select id="selectSwitchProblemList" parameterType="com.sgcc.sql.domain.SwitchProblem" resultMap="SwitchProblemResult">
@@ -119,6 +127,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
             <if test="switchName != null  and switchName != ''"> and switch_name like concat('%', #{switchName}, '%')</if>
             <if test="switchPassword != null  and switchPassword != ''"> and switch_password = #{switchPassword}</if>
+            <if test="loginMethod != null  and loginMethod != ''"> and login_method = #{loginMethod}</if>
+            <if test="portNumber != null  and portNumber != ''"> and port_number = #{portNumber}</if>
             <if test="problemId != null  and problemId != ''"> and problem_id = #{problemId}</if>
             <if test="ifQuestion != null  and ifQuestion != ''"> and if_question = #{ifQuestion}</if>
             <if test="comId != null  and comId != ''"> and com_id = #{comId}</if>
@@ -140,6 +150,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchIp != null and switchIp != ''">switch_ip,</if>
             <if test="switchName != null and switchName != ''">switch_name,</if>
             <if test="switchPassword != null and switchPassword != ''">switch_password,</if>
+            <if test="loginMethod != null">login_method,</if>
+            <if test="portNumber != null">port_number,</if>
             <if test="problemId != null">problem_id,</if>
             <if test="ifQuestion != null">if_question,</if>
             <if test="comId != null">com_id,</if>
@@ -153,6 +165,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
             <if test="switchName != null and switchName != ''">#{switchName},</if>
             <if test="switchPassword != null and switchPassword != ''">#{switchPassword},</if>
+            <if test="loginMethod != null">#{loginMethod},</if>
+            <if test="portNumber != null">#{portNumber},</if>
             <if test="problemId != null">#{problemId},</if>
             <if test="ifQuestion != null">#{ifQuestion},</if>
             <if test="comId != null">#{comId},</if>
@@ -170,6 +184,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
             <if test="switchName != null and switchName != ''">switch_name = #{switchName},</if>
             <if test="switchPassword != null and switchPassword != ''">switch_password = #{switchPassword},</if>
+            <if test="loginMethod != null">login_method = #{loginMethod},</if>
+            <if test="portNumber != null">port_number = #{portNumber},</if>
             <if test="problemId != null">problem_id = #{problemId},</if>
             <if test="ifQuestion != null">if_question = #{ifQuestion},</if>
             <if test="comId != null">com_id = #{comId},</if>

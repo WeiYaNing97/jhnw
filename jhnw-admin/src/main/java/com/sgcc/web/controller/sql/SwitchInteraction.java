@@ -1079,6 +1079,9 @@ public class SwitchInteraction {
         switchProblem.setSwitchName(user_String.get("name")); //name
         switchProblem.setSwitchPassword(user_String.get("password")); //password
 
+        switchProblem.setLoginMethod(user_String.get("mode"));
+        switchProblem.setPortNumber(user_String.get("port"));
+
         switchProblem.setProblemId(problemId); // 问题索引
         switchProblem.setComId(problemScanLogic.gettComId());//命令索引
         switchProblem.setValueId(outId);//参数索引

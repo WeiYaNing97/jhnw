@@ -28,6 +28,14 @@ public class SwitchProblem extends BaseEntity
     @Excel(name = "交换机密码")
     private String switchPassword;
 
+    /** 登录方式 */
+    @Excel(name = "登录方式")
+    private String loginMethod;
+
+    /** 登录端口号 */
+    @Excel(name = "登录端口号")
+    private String portNumber;
+
     /** 问题索引 */
     @Excel(name = "问题索引")
     private String problemId;
@@ -148,6 +156,22 @@ public class SwitchProblem extends BaseEntity
         this.phonenumber = phonenumber;
     }
 
+    public String getLoginMethod() {
+        return loginMethod;
+    }
+
+    public void setLoginMethod(String loginMethod) {
+        this.loginMethod = loginMethod;
+    }
+
+    public String getPortNumber() {
+        return portNumber;
+    }
+
+    public void setPortNumber(String portNumber) {
+        this.portNumber = portNumber;
+    }
+
     @Override
     public String toString() {
         return "SwitchProblem{" +
@@ -155,13 +179,15 @@ public class SwitchProblem extends BaseEntity
                 ", switchIp='" + switchIp + '\'' +
                 ", switchName='" + switchName + '\'' +
                 ", switchPassword='" + switchPassword + '\'' +
+                ", loginMethod='" + loginMethod + '\'' +
+                ", portNumber='" + portNumber + '\'' +
                 ", problemId='" + problemId + '\'' +
                 ", ifQuestion='" + ifQuestion + '\'' +
                 ", comId='" + comId + '\'' +
                 ", valueId=" + valueId +
                 ", resolved='" + resolved + '\'' +
                 ", userName='" + userName + '\'' +
-                ", phonenumber=" + phonenumber +
+                ", phonenumber='" + phonenumber + '\'' +
                 '}';
     }
 }

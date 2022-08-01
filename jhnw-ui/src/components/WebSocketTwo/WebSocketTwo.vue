@@ -5,7 +5,7 @@
     <el-button type="success" size="small" @click="allxiu">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
     <el-table v-loading="loading"
-              :data="tableDataq"
+              :data="testData"
               ref="tree"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
