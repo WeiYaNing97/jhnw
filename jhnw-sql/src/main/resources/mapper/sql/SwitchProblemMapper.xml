@@ -26,13 +26,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="switchIp"    column="switch_ip"    />
         <result property="switchName"    column="switch_name"    />
         <result property="switchPassword"    column="switch_password"    />
+        <result property="loginMethod"    column="login_method"    />
+        <result property="portNumber"    column="port_number"    />
         <result property="typeProblem"    column="type_problem"    />
         <result property="createTime"    column="createTime"    />
         <collection property="switchProblemCOList"  ofType="com.sgcc.sql.domain.SwitchProblemCO"
                     javaType="java.util.ArrayList">
             <result property="questionId"    column="question_id"    />
-            <result property="loginMethod"    column="login_method"    />
-            <result property="portNumber"    column="port_number"    />
             <result property="problemId"    column="problem_id"    />
             <result property="ifQuestion"    column="if_question"    />
             <result property="comId"    column="com_id"    />

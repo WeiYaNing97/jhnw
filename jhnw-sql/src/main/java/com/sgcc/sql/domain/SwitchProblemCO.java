@@ -17,14 +17,6 @@ public class SwitchProblemCO
 
     public Long questionId;
 
-    /** 登录方式 */
-    @Excel(name = "登录方式")
-    private String loginMethod;
-
-    /** 登录端口号 */
-    @Excel(name = "登录端口号")
-    private String portNumber;
-
     /** 问题索引 */
     @Excel(name = "问题索引")
     public String problemId;
@@ -138,30 +130,12 @@ public class SwitchProblemCO
         this.questionId = questionId;
     }
 
-    public String getLoginMethod() {
-        return loginMethod;
-    }
-
-    public void setLoginMethod(String loginMethod) {
-        this.loginMethod = loginMethod;
-    }
-
-    public String getPortNumber() {
-        return portNumber;
-    }
-
-    public void setPortNumber(String portNumber) {
-        this.portNumber = portNumber;
-    }
-
 
     @Override
     public String toString() {
         return "SwitchProblemCO{" +
                 "hproblemId=" + hproblemId +
                 ", questionId=" + questionId +
-                ", loginMethod='" + loginMethod + '\'' +
-                ", portNumber='" + portNumber + '\'' +
                 ", problemId='" + problemId + '\'' +
                 ", ifQuestion='" + ifQuestion + '\'' +
                 ", comId='" + comId + '\'' +
