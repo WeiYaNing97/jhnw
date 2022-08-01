@@ -51,105 +51,6 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
-    @RequestMapping("getmain")
-    public void getmain() {
-        String s = "display cu\n" +
-                "#\n" +
-                " sysname H3C\n" +
-                "#\n" +
-                "radius scheme system\n" +
-                "#\n" +
-                "domain system\n" +
-                "#\n" +
-                "local-user admin\n" +
-                " password cipher .]@USE=B,53Q=^Q`MAF4<1!!\n" +
-                " service-type telnet\n" +
-                " level 3\n" +
-                "#\n" +
-                "vlan 1\n" +
-                "#\n" +
-                "interface Vlan-interface1\n" +
-                " ip address 192.168.1.1 255.255.255.0\n" +
-                "#\n" +
-                "interface Aux1/0/0\n" +
-                "#\n" +
-                "interface Ethernet1/0/1\n" +
-                "#\n" +
-                "interface Ethernet1/0/2\n" +
-                "#\n" +
-                "interface Ethernet1/0/3\n" +
-                "                                             #\n" +
-                "interface Ethernet1/0/4\n" +
-                "#\n" +
-                "interface Ethernet1/0/5\n" +
-                "#\n" +
-                "interface Ethernet1/0/6\n" +
-                "#\n" +
-                "interface Ethernet1/0/7\n" +
-                "#\n" +
-                "interface Ethernet1/0/8\n" +
-                "#\n" +
-                "interface Ethernet1/0/9\n" +
-                "#\n" +
-                "interface Ethernet1/0/10\n" +
-                "#\n" +
-                "interface Ethernet1/0/11\n" +
-                "#\n" +
-                "interface Ethernet1/0/12\n" +
-                "#\n" +
-                "interface Ethernet1/0/13\n" +
-                "#\n" +
-                "interface Ethernet1/0/14\n" +
-                "#\n" +
-                "interface Ethernet1/0/15\n" +
-                "                                             #\n" +
-                "   \n" +
-                "#Apr  2 07:47:16:080 2000 H3C DEV/2/FAN STATE CHANGE TO FAILURE:- 1 -\n" +
-                " Trap 1.3.6.1.4.1.2011.2.23.1.12.1.6: fan ID is 1\n" +
-                "\n" +
-                "%Apr  2 07:47:16:081 2000 H3C DEV/5/DEV_LOG:- 1 -\n" +
-                "Fan 1 failed                                          interface Ethernet1/0/16\n" +
-                "#\n" +
-                "interface Ethernet1/0/17\n" +
-                "#\n" +
-                "interface Ethernet1/0/18\n" +
-                "#\n" +
-                "interface Ethernet1/0/19\n" +
-                "#\n" +
-                "interface Ethernet1/0/20\n" +
-                "#\n" +
-                "interface Ethernet1/0/21\n" +
-                "#\n" +
-                "interface Ethernet1/0/22\n" +
-                "#\n" +
-                "interface Ethernet1/0/23\n" +
-                "#\n" +
-                "interface Ethernet1/0/24\n" +
-                "#\n" +
-                "interface GigabitEthernet1/1/1\n" +
-                "#\n" +
-                "interface GigabitEthernet1/1/2\n" +
-                "#\n" +
-                "interface GigabitEthernet1/1/3\n" +
-                "#\n" +
-                "                                             interface GigabitEthernet1/1/4\n" +
-                "                                             #\n" +
-                " undo irf-fabric authentication-mode\n" +
-                "#\n" +
-                "interface NULL0\n" +
-                "#\n" +
-                " voice vlan mac-address 0001-e300-0000 mask ffff-ff00-0000\n" +
-                "#\n" +
-                "user-interface aux 0 7\n" +
-                "user-interface vty 0 4\n" +
-                " authentication-mode scheme\n" +
-                "#\n" +
-                "return\n" +
-                "<H3C>";
-        boolean h3C = Utils.switchfailure("H3C", s);
-    }
-
-
     /*==================================================================================================================
     ====================================================================================================================
     ====================================================================================================================
@@ -342,7 +243,7 @@ public class SwitchInteraction {
             //getBasicInformationList 通过扫描方式 获取 基本信息
             AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
 
-            if (!(basicInformationList_ajaxResult.get("data").equals("未定义该交换机获取基本信息命令及分析"))){
+            if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
 
                 //获取 匹配的 交换机可执行的 命令ID  并 循环执行分析操作
                 AjaxResult ajaxResult = scanProblem(
@@ -512,8 +413,8 @@ public class SwitchInteraction {
                         for (String returnString:commandStringSplit){
                             deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
                             if (!deviceBrand){
-                                System.err.println("\r\n故障:"+returnString+"\r\n");
-                                WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + ":"+returnString+"\r\n");
+                                System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
+                                WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
                                 break;
                             }
                         }
@@ -584,7 +485,7 @@ public class SwitchInteraction {
                     String[] returnString_split = commandString.split("\r\n");
                     for (String string_split:returnString_split){
                         if (!Utils.judgmentError(string_split)){
-                            System.err.println("\r\n错误:"+string_split+"\r\n");
+                            System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                             WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                         }
                     }
@@ -1334,8 +1235,8 @@ public class SwitchInteraction {
                 for (String returnString : commandStringSplit) {
                     deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
                     if (!deviceBrand) {
-                        System.err.println("\r\n故障:"+returnString+"\r\n");
-                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + ":"+returnString+"\r\n");
+                        System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
+                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
                         break;
                     }
                 }
@@ -1410,7 +1311,7 @@ public class SwitchInteraction {
                 String[] returnString_split = command_string.split("\r\n");
                 for (String string_split:returnString_split){
                     if (!Utils.judgmentError(string_split)){
-                        System.err.println("\r\n错误:"+string_split+"\r\n");
+                        System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                         WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                     }
                 }

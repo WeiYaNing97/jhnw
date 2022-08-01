@@ -133,6 +133,9 @@ public class Utils {
     Fan 1 failed
      */
     public static boolean switchfailure(String brand,String switchInformation){
+        if(brand == null){
+            return true;
+        }
         SwitchFailureController switchFailureController = new SwitchFailureController();
         if (switchFailureHashMap.get(brand) == null){
             List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureList(brand);
