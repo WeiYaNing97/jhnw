@@ -174,6 +174,12 @@ public class SolveProblemController {
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
 
         AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( user_String );
+
+        //如果返回为 交换机连接失败 则连接交换机失败
+        if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
+            return AjaxResult.error("交换机连接失败");
+        }
+
         List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
         //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
         String requestConnect_way = objectList.get(1).toString();
@@ -206,12 +212,20 @@ public class SolveProblemController {
 
                 Object[] commandvalue =  (Object[])ajaxResult.get("data");
 
+                if (commandvalue.length == 1){
+                    List<String> commandList = (List<String>) commandvalue[0];
+                    String command = commandList.get(0);
+                    if (command == "未定义解决问题命令"){
+                         return  AjaxResult.error("未定义解决问题命令");
+                    }
+                }
+
                 //命令集合
                 List<String> commandList = (List<String>) commandvalue[0];
                 //参数集合
                 List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
                 //解决问题
-                String solveProblem = solveProblem(loginUser,informationList, commandList, valueInformationVOList);//userName
+                String solveProblem = solveProblem(user_String,loginUser,informationList, commandList, valueInformationVOList);//userName
 
                 if (solveProblem.equals("成功")){
                     switchProblem.setResolved("是");
@@ -255,6 +269,15 @@ public class SolveProblemController {
      */
     @RequestMapping("queryParameterSet")
     public AjaxResult queryParameterSet(String commandID,Long valueID){
+
+        if (commandID == null){
+            Object[] command_value = new Object[1];
+            List<String> commandList = new ArrayList<>();
+            commandList.add("未定义解决问题命令");
+            command_value[0] = commandList;
+            return AjaxResult.success(command_value);
+        }
+
         //根据 第一个命令 ID
         //根据 命令ID commandID 查询命令集合
         AjaxResult ajaxResult = queryCommandSet(commandID);
@@ -312,7 +335,8 @@ public class SolveProblemController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("solveProblem")
-    public String solveProblem(LoginUser loginUser,
+    public String solveProblem(Map<String,String> user_String,
+                               LoginUser loginUser,
                                List<Object> informationList,
                                List<String> commandList,
                                List<ValueInformationVO> valueInformationVOList){
@@ -364,6 +388,12 @@ public class SolveProblemController {
             //根据 连接方法 判断 实际连接方式
             //并发送命令 接受返回结果
             System.err.print("\r\n"+"命令："+command+"\r\n");
+            //创建 存储交换机返回数据 实体类
+            ReturnRecord returnRecord = new ReturnRecord();
+
+            returnRecord.setSwitchIp(user_String.get("ip"));
+            returnRecord.setUserName(loginUser.getUsername());
+
             if (requestConnect_way.equalsIgnoreCase("ssh")){
 
                 WebSocketService.sendMessage("badao"+loginUser.getUsername(),command);
@@ -375,11 +405,6 @@ public class SolveProblemController {
                 commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
                 //commandString = Utils.removeLoginInformation(commandString);
             }
-            //判断命令是否错误 错误为false 正确为true
-            if (!Utils.judgmentError(commandString)){
-                //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
-                break;
-            }
 
             //去除其他 交换机登录信息
             commandString = Utils.removeLoginInformation(commandString);
@@ -389,8 +414,7 @@ public class SolveProblemController {
             System.err.print("\r\n"+"交换机返回信息："+commandString+"\r\n");
             //交换机返回信息 按行分割为 字符串数组
             String[] commandString_split = commandString.split("\r\n");
-            //创建 存储交换机返回数据 实体类
-            ReturnRecord returnRecord = new ReturnRecord();
+
             // 执行命令赋值
             String commandtrim = command.trim();
             returnRecord.setCurrentCommLog(commandtrim);
@@ -434,8 +458,11 @@ public class SolveProblemController {
             //存储交换机返回数据 插入数据库
             returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
             int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
-            if (insert_Int <= 0){
-                return "失败";
+
+            //判断命令是否错误 错误为false 正确为true
+            if (!Utils.judgmentError(commandString)){
+                //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
+                break;
             }
         }
 

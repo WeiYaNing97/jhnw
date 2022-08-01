@@ -18,6 +18,30 @@ public class ReturnRecord extends BaseEntity
     /** 主键 */
     private Long id;
 
+    /** 系统登录用户名称 */
+    @Excel(name = "系统登录用户名称")
+    private String userName;
+
+    /** 交换机ip */
+    @Excel(name = "交换机ip")
+    private String switchIp;
+
+    /** 品牌 */
+    @Excel(name = "品牌")
+    private String brand;
+
+    /** 型号 */
+    @Excel(name = "型号")
+    private String type;
+
+    /** 内部固件版本 */
+    @Excel(name = "内部固件版本")
+    private String firewareVersion;
+
+    /** 子版本号 */
+    @Excel(name = "子版本号")
+    private String subVersion;
+
     /** 当前通信日志 */
     @Excel(name = "当前通信日志")
     private String currentCommLog;
@@ -67,14 +91,72 @@ public class ReturnRecord extends BaseEntity
         return currentIdentifier;
     }
 
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getSwitchIp() {
+        return switchIp;
+    }
+
+    public void setSwitchIp(String switchIp) {
+        this.switchIp = switchIp;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getFirewareVersion() {
+        return firewareVersion;
+    }
+
+    public void setFirewareVersion(String firewareVersion) {
+        this.firewareVersion = firewareVersion;
+    }
+
+    public String getSubVersion() {
+        return subVersion;
+    }
+
+    public void setSubVersion(String subVersion) {
+        this.subVersion = subVersion;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("currentCommLog", getCurrentCommLog())
-            .append("currentReturnLog", getCurrentReturnLog())
-            .append("currentIdentifier", getCurrentIdentifier())
-            .append("createTime", getCreateTime())
-            .toString();
+        return "ReturnRecord{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", switchIp='" + switchIp + '\'' +
+                ", brand='" + brand + '\'' +
+                ", type='" + type + '\'' +
+                ", firewareVersion='" + firewareVersion + '\'' +
+                ", subVersion='" + subVersion + '\'' +
+                ", currentCommLog='" + currentCommLog + '\'' +
+                ", currentReturnLog='" + currentReturnLog + '\'' +
+                ", currentIdentifier='" + currentIdentifier + '\'' +
+                '}';
     }
 }

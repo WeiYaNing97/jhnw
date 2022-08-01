@@ -1,8 +1,10 @@
 package com.sgcc.web.controller.sql;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -12,7 +14,6 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.thread.ScanFixedThreadPool;
-import com.sgcc.web.controller.thread.ScanThread;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +64,8 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("multipleScans")
-    public void multipleScans(@RequestBody List<String> switchInformation) {//待测
+    @MyLog(title = "扫描问题", businessType = BusinessType.OTHER)
+    public String multipleScans(@RequestBody List<String> switchInformation) {//待测
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
         for (String information:switchInformation){
@@ -123,10 +125,14 @@ public class SwitchInteraction {
         //ScanThread.switchLoginInformations(objectsList,ScanningTime,login);
         //线程池
         try {
-            ScanFixedThreadPool.switchLoginInformations(objectsList,ScanningTime,login,1);
+            ScanFixedThreadPool.switchLoginInformations(objectsList,ScanningTime,login,2);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描完成");
+
+        return "扫描完成";
     }
 
 
@@ -181,7 +187,7 @@ public class SwitchInteraction {
         AjaxResult requestConnect_ajaxResult = requestConnect(user_String);
 
         //如果返回为 交换机连接失败 则连接交换机失败
-        if(requestConnect_ajaxResult.get("data").equals("交换机连接失败")){
+        if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
             return AjaxResult.error("交换机连接失败");
         }
 
@@ -373,6 +379,17 @@ public class SwitchInteraction {
             //遍历数据表命令 分割得到的 命令数组
             for (String command:commandsplit){
 
+                //创建 存储交换机返回数据 实体类
+                ReturnRecord returnRecord = new ReturnRecord();
+
+                returnRecord.setUserName(userName);
+                returnRecord.setSwitchIp(user_String.get("ip"));
+                returnRecord.setBrand(user_String.get("deviceBrand"));
+                returnRecord.setType(user_String.get("deviceModel"));
+                returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
+                returnRecord.setSubVersion(user_String.get("subversionNumber"));
+
+
                 //根据 连接方法 判断 实际连接方式
                 //并发送命令 接受返回结果
                 boolean deviceBrand = true;
@@ -404,11 +421,6 @@ public class SwitchInteraction {
 
                 }while (!deviceBrand);
 
-                //判断命令是否错误 错误为false 正确为true
-                if (!Utils.judgmentError(commandString)){
-                    //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
-                    break;
-                }
 
                 //去除其他 交换机登录信息
                 commandString = Utils.removeLoginInformation(commandString);
@@ -418,9 +430,6 @@ public class SwitchInteraction {
 
                 //交换机返回信息 按行分割为 字符串数组
                 String[] commandString_split = commandString.split("\r\n");
-
-                //创建 存储交换机返回数据 实体类
-                ReturnRecord returnRecord = new ReturnRecord();
 
                 // 执行命令赋值
                 String commandtrim = command.trim();
@@ -466,6 +475,12 @@ public class SwitchInteraction {
                 //存储交换机返回数据 插入数据库
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
                 int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
+
+                //判断命令是否错误 错误为false 正确为true
+                if (!Utils.judgmentError(commandString)){
+                    //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
+                    break;
+                }
 
                 //当前命令字符串 返回命令总和("\r\n"分隔)
                 return_sum += commandString+"\r\n\r\n";
@@ -1224,6 +1239,14 @@ public class SwitchInteraction {
 
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
+
+        returnRecord.setUserName(userName);
+        returnRecord.setSwitchIp(user_String.get("ip"));
+        returnRecord.setBrand(user_String.get("deviceBrand"));
+        returnRecord.setType(user_String.get("deviceModel"));
+        returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
+        returnRecord.setSubVersion(user_String.get("subversionNumber"));
+
         //按行切割
         String[] split = command_string.split("\r\n");
         returnRecord.setCurrentCommLog(command.trim());

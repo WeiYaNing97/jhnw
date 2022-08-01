@@ -44,6 +44,8 @@ public class ScanFixedThreadPool {
                         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
                         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time);
 
+                        System.err.println(ajaxResult.get("msg"));
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     } finally {
