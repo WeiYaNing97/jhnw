@@ -1,19 +1,19 @@
 <template>
   <div>
 <!--    tableDataq  testData-->
-<!--    <p style="display: inline-block;padding-right: 20px">智能扫描已经结束,可以启用一键修复</p>-->
-    <el-button type="success" size="small" @click="allxiu">一键修复</el-button>
+    <el-button type="success" size="small" @click="allxiu" v-show="chuci">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
+<!--    <el-button type="primary" size="small" @click="wutiao">五条</el-button>-->
     <el-table v-loading="loading"
               :data="testData"
               ref="tree"
+              v-show="chuci"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
               default-expand-all
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
-      <el-table-column prop="createTime" label="主机" width="200px"></el-table-column>
-      <el-table-column prop="switchIp" label="主机" width="200px"></el-table-column>
-      <el-table-column prop="typeProblem" label="问题类型" width="100px"></el-table-column>
+      <el-table-column prop="switchIp" label="主机"></el-table-column>
+      <el-table-column prop="typeProblem" label="问题类型"></el-table-column>
       <el-table-column prop="problemName" label="问题" ></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
       <el-table-column prop="solve" label="解决">
@@ -28,12 +28,40 @@
                      @click="xiuall(scope.row)">单台修复</el-button>
         </template>
       </el-table-column>
+    </el-table>
+
+    <el-table v-loading="loading"
+              :data="tableDataq"
+              ref="tree"
+              v-show="huisao"
+              style="width: 100%;margin-bottom: 20px;"
+              row-key="hproblemId"
+              default-expand-all
+              :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
+      <el-table-column prop="createTime" label="扫描时间" min-width="100px"></el-table-column>
+      <el-table-column prop="switchIp" label="主机"></el-table-column>
+      <el-table-column prop="typeProblem" label="问题类型"></el-table-column>
+      <el-table-column prop="problemName" label="问题" ></el-table-column>
+      <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
+      <el-table-column prop="solve" label="解决">
+        <template slot-scope="scope">
+          <el-button size="mini"
+                     type="text"
+                     icon="el-icon-edit"
+                     v-show="scope.row.ifQuestion==='异常'"
+                     @click="xiufuone(scope.row)">修复</el-button>
+          <el-button style="margin-left: 0" size="mini" type="text"
+                     v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')&&!scope.row.hasOwnProperty('createTime')"
+                     @click="xiuallone(scope.row)">单台修复</el-button>
+          <el-button style="margin-left: 0" type="success" plain round
+            size="small" v-show="scope.row.createTime != undefined" @click="huitimeyijian(scope.row)">一键修复</el-button>
+        </template>
+      </el-table-column>
       <!--      <el-table-column prop="planQuantity"  label="用户名"></el-table-column>-->
     </el-table>
 
-    <el-button @click="kan">看我</el-button>
-    <el-button @click="aaa">第二个</el-button>
-    <el-button @click="zizujian">看子组件</el-button>
+<!--    <el-button @click="aaa">第二个</el-button>-->
+<!--    <el-button @click="zizujian">看子组件</el-button>-->
   </div>
 </template>
 
@@ -57,6 +85,10 @@
         },
         data() {
             return {
+                //后台回显所有交换机信息
+                newArr:[],
+                chuci:true,
+                huisao:false,
                 // ws是否启动
                 wsIsRun: false,
                 // 定义ws对象
@@ -66,13 +98,16 @@
                 // ws定时器
                 wsTimer: null,
                 testData:[],
-                tableDataq: [
+                tableDataq:[],
+                tableDataqq: [
                     {
                         switchIp:'192.168.1.100',
                         hproblemId:13462523456,
                         children:[
                             {
                             switchIp:null,
+                            switchName:'admin',
+                            switchPassword:'admin',
                             typeProblem: '安全配置',
                             hproblemId:12345671,
                             children: [
@@ -109,6 +144,9 @@
                             ]
                         },
                             {
+                                switchIp:null,
+                                switchName:'admin',
+                                switchPassword:'admin',
                                 typeProblem: '设备缺陷',
                                 hproblemId:1135242,
                                 children: [
@@ -136,6 +174,8 @@
                         hproblemId:212543,
                         children:[{
                             switchIp:null,
+                            switchName:'admin11',
+                            switchPassword:'admin',
                             typeProblem: '安全配置',
                             hproblemId:22356472,
                             children: [
@@ -173,14 +213,34 @@
             const usname = Cookies.get('usName')
         },
         methods: {
+            //五条信息
+            // wutiao(){
+            //     //测试获取交换机信息testData
+            //     const jiaoxinxi = this.tableDataq
+            //     const allwutiao = []
+            //     for(let i = 0;i<jiaoxinxi.length;i++){
+            //         for (let g = 0;g<jiaoxinxi[i].children.length;g++){
+            //             const newwutiao = {}
+            //             if(jiaoxinxi[i].children[g].switchName != undefined){
+            //                 this.$set(newwutiao,'ip',jiaoxinxi[i].children[g].switchIp)
+            //                 this.$set(newwutiao,'name',jiaoxinxi[i].children[g].switchName)
+            //                 this.$set(newwutiao,'password',jiaoxinxi[i].children[g].switchPassword)
+            //                 allwutiao.push(newwutiao)
+            //                 break
+            //             }
+            //         }
+            //     }
+            //     console.log(allwutiao)
+            // },
             //历史扫描
             lishi(){
+                this.chuci = false
+                this.huisao = true
                 return request({
                     url:'/sql/SolveProblemController/getUnresolvedProblemInformationByUserName',
                     method:'post',
                 }).then(response=>{
                     console.log(response)
-                    console.log(typeof response)
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {
                         let strtest = JSON.stringify(arrayJsonObj);
                         let reg = new RegExp(oldKey,'g');
@@ -190,36 +250,135 @@
                     let newJson = changeTreeDate(response,'switchProblemVOList','children');
                     let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
                     this.tableDataq = newJson1
-                    console.log(response)
-                })
-            },
-            zizujian(){
-              // alert(JSON.stringify(this.forms.dynamicItem))
-                alert(this.alljiao.allInfo)
-            },
-            //笨方法
-            aaa(){
-                const shu = this.tableDataq
-                for (let i=0;i<shu.length;i++){
-                    for (let g=0;g<shu[i].children.length;g++){
-                        for (let m=0;m<shu[i].children[g].children.length;m++){
-                            if (shu[i].children[g].children[m].hasOwnProperty('valueInformationVOList')===true){
-                                const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
-                                const wenti = shu[i].children[g].children[m].problemName
-                                const zuihou = yonghu +" "+ wenti
-                                this.$set(shu[i].children[g].children[m],'problemName',zuihou)
+                    const jiaid = this.tableDataq
+                    //返回数据添加hproblemId
+                    for(let i = 0;i<jiaid.length;i++){
+                        this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
+                    }
+                    //测试对象加数组
+                    for(let i = 0;i<jiaid.length;i++){
+                        const waic = []
+                        for (let g = 0;g<jiaid[i].children.length;g++){
+                            let yic = {}
+                            let chi = []
+                            chi.push(jiaid[i].children[g])
+                            this.$set(yic,'children',chi)
+                            this.$set(yic,'switchIp',jiaid[i].children[g].switchIp)
+                            this.$set(jiaid[i].children[g],'switchIp',undefined)
+                            this.$set(yic,'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
+                            waic.push(yic)
+                        }
+                        this.$set(jiaid[i],'children',waic)
+                    }
+                    //回显问题添加用户名
+                    for (let i = 0;i<jiaid.length;i++){
+                        for (let g = 0;g<jiaid[i].children.length;g++){
+                            for (let m = 0;m<jiaid[i].children[g].children.length;m++){
+                                for (let n = 0;n<jiaid[i].children[g].children[m].children.length;n++){
+                                    if (jiaid[i].children[g].children[m].children[n].valueInformationVOList.length>0){
+                                        const yonghu = jiaid[i].children[g].children[m].children[n].valueInformationVOList[0].dynamicInformation
+                                        const wenti = jiaid[i].children[g].children[m].children[n].problemName
+                                        const zuihou = yonghu +" "+ wenti
+                                        this.$set(jiaid[i].children[g].children[m].children[n],'problemName',zuihou)
+                                    }
+                                }
                             }
                         }
                     }
+                    //获取返回ip、用户名、密码等
+                    const allxinxi = []
+                    for(let i = 0;i<jiaid.length;i++){
+                        for (let g = 0;g<jiaid[i].children.length;g++){
+                            for (let m = 0;m<jiaid[i].children[g].children.length;m++){
+                                const allinfo = {}
+                                if(jiaid[i].children[g].children[m].switchName != undefined){
+                                    this.$set(allinfo,'ip',jiaid[i].children[g].switchIp)
+                                    this.$set(allinfo,'name',jiaid[i].children[g].children[m].switchName)
+                                    this.$set(allinfo,'password',jiaid[i].children[g].children[m].switchPassword)
+                                    this.$set(allinfo,'mode',jiaid[i].children[g].children[m].loginMethod)
+                                    this.$set(allinfo,'port',jiaid[i].children[g].children[m].portNumber)
+                                    allxinxi.push(allinfo)
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    //所有交换机信息去重
+                    // let newArr = []
+                    let newObj = {}
+                    for(let i = 0;i<allxinxi.length;i++){
+                        if(!newObj[allxinxi[i].ip]){
+                            this.newArr.push(allxinxi[i])
+                            newObj[allxinxi[i].ip] = true
+                        }
+                    }
+                    console.log(this.newArr)
+                    console.log(jiaid)
+                })
+            },
+            // zizujian(){
+            //   // alert(JSON.stringify(this.forms.dynamicItem))
+            //     alert(this.alljiao.allInfo)
+            // },
+            //笨方法
+            // aaa(){
+            //     const shu = this.tableDataq
+            //     console.log('点击')
+            //     for (let i=0;i<shu.length;i++){
+            //         for (let g=0;g<shu[i].children.length;g++){
+            //             for (let m=0;m<shu[i].children[g].children.length;m++){
+            //                 if (shu[i].children[g].children[m].hasOwnProperty('valueInformationVOList')===true){
+            //                     const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
+            //                     const wenti = shu[i].children[g].children[m].problemName
+            //                     const zuihou = yonghu +" "+ wenti
+            //                     this.$set(shu[i].children[g].children[m],'problemName',zuihou)
+            //                 }
+            //             }
+            //         }
+            //     }
+            // },
+            //回显历史扫描某次事件一键修复
+            huitimeyijian(row){
+                const problemIdList = []
+                const iplist = []
+                const yijian = row.children
+                console.log(yijian)
+                for (let i = 0;i<yijian.length;i++){
+                    for (let g = 0;g<yijian[i].children.length;g++){
+                        for (let m = 0;m<yijian[i].children[g].children.length;m++){
+                            iplist.push(yijian[i]['switchIp'])
+                            problemIdList.push(yijian[i].children[g].children[m].questionId)
+                        }
+                    }
                 }
+                const list1 = []
+                for(let i = 0;i<this.newArr.length;i++){
+                    const chaip = this.newArr[i]
+                    for(let g = 0;g<iplist.length;g++){
+                        if(chaip['ip'] === iplist[g]){
+                            list1.push(chaip)
+                        }
+                    }
+                }
+                const userinformation = list1.map(x=>JSON.stringify(x))
+                console.log(userinformation)
+                console.log(problemIdList)
+                return request({
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    method:'post',
+                    data:userinformation
+                }).then(response=>{
+                    console.log('成功')
+                    this.$message.success('修复请求以提交!')
+                })
             },
             //一键修复所有
             allxiu(){
                 //问题ID集合
                 const problemIdList = []
                 const iplist = []
-                const yijian = this.tableDataq
-                console.log(this.tableDataq)
+                const yijian = this.testData
+                console.log(this.testData)
                 for (let i = 0;i<yijian.length;i++){
                     for (let g = 0;g<yijian[i].children.length;g++){
                         for (let m = 0;m<yijian[i].children[g].children.length;m++){
@@ -232,8 +391,38 @@
                 for(let i = 0;i<this.alljiao.allInfo.length;i++){
                     const chaip = JSON.parse(this.alljiao.allInfo[i])
                     for(let g = 0;g<iplist.length;g++){
-                        const ipone = iplist[g]
-                        if(chaip['ip'] === ipone){
+                        if(chaip['ip'] === iplist[g]){
+                            list1.push(chaip)
+                        }
+                    }
+                }
+                const userinformation = list1.map(x=>JSON.stringify(x))
+                console.log(userinformation)
+                console.log(problemIdList)
+                return request({
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    method:'post',
+                    data:userinformation
+                }).then(response=>{
+                    console.log('成功')
+                    this.$message.success('修复请求以提交!')
+                })
+            },
+            //回显单台一键修复
+            xiuallone(row){
+                const thisip = row.switchIp
+                const listAll = row.children
+                const list1 = []
+                const problemIdList = []
+                for(let i = 0;i<listAll.length;i++){
+                    for (let g = 0;g<listAll[i].children.length;g++){
+                        problemIdList.push(listAll[i].children[g].questionId)
+                    }
+                }
+                for (let i = 0;i<this.newArr.length;i++){
+                    const chaip = this.newArr[i]
+                    if(chaip['ip'] === thisip){
+                        for (let g = 0;g<problemIdList.length;g++){
                             list1.push(chaip)
                         }
                     }
@@ -252,7 +441,6 @@
             },
             //单台一键修复
             xiuall(row){
-                //当前点击一键修复交换机
                 const thisip = row.switchIp
                 const listAll = row.children
                 const list1 = []
@@ -274,7 +462,6 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+userinformation+'/'+problemIdList,
                     url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
                     method:'post',
                     data:userinformation
@@ -283,20 +470,59 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-            // 修复问题
+            //回显修复单个问题
+            xiufuone(row){
+                const thisid = row.hproblemId
+                let thisparip = ''
+                const allwenti = this.tableDataq
+                for(let i = 0;i<allwenti.length;i++){
+                    for (let g = 0;g<allwenti[i].children.length;g++){
+                        for (let m = 0;m<allwenti[i].children[g].children.length;m++){
+                            for (let n = 0;n<allwenti[i].children[g].children[m].children.length;n++){
+                                if (allwenti[i].children[g].children[m].children[n].hproblemId === thisid){
+                                    thisparip = allwenti[i].children[g].switchIp
+                                }
+                            }
+                        }
+                    }
+                }
+                const list1 = []
+                const problemIdList = []
+                problemIdList.push(row.questionId)
+                console.log(problemIdList)
+                for (let i = 0;i<this.newArr.length;i++){
+                    const chaip = this.newArr[i]
+                    if (chaip['ip'] === thisparip){
+                        for (let g=0;g<problemIdList.length;g++){
+                            list1.push(chaip)
+                        }
+                    }
+                }
+                const userinformation = list1.map(x=>JSON.stringify(x))
+                console.log(userinformation)
+                return request({
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    method:'post',
+                    data:userinformation
+                }).then(response=>{
+                    console.log('成功')
+                    this.$message.success('修复请求以提交!')
+                })
+            },
+            // 修复单个问题
             xiufu(row){
                 console.log(row.hproblemId)
                 const thisid = row.hproblemId
-                let thisparid = ''
-                // tableDataq
+                let thisparip = ''
+                // tableDataq testData
                 console.log(this.testData)
                 const allwenti = this.testData
                 for(let i = 0;i<allwenti.length;i++){
                     for (let g = 0;g<allwenti[i].children.length;g++){
                         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
                             if (allwenti[i].children[g].children[m].hproblemId === thisid){
-                                thisparid = allwenti[i].switchIp
-                                console.log(thisparid)
+                                thisparip = allwenti[i].switchIp
+                                console.log(thisparip)
                             }
                         }
                     }
@@ -309,7 +535,7 @@
                 // list2.push(listv)
                 for (let i = 0;i<this.alljiao.allInfo.length;i++){
                     const chaip = JSON.parse(this.alljiao.allInfo[i])
-                    if (chaip['ip'] === thisparid){
+                    if (chaip['ip'] === thisparip){
                         for (let g=0;g<problemIdList.length;g++){
                             list1.push(chaip)
                         }
@@ -328,7 +554,6 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-
             sendDataToServer() {
                 if (this.webSocket.readyState === 1) {
                     this.webSocket.send('来自前端的数据')
@@ -340,9 +565,8 @@
              * 初始化ws
              */
             wsInit() {
-                // localhost 192.168.1.98
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
-                const wsuri = `ws://192.168.1.98/dev-api/websocket/loophole${Cookies.get('usName')}`
+                const wsuri = `ws://localhost/dev-api/websocket/loophole${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws
@@ -380,8 +604,6 @@
                     let newStr = strtest.replace(reg,newKey);
                     return JSON.parse(newStr);
                 }
-                console.log(e.data)
-                console.log(typeof e.data)
                 let newJson = changeTreeDate(JSON.parse(e.data),'switchProblemVOList','children');
                 let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
                 this.testData = newJson1
@@ -399,36 +621,6 @@
                     }
                 }
                 console.log(this.testData)
-            },
-            //看数据
-            kan(){
-                console.log(this.tableDataq)
-                this.tableDataq.forEach(items=>{
-                    // if (item.children.length>0){
-                    //     // alert('sss')
-                    //     // console.log(item)
-                    //     this.digui(item)
-                    //     console.log(item,'我们')
-                    // }
-                    console.log(items)
-                    this.has()
-                    this.digui(items)
-                })
-            },
-            //实验
-            has(){
-              console.log('sss')
-            },
-            //递归
-            digui(item){
-                if (item.children.length>0){
-                    item.children.forEach(ff=>{
-                        this.digui(ff)
-                        console.log(ff)
-                    })
-                }else{
-                    alert('没了')
-                }
             },
             /**
              * ws通信发生错误

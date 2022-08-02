@@ -49,10 +49,6 @@
             <el-button v-if="index+1 == forms.dynamicItem.length" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>
             <el-button v-if="index !== 0" size="small" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>
           </el-form-item>
-<!--          <el-form-item>-->
-<!--            <el-button type="primary" icon="el-icon-search" size="mini" @click="duosao">多台扫描</el-button>-->
-<!--            <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>-->
-<!--          </el-form-item>-->
       </div>
 
 <!--      <el-form-item label="ip" prop="ip">-->
@@ -94,14 +90,13 @@
 <!--   @keyup.enter.native="handleQuery"-- 回车事件 >
 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
 <!--        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">单台扫描</el-button>-->
-<!--        <el-button type="primary" size="mini" @click="danduo">单/多台模式</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="gettest">获取数据</el-button>-->
     </el-form>
 
     <el-divider></el-divider>
 <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
-    <WebSocketOne></WebSocketOne>
+<!--    <WebSocketOne></WebSocketOne>-->
 
 <!--    <el-upload-->
 <!--      class="upload-demo"-->
@@ -163,7 +158,7 @@
 <script>
 import { listJh_test, getJh_test, delJh_test, addJh_test, updateJh_test, exportJh_test } from "@/api/sql/jh_test";
 import WebSocket from '@/components/WebSocket/WebSocket';
-import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
+// import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
 import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
 import log from "../../monitor/job/log"
 import * as XLSX from 'xlsx'
@@ -172,7 +167,7 @@ export default {
   name: "Jh_test",
     components:{
         WebSocket,
-        WebSocketOne,
+        // WebSocketOne,
         WebSocketTwo
     },
   data() {
@@ -396,7 +391,6 @@ export default {
       saomiao(){
           let manycon = []
           manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
-          // manycon.push(this.importData.map(x=>JSON.stringify(x)))
           for (let i=0;i<this.importData.length;i++){
               const bianhua = this.importData.map(x=>JSON.stringify(x))
               manycon.push(bianhua[i])
@@ -413,16 +407,6 @@ export default {
               console.log('成功')
               this.$message.success('扫描请求以提交!')
           })
-      },
-      //切换单/多台模式
-      danduo(){
-          if (this.showSearch === true){
-              this.showSearch = false
-              this.duoShow = true
-          }else {
-              this.showSearch = true
-              this.duoShow = false
-          }
       },
       //新增表单项
       addItem(length) {
