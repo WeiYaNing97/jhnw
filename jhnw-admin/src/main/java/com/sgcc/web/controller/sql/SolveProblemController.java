@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.*;
@@ -97,16 +99,17 @@ public class SolveProblemController {
     }
 
 
-    @RequestMapping("batchSolutionMultithreading/{problemIdList}")//{problemIdList}
+    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{historyScan}")//{problemIdList}
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList) {//
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  String historyScan) {//
         LoginUser login = SecurityUtils.getLoginUser();
-        RepairThread repairThread = new RepairThread();
-        //repairThread.Solution(login,userinformation,problemIdList);
+
+        //RepairThread repairThread = new RepairThread();
+        //repairThread.Solution(login,historyScan,userinformation,problemIdList);
 
         try {
             RepairFixedThreadPoolTest repairFixedThreadPoolTest = new RepairFixedThreadPoolTest();
-            repairFixedThreadPoolTest.Solution(login,userinformation,problemIdList,1);
+            repairFixedThreadPoolTest.Solution(login,historyScan,userinformation,problemIdList,1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -121,7 +124,7 @@ public class SolveProblemController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public AjaxResult batchSolution( String userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
+    public AjaxResult batchSolution(String historyScan, String userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
         //用户信息
         String userInformationString = userinformation;
         userInformationString = userInformationString.replace("{","");
@@ -244,8 +247,11 @@ public class SolveProblemController {
                     }
                 }
 
-                getUnresolvedProblemInformationByIds(loginUser,problemIds);
-
+                if (historyScan.equals("currentscan")){//当前
+                    getUnresolvedProblemInformationByIds(loginUser,problemIds);
+                }else if (historyScan.equals("historyscan")){//历史
+                    getUnresolvedProblemInformationByUserName(loginUser.getUsername());
+                }
 
             if (requestConnect_way.equalsIgnoreCase("ssh")){
                 connectMethod.closeConnect(sshConnect);
@@ -577,6 +583,97 @@ public class SolveProblemController {
             String time = simpleDateFormat.format(createTime);
             time_hashSet.add(time);
         }
+        List<Date> arr = new ArrayList<Date>();
+        for (String time:time_hashSet){
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            try {
+                arr.add(format.parse(time));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        List<Date> sort = Utils.sort(arr);
+        List<String> stringtime = new ArrayList<>();
+        for (int number = sort.size()-1;number>=0;number--){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String time = dateFormat.format(sort.get(number));
+            stringtime.add(time);
+        }
+
+        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
+        for (String time:stringtime){
+            ScanResultsVO scanResultsVO = new ScanResultsVO();
+            scanResultsVO.setCreateTime(time);
+            scanResultsVOList.add(scanResultsVO);
+        }
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            String createTime = scanResultsVO.getCreateTime();
+            for (SwitchProblemVO switchProblemVO:switchProblemList){
+                Date time = switchProblemVO.getCreateTime();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String format_time = simpleDateFormat.format(time);
+                if (format_time.equals(createTime)){
+                    List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
+                    if (switchProblemVOList == null){
+                        List<SwitchProblemVO> switchProblemVOS = new ArrayList<>();
+                        switchProblemVOS.add(switchProblemVO);
+                        scanResultsVO.setSwitchProblemVOList(switchProblemVOS);
+                    }else {
+                        switchProblemVOList.add(switchProblemVO);
+                        scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+                    }
+                }
+            }
+        }
+
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            for (SwitchProblemVO switchProblemVO:scanResultsVO.getSwitchProblemVOList()){
+                switchProblemVO.setCreateTime(null);
+                for (SwitchProblemCO switchProblemCO:switchProblemVO.getSwitchProblemCOList()){
+                    switchProblemCO.setCreateTime(null);
+                }
+            }
+        }
+
+        return scanResultsVOList;
+    }
+
+    /**
+     * @method: 根据当前登录人 获取 以往扫描信息
+     * @Param: []
+     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public List<ScanResultsVO> getUnresolvedProblemInformationByUserName(String userName){
+
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date date1 = new Date();
+            switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
+            for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+                valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
+                List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    Date date2 = new Date();
+                    valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                }
+                Date date3 = new Date();
+                switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.setValueInformationVOList(valueInformationVOList);
+            }
+        }
+
+        //将IP地址去重放入set集合中
+        HashSet<String> time_hashSet = new HashSet<>();
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date createTime = switchProblemVO.getCreateTime();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String time = simpleDateFormat.format(createTime);
+            time_hashSet.add(time);
+        }
 
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String time:time_hashSet){
@@ -615,6 +712,5 @@ public class SolveProblemController {
 
         return scanResultsVOList;
     }
-
 
 }

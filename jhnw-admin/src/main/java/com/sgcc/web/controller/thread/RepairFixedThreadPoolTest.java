@@ -26,12 +26,11 @@ public class RepairFixedThreadPoolTest {
     /**
      * newFixedThreadPool submit submit
      */
-    public void Solution(LoginUser user, List<Object> userinformation, List<String> problemIdList,int threads) throws InterruptedException {
+    public void Solution(LoginUser user,String historyScan, List<Object> userinformation, List<String> problemIdList,int threads) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(userinformation.size());
 
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(threads);
-
 
         int number = userinformation.size();
         for (int i = 0 ; i<number ; i++){
@@ -54,7 +53,7 @@ public class RepairFixedThreadPoolTest {
                         try {
 
                             SolveProblemController solveProblemController = new SolveProblemController();
-                            AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
+                            AjaxResult ajaxResult = solveProblemController.batchSolution(historyScan,userinformationList,loginUser,switchProblem,problemIds);
 
                         } catch (Exception e) {
                             e.printStackTrace();

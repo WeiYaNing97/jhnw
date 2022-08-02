@@ -617,4 +617,10 @@ public class Utils {
         return switchInformation;
     }
 
+    public static List<Date> sort(List<Date> dateList){
+        dateList.sort((a1,a2) ->{
+            return a1.compareTo(a2);
+        });
+        return dateList;
+    }
 }

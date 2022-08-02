@@ -55,7 +55,8 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
     public int insertReturnRecord(ReturnRecord returnRecord)
     {
         returnRecord.setCreateTime(DateUtils.getNowDate());
-        return returnRecordMapper.insertReturnRecord(returnRecord);
+        int i = returnRecordMapper.insertReturnRecord(returnRecord);
+        return Integer.valueOf(returnRecord.getId().toString()).intValue();
     }
 
     /**

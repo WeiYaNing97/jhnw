@@ -381,13 +381,17 @@ public class SwitchInteraction {
 
                 //创建 存储交换机返回数据 实体类
                 ReturnRecord returnRecord = new ReturnRecord();
-
+                int insert_Int = 0;
                 returnRecord.setUserName(userName);
                 returnRecord.setSwitchIp(user_String.get("ip"));
                 returnRecord.setBrand(user_String.get("deviceBrand"));
                 returnRecord.setType(user_String.get("deviceModel"));
                 returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
                 returnRecord.setSubVersion(user_String.get("subversionNumber"));
+
+                // 执行命令赋值
+                String commandtrim = command.trim();
+                returnRecord.setCurrentCommLog(commandtrim);
 
 
                 //根据 连接方法 判断 实际连接方式
@@ -403,6 +407,8 @@ public class SwitchInteraction {
                         commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
                     }
 
+                    returnRecord.setCurrentReturnLog(commandString);
+
                     //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
                     boolean switchfailure = Utils.switchfailure(user_String.get("deviceBrand"), commandString);
                     // 存在故障返回 false
@@ -415,14 +421,20 @@ public class SwitchInteraction {
                             if (!deviceBrand){
                                 System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
                                 WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
+                                returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
                                 break;
                             }
                         }
 
                     }
 
+                    returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
+                    insert_Int = returnRecordService.insertReturnRecord(returnRecord);
+
                 }while (!deviceBrand);
 
+                returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
+                returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_Int).longValue());
 
                 //去除其他 交换机登录信息
                 commandString = Utils.removeLoginInformation(commandString);
@@ -432,10 +444,6 @@ public class SwitchInteraction {
 
                 //交换机返回信息 按行分割为 字符串数组
                 String[] commandString_split = commandString.split("\r\n");
-
-                // 执行命令赋值
-                String commandtrim = command.trim();
-                returnRecord.setCurrentCommLog(commandtrim);
 
                 // 返回日志内容
                 String current_return_log = "";
@@ -476,7 +484,7 @@ public class SwitchInteraction {
 
                 //存储交换机返回数据 插入数据库
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
-                int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
+                int update = returnRecordService.updateReturnRecord(returnRecord);
 
                 //判断命令是否错误 错误为false 正确为true
                 if (!Utils.judgmentError(commandString)){
@@ -487,6 +495,7 @@ public class SwitchInteraction {
                         if (!Utils.judgmentError(string_split)){
                             System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                             WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
+                            break;
                         }
                     }
 
@@ -1211,6 +1220,18 @@ public class SwitchInteraction {
         //命令返回信息
         String command_string = null;
 
+        //交换机返回信息 插入 数据库
+        ReturnRecord returnRecord = new ReturnRecord();
+        int insert_id = 0;
+        returnRecord.setUserName(userName);
+        returnRecord.setSwitchIp(user_String.get("ip"));
+        returnRecord.setBrand(user_String.get("deviceBrand"));
+        returnRecord.setType(user_String.get("deviceModel"));
+        returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
+        returnRecord.setSubVersion(user_String.get("subversionNumber"));
+        returnRecord.setCurrentCommLog(command.trim());
+
+
         boolean deviceBrand = true;
         do {
             deviceBrand = true;
@@ -1225,6 +1246,8 @@ public class SwitchInteraction {
                 //command_string = Utils.removeLoginInformation(command_string);
             }
 
+            returnRecord.setCurrentReturnLog(command_string);
+
             //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
             boolean switchfailure = Utils.switchfailure(user_String.get("deviceBrand"), command_string);
             // 存在故障返回 false
@@ -1237,14 +1260,21 @@ public class SwitchInteraction {
                     if (!deviceBrand) {
                         System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
                         WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
+                        returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
                         break;
                     }
                 }
 
             }
 
+            //返回信息表，返回插入条数
+            returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
+            insert_id = returnRecordService.insertReturnRecord(returnRecord);
         }while (!deviceBrand);
 
+        //返回信息表，返回插入条数
+        returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
+        returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
 
         //去除其他 交换机登录信息
         command_string = Utils.removeLoginInformation(command_string);
@@ -1253,19 +1283,10 @@ public class SwitchInteraction {
 
         command_string = command_string.replaceAll(user_String.get("notFinished"),"");
 
-        //交换机返回信息 插入 数据库
-        ReturnRecord returnRecord = new ReturnRecord();
-
-        returnRecord.setUserName(userName);
-        returnRecord.setSwitchIp(user_String.get("ip"));
-        returnRecord.setBrand(user_String.get("deviceBrand"));
-        returnRecord.setType(user_String.get("deviceModel"));
-        returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
-        returnRecord.setSubVersion(user_String.get("subversionNumber"));
-
         //按行切割
         String[] split = command_string.split("\r\n");
-        returnRecord.setCurrentCommLog(command.trim());
+
+
         String current_return_log = "";
         if (split.length != 1){
             current_return_log =command_string.substring(0,command_string.length()-split[split.length-1].length()-2).trim();
@@ -1300,7 +1321,7 @@ public class SwitchInteraction {
 
         //返回信息表，返回插入条数
         returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
-        int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
+        int update = returnRecordService.updateReturnRecord(returnRecord);
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
         String first_problem_scanLogic_Id = "";
         if (commandLogic.getResultCheckId().equals("1")){
@@ -1313,6 +1334,7 @@ public class SwitchInteraction {
                     if (!Utils.judgmentError(string_split)){
                         System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                         WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
+                        break;
                     }
                 }
 
