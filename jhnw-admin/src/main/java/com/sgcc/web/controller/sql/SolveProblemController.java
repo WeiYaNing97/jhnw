@@ -99,14 +99,14 @@ public class SolveProblemController {
     }
 
 
-    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{historyScan}/{scanNum}")//{historyScan}/{scanNum}
+    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{scanNum}")//{historyScan}/{scanNum}
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  String historyScan,@PathVariable  Long scanNum) {//
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum) {//@PathVariable  String historyScan,
         LoginUser login = SecurityUtils.getLoginUser();
 
         //RepairThread repairThread = new RepairThread();
         //repairThread.Solution(login,historyScan,userinformation,problemIdList);
-
+        String historyScan = "currentscan";
         try {
             RepairFixedThreadPoolTest repairFixedThreadPoolTest = new RepairFixedThreadPoolTest();
             repairFixedThreadPoolTest.Solution(login,historyScan,userinformation,problemIdList,Integer.valueOf(scanNum+"").intValue());
