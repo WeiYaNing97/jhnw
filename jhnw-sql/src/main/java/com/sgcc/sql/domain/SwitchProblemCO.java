@@ -41,6 +41,10 @@ public class SwitchProblemCO
     @Excel(name = "问题名称")
     private String problemName;
 
+    /** 问题详细说明和指导索引 */
+    @Excel(name = "问题详细说明和指导索引")
+    private Long problemDescribeId;
+
     /** 扫描时间 */
     @Excel(name = "扫描时间")
     private Date createTime;
@@ -130,6 +134,14 @@ public class SwitchProblemCO
         this.questionId = questionId;
     }
 
+    public Long getProblemDescribeId() {
+        return problemDescribeId;
+    }
+
+    public void setProblemDescribeId(Long problemDescribeId) {
+        this.problemDescribeId = problemDescribeId;
+    }
+
 
     @Override
     public String toString() {
@@ -142,6 +154,7 @@ public class SwitchProblemCO
                 ", valueId=" + valueId +
                 ", resolved='" + resolved + '\'' +
                 ", problemName='" + problemName + '\'' +
+                ", problemDescribeId=" + problemDescribeId +
                 ", createTime=" + createTime +
                 ", valueInformationVOList=" + valueInformationVOList +
                 '}';

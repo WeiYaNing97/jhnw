@@ -39,6 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <result property="valueId"    column="value_id"    />
             <result property="resolved"    column="resolved"    />
             <result property="problemName"    column="problem_name"    />
+            <result property="problemDescribeId"    column="problem_describe_id"    />
             <result property="createTime"    column="create_time"    />
         </collection>
     </resultMap>
@@ -64,7 +65,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
         question.problem_name problem_name,
         question.type_problem type_problem,
-        question.problem_solving_id com_id
+        question.problem_solving_id com_id,
+        question.problem_describe_id problem_describe_id
         FROM
         ( SELECT id, switch_ip, switch_name, switch_password ,login_method,port_number, problem_id,
         if_question, com_id, value_id, resolved, create_time
@@ -75,7 +77,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="currentTime != null  and currentTime != ''"> and create_time = #{currentTime}</if>
         </where>
 
-        ) problem , (SELECT id,problem_name,type_problem,problem_solving_id FROM total_question_table) question WHERE
+        ) problem , (SELECT id,problem_name,type_problem,problem_describe_id,problem_solving_id FROM total_question_table) question WHERE
         problem.problem_id = question.id
         ORDER BY problem.switch_ip DESC , problem.create_time DESC, problem.if_question DESC
     </select>

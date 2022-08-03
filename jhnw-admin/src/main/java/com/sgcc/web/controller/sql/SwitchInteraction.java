@@ -63,9 +63,9 @@ public class SwitchInteraction {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    @RequestMapping("multipleScans")
+    @RequestMapping("multipleScans/{scanNum}")
     @MyLog(title = "扫描问题", businessType = BusinessType.OTHER)
-    public String multipleScans(@RequestBody List<String> switchInformation) {//待测
+    public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {//待测
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
         for (String information:switchInformation){
@@ -118,19 +118,19 @@ public class SwitchInteraction {
             Object[] objects = {mode,ip,name,password,port};
             objectsList.add(objects);
         }
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String ScanningTime = simpleDateFormat.format(new Date());
         LoginUser login = SecurityUtils.getLoginUser();
 
         //ScanThread.switchLoginInformations(objectsList,ScanningTime,login);
         //线程池
         try {
-            ScanFixedThreadPool.switchLoginInformations(objectsList,ScanningTime,login,1);
+            ScanFixedThreadPool.switchLoginInformations(objectsList,ScanningTime,login,Integer.valueOf(scanNum+"").intValue());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描完成");
+        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描完成\r\n");
 
         return "扫描完成";
     }
@@ -156,7 +156,7 @@ public class SwitchInteraction {
         user_String.put("name",name);//用户名
         user_String.put("password",password);//用户密码
         user_String.put("port",port+"");//登录端口号
-        user_String.put("ScanningTime",ScanningTime);//扫描时间 获取当前时间  时间格式为 "yyyy-MM-dd hh:mm:ss"  字符串
+        user_String.put("ScanningTime",ScanningTime);//扫描时间 获取当前时间  时间格式为 "yyyy-MM-dd HH:mm:ss"  字符串
 
 
         //交换机信息
@@ -422,6 +422,13 @@ public class SwitchInteraction {
                                 System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
                                 WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
                                 returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
+
+                                if (way.equalsIgnoreCase("ssh")){
+                                    connectMethod.sendCommand(user_String.get("ip"),sshConnect," ",user_String.get("notFinished"));
+                                }else if (way.equalsIgnoreCase("telnet")){
+                                    telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent," ",user_String.get("notFinished"));
+                                }
+
                                 break;
                             }
                         }
@@ -1111,7 +1118,7 @@ public class SwitchInteraction {
         switchProblem.setPhonenumber(phonenumber); //是否有问题
         //插入 扫描时间
         String loginTime = user_String.get("ScanningTime");
-        DateTime dateTime = new DateTime(loginTime, DatePattern.NORM_DATETIME_FORMAT);
+        DateTime dateTime = new DateTime(loginTime, "yyyy-MM-dd HH:mm:ss");
         switchProblem.setCreateTime(dateTime);
 
         //插入问题
@@ -1261,6 +1268,13 @@ public class SwitchInteraction {
                         System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
                         WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
                         returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
+
+                        if (way.equalsIgnoreCase("ssh")){
+                            connectMethod.sendCommand(user_String.get("ip"),sshConnect," ",user_String.get("notFinished"));
+                        }else if (way.equalsIgnoreCase("telnet")){
+                            telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent," ",user_String.get("notFinished"));
+                        }
+
                         break;
                     }
                 }

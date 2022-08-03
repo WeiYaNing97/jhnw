@@ -99,9 +99,9 @@ public class SolveProblemController {
     }
 
 
-    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{historyScan}")//{problemIdList}
+    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{historyScan}/{scanNum}")//{historyScan}/{scanNum}
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  String historyScan) {//
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  String historyScan,@PathVariable  Long scanNum) {//
         LoginUser login = SecurityUtils.getLoginUser();
 
         //RepairThread repairThread = new RepairThread();
@@ -109,7 +109,7 @@ public class SolveProblemController {
 
         try {
             RepairFixedThreadPoolTest repairFixedThreadPoolTest = new RepairFixedThreadPoolTest();
-            repairFixedThreadPoolTest.Solution(login,historyScan,userinformation,problemIdList,1);
+            repairFixedThreadPoolTest.Solution(login,historyScan,userinformation,problemIdList,Integer.valueOf(scanNum+"").intValue());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -579,13 +579,13 @@ public class SolveProblemController {
         HashSet<String> time_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date createTime = switchProblemVO.getCreateTime();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String time = simpleDateFormat.format(createTime);
             time_hashSet.add(time);
         }
         List<Date> arr = new ArrayList<Date>();
         for (String time:time_hashSet){
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             try {
                 arr.add(format.parse(time));
             } catch (ParseException e) {
@@ -595,7 +595,7 @@ public class SolveProblemController {
         List<Date> sort = Utils.sort(arr);
         List<String> stringtime = new ArrayList<>();
         for (int number = sort.size()-1;number>=0;number--){
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String time = dateFormat.format(sort.get(number));
             stringtime.add(time);
         }
@@ -610,7 +610,7 @@ public class SolveProblemController {
             String createTime = scanResultsVO.getCreateTime();
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 Date time = switchProblemVO.getCreateTime();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String format_time = simpleDateFormat.format(time);
                 if (format_time.equals(createTime)){
                     List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
@@ -670,7 +670,7 @@ public class SolveProblemController {
         HashSet<String> time_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date createTime = switchProblemVO.getCreateTime();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String time = simpleDateFormat.format(createTime);
             time_hashSet.add(time);
         }
@@ -685,7 +685,7 @@ public class SolveProblemController {
             String createTime = scanResultsVO.getCreateTime();
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 Date time = switchProblemVO.getCreateTime();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String format_time = simpleDateFormat.format(time);
                 if (format_time.equals(createTime)){
                     List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
