@@ -16,13 +16,16 @@
           <br/>
           <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>
           <span slot="footer" class="dialog-footer">
-    <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="shangchuan">确 定</el-button>
   </span>
         </el-dialog>
 <!--        margin-left: -97px;opacity:0%;width:100px-->
         <el-button type="primary" size="small" icon="el-icon-download"
                    @click="xiazai" style="margin-left: 10px">下载模板</el-button>
+<!--        <p style="display:inline-block;margin-left: 10px">同时扫描交换机数量:</p>-->
+        <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
+                         @change="handleChange" :min="1" :max="5"></el-input-number>
       </el-form-item>
       <el-divider></el-divider>
       <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
@@ -112,7 +115,7 @@
 <!--      <div slot="tip" class="el-upload__tip">只 能 上 传 xlsx / xls 文 件</div>-->
 <!--    </el-upload>-->
 
-    <WebSocketTwo :queryParams="queryParams" :forms="forms" :alljiao="alljiao"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" :forms="forms" :alljiao="alljiao" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
@@ -172,20 +175,17 @@ export default {
     },
   data() {
     return {
+        //计数器
+        num:1,
         //表格上传
         importData:[],
         dialogVisible:false,
-
         //缓存交换机信息
         alljiao:{
             allInfo:[
 
             ]
         },
-
-        fileList:[],
-        tableHead: [], //表头
-        tableData: [],
         //多台隐身
         duoShow:true,
       // 遮罩层
@@ -236,60 +236,7 @@ export default {
       },
         //新添加的
         textarea:'',
-        testData:[],
-        tableData:[],
         // switchIp typeProblem problemName ifQuestion problemId
-        tableDataq: [
-            {
-                switchIp:'192.168.1.1',
-                hproblemId:1,
-                children:[{
-                    typeProblem: '安全配置',
-                    hproblemId:11,
-                    children: [
-                        {
-                            problemName:'密码明文存储',
-                            ifQuestion:'noproblem_endmark',
-                            hproblemId:111
-                        },
-                        {
-                            problemName:'telnet开启',
-                            ifQuestion:'haveproblem_endmark',
-                            hproblemId:1111
-                        }
-                    ]
-                },
-                    {
-                        typeProblem: '设备缺陷',
-                        hproblemId:12,
-                        children: [
-                            {
-                                problemName:'没有配置管理地址',
-                                ifQuestion:'haveproblem_endmark',
-                                hproblemId:112
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                switchIp:'192.168.1.100',
-                problemId:2,
-                children:[{
-                    typeProblem: '安全配置',
-                    problemId:22,
-                    children: [
-                        {
-                            problemName:'密码明文存储',
-                            ifQuestion:'noproblem_endmark',
-                            problemId:222,
-                        }
-                    ]
-                },
-                ]
-            }
-        ],
-
       // 表单参数
       form: {},
       // 表单校验
@@ -318,6 +265,19 @@ export default {
       this.getList();
   },
   methods: {
+      //上传成功
+      shangchuan(){
+          this.dialogVisible = false
+          if (this.importData[0].ip != undefined){
+              this.$message.success('批量导入成功!')
+          }else {
+              this.$message.warning('批量导入失败，请重新导入或者下载模板!')
+          }
+      },
+      //计数器
+      handleChange(value) {
+          console.log(value);
+      },
       //关闭导入弹窗
       handleClose(done) {
           this.$confirm('确认关闭？')
@@ -368,7 +328,7 @@ export default {
                   });
                   this.importData = [...arr];
                   if (this.importData[0].ip === undefined){
-                      window.alert("文件数据格式不正确!请下载模板!");
+                      this.$message.warning('批量导入失败，请重新导入或者下载模板!')
                   }
                   // this.importData则为最终获取到的数据
                   console.log(this.importData);
@@ -396,11 +356,12 @@ export default {
               manycon.push(bianhua[i])
           }
           this.alljiao.allInfo = manycon
+          const scanNum = this.num
           console.log(this.alljiao.allInfo)
           console.log(manycon)
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              url:'/sql/SwitchInteraction/multipleScans',
+              url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
               method:'post',
               data:manycon
           }).then(response=>{

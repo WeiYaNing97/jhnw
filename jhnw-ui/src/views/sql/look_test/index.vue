@@ -291,7 +291,7 @@ export default {
         biList:['品牌','型号','固件版本','子版本'],
         //新添加
         checkedQ:false,
-        zhidu:false,
+        zhidu:true,
         showNo:false,
         checked:false,
         proNameList:[],
@@ -643,6 +643,7 @@ export default {
 
       //回显定义问题
       chaxun(){
+          console.log(this.queryParams)
           this.showNo= true
           return request({
               url:'/sql/DefinitionProblemController/getAnalysisList',
@@ -811,7 +812,7 @@ export default {
           MessageBox.confirm('确定去修改吗？','提示').then(c=>{
               this.zhidu = false
           }).catch(ee=>{
-              alert('quxiao')
+              alert('取消修改')
           })
 
       },

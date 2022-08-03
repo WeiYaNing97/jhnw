@@ -1,9 +1,9 @@
 <template>
-  <div class="app-container" @contextmenu="showMenu">
+<!--  <div class="app-container" @contextmenu="showMenu">-->
+  <div class="app-container">
 <!--    @contextmenu="showMenu"-->
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="设备基本信息:"></el-form-item>
-<!--      <div>-->
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
                      filterable allow-create @blur="brandShu" @focus="brandLi($event)"
@@ -39,7 +39,6 @@
 <!--        <el-form-item>-->
 <!--          <el-button type="primary" @click="tianjia(item)"><i class="el-icon-plus"></i></el-button>-->
 <!--        </el-form-item>-->
-<!--      </div>-->
       <br/>
 <!--      <el-form-item>-->
 <!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
@@ -50,7 +49,7 @@
       <el-form-item label="问题概要:"></el-form-item>
       <el-form-item label="问题类型" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
-                   filterable allow-create @focus="proType" @blur="typeProShu">
+                   filterable allow-create @focus="proType($event)" @blur="typeProShu">
           <el-option v-for="(item,index) in typeProList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
@@ -58,7 +57,7 @@
 
       <el-form-item label="问题名称">
         <el-select v-model="queryParams.problemName" placeholder="请选择问题"
-                   filterable allow-create @focus="chawenti" @blur="proSelect">
+                   filterable allow-create @focus="chawenti($event)" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
@@ -69,11 +68,11 @@
                   @focus="biaoshi($event)" name="biaoshi"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="huoquid">提交问题</el-button>
+        <el-button type="primary" @click="huoquid">定义问题命令</el-button>
       </el-form-item>
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="hand">出现</el-button>-->
-<!--      </el-form-item>-->
+      <el-form-item>
+        <el-button type="primary" @click="hand">定义问题详情</el-button>
+      </el-form-item>
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
 <!--      </el-form-item>-->
@@ -83,7 +82,7 @@
     </el-form>
     <hr style='border:1px inset #D2E9FF;'>
 
-    <el-form ref="forms" :inline="true" :model="forms" :disabled="zhidu">
+    <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
       <el-form-item label="检测方法:"></el-form-item>
       <el-form-item>
         <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
@@ -113,19 +112,19 @@
           </el-form-item>
         </div>
 <!--        style="display: inline-block;padding-left: 20px"-->
-        <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block">
+        <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
 <!--          :style="{display:display,paddingLeft:paddingLeft}"-->
           <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True">&nbsp;</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'matchfal'"
              style="display: inline-block;padding-left:308px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -318,6 +317,8 @@ export default {
     },
   data() {
     return {
+        //隐藏定义问题
+        chuxian:true,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj
@@ -356,8 +357,8 @@ export default {
         biList:['品牌','型号','固件版本','子版本'],
         checkedQ:false,
         // checked:false,
+        //问题ID
         proId:'',
-        zhidu:false,
       // 遮罩层
       loading: true,
       // 导出遮罩层
@@ -521,10 +522,11 @@ export default {
               url:'/sql/total_question_table/brandlist',
               method:'get'
           }).then(response=>{
+              console.log(response)
               this.brandList = response
           })
       },
-      proType(){
+      proType(e){
           return request({
               url:'/sql/total_question_table/typeProblemlist',
               method:'post',
@@ -601,17 +603,18 @@ export default {
       },
       //提交问题 返回问题id
       huoquid(){
+          this.chuxian = true
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
           this.$delete(shasha,'commandId')
           return request({
-              url:'/sql/total_question_table/add',
+              // url:'/sql/total_question_table/add',
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
               this.proId = response
           })
       },
-      chawenti(){
+      chawenti(e){
           return request({
               url:'/sql/total_question_table/problemNameList',
               method:'post',
@@ -685,8 +688,15 @@ export default {
           }
           this.$set(item1,'checked',false)
           const thisIndex = this.forms.dynamicItem.indexOf(item)
+          //
+          console.log(thisIndex)
+          //动态添加的样式空格问题
+          // console.log(this.$refs.btn[thisIndex] div)
+          console.log(this.$refs.btn[thisIndex].labelss)
+          console.log(item)
           // this.$set(item,'nextIndex',thisData)
           if(type == 'match'){
+              this.$refs.btn[thisIndex].labelss = '测试我'
               this.$set(item1,'matched','全文精确匹配')
               this.$set(item1,'trueFalse','成功')
               // alert(event.target.getAttribute('label'))

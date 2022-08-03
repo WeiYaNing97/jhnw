@@ -189,7 +189,6 @@ export default {
       //获取该问题ID
       chakan(){
           this.showNo = true
-          // alert(JSON.stringify(this.queryParams))
           let form = new FormData();
           for (var key in this.queryParams){
               form.append(key,this.queryParams[key]);
@@ -199,6 +198,7 @@ export default {
               method:'post',
               data:form
           }).then(response=>{
+              console.log(this.proId)
               this.proId = response
           })
       },

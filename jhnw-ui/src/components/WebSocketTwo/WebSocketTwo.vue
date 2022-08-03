@@ -3,6 +3,7 @@
 <!--    tableDataq  testData-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
+    <el-button type="primary" size="small" @click="xiancheng">线程数</el-button>
 <!--    <el-button type="primary" size="small" @click="wutiao">五条</el-button>-->
     <el-table v-loading="loading"
               :data="testData"
@@ -74,6 +75,7 @@
         name: "WebSocketTwo",
         props:{
             queryParams:'',
+            num:'',
             alljiao:{
                 allInfo:[
 
@@ -213,6 +215,10 @@
             const usname = Cookies.get('usName')
         },
         methods: {
+            //线程数
+            xiancheng(){
+              console.log(this.num)
+            },
             //五条信息
             // wutiao(){
             //     //测试获取交换机信息testData
@@ -234,6 +240,7 @@
             // },
             //历史扫描
             lishi(){
+                console.log('我是历史')
                 this.chuci = false
                 this.huisao = true
                 return request({
@@ -337,7 +344,7 @@
             //         }
             //     }
             // },
-            //回显历史扫描某次事件一键修复
+            //回显历史扫描某次时间一键修复
             huitimeyijian(row){
                 const problemIdList = []
                 const iplist = []
@@ -361,10 +368,14 @@
                     }
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
+                const historyScan = 'historyscan'
+                const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
+                console.log(historyScan)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+historyScan,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -372,7 +383,7 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-            //一键修复所有
+            //当前扫描一键修复所有问题
             allxiu(){
                 //问题ID集合
                 const problemIdList = []
@@ -397,10 +408,11 @@
                     }
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
+                const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -408,8 +420,9 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-            //回显单台一键修复
+            //历史单台一键修复
             xiuallone(row){
+                // setInterval(this.lishi,5000)
                 const thisip = row.switchIp
                 const listAll = row.children
                 const list1 = []
@@ -428,10 +441,11 @@
                     }
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
+                const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -439,7 +453,7 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-            //单台一键修复
+            //当前单台一键修复
             xiuall(row){
                 const thisip = row.switchIp
                 const listAll = row.children
@@ -459,10 +473,11 @@
                     }
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
+                const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -470,7 +485,7 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-            //回显修复单个问题
+            //历史修复单个问题
             xiufuone(row){
                 const thisid = row.hproblemId
                 let thisparip = ''
@@ -499,9 +514,10 @@
                     }
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
+                const scanNum = this.num
                 console.log(userinformation)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -509,7 +525,7 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-            // 修复单个问题
+            // 当前修复单个问题
             xiufu(row){
                 console.log(row.hproblemId)
                 const thisid = row.hproblemId
@@ -543,10 +559,10 @@
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 // const problemIdList = list2.map(x=>JSON.stringify(x))
+                const scanNum = this.num
                 console.log(userinformation)
                 return request({
-                    //老的路径 url:'/sql/ConnectController/definitionProblem1/'+userinformation+'/'+problemIdList,
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{

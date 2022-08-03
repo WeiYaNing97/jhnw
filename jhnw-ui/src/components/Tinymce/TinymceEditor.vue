@@ -95,7 +95,7 @@
                 editorValue: this.value,
 
                 content:{
-                    html:'<p>啊实打实大所</p>'
+                    // html:'<p>啊实打实大所</p>'
                 },
             }
 
@@ -119,7 +119,7 @@
 
         methods: {
             huo(){
-                this.editorValue = this.content.html
+                console.log(JSON.stringify(this.editorValue))
             },
             look(){
                 //  const aaa = tinymce.activeEditor.getContent()
@@ -127,8 +127,7 @@
                 axios({
                     method:'post',
                     // url:`/dev-api/sql/ConnectController/ssssss?ass=${this.proId}`,
-                    // url:'/dev-api/sql/ConnectController/ssssssss',
-                    url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
+                    // url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
                     headers:{
                         "Content-Type": "application/json"
                     },
