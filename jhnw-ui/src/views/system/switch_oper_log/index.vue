@@ -168,7 +168,7 @@
       <el-table-column label="错误消息" align="center" prop="errorMsg" />
       <el-table-column label="操作时间" align="center" prop="operTime" width="180">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.operTime, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(scope.row.operTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">

@@ -3,14 +3,17 @@
 <!--    tableDataq  testData-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
-    <el-button type="primary" size="small" @click="xiancheng">线程数</el-button>
+    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>
+    <el-input type="textarea" v-model="wenbenben"></el-input>
+
 <!--    <el-button type="primary" size="small" @click="wutiao">五条</el-button>-->
     <el-table v-loading="loading"
-              :data="testData"
+              :data="tableDataqq"
               ref="tree"
               v-show="chuci"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
+              :cell-style="hongse"
               default-expand-all
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
       <el-table-column prop="switchIp" label="主机"></el-table-column>
@@ -27,6 +30,9 @@
           <el-button style="margin-left: 0" size="mini" type="text"
                      v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')"
                      @click="xiuall(scope.row)">单台修复</el-button>
+          <el-button size="mini" type="text" icon="el-icon-view"
+                     v-show="scope.row.hasOwnProperty('problemDescribeId')"
+                     @click="xiangqing(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -55,11 +61,28 @@
                      v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')&&!scope.row.hasOwnProperty('createTime')"
                      @click="xiuallone(scope.row)">单台修复</el-button>
           <el-button style="margin-left: 0" type="success" plain round
-            size="small" v-show="scope.row.createTime != undefined" @click="huitimeyijian(scope.row)">一键修复</el-button>
+            size="small" v-show="scope.row.createTime != undefined"
+                     @click="huitimeyijian(scope.row)">一键修复</el-button>
+          <el-button size="mini" type="text" icon="el-icon-view"
+                     v-show="scope.row.hasOwnProperty('problemDescribeId')"
+                     @click="xiangqing(scope.row)">详情</el-button>
         </template>
       </el-table-column>
       <!--      <el-table-column prop="planQuantity"  label="用户名"></el-table-column>-->
     </el-table>
+
+<!--    查看详情-->
+    <el-dialog
+      title="问题详情以及解决办法"
+      :visible.sync="dialogVisible"
+      width="50%"
+      :before-close="handleClose">
+      <TinymceEditor></TinymceEditor>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
 
 <!--    <el-button @click="aaa">第二个</el-button>-->
 <!--    <el-button @click="zizujian">看子组件</el-button>-->
@@ -71,8 +94,12 @@
     import axios from 'axios'
     import request from '@/utils/request'
     import Cookies from "js-cookie"
+    import TinymceEditor from "@/components/Tinymce/TinymceEditor"
     export default {
         name: "WebSocketTwo",
+        components:{
+            TinymceEditor
+        },
         props:{
             queryParams:'',
             num:'',
@@ -87,6 +114,9 @@
         },
         data() {
             return {
+                //
+                wenbenben:'',
+                dialogVisible:false,
                 //后台回显所有交换机信息
                 newArr:[],
                 chuci:true,
@@ -115,6 +145,7 @@
                             children: [
                                 {
                                     problemName:'密码明文存储',
+                                    problemDescribeId:2,
                                     ifQuestion:'异常',
                                     hproblemId:12345711,
                                     questionId:1,
@@ -131,6 +162,7 @@
                                 {
                                     problemName:'telnet开启',
                                     ifQuestion:'安全',
+                                    problemDescribeId:3,
                                     hproblemId:11423511,
                                     questionId:12,
                                     comId:'1653277229109',
@@ -215,9 +247,38 @@
             const usname = Cookies.get('usName')
         },
         methods: {
-            //线程数
-            xiancheng(){
-              console.log(this.num)
+            //测试总按钮
+            wenben(){
+                console.log(this.num)
+                console.log(this.wenbenben)
+            },
+            //异常红色
+            hongse(row,column){
+                let reds = {
+                    'color':'red'
+                }
+                if(row.column.label === '是否异常'){
+                    if (row.row.ifQuestion === '异常'){
+                        return reds
+                    }
+                }
+                // if (row.row.ifQuestion === '异常'){
+                //     return reds
+                // }
+            },
+            //查看详情
+            xiangqing(row){
+                const xiangid = row.problemDescribeId
+                console.log(xiangid)
+                this.dialogVisible = true
+                console.log(row)
+            },
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {});
             },
             //五条信息
             // wutiao(){

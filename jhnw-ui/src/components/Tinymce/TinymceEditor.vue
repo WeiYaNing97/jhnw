@@ -1,18 +1,12 @@
 <template>
-
     <div class="tinymce-editor">
-
       <editor :id="editorId"
               v-model="editorValue"
               :init="editorInit"
+              :key="butong"
               :disabled="disabled"
               @onClick="handleClick"/>
-
-  <el-button @click="look">提交</el-button>
-  <el-button @click="huo">获取</el-button>
-
     </div>
-
 </template>
 
 <script>
@@ -39,16 +33,16 @@
         // name: 'TinymceEditor',
         components: { Editor },
         props: {
+            niucang:'',
+            proId:'',
             id: {
                 type: String,
                 default: 'tinymceEditor'
             },
-            proId:'',
             value: {
                 type: String,
                 default: ''
             },
-
             disabled: {
                 type: Boolean,
                 default: false
@@ -62,99 +56,56 @@
                 default:'bold italic underline strikethrough | fontsizeselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | outdent indent blockquote | undo redo | link unlink image code | removeformat'
             }
         },
-
         data() {
             return {
+                butong:1,
+                xaing:'',
                 editorInit: {
                     language_url: '/tinymce/langs/zh_CN.js',
                     language: 'zh_CN',
                     skin_url: '/tinymce/skins/ui/oxide',
-
                     height: 300,
-
                     plugins: this.plugins,
-
                     toolbar: this.toolbar,
-
                     statusbar: true, // 底部的状态栏
-
                     menubar: true, // 最上方的菜单
-
                     branding: false, // 水印“Powered by TinyMCE”
-
                     images_upload_handler: (blobInfo, success, failure) => {
-
                         this.$emit('handleImgUpload', blobInfo, success, failure)
-
                     }
-
                 },
-
                 editorId: this.id,
-
                 editorValue: this.value,
-
                 content:{
                     // html:'<p>啊实打实大所</p>'
                 },
             }
-
         },
-
         watch: {
-
             editorValue(newValue) {
-
                 this.$emit('input', newValue)
-
             }
-
         },
-
+        activated(){
+          this.butong++
+        },
         mounted() {
-
             tinymce.init({})
-
         },
-
         methods: {
-            huo(){
-                console.log(JSON.stringify(this.editorValue))
+            //给父组件文本内容
+            geifu(){
+              return this.editorValue
             },
-            look(){
-                //  const aaa = tinymce.activeEditor.getContent()
-                alert(this.proId)
-                axios({
-                    method:'post',
-                    // url:`/dev-api/sql/ConnectController/ssssss?ass=${this.proId}`,
-                    // url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
-                    headers:{
-                        "Content-Type": "application/json"
-                    },
-                    data:this.editorValue
-                }).then(res=>{
-                    console.log("成功")
-                })
-
-
-            },
-
             // https://github.com/tinymce/tinymce-vue => All available events
 
             handleClick(e) {
-
                 this.$emit('onClick', e, tinymce)
-
             },
-
             clear() {
-
-                this.editorValue = ''
+                thiseditorValue = ''
 
             }
-
         }
-
     }
-
 </script>

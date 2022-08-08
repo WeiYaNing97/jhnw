@@ -90,12 +90,12 @@
       <el-form-item>
         <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
       </el-form-item>
-      <div v-for="(item,index) in forms.dynamicItem" ref="btn" style="padding-left: 10px" :key="index" :label="index">
+      <div v-for="(item,index) in forms.dynamicItem" ref="btn" :key="index" :label="index">
         <el-form-item v-if="index!=0">
           <el-checkbox v-model="item.checked"></el-checkbox>
         </el-form-item>
         <el-form-item v-if="index!=0">{{index}}</el-form-item>
-        <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+        <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
         <div v-if="item.targetType === 'command'" :key="index"
              style="display: inline-block">
           <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
@@ -117,7 +117,7 @@
           <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
-          <el-form-item label="True">&nbsp;</el-form-item>
+          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -296,7 +296,9 @@
 
     </el-form>
 
-    <TinymceEditor :proId="proId" v-show="showha"></TinymceEditor>
+    <TinymceEditor v-show="showha" ref="fuwenben"></TinymceEditor>
+    <el-button @click="yinyin">隐藏</el-button>
+    <el-button @click="look" type="primary" v-show="showha" style="margin-top:20px">提交</el-button>
 
     <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
@@ -421,9 +423,41 @@ export default {
           this.who = e.target.getAttribute('name')
           console.log(this.who)
       },
-      //出现
+      //定义问题详情
       hand(){
           this.showha = true
+          let form = new FormData();
+          for (var key in this.queryParams){
+              if (key != 'notFinished'){
+                  form.append(key,this.queryParams[key]);
+              }
+          }
+          console.log(form)
+          return request({
+              url:'/sql/total_question_table/totalQuestionTableId',
+              method:'post',
+              data:form
+          }).then(response=>{
+              console.log(response)
+              this.proId = response
+          })
+      },
+      //提交问题详情
+      look(){
+          console.log(this.proId)
+          console.log(this.$refs.fuwenben.geifu())
+          return request({
+              // url:`/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
+              method:'post',
+              data:this.$refs.fuwenben.geifu()
+          }).then(response=>{
+              this.$message.success('问题详情已提交!')
+          })
+          //     // url:`/dev-api/sql/ConnectController/ssssss?ass=${this.proId}`,
+          //     // url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
+      },
+      yinyin(){
+        this.showha = false
       },
       //右键
       showMenu(){
@@ -522,7 +556,6 @@ export default {
               url:'/sql/total_question_table/brandlist',
               method:'get'
           }).then(response=>{
-              console.log(response)
               this.brandList = response
           })
       },
@@ -607,7 +640,7 @@ export default {
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
           this.$delete(shasha,'commandId')
           return request({
-              // url:'/sql/total_question_table/add',
+              url:'/sql/total_question_table/add',
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{

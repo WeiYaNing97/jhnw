@@ -198,8 +198,8 @@ export default {
               method:'post',
               data:form
           }).then(response=>{
-              console.log(this.proId)
               this.proId = response
+              console.log(this.proId)
           })
       },
       //提交
