@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
  * @E-mail: WeiYaNing97@163.com
  * @date 2022年07月29日 15:36
  */
-public class RepairFixedThreadPoolTest {
+public class RepairFixedThreadPool {
 
     @Autowired
     private ISwitchProblemService switchProblemService;
@@ -26,7 +26,7 @@ public class RepairFixedThreadPoolTest {
     /**
      * newFixedThreadPool submit submit
      */
-    public void Solution(LoginUser user,String historyScan, List<Object> userinformation, List<String> problemIdList,int threads) throws InterruptedException {
+    public void Solution(LoginUser user, List<Object> userinformation, List<String> problemIdList,int threads) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(userinformation.size());
 
@@ -53,7 +53,7 @@ public class RepairFixedThreadPoolTest {
                         try {
 
                             SolveProblemController solveProblemController = new SolveProblemController();
-                            AjaxResult ajaxResult = solveProblemController.batchSolution(historyScan,userinformationList,loginUser,switchProblem,problemIds);
+                            AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
 
                         } catch (Exception e) {
                             e.printStackTrace();

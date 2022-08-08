@@ -1,6 +1,5 @@
 package com.sgcc.web.controller.util;
 
-import com.sgcc.framework.web.domain.server.Sys;
 
 import java.text.DateFormat;
 import java.text.ParseException;

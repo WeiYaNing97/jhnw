@@ -14,6 +14,7 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.thread.ScanFixedThreadPool;
+import com.sgcc.web.controller.util.EncryptUtil;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -130,7 +131,7 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描完成\r\n");
+        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描结束\r\n");
 
         return "扫描完成";
     }
@@ -212,6 +213,9 @@ public class SwitchInteraction {
 
         //如果连接成功
         if(requestConnect_boolean){
+            String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(user_String.get("password"));
+            user_String.put("password",passwordDensificationAndSalt);//用户密码
+
             //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
             String requestConnect_way = objectList.get(1).toString();
             //SSH 连接工具
@@ -809,7 +813,13 @@ public class SwitchInteraction {
 
                 getUnresolvedProblemInformationByData(user_String,user_Object);
 
-                return extractInformation_string;
+                firstID = problemScanLogic.gettNextId();
+
+                String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
+                        return_information_array,"",extractInformation_string,
+                        line_n,firstID,null,insertsInteger);
+
+                return loop_string;
 
             }
 
@@ -1084,10 +1094,14 @@ public class SwitchInteraction {
                     String setDynamicInformation=parameterStringsplit[number];
                     valueInformation.setDisplayInformation(setDynamicInformation);//动态信息(显示
                     valueInformation.setDynamicInformation(setDynamicInformation);//动态信息
-
                     --number;
                     String setExhibit=parameterStringsplit[number];
                     valueInformation.setExhibit(setExhibit);//是否显示
+
+                    if (setExhibit.equals("否")){
+                        String setDynamicInformationMD5 = EncryptUtil.densificationAndSalt(setDynamicInformation);
+                        valueInformation.setDynamicInformation(setDynamicInformationMD5);//动态信息
+                    }
 
                     --number;
                     valueInformation.setDynamicVname(parameterStringsplit[number]);//动态信息名称

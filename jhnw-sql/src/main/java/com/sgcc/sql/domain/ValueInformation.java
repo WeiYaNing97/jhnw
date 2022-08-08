@@ -29,7 +29,7 @@ public class ValueInformation extends BaseEntity
     private String dynamicInformation;
 
     /** 动态信息 */
-    @Excel(name = "动态信息(显示)")
+    @Excel(name = "动态信息(显示或加密)")
     private String displayInformation;
 
     /** 下一信息ID */

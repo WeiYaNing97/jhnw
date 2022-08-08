@@ -32,22 +32,21 @@ public class RepairThread extends Thread  {
     private static SwitchProblem switchProblem;
     private static LoginUser loginUser;
     private static Thread myThread;
-    private static String history;
     @Override
     public void run() {
         Thread thread = myThread;
         SolveProblemController solveProblemController = new SolveProblemController();
-        AjaxResult ajaxResult = solveProblemController.batchSolution(history,userinformationList,loginUser,switchProblem,problemIds);
+        AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
 
         thread.interrupt();
     }
 
-    public void Solution(LoginUser user,String historyScan ,List<Object> userinformation,List<String> problemIdList) {
+    public void Solution(LoginUser user ,List<Object> userinformation,List<String> problemIdList) {
         int number = userinformation.size();
         for (int i = 0 ; i<number ; i++){
             // 扫描出问题列表 问题ID
             problemId = Integer.valueOf(problemIdList.get(i)).longValue();
-            // 根据 问题ID  查询 扫描出的问题
+            // 根据 问题ID  查询 扫描出的问题.
             switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
             switchProblem = switchProblemService.selectSwitchProblemById(problemId);
             // 查看 扫描出的问题 是否有问题
@@ -57,7 +56,6 @@ public class RepairThread extends Thread  {
                 // 所有问题
                 problemIds = problemIdList;
                 loginUser = user;
-                history = historyScan;
 
                 Thread thread = new RepairThread();
                 thread.start();

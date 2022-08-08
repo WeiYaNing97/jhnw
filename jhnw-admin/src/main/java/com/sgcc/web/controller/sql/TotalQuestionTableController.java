@@ -140,7 +140,10 @@ public class TotalQuestionTableController extends BaseController
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public String add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-        totalQuestionTable.setNotFinished(totalQuestionTable.getNotFinished());
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
+        if (totalQuestionTables != null){
+            return "问题已定义";
+        }
         int i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
         return totalQuestionTable.getId()+"";
     }

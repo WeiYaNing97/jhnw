@@ -15,8 +15,8 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 
-import com.sgcc.web.controller.thread.RepairFixedThreadPoolTest;
-import com.sgcc.web.controller.thread.RepairThread;
+import com.sgcc.web.controller.thread.RepairFixedThreadPool;
+import com.sgcc.web.controller.util.EncryptUtil;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
 import org.springframework.beans.BeanUtils;
@@ -99,20 +99,20 @@ public class SolveProblemController {
     }
 
 
-    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{scanNum}")//{historyScan}/{scanNum}
+    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{scanNum}")
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum) {//@PathVariable  String historyScan,
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum) {
         LoginUser login = SecurityUtils.getLoginUser();
 
         //RepairThread repairThread = new RepairThread();
         //repairThread.Solution(login,historyScan,userinformation,problemIdList);
-        String historyScan = "currentscan";
         try {
-            RepairFixedThreadPoolTest repairFixedThreadPoolTest = new RepairFixedThreadPoolTest();
-            repairFixedThreadPoolTest.Solution(login,historyScan,userinformation,problemIdList,Integer.valueOf(scanNum+"").intValue());
+            RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
+            repairFixedThreadPool.Solution(login,userinformation,problemIdList,Integer.valueOf(scanNum+"").intValue());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n修复结束\r\n");
     }
 
 
@@ -124,7 +124,7 @@ public class SolveProblemController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public AjaxResult batchSolution(String historyScan, String userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
+    public AjaxResult batchSolution(String userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
         //用户信息
         String userInformationString = userinformation;
         userInformationString = userInformationString.replace("{","");
@@ -152,6 +152,7 @@ public class SolveProblemController {
                     break;
                 case "password":
                     //密码
+                    value = EncryptUtil.desaltingAndDecryption(value);
                     user_String.put("password",value);
                     break;
                 case "port":
@@ -210,48 +211,46 @@ public class SolveProblemController {
 
         if (requestConnect_boolean){
             //传参 命令ID 和 参数ID
-                //返回 命令集合 和 参数集合
-                AjaxResult ajaxResult = queryParameterSet(switchProblem.getComId(), switchProblem.getValueId());
+            //返回 命令集合 和 参数集合
+            AjaxResult ajaxResult = queryParameterSet(switchProblem.getComId(), switchProblem.getValueId());
 
-                Object[] commandvalue =  (Object[])ajaxResult.get("data");
+            Object[] commandvalue =  (Object[])ajaxResult.get("data");
 
-                if (commandvalue.length == 1){
-                    List<String> commandList = (List<String>) commandvalue[0];
-                    String command = commandList.get(0);
-                    if (command == "未定义解决问题命令"){
-                         return  AjaxResult.error("未定义解决问题命令");
-                    }
-                }
-
-                //命令集合
+            if (commandvalue.length == 1){
                 List<String> commandList = (List<String>) commandvalue[0];
-                //参数集合
-                List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
-                //解决问题
-                String solveProblem = solveProblem(user_String,loginUser,informationList, commandList, valueInformationVOList);//userName
+                String command = commandList.get(0);
+                if (command == "未定义解决问题命令"){
+                     return  AjaxResult.error("未定义解决问题命令");
+                }
+            }
 
-                if (solveProblem.equals("成功")){
-                    switchProblem.setResolved("是");
-                    switchProblem.setIfQuestion("无问题");
-                    switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
-                    int i = switchProblemService.updateSwitchProblem(switchProblem);
-                    if (i<=0){
+            //命令集合
+            List<String> commandList = (List<String>) commandvalue[0];
+            if (commandList == null){
+                return AjaxResult.error("未定义解决命令");
+            }
+            //参数集合
+            List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
+            //解决问题
+            String solveProblem = solveProblem(user_String,loginUser,informationList, commandList, valueInformationVOList);//userName
 
-                        if (requestConnect_way.equalsIgnoreCase("ssh")){
-                            connectMethod.closeConnect(sshConnect);
-                        }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                            telnetSwitchMethod.closeSession(telnetComponent);
-                        }
+            if (solveProblem.equals("成功")){
+                switchProblem.setResolved("是");
+                switchProblem.setIfQuestion("无问题");
+                switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
+                int i = switchProblemService.updateSwitchProblem(switchProblem);
+                if (i<=0){
 
-                        return AjaxResult.error("修复失败");
+                    if (requestConnect_way.equalsIgnoreCase("ssh")){
+                        connectMethod.closeConnect(sshConnect);
+                    }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                        telnetSwitchMethod.closeSession(telnetComponent);
                     }
-                }
 
-                if (historyScan.equals("currentscan")){//当前
-                    getUnresolvedProblemInformationByIds(loginUser,problemIds);
-                }else if (historyScan.equals("historyscan")){//历史
-                    getUnresolvedProblemInformationByUserName(loginUser.getUsername());
+                    return AjaxResult.error("修复失败");
                 }
+            }
+            getUnresolvedProblemInformationByIds(loginUser,problemIds);
 
             if (requestConnect_way.equalsIgnoreCase("ssh")){
                 connectMethod.closeConnect(sshConnect);
@@ -357,7 +356,11 @@ public class SolveProblemController {
                 String value_string= command_split[command_split.length-1];
                 for (ValueInformationVO valueInformationVO:valueInformationVOList){
                     if (valueInformationVO.getDynamicVname().equals(value_string)){
-                        String command_sum = command_split[0] + " "+ valueInformationVO.getDynamicInformation();
+                        String displayInformation = valueInformationVO.getDynamicInformation();
+                        if (valueInformationVO.getExhibit().equals("否")){
+                            displayInformation = EncryptUtil.desaltingAndDecryption(displayInformation);
+                        }
+                        String command_sum = command_split[0] + " "+ displayInformation;
                         commandList.set(num,command_sum);
                     }
                 }
