@@ -694,6 +694,7 @@ export default {
                       huicha.push(chae)
                   }else if (chae.action === '取词'){
                       this.$set(chae,'targetType','takeword')
+                      // console.log(chae.length.slice(chae.length.length-1))
                       // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
                       if (chae.length.slice(chae.length.length-1) === 'W'){
                           this.$set(chae,'classify','单词')

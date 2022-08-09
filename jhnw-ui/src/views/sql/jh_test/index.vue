@@ -2,10 +2,12 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="50px" :show-message="false">
       <el-form-item style="margin-left: 15px">
-        <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">开始扫描</el-button>
+        <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">全盘扫描</el-button>
         <el-button type="primary" icon="el-icon-upload2"
-                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
-        <el-button type="primary" @click="kandaoru" size="small">查看导入数据</el-button>
+                   size="small" style="margin-left: 10px" @click="daoru">批量导入</el-button>
+<!--        <el-button type="primary" @click="kandaoru" size="small">查看导入数据</el-button>-->
+        <el-button type="primary" @click="zhuanxiang" icon="el-icon-search" size="small">专项扫描</el-button>
+        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">韦工测试</el-button>
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -18,7 +20,7 @@
           <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="shangchuan">确 定</el-button>
-  </span>
+          </span>
         </el-dialog>
 <!--        margin-left: -97px;opacity:0%;width:100px-->
         <el-button type="primary" size="small" icon="el-icon-download"
@@ -28,7 +30,7 @@
                          @change="handleChange" :min="1" :max="5"></el-input-number>
       </el-form-item>
       <el-divider></el-divider>
-      <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow">
+      <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow" max-height="250">
           <el-form-item label="ip" :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">
             <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
           </el-form-item>
@@ -265,6 +267,25 @@ export default {
       this.getList();
   },
   methods: {
+      //韦工测试
+      weigong(){
+          return request({
+              url:'/sql/SwitchInteraction/directionalScann',
+              method:'post',
+          }).then(response=>{
+              console.log(response)
+          })
+      },
+      //导入数据弹框
+      // dialogVisible = true
+      daoru(){
+          this.dialogVisible = true
+          this.importData = []
+      },
+      //专项扫描
+      zhuanxiang(){
+
+      },
       //上传成功
       shangchuan(){
           this.dialogVisible = false
@@ -272,6 +293,15 @@ export default {
               this.$message.success('批量导入成功!')
           }else {
               this.$message.warning('批量导入失败，请重新导入或者下载模板!')
+          }
+          // for (let i = 0;i<this.importData.length;i++){
+          //     this.forms.dynamicItem.push(this.importData[i])
+          // }
+          if (this.importData.length != 0){
+              this.forms.dynamicItem = []
+              for (let i = 0;i<this.importData.length;i++){
+                  this.forms.dynamicItem.push(this.importData[i])
+              }
           }
       },
       //计数器
@@ -340,13 +370,13 @@ export default {
           // 读取文件 成功后执行上面的回调函数
           fileReader.readAsBinaryString(file);
       },
-      //看导入
-      kandaoru(){
-          for (let i = 0;i<this.importData.length;i++){
-              this.forms.dynamicItem.push(this.importData[i])
-          }
-          // this.forms.dynamicItem.push(this.importData[0])
-      },
+      // //看导入
+      // kandaoru(){
+      //     for (let i = 0;i<this.importData.length;i++){
+      //         this.forms.dynamicItem.push(this.importData[i])
+      //     }
+      //     // this.forms.dynamicItem.push(this.importData[0])
+      // },
       //开始扫描
       saomiao(){
           let manycon = []
@@ -371,7 +401,7 @@ export default {
       },
       //新增表单项
       addItem(length) {
-          if (length >= 5) {
+          if (length >= 100) {
               this.$message({
                   type: 'warning',
                   message: '最多可存在5行!'
