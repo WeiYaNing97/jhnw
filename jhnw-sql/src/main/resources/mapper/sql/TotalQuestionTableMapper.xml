@@ -13,13 +13,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="notFinished"    column="not_finished"    />
         <result property="commandId"    column="command_id"    />
         <result property="problemName"    column="problem_name"    />
+        <result property="temProName"    column="tem_pro_name"    />
         <result property="typeProblem"    column="type_problem"    />
         <result property="problemDescribeId"    column="problem_describe_id"    />
         <result property="problemSolvingId"    column="problem_solving_id"    />
     </resultMap>
 
     <sql id="selectTotalQuestionTableVo">
-        select id, brand, type, fireware_version,sub_version,not_finished, command_id, problem_name,type_problem, problem_describe_id ,problem_solving_id from total_question_table
+        select id, brand, type, fireware_version,sub_version,not_finished, command_id, problem_name,tem_pro_name,type_problem, problem_describe_id ,problem_solving_id from total_question_table
     </sql>
 
     <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
@@ -32,12 +33,43 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name = #{temProName}</if>
+
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
         </where>
+        ORDER BY id DESC
     </select>
 
+    <select id="queryScannableQuestionsList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="type != null  and type != ''"> and type = #{type} or type = '*'</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion} or fireware_version = '*'</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion} or sub_version = '*'</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
+            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name = #{temProName}</if>
+
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+            <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectTotalQuestionTableByIds" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <select id="selectTotalQuestionTabletypeProblemList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         select DISTINCT type_problem from total_question_table
@@ -49,6 +81,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
@@ -65,6 +100,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
@@ -82,6 +120,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
@@ -98,6 +139,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
@@ -114,9 +158,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+        </where>
+    </select>
+
+    <select id="fuzzyTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+
+        <where>
+            <if test="brand != null  and brand != ''"> and brand like concat('%', #{brand}, '%')</if>
+            <if test="type != null  and type != ''"> and type like concat('%', #{type}, '%')</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version like concat('%', #{firewareVersion}, '%')</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version like concat('%', #{subVersion}, '%')</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished like concat('%', #{notFinished}, '%')</if>
+            <if test="commandId != null "> and command_id like concat('%', #{commandId}, '%')</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
+            <if test="problemDescribeId != null "> and problem_describe_id like concat('%', #{problemDescribeId}, '%')</if>
+            <if test="problemSolvingId != null "> and problem_solving_id like concat('%', #{problemSolvingId}, '%')</if>
         </where>
     </select>
 
@@ -143,6 +210,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null">not_finished,</if>
             <if test="commandId != null">command_id,</if>
             <if test="problemName != null">problem_name,</if>
+
+            <if test="temProName != null">tem_pro_name,</if>
+
             <if test="typeProblem != null">type_problem,</if>
             <if test="problemDescribeId != null">problem_describe_id,</if>
             <if test="problemSolvingId != null">problem_solving_id,</if>
@@ -155,6 +225,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null">#{notFinished},</if>
             <if test="commandId != null">#{commandId},</if>
             <if test="problemName != null">#{problemName},</if>
+
+            <if test="temProName != null">#{temProName},</if>
+
             <if test="typeProblem != null">#{typeProblem},</if>
             <if test="problemDescribeId != null">#{problemDescribeId},</if>
             <if test="problemSolvingId != null">#{problemSolvingId},</if>
@@ -171,6 +244,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="notFinished != null">not_finished = #{notFinished},</if>
             <if test="commandId != null">command_id = #{commandId},</if>
             <if test="problemName != null">problem_name = #{problemName},</if>
+
+            <if test="temProName != null">tem_pro_name = #{temProName},</if>
+
             <if test="typeProblem != null">type_problem = #{typeProblem},</if>
             <if test="problemDescribeId != null">problem_describe_id = #{problemDescribeId},</if>
             <if test="problemSolvingId != null">problem_solving_id = #{problemSolvingId},</if>

@@ -13,6 +13,7 @@ import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
+import com.sgcc.web.controller.thread.DirectionalScanThreadPool;
 import com.sgcc.web.controller.thread.ScanFixedThreadPool;
 import com.sgcc.web.controller.util.EncryptUtil;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -52,6 +53,98 @@ public class SwitchInteraction {
     @Autowired
     private IBasicInformationService basicInformationService;
 
+
+    /***
+     * @method: 多线程扫描 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
+     * @Param: [switchInformation]
+     * @return: void
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("directionalScann")///{totalQuestionTableId}/{scanNum}
+    @MyLog(title = "专项全部问题", businessType = BusinessType.OTHER)
+    public String directionalScann() {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
+        List<String> switchInformation = new ArrayList<>();
+        List<Long> totalQuestionTableId = new ArrayList<>();
+        Long scanNum = 1l;
+        String str = "{\"ip\":\"192.168.1.100\",\"name\":\"admin\",\"password\":\"admin\",\"mode\":\"ssh\",\"port\":22}";
+        Long l1 = 42l;
+        Long l2 = 43l;
+        switchInformation.add(str);
+        totalQuestionTableId.add(l1);
+        totalQuestionTableId.add(l2);
+
+        // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
+        List<Object[]> objectsList = new ArrayList<>();
+        for (String information:switchInformation){
+            // information  : {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
+            // 去除花括号得到： "ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"
+            information = information.replace("{","");
+            information = information.replace("}","");
+            /*以逗号分割 获取到 集合 集合为：
+                information_split.get(0)  "ip":"192.168.1.100"
+                information_split.get(1)  "name":"admin"
+                information_split.get(2)  "password":"admin"
+                information_split.get(3)  "mode":"ssh"
+                information_split.get(4)  "port":"22"
+            */
+            String[] information_split = information.split(",");
+            // 四个参数 设默认值
+            String ip = "";
+            String name = "";
+            String password = "";
+            String mode = "";
+            int port = 0;
+
+            for (String string:information_split){
+                // string  参数为  ip:192.168.1.100  或  name:admin 或 password:admin 或 mode:ssh 或 port:22
+                string = string.replace("\"","");
+                // 以 ： 分割 得到
+                /*
+                string_split[0] ip           string_split[1] 192.168.1.100
+                string_split[0] name         string_split[1] admin
+                string_split[0] password     string_split[1] admin
+                string_split[0] mode         string_split[1] ssh
+                string_split[0] port         string_split[1] 22
+                */
+                String[] string_split = string.split(":");
+                switch (string_split[0]){
+                    case "ip" :  ip=string_split[1];
+                        break;
+                    case "name" :  name=string_split[1];
+                        break;
+                    case "password" :  password=string_split[1];
+                        break;
+                    case "mode" :  mode=string_split[1];
+                        break;
+                    case "port" :  port= Integer.valueOf(string_split[1]).intValue() ;
+                        break;
+                }
+            }
+            //以多线程中的格式 存放数组中
+            //连接方式，ip，用户名，密码，端口号
+            Object[] objects = {mode,ip,name,password,port};
+            objectsList.add(objects);
+        }
+
+
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String scanningTime = simpleDateFormat.format(new Date());
+        LoginUser login = SecurityUtils.getLoginUser();
+
+        try {
+            DirectionalScanThreadPool.switchLoginInformations(objectsList,totalQuestionTableId,scanningTime,login,Integer.valueOf(scanNum+"").intValue());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描结束\r\n");
+
+        return "扫描完成";
+    }
+
+
     /*==================================================================================================================
     ====================================================================================================================
     ====================================================================================================================
@@ -65,7 +158,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("multipleScans/{scanNum}")
-    @MyLog(title = "扫描问题", businessType = BusinessType.OTHER)
+    @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
     public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {//待测
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
@@ -146,7 +239,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,LoginUser loginUser,String ScanningTime) {
+    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,LoginUser loginUser,String ScanningTime,List<Long> totalQuestionTableId) {
 
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
@@ -252,7 +345,8 @@ public class SwitchInteraction {
                 //获取 匹配的 交换机可执行的 命令ID  并 循环执行分析操作
                 AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
-                        user_Object);
+                        user_Object,
+                        totalQuestionTableId);
 
                 if (requestConnect_way.equalsIgnoreCase("ssh")){
                     connectMethod.closeConnect(sshConnect);
@@ -1362,7 +1456,9 @@ public class SwitchInteraction {
                     if (!Utils.judgmentError(string_split)){
                         System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                         WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
-                        break;
+                        List<Object> objectList = new ArrayList<>();
+                        objectList.add(user_String.get("ip")+ ":" +command+ "错误:"+string_split);
+                        return objectList;
                     }
                 }
 
@@ -1431,16 +1527,34 @@ public class SwitchInteraction {
      */
     @PostMapping("scanProblem")
     public AjaxResult scanProblem(Map<String,String> user_String, //登录交换机的 用户信息 登录方式、ip、name、password
-                                  Map<String,Object> user_Object){
+                                  Map<String,Object> user_Object,
+                                  List<Long> totalQuestionTableId){
         //交换机基本信息
         String deviceModel = user_String.get("deviceModel");//设备型号
         String deviceBrand = user_String.get("deviceBrand");//设备品牌
         String firmwareVersion = user_String.get("firmwareVersion");//内部固件版本
         String subversionNumber = user_String.get("subversionNumber");//子版本号
 
-        //根据交换机基本信息 查询 可执行命令的 命令信息
-        AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
-        List<TotalQuestionTable> commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
+        List<TotalQuestionTable> commandIdByInformation_comandID_Long = new ArrayList<>();
+
+        if (totalQuestionTableId == null){
+            //根据交换机基本信息 查询 可执行命令的 命令信息
+            AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
+            commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
+        }else {
+            Long[] ids = totalQuestionTableId.toArray(new Long[0]);
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
+            List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
+            for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
+                String brand = totalQuestionTable.getBrand();
+                String type = totalQuestionTable.getType();
+                String version = totalQuestionTable.getFirewareVersion();
+                String subVersion = totalQuestionTable.getSubVersion();
+                if (brand.equals(deviceBrand) && type.equals(deviceModel) && version.equals(firmwareVersion) && subVersion.equals(subversionNumber)){
+                    commandIdByInformation_comandID_Long.add(totalQuestionTable);
+                }
+            }
+        }
 
         for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
             // ---- More ----
@@ -1450,6 +1564,13 @@ public class SwitchInteraction {
             //返回  交换机返回信息 和  第一条分析ID
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
+            if (executeScanCommandByCommandId_object.size() == 1){
+                String string = (String) executeScanCommandByCommandId_object.get(0);
+                if (string.equals("错误")){
+                    continue;
+                }
+
+            }
             //分析
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                     executeScanCommandByCommandId_object,  "",  "");
@@ -1477,7 +1598,8 @@ public class SwitchInteraction {
 
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
 
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        //查询可扫描问题
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryScannableQuestionsList(totalQuestionTable);
         if (totalQuestionTables!=null){
             List<TotalQuestionTable> pojoList = new ArrayList<>();
             for (TotalQuestionTable pojo:totalQuestionTables){

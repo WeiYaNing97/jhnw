@@ -163,4 +163,21 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.selectPojoByproblemDescribeId(id);
     }
 
+    @Override
+    public List<TotalQuestionTable> fuzzyTotalQuestionTableList(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.fuzzyTotalQuestionTableList(totalQuestionTable);
+    }
+
+    /*查询可扫描问题*/
+    @Override
+    public List<TotalQuestionTable> queryScannableQuestionsList(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.queryScannableQuestionsList(totalQuestionTable);
+    }
+
+    /*根据ID数组查询集合*/
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids) {
+        return totalQuestionTableMapper.selectTotalQuestionTableByIds(ids);
+    }
+
 }

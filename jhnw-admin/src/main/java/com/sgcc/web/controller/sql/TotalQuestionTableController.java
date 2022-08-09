@@ -129,6 +129,23 @@ public class TotalQuestionTableController extends BaseController
         return toAjax(totalQuestionTableService.deleteTotalQuestionTableByIds(ids));
     }
 
+    /**
+     * 根据ID数组查询集合
+     */
+    //@Log(title = "根据ID数组查询集合", businessType = BusinessType.DELETE)
+    @RequestMapping("/query/{ids}")//{ids}
+    public List<TotalQuestionTable> query(@PathVariable Long[] ids)//@PathVariable Long[] ids
+    {
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+
+        if (ids.length == 0){
+            return totalQuestionTables;
+        }
+
+        totalQuestionTables =totalQuestionTableService.selectTotalQuestionTableByIds(ids);
+        return totalQuestionTables;
+    }
+
     /*=====================================================================================================================
     =====================================================================================================================
     =====================================================================================================================*/
@@ -141,7 +158,7 @@ public class TotalQuestionTableController extends BaseController
     public String add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
-        if (totalQuestionTables != null){
+        if (totalQuestionTables.size() != 0){
             return "问题已定义";
         }
         int i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
@@ -247,6 +264,25 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
+     * @method: 根据问题实体类查询问题种类
+     * @Param: [totalQuestionTable]
+     * @return: java.util.List<java.lang.String>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("/temProNamelist")
+    public List<String> temProNamelist(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+        totalQuestionTable.setCommandId(null);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
+        List<String> stringList = new ArrayList<>();
+        for (TotalQuestionTable pojo:typeProblemlist){
+            stringList.add(pojo.getTemProName());
+        }
+        return stringList;
+    }
+
+    /**
     * @method: 根据问题实体类查询问题名称
     * @Param: [totalQuestionTable]
     * @return: java.util.List<java.lang.String>
@@ -325,6 +361,17 @@ public class TotalQuestionTableController extends BaseController
             return getDataTable(totalQuestionTables);
         }
         return getDataTable(list);
+    }
+
+    /**
+     * 根据实体类 模糊查询 实体类集合
+     */
+    @RequestMapping("/fuzzyQueryListByPojo")
+    public List<TotalQuestionTable> fuzzyQueryListByPojo(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+        List<TotalQuestionTable> list = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
+
+        return list;
     }
 
 }

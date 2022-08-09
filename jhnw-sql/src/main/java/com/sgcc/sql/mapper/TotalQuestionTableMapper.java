@@ -106,4 +106,12 @@ public interface TotalQuestionTableMapper
     List<TotalQuestionTable> selectTotalQuestionTablesubVersionlist(TotalQuestionTable totalQuestionTable);
 
     TotalQuestionTable selectPojoByproblemDescribeId(@Param("problemDescribeId") Long id);
+
+    List<TotalQuestionTable> fuzzyTotalQuestionTableList(TotalQuestionTable totalQuestionTable);
+
+    /*查询可扫描问题*/
+    List<TotalQuestionTable> queryScannableQuestionsList(TotalQuestionTable totalQuestionTable);
+
+    /*根据ID数组查询集合*/
+    List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids);
 }

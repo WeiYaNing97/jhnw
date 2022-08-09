@@ -43,6 +43,10 @@ public class TotalQuestionTable extends BaseEntity
     @Excel(name = "问题名称")
     private String problemName;
 
+    /** 问题名称 */
+    @Excel(name = "问题名称")
+    private String temProName;
+
     /** 问题种类 */
     @Excel(name = "问题种类")
     private String typeProblem;
@@ -148,6 +152,14 @@ public class TotalQuestionTable extends BaseEntity
         this.problemSolvingId = problemSolvingId;
     }
 
+    public String getTemProName() {
+        return temProName;
+    }
+
+    public void setTemProName(String temProName) {
+        this.temProName = temProName;
+    }
+
     @Override
     public String toString() {
         return "TotalQuestionTable{" +
@@ -159,6 +171,7 @@ public class TotalQuestionTable extends BaseEntity
                 ", notFinished='" + notFinished + '\'' +
                 ", commandId='" + commandId + '\'' +
                 ", problemName='" + problemName + '\'' +
+                ", temProName='" + temProName + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +
                 ", problemDescribeId=" + problemDescribeId +
                 ", problemSolvingId='" + problemSolvingId + '\'' +
