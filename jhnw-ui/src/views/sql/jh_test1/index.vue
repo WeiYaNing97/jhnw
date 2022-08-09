@@ -54,9 +54,16 @@
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
-
+      <el-form-item label="范本问题名称">
+        <el-select v-model="queryParams.temProName" placeholder="请选择范本问题名称"
+                   filterable allow-create>
+          <el-option label="密码明文存储" value="密码明文存储"></el-option>
+<!--          <el-option v-for="(item,index) in proNameList" :key="index"-->
+<!--                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>-->
+        </el-select>
+      </el-form-item>
       <el-form-item label="问题名称">
-        <el-select v-model="queryParams.problemName" placeholder="请选择问题"
+        <el-select v-model="queryParams.problemName" placeholder="请输入问题"
                    filterable allow-create @focus="chawenti($event)" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
@@ -196,7 +203,12 @@
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
           <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-            <el-input v-model="item.length" style="width: 80px" placeholder="几个词"></el-input>
+            <el-input v-model="item.length" style="width: 80px" placeholder="几个"></el-input>
+            <el-select v-model="item.classify" @change="reloadv" placeholder="单词/行" style="width: 80px">
+              <el-option label="单词" value="W"></el-option>
+              <el-option label="字母" value="L"></el-option>
+              <el-option label="字符串" value="S"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item>
             <el-radio-group v-model="item.exhibit">
@@ -286,6 +298,7 @@
 
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
+        <el-button @click="ceshi" type="primary">测试按钮</el-button>
 <!--        有用-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
@@ -403,6 +416,18 @@ export default {
       // this.jiazai()
   },
   methods: {
+      //重新赋值
+      reloadv(){
+
+      },
+      //测试按钮
+      ceshi(){
+        console.log(this.forms.dynamicItem)
+          alert(JSON.stringify(this.forms.dynamicItem))
+          this.forms.dynamicItem.forEach(e=>{
+
+          })
+      },
       jiazai(){
         alert('加载')
       },
@@ -639,6 +664,7 @@ export default {
           this.chuxian = true
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
           this.$delete(shasha,'commandId')
+          console.log(shasha)
           return request({
               url:'/sql/total_question_table/add',
               method:'post',
@@ -868,6 +894,9 @@ export default {
                   const thisNext = useForm[thisIndex+1]
                   this.$set(eeee,'nextIndex',thisNext.onlyIndex)
               }
+              if (eeee.action === '取词'){
+                  eeee.length = `${eeee.length}${eeee.classify}`
+              }
               if (this.jiaoyan == '常规校验'){
                   this.$set(eeee,'resultCheckId','1')
               }else {
@@ -889,10 +918,9 @@ export default {
           const handForm = useForm.map(x => JSON.stringify(x))
           alert(handForm)
           return request({
-              url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
+              // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
               method:'post',
               data:handForm
-              // data:[JSON.stringify(oneOne),JSON.stringify(twoTwo)]
           }).then(response=>{
               console.log("成功")
           })

@@ -3,8 +3,8 @@
 <!--    tableDataq  testData-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
-    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>
-    <el-input type="textarea" v-model="wenbenben"></el-input>
+<!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
+<!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
 <!--    <el-button type="primary" size="small" @click="wutiao">五条</el-button>-->
     <el-table v-loading="loading"
@@ -215,7 +215,7 @@
                             children: [
                                 {
                                     problemName:'密码明文存储',
-                                    ifQuestion:'无问题',
+                                    ifQuestion:'安全',
                                     hproblemId:254676522,
                                     questionId:10,
                                     valueInformationVOList:[

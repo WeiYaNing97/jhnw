@@ -181,6 +181,11 @@
           <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
             <el-input v-model="item.length" style="width: 80px" placeholder="几个词"></el-input>
+            <el-select v-model="item.classify" placeholder="单词/行" style="width: 80px">
+              <el-option label="单词" value="W"></el-option>
+              <el-option label="字母" value="L"></el-option>
+              <el-option label="字符串" value="S"></el-option>
+            </el-select>
           </el-form-item>
           <el-form-item>
             <el-radio-group v-model="item.exhibit">
@@ -689,6 +694,17 @@ export default {
                       huicha.push(chae)
                   }else if (chae.action === '取词'){
                       this.$set(chae,'targetType','takeword')
+                      // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
+                      if (chae.length.slice(chae.length.length-1) === 'W'){
+                          this.$set(chae,'classify','单词')
+                      }else  if (chae.length.slice(chae.length.length-1) === 'S'){
+                          this.$set(chae,'classify','字符串')
+                      }else if (chae.length.slice(chae.length.length-1) === 'L'){
+                          this.$set(chae,'classify','字母')
+                      }
+                      // chae.classify = chae.length.slice(chae.length.length-1)
+                      chae.length = chae.length.slice(0,chae.length.length-1)
+                      console.log(chae.length)
                       huicha.push(chae)
                   }else if (chae.matched === '全文模糊匹配'){
                       this.$set(chae,'targetType','dimmatch')
