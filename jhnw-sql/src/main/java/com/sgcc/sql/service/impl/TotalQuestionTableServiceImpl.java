@@ -1,6 +1,8 @@
 package com.sgcc.sql.service.impl;
 
 import java.util.List;
+
+import com.sgcc.sql.domain.TotalQuestionTableVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sgcc.sql.mapper.TotalQuestionTableMapper;
@@ -179,5 +181,12 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     public List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids) {
         return totalQuestionTableMapper.selectTotalQuestionTableByIds(ids);
     }
+
+    @Override
+    public List<TotalQuestionTableVO> fuzzyQueryListBymybatis(TotalQuestionTable totalQuestionTable) {
+        List<TotalQuestionTableVO> totalQuestionTableVOS = totalQuestionTableMapper.fuzzyQueryListBymybatis(totalQuestionTable);
+        return totalQuestionTableVOS;
+    }
+
 
 }

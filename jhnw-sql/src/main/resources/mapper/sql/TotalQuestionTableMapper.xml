@@ -17,10 +17,62 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="typeProblem"    column="type_problem"    />
         <result property="problemDescribeId"    column="problem_describe_id"    />
         <result property="problemSolvingId"    column="problem_solving_id"    />
+
+        <result property="remarks"    column="remarks"    />
+        <result property="requiredItems"    column="required_items"    />
+
     </resultMap>
 
+
+    <resultMap id="TotalQuestionTableVO" type="com.sgcc.sql.domain.TotalQuestionTableVO" >
+        <result property="temProName"    column="tem_pro_name"    />
+        <result property="typeProblem"    column="type_problem"    />
+        <collection property="totalQuestionTableList"  ofType="com.sgcc.sql.domain.TotalQuestionTable"
+                    javaType="java.util.ArrayList">
+            <result property="id"    column="id"    />
+            <result property="brand"    column="brand"    />
+            <result property="type"    column="type"    />
+            <result property="firewareVersion"    column="fireware_version"    />
+            <result property="subVersion"    column="sub_version"    />
+            <result property="notFinished"    column="not_finished"    />
+            <result property="commandId"    column="command_id"    />
+            <result property="problemName"    column="problem_name"    />
+            <result property="temProName"    column="tem_pro_name"    />
+            <result property="typeProblem"    column="type_problem"    />
+            <result property="problemDescribeId"    column="problem_describe_id"    />
+            <result property="problemSolvingId"    column="problem_solving_id"    />
+
+            <result property="remarks"    column="remarks"    />
+            <result property="requiredItems"    column="required_items"    />
+        </collection>
+    </resultMap>
+
+    <select id="fuzzyQueryListBymybatis" resultMap="TotalQuestionTableVO">
+        <include refid="selectTotalQuestionTableVo"/>
+
+        <where>
+            <if test="brand != null  and brand != ''"> and brand like concat('%', #{brand}, '%')</if>
+            <if test="type != null  and type != ''"> and type like concat('%', #{type}, '%')</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version like concat('%', #{firewareVersion}, '%')</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version like concat('%', #{subVersion}, '%')</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished like concat('%', #{notFinished}, '%')</if>
+            <if test="commandId != null "> and command_id like concat('%', #{commandId}, '%')</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
+            <if test="problemDescribeId != null "> and problem_describe_id like concat('%', #{problemDescribeId}, '%')</if>
+            <if test="problemSolvingId != null "> and problem_solving_id like concat('%', #{problemSolvingId}, '%')</if>
+
+            <if test="remarks != null "> and remarks like concat('%', #{remarks}, '%')</if>
+            <if test="requiredItems != null "> and required_items like concat('%', #{requiredItems}, '%')</if>
+
+        </where>
+    </select>
+
     <sql id="selectTotalQuestionTableVo">
-        select id, brand, type, fireware_version,sub_version,not_finished, command_id, problem_name,tem_pro_name,type_problem, problem_describe_id ,problem_solving_id from total_question_table
+        select id, brand, type, fireware_version,sub_version,not_finished, command_id, problem_name,tem_pro_name,type_problem, problem_describe_id ,problem_solving_id,remarks,required_items from total_question_table
     </sql>
 
     <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
@@ -39,6 +91,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
         ORDER BY id DESC
     </select>
@@ -59,6 +114,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
         ORDER BY id DESC
     </select>
@@ -87,6 +145,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
     </select>
 
@@ -106,6 +167,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
     </select>
 
@@ -126,6 +190,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
     </select>
 
@@ -145,6 +212,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
     </select>
 
@@ -164,6 +234,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
     </select>
 
@@ -184,6 +257,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem like concat('%', #{typeProblem}, '%')</if>
             <if test="problemDescribeId != null "> and problem_describe_id like concat('%', #{problemDescribeId}, '%')</if>
             <if test="problemSolvingId != null "> and problem_solving_id like concat('%', #{problemSolvingId}, '%')</if>
+
+            <if test="remarks != null "> and remarks like concat('%', #{remarks}, '%')</if>
+            <if test="requiredItems != null "> and required_items like concat('%', #{requiredItems}, '%')</if>
         </where>
     </select>
 
@@ -216,6 +292,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null">type_problem,</if>
             <if test="problemDescribeId != null">problem_describe_id,</if>
             <if test="problemSolvingId != null">problem_solving_id,</if>
+
+            <if test="remarks != null">remarks,</if>
+            <if test="requiredItems != null">required_items,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="brand != null">#{brand},</if>
@@ -231,6 +310,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null">#{typeProblem},</if>
             <if test="problemDescribeId != null">#{problemDescribeId},</if>
             <if test="problemSolvingId != null">#{problemSolvingId},</if>
+
+            <if test="remarks != null">#{remarks},</if>
+            <if test="requiredItems != null">#{requiredItems},</if>
          </trim>
     </insert>
 
@@ -250,6 +332,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="typeProblem != null">type_problem = #{typeProblem},</if>
             <if test="problemDescribeId != null">problem_describe_id = #{problemDescribeId},</if>
             <if test="problemSolvingId != null">problem_solving_id = #{problemSolvingId},</if>
+
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="requiredItems != null">required_items = #{requiredItems},</if>
         </trim>
         where id = #{id}
     </update>

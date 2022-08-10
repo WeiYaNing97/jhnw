@@ -16,6 +16,7 @@ import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.thread.DirectionalScanThreadPool;
 import com.sgcc.web.controller.thread.ScanFixedThreadPool;
 import com.sgcc.web.controller.util.EncryptUtil;
+import com.sgcc.web.controller.util.RSAUtils;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -126,15 +127,21 @@ public class SwitchInteraction {
             Object[] objects = {mode,ip,name,password,port};
             objectsList.add(objects);
         }
-
-
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        Long[] ids = totalQuestionTableId.toArray(new Long[totalQuestionTableId.size()]);
+        if (ids.length != 0){
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
+            totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
+        }else {
+            return "扫描完成";
+        }
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String scanningTime = simpleDateFormat.format(new Date());
         LoginUser login = SecurityUtils.getLoginUser();
 
         try {
-            DirectionalScanThreadPool.switchLoginInformations(objectsList,totalQuestionTableId,scanningTime,login,Integer.valueOf(scanNum+"").intValue());
+            DirectionalScanThreadPool.switchLoginInformations(objectsList,totalQuestionTables,scanningTime,login,Integer.valueOf(scanNum+"").intValue());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -199,7 +206,10 @@ public class SwitchInteraction {
                         break;
                     case "name" :  name=string_split[1];
                         break;
-                    case "password" :  password=string_split[1];
+                    case "password" :
+                        String ciphertext = string_split[1];
+                        String ciphertextString = RSAUtils.decryptFrontEndCiphertext(ciphertext);
+                        password = ciphertextString;
                         break;
                     case "mode" :  mode=string_split[1];
                         break;
@@ -239,7 +249,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,LoginUser loginUser,String ScanningTime,List<Long> totalQuestionTableId) {
+    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,LoginUser loginUser,String ScanningTime,List<TotalQuestionTable> totalQuestionTables) {
 
         //用户信息  及   交换机信息
         Map<String,String> user_String = new HashMap<>();
@@ -346,7 +356,7 @@ public class SwitchInteraction {
                 AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                         user_Object,
-                        totalQuestionTableId);
+                         totalQuestionTables);
 
                 if (requestConnect_way.equalsIgnoreCase("ssh")){
                     connectMethod.closeConnect(sshConnect);
@@ -1528,7 +1538,7 @@ public class SwitchInteraction {
     @PostMapping("scanProblem")
     public AjaxResult scanProblem(Map<String,String> user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                                   Map<String,Object> user_Object,
-                                  List<Long> totalQuestionTableId){
+                                  List<TotalQuestionTable> totalQuestionTables){
         //交换机基本信息
         String deviceModel = user_String.get("deviceModel");//设备型号
         String deviceBrand = user_String.get("deviceBrand");//设备品牌
@@ -1537,14 +1547,11 @@ public class SwitchInteraction {
 
         List<TotalQuestionTable> commandIdByInformation_comandID_Long = new ArrayList<>();
 
-        if (totalQuestionTableId == null){
+        if (totalQuestionTables == null){
             //根据交换机基本信息 查询 可执行命令的 命令信息
             AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
             commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
         }else {
-            Long[] ids = totalQuestionTableId.toArray(new Long[0]);
-            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
-            List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
             for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
                 String brand = totalQuestionTable.getBrand();
                 String type = totalQuestionTable.getType();

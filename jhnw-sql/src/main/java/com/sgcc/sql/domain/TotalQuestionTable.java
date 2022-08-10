@@ -55,10 +55,17 @@ public class TotalQuestionTable extends BaseEntity
     @Excel(name = "问题详细说明和指导索引")
     private Long problemDescribeId;
 
-
     /** 解决问题命令ID */
     @Excel(name = "解决问题命令ID")
     private String problemSolvingId;
+
+    /** 备注 */
+    @Excel(name = "备注")
+    private String remarks;
+
+    /** 是否必扫 */
+    @Excel(name = "是否必扫")
+    private Long requiredItems;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -160,6 +167,22 @@ public class TotalQuestionTable extends BaseEntity
         this.temProName = temProName;
     }
 
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public Long getRequiredItems() {
+        return requiredItems;
+    }
+
+    public void setRequiredItems(Long requiredItems) {
+        this.requiredItems = requiredItems;
+    }
+
     @Override
     public String toString() {
         return "TotalQuestionTable{" +
@@ -175,6 +198,8 @@ public class TotalQuestionTable extends BaseEntity
                 ", typeProblem='" + typeProblem + '\'' +
                 ", problemDescribeId=" + problemDescribeId +
                 ", problemSolvingId='" + problemSolvingId + '\'' +
+                ", remarks='" + remarks + '\'' +
+                ", requiredItems=" + requiredItems +
                 '}';
     }
 }

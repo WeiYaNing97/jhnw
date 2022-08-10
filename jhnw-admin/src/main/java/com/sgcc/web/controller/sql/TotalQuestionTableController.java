@@ -8,11 +8,15 @@ import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.TotalQuestionTable;
+import com.sgcc.sql.domain.TotalQuestionTableCO;
+import com.sgcc.sql.domain.TotalQuestionTableVO;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -367,11 +371,79 @@ public class TotalQuestionTableController extends BaseController
      * 根据实体类 模糊查询 实体类集合
      */
     @RequestMapping("/fuzzyQueryListByPojo")
-    public List<TotalQuestionTable> fuzzyQueryListByPojo(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<TotalQuestionTableCO> fuzzyQueryListByPojo(@RequestBody TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
     {
-        List<TotalQuestionTable> list = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
+        List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
+        HashSet<String> typeProblemHashSet = new HashSet();
+        HashSet<String> temProNameHashSet = new HashSet();
+        for (TotalQuestionTable totalQuestion:totalQuestionTableList){
+            typeProblemHashSet.add(totalQuestion.getTypeProblem());
+            temProNameHashSet.add(totalQuestion.getTypeProblem()+"=:="+totalQuestion.getTemProName());
+        }
+        List<TotalQuestionTableCO> pojoCOList = new ArrayList<>();
+        List<TotalQuestionTableVO> pojoVOList = new ArrayList<>();
+        for (String typeProblem:typeProblemHashSet){
+            TotalQuestionTableCO totalQuestionTableCO = new TotalQuestionTableCO();
+            totalQuestionTableCO.setTypeProblem(typeProblem);
+            pojoCOList.add(totalQuestionTableCO);
+        }
+        for (String temProName:temProNameHashSet){
+            TotalQuestionTableVO totalQuestionTableVO = new TotalQuestionTableVO();
+            String[] split = temProName.split("=:=");
+            totalQuestionTableVO.setTypeProblem(split[0]);
+            totalQuestionTableVO.setTemProName(split[1]);
+            pojoVOList.add(totalQuestionTableVO);
+        }
+        for (TotalQuestionTableCO totalQuestionTableCO:pojoCOList){
+            List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
+            for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
+                if (totalQuestionTableCO.getTypeProblem().equals(totalQuestionTableVO.getTypeProblem())){
+                    totalQuestionTableVOList.add(totalQuestionTableVO);
+                }
+            }
+            totalQuestionTableCO.setTotalQuestionTableVOList(totalQuestionTableVOList);
+        }
+        for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
+            List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+            for (TotalQuestionTable totalQuestion:totalQuestionTableList){
+                if (totalQuestion.getTypeProblem().equals(totalQuestionTableVO.getTypeProblem())
+                        && totalQuestion.getTemProName().equals(totalQuestionTableVO.getTemProName())){
+                    totalQuestionTables.add(totalQuestion);
+                }
+            }
+            totalQuestionTableVO.setTotalQuestionTableList(totalQuestionTables);
+        }
+        return pojoCOList;
+    }
 
-        return list;
+    /**
+     * 根据实体类 模糊查询 实体类集合 fuzzyQueryListBymybatis
+     */
+    @RequestMapping("/fuzzyQueryListByPojoMybatis")
+    public List<TotalQuestionTableCO> fuzzyQueryListBymybatis(@RequestBody TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
+    {
+        List<TotalQuestionTableVO> totalQuestionTableList = totalQuestionTableService.fuzzyQueryListBymybatis(totalQuestionTable);
+        HashSet<String> typeProblemHashSet = new HashSet();
+        for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
+            typeProblemHashSet.add(totalQuestionTableVO.getTypeProblem());
+        }
+        List<TotalQuestionTableCO> totalQuestionTableCOList = new ArrayList<>();
+        for (String typeProblem:typeProblemHashSet){
+            TotalQuestionTableCO totalQuestionTableCO = new TotalQuestionTableCO();
+            totalQuestionTableCO.setTypeProblem(typeProblem);
+            totalQuestionTableCOList.add(totalQuestionTableCO);
+        }
+        for (TotalQuestionTableCO totalQuestionTableCO:totalQuestionTableCOList){
+            List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
+            for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
+                if (totalQuestionTableVO.getTypeProblem().equals(totalQuestionTableCO.getTypeProblem())){
+                    totalQuestionTableVOList.add(totalQuestionTableVO);
+                }
+            }
+            totalQuestionTableCO.setTotalQuestionTableVOList(totalQuestionTableVOList);
+        }
+
+        return totalQuestionTableCOList;
     }
 
 }

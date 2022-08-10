@@ -2,6 +2,7 @@ package com.sgcc.sql.mapper;
 
 import java.util.List;
 import com.sgcc.sql.domain.TotalQuestionTable;
+import com.sgcc.sql.domain.TotalQuestionTableVO;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -114,4 +115,7 @@ public interface TotalQuestionTableMapper
 
     /*根据ID数组查询集合*/
     List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids);
+
+    /*根据实体类 模糊查询 实体类集合 fuzzyQueryListBymybatis*/
+    List<TotalQuestionTableVO> fuzzyQueryListBymybatis(TotalQuestionTable totalQuestionTable);
 }

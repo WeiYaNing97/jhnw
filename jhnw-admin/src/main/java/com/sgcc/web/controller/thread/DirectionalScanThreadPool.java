@@ -2,6 +2,7 @@ package com.sgcc.web.controller.thread;
 
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.web.controller.sql.SwitchInteraction;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
@@ -20,7 +21,7 @@ public class DirectionalScanThreadPool {
     /**
      * newFixedThreadPool submit submit
      */
-    public static void switchLoginInformations(List<Object[]> objects,List<Long> totalQuestionTableId,String ScanningTime,LoginUser login,int threads) throws InterruptedException {
+    public static void switchLoginInformations(List<Object[]> objects, List<TotalQuestionTable> totalQuestionTables, String ScanningTime, LoginUser login, int threads) throws InterruptedException {
 
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(objects.size());
@@ -45,7 +46,7 @@ public class DirectionalScanThreadPool {
                         SwitchInteraction switchInteraction = new SwitchInteraction();
                         String userName = loginUser.getUsername();
                         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-                        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time,totalQuestionTableId);
+                        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time, totalQuestionTables);
 
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
                             WebSocketService.sendMessage("error"+userName,"\r\n"+ip + ":交换机连接失败\r\n");

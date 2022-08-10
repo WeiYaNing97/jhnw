@@ -2,6 +2,7 @@ package com.sgcc.sql.service;
 
 import java.util.List;
 import com.sgcc.sql.domain.TotalQuestionTable;
+import com.sgcc.sql.domain.TotalQuestionTableVO;
 
 /**
  * 问题及命令Service接口
@@ -122,4 +123,7 @@ public interface ITotalQuestionTableService
 
     /*根据ID数组查询集合*/
     List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids);
+
+    /*根据实体类 模糊查询 实体类集合 fuzzyQueryListBymybatis*/
+    List<TotalQuestionTableVO> fuzzyQueryListBymybatis(TotalQuestionTable totalQuestionTable);
 }
