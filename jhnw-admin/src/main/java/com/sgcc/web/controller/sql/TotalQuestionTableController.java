@@ -376,10 +376,12 @@ public class TotalQuestionTableController extends BaseController
         List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
         HashSet<String> typeProblemHashSet = new HashSet();
         HashSet<String> temProNameHashSet = new HashSet();
+
         for (TotalQuestionTable totalQuestion:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestion.getTypeProblem());
             temProNameHashSet.add(totalQuestion.getTypeProblem()+"=:="+totalQuestion.getTemProName());
         }
+
         List<TotalQuestionTableCO> pojoCOList = new ArrayList<>();
         List<TotalQuestionTableVO> pojoVOList = new ArrayList<>();
         for (String typeProblem:typeProblemHashSet){
@@ -387,6 +389,7 @@ public class TotalQuestionTableController extends BaseController
             totalQuestionTableCO.setTypeProblem(typeProblem);
             pojoCOList.add(totalQuestionTableCO);
         }
+
         for (String temProName:temProNameHashSet){
             TotalQuestionTableVO totalQuestionTableVO = new TotalQuestionTableVO();
             String[] split = temProName.split("=:=");
@@ -394,6 +397,7 @@ public class TotalQuestionTableController extends BaseController
             totalQuestionTableVO.setTemProName(split[1]);
             pojoVOList.add(totalQuestionTableVO);
         }
+
         for (TotalQuestionTableCO totalQuestionTableCO:pojoCOList){
             List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
             for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
@@ -403,6 +407,7 @@ public class TotalQuestionTableController extends BaseController
             }
             totalQuestionTableCO.setTotalQuestionTableVOList(totalQuestionTableVOList);
         }
+
         for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
             List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
             for (TotalQuestionTable totalQuestion:totalQuestionTableList){
@@ -423,16 +428,19 @@ public class TotalQuestionTableController extends BaseController
     public List<TotalQuestionTableCO> fuzzyQueryListBymybatis(@RequestBody TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
     {
         List<TotalQuestionTableVO> totalQuestionTableList = totalQuestionTableService.fuzzyQueryListBymybatis(totalQuestionTable);
+
         HashSet<String> typeProblemHashSet = new HashSet();
         for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestionTableVO.getTypeProblem());
         }
+
         List<TotalQuestionTableCO> totalQuestionTableCOList = new ArrayList<>();
         for (String typeProblem:typeProblemHashSet){
             TotalQuestionTableCO totalQuestionTableCO = new TotalQuestionTableCO();
             totalQuestionTableCO.setTypeProblem(typeProblem);
             totalQuestionTableCOList.add(totalQuestionTableCO);
         }
+
         for (TotalQuestionTableCO totalQuestionTableCO:totalQuestionTableCOList){
             List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
             for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
