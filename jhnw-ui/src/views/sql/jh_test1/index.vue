@@ -48,22 +48,23 @@
 <!--      </el-form-item>-->
       <el-form-item label="问题概要:"></el-form-item>
       <el-form-item label="问题类型" prop="typeProblem">
-        <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
+        <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
                    filterable allow-create @focus="proType($event)" @blur="typeProShu">
           <el-option v-for="(item,index) in typeProList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="范本问题名称">
-        <el-select v-model="queryParams.temProName" placeholder="请选择范本问题名称"
-                   filterable allow-create>
-          <el-option label="密码明文存储" value="密码明文存储"></el-option>
+      <el-form-item label="范式名称">
+        <el-select v-model="queryParams.temProName" placeholder="请选择范式问题名称"
+                   filterable allow-create @focus="temPro($event)" @blur="temProShu">
+          <el-option v-for="(item,index) in temProNameList" :key="index"
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
 <!--          <el-option v-for="(item,index) in proNameList" :key="index"-->
 <!--                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>-->
         </el-select>
       </el-form-item>
-      <el-form-item label="问题名称">
-        <el-select v-model="queryParams.problemName" placeholder="请输入问题"
+      <el-form-item label="自定义名称">
+        <el-select v-model="queryParams.problemName" placeholder="请输入问题名称"
                    filterable allow-create @focus="chawenti($event)" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
@@ -372,6 +373,7 @@ export default {
         radio:'1',
         proNameList:[],
         typeProList:[],
+        temProNameList:[],
         brandList:[],
         fireList:[],
         typeList:[],
@@ -398,6 +400,7 @@ export default {
           problemName:'',
           notFinished:'---- More ----',
           typeProblem:'',
+          temProName:'',
           requiredItems:false,
           remarks:''
       },
@@ -597,9 +600,22 @@ export default {
           return request({
               url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              data:JSON.stringify(this.queryParams)
+              // data:JSON.stringify(this.queryParams)
           }).then(response=>{
+              console.log(response)
               this.typeProList = response
+          })
+      },
+      temPro(e){
+          var type0 = this.queryParams.typeProblem
+          console.log(type0)
+          return request({
+              url:'/sql/total_question_table/temProNamelist',
+              method:'post',
+              data:type0
+          }).then(response=>{
+              this.temProNameList = response
+              console.log(response)
           })
       },
       //比较选中触发
@@ -662,6 +678,12 @@ export default {
               this.queryParams.typeProblem = value
           }
       },
+      temProShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.temProName = value
+          }
+      },
       proSelect(e){
           let value = e.target.value
           if(value){
@@ -674,9 +696,9 @@ export default {
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
           this.$delete(shasha,'commandId')
           if (shasha.requiredItems === true){
-              this.$set(shasha,'requiredItems',1)
+              this.$set(shasha,'requiredItems','1')
           }else {
-              this.$set(shasha,'requiredItems',0)
+              this.$set(shasha,'requiredItems','0')
           }
           console.log(shasha)
           return request({
@@ -688,13 +710,13 @@ export default {
           })
       },
       chawenti(e){
-          return request({
-              url:'/sql/total_question_table/problemNameList',
-              method:'post',
-              data:JSON.stringify(this.queryParams)
-          }).then(response=>{
-              this.proNameList = response
-          })
+          // return request({
+          //     url:'/sql/total_question_table/problemNameList',
+          //     method:'post',
+          //     data:JSON.stringify(this.queryParams)
+          // }).then(response=>{
+          //     this.proNameList = response
+          // })
       },
       //全选
       handleCheckAllChange() {
