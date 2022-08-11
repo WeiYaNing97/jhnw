@@ -188,5 +188,11 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableVOS;
     }
 
+    /*根据问题种类查询范本问题名称*/
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTabletypeProblemListBytypeProblem(String typeProblem) {
+        return totalQuestionTableMapper.selectTotalQuestionTabletypeProblemListBytypeProblem(typeProblem);
+    }
+
 
 }

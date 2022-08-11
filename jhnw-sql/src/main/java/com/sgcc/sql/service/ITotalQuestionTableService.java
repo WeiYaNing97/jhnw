@@ -126,4 +126,7 @@ public interface ITotalQuestionTableService
 
     /*根据实体类 模糊查询 实体类集合 fuzzyQueryListBymybatis*/
     List<TotalQuestionTableVO> fuzzyQueryListBymybatis(TotalQuestionTable totalQuestionTable);
+
+    /*根据问题种类查询范本问题名称*/
+    List<TotalQuestionTable> selectTotalQuestionTabletypeProblemListBytypeProblem(String typeProblem);
 }

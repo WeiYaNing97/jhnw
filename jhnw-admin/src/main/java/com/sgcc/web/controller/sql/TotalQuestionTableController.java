@@ -161,10 +161,6 @@ public class TotalQuestionTableController extends BaseController
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public String add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
-        if (totalQuestionTables.size() != 0){
-            return "问题已定义";
-        }
         int i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
         return totalQuestionTable.getId()+"";
     }
@@ -249,17 +245,16 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
-    * @method: 根据问题实体类查询问题种类
+    * @method: 查询所有问题种类
     * @Param: [totalQuestionTable]
     * @return: java.util.List<java.lang.String>
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("/typeProblemlist")
-    public List<String> typeProblemlist(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<String> typeProblemlist()
     {
-        totalQuestionTable.setCommandId(null);
-        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemList(null);
         List<String> stringList = new ArrayList<>();
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getTypeProblem());
@@ -268,21 +263,23 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
-     * @method: 根据问题实体类查询问题种类
+     * @method: 根据问题种类查询范本问题名称
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("/temProNamelist")
-    public List<String> temProNamelist(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<String> temProNamelist(@RequestBody String typeProblem)
     {
-        totalQuestionTable.setCommandId(null);
-        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
+        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemListBytypeProblem(typeProblem);
+
         List<String> stringList = new ArrayList<>();
+
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getTemProName());
         }
+
         return stringList;
     }
 
