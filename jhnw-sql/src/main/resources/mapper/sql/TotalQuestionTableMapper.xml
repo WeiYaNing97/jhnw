@@ -137,6 +137,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY id DESC
     </select>
 
+    <select id="selectTemProNamelistBytypeProblem" resultType="string">
+        select distinct tem_pro_name from total_question_table
+        <where>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
     <select id="selectTotalQuestionTabletypeProblemList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         select DISTINCT type_problem from total_question_table
         <where>

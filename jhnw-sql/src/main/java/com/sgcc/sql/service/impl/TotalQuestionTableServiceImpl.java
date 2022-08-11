@@ -194,5 +194,10 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.selectTotalQuestionTabletypeProblemListBytypeProblem(typeProblem);
     }
 
+    /*根据问题种类查询范本问题名称*/
+    @Override
+    public List<String> selectTemProNamelistBytypeProblem(String typeProblem) {
+        return totalQuestionTableMapper.selectTemProNamelistBytypeProblem(typeProblem);
+    }
 
 }

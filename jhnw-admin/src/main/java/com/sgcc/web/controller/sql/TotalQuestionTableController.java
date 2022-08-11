@@ -15,6 +15,8 @@ import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -159,10 +161,18 @@ public class TotalQuestionTableController extends BaseController
      */
     @RequestMapping("add")
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
-    public String add(@RequestBody TotalQuestionTable totalQuestionTable)
+    public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-        int i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
-        return totalQuestionTable.getId()+"";
+        int i;
+        try{
+            i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
+        }catch (Exception e){
+            if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
+                //返回成功
+                return  AjaxResult.error("唯一约束异常 问题已存在");
+            }
+        }
+        return AjaxResult.success(totalQuestionTable.getId()+"");
     }
 
     /**
@@ -272,15 +282,9 @@ public class TotalQuestionTableController extends BaseController
     @RequestMapping("/temProNamelist")
     public List<String> temProNamelist(@RequestBody String typeProblem)
     {
-        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemListBytypeProblem(typeProblem);
+        List<String> typeProblemlist = totalQuestionTableService.selectTemProNamelistBytypeProblem(typeProblem);
 
-        List<String> stringList = new ArrayList<>();
-
-        for (TotalQuestionTable pojo:typeProblemlist){
-            stringList.add(pojo.getTemProName());
-        }
-
-        return stringList;
+        return typeProblemlist;
     }
 
     /**
