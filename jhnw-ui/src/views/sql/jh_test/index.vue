@@ -1,17 +1,20 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="50px" :show-message="false">
+    <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px">
-        <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">全盘扫描</el-button>
+        <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
         <el-button type="primary" icon="el-icon-upload2"
                    size="small" style="margin-left: 10px" @click="daoru">批量导入</el-button>
 <!--        <el-button type="primary" @click="kandaoru" size="small">查看导入数据</el-button>-->
         <el-button type="primary" @click="zhuanxiang" icon="el-icon-search" size="small">专项扫描</el-button>
         <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">韦工测试</el-button>
+        <el-button type="primary" @click="xinzeng" icon="el-icon-search" size="small">新增设备</el-button>
+        <el-button type="primary" @click="zhuanall" size="small">专项所有</el-button>
+
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
-          width="30%"
+          width="50%"
           :before-close="handleClose">
           <input type="file" id="importBtn" @click="handleClick" @change="handleImport"
                  style="height: 30px;cursor: pointer">
@@ -30,8 +33,84 @@
                          @change="handleChange" :min="1" :max="5"></el-input-number>
       </el-form-item>
       <el-divider></el-divider>
+      <el-row>
+        <el-col :span="13">
+          <!--      表格展示列表-->
+          <el-table :data="tableData" style="width: 100%" max-height="300" @select="xuanze">
+            <el-table-column type="index" width="50"></el-table-column>
+            <el-table-column type="selection" width="45"></el-table-column>
+            <el-table-column prop="ip" label="设备IP" width="130">
+              <template slot-scope="{ row }">
+                <el-input v-if="row.$isEdit" v-model="row.ip"
+                          placeholder="请输入ip" size="small" style="width: 120px"></el-input>
+                <span v-else>{{ row.ip }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="name" label="用户名" width="130">
+              <template slot-scope="{ row }">
+                <el-input v-if="row.$isEdit" v-model="row.name"
+                          placeholder="请输入用户名" size="small" style="width: 120px"></el-input>
+                <span v-else>{{ row.name }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="password" label="密码" width="120">
+              <template slot-scope="{ row }">
+                <el-input v-if="row.$isEdit" v-model="row.password" type="password"
+                          placeholder="请输入密码" size="small" style="width: 110px"></el-input>
+                <span v-else>{{ row.passmi }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="mode" label="连接方式" width="80">
+              <template slot-scope="{ row }">
+                <el-input v-if="row.$isEdit" v-model="row.mode"
+                          placeholder="连接方式" size="small" style="width: 70px"></el-input>
+                <span v-else>{{ row.mode }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="port" label="端口号" width="80">
+              <template slot-scope="{ row }">
+                <el-input v-if="row.$isEdit" v-model="row.port"
+                          placeholder="端口" size="small" style="width: 50px"></el-input>
+                <span v-else>{{ row.port }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="50">
+              <template slot-scope="{ row }">
+                <el-button type="text" v-if="row.$isEdit" @click="queding(row)" size="small">确定</el-button>
+                <el-button type="text" v-else @click="queding(row)" size="small">编辑</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-col>
+        <el-col :span="11">
+          <div style="max-height: 300px">
+            <el-scrollbar style="height:100%">
+              <el-tree style="max-height: 300px;width: 80%;margin-left:30px" show-checkbox
+                       :data="fenxiang" :props="defaultProps"
+                       @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>
+            </el-scrollbar>
+          </div>
+          <!--        专项扫描弹框-->
+<!--          <el-dialog-->
+<!--            title="专项扫描"-->
+<!--            :visible.sync="dialogVisible01"-->
+<!--            width="50%"-->
+<!--            :before-close="handleClose">-->
+<!--            <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>-->
+<!--            <span slot="footer" class="dialog-footer">-->
+<!--            <el-button @click="dialogVisible01 = false">取 消</el-button>-->
+<!--            <el-button type="primary" @click="dialogVisible01 = false">确 定</el-button>-->
+<!--          </span>-->
+<!--          </el-dialog>-->
+        </el-col>
+      </el-row>
+
       <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow" max-height="250">
-          <el-form-item label="ip" :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">
+        <el-form-item>
+          <el-checkbox v-model="item.checked"></el-checkbox>
+        </el-form-item>
+          <el-form-item label="ip"
+                        :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">
             <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
           </el-form-item>
           <el-form-item label="用户">
@@ -168,6 +247,8 @@ import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
 import log from "../../monitor/job/log"
 import * as XLSX from 'xlsx'
 import request from '@/utils/request';
+// import { JSEncrypt } from 'jsencrypt'
+import {encrypt} from "../../../utils/jsencrypt";
 export default {
   name: "Jh_test",
     components:{
@@ -177,11 +258,61 @@ export default {
     },
   data() {
     return {
+        shuru:false,
+        tableData: [{
+            ip: '192.168.1.100',
+            name: 'admin',
+            password:'admin',
+            passmi:'********',
+            mode:'ssh',
+            port:22,
+            $isEdit:false
+        }],
+        xuanzhong:[
+
+        ],
+        fenxiang: [{
+            label: '安全配置',
+            id:1,
+            children: [{
+                label: '密码明文存储',
+                id:2,
+                children:[
+                    {
+                        label: 'H3C密码明文存储',
+                        id:3,
+                    },
+                    {
+                        label: 'Cisco密码明文存储',
+                        id:4,
+                    }
+                ]
+            }]
+        }, {
+            id:5,
+            label: '设备缺陷',
+            children: [{
+                label: '开启telnet',
+                id:6,
+            }]
+        }, {
+            id:7,
+            label: '设备故障',
+            children: [{
+                label: '开启telnet',
+                id:8,
+            }]
+        }],
+        defaultProps: {
+            children: 'children',
+            label: 'label'
+        },
         //计数器
         num:1,
         //表格上传
         importData:[],
         dialogVisible:false,
+        dialogVisible01:false,
         //缓存交换机信息
         alljiao:{
             allInfo:[
@@ -267,11 +398,56 @@ export default {
       this.getList();
   },
   methods: {
+      //专项所有
+      zhuanall(){
+          // console.log(this.$refs.treeone.getCheckedKeys())
+          // var ce = [{}]
+          // var ce = this.zuihou
+          console.log(this.tableData)
+          return request({
+              // url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
+              method:'post',
+              // data:ce
+          }).then(response=>{
+              console.log(response)
+          })
+      },
+      //选择设备
+      xuanze(row){
+          this.xuanzhong = JSON.parse(JSON.stringify(row))
+      },
+      //新增设备
+      xinzeng(){
+          this.tableData.unshift({
+              ip: '',
+              name: '',
+              password:'',
+              passmi:'********',
+              mode:'',
+              port:22,
+              $isEdit:true
+          })
+      },
+      //确定
+      queding(row){
+          console.log(row)
+          row.$isEdit = !row.$isEdit
+      },
+      //专项扫描
+      handleNodeClick(fenxiang) {
+          console.log(fenxiang);
+      },
       //韦工测试
       weigong(){
+          var encrypt = new JSEncrypt();
+          encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+          var aaa = encrypt.encrypt('admin')
+          console.log(aaa)
           return request({
-              url:'/sql/SwitchInteraction/directionalScann',
+              // url:'/sql/SwitchInteraction/directionalScann',
+              // url:'/sql/SwitchInteraction/getCiphertext',
               method:'post',
+              data:aaa
           }).then(response=>{
               console.log(response)
           })
@@ -284,7 +460,7 @@ export default {
       },
       //专项扫描
       zhuanxiang(){
-
+          this.dialogVisible01 = true
       },
       //上传成功
       shangchuan(){
@@ -377,10 +553,48 @@ export default {
       //     }
       //     // this.forms.dynamicItem.push(this.importData[0])
       // },
-      //开始扫描
+      //一键扫描
       saomiao(){
+          //新数据
+          //最终设备
+          let zuihou = []
+          if (this.xuanzhong.length>0){
+              zuihou = this.xuanzhong
+          }else {
+              zuihou = JSON.parse(JSON.stringify(this.tableData))
+          }
+          console.log(zuihou)
+          var encrypt = new JSEncrypt();
+          encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+          for (let i = 0;i<zuihou.length;i++){
+              this.$delete(zuihou[i],'$isEdit')
+              this.$delete(zuihou[i],'passmi')
+              //给用户密码加密
+              var pass = encrypt.encrypt(zuihou[i].password)
+              this.$set(zuihou[i],'password',pass)
+          }
+
           let manycon = []
-          manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
+          // for(let i = 0;i<this.forms.dynamicItem.length;i++){
+          //     if (this.forms.dynamicItem[i].checked === true){
+          //         console.log('sss')
+          //         // manycon.push(JSON.stringify(this.forms.dynamicItem[i]))
+          //     }else {
+          //         manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
+          //     }
+          // }
+          var form1 = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+          console.log(form1)
+          for (let i = 0;i<form1.length;i++){
+              var pas = encrypt.encrypt(form1[i].password)
+              this.$set(form1[i],'password',pas)
+          }
+          // for (let i = 0;i<this.forms.dynamicItem.length;i++){
+          //     var pas = encrypt.encrypt(this.forms.dynamicItem[i].password)
+          //     this.$set(this.forms.dynamicItem[i],'password',pas)
+          // }
+          manycon = form1.map(x=>JSON.stringify(x))
+          // manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
           for (let i=0;i<this.importData.length;i++){
               const bianhua = this.importData.map(x=>JSON.stringify(x))
               manycon.push(bianhua[i])
@@ -391,7 +605,7 @@ export default {
           console.log(manycon)
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+              // url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
               method:'post',
               data:manycon
           }).then(response=>{

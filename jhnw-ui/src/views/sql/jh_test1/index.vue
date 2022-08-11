@@ -75,6 +75,12 @@
                   @focus="biaoshi($event)" name="biaoshi"></el-input>
       </el-form-item>
       <el-form-item>
+        <el-checkbox v-model="queryParams.requiredItems">必扫问题</el-checkbox>
+      </el-form-item>
+      <el-form-item label="备注">
+        <el-input v-model="queryParams.remarks"></el-input>
+      </el-form-item>
+      <el-form-item>
         <el-button type="primary" @click="huoquid">定义问题命令</el-button>
       </el-form-item>
       <el-form-item>
@@ -332,6 +338,7 @@ export default {
     },
   data() {
     return {
+        //必选项
         //隐藏定义问题
         chuxian:true,
         display:'inline-block',
@@ -390,7 +397,9 @@ export default {
           commandId:'1',
           problemName:'',
           notFinished:'---- More ----',
-          typeProblem:''
+          typeProblem:'',
+          requiredItems:false,
+          remarks:''
       },
       // 表单参数
         form:{},
@@ -664,9 +673,14 @@ export default {
           this.chuxian = true
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
           this.$delete(shasha,'commandId')
+          if (shasha.requiredItems === true){
+              this.$set(shasha,'requiredItems',1)
+          }else {
+              this.$set(shasha,'requiredItems',0)
+          }
           console.log(shasha)
           return request({
-              url:'/sql/total_question_table/add',
+              // url:'/sql/total_question_table/add',
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
