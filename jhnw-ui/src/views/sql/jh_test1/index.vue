@@ -680,7 +680,7 @@ export default {
           }
           console.log(shasha)
           return request({
-              // url:'/sql/total_question_table/add',
+              url:'/sql/total_question_table/add',
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
