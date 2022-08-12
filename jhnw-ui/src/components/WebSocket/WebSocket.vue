@@ -15,6 +15,8 @@
         name: "WebSocket",
         data() {
             return {
+                //扫描结束
+                saoend:false,
                 // ws是否启动
                 wsIsRun: false,
                 // 定义ws对象
@@ -30,10 +32,22 @@
             this.wsIsRun = true
             this.wsInit()
         },
+        watch:{
+            //检测扫描结束
+            textarea(){
+                if (this.textarea.includes('扫描结束')){
+                    this.saoend = true
+                }
+            }
+        },
         created(){
             const usname = Cookies.get('usName')
         },
         methods: {
+            //给父组件显示
+            geifuone(){
+              return this.saoend
+            },
             sendDataToServer() {
                 if (this.webSocket.readyState === 1) {
                     this.webSocket.send('来自前ssss端的数据')

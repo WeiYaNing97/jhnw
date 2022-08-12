@@ -4,13 +4,10 @@
       <el-form-item style="margin-left: 15px">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
         <el-button type="primary" icon="el-icon-upload2"
-                   size="small" style="margin-left: 10px" @click="daoru">批量导入</el-button>
-<!--        <el-button type="primary" @click="kandaoru" size="small">查看导入数据</el-button>-->
-        <el-button type="primary" @click="zhuanxiang" icon="el-icon-search" size="small">专项扫描</el-button>
+                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
+        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
+        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>
         <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">韦工测试</el-button>
-        <el-button type="primary" @click="xinzeng" icon="el-icon-search" size="small">新增设备</el-button>
-        <el-button type="primary" @click="zhuanall" size="small">专项所有</el-button>
-
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -25,10 +22,8 @@
           <el-button type="primary" @click="shangchuan">确 定</el-button>
           </span>
         </el-dialog>
-<!--        margin-left: -97px;opacity:0%;width:100px-->
         <el-button type="primary" size="small" icon="el-icon-download"
                    @click="xiazai" style="margin-left: 10px">下载模板</el-button>
-<!--        <p style="display:inline-block;margin-left: 10px">同时扫描交换机数量:</p>-->
         <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
                          @change="handleChange" :min="1" :max="5"></el-input-number>
       </el-form-item>
@@ -83,57 +78,52 @@
           </el-table>
         </el-col>
         <el-col :span="11">
+          <div>
+            <el-input
+              v-model="deptName"
+              placeholder="请输入查询"
+              clearable
+              size="small"
+              prefix-icon="el-icon-search"
+              style="margin-bottom: 20px;width: 300px;margin-left: 30px"
+            />
+          </div>
           <div style="max-height: 300px">
             <el-scrollbar style="height:100%">
               <el-tree style="max-height: 300px;width: 80%;margin-left:30px" show-checkbox
-                       :data="fenxiang" :props="defaultProps"
+                       :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
                        @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>
             </el-scrollbar>
           </div>
-          <!--        专项扫描弹框-->
-<!--          <el-dialog-->
-<!--            title="专项扫描"-->
-<!--            :visible.sync="dialogVisible01"-->
-<!--            width="50%"-->
-<!--            :before-close="handleClose">-->
-<!--            <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick"></el-tree>-->
-<!--            <span slot="footer" class="dialog-footer">-->
-<!--            <el-button @click="dialogVisible01 = false">取 消</el-button>-->
-<!--            <el-button type="primary" @click="dialogVisible01 = false">确 定</el-button>-->
-<!--          </span>-->
-<!--          </el-dialog>-->
         </el-col>
       </el-row>
 
-      <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow" max-height="250">
-        <el-form-item>
-          <el-checkbox v-model="item.checked"></el-checkbox>
-        </el-form-item>
-          <el-form-item label="ip"
-                        :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">
-            <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>
-          </el-form-item>
-          <el-form-item label="用户">
-            <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>
-          </el-form-item>
-          <el-form-item label="密码">
-            <el-input v-model="item.password" type="password"
-                      autocomplete="off" show-password placeholder="密码" size="small" style="width: 150px"></el-input>
-          </el-form-item>
-          <el-form-item label="方式">
-            <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">
-              <el-option label="telnet" value="telnet"></el-option>
-              <el-option label="ssh" value="ssh"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="端口">
-            <el-input v-model="item.port" style="width: 50px" size="small"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button v-if="index+1 == forms.dynamicItem.length" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>
-            <el-button v-if="index !== 0" size="small" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>
-          </el-form-item>
-      </div>
+<!--      <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow" max-height="250">-->
+<!--          <el-form-item label="ip"-->
+<!--                        :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">-->
+<!--            <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="用户">-->
+<!--            <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="密码">-->
+<!--            <el-input v-model="item.password" type="password"-->
+<!--                      autocomplete="off" show-password placeholder="密码" size="small" style="width: 150px"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="方式">-->
+<!--            <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">-->
+<!--              <el-option label="telnet" value="telnet"></el-option>-->
+<!--              <el-option label="ssh" value="ssh"></el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="端口">-->
+<!--            <el-input v-model="item.port" style="width: 50px" size="small"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <el-button v-if="index+1 == forms.dynamicItem.length" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>-->
+<!--            <el-button v-if="index !== 0" size="small" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>-->
+<!--          </el-form-item>-->
+<!--      </div>-->
 
 <!--      <el-form-item label="ip" prop="ip">-->
 <!--        <el-input-->
@@ -196,11 +186,11 @@
 <!--      <div slot="tip" class="el-upload__tip">只 能 上 传 xlsx / xls 文 件</div>-->
 <!--    </el-upload>-->
 
-    <WebSocketTwo :queryParams="queryParams" :forms="forms" :alljiao="alljiao" :num="num"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" :alljiao="alljiao" :saowanend="saowanend" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
-        <WebSocket></WebSocket>
+        <WebSocket ref="webone"></WebSocket>
       </el-row>
     </div>
 
@@ -258,6 +248,12 @@ export default {
     },
   data() {
     return {
+        //定时接收true或者false
+        torf:false,
+        //是否扫描完成
+        saowanend:false,
+        //查询树
+        deptName:undefined,
         shuru:false,
         tableData: [{
             ip: '192.168.1.100',
@@ -309,10 +305,9 @@ export default {
         },
         //计数器
         num:1,
-        //表格上传
+        //表格上传的设备信息
         importData:[],
         dialogVisible:false,
-        dialogVisible01:false,
         //缓存交换机信息
         alljiao:{
             allInfo:[
@@ -343,22 +338,22 @@ export default {
       open: false,
         aaa:'1',
         //动态增加交换机
-        forms:{
-            dynamicItem:[
-                {
-                    ip: '192.168.1.100',
-                    name: 'admin',
-                    password:'admin',
-                    mode:'ssh',
-                    port:22
-                }
-            ],
-            rules:{
-                ip:[
-                    { required: true, trigger: "blur",message:null }
-                ]
-            }
-        },
+        // forms:{
+        //     dynamicItem:[
+        //         {
+        //             ip: '192.168.1.100',
+        //             name: 'admin',
+        //             password:'admin',
+        //             mode:'ssh',
+        //             port:22
+        //         }
+        //     ],
+        //     rules:{
+        //         ip:[
+        //             { required: true, trigger: "blur",message:null }
+        //         ]
+        //     }
+        // },
         // 查询参数
       queryParams: {
           ip: '192.168.1.1',
@@ -392,23 +387,56 @@ export default {
       }
     };
   },
+    watch:{
+        // 根据输入筛选专项
+        deptName(val) {
+            this.$refs.treeone.filter(val);
+        },
+    },
   created() {
       // let us = Cookies.get("userInfo")
       // console.log(us)
       this.getList();
   },
   methods: {
+      // 筛选节点
+      filterNode(value, data) {
+          if (!value) return true;
+          return data.label.indexOf(value) !== -1;
+      },
       //专项所有
       zhuanall(){
-          // console.log(this.$refs.treeone.getCheckedKeys())
-          // var ce = [{}]
-          // var ce = this.zuihou
-          console.log(this.tableData)
+          var ce = {}
           return request({
-              // url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
+              url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
               method:'post',
-              // data:ce
+              data:ce
           }).then(response=>{
+              console.log(response)
+              function changeTreeDate(arrayJsonObj,oldKey,newKey) {
+                  let strtest = JSON.stringify(arrayJsonObj);
+                  let reg = new RegExp(oldKey,'g');
+                  let newStr = strtest.replace(reg,newKey);
+                  return JSON.parse(newStr);
+              }
+              response = changeTreeDate(response,'totalQuestionTableVOList','children')
+              response = changeTreeDate(response,'totalQuestionTableList','children')
+              for (let i = 0;i<response.length;i++){
+                  for (let g = 0;g<response[i].children.length;g++){
+                      this.$delete(response[i].children[g],'typeProblem')
+                      for (let m = 0;m<response[i].children[g].children.length;m++){
+                          this.$delete(response[i].children[g].children[m],'typeProblem')
+                          this.$delete(response[i].children[g].children[m],'temProName')
+                          console.log(response[i].children[g].children[m].brand)
+                          let pinjie = response[i].children[g].children[m].brand+' '+response[i].children[g].children[m].firewareVersion
+                          console.log(pinjie)
+                      }
+                  }
+              }
+              response = changeTreeDate(response,'typeProblem','label')
+              response = changeTreeDate(response,'temProName','label')
+              response = changeTreeDate(response,'problemName','label')
+              this.fenxiang = response
               console.log(response)
           })
       },
@@ -418,7 +446,7 @@ export default {
       },
       //新增设备
       xinzeng(){
-          this.tableData.unshift({
+          this.tableData.push({
               ip: '',
               name: '',
               password:'',
@@ -435,49 +463,45 @@ export default {
       },
       //专项扫描
       handleNodeClick(fenxiang) {
-          console.log(fenxiang);
+          console.log(fenxiang)
+      },
+      //扫描完成弹窗,后面定时执行
+      saowan(){
+          this.saowanend = this.$refs.webone.geifuone()
+          if (this.saowanend === true){
+              clearInterval(this.torf)
+              alert('扫描结束')
+          }
       },
       //韦工测试
       weigong(){
-          var encrypt = new JSEncrypt();
-          encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-          var aaa = encrypt.encrypt('admin')
-          console.log(aaa)
-          return request({
-              // url:'/sql/SwitchInteraction/directionalScann',
-              // url:'/sql/SwitchInteraction/getCiphertext',
-              method:'post',
-              data:aaa
-          }).then(response=>{
-              console.log(response)
-          })
-      },
-      //导入数据弹框
-      // dialogVisible = true
-      daoru(){
-          this.dialogVisible = true
-          this.importData = []
-      },
-      //专项扫描
-      zhuanxiang(){
-          this.dialogVisible01 = true
+          // console.log(this.$refs.webone.geifuone())
+          console.log(this.$refs.treeone.getCheckedKeys())
+          // return request({
+          //     // url:'/sql/SwitchInteraction/directionalScann',
+          //     // url:'/sql/SwitchInteraction/getCiphertext',
+          //     method:'post',
+          //     // data:aaa
+          // }).then(response=>{
+          //     console.log(response)
+          // })
       },
       //上传成功
       shangchuan(){
+          console.log(this.importData)
           this.dialogVisible = false
-          if (this.importData[0].ip != undefined){
-              this.$message.success('批量导入成功!')
-          }else {
-              this.$message.warning('批量导入失败，请重新导入或者下载模板!')
-          }
-          // for (let i = 0;i<this.importData.length;i++){
-          //     this.forms.dynamicItem.push(this.importData[i])
-          // }
           if (this.importData.length != 0){
-              this.forms.dynamicItem = []
+              this.$message.success('批量导入成功!')
               for (let i = 0;i<this.importData.length;i++){
-                  this.forms.dynamicItem.push(this.importData[i])
+                  this.$set(this.importData[i],'passmi','********')
+                  this.$set(this.importData[i],'$isEdit',false)
+                  if (this.tableData[0].ip === '' && this.tableData[0].name === '' && this.tableData[0].password === ''){
+                      this.$delete(this.tableData,0)
+                  }
+                  this.tableData.push(this.importData[i])
               }
+          }else {
+              this.$message.warning('批量导入为空，请查看导入数据规范或者下载模板!')
           }
       },
       //计数器
@@ -546,24 +570,17 @@ export default {
           // 读取文件 成功后执行上面的回调函数
           fileReader.readAsBinaryString(file);
       },
-      // //看导入
-      // kandaoru(){
-      //     for (let i = 0;i<this.importData.length;i++){
-      //         this.forms.dynamicItem.push(this.importData[i])
-      //     }
-      //     // this.forms.dynamicItem.push(this.importData[0])
-      // },
       //一键扫描
       saomiao(){
-          //新数据
-          //最终设备
+          //定时获取是否扫描结束
+           this.torf = setInterval(this.saowan,3000)
+          //最终扫描设备
           let zuihou = []
           if (this.xuanzhong.length>0){
               zuihou = this.xuanzhong
           }else {
               zuihou = JSON.parse(JSON.stringify(this.tableData))
           }
-          console.log(zuihou)
           var encrypt = new JSEncrypt();
           encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
           for (let i = 0;i<zuihou.length;i++){
@@ -573,67 +590,49 @@ export default {
               var pass = encrypt.encrypt(zuihou[i].password)
               this.$set(zuihou[i],'password',pass)
           }
-
-          let manycon = []
-          // for(let i = 0;i<this.forms.dynamicItem.length;i++){
-          //     if (this.forms.dynamicItem[i].checked === true){
-          //         console.log('sss')
-          //         // manycon.push(JSON.stringify(this.forms.dynamicItem[i]))
-          //     }else {
-          //         manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
-          //     }
-          // }
-          var form1 = JSON.parse(JSON.stringify(this.forms.dynamicItem))
-          console.log(form1)
-          for (let i = 0;i<form1.length;i++){
-              var pas = encrypt.encrypt(form1[i].password)
-              this.$set(form1[i],'password',pas)
-          }
-          // for (let i = 0;i<this.forms.dynamicItem.length;i++){
-          //     var pas = encrypt.encrypt(this.forms.dynamicItem[i].password)
-          //     this.$set(this.forms.dynamicItem[i],'password',pas)
-          // }
-          manycon = form1.map(x=>JSON.stringify(x))
-          // manycon = this.forms.dynamicItem.map(x=>JSON.stringify(x))
-          for (let i=0;i<this.importData.length;i++){
-              const bianhua = this.importData.map(x=>JSON.stringify(x))
-              manycon.push(bianhua[i])
-          }
-          this.alljiao.allInfo = manycon
+          //传输几个线程
           const scanNum = this.num
-          console.log(this.alljiao.allInfo)
-          console.log(manycon)
+          //专项扫描的所有id
+          var zhuanid = this.$refs.treeone.getCheckedKeys()
+          for(let i = 0;i<zhuanid.length;i++){
+              if (zhuanid[i] === undefined){
+                  this.$delete(zhuanid,i)
+              }
+          }
+          console.log(zhuanid)
+          console.log(zuihou)
+          this.alljiao.allInfo = zuihou
+          let zuihouall = zuihou.map(x=>JSON.stringify(x))
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              // url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+              url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
               method:'post',
-              data:manycon
+              data:zuihouall
           }).then(response=>{
-              console.log('成功')
               this.$message.success('扫描请求以提交!')
           })
       },
-      //新增表单项
-      addItem(length) {
-          if (length >= 100) {
-              this.$message({
-                  type: 'warning',
-                  message: '最多可存在5行!'
-              })
-          } else {
-              this.forms.dynamicItem.push({
-                  ip: '',
-                  name: '',
-                  password:'',
-                  mode:'',
-                  port:''
-              })
-          }
-      },
-      //删减表单项
-      deleteItem(item, index) {
-          this.forms.dynamicItem.splice(index, 1)
-      },
+      // //新增表单项
+      // addItem(length) {
+      //     if (length >= 100) {
+      //         this.$message({
+      //             type: 'warning',
+      //             message: '最多可存在5行!'
+      //         })
+      //     } else {
+      //         this.forms.dynamicItem.push({
+      //             ip: '',
+      //             name: '',
+      //             password:'',
+      //             mode:'',
+      //             port:''
+      //         })
+      //     }
+      // },
+      // //删减表单项
+      // deleteItem(item, index) {
+      //     this.forms.dynamicItem.splice(index, 1)
+      // },
       //新增指定端口号
       chooseTT(item){
           var val = item.mode;

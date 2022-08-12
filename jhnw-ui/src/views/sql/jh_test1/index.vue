@@ -59,8 +59,6 @@
                    filterable allow-create @focus="temPro($event)" @blur="temProShu">
           <el-option v-for="(item,index) in temProNameList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
-<!--          <el-option v-for="(item,index) in proNameList" :key="index"-->
-<!--                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>-->
         </el-select>
       </el-form-item>
       <el-form-item label="自定义名称">
@@ -85,7 +83,7 @@
         <el-button type="primary" @click="huoquid">定义问题命令</el-button>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="hand">定义问题详情</el-button>
+        <el-button type="primary" @click="xiangqing">定义问题详情</el-button>
       </el-form-item>
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
@@ -461,7 +459,7 @@ export default {
           console.log(this.who)
       },
       //定义问题详情
-      hand(){
+      xiangqing(){
           this.showha = true
           let form = new FormData();
           for (var key in this.queryParams){
@@ -706,7 +704,7 @@ export default {
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
-              this.proId = response
+              this.proId = response.msg
           })
       },
       chawenti(e){

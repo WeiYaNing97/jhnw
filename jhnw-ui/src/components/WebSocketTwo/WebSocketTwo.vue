@@ -1,14 +1,15 @@
 <template>
   <div>
 <!--    tableDataq  testData-->
-    <el-button type="success" size="small" @click="allxiu" v-show="chuci">一键修复</el-button>
+    <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
+    <el-button type="primary" size="small" @click="testall">所有测试</el-button>
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
 <!--    <el-button type="primary" size="small" @click="wutiao">五条</el-button>-->
     <el-table v-loading="loading"
-              :data="tableDataqq"
+              :data="testData"
               ref="tree"
               v-show="chuci"
               style="width: 100%;margin-bottom: 20px;"
@@ -25,10 +26,10 @@
           <el-button size="mini"
                      type="text"
                      icon="el-icon-edit"
-                     v-show="scope.row.ifQuestion==='异常'"
+                     v-show="scope.row.ifQuestion==='异常' && saowanend"
                      @click="xiufu(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
-                     v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')"
+                     v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem') && saowanend"
                      @click="xiuall(scope.row)">单台修复</el-button>
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
@@ -101,24 +102,29 @@
             TinymceEditor
         },
         props:{
+            saowanend:false,
             queryParams:'',
             num:'',
             alljiao:{
                 allInfo:[
 
                 ]
-            },
-            forms:{
-
             }
+            // forms:{
+            //
+            // }
         },
         data() {
             return {
+                //禁用一键修复
+                xianshi:false,
                 //
                 wenbenben:'',
                 dialogVisible:false,
                 //后台回显所有交换机信息
                 newArr:[],
+                //现在返回的交换机信息
+                nowArr:[],
                 chuci:true,
                 huisao:false,
                 // ws是否启动
@@ -243,10 +249,21 @@
             this.wsIsRun = true
             this.wsInit()
         },
+        watch:{
+            saowanend(){
+                if (this.saowanend === true){
+                    this.xianshi = !this.saowanend
+                }
+            }
+        },
         created(){
             const usname = Cookies.get('usName')
         },
         methods: {
+            //测试总按钮
+            testall(){
+              console.log(this.nowArr)
+            },
             //测试总按钮
             wenben(){
                 console.log(this.num)
@@ -319,6 +336,7 @@
                     let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
                     this.tableDataq = newJson1
                     const jiaid = this.tableDataq
+                    console.log(jiaid)
                     //返回数据添加hproblemId
                     for(let i = 0;i<jiaid.length;i++){
                         this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
@@ -447,6 +465,7 @@
             //当前扫描一键修复所有问题
             allxiu(){
                 //问题ID集合
+                console.log(this.alljiao.allInfo)
                 const problemIdList = []
                 const iplist = []
                 const yijian = this.testData
@@ -473,7 +492,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -514,7 +533,7 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
-            //当前单台一键修复
+            //当前扫描单台一键修复
             xiuall(row){
                 const thisip = row.switchIp
                 const listAll = row.children
@@ -668,7 +687,7 @@
                         console.log('ws建立连接失败')
                         this.wsInit()
                     }
-                }, 3000)
+                }, 300000)
             },
             wsOpenHanler(event) {
                 console.log('ws建立连接成功')
@@ -697,6 +716,30 @@
                         }
                     }
                 }
+                // //获取返回ip、用户名、密码等
+                // const nowallxinxi = []
+                // for(let i = 0;i<shu.length;i++){
+                //     for (let g = 0;g<shu[i].children.length;g++){
+                //         const nowallinfo = {}
+                //         if(shu[i].children[g].switchName != undefined){
+                //             this.$set(nowallinfo,'ip',shu[i].switchIp)
+                //             this.$set(nowallinfo,'name',shu[i].children[g].switchName)
+                //             this.$set(nowallinfo,'password',shu[i].children[g].switchPassword)
+                //             this.$set(nowallinfo,'mode',shu[i].children[g].loginMethod)
+                //             this.$set(nowallinfo,'port',shu[i].children[g].portNumber)
+                //             nowallxinxi.push(nowallinfo)
+                //             break
+                //         }
+                //     }
+                // }
+                // //所有交换机信息去重
+                // let nowObj = {}
+                // for(let i = 0;i<nowallxinxi.length;i++){
+                //     if (!nowObj[nowallxinxi[i].ip]){
+                //         this.nowArr.push(nowallxinxi[i])
+                //         nowObj[nowallxinxi[i].ip] = true
+                //     }
+                // }
                 console.log(this.testData)
             },
             /**
