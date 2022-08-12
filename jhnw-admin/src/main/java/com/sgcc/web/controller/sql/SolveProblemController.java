@@ -555,7 +555,123 @@ public class SolveProblemController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("getUnresolvedProblemInformationByUserName")
-    public List<ScanResultsVO> getUnresolvedProblemInformationByUserName(){
+    public List<ScanResultsCO> getUnresolvedProblemInformationByUserName(){
+
+        //LoginUser loginUser = SecurityUtils.getLoginUser();
+        String userName = "admin";//loginUser.getUsername();
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
+        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
+        HashSet<String> hashSet = new HashSet<>();
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String time = format.format(switchProblemVO.getCreateTime());
+            hashSet.add(switchProblemVO.getSwitchIp()+"=:="+time);
+            Date date1 = new Date();
+            switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
+            for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+                valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
+                List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
+                for (ValueInformationVO valueInformationVO:valueInformationVOList){
+                    Date date2 = new Date();
+                    valueInformationVO.hproblemId = Long.valueOf(Utils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                }
+                Date date3 = new Date();
+                switchProblemCO.hproblemId = Long.valueOf(Utils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.setValueInformationVOList(valueInformationVOList);
+            }
+        }
+
+        //将IP地址去重放入set集合中
+        HashSet<String> time_hashSet = new HashSet<>();
+        for (SwitchProblemVO switchProblemVO:switchProblemList){
+            Date createTime = switchProblemVO.getCreateTime();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String time = simpleDateFormat.format(createTime);
+            time_hashSet.add(time);
+        }
+        List<Date> arr = new ArrayList<Date>();
+        for (String time:time_hashSet){
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            try {
+                arr.add(format.parse(time));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        List<Date> sort = Utils.sort(arr);
+        List<String> stringtime = new ArrayList<>();
+        for (int number = sort.size()-1;number>=0;number--){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String time = dateFormat.format(sort.get(number));
+            stringtime.add(time);
+        }
+
+        List<ScanResultsCO> scanResultsCOList = new ArrayList<>();
+        for (String time:stringtime){
+            ScanResultsCO scanResultsCO = new ScanResultsCO();
+            scanResultsCO.setCreateTime(time);
+            scanResultsCOList.add(scanResultsCO);
+        }
+
+
+        List<ScanResultsVO> scanResultsVOPojoList = new ArrayList<>();
+        for (String hashString:hashSet){
+            String[] split = hashString.split("=:=");
+            ScanResultsVO scanResultsVO = new ScanResultsVO();
+            scanResultsVO.setSwitchIp(split[0]);
+            scanResultsVO.setCreateTime(split[1]);
+            scanResultsVOPojoList.add(scanResultsVO);
+        }
+
+        for (ScanResultsVO scanResultsVO:scanResultsVOPojoList){
+            List<SwitchProblemVO> pojoList = new ArrayList<>();
+            for (SwitchProblemVO switchProblemVO:switchProblemList){
+                DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String time = format.format(switchProblemVO.getCreateTime());
+                if (scanResultsVO.getSwitchIp().equals(switchProblemVO.getSwitchIp())
+                        && scanResultsVO.getCreateTime().equals(time)){
+                    pojoList.add(switchProblemVO);
+                }
+            }
+            scanResultsVO.setSwitchProblemVOList(pojoList);
+        }
+
+        for (ScanResultsCO scanResultsCO:scanResultsCOList){
+            List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
+            for (ScanResultsVO scanResultsVO:scanResultsVOPojoList){
+                if (scanResultsCO.getCreateTime().equals(scanResultsVO.getCreateTime())){
+                    scanResultsVOList.add(scanResultsVO);
+                }
+            }
+            scanResultsCO.setScanResultsVOList(scanResultsVOList);
+        }
+
+        for (ScanResultsCO scanResultsCO:scanResultsCOList){
+            List<ScanResultsVO> scanResultsVOList = scanResultsCO.getScanResultsVOList();
+            for (ScanResultsVO scanResultsVO:scanResultsVOList){
+                scanResultsVO.setCreateTime(null);
+                List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
+                for (SwitchProblemVO switchProblemVO:switchProblemVOList){
+                    switchProblemVO.setSwitchIp(null);
+                    switchProblemVO.setCreateTime(null);
+                }
+            }
+        }
+
+        return scanResultsCOList;
+    }
+
+    /**
+     * @method: 根据当前登录人 获取 以往扫描信息
+     * @Param: []
+     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("getUnresolvedProblemInformationByUserName1")
+    public List<ScanResultsVO> getUnresolvedProblemInformationByUserName1(){
 
         LoginUser loginUser = SecurityUtils.getLoginUser();
         String userName = loginUser.getUsername();
@@ -602,6 +718,8 @@ public class SolveProblemController {
             String time = dateFormat.format(sort.get(number));
             stringtime.add(time);
         }
+
+
 
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String time:stringtime){

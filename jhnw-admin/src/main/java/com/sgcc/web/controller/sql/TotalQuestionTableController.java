@@ -163,16 +163,18 @@ public class TotalQuestionTableController extends BaseController
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-        int i;
+        int insert;
         try{
-            i = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
+            insert = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
         }catch (Exception e){
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
                 //返回成功
-                return  AjaxResult.error("唯一约束异常 问题已存在");
+                return  AjaxResult.error("SQL唯一约束异常,问题已存在");
             }
         }
+
         return AjaxResult.success(totalQuestionTable.getId()+"");
+
     }
 
     /**

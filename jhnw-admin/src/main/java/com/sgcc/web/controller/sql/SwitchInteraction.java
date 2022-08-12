@@ -632,6 +632,10 @@ public class SwitchInteraction {
             String extractInformation_string1 = analysisReturn(user_String, user_Object ,null,
                     return_sum, first_problem_scanLogic_Id);
 
+            if (extractInformation_string1.indexOf("错误") !=-1){
+                break;
+            }
+
             if (extractInformation_string1.equals("") || extractInformation_string1 == null){
                 continue;
             }
@@ -739,13 +743,24 @@ public class SwitchInteraction {
         for (TotalQuestionTable pojo:totalQuestionTables){
             user_String.put("notFinished",pojo.getNotFinished());
 
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,pojo.getCommandId(),user_String.get("notFinished"),
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,pojo,pojo.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
+
+            if (executeScanCommandByCommandId_object.size() == 1){
+                AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                    continue;
+                }
+            }
+
 
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object ,pojo,
                     executeScanCommandByCommandId_object,"", "");
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
 
+            if (analysisReturnResults_String.indexOf("错误") !=-1){
+                continue;
+            }
 
             if (analysisReturnResults_String.equals("") || analysisReturnResults_String == null){
                 continue;
@@ -843,6 +858,11 @@ public class SwitchInteraction {
         String strings = selectProblemScanLogicById(user_String, user_Object, totalQuestionTable,
                 return_information_array, "", "",
                 0, first_problem_scanLogic_Id, null,0);// loop end
+
+        if (strings.indexOf("错误") !=-1){
+            return strings;
+        }
+
         //控制台 输出  交换机 基本信息
         System.err.print("\r\n基本信息："+strings+"\r\n");
         return strings;
@@ -996,8 +1016,16 @@ public class SwitchInteraction {
                 if (matchAnalysis_true_false){
 
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"),
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.gettComId(),user_String.get("notFinished"),
                                 user_String.get("mode"), user_Object);
+
+                        if (executeScanCommandByCommandId_object.size() == 1){
+                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                                return ajaxResult.get("msg")+"";
+                            }
+                        }
+
                         String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
                         return analysisReturnResults_String;
@@ -1029,7 +1057,15 @@ public class SwitchInteraction {
                     }
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), user_Object);
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), user_Object);
+
+                        if (executeScanCommandByCommandId_object.size() == 1){
+                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                                return ajaxResult.get("msg")+"";
+                            }
+                        }
+
                         String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                         return analysisReturnResults_String;
@@ -1069,7 +1105,15 @@ public class SwitchInteraction {
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
 
                 if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+
+                    if (executeScanCommandByCommandId_object.size() == 1){
+                        AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                        if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                            return ajaxResult.get("msg")+"";
+                        }
+                    }
+
                     String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
                             executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                     return analysisReturnResults_String;
@@ -1099,7 +1143,15 @@ public class SwitchInteraction {
                 if (compare_boolean){
 
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+
+                        if (executeScanCommandByCommandId_object.size() == 1){
+                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                                return ajaxResult.get("msg")+"";
+                            }
+                        }
+
                         String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
                         return analysisReturnResults_String;
@@ -1122,7 +1174,15 @@ public class SwitchInteraction {
                 }else {
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
+
+                        if (executeScanCommandByCommandId_object.size() == 1){
+                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                                return ajaxResult.get("msg")+"";
+                            }
+                        }
+
                         String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
                                 executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
 
@@ -1324,7 +1384,7 @@ public class SwitchInteraction {
      * 分析ID 连接方式 ssh和telnet连接
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(Map<String,String> user_String,String commandId,String notFinished,String way,Map<String,Object> user_Object) {
+    public List<Object> executeScanCommandByCommandId(Map<String,String> user_String,TotalQuestionTable totalQuestionTable,String commandId,String notFinished,String way,Map<String,Object> user_Object) {
         //四参数赋值
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
@@ -1337,6 +1397,11 @@ public class SwitchInteraction {
         //命令ID获取具体命令
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
+
+        if (commandLogic == null){
+            List<Object> objectList = new ArrayList<>();
+            objectList.add(AjaxResult.error("问题定义错误，该命令不存在"));
+        }
 
         //具体命令
         String command = commandLogic.getCommand();
@@ -1464,15 +1529,15 @@ public class SwitchInteraction {
                 String[] returnString_split = command_string.split("\r\n");
                 for (String string_split:returnString_split){
                     if (!Utils.judgmentError(string_split)){
-                        System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
-                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
+                        System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
+                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
                         List<Object> objectList = new ArrayList<>();
-                        objectList.add(user_String.get("ip")+ ":" +command+ "错误:"+string_split);
+                        objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string));
                         return objectList;
                     }
                 }
 
-                List<Object> objectList = executeScanCommandByCommandId(user_String,commandLogic.getEndIndex(),notFinished, way,user_Object);
+                List<Object> objectList = executeScanCommandByCommandId(user_String,totalQuestionTable,commandLogic.getEndIndex(),notFinished, way,user_Object);
                 return objectList;
             }
         }else {
@@ -1569,19 +1634,25 @@ public class SwitchInteraction {
 
             //根据命令ID获取具体命令，执行
             //返回  交换机返回信息 和  第一条分析ID
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
+            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String, totalQuestionTable,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
+
             if (executeScanCommandByCommandId_object.size() == 1){
-                String string = (String) executeScanCommandByCommandId_object.get(0);
-                if (string.equals("错误")){
+                AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
                     continue;
                 }
-
             }
+
             //分析
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                     executeScanCommandByCommandId_object,  "",  "");
+
+            if (analysisReturnResults_String.indexOf("错误") !=-1){
+                return AjaxResult.error(analysisReturnResults_String);
+            }
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
+            return AjaxResult.success(analysisReturnResults_String);
         }
         return null;
     }
