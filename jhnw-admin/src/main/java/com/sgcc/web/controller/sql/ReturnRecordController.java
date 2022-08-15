@@ -10,6 +10,7 @@ import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.service.IReturnRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/sql/return_record")
+//事务
+@Transactional(rollbackFor = Exception.class)
 public class ReturnRecordController extends BaseController
 {
     @Autowired

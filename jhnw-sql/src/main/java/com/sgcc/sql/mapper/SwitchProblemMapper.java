@@ -4,6 +4,7 @@ import com.sgcc.sql.domain.SwitchProblem;
 import com.sgcc.sql.domain.SwitchProblemVO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,4 +68,6 @@ public interface SwitchProblemMapper
     SwitchProblem selectSwitchProblemByValueId(@Param("valueId") Long valueId);
 
     List<SwitchProblemVO> selectUnresolvedProblemInformationByIds(@Param("ids") String ids);
+
+    List<SwitchProblem> selectSwitchProblemByDate(@Param("sqlString") String sqlString);
 }

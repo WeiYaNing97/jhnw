@@ -121,4 +121,17 @@ public class ValueInformationServiceImpl implements IValueInformationService
 
         return valueInformationVOList;
     }
+
+    @Override
+    public List<ValueInformation> selectValueInformationListByID(Long valueId) {
+
+        List<ValueInformation> valueInformationList = new ArrayList<>();
+        while (valueId!=0l){
+            ValueInformation valueInformation = valueInformationMapper.selectValueInformationById(valueId);
+            valueInformationList.add(valueInformation);
+            valueId = valueInformation.getOutId();
+        }
+
+        return valueInformationList;
+    }
 }

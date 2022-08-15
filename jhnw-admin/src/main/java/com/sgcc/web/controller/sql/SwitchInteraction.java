@@ -62,10 +62,10 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("directionalScann")///{totalQuestionTableId}/{scanNum}
+    @RequestMapping("directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项全部问题", businessType = BusinessType.OTHER)
-    public String directionalScann() {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
-        List<String> switchInformation = new ArrayList<>();
+    public String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
+        /*List<String> switchInformation = new ArrayList<>();
         List<Long> totalQuestionTableId = new ArrayList<>();
         Long scanNum = 1l;
         String str = "{\"ip\":\"192.168.1.100\",\"name\":\"admin\",\"password\":\"admin\",\"mode\":\"ssh\",\"port\":22}";
@@ -73,7 +73,7 @@ public class SwitchInteraction {
         Long l2 = 43l;
         switchInformation.add(str);
         totalQuestionTableId.add(l1);
-        totalQuestionTableId.add(l2);
+        totalQuestionTableId.add(l2);*/
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
@@ -1281,6 +1281,12 @@ public class SwitchInteraction {
         //插入问题数据
         SwitchProblem switchProblem = new SwitchProblem();
         switchProblem.setSwitchIp(user_String.get("ip")); // ip
+
+        switchProblem.setBrand(totalQuestionTable.getBrand());
+        switchProblem.setSwitchType(totalQuestionTable.getType());
+        switchProblem.setFirewareVersion(totalQuestionTable.getFirewareVersion());
+        switchProblem.setSubVersion(totalQuestionTable.getSubVersion());
+
         switchProblem.setSwitchName(user_String.get("name")); //name
         switchProblem.setSwitchPassword(user_String.get("password")); //password
 
@@ -1359,12 +1365,37 @@ public class SwitchInteraction {
 
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
+
+            String pinpai = "*";
+            String xinghao = "*";
+            String banben = "*";
+            String zibanben = "*";
+
             for (SwitchProblemVO switchProblemVO:switchProblemList){
-                if (switchProblemVO.getSwitchIp() == scanResultsVO.getSwitchIp()){
+                if (switchProblemVO.getSwitchIp() .equals(scanResultsVO.getSwitchIp()) ){
                     switchProblemVO.setSwitchIp(null);
+
+                    String brand = switchProblemVO.getBrand();
+                    if (!(brand .equals("*"))){
+                        pinpai = brand;
+                    }
+                    String switchType = switchProblemVO.getSwitchType();
+                    if (!(switchType .equals("*"))){
+                        xinghao = switchType;
+                    }
+                    String firewareVersion = switchProblemVO.getFirewareVersion();
+                    if (!(firewareVersion .equals("*"))){
+                        banben = firewareVersion;
+                    }
+                    String subVersion = switchProblemVO.getSubVersion();
+                    if (!(subVersion .equals("*"))){
+                        zibanben = subVersion;
+                    }
+
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
+            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+"."+pinpai+"."+xinghao+"."+banben+"."+zibanben);
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
 
@@ -1648,11 +1679,13 @@ public class SwitchInteraction {
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                     executeScanCommandByCommandId_object,  "",  "");
 
-            if (analysisReturnResults_String.indexOf("错误") !=-1){
+            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
+
+            /*if (analysisReturnResults_String.indexOf("错误") !=-1){
                 return AjaxResult.error(analysisReturnResults_String);
             }
-            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
-            return AjaxResult.success(analysisReturnResults_String);
+            return AjaxResult.success(analysisReturnResults_String);*/
+
         }
         return null;
     }

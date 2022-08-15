@@ -3,6 +3,7 @@ package com.sgcc.sql.service;
 import com.sgcc.sql.domain.SwitchProblem;
 import com.sgcc.sql.domain.SwitchProblemVO;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,4 +68,6 @@ public interface ISwitchProblemService
     List<SwitchProblemVO> selectUnresolvedProblemInformationByDataAndUserName(String currentTime,String userName);
     //根据 问题ID List
     List<SwitchProblemVO> selectUnresolvedProblemInformationByIds(Long[] id);
+
+    List<SwitchProblem> selectSwitchProblemByDate(String data);
 }

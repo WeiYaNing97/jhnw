@@ -8,6 +8,7 @@ import com.sgcc.sql.service.ISwitchProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -110,6 +111,12 @@ public class SwitchProblemServiceImpl implements ISwitchProblemService
         sqlString = sqlString +")";
 
         return switchProblemMapper.selectUnresolvedProblemInformationByIds(sqlString);
+    }
+
+    @Override
+    public List<SwitchProblem> selectSwitchProblemByDate(String data) {
+        String sqlString = "create_time < '"+data+"'";
+        return switchProblemMapper.selectSwitchProblemByDate(sqlString);
     }
 
     @Override

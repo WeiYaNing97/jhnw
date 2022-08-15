@@ -7,6 +7,7 @@ import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
@@ -25,6 +26,8 @@ import com.sgcc.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/sql/problem_describe")
+//事务
+@Transactional(rollbackFor = Exception.class)
 public class ProblemDescribeController extends BaseController
 {
     @Autowired

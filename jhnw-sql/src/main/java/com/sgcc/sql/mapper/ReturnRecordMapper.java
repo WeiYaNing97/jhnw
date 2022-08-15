@@ -1,6 +1,7 @@
 package com.sgcc.sql.mapper;
 
 import com.sgcc.sql.domain.ReturnRecord;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -68,4 +69,6 @@ public interface ReturnRecordMapper
     * @E-mail: WeiYaNing97@163.com
     */
     List<ReturnRecord> selectReturnRecordListByDataTime(String data);
+
+    int deleteReturnRecordByDate(@Param("stringData") String stringData);
 }

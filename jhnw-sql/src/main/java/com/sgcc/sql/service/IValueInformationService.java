@@ -69,4 +69,6 @@ public interface IValueInformationService
     * @E-mail: WeiYaNing97@163.com
     */
     List<ValueInformationVO> selectValueInformationVOListByID(Long id);
+
+    List<ValueInformation> selectValueInformationListByID(Long valueId);
 }

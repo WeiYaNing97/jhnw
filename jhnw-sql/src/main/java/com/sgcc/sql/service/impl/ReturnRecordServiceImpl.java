@@ -108,4 +108,10 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
         return returnRecordMapper.selectReturnRecordListByDataTime(data);
 
     }
+
+    @Override
+    public int deleteReturnRecordByDate(String data) {
+        String stringData = "create_time < '"+data+"'";
+        return returnRecordMapper.deleteReturnRecordByDate(stringData);
+    }
 }

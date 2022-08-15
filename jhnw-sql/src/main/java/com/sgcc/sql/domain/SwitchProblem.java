@@ -20,6 +20,22 @@ public class SwitchProblem extends BaseEntity
     @Excel(name = "交换机ip")
     private String switchIp;
 
+    /** 品牌 */
+    @Excel(name = "品牌")
+    private String brand;
+
+    /** 型号 */
+    @Excel(name = "型号")
+    private String switchType;
+
+    /** 内部固件版本 */
+    @Excel(name = "内部固件版本")
+    private String firewareVersion;
+
+    /** 子版本号 */
+    @Excel(name = "子版本号")
+    private String subVersion;
+
     /** 交换机姓名 */
     @Excel(name = "交换机姓名")
     private String switchName;
@@ -172,11 +188,47 @@ public class SwitchProblem extends BaseEntity
         this.portNumber = portNumber;
     }
 
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getSwitchType() {
+        return switchType;
+    }
+
+    public void setSwitchType(String switchType) {
+        this.switchType = switchType;
+    }
+
+    public String getFirewareVersion() {
+        return firewareVersion;
+    }
+
+    public void setFirewareVersion(String firewareVersion) {
+        this.firewareVersion = firewareVersion;
+    }
+
+    public String getSubVersion() {
+        return subVersion;
+    }
+
+    public void setSubVersion(String subVersion) {
+        this.subVersion = subVersion;
+    }
+
     @Override
     public String toString() {
         return "SwitchProblem{" +
                 "id=" + id +
                 ", switchIp='" + switchIp + '\'' +
+                ", brand='" + brand + '\'' +
+                ", switchType='" + switchType + '\'' +
+                ", firewareVersion='" + firewareVersion + '\'' +
+                ", subVersion='" + subVersion + '\'' +
                 ", switchName='" + switchName + '\'' +
                 ", switchPassword='" + switchPassword + '\'' +
                 ", loginMethod='" + loginMethod + '\'' +

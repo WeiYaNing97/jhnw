@@ -102,4 +102,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectReturnRecordVo"/>
         where create_time like CONCAT(#{data}, '%')
     </select>
+
+    <delete id="deleteReturnRecordByDate" parameterType="String">
+        delete from return_record where ${stringData}
+    </delete>
 </mapper>

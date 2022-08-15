@@ -68,4 +68,6 @@ public interface IReturnRecordService
     * @E-mail: WeiYaNing97@163.com
     */
     List<ReturnRecord> selectReturnRecordListByDataTime(String data);
+
+    int deleteReturnRecordByDate(String data);
 }
