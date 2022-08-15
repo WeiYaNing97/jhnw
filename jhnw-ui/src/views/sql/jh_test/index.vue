@@ -578,7 +578,7 @@ export default {
           let zuihouall = zuihou.map(x=>JSON.stringify(x))
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              // url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+              url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
               method:'post',
               data:zuihouall
           }).then(response=>{

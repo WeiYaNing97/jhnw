@@ -8,7 +8,7 @@
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
     <el-table v-loading="loading"
-              :data="tableDataqq"
+              :data="testData"
               ref="tree"
               v-show="chuci"
               style="width: 100%;margin-bottom: 20px;"
@@ -579,7 +579,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
