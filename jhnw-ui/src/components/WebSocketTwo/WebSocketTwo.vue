@@ -1,6 +1,6 @@
 <template>
   <div>
-<!--    tableDataq  testData-->
+<!--    lishiData  nowData-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
@@ -8,7 +8,7 @@
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
     <el-table v-loading="loading"
-              :data="testData"
+              :data="nowData"
               ref="tree"
               v-show="chuci"
               style="width: 100%;margin-bottom: 20px;"
@@ -39,7 +39,7 @@
 
 <!--    历史扫描-->
     <el-table v-loading="loading"
-              :data="tableDataq"
+              :data="lishiData"
               ref="tree"
               v-show="huisao"
               style="width: 100%;margin-bottom: 20px;"
@@ -130,8 +130,8 @@
                 ws: '',
                 // ws定时器
                 wsTimer: null,
-                testData:[],
-                tableDataq:[],
+                nowData:[],
+                lishiData:[],
                 tableDataqq: [
                     {
                         switchIp:'192.168.1.100',
@@ -310,8 +310,8 @@
                     response = changeTreeDate(response,'scanResultsVOList','children')
                     response = changeTreeDate(response,'switchProblemVOList','children')
                     response = changeTreeDate(response,'switchProblemCOList','children')
-                    this.tableDataq = response
-                    const jiaid = this.tableDataq
+                    this.lishiData = response
+                    const jiaid = this.lishiData
                     //返回数据添加hproblemId
                     for(let i = 0;i<jiaid.length;i++){
                         this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
@@ -397,7 +397,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -408,9 +408,10 @@
             //当前扫描一键修复所有问题
             allxiu(){
                 //问题ID集合
+                console.log(this.alljiao.allInfo)
                 const problemIdList = []
                 const iplist = []
-                const yijian = this.testData
+                const yijian = this.nowData
                 for (let i = 0;i<yijian.length;i++){
                     for (let g = 0;g<yijian[i].children.length;g++){
                         for (let m = 0;m<yijian[i].children[g].children.length;m++){
@@ -511,7 +512,7 @@
                 console.log(row)
                 const thisid = row.hproblemId
                 let thisparip = ''
-                const allwenti = this.tableDataq
+                const allwenti = this.lishiData
                 for(let i = 0;i<allwenti.length;i++){
                     for (let g = 0;g<allwenti[i].children.length;g++){
                         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
@@ -551,8 +552,8 @@
             xiufu(row){
                 const thisid = row.hproblemId
                 let thisparip = ''
-                // tableDataq testData
-                const allwenti = this.tableDataqq
+                // lishiData nowData
+                const allwenti = this.nowData
                 for(let i = 0;i<allwenti.length;i++){
                     for (let g = 0;g<allwenti[i].children.length;g++){
                         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
@@ -639,8 +640,8 @@
                 }
                 let newJson = changeTreeDate(JSON.parse(e.data),'switchProblemVOList','children')
                 let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
-                this.testData = newJson1
-                const shu = this.testData
+                this.nowData = newJson1
+                const shu = this.nowData
                 for (let i=0;i<shu.length;i++){
                     for (let g=0;g<shu[i].children.length;g++){
                         for (let m=0;m<shu[i].children[g].children.length;m++){
@@ -653,7 +654,7 @@
                         }
                     }
                 }
-                console.log(this.testData)
+                console.log(this.nowData)
             },
             /**
              * ws通信发生错误
