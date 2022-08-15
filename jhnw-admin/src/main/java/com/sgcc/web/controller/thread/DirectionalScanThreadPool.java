@@ -6,6 +6,8 @@ import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.web.controller.sql.SwitchInteraction;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -17,6 +19,8 @@ import java.util.concurrent.Executors;
  * @date 2022年08月09日 14:04
  */
 public class DirectionalScanThreadPool {
+
+    public static HashMap<String,String> ip_information = new HashMap<>();
 
     /**
      * newFixedThreadPool submit submit
@@ -53,7 +57,7 @@ public class DirectionalScanThreadPool {
                         }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                             WebSocketService.sendMessage("error"+userName,"\r\n"+ip + ":未定义该交换机获取基本信息命令及分析\r\n");
                         }
-
+                        //ip_information.put(ip+loginUser.getUsername());
                     } catch (Exception e) {
                         e.printStackTrace();
                     } finally {

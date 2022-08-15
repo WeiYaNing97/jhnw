@@ -144,7 +144,8 @@ public class SolveProblemController {
                     break;
                 case "ip":
                     //ip地址
-                    user_String.put("ip",value);
+                    String[] ip_split = value.split(":");
+                    user_String.put("ip",ip_split[0]);
                     break;
                 case "name":
                     //用户名
@@ -210,6 +211,18 @@ public class SolveProblemController {
         requestConnect_boolean = informationList.get(0).toString().equals("true");
 
         if (requestConnect_boolean){
+
+            //获取交换机基本信息
+            //getBasicInformationList 通过 特定方式 获取 基本信息
+            //getBasicInformationList 通过扫描方式 获取 基本信息
+            /*AjaxResult basicInformationList_ajaxResult = SwitchInteraction.getBasicInformationList(user_String,user_Object);   //getBasicInformationList
+            if (user_String.get("ip").equals(switchProblem.getSwitchIp())
+                    && user_String.get("ip").equals(switchProblem.getSwitchIp())
+                    && user_String.get("ip").equals(switchProblem.getSwitchIp())
+                    && user_String.get("ip").equals(switchProblem.getSwitchIp())){
+
+            }*/
+
             //传参 命令ID 和 参数ID
             //返回 命令集合 和 参数集合
             AjaxResult ajaxResult = queryParameterSet(switchProblem.getComId(), switchProblem.getValueId());
@@ -562,7 +575,7 @@ public class SolveProblemController {
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
-            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+"."+pinpai+"."+xinghao+"."+banben+"."+zibanben);
+            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+":"+pinpai+"."+xinghao+"."+banben+"."+zibanben);
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
 
@@ -684,7 +697,7 @@ public class SolveProblemController {
                     pojoList.add(switchProblemVO);
                 }
             }
-            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+"."+pinpai+"."+xinghao+"."+banben+"."+zibanben);
+            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+":"+pinpai+"."+xinghao+"."+banben+"."+zibanben);
             scanResultsVO.setSwitchProblemVOList(pojoList);
         }
 

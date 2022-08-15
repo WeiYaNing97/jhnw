@@ -1395,7 +1395,7 @@ public class SwitchInteraction {
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
-            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+"."+pinpai+"."+xinghao+"."+banben+"."+zibanben);
+            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+":"+pinpai+"."+xinghao+"."+banben+"."+zibanben);
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
 

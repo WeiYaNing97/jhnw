@@ -230,10 +230,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
 
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
-            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
-            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="brand != null  and brand != ''">  brand = #{brand},</if>
+            <if test="switchType != null  and switchType != ''">  switch_type = #{switchType},</if>
+            <if test="firewareVersion != null  and firewareVersion != ''">  fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null  and subVersion != ''">  sub_version = #{subVersion},</if>
 
             <if test="switchName != null and switchName != ''">switch_name = #{switchName},</if>
             <if test="switchPassword != null and switchPassword != ''">switch_password = #{switchPassword},</if>
