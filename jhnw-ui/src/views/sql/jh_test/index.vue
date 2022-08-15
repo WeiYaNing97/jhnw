@@ -3,11 +3,11 @@
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
-        <el-button type="primary" icon="el-icon-upload2"
+        <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>
-        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">韦工测试</el-button>
+        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -31,7 +31,9 @@
       <el-row>
         <el-col :span="13">
           <!--      表格展示列表-->
-          <el-table :data="tableData" style="width: 100%" max-height="300" @select="xuanze">
+          <p style="margin: 0;text-align: center">扫描设备信息</p>
+          <el-table :data="tableData" style="width: 100%"
+                    max-height="300" @select="xuanze" @row-click="weizaizai">
             <el-table-column type="index" width="50"></el-table-column>
             <el-table-column type="selection" width="45"></el-table-column>
             <el-table-column prop="ip" label="设备IP" width="130">
@@ -71,13 +73,14 @@
             </el-table-column>
             <el-table-column label="操作" width="50">
               <template slot-scope="{ row }">
-                <el-button type="text" v-if="row.$isEdit" @click="queding(row)" size="small">确定</el-button>
-                <el-button type="text" v-else @click="queding(row)" size="small">编辑</el-button>
+                <el-button type="text" v-if="row.$isEdit" @click.stop="queding(row)" size="small">确定</el-button>
+                <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
               </template>
             </el-table-column>
           </el-table>
         </el-col>
-        <el-col :span="11">
+        <el-col :span="11" v-show="showxiang">
+          <p style="margin: 0;text-align: center">扫描项目选择</p>
           <div>
             <el-input
               v-model="deptName"
@@ -85,12 +88,12 @@
               clearable
               size="small"
               prefix-icon="el-icon-search"
-              style="margin-bottom: 20px;width: 300px;margin-left: 30px"
+              style="margin-bottom: 20px;width: 80%;margin-left: 50px"
             />
           </div>
           <div style="max-height: 300px">
             <el-scrollbar style="height:100%">
-              <el-tree style="max-height: 300px;width: 80%;margin-left:30px" show-checkbox
+              <el-tree style="max-height: 300px;width: 95%;margin-left:50px" show-checkbox
                        :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
                        @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>
             </el-scrollbar>
@@ -125,47 +128,9 @@
 <!--          </el-form-item>-->
 <!--      </div>-->
 
-<!--      <el-form-item label="ip" prop="ip">-->
-<!--        <el-input-->
-<!--          v-model="queryParams.ip"-->
-<!--          placeholder="请输入ip"-->
-<!--          clearable-->
-<!--          size="small"-->
-<!--          style="width: 150px;"-->
-<!--        />-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="用户" prop="name">-->
-<!--        <el-input-->
-<!--          v-model="queryParams.name"-->
-<!--          placeholder="请输入用户名"-->
-<!--          clearable-->
-<!--          size="small"-->
-<!--          style="width: 150px;"-->
-<!--        />-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="密码" prop="password">-->
-<!--        <el-input-->
-<!--          v-model="queryParams.password"-->
-<!--          placeholder="请输入密码"-->
-<!--          clearable-->
-<!--          size="small"-->
-<!--          style="width: 150px;"-->
-<!--        />-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="方式" prop="mode">-->
-<!--        <el-select style="width: 100px;" v-model="queryParams.mode" placeholder="请选择" clearable size="small" @change="chooseT">-->
-<!--          <el-option label="telnet" value="telnet"></el-option>-->
-<!--          <el-option label="ssh" value="ssh"></el-option>-->
-<!--        </el-select>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="端口" prop="port">-->
-<!--        <el-input style="width: 50px;" v-model="queryParams.port" size="small" :disabled="true" clearable></el-input>-->
-<!--      </el-form-item>-->
 <!--   @keyup.enter.native="handleQuery"-- 回车事件 >
 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
-<!--        <el-button type="primary" icon="el-icon-search" size="mini" @click="requestConnect">单台扫描</el-button>-->
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
-<!--        <el-button icon="el-icon-refresh" size="mini" @click="gettest">获取数据</el-button>-->
     </el-form>
 
     <el-divider></el-divider>
@@ -236,9 +201,8 @@ import WebSocket from '@/components/WebSocket/WebSocket';
 import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
 import log from "../../monitor/job/log"
 import * as XLSX from 'xlsx'
-import request from '@/utils/request';
-// import { JSEncrypt } from 'jsencrypt'
-import {encrypt} from "../../../utils/jsencrypt";
+import request from '@/utils/request'
+import { JSEncrypt } from 'jsencrypt'
 export default {
   name: "Jh_test",
     components:{
@@ -248,6 +212,8 @@ export default {
     },
   data() {
     return {
+        //扫描项目选择是否显示
+        showxiang:false,
         //定时接收true或者false
         torf:false,
         //是否扫描完成
@@ -336,7 +302,6 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
-        aaa:'1',
         //动态增加交换机
         // forms:{
         //     dynamicItem:[
@@ -406,6 +371,7 @@ export default {
       },
       //专项所有
       zhuanall(){
+          this.showxiang = true
           var ce = {}
           return request({
               url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
@@ -427,9 +393,12 @@ export default {
                       for (let m = 0;m<response[i].children[g].children.length;m++){
                           this.$delete(response[i].children[g].children[m],'typeProblem')
                           this.$delete(response[i].children[g].children[m],'temProName')
-                          console.log(response[i].children[g].children[m].brand)
-                          let pinjie = response[i].children[g].children[m].brand+' '+response[i].children[g].children[m].firewareVersion
-                          console.log(pinjie)
+                          let pinjie = response[i].children[g].children[m].problemName+' '+'('+
+                              response[i].children[g].children[m].brand+' '+
+                              response[i].children[g].children[m].type+' '+
+                              response[i].children[g].children[m].firewareVersion+' '+
+                              response[i].children[g].children[m].subVersion+')'
+                          this.$set(response[i].children[g].children[m],'problemName',pinjie)
                       }
                   }
               }
@@ -437,7 +406,7 @@ export default {
               response = changeTreeDate(response,'temProName','label')
               response = changeTreeDate(response,'problemName','label')
               this.fenxiang = response
-              console.log(response)
+              console.log(this.fenxiang)
           })
       },
       //选择设备
@@ -456,6 +425,11 @@ export default {
               $isEdit:true
           })
       },
+      //
+      weizaizai(row){
+          row.$isEdit = !row.$isEdit
+          console.log('sss')
+      },
       //确定
       queding(row){
           console.log(row)
@@ -470,7 +444,7 @@ export default {
           this.saowanend = this.$refs.webone.geifuone()
           if (this.saowanend === true){
               clearInterval(this.torf)
-              alert('扫描结束')
+              alert('扫描已完成!')
           }
       },
       //韦工测试
@@ -481,7 +455,6 @@ export default {
           //     // url:'/sql/SwitchInteraction/directionalScann',
           //     // url:'/sql/SwitchInteraction/getCiphertext',
           //     method:'post',
-          //     // data:aaa
           // }).then(response=>{
           //     console.log(response)
           // })
@@ -605,7 +578,7 @@ export default {
           let zuihouall = zuihou.map(x=>JSON.stringify(x))
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+              // url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
               method:'post',
               data:zuihouall
           }).then(response=>{
@@ -680,43 +653,6 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-      //开始扫描
-      requestConnect(){
-          this.$refs.queryForm.validate(valid => {
-            if (valid){
-                let form = new FormData();
-                for (var key in this.queryParams){
-                    form.append(key,this.queryParams[key]);
-                }
-                return request({
-                    url:'/sql/SwitchInteraction/logInToGetBasicInformation',
-                    method:'post',
-                    data:form
-                }).then(response=>{
-                    console.log('成功')
-                    console.log(response)
-                })
-                // axios({
-                //     method:'post',
-                //     // http://192.168.1.98/dev-api/sql/SwitchTest/totalMethod
-                // //     url:'/dev-api/sql/ConnectController/requestConnect',
-                //     url:'http://192.168.1.98/dev-api/sql/SwitchInteraction/logInToGetBasicInformation',
-                //     headers:{
-                //         "Content-Type": "multipart/form-data"
-                //     },
-                //     data:form
-                // }).then(res=>{
-                //         console.log('成功'),
-                //         console.log(res.data),
-                //         this.xinxi = res.data.data;
-                //         console.log(this.xinxi);
-                // },
-                // )
-            }
-          }
-          );
-      },
-
       //指定端口号
       chooseT(){
           var val=this.queryParams.mode;
