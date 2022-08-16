@@ -20,6 +20,10 @@ public class ScanResultsVO {
     @Excel(name = "交换机ip")
     private String switchIp;
 
+    /** 交换机基本信息 */
+    @Excel(name = "交换机基本信息")
+    private String showBasicInfo;
+
     /** 扫描时间 */
     @Excel(name = "扫描时间")
     private String createTime;
@@ -66,13 +70,22 @@ public class ScanResultsVO {
         this.createTime = createTime;
     }
 
+    public String getShowBasicInfo() {
+        return showBasicInfo;
+    }
+
+    public void setShowBasicInfo(String showBasicInfo) {
+        this.showBasicInfo = showBasicInfo;
+    }
+
     @Override
     public String toString() {
         return "ScanResultsVO{" +
                 "hproblemId=" + hproblemId +
                 ", id=" + id +
                 ", switchIp='" + switchIp + '\'' +
-                ", createTime=" + createTime +
+                ", showBasicInfo='" + showBasicInfo + '\'' +
+                ", createTime='" + createTime + '\'' +
                 ", switchProblemVOList=" + switchProblemVOList +
                 '}';
     }

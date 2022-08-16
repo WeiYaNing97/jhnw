@@ -144,8 +144,7 @@ public class SolveProblemController {
                     break;
                 case "ip":
                     //ip地址
-                    String[] ip_split = value.split(":");
-                    user_String.put("ip",ip_split[0]);
+                    user_String.put("ip",value);
                     break;
                 case "name":
                     //用户名
@@ -162,12 +161,16 @@ public class SolveProblemController {
                     break;
             }
         }
-
+        Map<String,Object> user_Object = new HashMap<>();
         //连接交换机
         //ssh连接
         SshMethod connectMethod = null;
+        user_Object.put("connectMethod",connectMethod);
         //telnet连接
         TelnetSwitchMethod telnetSwitchMethod = null;
+        user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+        user_Object.put("loginUser",loginUser);
+
         //解析返回参数
         List<Object> informationList = null;
         //是否连接成功
@@ -212,16 +215,28 @@ public class SolveProblemController {
 
         if (requestConnect_boolean){
 
+            user_Object.put("connectMethod",connectMethod);
+            user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
+            user_Object.put("sshConnect",sshConnect);
+            user_Object.put("telnetComponent",telnetComponent);
+
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
-            /*AjaxResult basicInformationList_ajaxResult = SwitchInteraction.getBasicInformationList(user_String,user_Object);   //getBasicInformationList
+            AjaxResult basicInformationList_ajaxResult = SwitchInteraction.getBasicInformationList(user_String,user_Object);   //getBasicInformationList
+            if (basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
+                return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+            }
+            //交换机基本信息
             if (user_String.get("ip").equals(switchProblem.getSwitchIp())
-                    && user_String.get("ip").equals(switchProblem.getSwitchIp())
-                    && user_String.get("ip").equals(switchProblem.getSwitchIp())
-                    && user_String.get("ip").equals(switchProblem.getSwitchIp())){
+                    && user_String.get("deviceBrand").equals(switchProblem.getBrand())
+                    && user_String.get("deviceModel").equals(switchProblem.getSwitchType())
+                    && user_String.get("firmwareVersion").equals(switchProblem.getFirewareVersion())
+                    && user_String.get("subversionNumber").equals(switchProblem.getSubVersion())){
 
-            }*/
+            }else {
+                return AjaxResult.error("交换机基本信息错误，请检查或重新修改");
+            }
 
             //传参 命令ID 和 参数ID
             //返回 命令集合 和 参数集合
@@ -240,7 +255,7 @@ public class SolveProblemController {
             //命令集合
             List<String> commandList = (List<String>) commandvalue[0];
             if (commandList == null){
-                return AjaxResult.error("未定义解决命令");
+                return AjaxResult.error("未定义解决问题命令");
             }
             //参数集合
             List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
@@ -273,7 +288,7 @@ public class SolveProblemController {
 
             return AjaxResult.success("修复成功");
         }
-        return AjaxResult.error("连接交换机失败");
+        return AjaxResult.error("交换机连接失败");
     }
 
     /***
@@ -575,7 +590,8 @@ public class SolveProblemController {
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
-            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+":"+pinpai+"."+xinghao+"."+banben+"."+zibanben);
+            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
+            scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
 
@@ -697,7 +713,8 @@ public class SolveProblemController {
                     pojoList.add(switchProblemVO);
                 }
             }
-            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+":"+pinpai+"."+xinghao+"."+banben+"."+zibanben);
+            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
+            scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(pojoList);
         }
 

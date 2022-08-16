@@ -34,25 +34,25 @@ import java.util.*;
 public class SwitchInteraction {
 
     @Autowired
-    private ICommandLogicService commandLogicService;
+    private static ICommandLogicService commandLogicService;
 
     @Autowired
-    private IReturnRecordService returnRecordService;
+    private static IReturnRecordService returnRecordService;
 
     @Autowired
-    private IProblemScanLogicService problemScanLogicService;
+    private static IProblemScanLogicService problemScanLogicService;
 
     @Autowired
-    private IValueInformationService valueInformationService;
+    private static IValueInformationService valueInformationService;
 
     @Autowired
-    private ISwitchProblemService switchProblemService;
+    private static ISwitchProblemService switchProblemService;
 
     @Autowired
-    private ITotalQuestionTableService totalQuestionTableService;
+    private static ITotalQuestionTableService totalQuestionTableService;
 
     @Autowired
-    private IBasicInformationService basicInformationService;
+    private static IBasicInformationService basicInformationService;
 
 
     /***
@@ -456,7 +456,7 @@ public class SwitchInteraction {
 
     @GetMapping("/getBasicInformationList")
    // @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
-    public AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
+    public static AjaxResult getBasicInformationList(Map<String,String> user_String,Map<String,Object> user_Object) {
         //四个参数 赋值
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
@@ -840,7 +840,7 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public String analysisReturn(Map<String,String> user_String,Map<String,Object> user_Object,TotalQuestionTable totalQuestionTable,
+    public static String analysisReturn(Map<String,String> user_String,Map<String,Object> user_Object,TotalQuestionTable totalQuestionTable,
                                  String resultString,String first_problem_scanLogic_Id){
 
         //整理返回结果 去除 #
@@ -882,7 +882,7 @@ public class SwitchInteraction {
      * 集合行数  第一分析ID 当前循环ID  是否循环 内部固件版本号
      */
     // 是否用首ID ifFirstID 分析首ID firstID   现行ID currentID 是否循环
-    public String selectProblemScanLogicById(Map<String,String> user_String,
+    public static String selectProblemScanLogicById(Map<String,String> user_String,
                                              Map<String,Object> user_Object,
                                              TotalQuestionTable totalQuestionTable,
                                              String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
@@ -1221,7 +1221,7 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public void insertvalueInformationService(Map<String,String> user_String,Map<String,Object> user_Object,
+    public static void insertvalueInformationService(Map<String,String> user_String,Map<String,Object> user_Object,
                                               TotalQuestionTable totalQuestionTable,
                                               ProblemScanLogic problemScanLogic,
                                               String parameterString){
@@ -1319,7 +1319,7 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("getUnresolvedProblemInformationByData")
-    public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String,Map<String,Object> user_Object){
+    public static List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String,Map<String,Object> user_Object){
 
         //用户名
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
@@ -1395,7 +1395,8 @@ public class SwitchInteraction {
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
-            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp()+":"+pinpai+"."+xinghao+"."+banben+"."+zibanben);
+            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
+            scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
 
@@ -1415,7 +1416,7 @@ public class SwitchInteraction {
      * 分析ID 连接方式 ssh和telnet连接
      */
     @RequestMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(Map<String,String> user_String,TotalQuestionTable totalQuestionTable,String commandId,String notFinished,String way,Map<String,Object> user_Object) {
+    public static List<Object> executeScanCommandByCommandId(Map<String,String> user_String,TotalQuestionTable totalQuestionTable,String commandId,String notFinished,String way,Map<String,Object> user_Object) {
         //四参数赋值
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
@@ -1593,7 +1594,7 @@ public class SwitchInteraction {
      * 交换机返回信息 分析ID
      */
     @RequestMapping("analysisReturnResults")
-    public String analysisReturnResults(Map<String,String> user_String,
+    public static String analysisReturnResults(Map<String,String> user_String,
                                         Map<String,Object> user_Object,
                                         TotalQuestionTable totalQuestionTable,
                                         List<Object> executeScanCommandByCommandId_object,String current_Round_Extraction_String,String extractInformation_string){
