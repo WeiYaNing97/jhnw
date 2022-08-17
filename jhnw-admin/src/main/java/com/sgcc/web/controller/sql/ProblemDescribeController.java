@@ -145,15 +145,6 @@ public class ProblemDescribeController extends BaseController
         return AjaxResult.error("失败！");
     }
 
-    /**
-     * 获取问题描述详细信息
-     */
-    @RequestMapping("/selectProblemDescribe")
-    public ProblemDescribe selectProblemDescribe(Long totalQuestionTableId)
-    {
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        return problemDescribeService.selectProblemDescribeById(totalQuestionTable.getProblemDescribeId());
-    }
 
     /**
      *
@@ -171,5 +162,18 @@ public class ProblemDescribeController extends BaseController
             return toAjax(updateTotalQuestionTable);
         }
         return toAjax(deleteProblemDescribeById);
+    }
+
+    /**
+     * 获取问题描述详细信息
+     */
+    @GetMapping(value = "selectProblemDescribe")
+    public ProblemDescribe selectProblemDescribe(Long id)
+    {
+        ProblemDescribe problemDescribe = problemDescribeService.selectProblemDescribeById(id);
+        if (problemDescribe == null){
+            return null;
+        }
+        return problemDescribe;
     }
 }

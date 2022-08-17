@@ -201,7 +201,7 @@ public class TotalQuestionTableController extends BaseController
 
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
 
-        if (totalQuestionTables != null){
+        if (totalQuestionTables.size() != 0){
             return  AjaxResult.error("问题已存在");
         }
 
@@ -241,6 +241,9 @@ public class TotalQuestionTableController extends BaseController
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
+        if (typeProblemlist.size() == 0){
+            return null;
+        }
         List<String> stringList = new ArrayList<>();
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getBrand());
@@ -261,6 +264,9 @@ public class TotalQuestionTableController extends BaseController
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypelist(totalQuestionTable);
+        if (typeProblemlist.size() == 0){
+            return null;
+        }
         List<String> stringList = new ArrayList<>();
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getType());
@@ -280,7 +286,9 @@ public class TotalQuestionTableController extends BaseController
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable);
-
+        if (typeProblemlist.size() == 0){
+        return null;
+        }
         List<String> stringList = new ArrayList<>();
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getFirewareVersion());
@@ -300,6 +308,9 @@ public class TotalQuestionTableController extends BaseController
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
+        if (typeProblemlist.size() == 0){
+        return null;
+        }
         List<String> stringList = new ArrayList<>();
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getSubVersion());
@@ -318,6 +329,9 @@ public class TotalQuestionTableController extends BaseController
     public List<String> typeProblemlist()
     {
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypeProblemList(null);
+        if (typeProblemlist.size() == 0){
+            return null;
+        }
         List<String> stringList = new ArrayList<>();
         for (TotalQuestionTable pojo:typeProblemlist){
             stringList.add(pojo.getTypeProblem());
@@ -336,6 +350,9 @@ public class TotalQuestionTableController extends BaseController
     public List<String> temProNamelist(@RequestBody String typeProblem)
     {
         List<String> typeProblemlist = totalQuestionTableService.selectTemProNamelistBytypeProblem(typeProblem);
+        if (typeProblemlist.size() == 0){
+            return null;
+        }
 
         return typeProblemlist;
     }
@@ -352,10 +369,14 @@ public class TotalQuestionTableController extends BaseController
     {
         String selectCommandId = totalQuestionTable.getCommandId();
         totalQuestionTable.setCommandId(null);
-        startPage();
+
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        if (list.size() == 0){
+            return null;
+        }
+
         List<String> totalQuestionTables = new ArrayList<>();
-        if (selectCommandId.equals("0")){
+        /*if (selectCommandId.equals("0")){
             //未定义解决问题命令
             for (TotalQuestionTable pojo:list){
                 if (pojo.getCommandId() == null || pojo.getCommandId().equals("")){
@@ -363,7 +384,7 @@ public class TotalQuestionTableController extends BaseController
                 }
             }
             return totalQuestionTables;
-        }
+        }*/
         for (TotalQuestionTable pojo:list){
             totalQuestionTables.add(pojo.getProblemName());
         }
@@ -392,7 +413,8 @@ public class TotalQuestionTableController extends BaseController
         totalQuestionTable.setCommandId(null);
 
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
-        if (totalQuestionTables!=null){
+
+        if (totalQuestionTables.size() != 0){
             return totalQuestionTables.get(0).getId();
         }
         return null;
@@ -410,6 +432,9 @@ public class TotalQuestionTableController extends BaseController
         totalQuestionTable.setCommandId(null);
         startPage();
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        if (list.size() == 0){
+            return null;
+        }
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
         if (selectCommandId.equals("0")){//未定义解决问题命令
             for (TotalQuestionTable pojo:list){
@@ -429,6 +454,9 @@ public class TotalQuestionTableController extends BaseController
     public List<TotalQuestionTableCO> fuzzyQueryListByPojo(@RequestBody TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
     {
         List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
+        if (totalQuestionTableList.size() == 0){
+            return null;
+        }
         HashSet<String> typeProblemHashSet = new HashSet();
         HashSet<String> temProNameHashSet = new HashSet();
 
@@ -483,7 +511,9 @@ public class TotalQuestionTableController extends BaseController
     public List<TotalQuestionTableCO> fuzzyQueryListBymybatis(@RequestBody TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
     {
         List<TotalQuestionTableVO> totalQuestionTableList = totalQuestionTableService.fuzzyQueryListBymybatis(totalQuestionTable);
-
+        if (totalQuestionTableList.size() == 0){
+            return null;
+        }
         HashSet<String> typeProblemHashSet = new HashSet();
         for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestionTableVO.getTypeProblem());

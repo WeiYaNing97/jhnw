@@ -10,6 +10,33 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="型号" prop="switchType">
+        <el-input
+          v-model="queryParams.switchType"
+          placeholder="请输入型号"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="内部固件版本" prop="firewareVersion">
+        <el-input
+          v-model="queryParams.firewareVersion"
+          placeholder="请输入内部固件版本"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="子版本号" prop="subVersion">
+        <el-input
+          v-model="queryParams.subVersion"
+          placeholder="请输入子版本号"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="故障关键字" prop="failureKeyword">
         <el-input
           v-model="queryParams.failureKeyword"
@@ -85,6 +112,9 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="故障主键" align="center" prop="failureId" />
       <el-table-column label="交换机品牌" align="center" prop="brand" />
+      <el-table-column label="型号" align="center" prop="switchType" />
+      <el-table-column label="内部固件版本" align="center" prop="firewareVersion" />
+      <el-table-column label="子版本号" align="center" prop="subVersion" />
       <el-table-column label="故障关键字" align="center" prop="failureKeyword" />
       <el-table-column label="故障名称" align="center" prop="failureName" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -120,6 +150,15 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="交换机品牌" prop="brand">
           <el-input v-model="form.brand" placeholder="请输入交换机品牌" />
+        </el-form-item>
+        <el-form-item label="型号" prop="switchType">
+          <el-input v-model="form.switchType" placeholder="请输入型号" />
+        </el-form-item>
+        <el-form-item label="内部固件版本" prop="firewareVersion">
+          <el-input v-model="form.firewareVersion" placeholder="请输入内部固件版本" />
+        </el-form-item>
+        <el-form-item label="子版本号" prop="subVersion">
+          <el-input v-model="form.subVersion" placeholder="请输入子版本号" />
         </el-form-item>
         <el-form-item label="故障关键字" prop="failureKeyword">
           <el-input v-model="form.failureKeyword" placeholder="请输入故障关键字" />
@@ -168,6 +207,9 @@ export default {
         pageNum: 1,
         pageSize: 10,
         brand: null,
+        switchType: null,
+        firewareVersion: null,
+        subVersion: null,
         failureKeyword: null,
         failureName: null
       },
@@ -201,6 +243,9 @@ export default {
       this.form = {
         failureId: null,
         brand: null,
+        switchType: null,
+        firewareVersion: null,
+        subVersion: null,
         failureKeyword: null,
         failureName: null
       };

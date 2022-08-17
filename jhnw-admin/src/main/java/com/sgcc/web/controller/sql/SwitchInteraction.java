@@ -474,7 +474,7 @@ public class SwitchInteraction {
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);//解决 多线程 service 为null问题
         List<BasicInformation> basicInformationList = basicInformationService.selectBasicInformationList(null);
 
-        if (basicInformationList == null){
+        if (basicInformationList.size() == 0){
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
 
@@ -742,7 +742,7 @@ public class SwitchInteraction {
         totalQuestionTable.setProblemName(problemName);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
 
-        if (totalQuestionTables == null){
+        if (totalQuestionTables.size() == 0){
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
 
@@ -1334,7 +1334,9 @@ public class SwitchInteraction {
         String loginTime = user_String.get("ScanningTime");
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(loginTime,loginName);
-
+        if (switchProblemList.size() == 0){
+            return null;
+        }
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -1653,6 +1655,9 @@ public class SwitchInteraction {
         if (totalQuestionTables == null){
             //根据交换机基本信息 查询 可执行命令的 命令信息
             AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
+            if (commandIdByInformation_ajaxResult == null){
+                commandIdByInformation_comandID_Long = null;
+            }
             commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
         }else {
             for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
@@ -1688,11 +1693,6 @@ public class SwitchInteraction {
 
             System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
 
-            /*if (analysisReturnResults_String.indexOf("错误") !=-1){
-                return AjaxResult.error(analysisReturnResults_String);
-            }
-            return AjaxResult.success(analysisReturnResults_String);*/
-
         }
         return null;
     }
@@ -1718,7 +1718,7 @@ public class SwitchInteraction {
 
         //查询可扫描问题
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryScannableQuestionsList(totalQuestionTable);
-        if (totalQuestionTables!=null){
+        if (totalQuestionTables.size() != 0){
             List<TotalQuestionTable> pojoList = new ArrayList<>();
             for (TotalQuestionTable pojo:totalQuestionTables){
                 if (pojo.getCommandId()!=null && pojo.getCommandId()!=""){
