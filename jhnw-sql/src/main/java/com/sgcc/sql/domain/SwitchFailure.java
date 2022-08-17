@@ -22,6 +22,18 @@ public class SwitchFailure extends BaseEntity
     @Excel(name = "交换机品牌")
     private String brand;
 
+    /** 型号 */
+    @Excel(name = "型号")
+    private String switchType;
+
+    /** 内部固件版本 */
+    @Excel(name = "内部固件版本")
+    private String firewareVersion;
+
+    /** 子版本号 */
+    @Excel(name = "子版本号")
+    private String subVersion;
+
     /** 故障关键字 */
     @Excel(name = "故障关键字")
     private String failureKeyword;
@@ -67,13 +79,45 @@ public class SwitchFailure extends BaseEntity
         return failureName;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getSwitchType() {
+        return switchType;
+    }
+
+    public void setSwitchType(String switchType) {
+        this.switchType = switchType;
+    }
+
+    public String getFirewareVersion() {
+        return firewareVersion;
+    }
+
+    public void setFirewareVersion(String firewareVersion) {
+        this.firewareVersion = firewareVersion;
+    }
+
+    public String getSubVersion() {
+        return subVersion;
+    }
+
+    public void setSubVersion(String subVersion) {
+        this.subVersion = subVersion;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("failureId", getFailureId())
-            .append("brand", getBrand())
-            .append("failureKeyword", getFailureKeyword())
-            .append("failureName", getFailureName())
-            .toString();
+        return "SwitchFailure{" +
+                "failureId=" + failureId +
+                ", brand='" + brand + '\'' +
+                ", switchType='" + switchType + '\'' +
+                ", firewareVersion='" + firewareVersion + '\'' +
+                ", subVersion='" + subVersion + '\'' +
+                ", failureKeyword='" + failureKeyword + '\'' +
+                ", failureName='" + failureName + '\'' +
+                '}';
     }
+
 }

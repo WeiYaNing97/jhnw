@@ -27,6 +27,8 @@ public interface SwitchFailureMapper
      */
     public List<SwitchFailure> selectSwitchFailureList(SwitchFailure switchFailure);
 
+    List<SwitchFailure> selectSwitchFailureListByPojo(SwitchFailure switchFailure);
+
     /**
      * 新增交换机故障
      * 
@@ -58,4 +60,5 @@ public interface SwitchFailureMapper
      * @return 结果
      */
     public int deleteSwitchFailureByFailureIds(Long[] failureIds);
+
 }

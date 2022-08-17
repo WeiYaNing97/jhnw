@@ -53,10 +53,8 @@ public class SwitchFailureController extends BaseController
     /**
      * 根据品牌查询交换机故障列表
      */
-    public List<SwitchFailure> selectSwitchFailureList(String brand)
+    public List<SwitchFailure> selectSwitchFailureList(SwitchFailure switchFailure)
     {
-        SwitchFailure switchFailure = new SwitchFailure();
-        switchFailure.setBrand(brand);
         switchFailureService = SpringBeanUtil.getBean(ISwitchFailureService.class);
         List<SwitchFailure> list = switchFailureService.selectSwitchFailureList(switchFailure);
         if (list == null){
@@ -64,6 +62,16 @@ public class SwitchFailureController extends BaseController
         }
         return list;
     }
+
+    public List<SwitchFailure> selectSwitchFailureListByPojo(SwitchFailure switchFailure) {
+        switchFailureService = SpringBeanUtil.getBean(ISwitchFailureService.class);
+        List<SwitchFailure> list = switchFailureService.selectSwitchFailureListByPojo(switchFailure);
+        if (list == null){
+            return null;
+        }
+        return list;
+    }
+
 
     /**
      * 导出交换机故障列表
@@ -97,13 +105,6 @@ public class SwitchFailureController extends BaseController
     public AjaxResult add(@RequestBody SwitchFailure switchFailure)
     {
         int i = switchFailureService.insertSwitchFailure(switchFailure);
-
-        if (i>0){
-            SwitchFailure pojo = new SwitchFailure();
-            pojo.setBrand(switchFailure.getBrand());
-            List<SwitchFailure> switchFailures = switchFailureService.selectSwitchFailureList(pojo);
-            Utils.switchFailureHashMap.put(switchFailure.getBrand(),switchFailures);
-        }
 
         return toAjax(i);
     }

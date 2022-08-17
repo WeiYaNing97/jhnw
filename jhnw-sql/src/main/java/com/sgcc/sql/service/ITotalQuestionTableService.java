@@ -131,4 +131,6 @@ public interface ITotalQuestionTableService
     List<TotalQuestionTable> selectTotalQuestionTabletypeProblemListBytypeProblem(String typeProblem);
 
     List<String> selectTemProNamelistBytypeProblem(String typeProblem);
+
+    List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable pojo);
 }

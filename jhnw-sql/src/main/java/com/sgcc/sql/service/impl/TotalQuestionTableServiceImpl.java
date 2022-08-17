@@ -200,4 +200,9 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.selectTemProNamelistBytypeProblem(typeProblem);
     }
 
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable pojo) {
+        return totalQuestionTableMapper.selectTotalQuestionTableListInsert(pojo);
+    }
+
 }

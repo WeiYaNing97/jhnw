@@ -1,13 +1,10 @@
 package com.sgcc.web.controller.sql;
 
-import com.sgcc.connect.translate.TranSlate;
+import com.sgcc.sql.domain.SwitchError;
 import com.sgcc.sql.domain.SwitchFailure;
-import com.sgcc.sql.service.IProblemScanLogicService;
-import com.sgcc.sql.service.ISwitchFailureService;
+import com.sgcc.sql.service.ISwitchErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
-import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -27,8 +24,6 @@ public class Utils {
     public static String progressBar(double number1,double number2) {
         return (int)(number2/number1*100)+"%";
     }
-
-    public static HashMap<String,List<SwitchFailure>> switchFailureHashMap = new HashMap<>();
 
     /**
      * @method: 修整字符串
@@ -85,39 +80,30 @@ public class Utils {
     * @return: boolean  判断命令是否错误 错误为false 正确为true
     * @E-mail: WeiYaNing97@163.com
     */
-    public static boolean judgmentError(String str){
-        List<String> list = new ArrayList<>();
-        list.add("% Unrecognized command");
-        list.add("% Ambiguous command");
-        list.add("% Incomplete command");
-        list.add("不是内部或外部命令");
-        list.add("不是可运行的程序或批处理文件");
-        for (String string:list){
-            if (str.indexOf(string) != -1){
+    public static boolean judgmentError(Map<String,String> user_String,String str){
+
+        String deviceBrand = user_String.get("deviceBrand");
+        String deviceModel = user_String.get("deviceModel");
+        String firmwareVersion = user_String.get("firmwareVersion");
+        String subversionNumber = user_String.get("subversionNumber");
+
+        SwitchError switchError = new SwitchError();
+        switchError.setBrand(deviceBrand);
+        switchError.setSwitchType(deviceModel);
+        switchError.setFirewareVersion(firmwareVersion);
+        switchError.setSubVersion(subversionNumber);
+
+        SwitchErrorController switchErrorController = new SwitchErrorController();
+        List<SwitchError> switchErrors = switchErrorController.selectSwitchErrorListByPojo(switchError);
+
+        for (SwitchError pojo:switchErrors){
+            if (str.indexOf(pojo.getErrorKeyword()) != -1){
                 return false;
             }
         }
         return true;
     }
 
-    /**
-     * @method: 判断是否故障
-     * @Param: [str] 交换机返回信息
-     * @return: boolean  判断命令是否故障 故障为false 正常为true
-     * @E-mail: WeiYaNing97@163.com
-     */
-    /*
-    #Apr  3 06:17:59:728 2000 H3C DEV/2/FAN STATE CHANGE TO FAILURE:- 1 -
-    Trap 1.3.6.1.4.1.2011.2.23.1.12.1.6: fan ID is 1
-
-    %Apr  3 06:17:59:729 2000 H3C DEV/5/DEV_LOG:- 1 -
-    Fan 1 failed
-     */
-    public static boolean switchfailure(String str){
-        if (str.indexOf("STATE CHANGE TO FAILURE") != -1)
-        return false;
-        return true;
-    }
 
     /**
      * @method: 判断是否故障
@@ -132,23 +118,25 @@ public class Utils {
     %Apr  3 06:17:59:729 2000 H3C DEV/5/DEV_LOG:- 1 -
     Fan 1 failed
      */
-    public static boolean switchfailure(String brand,String switchInformation){
-        if(brand == null){
-            return true;
-        }
+    public static boolean switchfailure(Map<String,String> user_String,String switchInformation){
+
+        String deviceBrand = user_String.get("deviceBrand");
+        String deviceModel = user_String.get("deviceModel");
+        String firmwareVersion = user_String.get("firmwareVersion");
+        String subversionNumber = user_String.get("subversionNumber");
+
+        SwitchFailure switchFailure = new SwitchFailure();
+        switchFailure.setBrand(deviceBrand);
+        switchFailure.setSwitchType(deviceModel);
+        switchFailure.setFirewareVersion(firmwareVersion);
+        switchFailure.setSubVersion(subversionNumber);
+
         SwitchFailureController switchFailureController = new SwitchFailureController();
-        if (switchFailureHashMap.get(brand) == null){
-            List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureList(brand);
-            if (switchFailures == null){
-                return true;
-            }
-            switchFailureHashMap.put(brand,switchFailures);
-        }
-        List<SwitchFailure> switchFailures = switchFailureHashMap.get(brand);
+        List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureListByPojo(switchFailure);
 
-        for (SwitchFailure switchFailure:switchFailures){
+        for (SwitchFailure pojo:switchFailures){
             //包含 返回 false
-            if (switchInformation.indexOf(switchFailure.getFailureKeyword()) !=-1){
+            if (switchInformation.indexOf(pojo.getFailureKeyword()) !=-1){
                 return false;
             }
         }

@@ -1,5 +1,6 @@
 package com.sgcc.web.controller.sql;
 
+import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
@@ -163,8 +164,58 @@ public class TotalQuestionTableController extends BaseController
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
+        TotalQuestionTable pojo = new TotalQuestionTable();
+
+        String brand = null;
+        if (totalQuestionTable.getBrand()!=null){
+            brand = totalQuestionTable.getBrand();
+        }
+        String type = null;
+        if (totalQuestionTable.getType() != null){
+            type = totalQuestionTable.getType();
+        }
+        String firewareVersion = null;
+        if (totalQuestionTable.getFirewareVersion() !=null){
+            firewareVersion = totalQuestionTable.getFirewareVersion();
+        }
+        String subVersion = null;
+        if (totalQuestionTable.getSubVersion() != null){
+            subVersion = totalQuestionTable.getSubVersion();
+        }
+        String typeProblem = null;
+        if (totalQuestionTable.getTypeProblem() != null){
+            typeProblem = totalQuestionTable.getTypeProblem();
+        }
+        String temProName = null;
+        if (totalQuestionTable.getTemProName() != null){
+            temProName = totalQuestionTable.getTemProName();
+        }
+
+        //先根据六个条件 查询 是否存在 如果存在 则 返回错误 问题已存在
+        pojo.setBrand(brand);
+        pojo.setType(type);
+        pojo.setFirewareVersion(firewareVersion);
+        pojo.setSubVersion(subVersion);
+        pojo.setTypeProblem(typeProblem);
+        pojo.setTemProName(temProName);
+
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
+
+        if (totalQuestionTables != null){
+            return  AjaxResult.error("问题已存在");
+        }
+
         int insert;
         try{
+            if (totalQuestionTable.getType() == null){
+                totalQuestionTable.setType("*");
+            }
+            if (totalQuestionTable.getFirewareVersion() == null){
+                totalQuestionTable.setFirewareVersion("*");
+            }
+            if (totalQuestionTable.getSubVersion() == null){
+                totalQuestionTable.setSubVersion("*");
+            }
             insert = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
         }catch (Exception e){
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
@@ -327,7 +378,7 @@ public class TotalQuestionTableController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping(value = "/totalQuestionTableId")
-    public Long totalQuestionTableId( String brand, String type, String firewareVersion, String subversionNumber, String problemName, String typeProblem)
+    public Long totalQuestionTableId( String brand, String type, String firewareVersion, String subversionNumber, String problemName, String typeProblem,String temProName)
     {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
 
@@ -337,6 +388,7 @@ public class TotalQuestionTableController extends BaseController
         totalQuestionTable.setSubVersion(subversionNumber);
         totalQuestionTable.setProblemName(problemName);
         totalQuestionTable.setTypeProblem(typeProblem);
+        totalQuestionTable.setTemProName(temProName);
         totalQuestionTable.setCommandId(null);
 
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);

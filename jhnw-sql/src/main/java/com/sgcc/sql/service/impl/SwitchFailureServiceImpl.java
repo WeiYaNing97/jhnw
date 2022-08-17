@@ -43,6 +43,15 @@ public class SwitchFailureServiceImpl implements ISwitchFailureService
         return switchFailureMapper.selectSwitchFailureList(switchFailure);
     }
 
+    @Override
+    public List<SwitchFailure> selectSwitchFailureListByPojo(SwitchFailure switchFailure) {
+        List<SwitchFailure> switchFailures = switchFailureMapper.selectSwitchFailureListByPojo(switchFailure);
+        if (switchFailures == null){
+            return null;
+        }
+        return switchFailures;
+    }
+
     /**
      * 新增交换机故障
      * 

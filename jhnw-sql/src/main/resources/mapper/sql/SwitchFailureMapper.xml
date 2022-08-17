@@ -4,21 +4,45 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sgcc.sql.mapper.SwitchFailureMapper">
     
-    <resultMap type="SwitchFailure" id="SwitchFailureResult">
+    <resultMap type="com.sgcc.sql.domain.SwitchFailure" id="SwitchFailureResult">
         <result property="failureId"    column="failure_id"    />
         <result property="brand"    column="brand"    />
+
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+
         <result property="failureKeyword"    column="failure_keyword"    />
         <result property="failureName"    column="failure_name"    />
     </resultMap>
 
     <sql id="selectSwitchFailureVo">
-        select failure_id, brand, failure_keyword, failure_name from switch_failure
+        select failure_id, brand,switch_type, fireware_version,sub_version, failure_keyword, failure_name from switch_failure
     </sql>
 
     <select id="selectSwitchFailureList" parameterType="SwitchFailure" resultMap="SwitchFailureResult">
         <include refid="selectSwitchFailureVo"/>
         <where>  
             <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+
+            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+
+            <if test="failureKeyword != null  and failureKeyword != ''"> and failure_keyword = #{failureKeyword}</if>
+            <if test="failureName != null  and failureName != ''"> and failure_name like concat('%', #{failureName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectSwitchFailureListByPojo" parameterType="SwitchFailure" resultMap="SwitchFailureResult">
+        <include refid="selectSwitchFailureVo"/>
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+
+            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType} or switch_type = '*'</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion} or fireware_version = '*'</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion} or sub_version = '*'</if>
+
             <if test="failureKeyword != null  and failureKeyword != ''"> and failure_keyword = #{failureKeyword}</if>
             <if test="failureName != null  and failureName != ''"> and failure_name like concat('%', #{failureName}, '%')</if>
         </where>
@@ -34,12 +58,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="failureId != null">failure_id,</if>
             <if test="brand != null">brand,</if>
+
+            <if test="switchType != null">switch_type,</if>
+            <if test="firewareVersion != null">fireware_version,</if>
+            <if test="subVersion != null">sub_version,</if>
+
             <if test="failureKeyword != null">failure_keyword,</if>
             <if test="failureName != null">failure_name,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="failureId != null">#{failureId},</if>
             <if test="brand != null">#{brand},</if>
+
+            <if test="switchType != null">#{switchType},</if>
+            <if test="firewareVersion != null">#{firewareVersion},</if>
+            <if test="subVersion != null">#{subVersion},</if>
+
             <if test="failureKeyword != null">#{failureKeyword},</if>
             <if test="failureName != null">#{failureName},</if>
          </trim>
@@ -49,6 +83,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update switch_failure
         <trim prefix="SET" suffixOverrides=",">
             <if test="brand != null">brand = #{brand},</if>
+
+            <if test="switchType != null  and switchType != ''">  switch_type = #{switchType},</if>
+            <if test="firewareVersion != null  and firewareVersion != ''">  fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null  and subVersion != ''">  sub_version = #{subVersion},</if>
+
             <if test="failureKeyword != null">failure_keyword = #{failureKeyword},</if>
             <if test="failureName != null">failure_name = #{failureName},</if>
         </trim>

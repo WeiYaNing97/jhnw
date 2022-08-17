@@ -121,6 +121,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY id DESC
     </select>
 
+    <select id="selectTotalQuestionTableListInsert" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
+            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name = #{temProName}</if>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+            <if test="problemSolvingId != null "> and problem_solving_id = #{problemSolvingId}</if>
+            <if test="remarks != null "> and remarks = #{remarks}</if>
+            <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
+        </where>
+
+        or type = '*'
+        or fireware_version = '*'
+        or sub_version = '*'
+        ORDER BY id DESC
+
+    </select>
+
     <select id="selectTotalQuestionTableByIds" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
         where id in

@@ -316,6 +316,7 @@ public class SwitchInteraction {
 
         //如果连接成功
         if(requestConnect_boolean){
+
             String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(user_String.get("password"));
             user_String.put("password",passwordDensificationAndSalt);//用户密码
 
@@ -366,9 +367,10 @@ public class SwitchInteraction {
                 return basicInformationList_ajaxResult;
 
             }
-            return AjaxResult.error("未定义该交换机获取基本信息命令及分析！");
+            return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
-        return AjaxResult.error("连接交换机失败！");
+
+        return AjaxResult.error("交换机连接失败");
     }
 
 
@@ -472,6 +474,10 @@ public class SwitchInteraction {
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);//解决 多线程 service 为null问题
         List<BasicInformation> basicInformationList = basicInformationService.selectBasicInformationList(null);
 
+        if (basicInformationList == null){
+            return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+        }
+
         //遍历命令表命令 执行命令
         for (BasicInformation basicInformation:basicInformationList){
             //basicInformation : display device manuinfo,display ver
@@ -518,14 +524,14 @@ public class SwitchInteraction {
                     returnRecord.setCurrentReturnLog(commandString);
 
                     //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
-                    boolean switchfailure = Utils.switchfailure(user_String.get("deviceBrand"), commandString);
+                    boolean switchfailure = Utils.switchfailure(user_String, commandString);
                     // 存在故障返回 false
                     if (!switchfailure){
 
                         String[] commandStringSplit = commandString.split("\r\n");
 
                         for (String returnString:commandStringSplit){
-                            deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
+                            deviceBrand = Utils.switchfailure(user_String, returnString);
                             if (!deviceBrand){
                                 System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
                                 WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
@@ -602,12 +608,12 @@ public class SwitchInteraction {
                 int update = returnRecordService.updateReturnRecord(returnRecord);
 
                 //判断命令是否错误 错误为false 正确为true
-                if (!Utils.judgmentError(commandString)){
+                if (!Utils.judgmentError( user_String,commandString)){
                     //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
 
                     String[] returnString_split = commandString.split("\r\n");
                     for (String string_split:returnString_split){
-                        if (!Utils.judgmentError(string_split)){
+                        if (!Utils.judgmentError( user_String,string_split)){
                             System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                             WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                             break;
@@ -672,14 +678,12 @@ public class SwitchInteraction {
                 }
                 if (!deviceModel.equals("") && !deviceBrand.equals("") && !firmwareVersion.equals("") && !subversionNumber.equals("")){
                     // 根据交换机信息查询 获取 扫描问题的 命令ID
-                    List<String> stringList = new ArrayList<>();
+                    /*List<String> stringList = new ArrayList<>();
                     stringList.add(deviceBrand);
                     stringList.add(deviceModel);
                     stringList.add(firmwareVersion);
                     stringList.add(subversionNumber);
-                    /*return AjaxResult.success(stringList);*/
-
-                    WebSocketService.sendMessage("basicinformation"+userName,stringList);
+                    WebSocketService.sendMessage("basicinformation"+userName,stringList);*/
 
                     HashMap<String,String> map = new HashMap<>();
                     map.put("pinpai",deviceBrand);
@@ -737,6 +741,10 @@ public class SwitchInteraction {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setProblemName(problemName);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
+        if (totalQuestionTables == null){
+            return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+        }
 
         String command_return_information = null;
         Long analysis_id = null;
@@ -798,14 +806,12 @@ public class SwitchInteraction {
                 }
                 if (!deviceModel.equals("") && !deviceBrand.equals("") && !firmwareVersion.equals("") && !subversionNumber.equals("")){
                     // 根据交换机信息查询 获取 扫描问题的 命令ID
-                    List<String> stringList = new ArrayList<>();
+                    /*List<String> stringList = new ArrayList<>();
                     stringList.add(deviceBrand);
                     stringList.add(deviceModel);
                     stringList.add(firmwareVersion);
                     stringList.add(subversionNumber);
-                    /*return AjaxResult.success(stringList);*/
-
-                    WebSocketService.sendMessage("basicinformation"+userName,stringList);
+                    WebSocketService.sendMessage("basicinformation"+userName,stringList);*/
 
                     HashMap<String,String> map = new HashMap<>();
                     map.put("pinpai",deviceBrand);
@@ -1471,14 +1477,14 @@ public class SwitchInteraction {
             returnRecord.setCurrentReturnLog(command_string);
 
             //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
-            boolean switchfailure = Utils.switchfailure(user_String.get("deviceBrand"), command_string);
+            boolean switchfailure = Utils.switchfailure(user_String, command_string);
             // 存在故障返回 false
             if (!switchfailure) {
 
                 String[] commandStringSplit = command_string.split("\r\n");
 
                 for (String returnString : commandStringSplit) {
-                    deviceBrand = Utils.switchfailure(user_String.get("deviceBrand"), returnString);
+                    deviceBrand = Utils.switchfailure(user_String, returnString);
                     if (!deviceBrand) {
                         System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
                         WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
@@ -1551,28 +1557,28 @@ public class SwitchInteraction {
         //返回信息表，返回插入条数
         returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
         int update = returnRecordService.updateReturnRecord(returnRecord);
+
+        //判断命令是否错误 错误为false 正确为true
+        if (!(Utils.judgmentError( user_String,command_string))){
+            //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
+
+            String[] returnString_split = command_string.split("\r\n");
+            for (String string_split:returnString_split){
+                if (!Utils.judgmentError( user_String,string_split)){
+                    System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
+                    WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
+                    List<Object> objectList = new ArrayList<>();
+                    objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string));
+                    return objectList;
+                }
+            }
+
+            List<Object> objectList = executeScanCommandByCommandId(user_String,totalQuestionTable,commandLogic.getEndIndex(),notFinished, way,user_Object);
+            return objectList;
+        }
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
         String first_problem_scanLogic_Id = "";
-        if (commandLogic.getResultCheckId().equals("1")){
-            //判断命令是否错误 错误为false 正确为true
-            if (Utils.judgmentError(command_string)){
-                //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
-
-                String[] returnString_split = command_string.split("\r\n");
-                for (String string_split:returnString_split){
-                    if (!Utils.judgmentError(string_split)){
-                        System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
-                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
-                        List<Object> objectList = new ArrayList<>();
-                        objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string));
-                        return objectList;
-                    }
-                }
-
-                List<Object> objectList = executeScanCommandByCommandId(user_String,totalQuestionTable,commandLogic.getEndIndex(),notFinished, way,user_Object);
-                return objectList;
-            }
-        }else {
+        if (!(commandLogic.getResultCheckId().equals("1"))){
             //分析第一条ID
             first_problem_scanLogic_Id = commandLogic.getProblemId();
         }

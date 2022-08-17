@@ -260,7 +260,9 @@ public class SolveProblemController {
             //参数集合
             List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
             //解决问题
-            String solveProblem = solveProblem(user_String,loginUser,informationList, commandList, valueInformationVOList);//userName
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+            TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(switchProblem.getProblemId()).longValue());
+            String solveProblem = solveProblem(user_String,loginUser,informationList,totalQuestionTable, commandList, valueInformationVOList);//userName
 
             if (solveProblem.equals("成功")){
                 switchProblem.setResolved("是");
@@ -278,6 +280,10 @@ public class SolveProblemController {
                     return AjaxResult.error("修复失败");
                 }
             }
+            if(solveProblem.indexOf("错误") != -1){
+                return AjaxResult.error("修复失败");
+            }
+
             getUnresolvedProblemInformationByIds(loginUser,problemIds);
 
             if (requestConnect_way.equalsIgnoreCase("ssh")){
@@ -371,6 +377,7 @@ public class SolveProblemController {
     public String solveProblem(Map<String,String> user_String,
                                LoginUser loginUser,
                                List<Object> informationList,
+                               TotalQuestionTable totalQuestionTable,
                                List<String> commandList,
                                List<ValueInformationVO> valueInformationVOList){
         //遍历命令集合    根据参数名称 获取真实命令
@@ -422,6 +429,7 @@ public class SolveProblemController {
 
         //user_String, connectMethod, telnetSwitchMethod
         for (String command:commandList){
+
             //根据 连接方法 判断 实际连接方式
             //并发送命令 接受返回结果
             System.err.print("\r\n"+"命令："+command+"\r\n");
@@ -431,17 +439,68 @@ public class SolveProblemController {
             returnRecord.setSwitchIp(user_String.get("ip"));
             returnRecord.setUserName(loginUser.getUsername());
 
-            if (requestConnect_way.equalsIgnoreCase("ssh")){
+            returnRecord.setBrand(user_String.get("deviceBrand"));
+            returnRecord.setType(user_String.get("deviceModel"));
+            returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
+            returnRecord.setSubVersion(user_String.get("subversionNumber"));
+            returnRecord.setCurrentCommLog(command.trim());
 
-                WebSocketService.sendMessage("badao"+loginUser.getUsername(),command);
-                commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
-                //commandString = Utils.removeLoginInformation(commandString);
-            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+            int insert_id = 0;
 
-                WebSocketService.sendMessage("badao"+loginUser.getUsername(),command);
-                commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
-                //commandString = Utils.removeLoginInformation(commandString);
-            }
+            boolean deviceBrand = true;
+            do {
+                deviceBrand = true;
+
+                if (requestConnect_way.equalsIgnoreCase("ssh")){
+
+                    WebSocketService.sendMessage("badao"+loginUser.getUsername(),command);
+                    commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
+                    //commandString = Utils.removeLoginInformation(commandString);
+                }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+
+                    WebSocketService.sendMessage("badao"+loginUser.getUsername(),command);
+                    commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
+                    //commandString = Utils.removeLoginInformation(commandString);
+                }
+
+                returnRecord.setCurrentReturnLog(commandString);
+
+                //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
+                boolean switchfailure = Utils.switchfailure(user_String, commandString);
+                // 存在故障返回 false
+                if (!switchfailure) {
+
+                    String[] commandStringSplit = commandString.split("\r\n");
+
+                    for (String returnString : commandStringSplit) {
+                        deviceBrand = Utils.switchfailure(user_String, returnString);
+                        if (!deviceBrand) {
+
+                            String userName = loginUser.getUsername();
+                            System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
+                            WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
+                            returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
+                            String way = user_String.get("mode");
+                            if (way.equalsIgnoreCase("ssh")){
+                                connectMethod.sendCommand(user_String.get("ip"),sshConnect," ",user_String.get("notFinished"));
+                            }else if (way.equalsIgnoreCase("telnet")){
+                                telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent," ",user_String.get("notFinished"));
+                            }
+
+                            break;
+                        }
+                    }
+
+                }
+
+                //返回信息表，返回插入条数
+                returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
+                insert_id = returnRecordService.insertReturnRecord(returnRecord);
+            }while (!deviceBrand);
+
+            //返回信息表，返回插入条数
+            returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
+            returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
 
             //去除其他 交换机登录信息
             commandString = Utils.removeLoginInformation(commandString);
@@ -452,9 +511,6 @@ public class SolveProblemController {
             //交换机返回信息 按行分割为 字符串数组
             String[] commandString_split = commandString.split("\r\n");
 
-            // 执行命令赋值
-            String commandtrim = command.trim();
-            returnRecord.setCurrentCommLog(commandtrim);
             // 返回日志内容
             if (commandString_split.length > 1){
                 String current_return_log = commandString.substring(0, commandString.length() - commandString_split[commandString_split.length - 1].length() - 2).trim();
@@ -492,15 +548,30 @@ public class SolveProblemController {
                 returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
                 WebSocketService.sendMessage("badao"+loginUser.getUsername(),"\r\n"+commandString_split[0]+"\r\n");
             }
-            //存储交换机返回数据 插入数据库
+
+            //返回信息表，返回插入条数
             returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
-            int insert_Int = returnRecordService.insertReturnRecord(returnRecord);
+            int update = returnRecordService.updateReturnRecord(returnRecord);
 
             //判断命令是否错误 错误为false 正确为true
-            if (!Utils.judgmentError(commandString)){
-                //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
-                break;
+            if (!(Utils.judgmentError( user_String,commandString))){
+                //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
+
+                String[] returnString_split = commandString.split("\r\n");
+                for (String string_split:returnString_split){
+                    if (!Utils.judgmentError( user_String,string_split)){
+                        String userName = loginUser.getUsername();
+                        System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString+"\r\n");
+                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString+"\r\n");
+                        List<Object> objectList = new ArrayList<>();
+                        objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString));
+
+                        return user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString;
+
+                    }
+                }
             }
+
         }
 
         return "成功";

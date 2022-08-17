@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.SwitchErrorMapper">
+    
+    <resultMap type="SwitchError" id="SwitchErrorResult">
+        <result property="errorId"    column="error_id"    />
+        <result property="brand"    column="brand"    />
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+        <result property="errorKeyword"    column="error_keyword"    />
+        <result property="errorName"    column="error_name"    />
+    </resultMap>
+
+    <sql id="selectSwitchErrorVo">
+        select error_id, brand, switch_type, fireware_version, sub_version, error_keyword, error_name from switch_error
+    </sql>
+
+    <select id="selectSwitchErrorList" parameterType="SwitchError" resultMap="SwitchErrorResult">
+        <include refid="selectSwitchErrorVo"/>
+        <where>  
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="errorKeyword != null  and errorKeyword != ''"> and error_keyword = #{errorKeyword}</if>
+            <if test="errorName != null  and errorName != ''"> and error_name like concat('%', #{errorName}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectSwitchErrorListByPojo" parameterType="SwitchError" resultMap="SwitchErrorResult">
+        <include refid="selectSwitchErrorVo"/>
+        <where>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType} or switch_type = '*'</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion} or fireware_version = '*'</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion} or sub_version = '*'</if>
+            <if test="errorKeyword != null  and errorKeyword != ''"> and error_keyword = #{errorKeyword}</if>
+            <if test="errorName != null  and errorName != ''"> and error_name like concat('%', #{errorName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectSwitchErrorByErrorId" parameterType="Long" resultMap="SwitchErrorResult">
+        <include refid="selectSwitchErrorVo"/>
+        where error_id = #{errorId}
+    </select>
+        
+    <insert id="insertSwitchError" parameterType="SwitchError">
+        insert into switch_error
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="errorId != null">error_id,</if>
+            <if test="brand != null">brand,</if>
+            <if test="switchType != null">switch_type,</if>
+            <if test="firewareVersion != null">fireware_version,</if>
+            <if test="subVersion != null">sub_version,</if>
+            <if test="errorKeyword != null">error_keyword,</if>
+            <if test="errorName != null">error_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="errorId != null">#{errorId},</if>
+            <if test="brand != null">#{brand},</if>
+            <if test="switchType != null">#{switchType},</if>
+            <if test="firewareVersion != null">#{firewareVersion},</if>
+            <if test="subVersion != null">#{subVersion},</if>
+            <if test="errorKeyword != null">#{errorKeyword},</if>
+            <if test="errorName != null">#{errorName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSwitchError" parameterType="SwitchError">
+        update switch_error
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="brand != null">brand = #{brand},</if>
+            <if test="switchType != null">switch_type = #{switchType},</if>
+            <if test="firewareVersion != null">fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null">sub_version = #{subVersion},</if>
+            <if test="errorKeyword != null">error_keyword = #{errorKeyword},</if>
+            <if test="errorName != null">error_name = #{errorName},</if>
+        </trim>
+        where error_id = #{errorId}
+    </update>
+
+    <delete id="deleteSwitchErrorByErrorId" parameterType="Long">
+        delete from switch_error where error_id = #{errorId}
+    </delete>
+
+    <delete id="deleteSwitchErrorByErrorIds" parameterType="String">
+        delete from switch_error where error_id in 
+        <foreach item="errorId" collection="array" open="(" separator="," close=")">
+            #{errorId}
+        </foreach>
+    </delete>
+</mapper>

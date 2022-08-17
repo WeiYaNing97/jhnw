@@ -123,4 +123,6 @@ public interface TotalQuestionTableMapper
     List<TotalQuestionTable> selectTotalQuestionTabletypeProblemListBytypeProblem(String typeProblem);
     /*根据问题种类查询范本问题名称*/
     List<String> selectTemProNamelistBytypeProblem(String typeProblem);
+
+    List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable pojo);
 }
