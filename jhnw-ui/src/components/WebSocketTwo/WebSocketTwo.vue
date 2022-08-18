@@ -8,7 +8,7 @@
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
     <el-table v-loading="loading"
-              :data="tableDataqq"
+              :data="nowData"
               ref="treenow"
               v-show="chuci"
               @row-click="expandChangeone"

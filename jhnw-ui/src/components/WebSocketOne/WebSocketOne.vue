@@ -74,8 +74,9 @@
             wsOpenHanler(event) {
                 console.log('ws建立连接成功')
             },
-            wsMessageHanler(a) {
+            wsMessageHanler(e) {
                 console.log('wsMessageHanler')
+                console.log(e)
                 this.textarea = this.textarea + e.data;
                 this.$nextTick(()=>{
                     const textarea = document.getElementById('webt')

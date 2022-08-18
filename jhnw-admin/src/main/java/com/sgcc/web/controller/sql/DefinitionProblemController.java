@@ -6,6 +6,7 @@ import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.sql.domain.*;
+import com.sgcc.sql.service.IBasicInformationService;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
@@ -38,6 +39,110 @@ public class DefinitionProblemController extends BaseController {
     private IProblemScanLogicService problemScanLogicService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
+    @Autowired
+    private static IBasicInformationService basicInformationService;
+
+    /**
+     * @method: 插入分析问题的数据
+     * @Param: [jsonPojoList]
+     * @return: void
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("insertInformationAnalysis")
+    @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.UPDATE)
+    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@RequestParam String command){
+        BasicInformation basicInformation = new BasicInformation();
+        basicInformation.setCommand(command);
+        int i = basicInformationService.insertBasicInformation(basicInformation);
+        Long id = basicInformation.getId();
+        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(jsonPojoList,id);
+        return insertInformationAnalysisMethod;
+    }
+
+    /**
+     * @method: 插入分析问题的数据
+     * @Param: [jsonPojoList]
+     * @return: void
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public boolean insertInformationAnalysisMethod(@RequestBody List<String> jsonPojoList,Long basicInformationId){//@RequestBody List<String> jsonPojoList
+
+        String problemScanLogicString = "";
+        for (String pojo:jsonPojoList){
+            problemScanLogicString = problemScanLogicString + pojo +",";
+        }
+        if (!problemScanLogicString.equals("")){
+            jsonPojoList = new ArrayList<>();
+            problemScanLogicString = problemScanLogicString.substring(0,problemScanLogicString.length()-1);
+            problemScanLogicString = problemScanLogicString.replace("},","}\r\n");
+            String[] commandLogic_split = problemScanLogicString.split("\r\n");
+            for (int number=0; number<commandLogic_split.length; number++){
+                jsonPojoList.add(commandLogic_split[number]);
+            }
+        }else {
+            return false;
+        }
+
+        System.err.println("\r\n"+"前端出入数据：\r\n");
+        for (String jsonPojo:jsonPojoList){
+            System.err.println(jsonPojo);
+        }
+
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+        for (int number=0;number<jsonPojoList.size();number++){
+            // 如果 前端传输字符串  存在 command  说明 是命令
+            if (jsonPojoList.get(number).indexOf("command")!=-1){
+                CommandLogic commandLogic = analysisCommandLogic(jsonPojoList.get(number));
+                commandLogicList.add(commandLogic);
+                continue;
+            }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
+
+                if (number+1<jsonPojoList.size()){
+                    // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
+                    if (jsonPojoList.get(number+1).indexOf("command") !=-1){
+                        //本条是分析 下一条是 命令
+                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "命令");
+                        problemScanLogicList.add(problemScanLogic);
+                        continue;
+                    }else {
+                        //本条是分析 下一条是 分析
+                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+                        problemScanLogicList.add(problemScanLogic);
+                        continue;
+                    }
+                }else {
+                    //本条是分析 下一条是 问题
+                    ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+                    problemScanLogicList.add(problemScanLogic);
+                    continue;
+                }
+
+            }
+        }
+        //将相同ID  时间戳 的 实体类 放到一个实体
+        List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
+        //String commandId = null;
+        for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
+            if (i<=0){
+                return false;
+            }
+        }
+        String jsonPojoOne = jsonPojoList.get(0);
+        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoOne, "分析");
+
+        BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
+        basicInformation.setProblemId(problemScanLogic.getId());
+        int i = basicInformationService.updateBasicInformation(basicInformation);
+        if (i<=0){
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * 新增命令逻辑
@@ -971,11 +1076,13 @@ public class DefinitionProblemController extends BaseController {
             problemId = problemScanLogic.getProblemId();
             if (problemId.indexOf("问题")!=-1){
                 problemScanLogicVO.setAction("问题");
+
                 if(problemId.substring(0,3).equals("有问题")){
                     problemScanLogicVO.settNextId("异常");
                 }else if(problemId.substring(0,3).equals("无问题")){
                     problemScanLogicVO.settNextId("安全");
                 }
+
                 problemId = problemId.substring(3,problemId.length());
             }
             if (problemId.equals("完成")){

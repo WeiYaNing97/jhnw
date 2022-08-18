@@ -232,8 +232,8 @@
         <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
           <el-form-item label="有无问题">
             <el-select v-model="item.tNextId" placeholder="有无问题、完成">
-              <el-option label="有问题" value="有问题"></el-option>
-              <el-option label="无问题" value="无问题"></el-option>
+              <el-option label="异常" value="有问题"></el-option>
+              <el-option label="安全" value="无问题"></el-option>
               <el-option label="完成" value="完成"></el-option>
             </el-select>
           </el-form-item>
