@@ -595,6 +595,10 @@ public class SolveProblemController {
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByIds(id);
 
+        if (switchProblemList.size() == 0){
+            return null;
+        }
+
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(Utils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -686,6 +690,9 @@ public class SolveProblemController {
         String userName = loginUser.getUsername();
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
+        if (switchProblemList.size() == 0){
+            return null;
+        }
         HashSet<String> hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
 

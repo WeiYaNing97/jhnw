@@ -55,9 +55,7 @@ public class RepairFixedThreadPool {
                             SolveProblemController solveProblemController = new SolveProblemController();
                             AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
                             if (ajaxResult.get("msg").equals("交换机基本信息错误，请检查或重新修改")){
-                                System.err.println("\r\n交换机基本信息错误，请检查或重新修改\r\n");
-                            }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                                System.err.println("\r\n未定义该交换机获取基本信息命令及分析\r\n");
+                                System.err.println("\r\n交换机基本信息不一致\r\n");
                             }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                                 System.err.println("\r\n未定义该交换机获取基本信息命令及分析\r\n");
                             }else if (ajaxResult.get("msg").equals("未定义解决问题命令")){

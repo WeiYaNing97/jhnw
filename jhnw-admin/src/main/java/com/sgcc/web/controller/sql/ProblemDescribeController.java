@@ -168,7 +168,7 @@ public class ProblemDescribeController extends BaseController
      * 获取问题描述详细信息
      */
     @GetMapping(value = "selectProblemDescribe")
-    public ProblemDescribe selectProblemDescribe(Long id)
+    public ProblemDescribe selectProblemDescribe(@RequestParam Long id)
     {
         ProblemDescribe problemDescribe = problemDescribeService.selectProblemDescribeById(id);
         if (problemDescribe == null){

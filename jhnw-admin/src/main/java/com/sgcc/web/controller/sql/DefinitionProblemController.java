@@ -88,7 +88,19 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("definitionProblemJsonPojo")
-    @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.INSERT)
+    @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
+    public boolean definitionProblemJson(@RequestBody List<String> jsonPojoList){
+        boolean definitionProblemJsonboolean = definitionProblemJsonPojo(jsonPojoList);
+        return definitionProblemJsonboolean;
+    }
+
+    /**
+     * @method: 插入分析问题的数据
+     * @Param: [jsonPojoList]
+     * @return: void
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
 
         String problemScanLogicString = "";
@@ -1013,7 +1025,7 @@ public class DefinitionProblemController extends BaseController {
 
     /*定义分析问题数据修改*/
     @RequestMapping("updateAnalysis")
-    @MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
+    //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
     public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
 
         String problemScanLogicString = "";
@@ -1053,6 +1065,7 @@ public class DefinitionProblemController extends BaseController {
             }
         }
         boolean b = definitionProblemJsonPojo(jsonPojoList);//jsonPojoList
+        System.err.println("\r\ndefinitionProblemJsonPojo"+b+"\r\n");
         if (!b){
             return false;
         }
