@@ -373,7 +373,7 @@ export default {
         who:'',
         helpT:'',
         showha:false,
-        jiaoyan:'自定义校验',
+        jiaoyan:'常规校验',
         bizui:false,
         bixiala:true,
         radio:'1',

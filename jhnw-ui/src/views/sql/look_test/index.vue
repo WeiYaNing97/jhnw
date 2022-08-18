@@ -457,6 +457,15 @@ export default {
                   const thisNext = useForm[thisIndex+1]
                   this.$set(eeee,'nextIndex',thisNext.onlyIndex)
               }
+              if (eeee.action === '取词'){
+                  if (eeee.classify === '单词'){
+                      eeee.length = `${eeee.length}W`
+                  }else if (eeee.classify === '字母'){
+                      eeee.length = `${eeee.length}L`
+                  }else if (eeee.classify === '字符串'){
+                      eeee.length = `${eeee.length}S`
+                  }
+              }
               this.$set(eeee,'pageIndex',thisIndex+1)
               if (eeee.targetType == 'takeword'){
                   const takeWordt = useForm.indexOf(eeee)
@@ -474,6 +483,7 @@ export default {
           let form1 = new FormData();
           form1.append('totalQuestionTableId',this.proId)
           form1.append('jsonPojoList',handForm)
+          console.log(handForm)
           this.newValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
           // alert(JSON.stringify(this.newValue))
           // alert(JSON.stringify(this.oldValue))
@@ -487,7 +497,7 @@ export default {
               axios({
                   method:'post',
                   // url:'/dev-api/sql/ConnectController/definitionProblem',
-                  url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+                  // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
                   headers:{
                       "Content-Type": "application/json"
                       // "Content-Type": "multipart/form-data"
@@ -503,7 +513,7 @@ export default {
                   axios({
                       method:'post',
                       // url:'/dev-api/sql/ConnectController/definitionProblem',
-                      url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+                      // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
                       headers:{
                           "Content-Type": "application/json"
                           // "Content-Type": "multipart/form-data"
@@ -727,8 +737,10 @@ export default {
                       this.$set(chae,'targetType','takeword')
                       // console.log(chae.length.slice(chae.length.length-1))
                       // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
+                      console.log(chae.length.slice(chae.length.length-1))
                       if (chae.length.slice(chae.length.length-1) === 'W'){
                           this.$set(chae,'classify','单词')
+                          console.log('sss')
                       }else  if (chae.length.slice(chae.length.length-1) === 'S'){
                           this.$set(chae,'classify','字符串')
                       }else if (chae.length.slice(chae.length.length-1) === 'L'){
@@ -754,6 +766,11 @@ export default {
                       huicha.push(chae)
                   }else if (chae.action === '问题'){
                       this.$set(chae,'targetType','prodes')
+                      if (chae.tNextId === '异常'){
+                          this.$set(chae,'tNextId','有问题')
+                      }else if (chae.tNextId === '安全'){
+                          this.$set(chae,'tNextId','无问题')
+                      }
                       huicha.push(chae)
                   }else if (chae.action === '循环'){
                       this.$set(chae,'targetType','wloop')
