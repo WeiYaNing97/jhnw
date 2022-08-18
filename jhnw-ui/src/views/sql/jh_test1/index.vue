@@ -36,6 +36,11 @@
                        :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
           </el-select>
         </el-form-item>
+      <el-form-item label="标识符">
+        <el-input v-model="queryParams.notFinished"
+                  clearable
+                  @focus="biaoshi($event)" name="biaoshi"></el-input>
+      </el-form-item>
 <!--        <el-form-item>-->
 <!--          <el-button type="primary" @click="tianjia(item)"><i class="el-icon-plus"></i></el-button>-->
 <!--        </el-form-item>-->
@@ -47,7 +52,7 @@
 <!--        </el-select>-->
 <!--      </el-form-item>-->
       <el-form-item label="问题概要:"></el-form-item>
-      <el-form-item label="问题类型" prop="typeProblem">
+      <el-form-item label="范式分类" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
                    filterable allow-create @focus="proType($event)" @blur="typeProShu">
           <el-option v-for="(item,index) in typeProList" :key="index"
@@ -55,7 +60,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="范式名称">
-        <el-select v-model="queryParams.temProName" placeholder="请选择范式问题名称"
+        <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
                    filterable allow-create @focus="temPro($event)" @blur="temProShu">
           <el-option v-for="(item,index) in temProNameList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
@@ -68,16 +73,14 @@
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="标识符">
-        <el-input v-model="queryParams.notFinished"
-                  clearable
-                  @focus="biaoshi($event)" name="biaoshi"></el-input>
-      </el-form-item>
       <el-form-item>
         <el-checkbox v-model="queryParams.requiredItems">必扫问题</el-checkbox>
       </el-form-item>
       <el-form-item label="备注">
         <el-input v-model="queryParams.remarks"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="tiwenti">提交问题</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="huoquid">定义问题命令</el-button>
@@ -123,9 +126,7 @@
             <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
           </el-form-item>
         </div>
-<!--        style="display: inline-block;padding-left: 20px"-->
         <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
-<!--          :style="{display:display,paddingLeft:paddingLeft}"-->
           <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
@@ -156,13 +157,13 @@
           <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 308px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -174,7 +175,7 @@
           <el-form-item label="匹配内容">
             <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -193,7 +194,7 @@
           <el-form-item label="匹配内容">
             <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -238,7 +239,7 @@
                          :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -315,8 +316,12 @@
     </el-form>
 
     <TinymceEditor v-show="showha" ref="fuwenben"></TinymceEditor>
-    <el-button @click="yinyin">隐藏</el-button>
+    <el-button @click="yinyin" v-show="showha">隐藏</el-button>
     <el-button @click="look" type="primary" v-show="showha" style="margin-top:20px">提交</el-button>
+
+    <el-input type="textarea" v-show="partShow" v-model="particular" rows="15"></el-input>
+    <el-button @click="partsub" type="primary" v-show="partShow" style="margin-top:20px">提交详情</el-button>
+    <el-button @click="partclose" type="primary" v-show="partShow" style="margin-top:20px">关闭详情</el-button>
 
     <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
@@ -337,9 +342,12 @@ export default {
     },
   data() {
     return {
+        //问题详情
+        particular:'',
+        partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:true,
+        chuxian:false,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj
@@ -458,39 +466,6 @@ export default {
           this.who = e.target.getAttribute('name')
           console.log(this.who)
       },
-      //定义问题详情
-      xiangqing(){
-          this.showha = true
-          let form = new FormData();
-          for (var key in this.queryParams){
-              if (key != 'notFinished'){
-                  form.append(key,this.queryParams[key]);
-              }
-          }
-          console.log(form)
-          return request({
-              url:'/sql/total_question_table/totalQuestionTableId',
-              method:'post',
-              data:form
-          }).then(response=>{
-              console.log(response)
-              this.proId = response
-          })
-      },
-      //提交问题详情
-      look(){
-          console.log(this.proId)
-          console.log(this.$refs.fuwenben.geifu())
-          return request({
-              // url:`/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
-              method:'post',
-              data:this.$refs.fuwenben.geifu()
-          }).then(response=>{
-              this.$message.success('问题详情已提交!')
-          })
-          //     // url:`/dev-api/sql/ConnectController/ssssss?ass=${this.proId}`,
-          //     // url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
-      },
       yinyin(){
         this.showha = false
       },
@@ -606,14 +581,40 @@ export default {
       },
       temPro(e){
           var type0 = this.queryParams.typeProblem
-          console.log(type0)
+          if(type0 != ''){
+              return request({
+                  url:'/sql/total_question_table/temProNamelist',
+                  method:'post',
+                  data:type0
+              }).then(response=>{
+                  this.temProNameList = response
+                  console.log(response)
+              })
+          }else {
+              this.$message.warning('问题类型未选择')
+          }
+      },
+      chawenti(e){
+          const wentilist = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          const firO = this.queryParams.firewareVersion
+          const subO = this.queryParams.subVersion
+          const protypeO = this.queryParams.typeProblem
+          const pronameO = this.queryParams.temProName
+          this.$set(wentilist,'brand',brandO)
+          this.$set(wentilist,'type',typeO)
+          this.$set(wentilist,'firewareVersion',firO)
+          this.$set(wentilist,'subVersion',subO)
+          this.$set(wentilist,'typeProblem',protypeO)
+          this.$set(wentilist,'temProName',pronameO)
           return request({
-              url:'/sql/total_question_table/temProNamelist',
+              url:'/sql/total_question_table/problemNameList',
               method:'post',
-              data:type0
+              data:JSON.stringify(wentilist)
           }).then(response=>{
-              this.temProNameList = response
               console.log(response)
+              this.proNameList = response
           })
       },
       //比较选中触发
@@ -688,9 +689,8 @@ export default {
               this.queryParams.problemName = value
           }
       },
-      //提交问题 返回问题id
-      huoquid(){
-          this.chuxian = true
+      //提交问题，返回问题ID
+      tiwenti(){
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
           this.$delete(shasha,'commandId')
           if (shasha.requiredItems === true){
@@ -704,17 +704,88 @@ export default {
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
+              this.$message.success('提交问题成功')
               this.proId = response.msg
           })
       },
-      chawenti(e){
-          // return request({
-          //     url:'/sql/total_question_table/problemNameList',
-          //     method:'post',
-          //     data:JSON.stringify(this.queryParams)
-          // }).then(response=>{
-          //     this.proNameList = response
-          // })
+      //查看是否存在，返回问题ID，定义命令隐藏变为出现
+      huoquid(){
+          let form = new FormData();
+          for (var key in this.queryParams){
+              if (key != 'notFinished'&&key != 'requiredItems'&&key != 'commandId'&&key != 'remarks'){
+                  form.append(key,this.queryParams[key])
+              }
+          }
+          console.log(form)
+          return request({
+              url:'/sql/total_question_table/totalQuestionTableId',
+              method:'post',
+              data:form
+          }).then(response=>{
+              console.log(response)
+              if (typeof(response) === 'number'){
+                  this.chuxian = true
+                  this.proId = response
+              }else {
+                  this.$message.error('没有定义该问题,请先定义问题在定义命令！')
+              }
+          })
+      },
+      //定义问题详情
+      xiangqing(){
+          let form = new FormData();
+          for (var key in this.queryParams){
+              if (key != 'notFinished'&&key != 'requiredItems'&&key != 'commandId'&&key != 'remarks'){
+                  form.append(key,this.queryParams[key])
+              }
+          }
+          console.log(form)
+          return request({
+              url:'/sql/total_question_table/totalQuestionTableId',
+              method:'post',
+              data:form
+          }).then(response=>{
+              console.log(response)
+              if (typeof(response) === 'number'){
+                  this.particular = ''
+                  this.partShow = true
+                  this.proId = response
+              }else {
+                  this.$message.error('没有定义该问题,请先定义问题在定义详情！')
+              }
+          })
+      },
+      //提交问题详情
+      look(){
+          console.log(this.proId)
+          console.log(this.$refs.fuwenben.geifu())
+          return request({
+              // url:`/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
+              method:'post',
+              data:this.$refs.fuwenben.geifu()
+          }).then(response=>{
+              this.$message.success('问题详情已提交!')
+          })
+          //     // url:`/dev-api/sql/ConnectController/ssssss?ass=${this.proId}`,
+          //     // url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
+      },
+      //文本提交问题详情
+      partsub(){
+          console.log(this.proId)
+          console.log(this.particular)
+          return request({
+              url:`/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
+              method:'post',
+              data:this.particular
+          }).then(response=>{
+              this.$message.success('问题详情已提交!')
+              this.partShow = false
+          })
+      },
+      //关闭详情
+      partclose(){
+          this.particular = ''
+          this.partShow = false
       },
       //全选
       handleCheckAllChange() {
@@ -781,11 +852,9 @@ export default {
           }
           this.$set(item1,'checked',false)
           const thisIndex = this.forms.dynamicItem.indexOf(item)
-          //
           console.log(thisIndex)
           //动态添加的样式空格问题
-          // console.log(this.$refs.btn[thisIndex] div)
-          console.log(this.$refs.btn[thisIndex].labelss)
+          console.log(this.$refs.btn[thisIndex])
           console.log(item)
           // this.$set(item,'nextIndex',thisData)
           if(type == 'match'){
@@ -952,7 +1021,7 @@ export default {
           const handForm = useForm.map(x => JSON.stringify(x))
           alert(handForm)
           return request({
-              // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
+              url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
               method:'post',
               data:handForm
           }).then(response=>{

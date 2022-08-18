@@ -3,11 +3,10 @@
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
+        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
-        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>
-        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -19,13 +18,14 @@
           <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>
           <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="shangchuan">确 定</el-button>
+          <el-button type="primary" @click="daorusure">确 定</el-button>
           </span>
         </el-dialog>
         <el-button type="primary" size="small" icon="el-icon-download"
                    @click="xiazai" style="margin-left: 10px">下载模板</el-button>
         <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
                          @change="handleChange" :min="1" :max="5"></el-input-number>
+        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>
       </el-form-item>
       <el-divider></el-divider>
       <el-row>
@@ -33,7 +33,7 @@
           <!--      表格展示列表-->
           <p style="margin: 0;text-align: center">扫描设备信息</p>
           <el-table :data="tableData" style="width: 100%"
-                    max-height="300" @select="xuanze" @row-click="weizaizai">
+                    max-height="300" @select="xuanze">
             <el-table-column type="index" width="50"></el-table-column>
             <el-table-column type="selection" width="45"></el-table-column>
             <el-table-column prop="ip" label="设备IP" width="130">
@@ -135,7 +135,7 @@
 
     <el-divider></el-divider>
 <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
-<!--    <WebSocketOne></WebSocketOne>-->
+
 
 <!--    <el-upload-->
 <!--      class="upload-demo"-->
@@ -151,13 +151,15 @@
 <!--      <div slot="tip" class="el-upload__tip">只 能 上 传 xlsx / xls 文 件</div>-->
 <!--    </el-upload>-->
 
-    <WebSocketTwo :queryParams="queryParams" :alljiao="alljiao" :saowanend="saowanend" :num="num"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" :saowanend="saowanend" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
         <WebSocket ref="webone"></WebSocket>
       </el-row>
     </div>
+
+    <WebSocketOne></WebSocketOne>
 
 <!--      下一页-->
 <!--    <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
@@ -197,7 +199,7 @@
 <script>
 import { listJh_test, getJh_test, delJh_test, addJh_test, updateJh_test, exportJh_test } from "@/api/sql/jh_test";
 import WebSocket from '@/components/WebSocket/WebSocket';
-// import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
+import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
 import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
 import log from "../../monitor/job/log"
 import * as XLSX from 'xlsx'
@@ -207,7 +209,7 @@ export default {
   name: "Jh_test",
     components:{
         WebSocket,
-        // WebSocketOne,
+        WebSocketOne,
         WebSocketTwo
     },
   data() {
@@ -274,12 +276,6 @@ export default {
         //表格上传的设备信息
         importData:[],
         dialogVisible:false,
-        //缓存交换机信息
-        alljiao:{
-            allInfo:[
-
-            ]
-        },
         //多台隐身
         duoShow:true,
       // 遮罩层
@@ -420,15 +416,10 @@ export default {
               name: '',
               password:'',
               passmi:'********',
-              mode:'',
+              mode:'ssh',
               port:22,
               $isEdit:true
           })
-      },
-      //
-      weizaizai(row){
-          row.$isEdit = !row.$isEdit
-          console.log('sss')
       },
       //确定
       queding(row){
@@ -447,7 +438,7 @@ export default {
               alert('扫描已完成!')
           }
       },
-      //韦工测试
+      //测试
       weigong(){
           // console.log(this.$refs.webone.geifuone())
           console.log(this.$refs.treeone.getCheckedKeys())
@@ -459,12 +450,11 @@ export default {
           //     console.log(response)
           // })
       },
-      //上传成功
-      shangchuan(){
+      //导入弹窗确定
+      daorusure(){
           console.log(this.importData)
           this.dialogVisible = false
           if (this.importData.length != 0){
-              this.$message.success('批量导入成功!')
               for (let i = 0;i<this.importData.length;i++){
                   this.$set(this.importData[i],'passmi','********')
                   this.$set(this.importData[i],'$isEdit',false)
@@ -473,8 +463,9 @@ export default {
                   }
                   this.tableData.push(this.importData[i])
               }
+              this.$message.success('批量导入成功!')
           }else {
-              this.$message.warning('批量导入为空，请查看导入数据规范或者下载模板!')
+              this.$message.warning('批量导入失败，请查看导入数据或者下载模板!')
           }
       },
       //计数器
@@ -495,53 +486,55 @@ export default {
       },
       //批量导入
       handleClick() {
-          let dom = document.getElementById("importBtn");
+          let dom = document.getElementById("importBtn")
           if (dom) {
-              dom.value = "";
+              dom.value = ""
           }
       },
       handleImport(event) {
-          let fileReader = new FileReader();
-          var file = event.currentTarget.files[0];
+          let fileReader = new FileReader()
+          var file = event.currentTarget.files[0]
           if (!file) {
-              return;
+              return
           }
           // 成功回调函数
           fileReader.onload = async (ev) => {
               try {
-                  let datas = ev.target.result;
+                  let datas = ev.target.result
                   let workbook = XLSX.read(datas, {
-                      type: "binary",
+                      type: "binary"
                   });
                   // excelData为excel读取出的数据,可以用来制定校验条件,如数据长度等
                   let excelData = XLSX.utils.sheet_to_json(
                       workbook.Sheets[workbook.SheetNames[0]]
                   );
                   // 将上面数据转换成需要的数据
-                  let arr = [];
+                  let arr = []
                   //item[]中的内容为Excel中数据的表头,上传的数据表头必须根据标题填写,否则无法读取
-                  excelData.forEach((item) => {
-                      let obj = {};
-                      obj.ip= item["ip"];
-                      obj.name= item["用户名"];
-                      obj.password= item["密码"];
-                      obj.mode=item["登录方式"]
-                      obj.port=item["端口号"]
-                      arr.push(obj);
+                  excelData.forEach((item,index) => {
+                      if(item.ip && item.用户名 && item.密码 && item.登录方式 && item.端口号){
+                          let obj = {}
+                          obj.ip= item["ip"]
+                          obj.name= item["用户名"]
+                          obj.password= item["密码"]
+                          obj.mode=item["登录方式"]
+                          obj.port=item["端口号"]
+                          arr.push(obj)
+                      }
                   });
-                  this.importData = [...arr];
-                  if (this.importData[0].ip === undefined){
+                  this.importData = [...arr]
+                  if (this.importData.length === 0){
                       this.$message.warning('批量导入失败，请重新导入或者下载模板!')
                   }
                   // this.importData则为最终获取到的数据
-                  console.log(this.importData);
+                  console.log(this.importData)
               } catch (e) {
-                  window.alert("文件类型不正确!请下载模板!");
-                  return false;
+                  window.alert("文件类型不正确!请下载模板!")
+                  return false
               }
           };
           // 读取文件 成功后执行上面的回调函数
-          fileReader.readAsBinaryString(file);
+          fileReader.readAsBinaryString(file)
       },
       //一键扫描
       saomiao(){
@@ -567,14 +560,14 @@ export default {
           const scanNum = this.num
           //专项扫描的所有id
           var zhuanid = this.$refs.treeone.getCheckedKeys()
-          for(let i = 0;i<zhuanid.length;i++){
-              if (zhuanid[i] === undefined){
-                  this.$delete(zhuanid,i)
+          const zhuanidend = []
+          for(let i = 0;i<=zhuanid.length;i++){
+              if (typeof(zhuanid[i])!='undefined'){
+                  zhuanidend.push(zhuanid[i])
               }
           }
-          console.log(zhuanid)
+          console.log(zhuanidend)
           console.log(zuihou)
-          this.alljiao.allInfo = zuihou
           let zuihouall = zuihou.map(x=>JSON.stringify(x))
           return request({
               // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',

@@ -1,35 +1,10 @@
 <template>
   <div>
-    <el-form :model="xinxi" :ref="xinxi" label-width="60px" :inline="true" readonly>
-      <el-form-item label="品牌" prop="pinpai">
-        <el-input
-          v-model="xinxi.jiben[0]"
-          placeholder="品牌"
-          size="small" readonly
-        />
-      </el-form-item>
-      <el-form-item label="型号" prop="xinghao">
-        <el-input
-          v-model="xinxi.jiben[1]"
-          placeholder="型号"
-          size="small" readonly
-        />
-      </el-form-item>
-      <el-form-item label="版本" prop="banben">
-        <el-input
-          v-model="xinxi.jiben[2]"
-          placeholder="版本"
-          size="small" readonly
-        />
-      </el-form-item>
-      <el-form-item label="子版本" prop="zibanben">
-        <el-input
-          v-model="xinxi.jiben[3]"
-          placeholder="子版本"
-          size="small" readonly
-        />
-      </el-form-item>
-    </el-form>
+    <el-input
+      id="webt"
+      type="textarea"
+      style="white-space: pre-wrap;"
+      v-model="textarea" :rows="10" readonly></el-input>
   </div>
 </template>
 
@@ -48,9 +23,6 @@
                 // ws定时器
                 wsTimer: null,
                 textarea:'',
-                xinxi:{
-                    jiben:[]
-                },
             }
         },
         async mounted() {
@@ -72,7 +44,7 @@
             wsInit() {
                 // localhost 192.168.1.98
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/basicinformation'
-                const wsuri = `ws://localhost/dev-api/websocket/basicinformation${Cookies.get('usName')}`
+                const wsuri = `ws://localhost/dev-api/websocket/error${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws
@@ -104,10 +76,11 @@
             },
             wsMessageHanler(a) {
                 console.log('wsMessageHanler')
-                this.xinxi.jiben = JSON.parse(a.data)
-                console.log(this.xinxi.jiben)
-                //const redata = JSON.parse(e.data)
-                //console.log(redata)
+                this.textarea = this.textarea + e.data;
+                this.$nextTick(()=>{
+                    const textarea = document.getElementById('webt')
+                    textarea.scrollTop = textarea.scrollHeight
+                })
             },
             /**
              * ws通信发生错误

@@ -1,6 +1,6 @@
 <template>
   <div>
-<!--    lishiData  nowData-->
+<!--    lishiData  nowData  tableDataqq-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
@@ -8,28 +8,30 @@
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
     <el-table v-loading="loading"
-              :data="nowData"
-              ref="tree"
+              :data="tableDataqq"
+              ref="treenow"
               v-show="chuci"
+              @row-click="expandChangeone"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
               :cell-style="hongse"
               default-expand-all
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
-      <el-table-column prop="switchIp" label="主机"></el-table-column>
+      <el-table-column prop="switchIp" label="主机" width="150"></el-table-column>
+      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>
       <el-table-column prop="typeProblem" label="问题类型"></el-table-column>
-      <el-table-column prop="problemName" label="问题" ></el-table-column>
+      <el-table-column prop="problemName" label="问题"></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
       <el-table-column prop="solve" label="解决">
         <template slot-scope="scope">
           <el-button size="mini"
                      type="text"
                      icon="el-icon-edit"
-                     v-show="scope.row.ifQuestion==='异常'"
+                     v-show="scope.row.ifQuestion==='异常' && saowanend"
                      @click="xiufu(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
-                     v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')"
-                     @click="xiuall(scope.row)">单台修复</el-button>
+                     v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')&&saowanend"
+                     @click.stop="xiuall(scope.row)">单台修复</el-button>
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
                      @click="xiangqing(scope.row)">详情</el-button>
@@ -37,18 +39,21 @@
       </el-table-column>
     </el-table>
 
+
 <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"
               ref="tree"
               v-show="huisao"
+              @row-click="expandChange"
               style="width: 100%;margin-bottom: 20px;"
               row-key="hproblemId"
               :cell-style="hongse"
               default-expand-all
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
-      <el-table-column prop="createTime" label="扫描时间" min-width="100px"></el-table-column>
-      <el-table-column prop="switchIp" label="主机"></el-table-column>
+      <el-table-column prop="createTime" label="扫描时间" width="180"></el-table-column>
+      <el-table-column prop="switchIp" label="主机" width="130"></el-table-column>
+      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>
       <el-table-column prop="typeProblem" label="问题类型"></el-table-column>
       <el-table-column prop="problemName" label="问题" ></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
@@ -61,16 +66,15 @@
                      @click="xiufuone(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
                      v-show="scope.row.switchIp != undefined"
-                     @click="xiuallone(scope.row)">单台修复</el-button>
+                     @click.stop="xiuallone(scope.row)">单台修复</el-button>
           <el-button style="margin-left: 0" type="success" plain round
             size="small" v-show="scope.row.createTime != undefined"
-                     @click="huitimeyijian(scope.row)">一键修复</el-button>
+                     @click.stop="huitimeyijian(scope.row)">一键修复</el-button>
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
                      @click="xiangqing(scope.row)">详情</el-button>
         </template>
       </el-table-column>
-      <!--      <el-table-column prop="planQuantity"  label="用户名"></el-table-column>-->
     </el-table>
 
 <!--    查看详情-->
@@ -79,7 +83,8 @@
       :visible.sync="dialogVisible"
       width="50%"
       :before-close="handleClose">
-      <TinymceEditor></TinymceEditor>
+<!--      <TinymceEditor :proxiang="proxiang" ref="abc"></TinymceEditor>-->
+      <el-input type="textarea" v-model="particular" rows="15" readonly="true"></el-input>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
     <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -103,16 +108,20 @@
             saowanend:false,
             queryParams:'',
             num:'',
-            alljiao:{
-                allInfo:[
-
-                ]
-            }
         },
         data() {
             return {
+                //详情显示
+                particular:'',
+                proxiang:'',
+                //当前扫描所有交换机登录信息
+                alljiao:{
+                  allInfo:[
+
+                  ]
+                },
                 //禁用一键修复
-                xianshi:false,
+                xianshi:true,
                 //
                 wenbenben:'',
                 dialogVisible:false,
@@ -135,6 +144,7 @@
                 tableDataqq: [
                     {
                         switchIp:'192.168.1.100',
+                        showBasicInfo:'(H3C S2152 5.20.99 1106)',
                         hproblemId:13462523456,
                         children:[
                             {
@@ -206,6 +216,7 @@
                     },
                     {
                         switchIp:'192.168.1.1',
+                        showBasicInfo:'(H3C S2152 5.20.99 1106)',
                         hproblemId:212543,
                         children:[{
                             switchIp:null,
@@ -255,9 +266,18 @@
             const usname = Cookies.get('usName')
         },
         methods: {
+            //展开折叠当前列表
+            expandChange(row){
+                this.$refs.tree.toggleRowExpansion(row)
+            },
+            expandChangeone(row){
+              this.$refs.treenow.toggleRowExpansion(row)
+            },
             //测试总按钮
             testall(){
+                this.$refs.abc.geizi()
               console.log('总测试')
+                console.log(this.saowanend)
             },
             //测试总按钮
             wenben(){
@@ -280,10 +300,18 @@
             },
             //查看详情
             xiangqing(row){
+                this.dialogVisible = true
                 const xiangid = row.problemDescribeId
                 console.log(xiangid)
-                this.dialogVisible = true
-                console.log(row)
+                return request({
+                    url:`/sql/problem_describe/selectProblemDescribe?id=${xiangid}`,
+                    method:'get',
+                }).then(response=>{
+                    console.log(response.problemDescribe)
+                    this.particular = response.problemDescribe
+                    // this.proxiang = response.problemDescribe
+                    // this.$refs.abc.geizi()
+                })
             },
             handleClose(done) {
                 this.$confirm('确认关闭？')
@@ -654,6 +682,22 @@
                         }
                     }
                 }
+                //获取当前扫描的五条登录信息
+                const nowxinxi = []
+                for(let i = 0;i<shu.length;i++){
+                    for (let g = 0;g<shu[i].children.length;g++){
+                        const nowinfo = {}
+                        this.$set(nowinfo,'ip',shu[i].switchIp)
+                        this.$set(nowinfo,'name',shu[i].children[g].switchName)
+                        this.$set(nowinfo,'password',shu[i].children[g].switchPassword)
+                        this.$set(nowinfo,'mode',shu[i].children[g].loginMethod)
+                        this.$set(nowinfo,'port',shu[i].children[g].portNumber)
+                        nowxinxi.push(nowinfo)
+                        break
+                    }
+                }
+                this.alljiao.allInfo = nowxinxi
+                console.log(this.alljiao.allInfo)
                 console.log(this.nowData)
             },
             /**

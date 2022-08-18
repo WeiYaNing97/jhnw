@@ -30,6 +30,7 @@
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
+      <br/>
       <el-form-item label="问题概要:"></el-form-item>
       <el-form-item label="问题类型" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
@@ -38,8 +39,15 @@
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="问题名称">
-        <el-select v-model="queryParams.problemName" placeholder="请选择问题"
+      <el-form-item label="范式名称">
+        <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
+                   filterable allow-create @focus="temPro($event)" @blur="temProShu">
+          <el-option v-for="(item,index) in temProNameList" :key="index"
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="自定义名称">
+        <el-select v-model="queryParams.problemName" placeholder="自定义名称"
                    filterable allow-create @focus="chawenti" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
                      :label="item.problemName" :value="item.problemName"></el-option>
@@ -123,6 +131,7 @@ export default {
         brandList:[],
         fireList:[],
         typeList:[],
+        temProNameList:[],
         subList:[],
         paraList:[],
         wDa:[],
@@ -158,7 +167,17 @@ export default {
       open: false,
       // 查询参数
       queryParams: {
-          commandId:'1'
+          brand: '',
+          type: '',
+          firewareVersion: '',
+          subVersion: '',
+          commandId:'1',
+          problemName:'',
+          notFinished:'---- More ----',
+          typeProblem:'',
+          temProName:'',
+          requiredItems:false,
+          remarks:''
       },
       // 表单参数
       form: {},
@@ -304,6 +323,12 @@ export default {
               this.queryParams.typeProblem = value
           }
       },
+      temProShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.temProName = value
+          }
+      },
       proSelect(e){
           let value = e.target.value
           if(value){
@@ -401,6 +426,21 @@ export default {
           }).then(response=>{
               this.typeProList = response
           })
+      },
+      temPro(e){
+          var type0 = this.queryParams.typeProblem
+          if(type0 != ''){
+              return request({
+                  url:'/sql/total_question_table/temProNamelist',
+                  method:'post',
+                  data:type0
+              }).then(response=>{
+                  this.temProNameList = response
+                  console.log(response)
+              })
+          }else {
+              this.$message.warning('问题类型未选择')
+          }
       },
       //下拉框问题
       chawenti(){

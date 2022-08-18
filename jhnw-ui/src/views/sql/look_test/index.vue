@@ -38,15 +38,22 @@
 <!--        </el-select>-->
 <!--      </el-form-item>-->
       <el-form-item label="问题概要:"></el-form-item>
-      <el-form-item label="问题类型" prop="typeProblem">
-        <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
+      <el-form-item label="范式分类" prop="typeProblem">
+        <el-select v-model="queryParams.typeProblem" placeholder="范式分类"
                    filterable allow-create @focus="proType" @blur="typeProShu">
           <el-option v-for="(item,index) in typeProList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="问题名称">
-        <el-select v-model="queryParams.problemName" placeholder="请选择问题"
+      <el-form-item label="范式名称">
+        <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
+                   filterable allow-create @focus="temPro($event)" @blur="temProShu">
+          <el-option v-for="(item,index) in temProNameList" :key="index"
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="自定义名称">
+        <el-select v-model="queryParams.problemName" placeholder="自定义名称"
                    filterable allow-create @focus="chawenti"
                    @blur="proSelect" @change="cproId">
           <el-option v-for="(item,index) in proNameList" :key="index"
@@ -300,6 +307,7 @@ export default {
         showNo:false,
         checked:false,
         proNameList:[],
+        temProNameList:[],
         typeProList:[],
         brandList:[],
         fireList:[],
@@ -330,6 +338,8 @@ export default {
       // 查询参数
       queryParams: {
         problemName:'',
+        temProName:'',
+        typeProblem:'',
         brand:'',
         type:'',
         firewareVersion:'',
@@ -539,6 +549,12 @@ export default {
               this.queryParams.typeProblem = value
           }
       },
+      temProShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.temProName = value
+          }
+      },
       //下拉框获取后台数据
       brandLi(){
           return request({
@@ -594,10 +610,25 @@ export default {
           return request({
               url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              data:JSON.stringify(this.queryParams)
+              // data:JSON.stringify(this.queryParams)
           }).then(response=>{
               this.typeProList = response
           })
+      },
+      temPro(e){
+          var type0 = this.queryParams.typeProblem
+          if(type0 != ''){
+              return request({
+                  url:'/sql/total_question_table/temProNamelist',
+                  method:'post',
+                  data:type0
+              }).then(response=>{
+                  this.temProNameList = response
+                  console.log(response)
+              })
+          }else {
+              this.$message.warning('问题类型未选择')
+          }
       },
       //下拉框问题
       chawenti(){

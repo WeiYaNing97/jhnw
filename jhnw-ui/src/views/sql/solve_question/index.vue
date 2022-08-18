@@ -30,11 +30,19 @@
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
+      <br/>
       <el-form-item label="问题概要:"></el-form-item>
       <el-form-item label="问题类型" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
                    filterable allow-create @focus="proType" @blur="typeProShu">
           <el-option v-for="(item,index) in typeProList" :key="index"
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="范式名称">
+        <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
+                   filterable allow-create @focus="temPro($event)" @blur="temProShu">
+          <el-option v-for="(item,index) in temProNameList" :key="index"
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
@@ -127,6 +135,7 @@ export default {
       fireList:[],
       typeList:[],
       subList:[],
+        temProNameList:[],
       paraList:[],
       showNo:false,
       wDa:[],
@@ -162,7 +171,15 @@ export default {
       open: false,
       // 查询参数
       queryParams:{
-          commandId:'1'
+          brand: '',
+          type: '',
+          firewareVersion: '',
+          subVersion: '',
+          commandId:'1',
+          problemName:'',
+          notFinished:'---- More ----',
+          typeProblem:'',
+          temProName:'',
       },
       // 表单参数
       form: {},
@@ -176,7 +193,7 @@ export default {
     };
   },
   created() {
-    this.getList();
+    // this.getList();
   },
     mounted:function(){
 
@@ -190,8 +207,11 @@ export default {
       chakan(){
           this.showNo = true
           let form = new FormData();
+          console.log(this.queryParams)
           for (var key in this.queryParams){
-              form.append(key,this.queryParams[key]);
+              if (key != 'notFinished'&&key != 'commandId'){
+                  form.append(key,this.queryParams[key])
+              }
           }
           return request({
               url:'/sql/total_question_table/totalQuestionTableId',
@@ -335,6 +355,12 @@ export default {
               this.queryParams.typeProblem = value
           }
       },
+      temProShu(e){
+          let value = e.target.value
+          if(value){
+              this.queryParams.temProName = value
+          }
+      },
       paraShu(){
           let value = e.target.value
           if(value){
@@ -411,6 +437,21 @@ export default {
           }).then(response=>{
               this.typeProList = response
           })
+      },
+      temPro(e){
+          var type0 = this.queryParams.typeProblem
+          if(type0 != ''){
+              return request({
+                  url:'/sql/total_question_table/temProNamelist',
+                  method:'post',
+                  data:type0
+              }).then(response=>{
+                  this.temProNameList = response
+                  console.log(response)
+              })
+          }else {
+              this.$message.warning('问题类型未选择')
+          }
       },
       //下拉框问题
       chawenti(){

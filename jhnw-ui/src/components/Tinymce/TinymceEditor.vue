@@ -33,6 +33,7 @@
         // name: 'TinymceEditor',
         components: { Editor },
         props: {
+            proxiang:'',
             niucang:'',
             proId:'',
             id: {
@@ -97,14 +98,23 @@
             geifu(){
               return this.editorValue
             },
+            //
+            geizi(){
+                console.log('sss')
+                console.log(this.proxiang)
+                if (this.proxiang != undefined){
+                    this.editorValue = this.proxiang
+                }else {
+                    this.editorValue = ''
+                }
+            },
             // https://github.com/tinymce/tinymce-vue => All available events
 
             handleClick(e) {
                 this.$emit('onClick', e, tinymce)
             },
             clear() {
-                thiseditorValue = ''
-
+                this.editorValue = ''
             }
         }
     }
