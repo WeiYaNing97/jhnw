@@ -611,4 +611,19 @@ public class Utils {
         });
         return dateList;
     }
+
+
+    /*判断 字符串 最后一位 是否为 . 或者 ,*/
+    public static String judgeResultWordSelection(String wordSelectionResult) {
+        String last = wordSelectionResult.substring(wordSelectionResult.length() - 1, wordSelectionResult.length());
+        String[] character = {",","."};
+        for (String judgeChar:character){
+            if (last.equals(judgeChar)){
+                wordSelectionResult = wordSelectionResult.substring(0, wordSelectionResult.length()-1);
+                break;
+            }
+        }
+        return wordSelectionResult;
+    }
+
 }

@@ -104,11 +104,12 @@ public class SolveProblemController {
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum) {
         LoginUser login = SecurityUtils.getLoginUser();
 
+
         //RepairThread repairThread = new RepairThread();
         //repairThread.Solution(login,historyScan,userinformation,problemIdList);
         try {
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
-            repairFixedThreadPool.Solution(login,userinformation,problemIdList,Integer.valueOf(scanNum+"").intValue());
+            repairFixedThreadPool.Solution(login,userinformation,problemIdList,Integer.valueOf(1+"").intValue());//scanNum
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -561,12 +562,12 @@ public class SolveProblemController {
                 for (String string_split:returnString_split){
                     if (!Utils.judgmentError( user_String,string_split)){
                         String userName = loginUser.getUsername();
-                        System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString+"\r\n");
-                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString+"\r\n");
+                        System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+string_split+"\r\n");
+                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+string_split+"\r\n");
                         List<Object> objectList = new ArrayList<>();
-                        objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString));
+                        objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+string_split));
 
-                        return user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+commandString;
+                        return user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+string_split;
 
                     }
                 }

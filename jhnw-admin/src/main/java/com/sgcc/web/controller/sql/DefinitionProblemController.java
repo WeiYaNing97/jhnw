@@ -5,6 +5,7 @@ import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.enums.BusinessType;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.IBasicInformationService;
 import com.sgcc.sql.service.ICommandLogicService;
@@ -54,6 +55,7 @@ public class DefinitionProblemController extends BaseController {
     public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@RequestParam String command){
         BasicInformation basicInformation = new BasicInformation();
         basicInformation.setCommand(command);
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         int i = basicInformationService.insertBasicInformation(basicInformation);
         Long id = basicInformation.getId();
         boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(jsonPojoList,id);
@@ -126,6 +128,7 @@ public class DefinitionProblemController extends BaseController {
         List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
         //String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
             if (i<=0){
                 return false;
@@ -270,6 +273,7 @@ public class DefinitionProblemController extends BaseController {
             if (problemScanLogic.getProblemId()!=null &&problemScanLogic.getProblemId().indexOf("问题")!=-1){
                 totalQuestionTableById = problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length());
             }
+            problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
             if (i<=0){
                 return false;
@@ -279,12 +283,14 @@ public class DefinitionProblemController extends BaseController {
             if (commandLogic.getcLine().equals("1")){
                 commandId = commandLogic.getId();
             }
+            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             int i = commandLogicService.insertCommandLogic(commandLogic);
             if (i<=0){
                 return false;
             }
         }
         if(totalQuestionTableById!=null){
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
             TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
             totalQuestionTable.setCommandId(commandId);
             int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
@@ -777,7 +783,7 @@ public class DefinitionProblemController extends BaseController {
         pojo.setFirewareVersion(totalQuestionTable.getFirewareVersion());
         pojo.setSubVersion(totalQuestionTable.getSubVersion());
         pojo.setProblemName(totalQuestionTable.getProblemName());
-
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(pojo);
 
         if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
@@ -790,6 +796,7 @@ public class DefinitionProblemController extends BaseController {
         do {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String problemID:problemScanLogicIDsplit){
+                commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
                 CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
                 if (commandLogic == null || commandLogic.getProblemId() == null){
                     return null;
@@ -855,6 +862,7 @@ public class DefinitionProblemController extends BaseController {
             String  problemScanID = "";
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String id:problemScanLogicIDsplit){
+                problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
                 if (problemScanLogic ==null){
                     return null;
@@ -1151,9 +1159,10 @@ public class DefinitionProblemController extends BaseController {
             return false;
         }
 
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         String commandId = totalQuestionTable.getCommandId();
-
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         String problemId = commandLogic.getProblemId();
         if (problemId==null || problemId.equals("")){
@@ -1192,6 +1201,7 @@ public class DefinitionProblemController extends BaseController {
             problemScanLogicIdArray[i] = problemScanLogicId;
             i++;
         }
+        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         int j = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicIdArray);
         if (j>0){
             return true;

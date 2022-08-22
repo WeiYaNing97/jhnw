@@ -43,7 +43,10 @@ public class ScanFixedThreadPool {
 
                         SwitchInteraction switchInteraction = new SwitchInteraction();
                         String userName = loginUser.getUsername();
-                        //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
+                        //扫描方法 logInToGetBasicInformation
+                        //传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，loginUser 登录人信息，time 扫描时间
+                        // List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
+                        // 扫描一台交换机 的 所以问题
                         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time,null);
 
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
