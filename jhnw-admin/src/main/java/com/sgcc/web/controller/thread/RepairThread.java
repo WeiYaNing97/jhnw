@@ -36,7 +36,8 @@ public class RepairThread extends Thread  {
     public void run() {
         Thread thread = myThread;
         SolveProblemController solveProblemController = new SolveProblemController();
-        AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
+        /*String userinformation,LoginUser loginUser, List<SwitchProblem> switchProblems ,List<String> problemIds*/
+        //AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblem,problemIds);
 
         thread.interrupt();
     }

@@ -123,4 +123,10 @@ public class SwitchProblemServiceImpl implements ISwitchProblemService
     public SwitchProblem selectSwitchProblemByValueId(Long valueId) {
         return switchProblemMapper.selectSwitchProblemByValueId(valueId);
     }
+
+    /*根据ID集合 查询所有  SwitchProblem 数据*/
+    @Override
+    public List<SwitchProblem> selectPojoByIds(Long[] ids) {
+        return switchProblemMapper.selectPojoByIds(ids);
+    }
 }

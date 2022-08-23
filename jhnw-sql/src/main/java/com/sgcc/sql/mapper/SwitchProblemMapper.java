@@ -70,4 +70,7 @@ public interface SwitchProblemMapper
     List<SwitchProblemVO> selectUnresolvedProblemInformationByIds(@Param("ids") String ids);
 
     List<SwitchProblem> selectSwitchProblemByDate(@Param("sqlString") String sqlString);
+
+    /*根据ID集合 查询所有  SwitchProblem 数据*/
+    List<SwitchProblem> selectPojoByIds(Long[] ids);
 }

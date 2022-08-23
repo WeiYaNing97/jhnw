@@ -104,12 +104,36 @@ public class SolveProblemController {
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum) {
         LoginUser login = SecurityUtils.getLoginUser();
 
+        HashSet<Object> userHashSet = new HashSet<>();
+        for (Object information:userinformation){
+            userHashSet.add(information);
+        }
+
+        List<Object> userObject = new ArrayList<>();
+        for (Object information:userHashSet){
+            userObject.add(information);
+        }
+
+        List<String[]> problemIdArrayList = new ArrayList<>();
+        for (int numberi=0; numberi<userObject.size();numberi++){
+            String useri = (String) userObject.get(numberi);
+            String[] problemIdArray = new String[problemIdList.size()];
+            int number = 0 ;
+            for (int numberj=0; numberj<userinformation.size();numberj++){
+                String userj = (String) userinformation.get(numberj);
+                if (useri.equals(userj)){
+                    problemIdArray[number] = problemIdList.get(numberj);
+                    number++;
+                }
+            }
+            problemIdArrayList.add(problemIdArray);
+        }
 
         //RepairThread repairThread = new RepairThread();
         //repairThread.Solution(login,historyScan,userinformation,problemIdList);
         try {
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
-            repairFixedThreadPool.Solution(login,userinformation,problemIdList,Integer.valueOf(1+"").intValue());//scanNum
+            repairFixedThreadPool.Solution(login,userObject,problemIdArrayList,problemIdList,Integer.valueOf(scanNum+"").intValue());//scanNum
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -125,7 +149,7 @@ public class SolveProblemController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public AjaxResult batchSolution(String userinformation,LoginUser loginUser, SwitchProblem switchProblem ,List<String> problemIds){
+    public AjaxResult batchSolution(String userinformation,LoginUser loginUser, List<SwitchProblem> switchProblems ,List<String> problemIds){
         //用户信息
         String userInformationString = userinformation;
         userInformationString = userInformationString.replace("{","");
@@ -207,8 +231,6 @@ public class SolveProblemController {
             telnetComponent = (TelnetComponent)objectList.get(9);
         }
 
-
-
         //解析返回参数
         informationList = (List<Object>) requestConnect_ajaxResult.get("data");
         //是否连接成功
@@ -228,61 +250,92 @@ public class SolveProblemController {
             if (basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                 return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
             }
-            //交换机基本信息
-            if (user_String.get("ip").equals(switchProblem.getSwitchIp())
-                    && user_String.get("deviceBrand").equals(switchProblem.getBrand())
-                    && user_String.get("deviceModel").equals(switchProblem.getSwitchType())
-                    && user_String.get("firmwareVersion").equals(switchProblem.getFirewareVersion())
-                    && user_String.get("subversionNumber").equals(switchProblem.getSubVersion())){
 
-            }else {
-                return AjaxResult.error("交换机基本信息错误，请检查或重新修改");
-            }
+            List<SwitchProblem> switchProblemPojoList = new ArrayList<>();
 
-            //传参 命令ID 和 参数ID
-            //返回 命令集合 和 参数集合
-            AjaxResult ajaxResult = queryParameterSet(switchProblem.getComId(), switchProblem.getValueId());
+            for (SwitchProblem switchProblem:switchProblems){
+                //交换机基本信息
+                if (user_String.get("ip").equals(switchProblem.getSwitchIp())
+                        && user_String.get("deviceBrand").equals(switchProblem.getBrand())
+                        && user_String.get("deviceModel").equals(switchProblem.getSwitchType())
+                        && user_String.get("firmwareVersion").equals(switchProblem.getFirewareVersion())
+                        && user_String.get("subversionNumber").equals(switchProblem.getSubVersion())){
+                    switchProblemPojoList.add(switchProblem);
+                }else {
+                    totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+                    TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(switchProblem.getProblemId()).longValue());
 
-            Object[] commandvalue =  (Object[])ajaxResult.get("data");
-
-            if (commandvalue.length == 1){
-                List<String> commandList = (List<String>) commandvalue[0];
-                String command = commandList.get(0);
-                if (command == "未定义解决问题命令"){
-                     return  AjaxResult.error("未定义解决问题命令");
+                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
+                            +totalQuestionTable.getTypeProblem()+"-"+totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName()+"\r\n"
+                            +"交换机基本信息不一致");
                 }
             }
+            if (switchProblemPojoList.size() == 0){
+                getUnresolvedProblemInformationByIds(loginUser,problemIds);
 
-            //命令集合
-            List<String> commandList = (List<String>) commandvalue[0];
-            if (commandList == null){
-                return AjaxResult.error("未定义解决问题命令");
+                if (requestConnect_way.equalsIgnoreCase("ssh")){
+                    connectMethod.closeConnect(sshConnect);
+                }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                    telnetSwitchMethod.closeSession(telnetComponent);
+                }
+
+                return AjaxResult.success("修复结束");
             }
-            //参数集合
-            List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
-            //解决问题
-            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-            TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(switchProblem.getProblemId()).longValue());
-            String solveProblem = solveProblem(user_String,loginUser,informationList,totalQuestionTable, commandList, valueInformationVOList);//userName
 
-            if (solveProblem.equals("成功")){
-                switchProblem.setResolved("是");
-                switchProblem.setIfQuestion("无问题");
-                switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
-                int i = switchProblemService.updateSwitchProblem(switchProblem);
-                if (i<=0){
 
-                    if (requestConnect_way.equalsIgnoreCase("ssh")){
-                        connectMethod.closeConnect(sshConnect);
-                    }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                        telnetSwitchMethod.closeSession(telnetComponent);
+            for (SwitchProblem switchProblem:switchProblemPojoList){
+                //传参 命令ID 和 参数ID
+                //返回 命令集合 和 参数集合
+                AjaxResult ajaxResult = queryParameterSet(switchProblem.getComId(), switchProblem.getValueId());
+                totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+                TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(switchProblem.getProblemId()).longValue());
+                Object[] commandvalue =  (Object[])ajaxResult.get("data");
+
+                if (commandvalue.length == 1){
+                    List<String> commandList = (List<String>) commandvalue[0];
+                    String command = commandList.get(0);
+                    if (command == "未定义解决问题命令"){
+
+                        WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
+                                +totalQuestionTable.getTypeProblem()+"-"+totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName()+"\r\n"
+                                +"未定义解决问题命令");
+                        break;
                     }
-
-                    return AjaxResult.error("修复失败");
                 }
-            }
-            if(solveProblem.indexOf("错误") != -1){
-                return AjaxResult.error("修复失败");
+
+                //命令集合
+                List<String> commandList = (List<String>) commandvalue[0];
+                if (commandList == null){
+                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
+                            +totalQuestionTable.getTypeProblem()+"-"+totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName()+"\r\n"
+                            +"未定义解决问题命令");
+                    break;
+                }
+
+                //参数集合
+                List<ValueInformationVO> valueInformationVOList = (List<ValueInformationVO>)commandvalue[1];
+
+                //解决问题
+                String solveProblem = solveProblem(user_String,loginUser,informationList,totalQuestionTable, commandList, valueInformationVOList);//userName
+
+                if (solveProblem.equals("成功")){
+                    switchProblem.setResolved("是");
+                    switchProblem.setIfQuestion("无问题");
+                    switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
+                    int i = switchProblemService.updateSwitchProblem(switchProblem);
+                    if (i<=0){
+                        WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
+                                +totalQuestionTable.getTypeProblem()+"-"+totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName()+"\r\n"
+                                +"修复失败");
+                    }
+                }
+                if(solveProblem.indexOf("错误") != -1){
+                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
+                            +totalQuestionTable.getTypeProblem()+"-"+totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName()+"\r\n"
+                            +"修复失败");
+                }
+
+                getUnresolvedProblemInformationByIds(loginUser,problemIds);
             }
 
             getUnresolvedProblemInformationByIds(loginUser,problemIds);
@@ -293,7 +346,7 @@ public class SolveProblemController {
                 telnetSwitchMethod.closeSession(telnetComponent);
             }
 
-            return AjaxResult.success("修复成功");
+            return AjaxResult.success("修复结束");
         }
         return AjaxResult.error("交换机连接失败");
     }

@@ -70,4 +70,6 @@ public interface ISwitchProblemService
     List<SwitchProblemVO> selectUnresolvedProblemInformationByIds(Long[] id);
 
     List<SwitchProblem> selectSwitchProblemByDate(String data);
+    /*根据ID集合 查询所有  SwitchProblem 数据*/
+    List<SwitchProblem> selectPojoByIds(Long[] ids);
 }
