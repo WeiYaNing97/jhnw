@@ -3,7 +3,6 @@
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
-        <el-button type="primary" icon="el-icon-search" size="small" @click="specialSao">专项扫描</el-button>
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
@@ -412,15 +411,13 @@ export default {
       },
       //测试
       weigong(){
-          // console.log(this.$refs.webone.geifuone())
           console.log(this.$refs.treeone.getCheckedKeys())
-          // return request({
-          //     // url:'/sql/SwitchInteraction/directionalScann',
-          //     // url:'/sql/SwitchInteraction/getCiphertext',
-          //     method:'post',
-          // }).then(response=>{
-          //     console.log(response)
-          // })
+          return request({
+              url:'/sql/total_question_table/judgeSuperAdministrator',
+              method:'post',
+          }).then(response=>{
+              console.log('我是返回')
+          })
       },
       //导入弹窗确定
       daorusure(){
@@ -507,10 +504,6 @@ export default {
           };
           // 读取文件 成功后执行上面的回调函数
           fileReader.readAsBinaryString(file)
-      },
-      //专项扫描
-      specialSao(){
-
       },
       //一键扫描
       saomiao(){

@@ -332,9 +332,13 @@
     <el-dialog
       title="提示"
       :visible.sync="dialogVisibleHelp"
+      style="padding: 10px"
       width="30%"
       :before-close="handleClose">
-      <span>这是一段信息</span>
+      <div>
+        <h3 style="font-weight: bolder"><a href="#pinpai">品牌</a></h3>
+        <p>请输入品牌：</p>
+      </div>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisibleHelp = false">取 消</el-button>
     <el-button type="primary" @click="dialogVisibleHelp = false">确 定</el-button>
@@ -1121,5 +1125,11 @@ export default {
   .el-form-item{
     margin-top: 10px;
     margin-bottom: 10px;
+  }
+  .el-dialog__header{
+    padding: 10px;
+  }
+  .el-dialog__body{
+    padding: 10px;
   }
 </style>

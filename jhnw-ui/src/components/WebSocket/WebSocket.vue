@@ -38,6 +38,9 @@
                 if (this.textarea.includes('扫描结束')){
                     this.saoend = true
                 }
+                // if (this.textarea.includes('修复结束')){
+                //     this.saoend = true
+                // }
             }
         },
         created(){
