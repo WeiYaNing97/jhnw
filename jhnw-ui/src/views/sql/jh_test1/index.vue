@@ -36,11 +36,6 @@
                        :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
           </el-select>
         </el-form-item>
-      <el-form-item label="标识符">
-        <el-input v-model="queryParams.notFinished"
-                  clearable
-                  @focus="biaoshi($event)" name="biaoshi"></el-input>
-      </el-form-item>
 <!--        <el-form-item>-->
 <!--          <el-button type="primary" @click="tianjia(item)"><i class="el-icon-plus"></i></el-button>-->
 <!--        </el-form-item>-->
@@ -73,11 +68,18 @@
                      :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
+      <br/>
+      <el-form-item label="其它:"></el-form-item>
       <el-form-item>
         <el-checkbox v-model="queryParams.requiredItems">必扫问题</el-checkbox>
       </el-form-item>
       <el-form-item label="备注">
         <el-input v-model="queryParams.remarks"></el-input>
+      </el-form-item>
+      <el-form-item label="标识符">
+        <el-input v-model="queryParams.notFinished"
+                  clearable
+                  @focus="biaoshi($event)" name="biaoshi"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="tiwenti">提交问题</el-button>
@@ -304,14 +306,12 @@
 
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
-        <el-button @click="ceshi" type="primary">测试按钮</el-button>
+        <el-button @click="guanbi" type="primary">关闭</el-button>
+<!--        <el-button @click="ceshi" type="primary">测试按钮</el-button>-->
 <!--        有用-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="onSubmit">提交</el-button>-->
-<!--      </el-form-item>-->
 
     </el-form>
 
@@ -327,6 +327,19 @@
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
     </vue-context-menu>
 
+<!--    帮助-->
+    <el-button @click="bangzhu">帮助</el-button>
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisibleHelp"
+      width="30%"
+      :before-close="handleClose">
+      <span>这是一段信息</span>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisibleHelp = false">取 消</el-button>
+    <el-button type="primary" @click="dialogVisibleHelp = false">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -342,6 +355,8 @@ export default {
     },
   data() {
     return {
+        //帮助
+        dialogVisibleHelp:false,
         //问题详情
         particular:'',
         partShow:false,
@@ -434,6 +449,17 @@ export default {
       // this.jiazai()
   },
   methods: {
+      //帮助
+      bangzhu(){
+          this.dialogVisibleHelp = true
+      },
+      handleClose(done) {
+          this.$confirm('确认关闭？')
+              .then(_ => {
+                  done();
+              })
+              .catch(_ => {});
+      },
       //重新赋值
       reloadv(){
 
@@ -442,9 +468,6 @@ export default {
       ceshi(){
         console.log(this.forms.dynamicItem)
           alert(JSON.stringify(this.forms.dynamicItem))
-          this.forms.dynamicItem.forEach(e=>{
-
-          })
       },
       jiazai(){
         alert('加载')
@@ -573,7 +596,6 @@ export default {
           return request({
               url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              // data:JSON.stringify(this.queryParams)
           }).then(response=>{
               console.log(response)
               this.typeProList = response
@@ -587,8 +609,8 @@ export default {
                   method:'post',
                   data:type0
               }).then(response=>{
-                  this.temProNameList = response
                   console.log(response)
+                  this.temProNameList = response
               })
           }else {
               this.$message.warning('问题类型未选择')
@@ -751,11 +773,11 @@ export default {
                   this.partShow = true
                   this.proId = response
               }else {
-                  this.$message.error('没有定义该问题,请先定义问题在定义详情！')
+                  this.$message.error('没有定义该问题,请先定义问题！')
               }
           })
       },
-      //提交问题详情
+      //富文本提交问题详情
       look(){
           console.log(this.proId)
           console.log(this.$refs.fuwenben.geifu())
@@ -769,7 +791,7 @@ export default {
           //     // url:`/dev-api/sql/ConnectController/ssssss?ass=${this.proId}`,
           //     // url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
       },
-      //文本提交问题详情
+      //普通文本提交问题详情
       partsub(){
           console.log(this.proId)
           console.log(this.particular)
@@ -948,36 +970,36 @@ export default {
           })
           this.forms.dynamicItem.splice(shaAll,1)
       },
-      proname(){
-          // console.log(item.prodes)
-          var proNamess = ""
-          this.forms.dynamicItem.map((item)=>{
-              proNamess = item.prodes
-          })
-          alert(proNamess)
-      },
+      // proname(){
+      //     // console.log(item.prodes)
+      //     var proNamess = ""
+      //     this.forms.dynamicItem.map((item)=>{
+      //         proNamess = item.prodes
+      //     })
+      //     alert(proNamess)
+      // },
       //解决问题
-      jiejue(){
-        this.$router.push('solve_question')
-          var arr = []
-          function getJson(key,jsonObj){
-              for(var index in jsonObj){
-                  getJson1(key,jsonObj[index]);
-              }
-          }
-          function getJson1(key,jsonObj){
-              for (var p1 in jsonObj) {
-                  if(p1 === key){
-                      console.log(jsonObj[key]);
-                      arr.push(jsonObj[key])
-                  }else if(jsonObj[p1] instanceof Array) {
-                      getJson(key,jsonObj[p1]);
-                  }
-              }
-          }
-          getJson('wordName',this.forms.dynamicItem);
-          alert(arr)
-      },
+      // jiejue(){
+      //   this.$router.push('solve_question')
+      //     var arr = []
+      //     function getJson(key,jsonObj){
+      //         for(var index in jsonObj){
+      //             getJson1(key,jsonObj[index]);
+      //         }
+      //     }
+      //     function getJson1(key,jsonObj){
+      //         for (var p1 in jsonObj) {
+      //             if(p1 === key){
+      //                 console.log(jsonObj[key]);
+      //                 arr.push(jsonObj[key])
+      //             }else if(jsonObj[p1] instanceof Array) {
+      //                 getJson(key,jsonObj[p1]);
+      //             }
+      //         }
+      //     }
+      //     getJson('wordName',this.forms.dynamicItem);
+      //     alert(arr)
+      // },
 
       //初次提交定义问题
       tijiao(){
@@ -1029,6 +1051,10 @@ export default {
           })
           // window.location.reload()   刷新页面
           // this.$router.go(0)   刷新页面
+      },
+      //关闭定义问题
+      guanbi(){
+          this.chuxian = false
       },
 
     // 表单重置

@@ -3,6 +3,7 @@
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
+        <el-button type="primary" icon="el-icon-search" size="small" @click="specialSao">专项扫描</el-button>
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
@@ -84,7 +85,7 @@
           <div>
             <el-input
               v-model="deptName"
-              placeholder="请输入查询"
+              placeholder="请输入查找内容"
               clearable
               size="small"
               prefix-icon="el-icon-search"
@@ -215,7 +216,7 @@ export default {
   data() {
     return {
         //扫描项目选择是否显示
-        showxiang:false,
+        showxiang:true,
         //定时接收true或者false
         torf:false,
         //是否扫描完成
@@ -235,38 +236,9 @@ export default {
         xuanzhong:[
 
         ],
-        fenxiang: [{
-            label: '安全配置',
-            id:1,
-            children: [{
-                label: '密码明文存储',
-                id:2,
-                children:[
-                    {
-                        label: 'H3C密码明文存储',
-                        id:3,
-                    },
-                    {
-                        label: 'Cisco密码明文存储',
-                        id:4,
-                    }
-                ]
-            }]
-        }, {
-            id:5,
-            label: '设备缺陷',
-            children: [{
-                label: '开启telnet',
-                id:6,
-            }]
-        }, {
-            id:7,
-            label: '设备故障',
-            children: [{
-                label: '开启telnet',
-                id:8,
-            }]
-        }],
+        fenxiang: [
+
+        ],
         defaultProps: {
             children: 'children',
             label: 'label'
@@ -536,6 +508,10 @@ export default {
           // 读取文件 成功后执行上面的回调函数
           fileReader.readAsBinaryString(file)
       },
+      //专项扫描
+      specialSao(){
+
+      },
       //一键扫描
       saomiao(){
           //定时获取是否扫描结束
@@ -560,23 +536,34 @@ export default {
           const scanNum = this.num
           //专项扫描的所有id
           var zhuanid = this.$refs.treeone.getCheckedKeys()
-          const zhuanidend = []
+          const totalQuestionTableId = []
           for(let i = 0;i<=zhuanid.length;i++){
               if (typeof(zhuanid[i])!='undefined'){
-                  zhuanidend.push(zhuanid[i])
+                  totalQuestionTableId.push(zhuanid[i])
               }
           }
-          console.log(zhuanidend)
+          console.log(totalQuestionTableId)
           console.log(zuihou)
           let zuihouall = zuihou.map(x=>JSON.stringify(x))
-          return request({
-              // url:'http://192.168.0.102/dev-api/sql/SwitchInteraction/multipleScans',
-              url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
-              method:'post',
-              data:zuihouall
-          }).then(response=>{
-              this.$message.success('扫描请求以提交!')
-          })
+          if(totalQuestionTableId.length == 0){
+              console.log('全部扫描')
+              return request({
+                  url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+                  method:'post',
+                  data:zuihouall
+              }).then(response=>{
+                  this.$message.success('扫描请求以提交!')
+              })
+          }else {
+              console.log('专项扫描')
+              return request({
+                  url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
+                  method:'post',
+                  data:zuihouall
+              }).then(response=>{
+                  this.$message.success('扫描请求以提交!')
+              })
+          }
       },
       // //新增表单项
       // addItem(length) {

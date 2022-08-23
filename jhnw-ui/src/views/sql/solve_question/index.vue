@@ -50,7 +50,7 @@
         <el-select v-model="queryParams.problemName" placeholder="请选择问题"
                    filterable allow-create @focus="chawenti" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
-                     :label="item.problemName" :value="item.problemName"></el-option>
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -135,7 +135,7 @@ export default {
       fireList:[],
       typeList:[],
       subList:[],
-        temProNameList:[],
+      temProNameList:[],
       paraList:[],
       showNo:false,
       wDa:[],
@@ -205,7 +205,6 @@ export default {
       },
       //获取该问题ID
       chakan(){
-          this.showNo = true
           let form = new FormData();
           console.log(this.queryParams)
           for (var key in this.queryParams){
@@ -218,8 +217,14 @@ export default {
               method:'post',
               data:form
           }).then(response=>{
-              this.proId = response
-              console.log(this.proId)
+              if (typeof (response) === 'number'){
+                  this.showNo = true
+                  this.proId = response
+                  console.log(this.proId)
+              }else {
+                  this.$message.warning('未定义该问题!请先定义问题!')
+              }
+
           })
       },
       //提交
@@ -433,7 +438,6 @@ export default {
           return request({
               url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              data:JSON.stringify(this.queryParams)
           }).then(response=>{
               this.typeProList = response
           })
@@ -454,13 +458,27 @@ export default {
           }
       },
       //下拉框问题
-      chawenti(){
+      chawenti(e){
+          const wentilist = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          const firO = this.queryParams.firewareVersion
+          const subO = this.queryParams.subVersion
+          const protypeO = this.queryParams.typeProblem
+          const pronameO = this.queryParams.temProName
+          this.$set(wentilist,'brand',brandO)
+          this.$set(wentilist,'type',typeO)
+          this.$set(wentilist,'firewareVersion',firO)
+          this.$set(wentilist,'subVersion',subO)
+          this.$set(wentilist,'typeProblem',protypeO)
+          this.$set(wentilist,'temProName',pronameO)
           return request({
-              url:'/sql/total_question_table/list',
+              url:'/sql/total_question_table/problemNameList',
               method:'post',
-              data:JSON.stringify(this.queryParams)
+              data:JSON.stringify(wentilist)
           }).then(response=>{
-              this.proNameList = response.rows
+              console.log(response)
+              this.proNameList = response
           })
       },
 

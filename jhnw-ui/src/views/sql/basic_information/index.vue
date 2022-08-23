@@ -218,11 +218,7 @@
         <el-button @click="ceshi" type="primary">测试按钮</el-button>
         <!--        有用-->
         <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
-        <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
-      <!--      <el-form-item>-->
-      <!--        <el-button type="primary" @click="onSubmit">提交</el-button>-->
-      <!--      </el-form-item>-->
 
     </el-form>
 
@@ -851,14 +847,6 @@
                     }
                 })
                 this.forms.dynamicItem.splice(shaAll,1)
-            },
-            proname(){
-                // console.log(item.prodes)
-                var proNamess = ""
-                this.forms.dynamicItem.map((item)=>{
-                    proNamess = item.prodes
-                })
-                alert(proNamess)
             },
             //解决问题
             jiejue(){

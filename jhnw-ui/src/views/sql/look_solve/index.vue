@@ -50,7 +50,7 @@
         <el-select v-model="queryParams.problemName" placeholder="自定义名称"
                    filterable allow-create @focus="chawenti" @blur="proSelect">
           <el-option v-for="(item,index) in proNameList" :key="index"
-                     :label="item.problemName" :value="item.problemName"></el-option>
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -193,7 +193,7 @@ export default {
       //先返回该问题ID，然后回显
       chakan(){
           this.showNo = true
-          alert(JSON.stringify(this.queryParams))
+          console.log(this.queryParams)
           let form = new FormData();
           for (var key in this.queryParams){
               form.append(key,this.queryParams[key]);
@@ -285,6 +285,7 @@ export default {
               method:'post',
               data:handForm
           }).then(response=>{
+              this.$message.success('提交成功!')
               console.log("成功")
           })
       },
@@ -371,7 +372,7 @@ export default {
       brandLi(){
           return request({
               url:'/sql/total_question_table/brandlist',
-              method:'post',
+              method:'get'
           }).then(response=>{
               this.brandList = response
           })
@@ -422,8 +423,8 @@ export default {
           return request({
               url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              data:JSON.stringify(this.queryParams)
           }).then(response=>{
+              console.log(response)
               this.typeProList = response
           })
       },
@@ -435,8 +436,8 @@ export default {
                   method:'post',
                   data:type0
               }).then(response=>{
-                  this.temProNameList = response
                   console.log(response)
+                  this.temProNameList = response
               })
           }else {
               this.$message.warning('问题类型未选择')
@@ -444,12 +445,26 @@ export default {
       },
       //下拉框问题
       chawenti(){
+          const wentilist = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          const firO = this.queryParams.firewareVersion
+          const subO = this.queryParams.subVersion
+          const protypeO = this.queryParams.typeProblem
+          const pronameO = this.queryParams.temProName
+          this.$set(wentilist,'brand',brandO)
+          this.$set(wentilist,'type',typeO)
+          this.$set(wentilist,'firewareVersion',firO)
+          this.$set(wentilist,'subVersion',subO)
+          this.$set(wentilist,'typeProblem',protypeO)
+          this.$set(wentilist,'temProName',pronameO)
           return request({
-              url:'/sql/total_question_table/list',
+              url:'/sql/total_question_table/problemNameList',
               method:'post',
-              data:JSON.stringify(this.queryParams)
+              data:JSON.stringify(wentilist)
           }).then(response=>{
-              this.proNameList = response.rows
+              console.log(response)
+              this.proNameList = response
           })
       },
       //全选
@@ -526,63 +541,6 @@ export default {
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加查看解决";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const command = row.command || this.ids
-      getLook_solve(command).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改查看解决";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.command != null) {
-            updateLook_solve(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addLook_solve(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const commands = row.command || this.ids;
-      this.$modal.confirm('是否确认删除查看解决编号为"' + commands + '"的数据项？').then(function() {
-        return delLook_solve(commands);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$modal.confirm('是否确认导出所有查看解决数据项？').then(() => {
-        this.exportLoading = true;
-        return exportLook_solve(queryParams);
-      }).then(response => {
-        this.$download.name(response.msg);
-        this.exportLoading = false;
-      }).catch(() => {});
-    }
   }
 };
 </script>

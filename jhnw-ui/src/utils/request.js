@@ -88,9 +88,6 @@ service.interceptors.response.use(res => {
     if (message == "Network Error") {
       message = "后端接口连接异常";
     }
-    else if (message.includes("timeout")) {
-      message = "系统接口请求超时";
-    }
     else if (message.includes("Request failed with status code")) {
       message = "系统接口" + message.substr(message.length - 3) + "异常";
     }

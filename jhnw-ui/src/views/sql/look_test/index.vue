@@ -23,8 +23,8 @@
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="子版本" prop="subversionNumber">
-        <el-select v-model="queryParams.subversionNumber" placeholder="子版本"
+      <el-form-item label="子版本" prop="subversion">
+        <el-select v-model="queryParams.subversion" placeholder="子版本"
                    filterable allow-create @blur="subShu" @focus="subLi" style="width: 150px">
           <el-option v-for="(item,index) in subList"
                      :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
@@ -57,7 +57,7 @@
                    filterable allow-create @focus="chawenti"
                    @blur="proSelect" @change="cproId">
           <el-option v-for="(item,index) in proNameList" :key="index"
-                     :label="item.problemName" :value="item.problemName"></el-option>
+                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -67,9 +67,9 @@
       <el-form-item>
         <el-button type="primary" @click="xiugai" icon="el-icon-edit" :disabled="isUse">修改</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="gaibian">改变</el-button>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="gaibian">改变</el-button>-->
+<!--      </el-form-item>-->
     </el-form>
 
     <hr style='border:1px inset #D2E9FF;'>
@@ -343,7 +343,7 @@ export default {
         brand:'',
         type:'',
         firewareVersion:'',
-        subversionNumber:'',
+        subversion:'',
         commandId:'1'
       },
       // 表单参数
@@ -392,7 +392,7 @@ export default {
     computed:{
       // isNull(){
       //     return this.queryParams.brand != '' && this.queryParams.type != ''
-      //         && this.queryParams.firewareVersion != '' && this.queryParams.subversionNumber != ''
+      //         && this.queryParams.firewareVersion != '' && this.queryParams.subversion != ''
       //         && this.queryParams.problemName != ''
       // },
       isUse(){
@@ -487,46 +487,53 @@ export default {
           this.newValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
           // alert(JSON.stringify(this.newValue))
           // alert(JSON.stringify(this.oldValue))
-          if (this.isChange){
-              // MessageBox.confirm('确定提交吗？','提示').then(c=>{
-              //     alert('sss')
-              // }).catch(ee=>{
-              //     alert('quxiao')
-              // })
-              alert('改变了'+this.isChange)
-              axios({
-                  method:'post',
-                  // url:'/dev-api/sql/ConnectController/definitionProblem',
-                  // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
-                  headers:{
-                      "Content-Type": "application/json"
-                      // "Content-Type": "multipart/form-data"
-                  },
-                  data:handForm
-                  // data:form1
-              }).then(res=>{
-                  console.log("成功")
-              })
-          }else {
-              // alert(this.isChange)
-              MessageBox.confirm('未检测到修改，是否提交？','提示').then(c=>{
-                  axios({
-                      method:'post',
-                      // url:'/dev-api/sql/ConnectController/definitionProblem',
-                      // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
-                      headers:{
-                          "Content-Type": "application/json"
-                          // "Content-Type": "multipart/form-data"
-                      },
-                      data:handForm
-                      // data:form1
-                  }).then(res=>{
-                      console.log("成功")
-                  })
-              }).catch(ee=>{
-                  console.log("取消提交")
-              })
-          }
+          return request({
+              url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+              method:'post',
+              data:handForm
+          }).then(response=>{
+              this.$message.success('提交修改成功!')
+          })
+          // if (this.isChange){
+          //     // MessageBox.confirm('确定提交吗？','提示').then(c=>{
+          //     //     alert('sss')
+          //     // }).catch(ee=>{
+          //     //     alert('quxiao')
+          //     // })
+          //     alert('改变了'+this.isChange)
+          //     axios({
+          //         method:'post',
+          //         // url:'/dev-api/sql/ConnectController/definitionProblem',
+          //         // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+          //         headers:{
+          //             "Content-Type": "application/json"
+          //             // "Content-Type": "multipart/form-data"
+          //         },
+          //         data:handForm
+          //         // data:form1
+          //     }).then(res=>{
+          //         console.log("成功")
+          //     })
+          // }else {
+          //     // alert(this.isChange)
+          //     MessageBox.confirm('未检测到修改，是否提交？','提示').then(c=>{
+          //         axios({
+          //             method:'post',
+          //             // url:'/dev-api/sql/ConnectController/definitionProblem',
+          //             // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+          //             headers:{
+          //                 "Content-Type": "application/json"
+          //                 // "Content-Type": "multipart/form-data"
+          //             },
+          //             data:handForm
+          //             // data:form1
+          //         }).then(res=>{
+          //             console.log("成功")
+          //         })
+          //     }).catch(ee=>{
+          //         console.log("取消提交")
+          //     })
+          // }
       },
       //下拉框输入
       brandShu(e){
@@ -550,7 +557,7 @@ export default {
       subShu(e){
           let value = e.target.value
           if(value){
-              this.queryParams.subversionNumber = value
+              this.queryParams.subversion = value
           }
       },
       typeProShu(e){
@@ -620,7 +627,6 @@ export default {
           return request({
               url:'/sql/total_question_table/typeProblemlist',
               method:'post',
-              // data:JSON.stringify(this.queryParams)
           }).then(response=>{
               this.typeProList = response
           })
@@ -642,12 +648,26 @@ export default {
       },
       //下拉框问题
       chawenti(){
+          const wentilist = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          const firO = this.queryParams.firewareVersion
+          const subO = this.queryParams.subversion
+          const protypeO = this.queryParams.typeProblem
+          const pronameO = this.queryParams.temProName
+          this.$set(wentilist,'brand',brandO)
+          this.$set(wentilist,'type',typeO)
+          this.$set(wentilist,'firewareVersion',firO)
+          this.$set(wentilist,'subversion',subO)
+          this.$set(wentilist,'typeProblem',protypeO)
+          this.$set(wentilist,'temProName',pronameO)
           return request({
-              url:'/sql/total_question_table/list',
+              url:'/sql/total_question_table/problemNameList',
               method:'post',
-              data:JSON.stringify(this.queryParams)
+              data:JSON.stringify(wentilist)
           }).then(response=>{
-              this.proNameList = response.rows
+              console.log(response)
+              this.proNameList = response
           })
       },
       proSelect(e){
@@ -659,15 +679,17 @@ export default {
       //获取问题ID
       cproId(){
           this.$delete(this.queryParams,'commandId')
-          let form = new FormData();
+          let form = new FormData()
+          console.log(this.queryParams)
           for (var key in this.queryParams){
-              form.append(key,this.queryParams[key]);
+              form.append(key,this.queryParams[key])
           }
           return request({
               url:'/sql/total_question_table/totalQuestionTableId',
               method:'post',
               data:form
           }).then(response=>{
+              console.log(response)
               this.proId = response
           })
       },
@@ -735,7 +757,6 @@ export default {
                       huicha.push(chae)
                   }else if (chae.action === '取词'){
                       this.$set(chae,'targetType','takeword')
-                      // console.log(chae.length.slice(chae.length.length-1))
                       // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
                       console.log(chae.length.slice(chae.length.length-1))
                       if (chae.length.slice(chae.length.length-1) === 'W'){
@@ -791,93 +812,13 @@ export default {
               this.forms.dynamicItem = this.forms.dynamicItem.concat(huicha)
               this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
           })
-          // axios({
-          //     method:'post',
-          //     url:'/dev-api/sql/DefinitionProblemController/getAnalysisList',
-          //     headers:{
-          //         "Content-Type": "application/json"
-          //     },
-          //     data:JSON.stringify(this.queryParams)
-          // }).then(res=>{
-          //     console.log(res.data)
-          //     console.log(typeof (res.data))
-          //     res.data.forEach(l=>{
-          //         const wei = l.replace(/"=/g,'":')
-          //         this.fDa.push(JSON.parse(wei))
-          //     })
-          //     alert(JSON.stringify(this.fDa))
-          //     const huicha = []
-          //     const quanjf = ''
-          //     const hangjf = ''
-          //     const quanmf = ''
-          //     const hangmf = ''
-          //     const bif = ''
-          //     this.fDa.forEach(chae=>{
-          //         if (chae.hasOwnProperty('command') == true){
-          //             this.$set(chae,'targetType','command')
-          //             if (chae.resultCheckId === 0){
-          //                 this.$set(chae,'resultCheckId','自定义校验')
-          //             }else  if (chae.resultCheckId === 1){
-          //                 this.$set(chae,'resultCheckId','常规校验')
-          //             }
-          //             huicha.push(chae)
-          //         }else if (chae.matched === '全文精确匹配'){
-          //             this.$set(chae,'targetType','match')
-          //             huicha.push(chae)
-          //             this.quanjf = chae.onlyIndex
-          //         }else if(chae.onlyIndex === this.quanjf && chae.trueFalse === '失败'){
-          //             this.$set(chae,'targetType','matchfal')
-          //             huicha.push(chae)
-          //         }else if (chae.matched === '按行精确匹配'){
-          //             this.$set(chae,'targetType','lipre')
-          //             huicha.push(chae)
-          //             this.hangjf = chae.onlyIndex
-          //         }else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败'){
-          //             this.$set(chae,'targetType','liprefal')
-          //             huicha.push(chae)
-          //         }else if (chae.action === '取词'){
-          //             this.$set(chae,'targetType','takeword')
-          //             huicha.push(chae)
-          //         }else if (chae.matched === '全文模糊匹配'){
-          //             this.$set(chae,'targetType','dimmatch')
-          //             huicha.push(chae)
-          //             this.quanmf = chae.onlyIndex
-          //         }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
-          //             this.$set(chae,'targetType','dimmatchfal')
-          //             huicha.push(chae)
-          //         }else if (chae.matched === '按行模糊匹配'){
-          //             this.$set(chae,'targetType','dimpre')
-          //             huicha.push(chae)
-          //             this.hangmf = chae.onlyIndex
-          //         }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
-          //             this.$set(chae,'targetType','dimprefal')
-          //             huicha.push(chae)
-          //         }else if (chae.action === '问题'){
-          //             this.$set(chae,'targetType','prodes')
-          //             huicha.push(chae)
-          //         }else if (chae.action === '循环'){
-          //             this.$set(chae,'targetType','wloop')
-          //             huicha.push(chae)
-          //         }else if (chae.action === '比较'){
-          //             this.$set(chae,'targetType','analyse')
-          //             huicha.push(chae)
-          //             this.bif = chae.onlyIndex
-          //         }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
-          //             this.$set(chae,'targetType','analysefal')
-          //             huicha.push(chae)
-          //         }
-          //     })
-          //     huicha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
-          //     this.forms.dynamicItem = this.forms.dynamicItem.concat(huicha)
-          //     this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
-          // })
       },
       //编辑
       xiugai(){
           MessageBox.confirm('确定去修改吗？','提示').then(c=>{
               this.zhidu = false
           }).catch(ee=>{
-              alert('取消修改')
+              this.$message.warning('取消修改!')
           })
 
       },
@@ -1034,69 +975,6 @@ export default {
       this.resetForm("queryForm");
       this.handleQuery();
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id)
-      this.single = selection.length!==1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加查看问题";
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset();
-      const id = row.id || this.ids
-      getLook_test(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改查看问题";
-      });
-    },
-    /** 提交按钮 */
-    submitForm() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          if (this.form.id != null) {
-            updateLook_test(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addLook_test(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
-        }
-      });
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除查看问题编号为"' + ids + '"的数据项？').then(function() {
-        return delLook_test(ids);
-      }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryParams = this.queryParams;
-      this.$modal.confirm('是否确认导出所有查看问题数据项？').then(() => {
-        this.exportLoading = true;
-        return exportLook_test(queryParams);
-      }).then(response => {
-        this.$download.name(response.msg);
-        this.exportLoading = false;
-      }).catch(() => {});
-    }
   }
 };
 </script>
