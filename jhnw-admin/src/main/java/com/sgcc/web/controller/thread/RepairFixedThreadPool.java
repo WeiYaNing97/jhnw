@@ -61,8 +61,8 @@ public class RepairFixedThreadPool {
                 List<String> problemIds = problemIdStrings;
                 LoginUser loginUser = user;
 
-
                 fixedThreadPool.submit(new Thread(new Runnable() {
+
                     @Override
                     public void run() {
                         try {
@@ -82,6 +82,7 @@ public class RepairFixedThreadPool {
                             countDownLatch.countDown();
                         }
                     }
+
                 }));
 
             }

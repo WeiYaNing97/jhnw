@@ -1,11 +1,9 @@
 package com.sgcc.web.controller.sql;
-
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
-
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
@@ -131,12 +129,16 @@ public class SolveProblemController {
 
         //RepairThread repairThread = new RepairThread();
         //repairThread.Solution(login,historyScan,userinformation,problemIdList);
+
         try {
+
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
             repairFixedThreadPool.Solution(login,userObject,problemIdArrayList,problemIdList,Integer.valueOf(scanNum+"").intValue());//scanNum
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n修复结束\r\n");
     }
 

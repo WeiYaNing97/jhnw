@@ -5,13 +5,18 @@ import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.entity.SysRole;
+import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.domain.TotalQuestionTableCO;
 import com.sgcc.sql.domain.TotalQuestionTableVO;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.system.service.ISysUserService;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,6 +39,10 @@ public class TotalQuestionTableController extends BaseController
 {
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
+
+    @Autowired
+    private ISysUserService userService;
+
 
     /**
      * @method: 根据交换机信息查询 扫描问题的 命令ID
@@ -156,6 +165,26 @@ public class TotalQuestionTableController extends BaseController
     /*=====================================================================================================================
     =====================================================================================================================
     =====================================================================================================================*/
+
+    /*判断是否为 超级管理员*/
+    @RequestMapping("/judgeSuperAdministrator")
+    public boolean judgeSuperAdministrator() {
+        LoginUser login = SecurityUtils.getLoginUser();
+        Long userId = login.getUserId();
+        if (userId == 1l){
+            return true;
+        }else {
+            SysUser sysUser = userService.selectUserById(userId);
+            List<SysRole> roles = sysUser.getRoles();
+            for (SysRole role:roles){
+                if (role.getRoleId() == 1l){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     /**
      * 新增问题及命令
