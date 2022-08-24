@@ -196,27 +196,27 @@ public class TotalQuestionTableController extends BaseController
         TotalQuestionTable pojo = new TotalQuestionTable();
 
         String brand = null;
-        if (totalQuestionTable.getBrand()!=null){
+        if (!(totalQuestionTable.getBrand().equals(""))){
             brand = totalQuestionTable.getBrand();
         }
         String type = null;
-        if (totalQuestionTable.getType() != null){
+        if (!(totalQuestionTable.getType().equals(""))){
             type = totalQuestionTable.getType();
         }
         String firewareVersion = null;
-        if (totalQuestionTable.getFirewareVersion() !=null){
+        if (!(totalQuestionTable.getFirewareVersion().equals(""))){
             firewareVersion = totalQuestionTable.getFirewareVersion();
         }
         String subVersion = null;
-        if (totalQuestionTable.getSubVersion() != null){
+        if (!(totalQuestionTable.getSubVersion().equals(""))){
             subVersion = totalQuestionTable.getSubVersion();
         }
         String typeProblem = null;
-        if (totalQuestionTable.getTypeProblem() != null){
+        if (!(totalQuestionTable.getTypeProblem().equals(""))){
             typeProblem = totalQuestionTable.getTypeProblem();
         }
         String temProName = null;
-        if (totalQuestionTable.getTemProName() != null){
+        if (!(totalQuestionTable.getTemProName().equals(""))){
             temProName = totalQuestionTable.getTemProName();
         }
 
@@ -236,16 +236,16 @@ public class TotalQuestionTableController extends BaseController
 
         int insert;
         try{
-            if (totalQuestionTable.getBrand() == null){
+            if (totalQuestionTable.getBrand().equals("")){
                 totalQuestionTable.setBrand("*");
             }
-            if (totalQuestionTable.getType() == null){
+            if (totalQuestionTable.getType().equals("")){
                 totalQuestionTable.setType("*");
             }
-            if (totalQuestionTable.getFirewareVersion() == null){
+            if (totalQuestionTable.getFirewareVersion().equals("")){
                 totalQuestionTable.setFirewareVersion("*");
             }
-            if (totalQuestionTable.getSubVersion() == null){
+            if (totalQuestionTable.getSubVersion().equals("")){
                 totalQuestionTable.setSubVersion("*");
             }
             insert = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);

@@ -411,7 +411,7 @@ export default {
       },
       //测试
       weigong(){
-          console.log(this.$refs.treeone.getCheckedKeys())
+          // console.log(this.$refs.treeone.getCheckedKeys())
           return request({
               url:'/sql/total_question_table/judgeSuperAdministrator',
               method:'post',
