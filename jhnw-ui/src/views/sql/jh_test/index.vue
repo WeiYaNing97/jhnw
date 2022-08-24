@@ -25,7 +25,7 @@
                    @click="xiazai" style="margin-left: 10px">下载模板</el-button>
         <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
                          @change="handleChange" :min="1" :max="5"></el-input-number>
-        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>
+<!--        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
       <el-divider></el-divider>
       <el-row>
@@ -151,7 +151,7 @@
 <!--      <div slot="tip" class="el-upload__tip">只 能 上 传 xlsx / xls 文 件</div>-->
 <!--    </el-upload>-->
 
-    <WebSocketTwo :queryParams="queryParams" :saowanend="saowanend" :num="num"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
@@ -220,6 +220,9 @@ export default {
         torf:false,
         //是否扫描完成
         saowanend:false,
+        //修复是否完成
+        xiufuend:false,
+        xiuendson:false,
         //查询树
         deptName:undefined,
         shuru:false,
@@ -326,6 +329,7 @@ export default {
         },
     },
   created() {
+      this.xunhuanxiufu()
       // let us = Cookies.get("userInfo")
       // console.log(us)
       this.getList();
@@ -406,18 +410,32 @@ export default {
           this.saowanend = this.$refs.webone.geifuone()
           if (this.saowanend === true){
               clearInterval(this.torf)
-              alert('扫描已完成!')
+              alert('扫描已结束!')
           }
+      },
+      //定时获取是否修复结束
+      cirxiufu(){
+          this.xiufuend = this.$refs.webone.geifurepaired()
+          console.log(this.xiufuend)
+          if (this.xiufuend === true){
+              clearInterval(this.xiuendson)
+              alert('修复已结束!')
+          }
+      },
+      xunhuanxiufu(){
+          this.xiuendson = setInterval(this.cirxiufu,5000)
       },
       //测试
       weigong(){
+          // console.log(this.$refs.webone.geifuone())
+          console.log(xiufu)
           // console.log(this.$refs.treeone.getCheckedKeys())
-          return request({
-              url:'/sql/total_question_table/judgeSuperAdministrator',
-              method:'post',
-          }).then(response=>{
-              console.log('我是返回')
-          })
+          // return request({
+          //     url:'/sql/total_question_table/judgeSuperAdministrator',
+          //     method:'post',
+          // }).then(response=>{
+          //     console.log('我是返回')
+          // })
       },
       //导入弹窗确定
       daorusure(){

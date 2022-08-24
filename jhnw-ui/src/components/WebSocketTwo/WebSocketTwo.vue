@@ -4,7 +4,7 @@
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
-    <el-button type="primary" size="small" @click="testall">所有测试</el-button>
+<!--    <el-button type="primary" size="small" @click="testall">所有测试</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
     <el-table v-loading="loading"
@@ -106,6 +106,7 @@
         },
         props:{
             saowanend:false,
+            xiufuend:false,
             queryParams:'',
             num:'',
         },
@@ -263,9 +264,16 @@
             }
         },
         created(){
-            const usname = Cookies.get('usName')
+            // const usname = Cookies.get('usName')
+            // this.xiujieshu()
         },
         methods: {
+            //修复结束
+            xiujieshu(){
+                if (this.xiufuend === false){
+                    this.lishi()
+                }
+            },
             //展开折叠当前列表
             expandChange(row){
                 this.$refs.tree.toggleRowExpansion(row)

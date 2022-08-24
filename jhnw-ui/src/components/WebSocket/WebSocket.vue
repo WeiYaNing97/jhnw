@@ -17,6 +17,8 @@
             return {
                 //扫描结束
                 saoend:false,
+                //修复结束
+                repairend:false,
                 // ws是否启动
                 wsIsRun: false,
                 // 定义ws对象
@@ -33,14 +35,14 @@
             this.wsInit()
         },
         watch:{
-            //检测扫描结束
+            //检测扫描结束、修复结束
             textarea(){
                 if (this.textarea.includes('扫描结束')){
                     this.saoend = true
                 }
-                // if (this.textarea.includes('修复结束')){
-                //     this.saoend = true
-                // }
+                if (this.textarea.includes('修复结束')){
+                    this.repairend = true
+                }
             }
         },
         created(){
@@ -50,6 +52,9 @@
             //给父组件显示
             geifuone(){
               return this.saoend
+            },
+            geifurepaired(){
+                return this.repairend
             },
             sendDataToServer() {
                 if (this.webSocket.readyState === 1) {

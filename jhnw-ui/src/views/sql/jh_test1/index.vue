@@ -328,16 +328,42 @@
     </vue-context-menu>
 
 <!--    帮助-->
-    <el-button @click="bangzhu">帮助</el-button>
+<!--    <el-button @click="bangzhu">帮助</el-button>-->
     <el-dialog
       title="提示"
       :visible.sync="dialogVisibleHelp"
-      style="padding: 10px"
+      style="padding: 10px;height: 500px"
       width="30%"
       :before-close="handleClose">
       <div>
-        <h3 style="font-weight: bolder"><a href="#pinpai">品牌</a></h3>
+        <h3 style="font-weight: bolder" id="pinpai">品牌</h3>
         <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <a href="#pinpai">品牌</a>
       </div>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisibleHelp = false">取 消</el-button>
@@ -555,6 +581,11 @@ export default {
               method:'post',
               data:JSON.stringify(subOne)
           }).then(response=>{
+              response.forEach(e=>{
+                  if (e === '*'){
+                      this.$delete(response,response.indexOf(e))
+                  }
+              })
               this.subList = response
           })
       },
@@ -571,6 +602,11 @@ export default {
               method:'post',
               data:JSON.stringify(fireOne)
           }).then(response=>{
+              response.forEach(e=>{
+                  if (e === '*'){
+                      this.$delete(response,response.indexOf(e))
+                  }
+              })
               this.fireList = response
           })
       },
@@ -584,6 +620,11 @@ export default {
               method:'post',
               data:JSON.stringify(typeOne)
           }).then(response=>{
+              response.forEach(e=>{
+                  if (e === '*'){
+                      this.$delete(response,response.indexOf(e))
+                  }
+              })
               this.typeList = response
           })
       },
@@ -593,6 +634,12 @@ export default {
               url:'/sql/total_question_table/brandlist',
               method:'get'
           }).then(response=>{
+              response.forEach(e=>{
+                  if (e === '*'){
+                      this.$delete(response,response.indexOf(e))
+                  }
+              })
+              console.log(response)
               this.brandList = response
           })
       },
@@ -724,7 +771,7 @@ export default {
           }else {
               this.$set(shasha,'requiredItems','0')
           }
-          console.log(shasha)
+          console.log(JSON.stringify(shasha))
           return request({
               url:'/sql/total_question_table/add',
               method:'post',
