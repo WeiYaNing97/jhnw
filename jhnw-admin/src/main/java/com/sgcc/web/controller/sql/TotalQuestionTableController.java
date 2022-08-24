@@ -236,6 +236,9 @@ public class TotalQuestionTableController extends BaseController
 
         int insert;
         try{
+            if (totalQuestionTable.getBrand() == null){
+                totalQuestionTable.setBrand("*");
+            }
             if (totalQuestionTable.getType() == null){
                 totalQuestionTable.setType("*");
             }

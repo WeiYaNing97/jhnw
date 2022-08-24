@@ -102,38 +102,46 @@ public class SolveProblemController {
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum) {
         LoginUser login = SecurityUtils.getLoginUser();
 
-        HashSet<Object> userHashSet = new HashSet<>();
-        for (Object information:userinformation){
-            userHashSet.add(information);
+        Long[] ids = new Long[problemIdList.size()];
+        for (int number = 0 ; number<problemIdList.size();number++){
+            ids[number] = Integer.valueOf(problemIdList.get(number)).longValue();
         }
 
-        List<Object> userObject = new ArrayList<>();
-        for (Object information:userHashSet){
-            userObject.add(information);
+        // 根据 问题ID  查询 扫描出的问题
+        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
+        /*根据ID集合 查询所有  SwitchProblem 数据*/
+        List<SwitchProblem> switchProblemList =switchProblemService.selectPojoByIds(ids);
+
+        HashSet<String> userHashSet = new HashSet<>();
+        for (int number = 0 ; number <userinformation.size() ; number++){
+            userHashSet.add((String) userinformation.get(number));
         }
 
-        List<String[]> problemIdArrayList = new ArrayList<>();
-        for (int numberi=0; numberi<userObject.size();numberi++){
-            String useri = (String) userObject.get(numberi);
-            String[] problemIdArray = new String[problemIdList.size()];
-            int number = 0 ;
-            for (int numberj=0; numberj<userinformation.size();numberj++){
-                String userj = (String) userinformation.get(numberj);
-                if (useri.equals(userj)){
-                    problemIdArray[number] = problemIdList.get(numberj);
-                    number++;
+        List<Map<String,String>> userObject = new ArrayList<>();
+        // 迭代器遍历HashSet：
+        Iterator<String> iterator = userHashSet.iterator();
+        System.out.println("--------迭代器遍历HashSet----------");
+        while(iterator.hasNext()){
+            Map<String, String> userMap = getUserMap(iterator.next());
+            userObject.add(userMap);
+        }
+
+        List<List<SwitchProblem>> problemIdListList = new ArrayList<>();
+        for (Map<String,String> usetMap:userObject){
+            String usetMapIp = usetMap.get("ip");
+            List<SwitchProblem>  problemIdPojoList = new ArrayList<>();
+            for (SwitchProblem switchProblem:switchProblemList){
+                if (usetMapIp.equals(switchProblem.getSwitchIp())){
+                    problemIdPojoList.add(switchProblem);
                 }
             }
-            problemIdArrayList.add(problemIdArray);
+            problemIdListList.add(problemIdPojoList);
         }
-
-        //RepairThread repairThread = new RepairThread();
-        //repairThread.Solution(login,historyScan,userinformation,problemIdList);
 
         try {
 
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
-            repairFixedThreadPool.Solution(login,userObject,problemIdArrayList,problemIdList,Integer.valueOf(scanNum+"").intValue());//scanNum
+            repairFixedThreadPool.Solution(login,userObject,problemIdListList,problemIdList,Integer.valueOf(scanNum+"").intValue());//scanNum
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -142,16 +150,7 @@ public class SolveProblemController {
         WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n修复结束\r\n");
     }
 
-
-
-    /***
-     * @method: 修复问题
-     * @Param: []
-     * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    public AjaxResult batchSolution(String userinformation,LoginUser loginUser, List<SwitchProblem> switchProblems ,List<String> problemIds){
+    public static Map<String,String> getUserMap(String userinformation) {
         //用户信息
         String userInformationString = userinformation;
         userInformationString = userInformationString.replace("{","");
@@ -188,6 +187,18 @@ public class SolveProblemController {
                     break;
             }
         }
+        return user_String;
+    }
+
+    /***
+     * @method: 修复问题
+     * @Param: []
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public AjaxResult batchSolution(Map<String,String> user_String,LoginUser loginUser, List<SwitchProblem> switchProblems ,List<String> problemIds){
+
         Map<String,Object> user_Object = new HashMap<>();
         //连接交换机
         //ssh连接
@@ -699,7 +710,6 @@ public class SolveProblemController {
 
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
-                    switchProblemVO.setSwitchIp(null);
 
                     String brand = switchProblemVO.getBrand();
                     if (!(brand .equals("*"))){
@@ -724,6 +734,13 @@ public class SolveProblemController {
             scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+        }
+
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
+            for (SwitchProblemVO switchProblemVO:switchProblemVOList){
+                switchProblemVO.setSwitchIp(null);
+            }
         }
 
         WebSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);

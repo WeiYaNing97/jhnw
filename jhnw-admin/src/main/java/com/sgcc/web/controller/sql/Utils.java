@@ -626,4 +626,16 @@ public class Utils {
         return wordSelectionResult;
     }
 
+    public static String[] removeArrayEmptyTextBackNewArray(String[] strArray) {
+        List<String> strList= Arrays.asList(strArray);
+        List<String> strListNew=new ArrayList<>();
+        for (int i = 0; i <strList.size(); i++) {
+            if (strList.get(i)!=null&&!strList.get(i).equals("")){
+                strListNew.add(strList.get(i));
+            }
+        }
+        String[] strNewArray = strListNew.toArray(new String[strListNew.size()]);
+        return   strNewArray;
+    }
+
 }

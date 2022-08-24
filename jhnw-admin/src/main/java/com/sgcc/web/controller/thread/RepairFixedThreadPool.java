@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,32 +22,20 @@ import java.util.concurrent.Executors;
  */
 public class RepairFixedThreadPool {
 
-    @Autowired
-    private ISwitchProblemService switchProblemService;
-
     /**
      * newFixedThreadPool submit submit
      */
-    public void Solution(LoginUser user, List<Object> userinformation, List<String[]> problemIdList,List<String> problemIdStrings,int threads) throws InterruptedException {
+    public void Solution(LoginUser user, List<Map<String,String>> userinformation, List<List<SwitchProblem>> problemList, List<String> problemIdStrings, int threads) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(userinformation.size());
 
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(threads);
 
         int number = userinformation.size();
+
         for (int i = 0 ; i<number ; i++){
-            // 扫描出问题列表 问题ID
-            String[] strings = problemIdList.get(i);
-            Long[] ids = new Long[strings.length];
 
-            for (int num = 0;num <strings.length;num++){
-                ids[num] = (Integer.valueOf(strings[num]).longValue());
-            }
-
-            // 根据 问题ID  查询 扫描出的问题
-            switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
-            /*根据ID集合 查询所有  SwitchProblem 数据*/
-            List<SwitchProblem> switchProblemList =switchProblemService.selectPojoByIds(ids);
+            List<SwitchProblem> switchProblemList = problemList.get(i);
             List<SwitchProblem> switchProblemPojoList = new ArrayList<>();
             for (SwitchProblem switchProblem:switchProblemList){
                 // 查看 扫描出的问题 是否有问题
@@ -56,10 +45,11 @@ public class RepairFixedThreadPool {
             }
             if (switchProblemPojoList.size() != 0){
                 // 如果有问题 查询对应交换机登录信息
-                String userinformationList = (String) userinformation.get(i);
+                Map<String,String> user_String = userinformation.get(i);
                 // 所有问题
                 List<String> problemIds = problemIdStrings;
                 LoginUser loginUser = user;
+
 
                 fixedThreadPool.submit(new Thread(new Runnable() {
 
@@ -68,7 +58,7 @@ public class RepairFixedThreadPool {
                         try {
 
                             SolveProblemController solveProblemController = new SolveProblemController();
-                            AjaxResult ajaxResult = solveProblemController.batchSolution(userinformationList,loginUser,switchProblemPojoList,problemIds);
+                            AjaxResult ajaxResult = solveProblemController.batchSolution(user_String,loginUser,switchProblemPojoList,problemIds);
                             if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                                 System.err.println("\r\n未定义该交换机获取基本信息命令及分析\r\n");
                             }else if (ajaxResult.get("msg").equals("交换机连接失败")){

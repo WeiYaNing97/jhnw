@@ -1437,7 +1437,6 @@ public class SwitchInteraction {
 
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 if (switchProblemVO.getSwitchIp() .equals(scanResultsVO.getSwitchIp()) ){
-                    switchProblemVO.setSwitchIp(null);
 
                     String brand = switchProblemVO.getBrand();
                     if (!(brand .equals("*"))){
@@ -1462,6 +1461,13 @@ public class SwitchInteraction {
             scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+        }
+
+        for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
+            for (SwitchProblemVO switchProblemVO:switchProblemVOList){
+                switchProblemVO.setSwitchIp(null);
+            }
         }
 
         WebSocketService.sendMessage("loophole"+loginName,scanResultsVOList);
