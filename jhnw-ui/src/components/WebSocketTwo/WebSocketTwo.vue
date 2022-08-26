@@ -27,11 +27,12 @@
           <el-button size="mini"
                      type="text"
                      icon="el-icon-edit"
-                     v-show="scope.row.ifQuestion==='异常' && saowanend"
+                     v-show="scope.row.ifQuestion==='异常'"
                      @click="xiufu(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
-                     v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')&&saowanend"
+                     v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')"
                      @click.stop="xiuall(scope.row)">单台修复</el-button>
+<!--          &&saowanend-->
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
                      @click="xiangqing(scope.row)">详情</el-button>
@@ -456,6 +457,7 @@
                         }
                     }
                 }
+                const allProIdList = problemIdList
                 const list1 = []
                 for(let i = 0;i<this.alljiao.allInfo.length;i++){
                     const chaip = this.alljiao.allInfo[i]
@@ -470,7 +472,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -513,6 +515,20 @@
             },
             //当前扫描单台一键修复
             xiuall(row){
+                //获取所有问题id
+                const allProIdList = []
+                const alliplist = []
+                const allyijian = this.nowData
+                for (let i = 0;i<allyijian.length;i++){
+                    for (let g = 0;g<allyijian[i].children.length;g++){
+                        for (let m = 0;m<allyijian[i].children[g].children.length;m++){
+                            alliplist.push(allyijian[i]['switchIp'])
+                            allProIdList.push(allyijian[i].children[g].children[m].questionId)
+                        }
+                    }
+                }
+                console.log(allProIdList)
+                //
                 const thisip = row.switchIp
                 const listAll = row.children
                 const list1 = []
@@ -535,7 +551,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -586,6 +602,20 @@
             },
             // 当前修复单个问题
             xiufu(row){
+                //获取所有问题id
+                const allProIdList = []
+                const alliplist = []
+                const allyijian = this.nowData
+                for (let i = 0;i<allyijian.length;i++){
+                    for (let g = 0;g<allyijian[i].children.length;g++){
+                        for (let m = 0;m<allyijian[i].children[g].children.length;m++){
+                            alliplist.push(allyijian[i]['switchIp'])
+                            allProIdList.push(allyijian[i].children[g].children[m].questionId)
+                        }
+                    }
+                }
+                console.log(allProIdList)
+                //
                 const thisid = row.hproblemId
                 let thisparip = ''
                 // lishiData nowData
@@ -616,7 +646,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{

@@ -159,7 +159,7 @@
           <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
-          <el-form-item label="True"></el-form-item>
+          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -177,13 +177,13 @@
           <el-form-item label="匹配内容">
             <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
           </el-form-item>
-          <el-form-item label="True"></el-form-item>
+          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 466px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -196,13 +196,13 @@
           <el-form-item label="匹配内容">
             <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
           </el-form-item>
-          <el-form-item label="True"></el-form-item>
+          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 466px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -241,13 +241,13 @@
                          :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="True"></el-form-item>
+          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 268px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -392,7 +392,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:false,
+        chuxian:true,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj
@@ -1090,15 +1090,24 @@ export default {
                   })
                   this.$set(eeee,'matchContent',quciC)
               }
+              //拆分有无问题
+              if (eeee.action === '问题'){
+                  const neid = eeee.action
+                  console.log(neid)
+                  const thisData = Date.now()
+                  console.log(thisData)
+              }
+
           })
           const handForm = useForm.map(x => JSON.stringify(x))
-          alert(handForm)
+          console.log(handForm)
           return request({
               url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
               method:'post',
               data:handForm
           }).then(response=>{
               console.log("成功")
+              this.$message.success('提交成功!')
           })
           // window.location.reload()   刷新页面
           // this.$router.go(0)   刷新页面

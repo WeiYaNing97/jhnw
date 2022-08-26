@@ -50,7 +50,7 @@
                 <span v-else>{{ row.name }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="password" label="密码" width="120">
+            <el-table-column prop="password" label="密码" width="80">
               <template slot-scope="{ row }">
                 <el-input v-if="row.$isEdit" v-model="row.password" type="password"
                           placeholder="请输入密码" size="small" style="width: 110px"></el-input>
@@ -71,10 +71,11 @@
                 <span v-else>{{ row.port }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="50">
+            <el-table-column label="操作" width="100">
               <template slot-scope="{ row }">
                 <el-button type="text" v-if="row.$isEdit" @click.stop="queding(row)" size="small">确定</el-button>
                 <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
+                <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -396,6 +397,10 @@ export default {
               $isEdit:true
           })
       },
+      //删除扫描设备
+      deleteRow(index, rows) {
+          rows.splice(index, 1);
+      },
       //确定
       queding(row){
           console.log(row)
@@ -403,7 +408,7 @@ export default {
       },
       //专项扫描
       handleNodeClick(fenxiang) {
-          console.log(fenxiang)
+          
       },
       //扫描完成弹窗,后面定时执行
       saowan(){
