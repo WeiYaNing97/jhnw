@@ -65,15 +65,6 @@ public class SwitchInteraction {
     @RequestMapping("directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项全部问题", businessType = BusinessType.OTHER)
     public String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
-        /*List<String> switchInformation = new ArrayList<>();
-        List<Long> totalQuestionTableId = new ArrayList<>();
-        Long scanNum = 1l;
-        String str = "{\"ip\":\"192.168.1.100\",\"name\":\"admin\",\"password\":\"admin\",\"mode\":\"ssh\",\"port\":22}";
-        Long l1 = 42l;
-        Long l2 = 43l;
-        switchInformation.add(str);
-        totalQuestionTableId.add(l1);
-        totalQuestionTableId.add(l2);*/
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
@@ -133,7 +124,7 @@ public class SwitchInteraction {
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
         }else {
-            return "扫描完成";
+            return "扫描结束";
         }
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -148,7 +139,7 @@ public class SwitchInteraction {
 
         WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描结束\r\n");
 
-        return "扫描完成";
+        return "扫描结束";
     }
 
 
@@ -236,7 +227,7 @@ public class SwitchInteraction {
 
         WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描结束\r\n");
 
-        return "扫描完成";
+        return "扫描结束";
     }
 
 
@@ -378,7 +369,7 @@ public class SwitchInteraction {
 
                 if (ajaxResult !=null && ajaxResult.get("msg").equals("未定义交换机问题")){
                     LoginUser user = (LoginUser) user_Object.get("loginUser");
-                    WebSocketService.sendMessage("error"+user.getUsername(),"\r\n"+user_String.get("ip") + "未定问题"+"\r\n");
+                    WebSocketService.sendMessage("error"+user.getUsername(),"\r\nip:"+user_String.get("ip") + "未定问题"+"\r\n");
                 }
 
                 return basicInformationList_ajaxResult;
@@ -1195,7 +1186,6 @@ public class SwitchInteraction {
                 }
             }
 
-
             //比较
             if (compare!=null){
 
@@ -1506,7 +1496,6 @@ public class SwitchInteraction {
 
         //具体命令
         String command = commandLogic.getCommand();
-        System.err.print("\r\n执行命令：\r\n"+command+"\r\n");
 
         //执行命令
         //命令返回信息
@@ -1516,7 +1505,6 @@ public class SwitchInteraction {
         ReturnRecord returnRecord = new ReturnRecord();
 
         int insert_id = 0;
-
         returnRecord.setUserName(userName);
         returnRecord.setSwitchIp(user_String.get("ip"));
         returnRecord.setBrand(user_String.get("deviceBrand"));
@@ -1524,7 +1512,6 @@ public class SwitchInteraction {
         returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
         returnRecord.setSubVersion(user_String.get("subversionNumber"));
         returnRecord.setCurrentCommLog(command.trim());
-
         boolean deviceBrand = true;
 
         do {
@@ -1551,7 +1538,8 @@ public class SwitchInteraction {
                     deviceBrand = Utils.switchfailure(user_String, returnString);
                     if (!deviceBrand) {
                         System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
-                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
+                        WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
+                                + "\r\n故障:"+returnString+"\r\n");
                         returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
 
                         if (way.equalsIgnoreCase("ssh")){
@@ -1631,7 +1619,10 @@ public class SwitchInteraction {
             for (String string_split:returnString_split){
                 if (!Utils.judgmentError( user_String,string_split)){
                     System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
-                    WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
+                    WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
+                            + "\r\n问题:"+totalQuestionTable.getProblemName()
+                            +"\r\n命令:" +command
+                            +"\r\n错误:"+command_string+"\r\n");
                     List<Object> objectList = new ArrayList<>();
                     objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string));
                     return objectList;

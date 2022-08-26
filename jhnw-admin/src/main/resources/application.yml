@@ -29,6 +29,17 @@ server:
     max-threads: 800
     # Tomcat启动初始化的线程数，默认值25
     min-spare-threads: 30
+  ssl:
+    #开启ssl验证
+    enabled: true
+    #证书文件位置
+    key-store: classpath:keystore.p12
+    #上面的密钥口令
+    key-store-password: jiahaojiaohuanji
+    #storetype 上面的类型
+    key-store-type: PKCS12
+    #tomcat上面的alias  别名
+    key-alias: tomcat
 
 # 日志配置
 logging:

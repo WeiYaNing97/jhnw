@@ -2,8 +2,7 @@ package com.sgcc.web.controller.sql;
 
 import com.sgcc.sql.domain.SwitchError;
 import com.sgcc.sql.domain.SwitchFailure;
-import com.sgcc.sql.service.ISwitchErrorService;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.*;
 

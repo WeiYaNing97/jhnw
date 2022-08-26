@@ -26,7 +26,6 @@ import com.sgcc.common.core.page.TableDataInfo;
 
 /**
  * 交换机故障Controller
- * 
  * @author ruoyi
  * @date 2022-07-26
  */

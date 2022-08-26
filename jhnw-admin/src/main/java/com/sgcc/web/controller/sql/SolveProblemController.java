@@ -97,9 +97,9 @@ public class SolveProblemController {
     }
 
 
-    @RequestMapping("batchSolutionMultithreading/{problemIdList}/{scanNum}")
+    @RequestMapping("batchSolutionMultithreading/{allProIdList}/{problemIdList}/{scanNum}")
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum) {
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum ,@PathVariable  List<String> allProIdList) {
         LoginUser login = SecurityUtils.getLoginUser();
 
         Long[] ids = new Long[problemIdList.size()];
@@ -139,7 +139,9 @@ public class SolveProblemController {
         }
 
         try {
-
+            if (allProIdList == null || allProIdList.size() != 0){
+                problemIdList = allProIdList;
+            }
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
             repairFixedThreadPool.Solution(login,userObject,problemIdListList,problemIdList,Integer.valueOf(scanNum+"").intValue());//scanNum
 
@@ -545,7 +547,8 @@ public class SolveProblemController {
 
                             String userName = loginUser.getUsername();
                             System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
-                            WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
+                            WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
+                                    + "\r\n故障:"+returnString+"\r\n");
                             returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
                             String way = user_String.get("mode");
                             if (way.equalsIgnoreCase("ssh")){
@@ -628,8 +631,10 @@ public class SolveProblemController {
                 for (String string_split:returnString_split){
                     if (!Utils.judgmentError( user_String,string_split)){
                         String userName = loginUser.getUsername();
-                        System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+string_split+"\r\n");
-                        WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+string_split+"\r\n");
+                        WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
+                                +"\r\n问题:"+totalQuestionTable.getProblemName()
+                                +"\r\n命令:" +command
+                                +"\r\n错误:"+string_split+"\r\n");
                         List<Object> objectList = new ArrayList<>();
                         objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+string_split));
 
@@ -640,7 +645,6 @@ public class SolveProblemController {
             }
 
         }
-
         return "成功";
     }
 
@@ -848,14 +852,17 @@ public class SolveProblemController {
                     if (!(brand .equals("*"))){
                         pinpai = brand;
                     }
+
                     String switchType = switchProblemVO.getSwitchType();
                     if (!(switchType .equals("*"))){
                         xinghao = switchType;
                     }
+
                     String firewareVersion = switchProblemVO.getFirewareVersion();
                     if (!(firewareVersion .equals("*"))){
                         banben = firewareVersion;
                     }
+
                     String subVersion = switchProblemVO.getSubVersion();
                     if (!(subVersion .equals("*"))){
                         zibanben = subVersion;
@@ -864,9 +871,11 @@ public class SolveProblemController {
                     pojoList.add(switchProblemVO);
                 }
             }
+
             scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(pojoList);
+
         }
 
         for (ScanResultsCO scanResultsCO:scanResultsCOList){
@@ -876,7 +885,9 @@ public class SolveProblemController {
                     scanResultsVOList.add(scanResultsVO);
                 }
             }
+
             scanResultsCO.setScanResultsVOList(scanResultsVOList);
+
         }
 
         for (ScanResultsCO scanResultsCO:scanResultsCOList){

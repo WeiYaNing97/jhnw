@@ -48,13 +48,11 @@ public class ScanFixedThreadPool {
                         // List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
                         // 扫描一台交换机 的 所以问题
                         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time,null);
-
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
-                            WebSocketService.sendMessage("error"+userName,"\r\n"+ip + ":交换机连接失败\r\n");
+                            WebSocketService.sendMessage("error"+userName,"\r\nIP地址:"+ip +"\r\n问题:交换机连接失败\r\n");
                         }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                            WebSocketService.sendMessage("error"+userName,"\r\n"+ip + ":未定义该交换机获取基本信息命令及分析\r\n");
+                            WebSocketService.sendMessage("error"+userName,"\r\nIP地址:"+ip + "\r\n问题:未定义该交换机获取基本信息命令及分析\r\n");
                         }
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     } finally {
