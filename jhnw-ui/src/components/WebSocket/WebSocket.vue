@@ -69,7 +69,7 @@
             wsInit() {
                 // localhost 192.168.1.98
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/badao'
-                const wsuri = `ws://localhost/dev-api/websocket/badao${Cookies.get('usName')}`
+                const wsuri = `wss://localhost:80/dev-api/websocket/badao${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws
