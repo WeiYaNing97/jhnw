@@ -4,6 +4,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.SwitchProblem;
+import com.sgcc.sql.domain.SwitchScanResult;
 import com.sgcc.sql.service.ISwitchProblemService;
 import com.sgcc.web.controller.sql.SolveProblemController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class RepairFixedThreadPool {
     /**
      * newFixedThreadPool submit submit
      */
-    public void Solution(LoginUser user, List<Map<String,String>> userinformation, List<List<SwitchProblem>> problemList, List<String> problemIdStrings, int threads) throws InterruptedException {
+    public void Solution(LoginUser user, List<Map<String,String>> userinformation, List<List<SwitchScanResult>> problemList, List<String> problemIdStrings, int threads) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(userinformation.size());
 
@@ -35,15 +36,15 @@ public class RepairFixedThreadPool {
 
         for (int i = 0 ; i<number ; i++){
 
-            List<SwitchProblem> switchProblemList = problemList.get(i);
-            List<SwitchProblem> switchProblemPojoList = new ArrayList<>();
-            for (SwitchProblem switchProblem:switchProblemList){
+            List<SwitchScanResult> switchScanResultList = problemList.get(i);
+            List<SwitchScanResult> switchScanResults = new ArrayList<>();
+            for (SwitchScanResult switchScanResult:switchScanResultList){
                 // 查看 扫描出的问题 是否有问题
-                if (switchProblem.getIfQuestion().equals("有问题")){
-                    switchProblemPojoList.add(switchProblem);
+                if (switchScanResult.getIfQuestion().equals("有问题")){
+                    switchScanResults.add(switchScanResult);
                 }
             }
-            if (switchProblemPojoList.size() != 0){
+            if (switchScanResults.size() != 0){
                 // 如果有问题 查询对应交换机登录信息
                 Map<String,String> user_String = userinformation.get(i);
                 // 所有问题
@@ -58,7 +59,7 @@ public class RepairFixedThreadPool {
                         try {
 
                             SolveProblemController solveProblemController = new SolveProblemController();
-                            AjaxResult ajaxResult = solveProblemController.batchSolution(user_String,loginUser,switchProblemPojoList,problemIds);
+                            AjaxResult ajaxResult = solveProblemController.batchSolution(user_String,loginUser,switchScanResults,problemIds);
                             if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                                 System.err.println("\r\n未定义该交换机获取基本信息命令及分析\r\n");
                             }else if (ajaxResult.get("msg").equals("交换机连接失败")){
