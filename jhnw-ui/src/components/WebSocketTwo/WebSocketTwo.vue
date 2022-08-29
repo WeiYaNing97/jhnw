@@ -442,7 +442,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -480,7 +480,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -514,7 +514,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -560,7 +560,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -602,7 +602,7 @@
                 console.log(problemIdList)
                 console.log(userinformation)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -656,7 +656,7 @@
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
