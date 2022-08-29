@@ -25,7 +25,7 @@
                    @click="xiazai" style="margin-left: 10px">下载模板</el-button>
         <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
                          @change="handleChange" :min="1" :max="5"></el-input-number>
-<!--        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>-->
+        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>
       </el-form-item>
       <el-divider></el-divider>
       <el-row>
@@ -102,32 +102,16 @@
         </el-col>
       </el-row>
 
-<!--      <div v-for="(item,index) in forms.dynamicItem" :key="index" v-show="duoShow" max-height="250">-->
-<!--          <el-form-item label="ip"-->
-<!--                        :rules="[{ required: true,trigger:'blur',message:'ip不能为空' }]">-->
-<!--            <el-input v-model="item.ip" placeholder="请输入ip" size="small" style="width: 150px"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="用户">-->
-<!--            <el-input v-model="item.name" placeholder="用户名" size="small" style="width: 150px"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="密码">-->
-<!--            <el-input v-model="item.password" type="password"-->
-<!--                      autocomplete="off" show-password placeholder="密码" size="small" style="width: 150px"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="方式">-->
-<!--            <el-select v-model="item.mode" placeholder="连接方式" size="small" style="width:100px" @change="chooseTT(item)">-->
-<!--              <el-option label="telnet" value="telnet"></el-option>-->
-<!--              <el-option label="ssh" value="ssh"></el-option>-->
-<!--            </el-select>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="端口">-->
-<!--            <el-input v-model="item.port" style="width: 50px" size="small"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item>-->
-<!--            <el-button v-if="index+1 == forms.dynamicItem.length" size="small" @click="addItem(forms.dynamicItem.length)"><i class="el-icon-plus"></i></el-button>-->
-<!--            <el-button v-if="index !== 0" size="small" @click="deleteItem(item, index)"><i class="el-icon-minus"></i></el-button>-->
-<!--          </el-form-item>-->
-<!--      </div>-->
+      <el-dialog
+        title="提示"
+        :visible.sync="dialogVisibleXiu"
+        width="30%"
+        :before-close="handleClose">
+        <span>修复已结束!</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="lishiend">确 定</el-button>
+        </span>
+      </el-dialog>
 
 <!--   @keyup.enter.native="handleQuery"-- 回车事件 >
 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
@@ -137,22 +121,7 @@
     <el-divider></el-divider>
 <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
 
-
-<!--    <el-upload-->
-<!--      class="upload-demo"-->
-<!--      action=""-->
-<!--      :on-change="handleChange"-->
-<!--      :on-exceed="handleExceed"-->
-<!--      :on-remove="handleRemove"-->
-<!--      :file-list="fileListUpload"-->
-<!--      :limit="limitUpload"-->
-<!--      accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"-->
-<!--      :auto-upload="false">-->
-<!--      <el-button size="small" type="primary">点击上传</el-button>-->
-<!--      <div slot="tip" class="el-upload__tip">只 能 上 传 xlsx / xls 文 件</div>-->
-<!--    </el-upload>-->
-
-    <WebSocketTwo :queryParams="queryParams" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" ref="webtwo" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
@@ -251,6 +220,7 @@ export default {
         //表格上传的设备信息
         importData:[],
         dialogVisible:false,
+        dialogVisibleXiu:false,
         //多台隐身
         duoShow:true,
       // 遮罩层
@@ -408,7 +378,7 @@ export default {
       },
       //专项扫描
       handleNodeClick(fenxiang) {
-          
+
       },
       //扫描完成弹窗,后面定时执行
       saowan(){
@@ -424,8 +394,17 @@ export default {
           console.log(this.xiufuend)
           if (this.xiufuend === true){
               clearInterval(this.xiuendson)
-              alert('修复已结束!')
+              // alert('修复已结束!')
+              this.dialogVisibleXiu = true
           }
+      },
+      //修复结束确定按钮
+      lishiend(){
+          const lishixiuend = this.$refs.webtwo.geifu()
+          if(lishixiuend === true){
+              this.$refs.webtwo.lishi()
+          }
+          this.dialogVisibleXiu = false
       },
       xunhuanxiufu(){
           this.xiuendson = setInterval(this.cirxiufu,5000)
@@ -433,7 +412,7 @@ export default {
       //测试
       weigong(){
           // console.log(this.$refs.webone.geifuone())
-          console.log(xiufu)
+          console.log(this.$refs.webtwo.geifu())
           // console.log(this.$refs.treeone.getCheckedKeys())
           // return request({
           //     url:'/sql/total_question_table/judgeSuperAdministrator',

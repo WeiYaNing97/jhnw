@@ -113,6 +113,8 @@
         },
         data() {
             return {
+                //
+                lishifu:false,
                 //详情显示
                 particular:'',
                 proxiang:'',
@@ -331,6 +333,7 @@
             },
             //历史扫描
             lishi(){
+                this.lishifu = true
                 this.chuci = false
                 this.huisao = true
                 return request({
@@ -406,6 +409,10 @@
                     console.log(jiaid)
                 })
             },
+            //点击历史扫描给父
+            geifu(){
+                return this.lishifu
+            },
             //回显历史扫描某次时间一键修复
             huitimeyijian(row){
                 const problemIdList = []
@@ -429,12 +436,13 @@
                         }
                     }
                 }
+                const allProIdList = []
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -500,12 +508,13 @@
                         }
                     }
                 }
+                const allProIdList = []
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
@@ -578,6 +587,7 @@
                 }
                 const list1 = []
                 const problemIdList = []
+                const allProIdList = []
                 problemIdList.push(row.questionId)
                 for (let i = 0;i<this.newArr.length;i++){
                     const chaip = this.newArr[i]
@@ -592,7 +602,7 @@
                 console.log(problemIdList)
                 console.log(userinformation)
                 return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+allProIdList+'/'+problemIdList+'/'+scanNum,
                     method:'post',
                     data:userinformation
                 }).then(response=>{
