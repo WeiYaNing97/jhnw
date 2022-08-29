@@ -289,7 +289,10 @@ public class SolveProblemController {
             }
             if (switchScanResultLists.size() == 0){
                 //getUnresolvedProblemInformationByIds(loginUser,problemIds);
-                getSwitchScanResultListByIds(loginUser,problemIds);
+                if (problemIds != null){
+                    getSwitchScanResultListByIds(loginUser,problemIds);
+                }
+
                 if (requestConnect_way.equalsIgnoreCase("ssh")){
                     connectMethod.closeConnect(sshConnect);
                 }else if (requestConnect_way.equalsIgnoreCase("telnet")){
@@ -340,11 +343,15 @@ public class SolveProblemController {
                 }
 
                 //getUnresolvedProblemInformationByIds(loginUser,problemIds);
-                getSwitchScanResultListByIds(loginUser,problemIds);
+                if (problemIds != null){
+                    getSwitchScanResultListByIds(loginUser,problemIds);
+                }
             }
 
             //getUnresolvedProblemInformationByIds(loginUser,problemIds);
-            getSwitchScanResultListByIds(loginUser,problemIds);
+            if (problemIds != null){
+                getSwitchScanResultListByIds(loginUser,problemIds);
+            }
 
             if (requestConnect_way.equalsIgnoreCase("ssh")){
                 connectMethod.closeConnect(sshConnect);
