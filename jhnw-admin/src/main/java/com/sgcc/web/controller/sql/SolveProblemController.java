@@ -322,7 +322,7 @@ public class SolveProblemController {
 
                 if (solveProblem.equals("成功")){
                     switchScanResult.setResolved("是");
-                    switchScanResult.setIfQuestion("无问题");
+                    switchScanResult.setIfQuestion("已解决");
 
                     // 根据 问题ID  查询 扫描出的问题
                     switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
