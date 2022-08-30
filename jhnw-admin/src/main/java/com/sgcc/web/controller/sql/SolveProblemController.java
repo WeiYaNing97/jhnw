@@ -1165,8 +1165,7 @@ public class SolveProblemController {
         for (String ip_string:ip_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
-            Date date4 = new Date();
-            scanResultsVO.hproblemId = Long.valueOf(Utils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVO.setHproblemId(Long.valueOf(Utils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             scanResultsVOList.add(scanResultsVO);
         }
 
@@ -1207,9 +1206,11 @@ public class SolveProblemController {
         }
 
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
+            scanResultsVO.setHproblemId(Long.valueOf(Utils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
             for (SwitchProblemVO switchProblemVO:switchProblemVOList){
                 switchProblemVO.setSwitchIp(null);
+                switchProblemVO.setHproblemId(Long.valueOf(Utils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             }
         }
 
