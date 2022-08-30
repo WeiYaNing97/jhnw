@@ -4,7 +4,7 @@
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
-<!--    <el-button type="primary" size="small" @click="testall">所有测试</el-button>-->
+    <el-button type="primary" size="small" @click="testall">所有测试</el-button>
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
     <el-table v-loading="loading"
@@ -170,7 +170,14 @@
                                         {
                                             hproblemId:11123462567111,
                                             dynamicVname:'用户名',
-                                            dynamicInformation:'admin'
+                                            dynamicInformation:'admin',
+                                            exhibit:'是'
+                                        },
+                                        {
+                                            hproblemId:11123462567111,
+                                            dynamicVname:'用户名',
+                                            dynamicInformation:'admin11',
+                                            exhibit:'是'
                                         }
                                     ]
                                 },
@@ -286,9 +293,34 @@
             },
             //测试总按钮
             testall(){
-                this.$refs.abc.geizi()
-              console.log('总测试')
-                console.log(this.saowanend)
+                // this.$refs.abc.geizi()
+              // console.log('总测试')
+              //   console.log(this.saowanend)
+                const shu = this.tableDataqq
+                console.log(shu)
+                for (let i=0;i<shu.length;i++){
+                    for (let g=0;g<shu[i].children.length;g++){
+                        for (let m=0;m<shu[i].children[g].children.length;m++){
+                            if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
+                                for (let n = 0;shu[i].children[g].children[m].valueInformationVOList.length;n++){
+                                    if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit != '否'){
+                                        const mimi = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation+' '
+                                        console.log(mimi)
+                                    }
+                                }
+                            }
+                            // if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
+                            //     if (){
+                            //
+                            //     }
+                            //     // const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
+                            //     // const wenti = shu[i].children[g].children[m].problemName
+                            //     // const zuihou = yonghu +" "+ wenti
+                            //     // this.$set(shu[i].children[g].children[m],'problemName',zuihou)
+                            // }
+                        }
+                    }
+                }
             },
             //测试总按钮
             wenben(){
@@ -300,9 +332,14 @@
                 let reds = {
                     'color':'red'
                 }
+                let greens = {
+                    'color':'green'
+                }
                 if(row.column.label === '是否异常'){
                     if (row.row.ifQuestion === '异常'){
                         return reds
+                    }else if (row.row.ifQuestion === '已解决'){
+                        return greens
                     }
                 }
                 // if (row.row.ifQuestion === '异常'){
@@ -624,7 +661,6 @@
                         }
                     }
                 }
-                console.log(allProIdList)
                 //
                 const thisid = row.hproblemId
                 let thisparip = ''
