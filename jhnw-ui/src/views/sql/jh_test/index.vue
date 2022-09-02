@@ -25,7 +25,7 @@
                    @click="xiazai" style="margin-left: 10px">下载模板</el-button>
         <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
                          @change="handleChange" :min="1" :max="5"></el-input-number>
-        <el-button type="primary" @click="weigong" icon="el-icon-search" size="small">测试按钮</el-button>
+        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>
       </el-form-item>
       <el-divider></el-divider>
       <el-row>
@@ -410,16 +410,10 @@ export default {
           this.xiuendson = setInterval(this.cirxiufu,5000)
       },
       //测试
-      weigong(){
+      testall(){
           // console.log(this.$refs.webone.geifuone())
-          console.log(this.$refs.webtwo.geifu())
+          // console.log(this.$refs.webtwo.geifu())
           // console.log(this.$refs.treeone.getCheckedKeys())
-          // return request({
-          //     url:'/sql/total_question_table/judgeSuperAdministrator',
-          //     method:'post',
-          // }).then(response=>{
-          //     console.log('我是返回')
-          // })
       },
       //导入弹窗确定
       daorusure(){

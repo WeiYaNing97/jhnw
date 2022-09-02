@@ -3,6 +3,7 @@
 <!--    lishiData  nowData  tableDataqq-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
+<!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
     <el-button type="primary" size="small" @click="testall">所有测试</el-button>
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
@@ -193,7 +194,8 @@
                                         {
                                             hproblemId:1157155555461111,
                                             dynamicVname:'用户名',
-                                            dynamicInformation:'admin1'
+                                            dynamicInformation:'admin111',
+                                            exhibit:'是'
                                         }
                                     ]
                                 }
@@ -217,7 +219,8 @@
                                             {
                                                 hproblemId:11113456753411,
                                                 dynamicVname:'用户名',
-                                                dynamicInformation:'admin2'
+                                                dynamicInformation:'admin222',
+                                                exhibit:'是'
                                             }
                                         ]
                                     }
@@ -245,7 +248,8 @@
                                         {
                                             hproblemId:1134523541111,
                                             dynamicVname:'用户名',
-                                            dynamicInformation:'admin2'
+                                            dynamicInformation:'admin2222',
+                                            exhibit:'是'
                                         }
                                     ]
                                 }
@@ -302,22 +306,19 @@
                     for (let g=0;g<shu[i].children.length;g++){
                         for (let m=0;m<shu[i].children[g].children.length;m++){
                             if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
-                                for (let n = 0;shu[i].children[g].children[m].valueInformationVOList.length;n++){
+                                let mi1 = ''
+                                let mi2 = ''
+                                for (let n = 0;n<shu[i].children[g].children[m].valueInformationVOList.length;n++){
                                     if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit != '否'){
-                                        const mimi = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation+' '
-                                        console.log(mimi)
+                                        mi1 = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation
+                                        mi2 = mi2+' '+mi1
+                                        console.log(mi2)
                                     }
                                 }
+                                const wenti = shu[i].children[g].children[m].problemName
+                                const zuihou = mi2 +" "+ wenti
+                                this.$set(shu[i].children[g].children[m],'problemName',zuihou)
                             }
-                            // if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
-                            //     if (){
-                            //
-                            //     }
-                            //     // const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
-                            //     // const wenti = shu[i].children[g].children[m].problemName
-                            //     // const zuihou = yonghu +" "+ wenti
-                            //     // this.$set(shu[i].children[g].children[m],'problemName',zuihou)
-                            // }
                         }
                     }
                 }
@@ -373,6 +374,7 @@
                 this.lishifu = true
                 this.chuci = false
                 this.huisao = true
+                console.log('sss')
                 return request({
                     url:'/sql/SolveProblemController/getUnresolvedProblemInformationByUserName',
                     method:'post',
@@ -407,9 +409,16 @@
                             for (let m = 0;m<jiaid[i].children[g].children.length;m++){
                                 for (let n = 0;n<jiaid[i].children[g].children[m].children.length;n++){
                                     if (jiaid[i].children[g].children[m].children[n].valueInformationVOList.length>0){
-                                        const yonghu = jiaid[i].children[g].children[m].children[n].valueInformationVOList[0].dynamicInformation
+                                        let yongone = ''
+                                        let endyong = ''
+                                        for (let k = 0;k<jiaid[i].children[g].children[m].children[n].valueInformationVOList.length;k++){
+                                            if (jiaid[i].children[g].children[m].children[n].valueInformationVOList[k].exhibit === '是'){
+                                                yongone = jiaid[i].children[g].children[m].children[n].valueInformationVOList[k].dynamicInformation
+                                                endyong = endyong + ' ' +yongone
+                                            }
+                                        }
                                         const wenti = jiaid[i].children[g].children[m].children[n].problemName
-                                        const zuihou = yonghu +" "+ wenti
+                                        const zuihou = endyong +" "+ wenti
                                         this.$set(jiaid[i].children[g].children[m].children[n],'problemName',zuihou)
                                     }
                                 }
@@ -757,10 +766,24 @@
                 for (let i=0;i<shu.length;i++){
                     for (let g=0;g<shu[i].children.length;g++){
                         for (let m=0;m<shu[i].children[g].children.length;m++){
+                            // if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
+                            //     const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
+                            //     const wenti = shu[i].children[g].children[m].problemName
+                            //     const zuihou = yonghu +" "+ wenti
+                            //     this.$set(shu[i].children[g].children[m],'problemName',zuihou)
+                            // }
                             if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
-                                const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
+                                let mi1 = ''
+                                let mi2 = ''
+                                for (let n = 0;n<shu[i].children[g].children[m].valueInformationVOList.length;n++){
+                                    if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit != '否'){
+                                        mi1 = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation
+                                        mi2 = mi2+' '+mi1
+                                        console.log(mi2)
+                                    }
+                                }
                                 const wenti = shu[i].children[g].children[m].problemName
-                                const zuihou = yonghu +" "+ wenti
+                                const zuihou = mi2 +" "+ wenti
                                 this.$set(shu[i].children[g].children[m],'problemName',zuihou)
                             }
                         }

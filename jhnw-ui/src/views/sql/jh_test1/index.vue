@@ -1,7 +1,6 @@
 <template>
 <!--  <div class="app-container" @contextmenu="showMenu">-->
-  <div class="app-container">
-<!--    @contextmenu="showMenu"-->
+  <div class="app-container" @contextmenu="showMenu">
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="设备基本信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
@@ -307,7 +306,7 @@
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
         <el-button @click="guanbi" type="primary">关闭</el-button>
-<!--        <el-button @click="ceshi" type="primary">测试按钮</el-button>-->
+        <el-button @click="ceshi" type="primary">测试按钮</el-button>
 <!--        有用-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
@@ -328,7 +327,7 @@
     </vue-context-menu>
 
 <!--    帮助-->
-<!--    <el-button @click="bangzhu">帮助</el-button>-->
+<!--    <el-button @click="bangzhu" style="width: 100px">帮助</el-button>-->
     <el-dialog
       title="提示"
       :visible.sync="dialogVisibleHelp"
@@ -336,7 +335,7 @@
       width="30%"
       :before-close="handleClose">
       <div>
-        <h3 style="font-weight: bolder" id="pinpai">品牌</h3>
+        <h3 style="font-weight: bolder" id="pinpai" ref="pinpai">品牌</h3>
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
@@ -363,7 +362,7 @@
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
-        <a href="#pinpai">品牌</a>
+        <a :href="whelp" v-trigger><span>品牌</span></a>
       </div>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisibleHelp = false">取 消</el-button>
@@ -386,6 +385,7 @@ export default {
   data() {
     return {
         //帮助
+        whelp:'',
         dialogVisibleHelp:false,
         //问题详情
         particular:'',
@@ -478,6 +478,14 @@ export default {
       // this.getList();
       // this.jiazai()
   },
+    // 自动触发事件
+    directives:{
+        trigger:{
+            inserted(el,binging){
+                el.click()
+            }
+        }
+    },
   methods: {
       //帮助
       bangzhu(){
@@ -496,8 +504,8 @@ export default {
       },
       //测试按钮
       ceshi(){
-        console.log(this.forms.dynamicItem)
-          alert(JSON.stringify(this.forms.dynamicItem))
+        // console.log(this.forms.dynamicItem)
+        //   alert(JSON.stringify(this.forms.dynamicItem))
       },
       jiazai(){
         alert('加载')
@@ -538,7 +546,11 @@ export default {
       },
       showhelp(){
           if (this.who === 'biaoshi'){
-              this.helpT = '请输入标识符'
+              this.dialogVisibleHelp = true
+              this.whelp = '#pinpai'
+              setTimeout(()=>{
+                  this.$refs.pinpai.style.color='red'
+              },0)
           }else if (this.who === 'brand'){
               this.helpT = '请输入交换机品牌'
           }else if (this.who === 'type' ){
@@ -552,9 +564,9 @@ export default {
           }else if (this.who === '' ){
               this.helpT = ''
           }
-          this.$alert(this.helpT, '标题名称', {
-              confirmButtonText: '确定'
-          });
+          // this.$alert(this.helpT, '标题名称', {
+          //     confirmButtonText: '确定'
+          // });
       },
 
       shaxun(){
