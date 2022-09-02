@@ -952,7 +952,8 @@ public class SwitchInteraction {
 
                 //问题数据 插入问题表 如果有参数 及插入
                 //insertvalueInformationService(user_String,user_Object, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
-                insertvalueInformationServiceTwo(user_String,user_Object, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
+                insertSwitchScanResult(user_String,user_Object, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
+
                 //插入问题数据次数 加一
                 insertsInteger++;
                 current_Round_Extraction_String = "";
@@ -1377,7 +1378,7 @@ public class SwitchInteraction {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static void insertvalueInformationServiceTwo (Map<String,String> user_String,Map<String,Object> user_Object,
+    public static void insertSwitchScanResult (Map<String,String> user_String,Map<String,Object> user_Object,
                                                      TotalQuestionTable totalQuestionTable,
                                                      ProblemScanLogic problemScanLogic,
                                                      String parameterString){
@@ -1391,53 +1392,6 @@ public class SwitchInteraction {
         String substring = problemScanLogic.getProblemId().substring(0, 3);
         //截取 问题代码
         String problemId = problemScanLogic.getProblemId().substring(3, problemScanLogic.getProblemId().length());
-
-        //参数组中的 第一个参数ID  默认为 0
-        Long outId = 0l;
-
-        String value = null;
-
-        //提取信息 如果不为空 则有参数
-        if (parameterString!=null && !parameterString.equals("")){
-
-            value = parameterString;
-
-            //几个参数中间的 参数是 以  "=:=" 来分割的
-            //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-            String[] parameterStringsplit = parameterString.split("=:=");
-
-            //判断提取参数 是否为空
-            if (parameterStringsplit.length>0){
-                //创建 参数 实体类
-                ValueInformation valueInformation = new ValueInformation();
-                //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
-                //所以 参数组 要倒序插入
-                for (int number=parameterStringsplit.length-1;number>0;number--){
-                    //插入参数
-                    //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
-                    String setDynamicInformation=parameterStringsplit[number];
-                    valueInformation.setDisplayInformation(setDynamicInformation);//动态信息(显示
-                    valueInformation.setDynamicInformation(setDynamicInformation);//动态信息
-                    --number;
-                    String setExhibit=parameterStringsplit[number];
-                    valueInformation.setExhibit(setExhibit);//是否显示
-
-                    if (setExhibit.equals("否")){
-                        String setDynamicInformationMD5 = EncryptUtil.densificationAndSalt(setDynamicInformation);
-                        valueInformation.setDynamicInformation(setDynamicInformationMD5);//动态信息
-                    }
-
-                    --number;
-                    valueInformation.setDynamicVname(parameterStringsplit[number]);//动态信息名称
-                    valueInformation.setOutId(outId);
-
-                    //参数插入
-                    valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);
-                    valueInformationService.insertValueInformation(valueInformation);
-                    outId = valueInformation.getId();
-                }
-            }
-        }
 
         SwitchScanResult switchScanResult = new SwitchScanResult();
 
@@ -1464,8 +1418,7 @@ public class SwitchInteraction {
         switchScanResult.setProblemDescribeId(totalQuestionTable.getProblemDescribeId());
 
         switchScanResult.setComId(problemScanLogic.gettComId());//命令索引
-        switchScanResult.setValueId(outId);//参数索引
-        switchScanResult.setDynamicInformation(value);
+        switchScanResult.setDynamicInformation(parameterString);
         switchScanResult.setIfQuestion(substring); //是否有问题
         switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());
         switchScanResult.setUserName(userName);//参数索引
@@ -1829,6 +1782,7 @@ public class SwitchInteraction {
         if (split.length != 1){
             current_return_log = command_string.substring(0,command_string.length()-split[split.length-1].length()-2).trim();
             returnRecord.setCurrentReturnLog(current_return_log);
+
             //返回日志前后都有\r\n
             String current_return_log_substring_end = current_return_log.substring(current_return_log.length() - 2, current_return_log.length());
             if (!current_return_log_substring_end.equals("\r\n")){
@@ -1838,6 +1792,7 @@ public class SwitchInteraction {
             if (!current_return_log_substring_start.equals("\r\n")){
                 current_return_log = "\r\n"+current_return_log;
             }
+
         }
 
         WebSocketService.sendMessage("badao"+userName,current_return_log);

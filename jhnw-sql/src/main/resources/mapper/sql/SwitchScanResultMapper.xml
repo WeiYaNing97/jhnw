@@ -50,16 +50,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="problemDescribeId"    column="problem_describe_id"    />
         <result property="ifQuestion"    column="if_question"    />
         <result property="comId"    column="com_id"    />
-        <result property="valueId"    column="value_id"    />
         <result property="dynamicInformation"    column="dynamic_information"    />
-        <result property="resolved"    column="resolved"    />
         <result property="createTime"    column="create_time"    />
         <result property="userName"    column="user_name"    />
         <result property="phonenumber"    column="phonenumber"    />
     </resultMap>
 
     <sql id="selectSwitchScanResultVo">
-        select id, switch_ip, brand, switch_type, fireware_version, sub_version, switch_name, switch_password, login_method, port_number, problem_id, type_problem, tem_pro_name, problem_name, remarks, problem_describe_id, if_question, com_id, value_id, dynamic_information, resolved, create_time, user_name, phonenumber from switch_scan_result
+        select id, switch_ip, brand, switch_type, fireware_version, sub_version, switch_name, switch_password, login_method, port_number, problem_id, type_problem, tem_pro_name, problem_name, remarks, problem_describe_id, if_question, com_id,  dynamic_information,  create_time, user_name, phonenumber from switch_scan_result
     </sql>
     <sql id="pojoVo">
         select
@@ -81,12 +79,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                 WHEN '有问题' THEN '异常'
                 WHEN '无问题' THEN '安全'
                 WHEN '完成' THEN '完成'
+                WHEN '已解决' THEN '已解决'
                 END if_question,
 
         ssrt.com_id com_id,
-        ssrt.value_id value_id,
         ssrt.dynamic_information,
-        ssrt.resolved resolved,
         ssrt.problem_name problem_name,
         ssrt.problem_describe_id problem_describe_id,
         ssrt.create_time create_time
@@ -114,9 +111,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="ifQuestion != null  and ifQuestion != ''"> and if_question = #{ifQuestion}</if>
             <if test="comId != null  and comId != ''"> and com_id = #{comId}</if>
-            <if test="valueId != null "> and value_id = #{valueId}</if>
             <if test="dynamicInformation != null  and dynamicInformation != ''"> and dynamic_information = #{dynamicInformation}</if>
-            <if test="resolved != null  and resolved != ''"> and resolved = #{resolved}</if>
             <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
             <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
         </where>
@@ -147,9 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null">problem_describe_id,</if>
             <if test="ifQuestion != null">if_question,</if>
             <if test="comId != null">com_id,</if>
-            <if test="valueId != null">value_id,</if>
             <if test="dynamicInformation != null">dynamic_information,</if>
-            <if test="resolved != null">resolved,</if>
             <if test="createTime != null">create_time,</if>
             <if test="userName != null">user_name,</if>
             <if test="phonenumber != null">phonenumber,</if>
@@ -172,9 +165,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null">#{problemDescribeId},</if>
             <if test="ifQuestion != null">#{ifQuestion},</if>
             <if test="comId != null">#{comId},</if>
-            <if test="valueId != null">#{valueId},</if>
             <if test="dynamicInformation != null">#{dynamicInformation},</if>
-            <if test="resolved != null">#{resolved},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="userName != null">#{userName},</if>
             <if test="phonenumber != null">#{phonenumber},</if>
@@ -201,9 +192,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null">problem_describe_id = #{problemDescribeId},</if>
             <if test="ifQuestion != null">if_question = #{ifQuestion},</if>
             <if test="comId != null">com_id = #{comId},</if>
-            <if test="valueId != null">value_id = #{valueId},</if>
             <if test="dynamicInformation != null">dynamic_information = #{dynamicInformation},</if>
-            <if test="resolved != null">resolved = #{resolved},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="userName != null">user_name = #{userName},</if>
             <if test="phonenumber != null">phonenumber = #{phonenumber},</if>

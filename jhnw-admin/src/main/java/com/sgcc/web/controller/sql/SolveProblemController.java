@@ -321,7 +321,6 @@ public class SolveProblemController {
                 String solveProblem = solveProblem(user_String,loginUser,informationList,switchScanResult, commandList,valueHashMap);//userName
 
                 if (solveProblem.equals("成功")){
-                    switchScanResult.setResolved("是");
                     switchScanResult.setIfQuestion("已解决");
 
                     // 根据 问题ID  查询 扫描出的问题
@@ -1050,6 +1049,7 @@ public class SolveProblemController {
                     }
 
                     pojoList.add(switchProblemVO);
+
                 }
             }
 
@@ -1111,7 +1111,6 @@ public class SolveProblemController {
         for (SwitchScanResult switchScanResult:list){
             hashMap.put(switchScanResult.getId(),switchScanResult);
         }
-
 
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
