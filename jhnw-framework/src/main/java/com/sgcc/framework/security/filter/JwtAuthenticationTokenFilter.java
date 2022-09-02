@@ -31,9 +31,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException
     {
-
-        String scheme = request.getScheme();
-        System.out.println("\r\n请求类型：\r\n"+scheme.toLowerCase()+"\r\n");
+        /*String scheme = request.getScheme();
+        System.out.println("\r\n请求类型：\r\n"+scheme.toLowerCase()+"\r\n");*/
         LoginUser loginUser = tokenService.getLoginUser(request);
         if (StringUtils.isNotNull(loginUser) && StringUtils.isNull(SecurityUtils.getAuthentication()))
         {

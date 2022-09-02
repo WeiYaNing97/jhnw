@@ -48,8 +48,13 @@ public class SwitchScanResultController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(SwitchScanResult switchScanResult)
     {
+        LoginUser login = SecurityUtils.getLoginUser();
+        switchScanResult.setUserName(login.getUsername());
         startPage();
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultList(switchScanResult);
+        for (SwitchScanResult pojo:list){
+            pojo.setDynamicInformation(null);
+        }
         return getDataTable(list);
     }
 

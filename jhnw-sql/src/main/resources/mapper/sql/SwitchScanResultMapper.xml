@@ -115,6 +115,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
             <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
         </where>
+
+        ORDER BY
+        create_time DESC
+
     </select>
     
     <select id="selectSwitchScanResultById" parameterType="Long" resultMap="SwitchScanResultResult">

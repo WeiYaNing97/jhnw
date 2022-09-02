@@ -3,8 +3,10 @@ package com.sgcc.web.controller.sql;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.service.IReturnRecordService;
@@ -37,8 +39,13 @@ public class ReturnRecordController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(ReturnRecord returnRecord)
     {
+        LoginUser login = SecurityUtils.getLoginUser();
+        returnRecord.setUserName(login.getUsername());
         startPage();
         List<ReturnRecord> list = returnRecordService.selectReturnRecordList(returnRecord);
+        for (ReturnRecord pojo:list){
+            pojo.setCurrentReturnLog(null);
+        }
         return getDataTable(list);
     }
 

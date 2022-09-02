@@ -719,7 +719,7 @@ export default {
               data:JSON.stringify(this.queryParams)
           }).then(response=>{
               console.log(response)
-              response.forEach(l=>{
+              response.data.forEach(l=>{
                   const wei = l.replace(/"=/g,'":')
                   this.fDa.push(JSON.parse(wei))
                   // const weizai = eval(wei)

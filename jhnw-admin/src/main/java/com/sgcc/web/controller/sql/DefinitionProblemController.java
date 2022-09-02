@@ -4,6 +4,7 @@ import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
+import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.*;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -774,7 +776,38 @@ public class DefinitionProblemController extends BaseController {
      */
     @RequestMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
-    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
+    public AjaxResult Timeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        final List<String>[] analysisList = new List[]{new ArrayList<>()};
+        FutureTask future = new FutureTask(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+// TODO Auto-generated method stub
+                analysisList[0] = getAnalysisList(totalQuestionTable);
+                return analysisList[0];
+            }
+        });
+        executor.execute(future);
+        try {
+            List<String> result = (List<String>) future.get(5000, TimeUnit.MILLISECONDS);
+            System.out.println(result);
+        } catch (InterruptedException e) {
+// TODO Auto-generated catch block
+            e.printStackTrace();
+
+        } catch (ExecutionException e) {
+// TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+// TODO Auto-generated catch block
+            return AjaxResult.error("查询超时");
+        }finally{
+            future.cancel(true);
+            executor.shutdown();
+        }
+        return AjaxResult.success(analysisList[0]);
+    }
+    public List<String> getAnalysisList(TotalQuestionTable totalQuestionTable){
 
         //给 问题表数据 赋值
         TotalQuestionTable pojo = new TotalQuestionTable();

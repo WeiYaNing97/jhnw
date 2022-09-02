@@ -35,6 +35,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="currentReturnLog != null  and currentReturnLog != ''"> and current_return_log = #{currentReturnLog}</if>
             <if test="currentIdentifier != null  and currentIdentifier != ''"> and current_identifier = #{currentIdentifier}</if>
         </where>
+        ORDER BY
+        create_time DESC
     </select>
     
     <select id="selectReturnRecordById" parameterType="Long" resultMap="ReturnRecordResult">
