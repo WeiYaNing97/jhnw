@@ -37,6 +37,7 @@ function getNetWorkIp(){
 
 const myHost = getNetWorkIp()
 const myName = os.hostname()
+const fs = require('fs')
 
 process.env.VUE_APP_HOST = myHost
 process.env.VUE_APP_NAME = myName
@@ -72,6 +73,9 @@ module.exports = {
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
+        // router:() =>{
+        //   return fs.readFileSync(process.cwd()+'/public/static/.env.config','utf-8')
+        // }
       }
     },
     disableHostCheck: true

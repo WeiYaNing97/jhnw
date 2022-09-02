@@ -776,7 +776,7 @@
                                 let mi1 = ''
                                 let mi2 = ''
                                 for (let n = 0;n<shu[i].children[g].children[m].valueInformationVOList.length;n++){
-                                    if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit != '否'){
+                                    if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit === '是'){
                                         mi1 = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation
                                         mi2 = mi2+' '+mi1
                                         console.log(mi2)
