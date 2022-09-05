@@ -306,7 +306,7 @@
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
         <el-button @click="guanbi" type="primary">关闭</el-button>
-        <el-button @click="ceshi" type="primary">测试按钮</el-button>
+<!--        <el-button @click="ceshi" type="primary">测试按钮</el-button>-->
 <!--        有用-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
@@ -392,7 +392,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:true,
+        chuxian:false,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj

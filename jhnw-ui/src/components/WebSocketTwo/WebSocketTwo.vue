@@ -5,7 +5,7 @@
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
 <!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
-    <el-button type="primary" size="small" @click="testall">所有测试</el-button>
+<!--    <el-button type="primary" size="small" @click="testall">所有测试</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
     <el-table v-loading="loading"

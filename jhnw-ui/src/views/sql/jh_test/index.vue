@@ -25,7 +25,7 @@
                    @click="xiazai" style="margin-left: 10px">下载模板</el-button>
         <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
                          @change="handleChange" :min="1" :max="5"></el-input-number>
-        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>
+<!--        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
       <el-divider></el-divider>
       <el-row>
@@ -197,9 +197,9 @@ export default {
         deptName:undefined,
         shuru:false,
         tableData: [{
-            ip: '192.168.1.100',
-            name: 'admin',
-            password:'admin',
+            ip: '',
+            name: '',
+            password:'',
             passmi:'********',
             mode:'ssh',
             port:22,
