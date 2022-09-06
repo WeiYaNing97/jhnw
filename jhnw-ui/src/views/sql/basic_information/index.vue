@@ -130,9 +130,27 @@
           <el-form-item>
             <el-radio-group v-model="item.exhibit">
               <el-radio label="显示" style="margin-right: 5px"></el-radio>
-              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='显示'"></el-input>
+
+                <el-select v-model="item.wordName" placeholder="请选择"
+                           v-if="item.exhibit==='显示'" style="margin-top:0;width: 100px;margin-right: 10px">
+                  <el-option label="设备品牌" value="设备品牌"></el-option>
+                  <el-option label="设备型号" value="设备型号"></el-option>
+                  <el-option label="内部固件版本" value="内部固件版本"></el-option>
+                  <el-option label="子版本号" value="子版本号"></el-option>
+                </el-select>
+
+<!--              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='显示'"></el-input>-->
               <el-radio label="不显示" style="margin-right: 5px"></el-radio>
-              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='不显示'"></el-input>
+
+                <el-select v-model="item.wordName" placeholder="请选择"
+                           v-if="item.exhibit==='不显示'" style="margin-top:0;width: 100px">
+                  <el-option label="设备品牌" value="设备品牌"></el-option>
+                  <el-option label="设备型号" value="设备型号"></el-option>
+                  <el-option label="内部固件版本" value="内部固件版本"></el-option>
+                  <el-option label="子版本号" value="子版本号"></el-option>
+                </el-select>
+
+<!--              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='不显示'"></el-input>-->
             </el-radio-group>
           </el-form-item>
           <el-form-item>
@@ -914,7 +932,6 @@
                     }
                 })
                 const handForm = useForm.map(x => JSON.stringify(x))
-                // alert(handForm)
                 console.log(handForm)
                 return request({
                     // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
@@ -922,7 +939,7 @@
                     method:'post',
                     data:handForm
                 }).then(response=>{
-                    console.log("成功")
+                    this.$message.success('提交成功!')
                 })
                 // window.location.reload()   刷新页面
                 // this.$router.go(0)   刷新页面

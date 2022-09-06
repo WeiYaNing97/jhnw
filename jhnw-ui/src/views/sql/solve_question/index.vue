@@ -263,6 +263,7 @@ export default {
               method:'post',
               data:handForm
           }).then(response=>{
+              this.$message.success('提交成功!')
               console.log("成功")
           })
           //     // url:'/dev-api/sql/ConnectController/definitionProblem1/\'+handForm+\'/\'+handForm',

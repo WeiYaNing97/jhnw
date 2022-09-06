@@ -789,7 +789,7 @@ export default {
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
-              this.$message.success('提交问题成功')
+              this.$message.success('提交问题成功!')
               this.proId = response.msg
           })
       },
