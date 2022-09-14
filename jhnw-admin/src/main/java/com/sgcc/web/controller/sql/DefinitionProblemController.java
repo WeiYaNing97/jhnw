@@ -39,7 +39,7 @@ public class DefinitionProblemController extends BaseController {
     @Autowired
     private ICommandLogicService commandLogicService;
     @Autowired
-    private IProblemScanLogicService problemScanLogicService;
+    private static IProblemScanLogicService problemScanLogicService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
     @Autowired
@@ -887,7 +887,7 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("problemScanLogicList")
-    public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID){
+    public static List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID){
         //String problemScanLogicID = "1649726283752";
         boolean contain = false;
         HashSet<String> problemScanLogicIDList = new HashSet<>();
@@ -1244,5 +1244,32 @@ public class DefinitionProblemController extends BaseController {
         }
     }
 
+
+    @RequestMapping("getBasicInformationProblemScanLogic")
+    public  List<String>  getBasicInformationProblemScanLogic(String problemId) {
+        List<ProblemScanLogic> problemScanLogicList = DefinitionProblemController.problemScanLogicList(problemId);//commandLogic.getProblemId()
+
+        if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+            return null;
+        }
+
+        HashMap<Long,String> hashMap = new HashMap<>();
+
+        for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+
+            String problemScanLogicString = problemScanLogicSting(problemScanLogic);
+            String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
+            hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
+
+        }
+
+        List<String> stringList = new ArrayList<>();
+        for (Long number=0L;number<hashMap.size();number++){
+            System.err.println(hashMap.get(number+1));
+            stringList.add(hashMap.get(number+1));
+        }
+
+        return stringList;
+    }
 
 }

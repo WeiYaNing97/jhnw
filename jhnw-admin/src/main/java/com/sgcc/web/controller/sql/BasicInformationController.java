@@ -6,12 +6,18 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.BasicInformation;
+import com.sgcc.sql.domain.CommandLogic;
+import com.sgcc.sql.domain.ProblemScanLogic;
 import com.sgcc.sql.service.IBasicInformationService;
+import com.sgcc.sql.service.ICommandLogicService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -26,6 +32,8 @@ public class BasicInformationController extends BaseController
 {
     @Autowired
     private IBasicInformationService basicInformationService;
+    @Autowired
+    private ICommandLogicService commandLogicService;
 
     /**
      * 查询获取基本信息命令列表
@@ -104,4 +112,5 @@ public class BasicInformationController extends BaseController
         List<BasicInformation> list = basicInformationService.selectBasicInformationList(null);
         return list;
     }
+
 }
