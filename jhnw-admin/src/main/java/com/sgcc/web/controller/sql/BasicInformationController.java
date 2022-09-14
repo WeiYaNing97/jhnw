@@ -94,4 +94,14 @@ public class BasicInformationController extends BaseController
     {
         return toAjax(basicInformationService.deleteBasicInformationByIds(ids));
     }
+
+    /**
+     * 查询获取基本信息命令列表
+     */
+    @GetMapping("/getPojolist")
+    public List<BasicInformation> getPojolist()
+    {
+        List<BasicInformation> list = basicInformationService.selectBasicInformationList(null);
+        return list;
+    }
 }
