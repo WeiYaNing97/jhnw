@@ -107,7 +107,9 @@ public class SwitchInteraction {
                         break;
                     case "name" :  name=string_split[1];
                         break;
-                    case "password" :  password=string_split[1];
+                    case "password" :
+                        password=string_split[1];
+                        password = RSAUtils.decryptFrontEndCiphertext(password);
                         break;
                     case "mode" :  mode=string_split[1];
                         break;

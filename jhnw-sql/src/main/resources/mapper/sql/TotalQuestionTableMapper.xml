@@ -102,9 +102,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectTotalQuestionTableVo"/>
         <where>
             <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type} or type = '*'</if>
-            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion} or fireware_version = '*'</if>
-            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion} or sub_version = '*'</if>
+            <if test="type != null  and type != ''"> and (type = #{type} or type = '*')</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and (fireware_version = #{firewareVersion} or fireware_version = '*')</if>
+            <if test="subVersion != null  and subVersion != ''"> and (sub_version = #{subVersion} or sub_version = '*')</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
             <if test="commandId != null "> and command_id = #{commandId}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
