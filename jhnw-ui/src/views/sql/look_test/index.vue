@@ -343,8 +343,8 @@ export default {
         brand:'',
         type:'',
         firewareVersion:'',
-        subversion:'',
-        commandId:'1'
+        subversion:''
+        // commandId:'1'
       },
       // 表单参数
       form: {},
@@ -678,7 +678,7 @@ export default {
       },
       //获取问题ID
       cproId(){
-          this.$delete(this.queryParams,'commandId')
+          // this.$delete(this.queryParams,'commandId')
           let form = new FormData()
           console.log(this.queryParams)
           for (var key in this.queryParams){

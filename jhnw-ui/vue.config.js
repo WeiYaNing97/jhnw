@@ -7,7 +7,7 @@ function resolve(dir) {
 
 const name = process.env.VUE_APP_TITLE || '嘉豪交换机' // 网页标题
 
-const port = process.env.port || process.env.npm_config_port || 80 // 端口
+const port = process.env.port || process.env.npm_config_port || 70 // 端口
 
 //获取本机ip，自己添加的
 const os = require('os')

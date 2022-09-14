@@ -162,7 +162,6 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
@@ -411,7 +410,6 @@ export default {
       },
       //测试
       testall(){
-          // console.log(this.$refs.webone.geifuone())
           // console.log(this.$refs.webtwo.geifu())
           // console.log(this.$refs.treeone.getCheckedKeys())
       },
@@ -534,6 +532,7 @@ export default {
           console.log(totalQuestionTableId)
           console.log(zuihou)
           let zuihouall = zuihou.map(x=>JSON.stringify(x))
+          console.log(zuihouall)
           if(totalQuestionTableId.length == 0){
               console.log('全部扫描')
               return request({
