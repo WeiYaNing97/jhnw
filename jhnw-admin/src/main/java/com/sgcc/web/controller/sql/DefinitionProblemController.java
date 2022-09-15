@@ -1,7 +1,5 @@
 package com.sgcc.web.controller.sql;
 
-import com.sgcc.common.annotation.Excel;
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -776,7 +774,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @RequestMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
-    public AjaxResult Timeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
+    public AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final List<String>[] analysisList = new List[]{new ArrayList<>()};
         FutureTask future = new FutureTask(new Callable<List<String>>() {
@@ -808,6 +806,8 @@ public class DefinitionProblemController extends BaseController {
         }
         return AjaxResult.success(analysisList[0]);
     }
+
+
     public List<String> getAnalysisList(TotalQuestionTable totalQuestionTable){
 
         //给 问题表数据 赋值
@@ -1226,15 +1226,19 @@ public class DefinitionProblemController extends BaseController {
     public boolean deleteProblemScanLogicList(String problemScanId){
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(problemScanId);
         HashSet<String> problemScanLogicIdList = new HashSet<>();
+
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
             problemScanLogicIdList.add(problemScanLogic.getId());
         }
+
         String[] problemScanLogicIdArray = new String[problemScanLogicIdList.size()];
+
         int i = 0 ;
         for (String problemScanLogicId:problemScanLogicIdList){
             problemScanLogicIdArray[i] = problemScanLogicId;
             i++;
         }
+
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         int j = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicIdArray);
         if (j>0){
@@ -1242,10 +1246,42 @@ public class DefinitionProblemController extends BaseController {
         }else {
             return false;
         }
+
     }
 
-
     @RequestMapping("getBasicInformationProblemScanLogic")
+    @MyLog(title = "查询获取基本信息数据", businessType = BusinessType.OTHER)
+    public AjaxResult getBasicInformationProblemScanLogicTimeouts(String problemId) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        final List<String>[] analysisList = new List[]{new ArrayList<>()};
+        FutureTask future = new FutureTask(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+            // TODO Auto-generated method stub
+                analysisList[0] = getBasicInformationProblemScanLogic(problemId);
+                return analysisList[0];
+            }
+        });
+        executor.execute(future);
+        try {
+            List<String> result = (List<String>) future.get(60000, TimeUnit.MILLISECONDS);
+            System.out.println(result);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            // TODO Auto-generated catch block
+            return AjaxResult.error("查询超时");
+        }finally{
+            future.cancel(true);
+            executor.shutdown();
+        }
+        return AjaxResult.success(analysisList[0]);
+    }
+
     public  List<String>  getBasicInformationProblemScanLogic(String problemId) {
         List<ProblemScanLogic> problemScanLogicList = DefinitionProblemController.problemScanLogicList(problemId);//commandLogic.getProblemId()
 
