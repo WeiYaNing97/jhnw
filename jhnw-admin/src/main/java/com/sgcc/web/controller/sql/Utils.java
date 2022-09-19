@@ -154,7 +154,15 @@ public class Utils {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("compareVersion")
-    public static boolean compareVersion(Map<String,String> user_String, String compare){
+    public static boolean compareVersion(Map<String,String> user_String, String compare,String current_Round_Extraction_String){
+
+        String[] current_Round_Extraction_split = current_Round_Extraction_String.split("=:=");
+        Map<String,String> value_String = new HashMap<>();
+        for (int number = 0 ; number<current_Round_Extraction_split.length ; number = number +3){
+
+            value_String.put(current_Round_Extraction_split[number],current_Round_Extraction_split[number+2]);
+
+        }
 
         //由 汉字 转化为 单词
         if (compare.indexOf("品牌")!=-1){
@@ -198,12 +206,37 @@ public class Utils {
         //comparisonNumber.length ==1  有 一个比较
         if (comparisonNumber.length ==1){
             String[] compareArray = new String[3];
+
+            String value1 = value_String.get(parameter[0]);
+            String value2 = value_String.get(parameter[1]);
+            if (value1 != null){
+                parameter[0] = value1;
+            }
+            if (value2 != null){
+                parameter[1] = value2;
+            }
+
             compareArray[0] = parameter[0];
             compareArray[1] = comparisonNumber[0];
             compareArray[2] = parameter[1];
             compareList.add(compareArray);
+
             //comparisonNumber.length == 2  有 两个比较
         }else if (comparisonNumber.length ==2){
+            String value0 = value_String.get(parameter[0]);
+            String value1 = value_String.get(parameter[1]);
+            String value2 = value_String.get(parameter[2]);
+            if (value0 != null){
+                parameter[0] = value0;
+            }
+            if (value1 != null){
+                parameter[1] = value1;
+            }
+            if (value2 != null){
+                parameter[2] = value2;
+            }
+
+
             //第一组比较
             String[] compareArray1 = new String[3];
             compareArray1[0] = parameter[0];
@@ -242,7 +275,7 @@ public class Utils {
                         return false;
                     }
                     break;
-                case "==":
+                case "=":
                     //相等 为  true
                     compare_size = compareArray[0].equals(compareArray[2]);
                     //不相等 则 false

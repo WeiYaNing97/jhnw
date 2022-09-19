@@ -1197,7 +1197,7 @@ public class SwitchInteraction {
             if (compare!=null){
 
                 //比较
-                boolean compare_boolean = Utils.compareVersion(user_String,compare);
+                boolean compare_boolean = Utils.compareVersion(user_String,compare,current_Round_Extraction_String);
 
                 if (compare_boolean){
 
