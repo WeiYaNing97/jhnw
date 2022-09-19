@@ -1114,7 +1114,7 @@ export default {
           const handForm = useForm.map(x => JSON.stringify(x))
           console.log(handForm)
           return request({
-              // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
+              url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
               method:'post',
               data:handForm
           }).then(response=>{

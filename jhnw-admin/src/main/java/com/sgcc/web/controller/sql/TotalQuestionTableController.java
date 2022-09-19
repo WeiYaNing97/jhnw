@@ -198,18 +198,22 @@ public class TotalQuestionTableController extends BaseController
         if (!(totalQuestionTable.getBrand().equals(""))){
             brand = totalQuestionTable.getBrand();
         }
+
         String type = null;
         if (!(totalQuestionTable.getType().equals(""))){
             type = totalQuestionTable.getType();
-        }
+        }else {type = "*";}
+
         String firewareVersion = null;
         if (!(totalQuestionTable.getFirewareVersion().equals(""))){
             firewareVersion = totalQuestionTable.getFirewareVersion();
-        }
+        }else {firewareVersion = "*";}
+
         String subVersion = null;
         if (!(totalQuestionTable.getSubVersion().equals(""))){
             subVersion = totalQuestionTable.getSubVersion();
-        }
+        }else {subVersion = "*";}
+
         String typeProblem = null;
         if (!(totalQuestionTable.getTypeProblem().equals(""))){
             typeProblem = totalQuestionTable.getTypeProblem();

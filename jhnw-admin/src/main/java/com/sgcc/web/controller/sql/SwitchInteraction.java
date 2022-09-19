@@ -1,5 +1,5 @@
 package com.sgcc.web.controller.sql;
-import cn.hutool.core.date.DatePattern;
+
 import cn.hutool.core.date.DateTime;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -20,7 +20,6 @@ import com.sgcc.web.controller.util.RSAUtils;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -1913,6 +1912,7 @@ public class SwitchInteraction {
         String subversionNumber = user_String.get("subversionNumber");//子版本号
 
         List<TotalQuestionTable> commandIdByInformation_comandID_Long = new ArrayList<>();
+        Map<String,TotalQuestionTable> totalQuestionTableHashMap = new HashMap<>();
 
         //totalQuestionTables == null 的时候 是扫描全部问题
         if (totalQuestionTables == null){
@@ -1921,7 +1921,48 @@ public class SwitchInteraction {
             if (commandIdByInformation_ajaxResult == null){
                 return  AjaxResult.success("未定义交换机问题");
             }
-            commandIdByInformation_comandID_Long = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
+            List<TotalQuestionTable> totalQuestionTableList = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
+            for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
+                String key =totalQuestionTable.getTypeProblem() + totalQuestionTable.getTemProName();
+                TotalQuestionTable pojo = totalQuestionTableHashMap.get(key);
+                if (pojo != null){
+                    int usedNumber = 0;
+                    if (!(pojo.getType().equals("*"))){
+                        usedNumber = usedNumber +1;
+                    }
+                    if (!(pojo.getFirewareVersion().equals("*"))){
+                        usedNumber = usedNumber +1;
+                    }
+                    if (!(pojo.getSubVersion().equals("*"))){
+                        usedNumber = usedNumber +1;
+                    }
+                    int newNumber = 0;
+                    if (!(totalQuestionTable.getType().equals("*"))){
+                        newNumber = newNumber +1;
+                    }
+                    if (!(totalQuestionTable.getFirewareVersion().equals("*"))){
+                        newNumber = newNumber +1;
+                    }
+                    if (!(totalQuestionTable.getSubVersion().equals("*"))){
+                        newNumber = newNumber +1;
+                    }
+
+                    if (usedNumber < newNumber){
+                        totalQuestionTableHashMap.put(key,totalQuestionTable);
+                    }else {
+                        totalQuestionTableHashMap.put(key,pojo);
+                    }
+                }else {
+                    totalQuestionTableHashMap.put(key,totalQuestionTable);
+                }
+            }
+            Iterator <Map.Entry< String, TotalQuestionTable >> iterator = totalQuestionTableHashMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry< String, TotalQuestionTable > entry = iterator.next();
+
+                commandIdByInformation_comandID_Long.add(entry.getValue());
+            }
+
         }else {
             //totalQuestionTables != null 是 专项扫描问题
             // 匹配符合问题
