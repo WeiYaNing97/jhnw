@@ -97,9 +97,11 @@ public class DefinitionProblemController extends BaseController {
         for (int number=0;number<jsonPojoList.size();number++){
             // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
+
                 CommandLogic commandLogic = analysisCommandLogic(jsonPojoList.get(number));
                 commandLogicList.add(commandLogic);
                 continue;
+
             }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
 
                 if (number+1<jsonPojoList.size()){
@@ -387,7 +389,7 @@ public class DefinitionProblemController extends BaseController {
         jsonPojo = jsonPojo.replace("}","");
         jsonPojo = jsonPojo.replace("'","\"");
         jsonPojo = jsonPojo.replace("\":","\":\"");
-        jsonPojo = jsonPojo.replace(":\"","\":\"");
+        //jsonPojo = jsonPojo.replace(":\"","\":\"");
         jsonPojo = jsonPojo.replace("\",","\",\"");
         jsonPojo = jsonPojo.replace(",\"","\",\"");
         jsonPojo = jsonPojo.replace("\"\"","\"");
@@ -444,7 +446,7 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("WTNextId",null);
 
         for (String pojo:jsonPojo_split){
-            String[] split = pojo.split(":");
+            String[] split = pojo.split("\":");
             String split0 = split[0].replace("\"","");
             String split1 = null;
             if (split.length>1){
@@ -1250,7 +1252,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
     @RequestMapping("getBasicInformationProblemScanLogic")
-    @MyLog(title = "查询获取基本信息数据", businessType = BusinessType.OTHER)
+    //@MyLog(title = "查询获取基本信息数据", businessType = BusinessType.OTHER)
     public AjaxResult getBasicInformationProblemScanLogicTimeouts(String problemId) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final List<String>[] analysisList = new List[]{new ArrayList<>()};

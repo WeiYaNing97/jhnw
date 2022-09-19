@@ -1002,6 +1002,7 @@ public class SwitchInteraction {
         String matchContent = "";
         if (problemScanLogic.getMatchContent()!=null){
             matchContent = problemScanLogic.getMatchContent();
+            matchContent = matchContent.trim();
         }
 
         //标定从第line_n开始扫描
