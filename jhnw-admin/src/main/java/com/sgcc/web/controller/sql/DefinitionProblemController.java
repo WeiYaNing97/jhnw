@@ -1252,8 +1252,8 @@ public class DefinitionProblemController extends BaseController {
     }
 
     @RequestMapping("getBasicInformationProblemScanLogic")
-    //@MyLog(title = "查询获取基本信息数据", businessType = BusinessType.OTHER)
-    public AjaxResult getBasicInformationProblemScanLogicTimeouts(String problemId) {
+    @MyLog(title = "查询获取基本信息数据", businessType = BusinessType.OTHER)
+    public AjaxResult getBasicInformationProblemScanLogicTimeouts(@RequestBody String problemId) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final List<String>[] analysisList = new List[]{new ArrayList<>()};
         FutureTask future = new FutureTask(new Callable<List<String>>() {
