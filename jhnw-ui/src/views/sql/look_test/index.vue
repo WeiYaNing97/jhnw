@@ -497,7 +497,7 @@ export default {
           // alert(JSON.stringify(this.newValue))
           // alert(JSON.stringify(this.oldValue))
           return request({
-              url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+              url:`/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
               method:'post',
               data:handForm
           }).then(response=>{

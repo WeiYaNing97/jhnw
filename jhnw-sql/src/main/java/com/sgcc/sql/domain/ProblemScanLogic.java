@@ -7,7 +7,6 @@ import com.sgcc.common.core.domain.BaseEntity;
 
 /**
  * 问题扫描逻辑对象 problem_scan_logic
- * 
  * @author ruoyi
  * @date 2022-02-14
  */
