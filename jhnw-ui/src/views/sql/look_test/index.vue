@@ -448,7 +448,6 @@ export default {
               }
           })
       },
-
       //提交
       submitUseForm(){
           const useForm = []
@@ -940,7 +939,7 @@ export default {
           }
           if (type == 'prodes'){
               this.$set(item1,'action','问题')
-              this.$set(item1,'problemId',this.wentiid)
+              this.$set(item1,'problemId',this.proId)
           }
           this.forms.dynamicItem.splice(thisIndex+1,0,item1)
       },
