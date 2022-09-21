@@ -8,14 +8,13 @@ import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,15 +28,14 @@ import java.util.regex.Pattern;
 @RequestMapping("/sql/problem_scan_logic")
 //事务
 @Transactional(rollbackFor = Exception.class)
-public class ProblemScanLogicController extends BaseController
-{
+public class ProblemScanLogicController extends BaseController {
+
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
     @Autowired
     private ICommandLogicService commandLogicService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
-
 
     /**
      * 查询问题扫描逻辑列表
@@ -142,7 +140,6 @@ public class ProblemScanLogicController extends BaseController
                 CommandLogic commandLogic = commandLogicService.selectCommandLogicById(id);
                 commandLogics.add(commandLogic);
             }
-
             for (CommandLogic commandLogic:commandLogics){
                 if (!(commandLogic.getProblemId().equals("0"))){
                     List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());
@@ -151,7 +148,6 @@ public class ProblemScanLogicController extends BaseController
                         if (problemScanLogic.getWordName()!=null){
                             parameterName.add(problemScanLogic.getWordName());
                         }
-
                         if (problemScanLogic.getfComId()!=null){
                             commandIdString = commandIdString +problemScanLogic.getfComId() +":";
                         }else if (problemScanLogic.gettComId()!=null){
@@ -159,13 +155,11 @@ public class ProblemScanLogicController extends BaseController
                         }
                     }
                 }
-
             }
             if (commandIdString.indexOf(":")!=-1){
                 commandIdString = commandIdString.substring(0,commandIdString.length()-1);
             }
         }while (!(commandIdString.equals("")));
-
         List<String> parameterNameList = new ArrayList<>();
         for (String name:parameterName){
             parameterNameList.add(name);
@@ -201,11 +195,9 @@ public class ProblemScanLogicController extends BaseController
                     problemScanID += problemScanLogic.getfNextId()+":";
                 }
             }
-
             if (problemScanID.equals("")){
                 break;
             }
-
             String[] problemScanIDsplit = problemScanID.split(":");
             problemScanID = "";
             for (String id:problemScanIDsplit){
@@ -217,7 +209,6 @@ public class ProblemScanLogicController extends BaseController
                     break;
                 }
             }
-
             if (!(problemScanID.equals(""))){
                 contain = true;
                 problemScanLogicID = problemScanID.substring(0,problemScanID.length()-1);
@@ -249,7 +240,6 @@ public class ProblemScanLogicController extends BaseController
             }
             ProblemScanLogics.add(problemScanLogic);
         }
-
         return ProblemScanLogics;
     }
 
@@ -261,6 +251,27 @@ public class ProblemScanLogicController extends BaseController
         Pattern pattern = Pattern.compile(regex);
         Matcher match = pattern.matcher(str);
         return match.find();
+    }
+
+
+
+    /**
+     * @method: 根据 首分析ID 获取全部分析 并拆分 成功失败合实体类
+     * @Param: [problemScanLogicID]
+     * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("getproblemScanLogicList")
+    public List<ProblemScanLogic> getproblemScanLogicList(String problemScanLogicID){
+        Map<String,ProblemScanLogic> problemScanLogicMap = new HashMap<>();
+        ProblemScanLogic pojo = null;
+        ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(problemScanLogicID);
+        pojo = problemScanLogicMap.get(problemScanLogic.getId());
+        if (pojo == null){
+            problemScanLogicMap.put(problemScanLogic.getId(),problemScanLogic);
+        }
+        return null;
     }
 
 }

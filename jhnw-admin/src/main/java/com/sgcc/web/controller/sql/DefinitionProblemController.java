@@ -1228,19 +1228,15 @@ public class DefinitionProblemController extends BaseController {
     public boolean deleteProblemScanLogicList(String problemScanId){
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(problemScanId);
         HashSet<String> problemScanLogicIdList = new HashSet<>();
-
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
             problemScanLogicIdList.add(problemScanLogic.getId());
         }
-
         String[] problemScanLogicIdArray = new String[problemScanLogicIdList.size()];
-
         int i = 0 ;
         for (String problemScanLogicId:problemScanLogicIdList){
             problemScanLogicIdArray[i] = problemScanLogicId;
             i++;
         }
-
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         int j = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicIdArray);
         if (j>0){
@@ -1248,7 +1244,6 @@ public class DefinitionProblemController extends BaseController {
         }else {
             return false;
         }
-
     }
 
     @RequestMapping("getBasicInformationProblemScanLogic")
@@ -1286,28 +1281,20 @@ public class DefinitionProblemController extends BaseController {
 
     public  List<String>  getBasicInformationProblemScanLogic(String problemId) {
         List<ProblemScanLogic> problemScanLogicList = DefinitionProblemController.problemScanLogicList(problemId);//commandLogic.getProblemId()
-
         if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
             return null;
         }
-
         HashMap<Long,String> hashMap = new HashMap<>();
-
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-
             String problemScanLogicString = problemScanLogicSting(problemScanLogic);
             String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
-
         }
-
         List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
             System.err.println(hashMap.get(number+1));
             stringList.add(hashMap.get(number+1));
         }
-
         return stringList;
     }
-
 }
