@@ -2,10 +2,10 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="基本信息命令" prop="brand">
-        <el-select v-model="queryParams.brand" placeholder="基本信息命令"
+        <el-select v-model="basicCom" placeholder="基本信息命令"
                    filterable allow-create @focus="brandLi" style="width: 250px">
           <el-option v-for="(item,index) in comsss"
-                     :key="index" :label="item.command" :value="item.command"></el-option>
+                     :value-key="index" :label="item.command" :value="item.problemId"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -238,6 +238,8 @@
         name: "Look_test",
         data() {
             return {
+                //获取基本信息命令
+                basicCom:'',
                 //比较隐藏
                 bizui:false,
                 bixiala:true,
@@ -245,7 +247,7 @@
                 //新添加
                 checkedQ:false,
                 zhidu:true,
-                showNo:false,
+                showNo:true,
                 checked:false,
                 brandList:[],
                 comsss:{},
@@ -278,8 +280,17 @@
                 // 表单参数
                 form: {},
                 isChange:false,
+                huicha:[],
                 forms: {
                     dynamicItem:[
+                        {
+                            test:'test',
+                            onlyIndex:''
+                        }
+                    ],
+                },
+                formss:{
+                    dynamicItemss:[
                         {
                             test:'test',
                             onlyIndex:''
@@ -422,7 +433,6 @@
             //下拉框获取后台数据
             brandLi(){
                 return request({
-                    // url:'/sql/total_question_table/brandlist',
                     url:'/sql/basic_information/getPojolist',
                     method:'get',
                 }).then(response=>{
@@ -430,6 +440,7 @@
                     this.brandList = []
                     this.comsss = response
                     console.log(this.comsss)
+
                     // response.map(item=>{
                     //     this.brandList.push(item.command)
                     // })
@@ -437,7 +448,105 @@
             },
             //查看获取基本信息
             chakan(){
-                console.log(this.comsss)
+                console.log(this.basicCom)
+                this.forms.dynamicItem = this.formss.dynamicItemss
+                return request({
+                    url:'/sql/DefinitionProblemController/getBasicInformationProblemScanLogic',
+                    method:'post',
+                    data:this.basicCom
+                }).then(response=>{
+                    console.log(response)
+                    this.fDa = []
+                    response.data.forEach(l=>{
+                        const wei = l.replace(/"=/g,'":')
+                        this.fDa.push(JSON.parse(wei))
+                    })
+                    const quanjf = ''
+                    const hangjf = ''
+                    const quanmf = ''
+                    const hangmf = ''
+                    const bif = ''
+                    this.fDa.forEach(chae=>{
+                        if (chae.hasOwnProperty('command') == true){
+                            this.$set(chae,'targetType','command')
+                            if (chae.resultCheckId === 0){
+                                this.$set(chae,'resultCheckId','自定义校验')
+                            }else  if (chae.resultCheckId === 1){
+                                this.$set(chae,'resultCheckId','常规校验')
+                            }
+                            this.huicha.push(chae)
+                        }else if (chae.matched === '全文精确匹配'){
+                            this.$set(chae,'targetType','match')
+                            this.huicha.push(chae)
+                            this.quanjf = chae.onlyIndex
+                        }else if(chae.onlyIndex === this.quanjf && chae.trueFalse === '失败'){
+                            this.$set(chae,'targetType','matchfal')
+                            this.huicha.push(chae)
+                        }else if (chae.matched === '按行精确匹配'){
+                            this.$set(chae,'targetType','lipre')
+                            this.huicha.push(chae)
+                            this.hangjf = chae.onlyIndex
+                        }else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败'){
+                            this.$set(chae,'targetType','liprefal')
+                            this.huicha.push(chae)
+                        }else if (chae.action === '取词'){
+                            this.$set(chae,'targetType','takeword')
+                            // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
+                            console.log(chae.length.slice(chae.length.length-1))
+                            if (chae.length.slice(chae.length.length-1) === 'W'){
+                                this.$set(chae,'classify','单词')
+                                console.log('sss')
+                            }else  if (chae.length.slice(chae.length.length-1) === 'S'){
+                                this.$set(chae,'classify','字符串')
+                            }else if (chae.length.slice(chae.length.length-1) === 'L'){
+                                this.$set(chae,'classify','字母')
+                            }
+                            // chae.classify = chae.length.slice(chae.length.length-1)
+                            chae.length = chae.length.slice(0,chae.length.length-1)
+                            console.log(chae.length)
+                            this.huicha.push(chae)
+                        }else if (chae.matched === '全文模糊匹配'){
+                            this.$set(chae,'targetType','dimmatch')
+                            this.huicha.push(chae)
+                            this.quanmf = chae.onlyIndex
+                        }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
+                            this.$set(chae,'targetType','dimmatchfal')
+                            this.huicha.push(chae)
+                        }else if (chae.matched === '按行模糊匹配'){
+                            this.$set(chae,'targetType','dimpre')
+                            this.huicha.push(chae)
+                            this.hangmf = chae.onlyIndex
+                        }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
+                            this.$set(chae,'targetType','dimprefal')
+                            this.huicha.push(chae)
+                        }else if (chae.action === '问题'){
+                            this.$set(chae,'targetType','prodes')
+                            if (chae.tNextId === '异常'){
+                                this.$set(chae,'tNextId','有问题')
+                            }else if (chae.tNextId === '安全'){
+                                this.$set(chae,'tNextId','无问题')
+                            }
+                            this.huicha.push(chae)
+                        }else if (chae.action === '循环'){
+                            this.$set(chae,'targetType','wloop')
+                            this.huicha.push(chae)
+                        }else if (chae.action === '比较'){
+                            this.$set(chae,'targetType','analyse')
+                            // bixiala bizui
+                            this.bizui = true
+                            this.bixiala = false
+                            this.huicha.push(chae)
+                            this.bif = chae.onlyIndex
+                        }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
+                            this.$set(chae,'targetType','analysefal')
+                            this.huicha.push(chae)
+                        }
+                    })
+                    this.huicha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+                    this.forms.dynamicItem = this.forms.dynamicItem.concat(this.huicha)
+                    this.huicha = []
+                    this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+                })
             },
             //获取问题ID
             cproId(){

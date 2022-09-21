@@ -234,7 +234,7 @@
             <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
           </el-form-item>
           <el-form-item label="比较" v-show="bixiala">
-            <el-select v-model="item.bi" @change="bibi"
+            <el-select v-model="item.bi" filterable @change="bibi"
                        v-show="bixiala" placeholder="例如:品牌<5.20.99">
               <el-option v-for="(item,index) in biList"
                          :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
@@ -306,7 +306,8 @@
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
         <el-button @click="guanbi" type="primary">关闭</el-button>
-        <el-button @click="ceshi" type="primary">测试按钮</el-button>
+<!--        伟仔-->
+<!--        <el-button @click="ceshi" type="primary">测试按钮</el-button>-->
 <!--        有用-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
@@ -384,6 +385,38 @@ export default {
     },
   data() {
     return {
+        options: [{
+            label: '基本',
+            options: [{
+                value: '品牌',
+                label: '品牌'
+            }, {
+                value: '型号',
+                label: '型号'
+            }, {
+                value: '固件版本',
+                label: '固件版本'
+            }, {
+                value: '子版本',
+                label: '子版本'
+            }]
+        }, {
+            label: '自定义',
+            options: [{
+                value: 'Chengdu',
+                label: '成都'
+            }, {
+                value: 'Shenzhen',
+                label: '深圳'
+            }, {
+                value: 'Guangzhou',
+                label: '广州'
+            }, {
+                value: 'Dalian',
+                label: '大连'
+            }]
+        }],
+
         //帮助
         whelp:'',
         dialogVisibleHelp:false,
@@ -392,7 +425,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:false,
+        chuxian:true,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj
@@ -504,7 +537,7 @@ export default {
       },
       //测试按钮
       ceshi(){
-        // console.log(this.forms.dynamicItem)
+        console.log(this.forms.dynamicItem)
         //   alert(JSON.stringify(this.forms.dynamicItem))
       },
       jiazai(){
@@ -783,7 +816,7 @@ export default {
           }else {
               this.$set(shasha,'requiredItems','0')
           }
-          console.log(JSON.stringify(shasha))
+          console.log(shasha)
           return request({
               url:'/sql/total_question_table/add',
               method:'post',
@@ -801,7 +834,6 @@ export default {
                   form.append(key,this.queryParams[key])
               }
           }
-          console.log(form)
           return request({
               url:'/sql/total_question_table/totalQuestionTableId',
               method:'post',
@@ -851,8 +883,6 @@ export default {
           }).then(response=>{
               this.$message.success('问题详情已提交!')
           })
-          //     // url:`/dev-api/sql/ConnectController/ssssss?ass=${this.proId}`,
-          //     // url:`http://192.168.1.98/dev-api/sql/problem_describe/insertProblemDescribe?totalQuestionTableId=${this.proId}`,
       },
       //普通文本提交问题详情
       partsub(){
@@ -997,6 +1027,18 @@ export default {
               this.forms.dynamicItem.splice(thisIndex+1,0,item2)
           }
           if (type == 'analyse'){
+              this.forms.dynamicItem.forEach(e=>{
+                  if (e.targetType === 'takeword'){
+                      this.biList.push(e.wordName)
+                      let newbiList = []
+                      for(let i = 0;i<this.biList.length;i++){
+                          if (newbiList.indexOf(this.biList[i])==-1){
+                              newbiList.push(this.biList[i])
+                          }
+                      }
+                      this.biList = newbiList
+                  }
+              })
               this.$set(item1,'action','比较')
               this.$set(item1,'trueFalse','成功')
               const item2 = {

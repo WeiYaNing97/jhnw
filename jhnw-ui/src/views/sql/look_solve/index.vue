@@ -211,6 +211,7 @@ export default {
                   method:'post',
                   data:form
               }).then(response=>{
+                  console.log(response)
                   response.forEach(ee=>{
                       const wei = ee.replace(/=/g,":")
                       this.wDa.push(JSON.parse(wei))

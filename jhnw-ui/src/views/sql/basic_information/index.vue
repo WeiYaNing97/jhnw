@@ -223,9 +223,9 @@
               <el-dropdown-item>
                 <el-button @click="addItem('wloop',item)" type="primary">循环位置</el-button>
               </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('prodes',item)" type="primary">问题名称</el-button>
-              </el-dropdown-item>
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('prodes',item)" type="primary">问题名称</el-button>-->
+<!--              </el-dropdown-item>-->
             </el-dropdown-menu>
           </el-dropdown>
         </el-form-item>
@@ -233,7 +233,7 @@
 
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
-        <el-button @click="ceshi" type="primary">测试按钮</el-button>
+<!--        <el-button @click="ceshi" type="primary">测试按钮</el-button>-->
         <!--        有用-->
         <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
       </el-form-item>

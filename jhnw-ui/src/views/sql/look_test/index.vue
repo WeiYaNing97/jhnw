@@ -349,6 +349,15 @@ export default {
       // 表单参数
       form: {},
       isChange:false,
+        huichasss:[],
+      formss:{
+        dynamicItemss:[
+           {
+              test:'test',
+              onlyIndex:''
+           }
+        ],
+        },
       forms: {
         dynamicItem:[
           {
@@ -712,6 +721,8 @@ export default {
       //回显定义问题
       chaxun(){
           console.log(this.queryParams)
+          this.forms.dynamicItem = this.formss.dynamicItemss
+          this.huichasss = []
           this.showNo= true
           return request({
               url:'/sql/DefinitionProblemController/getAnalysisList',
@@ -719,6 +730,7 @@ export default {
               data:JSON.stringify(this.queryParams)
           }).then(response=>{
               console.log(response)
+              this.fDa = []
               response.data.forEach(l=>{
                   const wei = l.replace(/"=/g,'":')
                   this.fDa.push(JSON.parse(wei))
@@ -726,7 +738,6 @@ export default {
                   // this.fDa.push(JSON.parse(weizai))
                   // this.fDa.push(eval(wei))
               })
-              const huicha = []
               const quanjf = ''
               const hangjf = ''
               const quanmf = ''
@@ -740,28 +751,26 @@ export default {
                       }else  if (chae.resultCheckId === 1){
                           this.$set(chae,'resultCheckId','常规校验')
                       }
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.matched === '全文精确匹配'){
                       this.$set(chae,'targetType','match')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                       this.quanjf = chae.onlyIndex
                   }else if(chae.onlyIndex === this.quanjf && chae.trueFalse === '失败'){
                       this.$set(chae,'targetType','matchfal')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.matched === '按行精确匹配'){
                       this.$set(chae,'targetType','lipre')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                       this.hangjf = chae.onlyIndex
                   }else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败'){
                       this.$set(chae,'targetType','liprefal')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.action === '取词'){
                       this.$set(chae,'targetType','takeword')
                       // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
-                      console.log(chae.length.slice(chae.length.length-1))
                       if (chae.length.slice(chae.length.length-1) === 'W'){
                           this.$set(chae,'classify','单词')
-                          console.log('sss')
                       }else  if (chae.length.slice(chae.length.length-1) === 'S'){
                           this.$set(chae,'classify','字符串')
                       }else if (chae.length.slice(chae.length.length-1) === 'L'){
@@ -769,22 +778,21 @@ export default {
                       }
                       // chae.classify = chae.length.slice(chae.length.length-1)
                       chae.length = chae.length.slice(0,chae.length.length-1)
-                      console.log(chae.length)
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.matched === '全文模糊匹配'){
                       this.$set(chae,'targetType','dimmatch')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                       this.quanmf = chae.onlyIndex
                   }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
                       this.$set(chae,'targetType','dimmatchfal')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.matched === '按行模糊匹配'){
                       this.$set(chae,'targetType','dimpre')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                       this.hangmf = chae.onlyIndex
                   }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
                       this.$set(chae,'targetType','dimprefal')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.action === '问题'){
                       this.$set(chae,'targetType','prodes')
                       if (chae.tNextId === '异常'){
@@ -792,24 +800,24 @@ export default {
                       }else if (chae.tNextId === '安全'){
                           this.$set(chae,'tNextId','无问题')
                       }
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.action === '循环'){
                       this.$set(chae,'targetType','wloop')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }else if (chae.action === '比较'){
                       this.$set(chae,'targetType','analyse')
                       // bixiala bizui
                       this.bizui = true
                       this.bixiala = false
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                       this.bif = chae.onlyIndex
                   }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
                       this.$set(chae,'targetType','analysefal')
-                      huicha.push(chae)
+                      this.huichasss.push(chae)
                   }
               })
-              huicha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
-              this.forms.dynamicItem = this.forms.dynamicItem.concat(huicha)
+              this.huichasss.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+              this.forms.dynamicItem = this.forms.dynamicItem.concat(this.huichasss)
               this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
           })
       },
@@ -820,7 +828,6 @@ export default {
           }).catch(ee=>{
               this.$message.warning('取消修改!')
           })
-
       },
       //全选
       handleCheckAllChange() {
