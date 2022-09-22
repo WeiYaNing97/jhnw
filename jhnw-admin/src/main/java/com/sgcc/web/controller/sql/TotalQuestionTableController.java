@@ -79,12 +79,22 @@ public class TotalQuestionTableController extends BaseController
 
 
     /**
-     * 查询问题及命令列表
+     * 查询问题及命令列表PojoList
+     */
+    @RequestMapping("/selectPojoList")
+    public List<TotalQuestionTable> selectPojoList(@RequestBody TotalQuestionTable totalQuestionTable)
+    {
+
+        List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        return list;
+    }
+
+    /**
+     * 查询问题及命令列表 实体类ID
      */
     @RequestMapping("/select")
     public Long select(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         return list.get(0).getId();
