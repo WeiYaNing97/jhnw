@@ -2,37 +2,37 @@
 <!--  <div class="app-container" @contextmenu="showMenu">-->
   <div class="app-container" @contextmenu="showMenu">
     <el-form :model="queryParams" ref="queryForm" :inline="true">
-      <el-form-item label="设备基本信息:"></el-form-item>
+      <el-form-item label="基本信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
-                     filterable allow-create @blur="brandShu" @focus="brandLi($event)"
+                     filterable allow-create @blur="brandShu" @focus="general($event)"
                      name="brand" style="width: 150px">
-            <el-option v-for="(item,index) in brandList"
-                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+            <el-option v-for="(item,index) in genList"
+                       :key="index" :label="item.brand" :value="item.brand"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="型号" prop="type">
           <el-select v-model="queryParams.type" placeholder="型号"
                      filterable allow-create @blur="typeShu"
-                     @focus="typeLi($event)" name="type" style="width: 150px">
-            <el-option v-for="(item,index) in typeList"
-                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+                     @focus="general($event)" name="type" style="width: 150px">
+            <el-option v-for="(item,index) in genList"
+                       :key="index" :label="item.type" :value="item.type"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="固件版本" prop="firewareVersion">
           <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                     filterable allow-create @blur="fireShu" @focus="fireLi($event)"
+                     filterable allow-create @blur="fireShu" @focus="general($event)"
                      name="firewareVersion" style="width: 150px">
-            <el-option v-for="(item,index) in fireList"
-                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+            <el-option v-for="(item,index) in genList"
+                       :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="子版本" prop="subVersion">
           <el-select v-model="queryParams.subVersion" placeholder="子版本"
                      filterable allow-create @blur="subShu"
-                     @focus="subLi($event)" name="subVersion" style="width: 150px">
-            <el-option v-for="(item,index) in subList"
-                       :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+                     @focus="general($event)" name="subVersion" style="width: 150px">
+            <el-option v-for="(item,index) in genList"
+                       :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
           </el-select>
         </el-form-item>
 <!--        <el-form-item>-->
@@ -45,26 +45,26 @@
 <!--          <el-option label="未定义问题" value="0"></el-option>-->
 <!--        </el-select>-->
 <!--      </el-form-item>-->
-      <el-form-item label="问题概要:"></el-form-item>
+      <el-form-item label="分类概要:"></el-form-item>
       <el-form-item label="范式分类" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
-                   filterable allow-create @focus="proType($event)" @blur="typeProShu">
-          <el-option v-for="(item,index) in typeProList" :key="index"
-                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+                   filterable allow-create @focus="general($event)" @blur="typeProShu">
+          <el-option v-for="(item,index) in genList" :key="index"
+                     :label="item.typeProblem" :value="item.typeProblem"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="范式名称">
         <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                   filterable allow-create @focus="temPro($event)" @blur="temProShu">
-          <el-option v-for="(item,index) in temProNameList" :key="index"
-                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+                   filterable allow-create @focus="general($event)" name="temProName" @blur="temProShu">
+          <el-option v-for="(item,index) in genList" :key="index"
+                     :label="item.temProName" :value="item.temProName"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="自定义名称">
         <el-select v-model="queryParams.problemName" placeholder="请输入问题名称"
-                   filterable allow-create @focus="chawenti($event)" @blur="proSelect">
-          <el-option v-for="(item,index) in proNameList" :key="index"
-                     :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+                   filterable allow-create @focus="general($event)" name="problemName" @blur="proSelect">
+          <el-option v-for="(item,index) in genList" :key="index"
+                     :label="item.problemName" :value="item.problemName"></el-option>
         </el-select>
       </el-form-item>
       <br/>
@@ -310,7 +310,7 @@
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
         <el-button @click="guanbi" type="primary">关闭</el-button>
-<!--        伟仔-->
+<!--        仔仔-->
 <!--        <el-button @click="ceshi" type="primary">测试按钮</el-button>-->
 <!--        有用-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
@@ -459,6 +459,8 @@ export default {
         bizui:false,
         bixiala:true,
         radio:'1',
+        //通用基本信息下拉集合
+        genList:[],
         proNameList:[],
         typeProList:[],
         temProNameList:[],
@@ -484,7 +486,7 @@ export default {
           type: '',
           firewareVersion: '',
           subVersion: '',
-          commandId:'1',
+          // commandId:'1',
           problemName:'',
           notFinished:'---- More ----',
           typeProblem:'',
@@ -542,7 +544,6 @@ export default {
       //测试按钮
       ceshi(){
         console.log(this.forms.dynamicItem)
-        //   alert(JSON.stringify(this.forms.dynamicItem))
       },
       jiazai(){
         alert('加载')
@@ -605,17 +606,108 @@ export default {
           //     confirmButtonText: '确定'
           // });
       },
-
       shaxun(){
           if (item.cycleStartId.length == 0){
               this.onfocus('clear')
           }
       },
-      ssss(row,column,event){
-          event.preventDefault()
-        alert('sss')
+      //通用数组对象去重
+      quchong(arr,key){
+          let ret = []
+          arr.forEach((item,index,self)=>{
+              let compare = []
+              ret.forEach((retitem,retindex,retself)=>{
+                  compare.push(retitem[key])
+              })
+              if (compare.indexOf(item[key]) === -1){
+                  ret.push(item)
+              }
+          })
+          return ret
       },
-      //基本信息获取列表
+      //下拉列表通用
+      general(e){
+          this.who = e.target.getAttribute('name')
+          delete this.queryParams.notFinished
+          delete this.queryParams.remarks
+          delete this.queryParams.requiredItems
+          for (let i in this.queryParams){
+              if (this.queryParams[i]==='{空}'){
+                  this.queryParams[i]=''
+              }
+          }
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'post',
+              data:this.queryParams
+          }).then(response=>{
+              this.genList = this.quchong(response,this.who)
+              let kong = {
+                  [this.who] : '{空}'
+              }
+              this.genList.push(kong)
+          })
+      },
+      //下拉列表
+      //品牌
+      brandLi(e){
+          // this.who = e.target.getAttribute('name')
+          // return request({
+          //     url:'/sql/total_question_table/brandlist',
+          //     method:'get'
+          // }).then(response=>{
+          //     response.forEach(e=>{
+          //         if (e === '*'){
+          //             this.$delete(response,response.indexOf(e))
+          //         }
+          //     })
+          //     console.log(response)
+          //     this.brandList = response
+          //     this.brandList.push('{空}')
+          // })
+      },
+      //型号
+      typeLi(e){
+          this.who = e.target.getAttribute('name')
+          const typeOne = {}
+          const brandO = this.queryParams.brand
+          this.$set(typeOne,'brand',brandO)
+          return request({
+              url:'/sql/total_question_table/typelist',
+              method:'post',
+              data:JSON.stringify(typeOne)
+          }).then(response=>{
+              response.forEach(e=>{
+                  if (e === '*'){
+                      this.$delete(response,response.indexOf(e))
+                  }
+              })
+              this.typeList = response
+          })
+      },
+      //版本
+      fireLi(e){
+          this.who = e.target.getAttribute('name')
+          const fireOne = {}
+          const brandO = this.queryParams.brand
+          const typeO = this.queryParams.type
+          this.$set(fireOne,'brand',brandO)
+          this.$set(fireOne,'type',typeO)
+          // alert(JSON.stringify(fireOne))
+          return request({
+              url:'/sql/total_question_table/firewareVersionlist',
+              method:'post',
+              data:JSON.stringify(fireOne)
+          }).then(response=>{
+              response.forEach(e=>{
+                  if (e === '*'){
+                      this.$delete(response,response.indexOf(e))
+                  }
+              })
+              this.fireList = response
+          })
+      },
+      //子版本
       subLi(e){
           this.who = e.target.getAttribute('name')
           const subOne = {}
@@ -638,60 +730,7 @@ export default {
               this.subList = response
           })
       },
-      fireLi(e){
-          this.who = e.target.getAttribute('name')
-          const fireOne = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          this.$set(fireOne,'brand',brandO)
-          this.$set(fireOne,'type',typeO)
-          // alert(JSON.stringify(fireOne))
-          return request({
-              url:'/sql/total_question_table/firewareVersionlist',
-              method:'post',
-              data:JSON.stringify(fireOne)
-          }).then(response=>{
-              response.forEach(e=>{
-                  if (e === '*'){
-                      this.$delete(response,response.indexOf(e))
-                  }
-              })
-              this.fireList = response
-          })
-      },
-      typeLi(e){
-          this.who = e.target.getAttribute('name')
-          const typeOne = {}
-          const brandO = this.queryParams.brand
-          this.$set(typeOne,'brand',brandO)
-          return request({
-              url:'/sql/total_question_table/typelist',
-              method:'post',
-              data:JSON.stringify(typeOne)
-          }).then(response=>{
-              response.forEach(e=>{
-                  if (e === '*'){
-                      this.$delete(response,response.indexOf(e))
-                  }
-              })
-              this.typeList = response
-          })
-      },
-      brandLi(e){
-          this.who = e.target.getAttribute('name')
-          return request({
-              url:'/sql/total_question_table/brandlist',
-              method:'get'
-          }).then(response=>{
-              response.forEach(e=>{
-                  if (e === '*'){
-                      this.$delete(response,response.indexOf(e))
-                  }
-              })
-              console.log(response)
-              this.brandList = response
-          })
-      },
+      //范式分类
       proType(e){
           return request({
               url:'/sql/total_question_table/typeProblemlist',
@@ -701,6 +740,7 @@ export default {
               this.typeProList = response
           })
       },
+      //范式问题名称
       temPro(e){
           var type0 = this.queryParams.typeProblem
           if(type0 != ''){
@@ -716,6 +756,7 @@ export default {
               this.$message.warning('问题类型未选择')
           }
       },
+      //自定义名称
       chawenti(e){
           const wentilist = {}
           const brandO = this.queryParams.brand
