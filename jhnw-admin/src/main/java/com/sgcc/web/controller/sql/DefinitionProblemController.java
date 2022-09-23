@@ -14,10 +14,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -810,8 +808,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
 
-    public List<String> getAnalysisList(TotalQuestionTable totalQuestionTable){
-
+    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
         //给 问题表数据 赋值
         TotalQuestionTable pojo = new TotalQuestionTable();
         pojo.setBrand(totalQuestionTable.getBrand());
@@ -888,8 +885,98 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("problemScanLogicList")
+    //@RequestMapping("problemScanLogicList")
     public static List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID){
+        //String problemScanLogicID = "1649726283752";
+        boolean contain = false;
+        Map<String,ProblemScanLogic> problemScanLogicHashMap = new HashMap<>();
+        do {
+            String  problemScanID = "";
+            String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
+            for (String id:problemScanLogicIDsplit){
+                problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
+
+                ProblemScanLogic pojo = problemScanLogicHashMap.get(id);
+                if (pojo!=null){
+                    problemScanLogicHashMap.put(id,pojo);
+                    continue;
+                }
+
+                ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
+                problemScanLogicHashMap.put(id,problemScanLogic);
+                if (problemScanLogic ==null){
+                    return null;
+                }
+                if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
+                    continue;
+                }
+                if (problemScanLogic.getProblemId()!=null && (problemScanLogic.getProblemId().equals("完成"))){
+                    continue;
+                }
+                if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
+                        && problemScanLogic.gettNextId()!="" &&  !(isContainChinese(problemScanLogic.gettNextId()))){
+                    problemScanID += problemScanLogic.gettNextId()+":";
+                }
+                if (problemScanLogic.getfNextId()!=null && !(problemScanLogic.getfNextId().equals("null"))
+                        && problemScanLogic.getfNextId()!="" &&  !(isContainChinese(problemScanLogic.getfNextId()))){
+                    problemScanID += problemScanLogic.getfNextId()+":";
+                }
+            }
+            if (problemScanID.equals("")){
+                break;
+            }
+            String[] problemScanIDsplit = problemScanID.split(":");
+            problemScanID = "";
+            for (String id:problemScanIDsplit){
+                for (String hashSetid: problemScanLogicHashMap.keySet()){
+                    if (!(id.equals(hashSetid))){
+                        problemScanID += id+":";
+                    }
+                    break;
+                }
+            }
+            if (!(problemScanID.equals(""))){
+                contain = true;
+                problemScanLogicID = problemScanID.substring(0,problemScanID.length()-1);
+            }else {
+                contain = false;
+            }
+        }while (contain);
+        List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
+        Iterator<Map.Entry<String, ProblemScanLogic>> it = problemScanLogicHashMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, ProblemScanLogic> entry = it.next();
+            ProblemScanLogicList.add(entry.getValue());
+        }
+        List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
+        for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
+            if (problemScanLogic.getfLine()!=null){
+                ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
+                problemScanLogicf.setId(problemScanLogic.getId());
+                problemScanLogicf.setfLine(problemScanLogic.getfLine());
+                problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
+                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
+                problemScanLogicf.setfComId(problemScanLogic.getfComId());
+                problemScanLogic.setfLine(null);
+                problemScanLogic.setfNextId(null);
+                problemScanLogic.setProblemId(null);
+                problemScanLogic.setfComId(null);
+                ProblemScanLogics.add(problemScanLogicf);
+            }
+            ProblemScanLogics.add(problemScanLogic);
+        }
+        return ProblemScanLogics;
+    }
+
+    /**
+     * @method: 根据 首分析ID 获取全部分析 并拆分 成功失败合实体类
+     * @Param: [problemScanLogicID]
+     * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    //@RequestMapping("problemScanLogicListRemove")
+    public static List<ProblemScanLogic> problemScanLogicListRemove(String problemScanLogicID){
         //String problemScanLogicID = "1649726283752";
         boolean contain = false;
         HashSet<String> problemScanLogicIDList = new HashSet<>();
