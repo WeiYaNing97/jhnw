@@ -964,13 +964,30 @@ public class SwitchInteraction {
                 //getUnresolvedProblemInformationByData(user_String,user_Object);
                 getSwitchScanResultListByData(user_String,user_Object);
                 /*完成、有问题、无问题时，走下一t ID*/
-                firstID = problemScanLogic.gettNextId();
-                /*如果使用 第一条分析ID firstID  则 当前分析ID currentID 要为 null*/
-                String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
-                        return_information_array,"",extractInformation_string,
-                        line_n,firstID,null,insertsInteger);
+                if (problemScanLogic.gettNextId() != null){
+                    firstID = problemScanLogic.gettNextId();
+                    /*如果使用 第一条分析ID firstID  则 当前分析ID currentID 要为 null*/
+                    String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
+                            return_information_array,"",extractInformation_string,
+                            line_n,firstID,null,insertsInteger);
 
-                return loop_string;
+                    return loop_string;
+                }
+                if (problemScanLogic.gettComId() != null){
+                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.gettComId(),user_String.get("notFinished"),
+                            user_String.get("mode"), user_Object);
+
+                    if (executeScanCommandByCommandId_object.size() == 1){
+                        AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                        if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                            return ajaxResult.get("msg")+"";
+                        }
+                    }
+
+                    String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,totalQuestionTable,
+                            executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
+                    return analysisReturnResults_String;
+                }
 
             }
 

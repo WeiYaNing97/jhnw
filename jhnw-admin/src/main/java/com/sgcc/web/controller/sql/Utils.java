@@ -146,7 +146,7 @@ public class Utils {
 
 
     /**
-     * @method: 比较版本号
+     * @method: 比较
      * @Param: [remove_content, compare, content] //交换机版本号  比较
      * 如果 交换机版本号  比较方法   数据库版本号 则返回 true
      * @return: boolean
@@ -158,10 +158,12 @@ public class Utils {
 
         String[] current_Round_Extraction_split = current_Round_Extraction_String.split("=:=");
         Map<String,String> value_String = new HashMap<>();
-        for (int number = 0 ; number<current_Round_Extraction_split.length ; number = number +3){
+        if(!(current_Round_Extraction_String.equals(""))){
+            for (int number = 0 ; number<current_Round_Extraction_split.length ; number = number +3){
 
-            value_String.put(current_Round_Extraction_split[number],current_Round_Extraction_split[number+2]);
+                value_String.put(current_Round_Extraction_split[number],current_Round_Extraction_split[number+2]);
 
+            }
         }
 
         //由 汉字 转化为 单词
