@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-row>
-      <el-col :span="24">
+      <el-col :span="18">
         <el-form :model="queryParams" ref="queryForm" :inline="true">
           <el-form-item label="基本信息:"></el-form-item>
           <el-form-item label="品牌" prop="brand">
@@ -25,11 +25,11 @@
                          :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="子版本" prop="subversion">
-            <el-select v-model="queryParams.subversion" placeholder="子版本"
-                       filterable allow-create name="subversion" @focus="general($event)" style="width: 150px">
+          <el-form-item label="子版本" prop="subVersion">
+            <el-select v-model="queryParams.subVersion" placeholder="子版本"
+                       filterable allow-create name="subVersion" @focus="general($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
-                         :key="index" :label="item.subversion" :value="item.subversion"></el-option>
+                         :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
             </el-select>
           </el-form-item>
           <br/>
@@ -285,9 +285,19 @@
 
         </el-form>
       </el-col>
-<!--      <el-col :span="6">-->
-<!--        <el-tree :data="lookLists" :props="defaultProps" @node-click="handleNodeClick"></el-tree>-->
-<!--      </el-col>-->
+      <el-col :span="6">
+        <el-input
+          v-model="deptName"
+          placeholder="请输入查找内容"
+          clearable
+          size="small"
+          prefix-icon="el-icon-search"
+          style="margin-bottom: 20px;width: 80%"
+        />
+        <el-tree :data="lookLists" :default-expand-all="zhankaiAll"
+                 :props="defaultProps" :filter-node-method="filterNode"
+                 @node-click="handleNodeClick" ref="treeone"></el-tree>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -305,6 +315,10 @@ export default {
     return {
         //查看问题集合
         lookLists:[],
+        //全部展开
+        zhankaiAll:true,
+        //
+        deptName:undefined,
         defaultProps: {
             children: 'children',
             label: 'label'
@@ -396,6 +410,10 @@ export default {
     this.getList();
   },
   watch:{
+      // 根据输入筛选专项
+      deptName(val) {
+          this.$refs.treeone.filter(val);
+      },
       newValue:{
           handler(val,oldVal){
               for (let i in this.newValue){
@@ -409,7 +427,7 @@ export default {
           },
           deep:true,
           immediate:true
-      }
+      },
   },
     computed:{
       // isNull(){
@@ -586,23 +604,32 @@ export default {
               method:'post',
               data:this.queryParams
           }).then(response=>{
-              //
-              function changeTreeDate(arrayJsonObj,oldKey,newKey) {
-                  let strtest = JSON.stringify(arrayJsonObj);
-                  let reg = new RegExp(oldKey,'g');
-                  let newStr = strtest.replace(reg,newKey);
-                  return JSON.parse(newStr);
+              this.lookLists = []
+              //转化为树结构
+              for (let i = 0;i<response.length;i++){
+                  let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].subVersion + ' ' + response[i].firewareVersion
+                  let loser = {
+                      label:xinall,
+                      children: [{
+                          label:response[i].typeProblem,
+                          children:[{
+                              label:response[i].temProName
+                          }]
+                      }]
+                  }
+                  this.lookLists.push(loser)
               }
-              var copyTree = response
-              copyTree = changeTreeDate(copyTree,'temProName','label')
-              this.lookLists = copyTree
-              console.log(this.lookLists)
               this.genList = this.quchong(response,this.who)
               let kong = {
                   [this.who] : '{空}'
               }
               this.genList.push(kong)
           })
+      },
+      //筛选条件
+      filterNode(value, data){
+          if (!value) return true;
+          return data.label.indexOf(value) !== -1;
       },
       //列表展示树结构
       handleNodeClick(fenxiang) {

@@ -129,6 +129,8 @@ export default {
     },
   data() {
     return {
+        //通用基本信息下拉集合
+        genList:[],
       proNameList:[],
       typeProList:[],
       brandList:[],
@@ -372,6 +374,43 @@ export default {
           if(value){
               this.queryParams.para = value
           }
+      },
+      //通用数组对象去重
+      quchong(arr,key){
+          let ret = []
+          arr.forEach((item,index,self)=>{
+              let compare = []
+              ret.forEach((retitem,retindex,retself)=>{
+                  compare.push(retitem[key])
+              })
+              if (compare.indexOf(item[key]) === -1){
+                  ret.push(item)
+              }
+          })
+          return ret
+      },
+      //下拉列表通用
+      general(e){
+          this.who = e.target.getAttribute('name')
+          delete this.queryParams.notFinished
+          delete this.queryParams.remarks
+          delete this.queryParams.requiredItems
+          for (let i in this.queryParams){
+              if (this.queryParams[i]==='{空}'){
+                  this.queryParams[i]=''
+              }
+          }
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'post',
+              data:this.queryParams
+          }).then(response=>{
+              this.genList = this.quchong(response,this.who)
+              let kong = {
+                  [this.who] : '{空}'
+              }
+              this.genList.push(kong)
+          })
       },
       //下拉框获取后台参数
       paraLi(){

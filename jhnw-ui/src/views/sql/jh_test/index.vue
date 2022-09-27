@@ -38,42 +38,42 @@
             <el-table-column type="selection" width="45"></el-table-column>
             <el-table-column prop="ip" label="设备IP" width="130">
               <template slot-scope="{ row }">
-                <el-input v-if="row.$isEdit" v-model="row.ip"
+                <el-input v-if="row.isEdit" v-model="row.ip"
                           placeholder="请输入ip" size="small" style="width: 120px"></el-input>
                 <span v-else>{{ row.ip }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="name" label="用户名" width="130">
               <template slot-scope="{ row }">
-                <el-input v-if="row.$isEdit" v-model="row.name"
+                <el-input v-if="row.isEdit" v-model="row.name"
                           placeholder="请输入用户名" size="small" style="width: 120px"></el-input>
                 <span v-else>{{ row.name }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="password" label="密码" width="80">
               <template slot-scope="{ row }">
-                <el-input v-if="row.$isEdit" v-model="row.password" type="password"
+                <el-input v-if="row.isEdit" v-model="row.password" type="password"
                           placeholder="请输入密码" size="small" style="width: 110px"></el-input>
                 <span v-else>{{ row.passmi }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="mode" label="连接方式" width="80">
               <template slot-scope="{ row }">
-                <el-input v-if="row.$isEdit" v-model="row.mode"
+                <el-input v-if="row.isEdit" v-model="row.mode"
                           placeholder="连接方式" size="small" style="width: 70px"></el-input>
                 <span v-else>{{ row.mode }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="port" label="端口号" width="80">
               <template slot-scope="{ row }">
-                <el-input v-if="row.$isEdit" v-model="row.port"
+                <el-input v-if="row.isEdit" v-model="row.port"
                           placeholder="端口" size="small" style="width: 50px"></el-input>
                 <span v-else>{{ row.port }}</span>
               </template>
             </el-table-column>
             <el-table-column label="操作" width="100">
               <template slot-scope="{ row }">
-                <el-button type="text" v-if="row.$isEdit" @click.stop="queding(row)" size="small">确定</el-button>
+                <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small">确定</el-button>
                 <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
                 <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
               </template>
@@ -202,7 +202,7 @@ export default {
             passmi:'********',
             mode:'ssh',
             port:22,
-            $isEdit:false
+            isEdit:false
         }],
         xuanzhong:[
 
@@ -353,6 +353,7 @@ export default {
       //选择设备
       xuanze(row){
           this.xuanzhong = JSON.parse(JSON.stringify(row))
+          console.log(this.xuanzhong)
       },
       //新增设备
       xinzeng(){
@@ -363,7 +364,7 @@ export default {
               passmi:'********',
               mode:'ssh',
               port:22,
-              $isEdit:true
+              isEdit:true
           })
       },
       //删除扫描设备
@@ -373,7 +374,7 @@ export default {
       //确定
       queding(row){
           console.log(row)
-          row.$isEdit = !row.$isEdit
+          row.isEdit = !row.isEdit
       },
       //专项扫描
       handleNodeClick(fenxiang) {
@@ -384,7 +385,8 @@ export default {
           this.saowanend = this.$refs.webone.geifuone()
           if (this.saowanend === true){
               clearInterval(this.torf)
-              alert('扫描已结束!')
+              // alert('扫描已结束!')
+              this.$message.success('扫描已结束!')
           }
       },
       //定时获取是否修复结束
@@ -420,7 +422,7 @@ export default {
           if (this.importData.length != 0){
               for (let i = 0;i<this.importData.length;i++){
                   this.$set(this.importData[i],'passmi','********')
-                  this.$set(this.importData[i],'$isEdit',false)
+                  this.$set(this.importData[i],'isEdit',false)
                   if (this.tableData[0].ip === '' && this.tableData[0].name === '' && this.tableData[0].password === ''){
                       this.$delete(this.tableData,0)
                   }
@@ -513,7 +515,7 @@ export default {
           var encrypt = new JSEncrypt();
           encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
           for (let i = 0;i<zuihou.length;i++){
-              this.$delete(zuihou[i],'$isEdit')
+              this.$delete(zuihou[i],'isEdit')
               this.$delete(zuihou[i],'passmi')
               //给用户密码加密
               var pass = encrypt.encrypt(zuihou[i].password)
@@ -530,7 +532,6 @@ export default {
               }
           }
           console.log(totalQuestionTableId)
-          console.log(zuihou)
           let zuihouall = zuihou.map(x=>JSON.stringify(x))
           console.log(zuihouall)
           if(totalQuestionTableId.length == 0){

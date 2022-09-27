@@ -85,8 +85,14 @@
 <!--        <el-button type="primary" @click="tiwenti">提交问题</el-button>-->
 <!--      </el-form-item>-->
       <el-form-item>
-        <el-button type="primary" @click="hebing">定义问题命令</el-button>
+        <el-button type="primary" @click="hebingnew">定义问题命令</el-button>
       </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="hebing">定义问题命令</el-button>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="ceshione">测试按钮</el-button>-->
+<!--      </el-form-item>-->
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
 <!--      </el-form-item>-->
@@ -636,11 +642,20 @@ export default {
                   this.queryParams[i]=''
               }
           }
+          //
+          let newPar = {}
+          for (var key in this.queryParams){
+              if (key != 'notFinished'&&key != 'requiredItems'&&key != 'remarks'){
+                  newPar[key] = this.queryParams[key]
+              }
+          }
+          console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'post',
               data:this.queryParams
           }).then(response=>{
+              console.log(response)
               this.genList = this.quchong(response,this.who)
               let kong = {
                   [this.who] : '{空}'
@@ -852,6 +867,31 @@ export default {
               this.queryParams.problemName = value
           }
       },
+      //仔仔测试
+      ceshione(){
+          console.log(this.queryParams)
+      },
+      //合并按钮新的
+      hebingnew(){
+          var shasha = JSON.parse(JSON.stringify(this.queryParams))
+          this.$delete(shasha,'commandId')
+          if (shasha.requiredItems === true){
+              this.$set(shasha,'requiredItems','1')
+          }else {
+              this.$set(shasha,'requiredItems','0')
+          }
+          console.log(shasha)
+          return request({
+              url:'/sql/total_question_table/add',
+              method:'post',
+              data:JSON.stringify(shasha)
+          }).then(response=>{
+              console.log(response)
+              this.$message.success('提交问题成功!')
+              this.proId = response.msg
+              this.chuxian = true
+          })
+      },
       //合并按钮
       hebing(){
           let form = new FormData();
@@ -907,6 +947,7 @@ export default {
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
+              console.log(response)
               this.$message.success('提交问题成功!')
               this.proId = response.msg
           })
