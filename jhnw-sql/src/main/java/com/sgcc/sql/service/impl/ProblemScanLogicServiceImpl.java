@@ -34,7 +34,7 @@ public class ProblemScanLogicServiceImpl implements IProblemScanLogicService
 
     /**
      * 查询问题扫描逻辑列表
-     * 
+     *
      * @param problemScanLogic 问题扫描逻辑
      * @return 问题扫描逻辑
      */

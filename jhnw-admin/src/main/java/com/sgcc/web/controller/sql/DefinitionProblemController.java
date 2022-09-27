@@ -835,21 +835,27 @@ public class DefinitionProblemController extends BaseController {
                     return null;
                 }
                 commandLogicList.add(commandLogic);
-                //根据第一个分析ID 查询出所有的数据条数
-                List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
-                if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-                    return null;
-                }
                 problemScanLogicID = "";
-                for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-                    problemScanLogics.add(problemScanLogic);
-                    if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
-                        problemScanLogicID += problemScanLogic.gettComId()+":";
+
+                if (commandLogic.getResultCheckId().equals("0")){
+                    //根据第一个分析ID 查询出所有的数据条数
+                    List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
+                    if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+                        return null;
                     }
-                    if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
-                        problemScanLogicID += problemScanLogic.getfComId()+":";
+                    for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                        problemScanLogics.add(problemScanLogic);
+                        if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
+                            problemScanLogicID += problemScanLogic.gettComId()+":";
+                        }
+                        if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
+                            problemScanLogicID += problemScanLogic.getfComId()+":";
+                        }
                     }
+                }else {
+                    problemScanLogicID = commandLogic.getEndIndex()+":";
                 }
+
                 if (problemScanLogicID!=""){
                     break;
                 }
@@ -1285,19 +1291,31 @@ public class DefinitionProblemController extends BaseController {
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         String commandId = totalQuestionTable.getCommandId();
-        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-        String problemId = commandLogic.getProblemId();
+        String problemId = "0";
+        List<String> commandList = new ArrayList<>();
+        do {
+            commandList.add(commandId);
+            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
+            if (commandLogic.getResultCheckId().equals("1")){
+                commandId = commandLogic.getEndIndex();
+            }
+            problemId = commandLogic.getProblemId();
+        }while (problemId.equals("0"));
+
         if (problemId==null || problemId.equals("")){
-            int i = commandLogicService.deleteCommandLogicById(commandId);
-            if (i<=0){
-                return false;
+            for (String command_Id:commandList){
+                int i = commandLogicService.deleteCommandLogicById(command_Id);
+                if (i<=0){
+                    return false;
+                }
             }
         }else {
-            int i = commandLogicService.deleteCommandLogicById(commandId);
+            for (String command_Id:commandList){
+            int i = commandLogicService.deleteCommandLogicById(command_Id);
             if (i<=0){
                 return false;
-            }
+            }}
             boolean b = deleteProblemScanLogicList(problemId);
             if (!b){
                 return false;

@@ -1844,6 +1844,9 @@ public class SwitchInteraction {
         if (!(commandLogic.getResultCheckId().equals("1"))){
             //分析第一条ID
             first_problem_scanLogic_Id = commandLogic.getProblemId();
+        }else {
+            List<Object> objectList = executeScanCommandByCommandId(user_String,totalQuestionTable,commandLogic.getEndIndex(),notFinished, way,user_Object);
+            return objectList;
         }
 
         List<Object> objectList = new ArrayList<>();
