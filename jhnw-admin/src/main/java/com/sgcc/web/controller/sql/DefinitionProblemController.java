@@ -1270,7 +1270,84 @@ public class DefinitionProblemController extends BaseController {
     /*定义分析问题数据修改*/
     @RequestMapping("updateAnalysis")
     //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
-    public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
+    public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> pojoList){
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        AjaxResult analysisListTimeouts = getAnalysisListTimeouts(totalQuestionTable);
+        List<String> analysisList = (List<String>) analysisListTimeouts.get("data");
+        List<String> jsonPojoList = new ArrayList<>();
+        for (String analysis:analysisList){
+            jsonPojoList.add(analysis.replaceAll("\"=\"","\":\""));
+        }
+
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+        for (int number=0;number<jsonPojoList.size();number++){
+            // 如果 前端传输字符串  存在 command  说明 是命令
+            if (jsonPojoList.get(number).indexOf("command")!=-1){
+                CommandLogic commandLogic = analysisCommandLogic(jsonPojoList.get(number));
+                commandLogicList.add(commandLogic);
+                continue;
+            }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
+
+                if (number+1<jsonPojoList.size()){
+                    // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
+                    if (jsonPojoList.get(number+1).indexOf("command") !=-1){
+                        //本条是分析 下一条是 命令
+                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "命令");
+                        problemScanLogicList.add(problemScanLogic);
+                        continue;
+                    }else {
+                        //本条是分析 下一条是 分析
+                        ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+                        problemScanLogicList.add(problemScanLogic);
+                        continue;
+                    }
+                }else {
+                    //本条是分析 下一条是 问题
+                    ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+                    problemScanLogicList.add(problemScanLogic);
+                    continue;
+                }
+
+            }
+        }
+        //将相同ID  时间戳 的 实体类 放到一个实体
+        List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
+        HashSet<String> problemScanLogicSet = new HashSet<>();
+        for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            problemScanLogicSet.add(problemScanLogic.getId());
+        }
+        HashSet<String> commandLogicSet = new HashSet<>();
+        for (CommandLogic commandLogic:commandLogicList){
+            commandLogicSet.add(commandLogic.getId());
+         }
+        for (String id:problemScanLogicSet){
+            int j = problemScanLogicService.deleteProblemScanLogicById(id);
+            if (j<=0){
+                return false;
+            }
+        }
+        for (String id:commandLogicSet){
+            int i = commandLogicService.deleteCommandLogicById(id);
+            if (i<=0){
+                return false;
+            }
+        }
+
+        boolean b = definitionProblemJsonPojo(pojoList);//jsonPojoList
+        System.err.println("\r\ndefinitionProblemJsonPojo"+b+"\r\n");
+        if (!b){
+            return false;
+        }
+        return true;
+    }
+
+
+
+
+    //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
+    public boolean updateAnalysisTwo(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
 
         String problemScanLogicString = "";
         for (String pojo:jsonPojoList){
