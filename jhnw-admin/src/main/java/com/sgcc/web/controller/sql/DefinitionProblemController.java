@@ -807,17 +807,10 @@ public class DefinitionProblemController extends BaseController {
         return AjaxResult.success(analysisList[0]);
     }
 
-
+    //@RequestMapping("getAnalysisList")
     public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
-        //给 问题表数据 赋值
-        TotalQuestionTable pojo = new TotalQuestionTable();
-        pojo.setBrand(totalQuestionTable.getBrand());
-        pojo.setType(totalQuestionTable.getType());
-        pojo.setFirewareVersion(totalQuestionTable.getFirewareVersion());
-        pojo.setSubVersion(totalQuestionTable.getSubVersion());
-        pojo.setProblemName(totalQuestionTable.getProblemName());
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(pojo);
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
 
         if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
             return null;
