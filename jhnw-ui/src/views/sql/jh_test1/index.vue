@@ -128,7 +128,11 @@
             <el-input v-model="item.command"></el-input>
           </el-form-item>
           <el-form-item label="命令校验">
-            <el-select v-model="jiaoyan" placeholder="校验方式" value="常规校验">
+<!--            <el-select v-model="jiaoyan" placeholder="校验方式" value="常规校验">-->
+<!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
+<!--              <el-option label="自定义校验" value="自定义校验"></el-option>-->
+<!--            </el-select>-->
+            <el-select v-model="item.jiaoyan" placeholder="校验方式" value="常规校验">
               <el-option label="常规校验" value="常规校验" selected></el-option>
               <el-option label="自定义校验" value="自定义校验"></el-option>
             </el-select>
@@ -220,7 +224,7 @@
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
           <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-            <el-input v-model="item.length" style="width: 80px" placeholder="几个"></el-input>
+            <el-input v-model="item.length1" style="width: 80px" placeholder="几个"></el-input>
             <el-select v-model="item.classify" @change="reloadv" placeholder="单词/行" style="width: 80px">
               <el-option label="单词" value="W"></el-option>
               <el-option label="字母" value="L"></el-option>
@@ -435,7 +439,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:false,
+        chuxian:true,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj
@@ -461,7 +465,7 @@ export default {
         who:'',
         helpT:'',
         showha:false,
-        jiaoyan:'常规校验',
+        // jiaoyan:'常规校验',
         bizui:false,
         bixiala:true,
         radio:'1',
@@ -634,9 +638,9 @@ export default {
       //下拉列表通用
       general(e){
           this.who = e.target.getAttribute('name')
-          delete this.queryParams.notFinished
-          delete this.queryParams.remarks
-          delete this.queryParams.requiredItems
+          // delete this.queryParams.notFinished
+          // delete this.queryParams.remarks
+          // delete this.queryParams.requiredItems
           for (let i in this.queryParams){
               if (this.queryParams[i]==='{空}'){
                   this.queryParams[i]=''
@@ -653,7 +657,7 @@ export default {
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'post',
-              data:this.queryParams
+              data:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
@@ -1251,13 +1255,18 @@ export default {
                   this.$set(eeee,'nextIndex',thisNext.onlyIndex)
               }
               if (eeee.action === '取词'){
-                  eeee.length = `${eeee.length}${eeee.classify}`
+                  eeee.length = `${eeee.length1}${eeee.classify}`
               }
-              if (this.jiaoyan == '常规校验'){
+              if (eeee.jiaoyan == '常规校验'){
                   this.$set(eeee,'resultCheckId','1')
               }else {
                   this.$set(eeee,'resultCheckId','0')
               }
+              // if (this.jiaoyan == '常规校验'){
+              //     this.$set(eeee,'resultCheckId','1')
+              // }else {
+              //     this.$set(eeee,'resultCheckId','0')
+              // }
               this.$set(eeee,'pageIndex',thisIndex+1)
               if (eeee.targetType == 'takeword'){
                   const takeWordt = useForm.indexOf(eeee)
@@ -1282,8 +1291,8 @@ export default {
           const handForm = useForm.map(x => JSON.stringify(x))
           console.log(handForm)
           return request({
-              url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
-              method:'post',
+              // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
+              // method:'post',
               data:handForm
           }).then(response=>{
               console.log("成功")
@@ -1359,8 +1368,8 @@ export default {
 
 <style>
   .el-form-item{
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
   .el-dialog__header{
     padding: 10px;

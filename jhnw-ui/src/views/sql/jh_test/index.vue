@@ -297,6 +297,13 @@ export default {
         deptName(val) {
             this.$refs.treeone.filter(val);
         },
+        testssss(saowanend){
+            if (this.saowanend === true){
+                console.log('sss')
+            }else {
+                console.log('sadasd')
+            }
+        },
     },
   created() {
       this.xunhuanxiufu()
@@ -383,6 +390,7 @@ export default {
       //扫描完成弹窗,后面定时执行
       saowan(){
           this.saowanend = this.$refs.webone.geifuone()
+          console.log(this.saowanend)
           if (this.saowanend === true){
               clearInterval(this.torf)
               // alert('扫描已结束!')

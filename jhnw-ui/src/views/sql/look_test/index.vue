@@ -56,7 +56,8 @@
           </el-form-item>
           <el-form-item label="自定义名称">
             <el-select v-model="queryParams.problemName" placeholder="自定义名称"
-                       filterable allow-create name="problemName" @focus="general($event)" @change="cproId">
+                       filterable allow-create name="problemName" @focus="general($event)">
+<!--              @change="cproId"-->
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.problemName" :value="item.problemName"></el-option>
             </el-select>
@@ -188,7 +189,7 @@
             <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
               <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
                 <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-                <el-input v-model="item.length" style="width: 80px" placeholder="几个词"></el-input>
+                <el-input v-model="item.length1" style="width: 80px" placeholder="几个词"></el-input>
                 <el-select v-model="item.classify" placeholder="单词/行" style="width: 80px">
                   <el-option label="单词" value="W"></el-option>
                   <el-option label="字母" value="L"></el-option>
@@ -288,7 +289,7 @@
       <el-col :span="6">
         <el-input
           v-model="deptName"
-          placeholder="请输入查找内容"
+          placeholder="请输入关键字过滤"
           clearable
           size="small"
           prefix-icon="el-icon-search"
@@ -370,7 +371,7 @@ export default {
         brand:'',
         type:'',
         firewareVersion:'',
-        subversion:''
+        subVersion:''
         // commandId:'1'
       },
       // 表单参数
@@ -498,11 +499,11 @@ export default {
               }
               if (eeee.action === '取词'){
                   if (eeee.classify === '单词'){
-                      eeee.length = `${eeee.length}W`
+                      eeee.length = `${eeee.length1}W`
                   }else if (eeee.classify === '字母'){
-                      eeee.length = `${eeee.length}L`
+                      eeee.length = `${eeee.length1}L`
                   }else if (eeee.classify === '字符串'){
-                      eeee.length = `${eeee.length}S`
+                      eeee.length = `${eeee.length1}S`
                   }
               }
               this.$set(eeee,'pageIndex',thisIndex+1)
@@ -604,16 +605,20 @@ export default {
               method:'post',
               data:this.queryParams
           }).then(response=>{
+              console.log(response)
+              this.proId = response[0].id
+              console.log(this.proId)
               this.lookLists = []
               //转化为树结构
               for (let i = 0;i<response.length;i++){
-                  let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].subVersion + ' ' + response[i].firewareVersion
+                  let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
                   let loser = {
                       label:xinall,
                       children: [{
                           label:response[i].typeProblem,
                           children:[{
-                              label:response[i].temProName
+                              label:response[i].temProName,
+                              id:response[i].id
                           }]
                       }]
                   }
@@ -632,8 +637,123 @@ export default {
           return data.label.indexOf(value) !== -1;
       },
       //列表展示树结构
-      handleNodeClick(fenxiang) {
-
+      handleNodeClick(lookLists) {
+          this.proId = lookLists.id
+          console.log(this.proId)
+          let id = this.proId
+          this.forms.dynamicItem = this.formss.dynamicItemss
+          this.huichasss = []
+          this.showNo= true
+          return request({
+              url:'/sql/total_question_table/'+id,
+              method:'get',
+          }).then(response=> {
+              console.log(response.data)
+              this.queryParams.brand = response.data.brand
+              this.queryParams.type = response.data.type
+              this.queryParams.firewareVersion = response.data.firewareVersion
+              this.queryParams.subVersion = response.data.subVersion
+              this.queryParams.typeProblem = response.data.typeProblem
+              this.queryParams.temProName = response.data.temProName
+              this.queryParams.problemName = response.data.problemName
+              return request({
+                  url: '/sql/DefinitionProblemController/getAnalysisList',
+                  method: 'post',
+                  data: response.data
+              }).then(response => {
+                  console.log(response)
+                  this.fDa = []
+                  response.data.forEach(l => {
+                      const wei = l.replace(/"=/g, '":')
+                      this.fDa.push(JSON.parse(wei))
+                      // const weizai = eval(wei)
+                      // this.fDa.push(JSON.parse(weizai))
+                      // this.fDa.push(eval(wei))
+                  })
+                  const quanjf = ''
+                  const hangjf = ''
+                  const quanmf = ''
+                  const hangmf = ''
+                  const bif = ''
+                  this.fDa.forEach(chae => {
+                      if (chae.hasOwnProperty('command') == true) {
+                          this.$set(chae, 'targetType', 'command')
+                          if (chae.resultCheckId === 0) {
+                              this.$set(chae, 'resultCheckId', '自定义校验')
+                          } else if (chae.resultCheckId === 1) {
+                              this.$set(chae, 'resultCheckId', '常规校验')
+                          }
+                          this.huichasss.push(chae)
+                      } else if (chae.matched === '全文精确匹配') {
+                          this.$set(chae, 'targetType', 'match')
+                          this.huichasss.push(chae)
+                          this.quanjf = chae.onlyIndex
+                      } else if (chae.onlyIndex === this.quanjf && chae.trueFalse === '失败') {
+                          this.$set(chae, 'targetType', 'matchfal')
+                          this.huichasss.push(chae)
+                      } else if (chae.matched === '按行精确匹配') {
+                          this.$set(chae, 'targetType', 'lipre')
+                          this.huichasss.push(chae)
+                          this.hangjf = chae.onlyIndex
+                      } else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败') {
+                          this.$set(chae, 'targetType', 'liprefal')
+                          this.huichasss.push(chae)
+                      } else if (chae.action === '取词') {
+                          this.$set(chae, 'targetType', 'takeword')
+                          // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
+                          if (chae.length.slice(chae.length.length - 1) === 'W') {
+                              this.$set(chae, 'classify', '单词')
+                          } else if (chae.length.slice(chae.length.length - 1) === 'S') {
+                              this.$set(chae, 'classify', '字符串')
+                          } else if (chae.length.slice(chae.length.length - 1) === 'L') {
+                              this.$set(chae, 'classify', '字母')
+                          }
+                          // chae.classify = chae.length.slice(chae.length.length-1)
+                          chae.length1 = chae.length.slice(0, chae.length.length - 1)
+                          this.huichasss.push(chae)
+                      } else if (chae.matched === '全文模糊匹配') {
+                          this.$set(chae, 'targetType', 'dimmatch')
+                          this.huichasss.push(chae)
+                          this.quanmf = chae.onlyIndex
+                      } else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败') {
+                          this.$set(chae, 'targetType', 'dimmatchfal')
+                          this.huichasss.push(chae)
+                      } else if (chae.matched === '按行模糊匹配') {
+                          this.$set(chae, 'targetType', 'dimpre')
+                          this.huichasss.push(chae)
+                          this.hangmf = chae.onlyIndex
+                      } else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败') {
+                          this.$set(chae, 'targetType', 'dimprefal')
+                          this.huichasss.push(chae)
+                      } else if (chae.action === '问题') {
+                          this.$set(chae, 'targetType', 'prodes')
+                          if (chae.tNextId === '异常') {
+                              this.$set(chae, 'tNextId', '有问题')
+                          } else if (chae.tNextId === '安全') {
+                              this.$set(chae, 'tNextId', '无问题')
+                          }
+                          this.huichasss.push(chae)
+                      } else if (chae.action === '循环') {
+                          this.$set(chae, 'targetType', 'wloop')
+                          this.huichasss.push(chae)
+                      } else if (chae.action === '比较') {
+                          this.$set(chae, 'targetType', 'analyse')
+                          this.bizui = true
+                          this.bixiala = false
+                          this.huichasss.push(chae)
+                          this.bif = chae.onlyIndex
+                      } else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败') {
+                          this.$set(chae, 'targetType', 'analysefal')
+                          this.huichasss.push(chae)
+                      }
+                  })
+                  this.huichasss.sort(function (a, b) {
+                      return a.pageIndex - b.pageIndex;
+                  })
+                  this.forms.dynamicItem = this.forms.dynamicItem.concat(this.huichasss)
+                  this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+              })
+              })
       },
       //下拉框获取后台数据
       brandLi(){
@@ -715,13 +835,13 @@ export default {
           const brandO = this.queryParams.brand
           const typeO = this.queryParams.type
           const firO = this.queryParams.firewareVersion
-          const subO = this.queryParams.subversion
+          const subO = this.queryParams.subVersion
           const protypeO = this.queryParams.typeProblem
           const pronameO = this.queryParams.temProName
           this.$set(wentilist,'brand',brandO)
           this.$set(wentilist,'type',typeO)
           this.$set(wentilist,'firewareVersion',firO)
-          this.$set(wentilist,'subversion',subO)
+          this.$set(wentilist,'subVersion',subO)
           this.$set(wentilist,'typeProblem',protypeO)
           this.$set(wentilist,'temProName',pronameO)
           return request({
@@ -824,7 +944,7 @@ export default {
                           this.$set(chae,'classify','字母')
                       }
                       // chae.classify = chae.length.slice(chae.length.length-1)
-                      chae.length = chae.length.slice(0,chae.length.length-1)
+                      chae.length1 = chae.length.slice(0,chae.length.length-1)
                       this.huichasss.push(chae)
                   }else if (chae.matched === '全文模糊匹配'){
                       this.$set(chae,'targetType','dimmatch')
@@ -1035,7 +1155,7 @@ export default {
 
 <style>
   .el-form-item{
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
 </style>
