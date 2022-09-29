@@ -780,8 +780,7 @@ public class DefinitionProblemController extends BaseController {
         FutureTask future = new FutureTask(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
-// TODO Auto-generated method stub
-
+            // TODO Auto-generated method stub
                 analysisList[0] = getAnalysisList(totalQuestionTable);
                 return analysisList[0];
             }
@@ -791,14 +790,14 @@ public class DefinitionProblemController extends BaseController {
             List<String> result = (List<String>) future.get(60000, TimeUnit.MILLISECONDS);
             System.out.println(result);
         } catch (InterruptedException e) {
-// TODO Auto-generated catch block
+            // TODO Auto-generated catch block
             e.printStackTrace();
 
         } catch (ExecutionException e) {
-// TODO Auto-generated catch block
+            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (TimeoutException e) {
-// TODO Auto-generated catch block
+            // TODO Auto-generated catch block
             return AjaxResult.error("查询超时");
         }finally{
             future.cancel(true);
@@ -909,9 +908,10 @@ public class DefinitionProblemController extends BaseController {
                 if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
                     continue;
                 }
-                if (problemScanLogic.getProblemId()!=null && (problemScanLogic.getProblemId().equals("完成"))){
+                /*解决 完成后 有数据 逻辑错误 不能显示问题 */
+                /*if (problemScanLogic.getProblemId()!=null && (problemScanLogic.getProblemId().equals("完成"))){
                     continue;
-                }
+                }*/
                 if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
                         && problemScanLogic.gettNextId()!="" &&  !(isContainChinese(problemScanLogic.gettNextId()))){
                     problemScanID += problemScanLogic.gettNextId()+":";
