@@ -36,7 +36,7 @@
         },
         watch:{
             //检测扫描结束、修复结束
-            textarea(textarea){
+            textarea(){
                 if (this.textarea.includes('扫描结束')){
                     this.saoend = true
                     console.log(this.saoend)

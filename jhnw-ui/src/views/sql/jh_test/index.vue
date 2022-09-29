@@ -297,11 +297,10 @@ export default {
         deptName(val) {
             this.$refs.treeone.filter(val);
         },
-        testssss(saowanend){
+        saowanend(){
             if (this.saowanend === true){
-                console.log('sss')
-            }else {
-                console.log('sadasd')
+                console.log('扫描已结束!')
+                alert('扫描已结束!')
             }
         },
     },
@@ -309,7 +308,7 @@ export default {
       this.xunhuanxiufu()
       // let us = Cookies.get("userInfo")
       // console.log(us)
-      this.getList();
+      // this.getList();
   },
   methods: {
       // 筛选节点
@@ -393,8 +392,6 @@ export default {
           console.log(this.saowanend)
           if (this.saowanend === true){
               clearInterval(this.torf)
-              // alert('扫描已结束!')
-              this.$message.success('扫描已结束!')
           }
       },
       //定时获取是否修复结束
@@ -512,7 +509,7 @@ export default {
       //一键扫描
       saomiao(){
           //定时获取是否扫描结束
-           this.torf = setInterval(this.saowan,3000)
+           this.torf = setInterval(this.saowan,5000)
           //最终扫描设备
           let zuihou = []
           if (this.xuanzhong.length>0){
