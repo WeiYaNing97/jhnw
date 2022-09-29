@@ -2051,7 +2051,8 @@ public class SwitchInteraction {
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
 
         //查询可扫描问题
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryScannableQuestionsList(totalQuestionTable);
+        //List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryScannableQuestionsList(totalQuestionTable);
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryVagueScannableQuestionsList(totalQuestionTable);
         if (totalQuestionTables.size() != 0){
 
             List<TotalQuestionTable> pojoList = new ArrayList<>();

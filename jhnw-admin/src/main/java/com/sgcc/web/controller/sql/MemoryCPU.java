@@ -7,6 +7,9 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import org.hyperic.sigar.SigarException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com

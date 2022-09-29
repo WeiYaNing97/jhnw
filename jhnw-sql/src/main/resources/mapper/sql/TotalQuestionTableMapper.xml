@@ -121,6 +121,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY id DESC
     </select>
 
+    <select id="queryVagueScannableQuestionsList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+        ${sql}
+        ORDER BY id DESC
+    </select>
+
     <select id="selectTotalQuestionTableListInsert" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
 

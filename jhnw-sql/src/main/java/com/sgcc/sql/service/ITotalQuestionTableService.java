@@ -118,8 +118,10 @@ public interface ITotalQuestionTableService
     /*根据实体类 模糊查询 实体类集合*/
     List<TotalQuestionTable> fuzzyTotalQuestionTableList(TotalQuestionTable totalQuestionTable);
 
-    /*查询可扫描问题*/
+    /*查询可扫描问题       1        */
     List<TotalQuestionTable> queryScannableQuestionsList(TotalQuestionTable totalQuestionTable);
+    /*查询可扫描问题       带*  S*        */
+    List<TotalQuestionTable> queryVagueScannableQuestionsList(TotalQuestionTable totalQuestionTable);
 
     /*根据ID数组查询集合*/
     List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids);
@@ -133,4 +135,5 @@ public interface ITotalQuestionTableService
     List<String> selectTemProNamelistBytypeProblem(String typeProblem);
 
     List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable pojo);
+
 }

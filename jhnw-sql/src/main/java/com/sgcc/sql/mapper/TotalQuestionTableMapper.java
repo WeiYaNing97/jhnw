@@ -113,6 +113,9 @@ public interface TotalQuestionTableMapper
     /*查询可扫描问题*/
     List<TotalQuestionTable> queryScannableQuestionsList(TotalQuestionTable totalQuestionTable);
 
+    List<TotalQuestionTable> queryVagueScannableQuestionsList(@Param("sql") String sql);
+
+
     /*根据ID数组查询集合*/
     List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids);
 
