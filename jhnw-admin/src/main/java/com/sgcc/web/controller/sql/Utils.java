@@ -672,4 +672,33 @@ public class Utils {
         return   strNewArray;
     }
 
+    public static Integer filterAccurately(String value1,String value2) {
+        boolean value1Boolean = value1.indexOf("*")!=-1;
+        boolean value2Boolean = value2.indexOf("*")!=-1;
+        int value1Length = value1.length();
+        int value2Length = value2.length();
+        if (value1Boolean && value2Boolean){
+            /*如果两个都含有 * 取最长的*/
+           if (value1Length<value2Length){
+               return 2;
+           }else if (value1Length>value2Length){
+               return 1;
+           }else if (value1Length == value2Length){
+                return 0;
+            }
+        }else {
+            /*两个 至少有一个没含有 * */
+            if (value1Boolean || value2Boolean){
+                /*有一个含有 * 返回 没有*的*/
+                if (value1Boolean){
+                    return 2;
+                }
+                if (value2Boolean){
+                    return 1;
+                }
+            }
+        }
+        return 0;
+    }
+
 }

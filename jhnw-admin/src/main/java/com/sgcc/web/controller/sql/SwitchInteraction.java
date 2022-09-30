@@ -1938,6 +1938,7 @@ public class SwitchInteraction {
         if (totalQuestionTables == null){
             //根据交换机基本信息 查询 可执行命令的 命令信息
             AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(deviceModel, deviceBrand, firmwareVersion, subversionNumber);
+
             if (commandIdByInformation_ajaxResult == null){
                 return  AjaxResult.success("未定义交换机问题");
             }
@@ -1966,10 +1967,38 @@ public class SwitchInteraction {
                     if (!(totalQuestionTable.getSubVersion().equals("*"))){
                         newNumber = newNumber +1;
                     }
-
                     if (usedNumber < newNumber){
                         totalQuestionTableHashMap.put(key,totalQuestionTable);
-                    }else {
+                    }else if (usedNumber == newNumber){
+                        String pojotype = pojo.getType();
+                        String totalQuestionTabletype = totalQuestionTable.getType();
+                        Integer typeinteger = Utils.filterAccurately(pojotype, totalQuestionTabletype);
+                        if (typeinteger == 1){
+                            totalQuestionTableHashMap.put(key,pojo);
+                        }else if (typeinteger == 2){
+                            totalQuestionTableHashMap.put(key,totalQuestionTable);
+                        }else if (typeinteger == 0){
+                            String pojofirewareVersion = pojo.getFirewareVersion();
+                            String totalQuestionTablefirewareVersion = totalQuestionTable.getFirewareVersion();
+                            Integer firewareVersioninteger = Utils.filterAccurately(pojofirewareVersion, totalQuestionTablefirewareVersion);
+                            if (firewareVersioninteger == 1){
+                                totalQuestionTableHashMap.put(key,pojo);
+                            }else if (firewareVersioninteger == 2){
+                                totalQuestionTableHashMap.put(key,totalQuestionTable);
+                            }else if (firewareVersioninteger == 0){
+                                String pojosubVersion = pojo.getSubVersion();
+                                String totalQuestionTablesubVersion = totalQuestionTable.getSubVersion();
+                                Integer subVersioninteger = Utils.filterAccurately(pojosubVersion, totalQuestionTablesubVersion);
+                                if (subVersioninteger == 1){
+                                    totalQuestionTableHashMap.put(key,pojo);
+                                }else if (subVersioninteger == 2){
+                                    totalQuestionTableHashMap.put(key,totalQuestionTable);
+                                }else if (subVersioninteger == 0){
+                                    totalQuestionTableHashMap.put(key,totalQuestionTable);
+                                }
+                            }
+                        }
+                    }else  if (usedNumber > newNumber) {
                         totalQuestionTableHashMap.put(key,pojo);
                     }
                 }else {
@@ -1979,10 +2008,8 @@ public class SwitchInteraction {
             Iterator <Map.Entry< String, TotalQuestionTable >> iterator = totalQuestionTableHashMap.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry< String, TotalQuestionTable > entry = iterator.next();
-
                 commandIdByInformation_comandID_Long.add(entry.getValue());
             }
-
         }else {
             //totalQuestionTables != null 是 专项扫描问题
             // 匹配符合问题
@@ -1991,41 +2018,30 @@ public class SwitchInteraction {
                 String type = totalQuestionTable.getType();
                 String version = totalQuestionTable.getFirewareVersion();
                 String subVersion = totalQuestionTable.getSubVersion();
-
                 if (brand.equals(deviceBrand)
                         && (type.equals(deviceModel) || type.equals("*"))
                         && (version.equals(firmwareVersion) || version.equals("*"))
                         && (subVersion.equals(subversionNumber) || subVersion.equals("*"))){
-
                     commandIdByInformation_comandID_Long.add(totalQuestionTable);
-
                 }
-
             }
         }
-
         for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
-
             // ---- More ----
             user_String.put("notFinished",totalQuestionTable.getNotFinished());
-
             //根据命令ID获取具体命令，执行
             //返回  交换机返回信息 和  第一条分析ID
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String, totalQuestionTable,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
                     user_String.get("mode"), user_Object);
-
             if (executeScanCommandByCommandId_object.size() == 1){
                 AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
                 if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
                     continue;
                 }
             }
-
             //分析
             String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                     executeScanCommandByCommandId_object,  "",  "");
-
-            System.err.print("\r\nanalysisReturnResults_String:\r\n"+analysisReturnResults_String);
 
         }
         return null;
