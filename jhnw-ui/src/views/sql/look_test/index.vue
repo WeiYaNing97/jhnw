@@ -6,28 +6,28 @@
           <el-form-item label="基本信息:"></el-form-item>
           <el-form-item label="品牌" prop="brand">
             <el-select v-model="queryParams.brand" placeholder="品牌"
-                       filterable allow-create name="brand" @focus="general($event)" style="width: 150px">
+                       name="brand" @focus="general($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.brand" :value="item.brand"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="型号" prop="type">
             <el-select v-model="queryParams.type" placeholder="型号"
-                       filterable allow-create name="type" @focus="general($event)" style="width: 150px">
+                       name="type" @focus="general($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.type" :value="item.type"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="固件版本" prop="firewareVersion">
             <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                       filterable allow-create name="firewareVersion" @focus="general($event)" style="width: 150px">
+                       name="firewareVersion" @focus="general($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="子版本" prop="subVersion">
             <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                       filterable allow-create name="subVersion" @focus="general($event)" style="width: 150px">
+                       name="subVersion" @focus="general($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
             </el-select>
@@ -42,21 +42,21 @@
           <el-form-item label="分类概要:"></el-form-item>
           <el-form-item label="范式分类" prop="typeProblem">
             <el-select v-model="queryParams.typeProblem" placeholder="范式分类"
-                       filterable allow-create name="typeProblem" @focus="general($event)">
+                       name="typeProblem" @focus="general($event)">
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.typeProblem" :value="item.typeProblem"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="范式名称">
             <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                       filterable allow-create name="temProName" @focus="general($event)">
+                       name="temProName" @focus="general($event)">
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.temProName" :value="item.temProName"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="自定义名称">
             <el-select v-model="queryParams.problemName" placeholder="自定义名称"
-                       filterable allow-create name="problemName" @focus="general($event)">
+                       name="problemName" @focus="general($event)">
 <!--              @change="cproId"-->
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.problemName" :value="item.problemName"></el-option>
@@ -328,6 +328,8 @@ export default {
         bizui:false,
         bixiala:true,
         biList:['品牌','型号','固件版本','子版本'],
+        //查看定义是否可以点击
+        cdy:false,
         //新添加
         genList:[],
         checkedQ:false,
@@ -534,46 +536,6 @@ export default {
           }).then(response=>{
               this.$message.success('提交修改成功!')
           })
-          // if (this.isChange){
-          //     // MessageBox.confirm('确定提交吗？','提示').then(c=>{
-          //     //     alert('sss')
-          //     // }).catch(ee=>{
-          //     //     alert('quxiao')
-          //     // })
-          //     alert('改变了'+this.isChange)
-          //     axios({
-          //         method:'post',
-          //         // url:'/dev-api/sql/ConnectController/definitionProblem',
-          //         // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
-          //         headers:{
-          //             "Content-Type": "application/json"
-          //             // "Content-Type": "multipart/form-data"
-          //         },
-          //         data:handForm
-          //         // data:form1
-          //     }).then(res=>{
-          //         console.log("成功")
-          //     })
-          // }else {
-          //     // alert(this.isChange)
-          //     MessageBox.confirm('未检测到修改，是否提交？','提示').then(c=>{
-          //         axios({
-          //             method:'post',
-          //             // url:'/dev-api/sql/ConnectController/definitionProblem',
-          //             // url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
-          //             headers:{
-          //                 "Content-Type": "application/json"
-          //                 // "Content-Type": "multipart/form-data"
-          //             },
-          //             data:handForm
-          //             // data:form1
-          //         }).then(res=>{
-          //             console.log("成功")
-          //         })
-          //     }).catch(ee=>{
-          //         console.log("取消提交")
-          //     })
-          // }
       },
       //通用数组对象去重
       quchong(arr,key){
@@ -592,18 +554,20 @@ export default {
       //下拉列表通用
       general(e){
           this.who = e.target.getAttribute('name')
-          delete this.queryParams.notFinished
-          delete this.queryParams.remarks
-          delete this.queryParams.requiredItems
-          for (let i in this.queryParams){
-              if (this.queryParams[i]==='{空}'){
-                  this.queryParams[i]=''
+          let newPar = {}
+          for (var key in this.queryParams){
+              newPar[key] = this.queryParams[key]
+          }
+          for (let i in newPar){
+              if (newPar[i] === 'null'){
+                  newPar[i] = ''
               }
           }
+          console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'post',
-              data:this.queryParams
+              data:newPar
           }).then(response=>{
               console.log(response)
               this.proId = response[0].id
@@ -626,7 +590,7 @@ export default {
               }
               this.genList = this.quchong(response,this.who)
               let kong = {
-                  [this.who] : '{空}'
+                  [this.who] : 'null'
               }
               this.genList.push(kong)
           })
@@ -635,6 +599,20 @@ export default {
       filterNode(value, data){
           if (!value) return true;
           return data.label.indexOf(value) !== -1;
+      },
+      //循环项获取index
+      wcycle(item,event){
+          const cycleId = item.onlyIndex
+          this.forms.dynamicItem.forEach(cy=>{
+              // if (cy.targetType === 'wloop'){
+              //     this.$set(cy,'cycleStartId',cycleId)
+              // }
+              if (cy.hasOwnProperty('cycleStartId') != true && cy.targetType == 'wloop'){
+                  this.$set(cy,'cycleStartId',cycleId)
+              }else if (cy.cycleStartId == ''){
+                  this.$set(cy,'cycleStartId',cycleId)
+              }
+          })
       },
       //列表展示树结构
       handleNodeClick(lookLists) {
@@ -663,6 +641,9 @@ export default {
                       data: response.data
                   }).then(response => {
                       console.log(response)
+                      if (response.msg === '操作成功'){
+                          this.cdy = true
+                      }
                       this.fDa = []
                       response.data.forEach(l => {
                           const wei = l.replace(/"=/g, '":')
@@ -890,7 +871,7 @@ export default {
       //回显定义问题
       chaxun(){
           console.log(this.queryParams)
-          if (this.lookLists.length != 1){
+          if (this.lookLists.length != 1 && this.cdy != true){
               alert('查找条件过于模糊,请完善')
           }else {
               this.forms.dynamicItem = this.formss.dynamicItemss

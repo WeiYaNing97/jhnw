@@ -439,7 +439,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:true,
+        chuxian:false,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj
@@ -471,6 +471,8 @@ export default {
         radio:'1',
         //通用基本信息下拉集合
         genList:[],
+        //范式分类
+        normalType:[],
         proNameList:[],
         typeProList:[],
         temProNameList:[],
@@ -638,14 +640,16 @@ export default {
       //下拉列表通用
       general(e){
           this.who = e.target.getAttribute('name')
+          console.log(this.who)
           // delete this.queryParams.notFinished
           // delete this.queryParams.remarks
           // delete this.queryParams.requiredItems
-          for (let i in this.queryParams){
-              if (this.queryParams[i]==='{空}'){
-                  this.queryParams[i]=''
-              }
-          }
+
+          // for (let i in this.queryParams){
+          //     if (this.queryParams[i]==='{空}'){
+          //         this.queryParams[i]=''
+          //     }
+          // }
           //
           let newPar = {}
           for (var key in this.queryParams){
@@ -653,16 +657,25 @@ export default {
                   newPar[key] = this.queryParams[key]
               }
           }
-          console.log(newPar)
+          for (let i in newPar){
+              if (newPar[i] === 'null'){
+                  newPar[i] = ''
+              }
+          }
+          // console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'post',
               data:newPar
           }).then(response=>{
               console.log(response)
+              //范式
+              this.normalType = this.quchong(response,'typeProblem')
+              console.log(this.normalType)
+
               this.genList = this.quchong(response,this.who)
               let kong = {
-                  [this.who] : '{空}'
+                  [this.who] : 'null'
               }
               this.genList.push(kong)
           })
@@ -883,6 +896,11 @@ export default {
               this.$set(shasha,'requiredItems','1')
           }else {
               this.$set(shasha,'requiredItems','0')
+          }
+          for (let i in shasha){
+              if (shasha[i] === 'null'){
+                  shasha[i] = ''
+              }
           }
           console.log(shasha)
           return request({
@@ -1286,7 +1304,6 @@ export default {
                   const thisData = Date.now()
                   console.log(thisData)
               }
-
           })
           const handForm = useForm.map(x => JSON.stringify(x))
           console.log(handForm)
