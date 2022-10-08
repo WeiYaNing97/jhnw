@@ -2027,22 +2027,31 @@ public class SwitchInteraction {
             }
         }
         for (TotalQuestionTable totalQuestionTable:commandIdByInformation_comandID_Long){
-            // ---- More ----
-            user_String.put("notFinished",totalQuestionTable.getNotFinished());
-            //根据命令ID获取具体命令，执行
-            //返回  交换机返回信息 和  第一条分析ID
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String, totalQuestionTable,totalQuestionTable.getCommandId(),user_String.get("notFinished"),
-                    user_String.get("mode"), user_Object);
-            if (executeScanCommandByCommandId_object.size() == 1){
-                AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                    continue;
+            if (totalQuestionTable.getCommandId().indexOf("命令") != -1){
+                // ---- More ----
+                user_String.put("notFinished",totalQuestionTable.getNotFinished());
+                //根据命令ID获取具体命令，执行
+                //返回  交换机返回信息 和  第一条分析ID
+                List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String, totalQuestionTable,totalQuestionTable.getCommandId().replace("命令",""),user_String.get("notFinished"),
+                        user_String.get("mode"), user_Object);
+                if (executeScanCommandByCommandId_object.size() == 1){
+                    AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
+                    if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
+                        continue;
+                    }
                 }
-            }
-            //分析
-            String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
-                    executeScanCommandByCommandId_object,  "",  "");
 
+                //分析
+                String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
+                        executeScanCommandByCommandId_object,  "",  "");
+            }else if (totalQuestionTable.getCommandId().indexOf("分析") != -1){
+                List<Object> executeScanCommandByCommandId_object = new ArrayList<>();
+                executeScanCommandByCommandId_object.add("");
+                executeScanCommandByCommandId_object.add(totalQuestionTable.getCommandId().replaceAll("分析",""));
+                //分析
+                String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
+                        executeScanCommandByCommandId_object,  "",  "");
+            }
         }
         return null;
     }

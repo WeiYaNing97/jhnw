@@ -170,7 +170,7 @@ public class DefinitionProblemController extends BaseController {
      */
     public ProblemScanLogic insertProblemScanLogic(ProblemScanLogic problemScanLogic)
     {
-            problemScanLogicService.insertProblemScanLogic(problemScanLogic);
+        problemScanLogicService.insertProblemScanLogic(problemScanLogic);
         return problemScanLogic;
     }
 
@@ -209,6 +209,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
+    //@RequestMapping("definitionProblemJsonPojo")
     public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList){//@RequestBody List<String> jsonPojoList
 
         String problemScanLogicString = "";
@@ -281,7 +282,7 @@ public class DefinitionProblemController extends BaseController {
         }
         for (CommandLogic commandLogic:commandLogicList){
             if (commandLogic.getcLine().equals("1")){
-                commandId = commandLogic.getId();
+                commandId = "命令"+commandLogic.getId();
             }
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             int i = commandLogicService.insertCommandLogic(commandLogic);
@@ -289,6 +290,15 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
+
+        if(commandId == null){
+            for (ProblemScanLogic problemScanLogic:problemScanLogics){
+                if (problemScanLogic.gettLine().equals("1")){
+                    commandId = "分析"+problemScanLogic.getId();
+                }
+            }
+        }
+
         if(totalQuestionTableById!=null){
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
             TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
@@ -780,7 +790,7 @@ public class DefinitionProblemController extends BaseController {
         FutureTask future = new FutureTask(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
-            // TODO Auto-generated method stub
+                // TODO Auto-generated method stub
                 analysisList[0] = getAnalysisList(totalQuestionTable);
                 return analysisList[0];
             }
@@ -818,20 +828,55 @@ public class DefinitionProblemController extends BaseController {
         String problemScanLogicID = totalQuestionTables.get(0).getCommandId();
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
+        String ProblemId = null;
+        if (problemScanLogicID.indexOf("分析") != -1){
+            ProblemId = problemScanLogicID.replaceAll("分析","");
+        }else if (problemScanLogicID.indexOf("命令") != -1){
+            problemScanLogicID = problemScanLogicID.replaceAll("命令","");
+        }
         do {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
-            for (String problemID:problemScanLogicIDsplit){
-                commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-                CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
-                if (commandLogic == null || commandLogic.getProblemId() == null){
-                    return null;
-                }
-                commandLogicList.add(commandLogic);
-                problemScanLogicID = "";
 
-                if (commandLogic.getResultCheckId().equals("0")){
+            problemScanLogicID = "";
+
+            for (String problemID:problemScanLogicIDsplit){
+                if (ProblemId == null){
+                    commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+                    CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
+                    if (commandLogic == null || commandLogic.getProblemId() == null){
+                        return null;
+                    }
+                    commandLogicList.add(commandLogic);
+
+                    if (commandLogic.getResultCheckId().equals("0")){
+                        //根据第一个分析ID 查询出所有的数据条数
+                        List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
+                        if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+                            return null;
+                        }
+                        for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                            problemScanLogics.add(problemScanLogic);
+                            if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
+                                problemScanLogicID += problemScanLogic.gettComId()+":";
+                            }
+                            if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
+                                problemScanLogicID += problemScanLogic.getfComId()+":";
+                            }
+                        }
+                    }else {
+                        problemScanLogicID = commandLogic.getEndIndex()+":";
+                    }
+
+                    if (problemScanLogicID!=""){
+                        break;
+                    }
+                }
+
+                if (ProblemId != null){
+
                     //根据第一个分析ID 查询出所有的数据条数
-                    List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
+                    List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(ProblemId);//commandLogic.getProblemId()
+                    ProblemId = null;
                     if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
                         return null;
                     }
@@ -844,14 +889,14 @@ public class DefinitionProblemController extends BaseController {
                             problemScanLogicID += problemScanLogic.getfComId()+":";
                         }
                     }
-                }else {
-                    problemScanLogicID = commandLogic.getEndIndex()+":";
+
+                    if (problemScanLogicID!=""){
+                        break;
+                    }
                 }
 
-                if (problemScanLogicID!=""){
-                    break;
-                }
             }
+
         }while (problemScanLogicID.indexOf(":")!=-1);
 
         HashMap<Long,String> hashMap = new HashMap<>();
@@ -1314,7 +1359,7 @@ public class DefinitionProblemController extends BaseController {
         HashSet<String> commandLogicSet = new HashSet<>();
         for (CommandLogic commandLogic:commandLogicList){
             commandLogicSet.add(commandLogic.getId());
-         }
+        }
         for (String id:problemScanLogicSet){
             int j = problemScanLogicService.deleteProblemScanLogicById(id);
             if (j<=0){
@@ -1382,10 +1427,10 @@ public class DefinitionProblemController extends BaseController {
             }
         }else {
             for (String command_Id:commandList){
-            int i = commandLogicService.deleteCommandLogicById(command_Id);
-            if (i<=0){
-                return false;
-            }}
+                int i = commandLogicService.deleteCommandLogicById(command_Id);
+                if (i<=0){
+                    return false;
+                }}
             boolean b = deleteProblemScanLogicList(problemId);
             if (!b){
                 return false;
@@ -1429,7 +1474,7 @@ public class DefinitionProblemController extends BaseController {
         FutureTask future = new FutureTask(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
-            // TODO Auto-generated method stub
+                // TODO Auto-generated method stub
                 analysisList[0] = getBasicInformationProblemScanLogic(problemId);
                 return analysisList[0];
             }
