@@ -350,7 +350,16 @@
       width="30%"
       :before-close="handleClose">
       <div>
-        <h3 style="font-weight: bolder" id="pinpai" ref="pinpai">品牌</h3>
+        <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">品牌</h3>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <p>请输入品牌：</p>
+        <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
@@ -369,15 +378,8 @@
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
         <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <a :href="whelp" v-trigger><span>品牌</span></a>
+        <a :href="whelp" id="bangbang" ref="bang"><span>阿斯顿撒大</span></a>
+<!--        <span id="bangzzz">品牌</span>-->
       </div>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisibleHelp = false">取 消</el-button>
@@ -595,16 +597,34 @@ export default {
           console.log('delete!')
       },
       showhelp(){
+          this.dialogVisibleHelp = true
+          this.whelp = `#${this.who}`
+          setTimeout(()=>{
+              console.log(this.$refs.bang)
+              this.$refs.bang.click()
+              // this.$refs.pinpai.style.color='red'
+          },0)
+      },
+      showhelps(){
           if (this.who === 'biaoshi'){
               this.dialogVisibleHelp = true
               this.whelp = '#pinpai'
               setTimeout(()=>{
+                  console.log(this.$refs.bang)
+                  this.$refs.bang.click()
                   this.$refs.pinpai.style.color='red'
               },0)
           }else if (this.who === 'brand'){
               this.helpT = '请输入交换机品牌'
           }else if (this.who === 'type' ){
-              this.helpT = '请输入交换机型号'
+              // this.helpT = '请输入交换机型号'
+              this.dialogVisibleHelp = true
+              this.whelp = '#xinghao'
+              setTimeout(()=>{
+                  console.log(this.$refs.bang)
+                  this.$refs.bang.click()
+                  this.$refs.xinghao.style.color='red'
+              },0)
           }else if (this.who === 'firewareVersion' ){
               this.helpT = '请输入交换机版本'
           }else if (this.who === 'subVersion' ){

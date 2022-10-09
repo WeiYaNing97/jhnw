@@ -29,7 +29,7 @@
       </el-form-item>
       <el-divider></el-divider>
       <el-row>
-        <el-col :span="13">
+        <el-col :span="14">
           <!--      表格展示列表-->
           <p style="margin: 0;text-align: center">扫描设备信息</p>
           <el-table :data="tableData" style="width: 100%"
@@ -71,6 +71,15 @@
                 <span v-else>{{ row.port }}</span>
               </template>
             </el-table-column>
+
+            <el-table-column prop="configureCiphers" label="配置密码" width="80">
+              <template slot-scope="{ row }">
+                <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
+                          placeholder="配置密码" size="small" style="width: 100px"></el-input>
+                <span v-else>{{ row.conCip }}</span>
+              </template>
+            </el-table-column>
+
             <el-table-column label="操作" width="100">
               <template slot-scope="{ row }">
                 <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small">确定</el-button>
@@ -80,7 +89,7 @@
             </el-table-column>
           </el-table>
         </el-col>
-        <el-col :span="11" v-show="showxiang">
+        <el-col :span="10" v-show="showxiang">
           <p style="margin: 0;text-align: center">扫描项目选择</p>
           <div>
             <el-input
@@ -202,7 +211,9 @@ export default {
             passmi:'********',
             mode:'ssh',
             port:22,
-            isEdit:false
+            isEdit:false,
+            conCip:'********',
+            configureCiphers:''
         }],
         xuanzhong:[
 
@@ -370,7 +381,9 @@ export default {
               passmi:'********',
               mode:'ssh',
               port:22,
-              isEdit:true
+              isEdit:true,
+              conCip:'********',
+              configureCiphers:''
           })
       },
       //删除扫描设备
@@ -427,6 +440,7 @@ export default {
           if (this.importData.length != 0){
               for (let i = 0;i<this.importData.length;i++){
                   this.$set(this.importData[i],'passmi','********')
+                  this.$set(this.importData[i],'conCip','********')
                   this.$set(this.importData[i],'isEdit',false)
                   if (this.tableData[0].ip === '' && this.tableData[0].name === '' && this.tableData[0].password === ''){
                       this.$delete(this.tableData,0)
@@ -522,9 +536,13 @@ export default {
           for (let i = 0;i<zuihou.length;i++){
               this.$delete(zuihou[i],'isEdit')
               this.$delete(zuihou[i],'passmi')
+              this.$delete(zuihou[i],'conCip')
               //给用户密码加密
               var pass = encrypt.encrypt(zuihou[i].password)
               this.$set(zuihou[i],'password',pass)
+
+              var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
+              this.$set(zuihou[i],'configureCiphers',passPei)
           }
           //传输几个线程
           const scanNum = this.num
