@@ -46,6 +46,10 @@ public class SwitchScanResult extends BaseEntity
     @Excel(name = "交换机密码")
     private String switchPassword;
 
+    /** 交换机配置密码 */
+    @Excel(name = "交换机配置密码")
+    private String configureCiphers;
+
     /** 登录方式 */
     @Excel(name = "登录方式")
     private String loginMethod;
@@ -272,6 +276,15 @@ public class SwitchScanResult extends BaseEntity
         this.phonenumber = phonenumber;
     }
 
+
+    public String getConfigureCiphers() {
+        return configureCiphers;
+    }
+
+    public void setConfigureCiphers(String configureCiphers) {
+        this.configureCiphers = configureCiphers;
+    }
+
     @Override
     public String toString() {
         return "SwitchScanResult{" +
@@ -283,6 +296,7 @@ public class SwitchScanResult extends BaseEntity
                 ", subVersion='" + subVersion + '\'' +
                 ", switchName='" + switchName + '\'' +
                 ", switchPassword='" + switchPassword + '\'' +
+                ", configureCiphers='" + configureCiphers + '\'' +
                 ", loginMethod='" + loginMethod + '\'' +
                 ", portNumber=" + portNumber +
                 ", problemId='" + problemId + '\'' +

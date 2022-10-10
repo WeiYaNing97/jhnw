@@ -186,6 +186,11 @@ public class SolveProblemController {
                     value = EncryptUtil.desaltingAndDecryption(value);
                     user_String.put("password",value);
                     break;
+                case "configureCiphers":
+                    //密码
+                    value = EncryptUtil.desaltingAndDecryption(value);
+                    user_String.put("configureCiphers",value);
+                    break;
                 case "port":
                     //端口号
                     user_String.put("port",value);

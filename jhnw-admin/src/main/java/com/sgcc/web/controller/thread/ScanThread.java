@@ -34,7 +34,7 @@ public class ScanThread extends Thread {
 
         SwitchInteraction switchInteraction = new SwitchInteraction();
         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time,null);
+        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password,null, port, loginUser,time,null);
 
         thread.interrupt();
 

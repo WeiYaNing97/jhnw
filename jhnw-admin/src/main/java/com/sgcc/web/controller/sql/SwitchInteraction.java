@@ -87,6 +87,7 @@ public class SwitchInteraction {
             String name = "";
             String password = "";
             String mode = "";
+            String configureCiphers = "";
             int port = 0;
 
             for (String string:information_split){
@@ -110,6 +111,10 @@ public class SwitchInteraction {
                         password=string_split[1];
                         password = RSAUtils.decryptFrontEndCiphertext(password);
                         break;
+                    case "configureCiphers" :
+                        configureCiphers=string_split[1];
+                        configureCiphers = RSAUtils.decryptFrontEndCiphertext(configureCiphers);
+                        break;
                     case "mode" :  mode=string_split[1];
                         break;
                     case "port" :  port= Integer.valueOf(string_split[1]).intValue() ;
@@ -118,7 +123,7 @@ public class SwitchInteraction {
             }
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
-            Object[] objects = {mode,ip,name,password,port};
+            Object[] objects = {mode,ip,name,password,configureCiphers,port};
             objectsList.add(objects);
         }
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
@@ -180,6 +185,7 @@ public class SwitchInteraction {
             String ip = "";
             String name = "";
             String password = "";
+            String configureCiphers = "";//配置密码
             String mode = "";
             int port = 0;
 
@@ -205,6 +211,12 @@ public class SwitchInteraction {
                         String ciphertextString = RSAUtils.decryptFrontEndCiphertext(ciphertext);
                         password = ciphertextString;
                         break;
+                    case "configureCiphers" :
+                        String configureCiphersciphertext = string_split[1];
+                        String configureCiphersciphertextString = RSAUtils.decryptFrontEndCiphertext(configureCiphersciphertext);
+                        configureCiphers = configureCiphersciphertextString;
+                        break;
+
                     case "mode" :  mode=string_split[1];
                         break;
                     case "port" :  port= Integer.valueOf(string_split[1]).intValue() ;
@@ -213,7 +225,7 @@ public class SwitchInteraction {
             }
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
-            Object[] objects = {mode,ip,name,password,port};
+            Object[] objects = {mode,ip,name,password,configureCiphers,port};
             objectsList.add(objects);
         }
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -245,7 +257,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, int port,
+    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, String configureCiphers , int port,
                                                  LoginUser loginUser,String ScanningTime,List<TotalQuestionTable> totalQuestionTables) {
 
         //用户信息  及   交换机信息
@@ -262,6 +274,7 @@ public class SwitchInteraction {
         user_String.put("ip",ip);//ip地址
         user_String.put("name",name);//用户名
         user_String.put("password",password);//用户密码
+        user_String.put("configureCiphers",configureCiphers);//配置密码
         user_String.put("port",port+"");//登录端口号
         //扫描时间 获取当前时间  时间格式为 "yyyy-MM-dd HH:mm:ss"  字符串
         user_String.put("ScanningTime",ScanningTime);
@@ -311,7 +324,8 @@ public class SwitchInteraction {
         元素6 ：ssh连接对象：如果连接方法为telnet则connectMethod为空，插入connectMethod失败
         元素7 ：telnet连接对象：如果连接方法为ssh则telnetSwitchMethod为空，插入telnetSwitchMethod失败
         元素8 ：ssh连接工具对象
-        元素9 ：telnet连接工具对象*/
+        元素9 ：telnet连接工具对象
+        */
 
         List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
 
@@ -323,6 +337,9 @@ public class SwitchInteraction {
             //密码 MD5 加密
             String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(user_String.get("password"));
             user_String.put("password",passwordDensificationAndSalt);//用户密码
+            //密码 MD5 加密
+            String configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(user_String.get("configureCiphers"));
+            user_String.put("configureCiphers",configureCiphersDensificationAndSalt);//用户密码
 
             //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
             String requestConnect_way = objectList.get(1).toString();
@@ -410,6 +427,8 @@ public class SwitchInteraction {
         int portID = Integer.valueOf(user_String.get("port")).intValue() ;//端口号
         String userName = user_String.get("name") ;//姓名
         String userPassword = user_String.get("password") ;//密码
+        String configureCiphers = user_String.get("configureCiphers");//配置密码
+
         //设定连接结果 预设连接失败为 false
         boolean is_the_connection_successful =false;
         //ssh 和 telnet 连接方法 预设为null
@@ -423,6 +442,7 @@ public class SwitchInteraction {
             connectMethod = new SshMethod();
             //连接ssh 成功为 true  失败为  false
             sshConnect = connectMethod.requestConnect(hostIp, portID, userName, userPassword);
+
             if (sshConnect!=null){
                 is_the_connection_successful = true;
             }
@@ -431,12 +451,15 @@ public class SwitchInteraction {
             telnetSwitchMethod = new TelnetSwitchMethod();
             //连接telnet 成功为 true  失败为  false
             telnetComponent = telnetSwitchMethod.requestConnect(hostIp, portID, userName, userPassword, null);
+
             if (telnetComponent!=null){
                 is_the_connection_successful = true;
             }
+
         }
 
         List<Object> objectList = new ArrayList<>();  //设定返回值 list集合
+
         objectList.add(is_the_connection_successful); //元素0 ：是否连接成功
         objectList.add(way);                          //元素1 ：连接方法
         objectList.add(hostIp);                       //元素2 ：交换机ID
@@ -446,17 +469,98 @@ public class SwitchInteraction {
         objectList.add(connectMethod);                //元素6 ：ssh连接对象：如果连接方法为telnet则connectMethod为空，插入connectMethod失败
         objectList.add(telnetSwitchMethod);           //元素7 ：telnet连接对象：如果连接方法为ssh则telnetSwitchMethod为空，插入telnetSwitchMethod失败
         objectList.add(sshConnect);                   //元素8 ：ssh连接工具对象
-        objectList.add(telnetComponent);                 //元素9 ：telnet连接工具对象
+        objectList.add(telnetComponent);              //元素9 ：telnet连接工具对象
+        objectList.add(configureCiphers);             //元素10 ： 配置密码configureCiphers
+
         /* 返回信息 ： [是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
                 connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）]*/
         if(is_the_connection_successful){
-            return AjaxResult.success(objectList);
+            //enable
+            String enable = enable(objectList);
+
+            if (enable.equals("交换机连接成功")){
+                return AjaxResult.success(objectList);
+            }else {
+                return AjaxResult.error("交换机连接失败");
+            }
+
         }else {
 
             return AjaxResult.error("交换机连接失败");
 
         }
+
     }
+
+    //enable
+    public static String enable(List<Object> objectList) {
+        String way = (String) objectList.get(1);
+        String hostIp = (String) objectList.get(2);
+
+        String returnString = null;
+        if (way.equalsIgnoreCase("ssh")){
+            SshMethod connectMethod = (SshMethod) objectList.get(6);
+            SshConnect sshConnect = (SshConnect) objectList.get(8);
+            returnString = connectMethod.sendCommand(hostIp,sshConnect,"\r",null);
+        }else if (way.equalsIgnoreCase("telnet")){
+            TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) objectList.get(7);
+            TelnetComponent telnetComponent = (TelnetComponent) objectList.get(9);
+            returnString = telnetSwitchMethod.sendCommand(hostIp, telnetComponent, "\r", null);
+        }
+        if (returnString==null){
+            return "交换机连接失败";
+        }
+        String trim = returnString.trim();
+        if (trim.substring(trim.length()-1,trim.length()).equals(">")){
+            if (way.equalsIgnoreCase("ssh")){
+                SshMethod connectMethod = (SshMethod) objectList.get(6);
+                SshConnect sshConnect = (SshConnect) objectList.get(8);
+                returnString = connectMethod.sendCommand(hostIp,sshConnect,"enable",null);
+            }else if (way.equalsIgnoreCase("telnet")){
+                TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) objectList.get(7);
+                TelnetComponent telnetComponent = (TelnetComponent) objectList.get(9);
+                returnString = telnetSwitchMethod.sendCommand(hostIp, telnetComponent, "enable", null);
+            }
+
+            if (returnString == null){
+                return "交换机连接失败";
+            }else {
+                returnString = returnString.trim();
+                String substring = returnString.substring(returnString.length() - 1, returnString.length());
+                if (returnString.indexOf("command")!=-1 && returnString.indexOf("%")!=-1 ){
+
+                    if (way.equalsIgnoreCase("ssh")){
+                        SshMethod connectMethod = (SshMethod) objectList.get(6);
+                        SshConnect sshConnect = (SshConnect) objectList.get(8);
+                        returnString = connectMethod.sendCommand(hostIp,sshConnect,(String) objectList.get(10),null);
+                    }else if (way.equalsIgnoreCase("telnet")){
+                        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) objectList.get(7);
+                        TelnetComponent telnetComponent = (TelnetComponent) objectList.get(9);
+                        returnString = telnetSwitchMethod.sendCommand(hostIp, telnetComponent, (String) objectList.get(10), null);
+                    }
+
+                    return "交换机连接成功";
+                }else if (substring.equalsIgnoreCase("#")){
+                    return "交换机连接成功";
+                }else if (returnString.indexOf(":")!=-1){
+                    if (way.equalsIgnoreCase("ssh")){
+                        SshMethod connectMethod = (SshMethod) objectList.get(6);
+                        SshConnect sshConnect = (SshConnect) objectList.get(8);
+                        returnString = connectMethod.sendCommand(hostIp,sshConnect,(String) objectList.get(10),null);
+                    }else if (way.equalsIgnoreCase("telnet")){
+                        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) objectList.get(7);
+                        TelnetComponent telnetComponent = (TelnetComponent) objectList.get(9);
+                        returnString = telnetSwitchMethod.sendCommand(hostIp, telnetComponent, (String) objectList.get(10), null);
+                    }
+                    return "交换机连接成功";
+                }
+            }
+        }
+
+        return "交换机连接失败";
+    }
+
+
 
     /**
      * @method: 获取交换机基本信息  多个命令依次执行 按，分割
@@ -1424,6 +1528,7 @@ public class SwitchInteraction {
 
         switchScanResult.setSwitchName(user_String.get("name")); //name
         switchScanResult.setSwitchPassword(user_String.get("password")); //password
+        switchScanResult.setConfigureCiphers(user_String.get("configureCiphers"));
 
         switchScanResult.setLoginMethod(user_String.get("mode"));
         switchScanResult.setPortNumber(Integer.valueOf(user_String.get("port")).intValue());
@@ -1765,12 +1870,13 @@ public class SwitchInteraction {
                         returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
 
                         if (way.equalsIgnoreCase("ssh")){
-                            connectMethod.sendCommand(user_String.get("ip"),sshConnect," ",user_String.get("notFinished"));
+                            connectMethod.sendCommand(user_String.get("ip"),sshConnect,"\r ",user_String.get("notFinished"));
                         }else if (way.equalsIgnoreCase("telnet")){
-                            telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent," ",user_String.get("notFinished"));
+                            telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,"\n ",user_String.get("notFinished"));
                         }
 
                         break;
+
                     }
                 }
 

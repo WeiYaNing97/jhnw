@@ -61,6 +61,10 @@ public class SshMethod {
 
         String string = sshConnect.batchCommand(ip,cmds, notFinished,null,false);
 
+        if (string.equals("")){
+            return "";
+        }
+
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }

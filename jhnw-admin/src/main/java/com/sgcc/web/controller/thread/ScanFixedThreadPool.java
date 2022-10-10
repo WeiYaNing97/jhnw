@@ -32,7 +32,8 @@ public class ScanFixedThreadPool {
             String ip = (String)objects3[1];
             String name = (String)objects3[2];
             String password = (String)objects3[3];
-            int port = (int) objects3[4];
+            String configureCiphers = (String) objects3[4];
+            int port = (int) objects3[5];
             LoginUser loginUser = login;
             String time = ScanningTime;
 
@@ -47,7 +48,7 @@ public class ScanFixedThreadPool {
                         //传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，loginUser 登录人信息，time 扫描时间
                         // List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
                         // 扫描一台交换机 的 所以问题
-                        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time,null);
+                        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password,configureCiphers, port, loginUser,time,null);
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
                             WebSocketService.sendMessage("error"+userName,"\r\nIP地址:"+ip +"\r\n问题:交换机连接失败\r\n");
                         }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){

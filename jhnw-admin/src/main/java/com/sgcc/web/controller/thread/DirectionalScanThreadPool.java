@@ -38,7 +38,8 @@ public class DirectionalScanThreadPool {
             String ip = (String)objects3[1];
             String name = (String)objects3[2];
             String password = (String)objects3[3];
-            int port = (int) objects3[4];
+            String configureCiphers = (String) objects3[4];
+            int port = (int) objects3[5];
             LoginUser loginUser = login;
             String time = ScanningTime;
 
@@ -50,7 +51,7 @@ public class DirectionalScanThreadPool {
                         SwitchInteraction switchInteraction = new SwitchInteraction();
                         String userName = loginUser.getUsername();
                         //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-                        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, port, loginUser,time, totalQuestionTables);
+                        AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, configureCiphers , port, loginUser,time, totalQuestionTables);
 
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
                             WebSocketService.sendMessage("error"+userName,"\r\n"+ip + ":交换机连接失败\r\n");

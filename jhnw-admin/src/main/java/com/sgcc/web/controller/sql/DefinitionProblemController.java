@@ -5,6 +5,7 @@ import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.generator.config.GenConfig;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.IBasicInformationService;
 import com.sgcc.sql.service.ICommandLogicService;
@@ -785,6 +786,7 @@ public class DefinitionProblemController extends BaseController {
     @RequestMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
     public AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final List<String>[] analysisList = new List[]{new ArrayList<>()};
         FutureTask future = new FutureTask(new Callable<List<String>>() {
