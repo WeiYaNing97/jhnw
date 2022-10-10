@@ -349,37 +349,24 @@
       style="padding: 10px;height: 500px"
       width="30%"
       :before-close="handleClose">
-      <div>
-        <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">品牌</h3>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
+      <div id="fatherq">
+        <h3 style="font-weight: bolder" id="brand" ref="brand">品牌</h3>
         <p>请输入品牌：</p>
         <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <p>请输入品牌：</p>
-        <a :href="whelp" id="bangbang" ref="bang"><span>阿斯顿撒大</span></a>
-<!--        <span id="bangzzz">品牌</span>-->
+        <p>请输入型号：</p>
+        <h3 style="font-weight: bolder" id="firewareVersion" ref="firewareVersion">固件版本</h3>
+        <p>请输入固件版本：</p>
+        <h3 style="font-weight: bolder" id="subVersion" ref="subVersion">子版本</h3>
+        <p>请输入子版本：</p>
+        <h3 style="font-weight: bolder" id="typeProblem" ref="typeProblem">范式类型</h3>
+        <p>请输入范式类型：</p>
+        <h3 style="font-weight: bolder" id="temProName" ref="typeProblem">范式名称</h3>
+        <p>请输入范式名称：</p>
+        <h3 style="font-weight: bolder" id="problemName" ref="problemName">自定义名称</h3>
+        <p>请输入自定义名称：</p>
+        <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">标识符</h3>
+        <p>请输入标识符：</p>
+        <a :href="whelp" style="display: none" ref="bang"><span>阿斯顿撒大</span></a>
       </div>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisibleHelp = false">取 消</el-button>
@@ -455,13 +442,13 @@ export default {
             },
             menulists:[
                 {
-                    fnHandler:'deletedata',
-                    btnName:'删除当前数据'
-                },
-                {
                     fnHandler:'showhelp',
                     btnName:'帮助'
                 }
+                // {
+                //     fnHandler:'deletedata',
+                //     btnName:'删除当前数据'
+                // }
             ]
         },
         who:'',
@@ -600,9 +587,13 @@ export default {
           this.dialogVisibleHelp = true
           this.whelp = `#${this.who}`
           setTimeout(()=>{
-              console.log(this.$refs.bang)
               this.$refs.bang.click()
-              // this.$refs.pinpai.style.color='red'
+              let h3l = document.getElementById('fatherq').getElementsByTagName('h3').length
+              for (let i = 0;i<h3l;i++){
+                  // console.log(document.getElementById('fatherq').getElementsByTagName('h3')[i])
+                  document.getElementById('fatherq').getElementsByTagName('h3')[i].classList.remove('redColor')
+              }
+              this.$refs[this.who].classList.add('redColor')
           },0)
       },
       showhelps(){
@@ -634,9 +625,6 @@ export default {
           }else if (this.who === '' ){
               this.helpT = ''
           }
-          // this.$alert(this.helpT, '标题名称', {
-          //     confirmButtonText: '确定'
-          // });
       },
       shaxun(){
           if (item.cycleStartId.length == 0){
@@ -1413,5 +1401,8 @@ export default {
   }
   .el-dialog__body{
     padding: 10px;
+  }
+  .redColor{
+    color: red;
   }
 </style>

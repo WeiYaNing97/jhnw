@@ -8,6 +8,7 @@
 <!--    <el-button type="primary" size="small" @click="testall">所有测试</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
+<!--    当前扫描-->
     <el-table v-loading="loading"
               :data="nowData"
               ref="treenow"
@@ -40,8 +41,6 @@
         </template>
       </el-table-column>
     </el-table>
-
-
 <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"
@@ -425,7 +424,7 @@
                             }
                         }
                     }
-                    //获取返回ip、用户名、密码五条信息
+                    //获取返回ip、用户名、密码五条信息,添加了配置密码
                     const allxinxi = []
                     for(let i = 0;i<jiaid.length;i++){
                         for (let g = 0;g<jiaid[i].children.length;g++){
@@ -437,6 +436,7 @@
                                     this.$set(allinfo,'password',jiaid[i].children[g].children[m].switchPassword)
                                     this.$set(allinfo,'mode',jiaid[i].children[g].children[m].loginMethod)
                                     this.$set(allinfo,'port',jiaid[i].children[g].children[m].portNumber)
+                                    this.$set(allinfo,'configureCiphers',jiaid[i].children[g].children[m].configureCiphers)
                                     allxinxi.push(allinfo)
                                     break
                                 }
@@ -766,12 +766,6 @@
                 for (let i=0;i<shu.length;i++){
                     for (let g=0;g<shu[i].children.length;g++){
                         for (let m=0;m<shu[i].children[g].children.length;m++){
-                            // if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
-                            //     const yonghu = shu[i].children[g].children[m].valueInformationVOList[0].dynamicInformation
-                            //     const wenti = shu[i].children[g].children[m].problemName
-                            //     const zuihou = yonghu +" "+ wenti
-                            //     this.$set(shu[i].children[g].children[m],'problemName',zuihou)
-                            // }
                             if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
                                 let mi1 = ''
                                 let mi2 = ''
@@ -789,7 +783,7 @@
                         }
                     }
                 }
-                //获取当前扫描的五条登录信息
+                //获取当前扫描的五条登录信息，添加了配置密码
                 const nowxinxi = []
                 for(let i = 0;i<shu.length;i++){
                     for (let g = 0;g<shu[i].children.length;g++){
@@ -799,6 +793,7 @@
                         this.$set(nowinfo,'password',shu[i].children[g].switchPassword)
                         this.$set(nowinfo,'mode',shu[i].children[g].loginMethod)
                         this.$set(nowinfo,'port',shu[i].children[g].portNumber)
+                        this.$set(nowinfo,'configureCiphers',shu[i].children[g].configureCiphers)
                         nowxinxi.push(nowinfo)
                         break
                     }
