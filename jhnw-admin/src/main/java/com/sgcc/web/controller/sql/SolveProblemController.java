@@ -309,6 +309,14 @@ public class SolveProblemController {
 
 
             for (SwitchScanResult switchScanResult:switchScanResultLists){
+
+                if(switchScanResult.getComId() == null || switchScanResult.getComId().equals("null")){
+                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
+                            +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
+                            +"未定义解决问题命令");
+                    break;
+                }
+
                 //传参 命令ID 和 参数ID
                 //返回 命令集合 和 参数集合
                 List<String> commandList = queryParameterSet(switchScanResult.getComId() + "");

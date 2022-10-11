@@ -1,5 +1,6 @@
 package com.sgcc;
 
+import com.sgcc.web.controller.sql.Configuration;
 import com.sgcc.web.controller.sql.MemoryCPU;
 import org.hyperic.sigar.SigarException;
 import org.springframework.boot.SpringApplication;
@@ -30,6 +31,7 @@ public class RuoYiApplication
                 " ''-'   `'-'    `-..-'              ");
 
         try {
+            Configuration.getConfiguration();
             MemoryCPU.Memory_CPU();
         } catch (InterruptedException e) {
             e.printStackTrace();

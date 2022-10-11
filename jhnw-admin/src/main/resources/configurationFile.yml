@@ -1,0 +1,6 @@
+# 配置
+configuration:
+  # 最小超时
+  minimumTimeout: 10000
+  # 最大超时
+  maximumTimeout: 60000

@@ -799,7 +799,7 @@ public class DefinitionProblemController extends BaseController {
         });
         executor.execute(future);
         try {
-            List<String> result = (List<String>) future.get(60000, TimeUnit.MILLISECONDS);
+            List<String> result = (List<String>) future.get(Configuration.maximumTimeout, TimeUnit.MILLISECONDS);
             System.out.println(result);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
