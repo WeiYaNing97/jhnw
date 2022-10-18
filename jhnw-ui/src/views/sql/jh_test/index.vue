@@ -498,11 +498,12 @@ export default {
                   excelData.forEach((item,index) => {
                       if(item.ip && item.用户名 && item.密码 && item.登录方式 && item.端口号){
                           let obj = {}
-                          obj.ip= item["ip"]
-                          obj.name= item["用户名"]
-                          obj.password= item["密码"]
-                          obj.mode=item["登录方式"]
-                          obj.port=item["端口号"]
+                          obj.ip = item["ip"]
+                          obj.name = item["用户名"]
+                          obj.password = item["密码"]
+                          obj.mode = item["登录方式"]
+                          obj.port = item["端口号"]
+                          obj.configureCiphers = item["配置密码"]
                           arr.push(obj)
                       }
                   });

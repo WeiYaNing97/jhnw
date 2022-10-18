@@ -373,12 +373,10 @@
                 this.lishifu = true
                 this.chuci = false
                 this.huisao = true
-                console.log('sss')
                 return request({
                     url:'/sql/SolveProblemController/getUnresolvedProblemInformationByUserName',
                     method:'post',
                 }).then(response=>{
-                    console.log(response)
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {
                         let strtest = JSON.stringify(arrayJsonObj);
                         let reg = new RegExp(oldKey,'g');

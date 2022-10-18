@@ -11,6 +11,9 @@
       <el-form-item>
         <el-button @click="chakan" type="primary">查看</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button @click="xiugai" type="primary">编辑</el-button>
+      </el-form-item>
     </el-form>
 
     <hr style='border:1px inset #D2E9FF;'>
@@ -420,8 +423,6 @@
                 form1.append('jsonPojoList',handForm)
                 console.log(handForm)
                 this.newValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
-                // alert(JSON.stringify(this.newValue))
-                // alert(JSON.stringify(this.oldValue))
                 return request({
                     url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
                     method:'post',
@@ -495,7 +496,6 @@
                             console.log(chae.length.slice(chae.length.length-1))
                             if (chae.length.slice(chae.length.length-1) === 'W'){
                                 this.$set(chae,'classify','单词')
-                                console.log('sss')
                             }else  if (chae.length.slice(chae.length.length-1) === 'S'){
                                 this.$set(chae,'classify','字符串')
                             }else if (chae.length.slice(chae.length.length-1) === 'L'){

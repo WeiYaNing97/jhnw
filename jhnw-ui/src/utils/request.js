@@ -10,7 +10,7 @@ const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
   baseURL: process.env.VUE_APP_BASE_API,
   // 超时
-  timeout: 10000
+  timeout: 10001
 })
 // request拦截器
 service.interceptors.request.use(config => {
@@ -84,6 +84,7 @@ service.interceptors.response.use(res => {
   },
   error => {
     console.log('err' + error)
+    console.log(error)
     let { message } = error;
     if (message == "Network Error") {
       message = "后端接口连接异常";

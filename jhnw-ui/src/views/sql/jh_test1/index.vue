@@ -337,8 +337,9 @@
     <el-button @click="partsub" type="primary" v-show="partShow" style="margin-top:20px">提交详情</el-button>
     <el-button @click="partclose" type="primary" v-show="partShow" style="margin-top:20px">关闭详情</el-button>
 
-    <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
+    <vue-context-menu style="width: 100px;background: #eee;margin-left: auto;padding-left: 0px;height: 25px"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
+      <v-contex-tmenu-item>菜单1</v-contex-tmenu-item>
     </vue-context-menu>
 
 <!--    帮助-->
@@ -649,15 +650,6 @@ export default {
       general(e){
           this.who = e.target.getAttribute('name')
           console.log(this.who)
-          // delete this.queryParams.notFinished
-          // delete this.queryParams.remarks
-          // delete this.queryParams.requiredItems
-
-          // for (let i in this.queryParams){
-          //     if (this.queryParams[i]==='{空}'){
-          //         this.queryParams[i]=''
-          //     }
-          // }
           //
           let newPar = {}
           for (var key in this.queryParams){
@@ -670,7 +662,6 @@ export default {
                   newPar[i] = ''
               }
           }
-          // console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'post',
@@ -680,6 +671,9 @@ export default {
               //范式
               this.normalType = this.quchong(response,'typeProblem')
               console.log(this.normalType)
+              if (this.who === 'typeProblem'){
+                  console.log('sss')
+              }
 
               this.genList = this.quchong(response,this.who)
               let kong = {
@@ -1404,5 +1398,8 @@ export default {
   }
   .redColor{
     color: red;
+  }
+  .context-menu-list{
+    height: 25px;
   }
 </style>
