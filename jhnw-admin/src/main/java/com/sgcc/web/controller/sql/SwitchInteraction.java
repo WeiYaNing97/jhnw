@@ -528,17 +528,6 @@ public class SwitchInteraction {
                 returnString = returnString.trim();
                 String substring = returnString.substring(returnString.length() - 1, returnString.length());
                 if (returnString.indexOf("command")!=-1 && returnString.indexOf("%")!=-1 ){
-
-                    if (way.equalsIgnoreCase("ssh")){
-                        SshMethod connectMethod = (SshMethod) objectList.get(6);
-                        SshConnect sshConnect = (SshConnect) objectList.get(8);
-                        returnString = connectMethod.sendCommand(hostIp,sshConnect,(String) objectList.get(10),null);
-                    }else if (way.equalsIgnoreCase("telnet")){
-                        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) objectList.get(7);
-                        TelnetComponent telnetComponent = (TelnetComponent) objectList.get(9);
-                        returnString = telnetSwitchMethod.sendCommand(hostIp, telnetComponent, (String) objectList.get(10), null);
-                    }
-
                     return "交换机连接成功";
                 }else if (substring.equalsIgnoreCase("#")){
                     return "交换机连接成功";
@@ -983,9 +972,10 @@ public class SwitchInteraction {
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
          */
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
+        Integer numberOfCycles = Configuration.numberOfCycles.intValue();
         String strings = selectProblemScanLogicById(user_String, user_Object, totalQuestionTable,
                 return_information_array, "", "",
-                0, first_problem_scanLogic_Id, null,0);// loop end
+                0, first_problem_scanLogic_Id, null,0, 0, numberOfCycles);// loop end
 
         if (strings.indexOf("错误") !=-1){
             return strings;
@@ -1015,7 +1005,8 @@ public class SwitchInteraction {
                                              TotalQuestionTable totalQuestionTable,
                                              String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                                              int line_n, String firstID, String currentID,
-                                             Integer insertsInteger) {
+                                             Integer insertsInteger,
+                                                    Integer loop,Integer numberOfCycles) {
 
         //第一条分析ID
         String id = firstID; //用于第一次分析 和  循环分析
@@ -1036,10 +1027,21 @@ public class SwitchInteraction {
         //循环分析数据 不需要分析 功能指向循环位置
         if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
             //调出循环ID 当做第一分析ID
+            loop = loop +1;
+            if (loop > numberOfCycles){
+
+                LoginUser loginUser = (LoginUser) user_Object.get("loginUser");
+                WebSocketService.sendMessage("error"+loginUser.getUsername(),user_String.get("ip")+ ":"+
+                        "问题类型"+totalQuestionTable.getTypeProblem()+
+                                "问题名称"+totalQuestionTable.getTemProName()+
+                                "错误:"+"循环超时"+"\r\n");
+
+                return null;
+            }
             firstID = problemScanLogic.getCycleStartId();
             String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                     return_information_array,"",extractInformation_string,
-                    line_n,firstID,null,insertsInteger);
+                    line_n,firstID,null,insertsInteger, loop, numberOfCycles);
             return loop_string;
         }
 
@@ -1073,7 +1075,7 @@ public class SwitchInteraction {
                     /*如果使用 第一条分析ID firstID  则 当前分析ID currentID 要为 null*/
                     String loop_string = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                             return_information_array,"",extractInformation_string,
-                            line_n,firstID,null,insertsInteger);
+                            line_n,firstID,null,insertsInteger, loop, numberOfCycles);
 
                     return loop_string;
                 }
@@ -1198,7 +1200,7 @@ public class SwitchInteraction {
                         String tNextId = problemScanLogic.gettNextId();
                         String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,tNextId,insertsInteger);
+                                line_n,firstID,tNextId,insertsInteger, loop, numberOfCycles);
                         //如果返回信息为null
                         if (ProblemScanLogic_returnstring!=null){
                             //内分析传到上一层
@@ -1238,7 +1240,7 @@ public class SwitchInteraction {
                         String fNextId = problemScanLogic.getfNextId();
                         String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,fNextId,insertsInteger);
+                                line_n,firstID,fNextId,insertsInteger, loop, numberOfCycles);
                         //如果返回信息为null
                         if (ProblemScanLogic_returnstring!=null){
                             //内分析传到上一层
@@ -1305,7 +1307,7 @@ public class SwitchInteraction {
                     String tNextId = problemScanLogic.gettNextId();
                     String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                             return_information_array,current_Round_Extraction_String,extractInformation_string,
-                            line_n,firstID,tNextId,insertsInteger);
+                            line_n,firstID,tNextId,insertsInteger, loop, numberOfCycles);
                     if (ProblemScanLogic_returnstring!=null){
                         extractInformation_string = ProblemScanLogic_returnstring;
                         return ProblemScanLogic_returnstring;
@@ -1341,7 +1343,7 @@ public class SwitchInteraction {
                         String tNextId = problemScanLogic.gettNextId();
                         String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,tNextId,insertsInteger);
+                                line_n,firstID,tNextId,insertsInteger, loop, numberOfCycles);
 
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring;
@@ -1374,7 +1376,7 @@ public class SwitchInteraction {
                         String fNextId = problemScanLogic.getfNextId();
                         String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
                                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,fNextId,insertsInteger);
+                                line_n,firstID,fNextId,insertsInteger, loop, numberOfCycles);
 
                         if (ProblemScanLogic_returnstring!=null){
                             extractInformation_string = ProblemScanLogic_returnstring;
@@ -2003,10 +2005,12 @@ public class SwitchInteraction {
         //将交换机返回信息 按行来切割 字符串数组
         String[] return_information_array =resultString.split("\r\n");
 
+        Integer numberOfCycles = Configuration.numberOfCycles.intValue();
+
         //根据ID去分析
         String problemScanLogic_string = selectProblemScanLogicById( user_String,user_Object, totalQuestionTable,
                 return_information_array,current_Round_Extraction_String,extractInformation_string,
-                0,first_problem_scanLogic_Id,null,0);// loop end
+                0,first_problem_scanLogic_Id,null,0,0,numberOfCycles);// loop end
 
         if (problemScanLogic_string!=null){
 

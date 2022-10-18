@@ -313,7 +313,7 @@ public class SolveProblemController {
                 if(switchScanResult.getComId() == null || switchScanResult.getComId().equals("null")){
                     WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
                             +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                            +"未定义解决问题命令");
+                            +"未定义解决问题命令\r\n");
                     break;
                 }
 
@@ -324,7 +324,7 @@ public class SolveProblemController {
                 if (commandList == null){
                     WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
                             +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                            +"未定义解决问题命令");
+                            +"未定义解决问题命令\r\n");
                     break;
                 }
 
@@ -344,14 +344,14 @@ public class SolveProblemController {
                     if (i<=0){
                         WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
                                 +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                                +"修复失败");
+                                +"修复失败\r\n");
                     }
 
                 }
                 if(solveProblem.indexOf("错误") != -1){
                     WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
                             +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                            +"修复失败");
+                            +"修复失败\r\n");
                 }
 
                 //getUnresolvedProblemInformationByIds(loginUser,problemIds);

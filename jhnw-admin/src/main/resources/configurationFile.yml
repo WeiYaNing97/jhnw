@@ -4,3 +4,5 @@ configuration:
   minimumTimeout: 10000
   # 最大超时
   maximumTimeout: 60000
+  # 循环次数
+  numberOfCycles: 10
