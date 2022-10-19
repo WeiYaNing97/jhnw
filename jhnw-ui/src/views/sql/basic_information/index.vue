@@ -1,7 +1,30 @@
 <template>
   <!--  <div class="app-container" @contextmenu="showMenu">-->
   <div class="app-container">
-    <!--    @contextmenu="showMenu"-->
+    <el-form ref="form" :model="form" :rules="rules" :inline="true">
+      <el-form-item label="ip" prop="ip">
+        <el-input v-model="form.ip" style="width: 150px" size="small" placeholder="请输入ip" />
+      </el-form-item>
+      <el-form-item label="用户名" prop="name">
+        <el-input v-model="form.name" style="width: 120px" placeholder="请输入用户名" />
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input v-model="form.password" style="width: 150px" placeholder="请输入密码" />
+      </el-form-item>
+      <el-form-item label="方式" prop="mode">
+        <el-select v-model="form.mode" placeholder="方式" style="width: 100px">
+          <el-option label="ssh" value="ssh"></el-option>
+          <el-option label="telnet" value="telnet"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="端口号" prop="port">
+        <el-input v-model="form.port" style="width: 66px" placeholder="" />
+      </el-form-item>
+      <el-form-item label="配置密码" prop="configureCiphers">
+        <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
+      </el-form-item>
+    </el-form>
+    <el-button type="primary" size="small" @click="ceshi1">测试</el-button>
     <hr style='border:1px inset #D2E9FF;'>
 
     <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
@@ -92,7 +115,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 466px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -111,7 +134,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 466px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -120,7 +143,7 @@
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
           <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-            <el-input v-model="item.length" style="width: 80px" placeholder="几个"></el-input>
+            <el-input v-model="item.length1" style="width: 80px" placeholder="几个"></el-input>
             <el-select v-model="item.classify" @change="reloadv" placeholder="单词/行" style="width: 80px">
               <el-option label="单词" value="W"></el-option>
               <el-option label="字母" value="L"></el-option>
@@ -174,7 +197,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 268px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -329,7 +352,13 @@
                     remarks:''
                 },
                 // 表单参数
-                form:{},
+                form:{
+                    ip:'',
+                    name: '',
+                    password:'',
+                    mode:'ssh',
+                    port:''
+                },
                 forms: {
                     dynamicItem:[
                         {
@@ -355,6 +384,10 @@
             //重新赋值
             reloadv(){
 
+            },
+            //测试
+            ceshi1(){
+              console.log(this.form)
             },
             //测试按钮
             ceshi(){
@@ -618,7 +651,7 @@
                 }
                 console.log(shasha)
                 return request({
-                    // url:'/sql/total_question_table/add',
+                    url:'/sql/total_question_table/add',
                     method:'post',
                     data:JSON.stringify(shasha)
                 }).then(response=>{
@@ -888,7 +921,6 @@
                 getJson('wordName',this.forms.dynamicItem);
                 alert(arr)
             },
-
             //初次提交定义问题
             tijiao(){
                 // this.forms.dynamicItem.shift(); hasOwnProperty(存在) 删除数组第一个元素
@@ -911,7 +943,7 @@
                         this.$set(eeee,'nextIndex',thisNext.onlyIndex)
                     }
                     if (eeee.action === '取词'){
-                        eeee.length = `${eeee.length}${eeee.classify}`
+                        eeee.length = `${eeee.length1}${eeee.classify}`
                     }
                     if (this.jiaoyan == '常规校验'){
                         this.$set(eeee,'resultCheckId','1')
