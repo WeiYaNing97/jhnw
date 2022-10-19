@@ -1,6 +1,6 @@
 <template>
-<!--  <div class="app-container" @contextmenu="showMenu">-->
   <div class="app-container" @contextmenu="showMenu">
+<!--  <div class="app-container">-->
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="基本信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
@@ -125,7 +125,7 @@
         <div v-if="item.targetType === 'command'" :key="index"
              style="display: inline-block">
           <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
-            <el-input v-model="item.command"></el-input>
+            <el-input v-model="item.command" name="comone" @focus="getName($event)"></el-input>
           </el-form-item>
           <el-form-item label="命令校验">
 <!--            <el-select v-model="jiaoyan" placeholder="校验方式" value="常规校验">-->
@@ -367,6 +367,8 @@
         <p>请输入自定义名称：</p>
         <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">标识符</h3>
         <p>请输入标识符：</p>
+        <h3 style="font-weight: bolder" id="comone" ref="comone">命令</h3>
+        <p>请输入命令：</p>
         <a :href="whelp" style="display: none" ref="bang"><span>阿斯顿撒大</span></a>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -572,6 +574,7 @@ export default {
       },
       //右键
       showMenu(){
+          // console.log('右击')
         event.preventDefault();
         var x = event.clientX;
         var y = event.clientY;
@@ -681,6 +684,11 @@ export default {
               }
               this.genList.push(kong)
           })
+      },
+      //获取名字
+      getName(e){
+          this.who = e.target.getAttribute('name')
+          console.log(this.who)
       },
       //下拉列表
       //品牌
@@ -1400,6 +1408,6 @@ export default {
     color: red;
   }
   .context-menu-list{
-    height: 25px;
+    height: 20px;
   }
 </style>
