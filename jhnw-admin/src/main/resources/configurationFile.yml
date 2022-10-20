@@ -6,3 +6,5 @@ configuration:
   maximumTimeout: 60000
   # 循环次数
   numberOfCycles: 10
+  # 标识符
+  identifier: (TM);®

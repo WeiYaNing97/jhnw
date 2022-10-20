@@ -360,9 +360,89 @@ public class Utils {
         return false;
     }
 
+    /**
+     * @method: 取词 按位置取词
+     * //取词方法
+     * @Param: [     action提取方法 ：取词 取版本, returnString 返回信息的一行, matchContent 提取关键字, integer 位置, length 长度WLs]
+     * 提取方法 ：取词 取版本  返回信息的一行 提取关键字 位置 长度WLs
+     * @return: java.lang.String
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public static String wordSelection(String returnString,String matchContent,int integer,String length){
+        // 获取 W、L、S
+        String substring = length.substring(length.length() - 1, length.length());
+        //获取取值长度
+        int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();
+        //预设返回值
+        String return_string = "";
+
+        returnString = repaceWhiteSapce(returnString);
+
+        switch (substring){
+            // 取词和取字符串
+            case "w":
+            case "W":
+            case "s":
+            case "S":
+                //以matchContent 为参照  获取位置 因为后期转化为数组，关键词后第一位为 [0]
+                String get_word = "";
+                get_word = "";
+
+                String returnString_string = returnString.trim();
+
+                String[] split_String = returnString_string.split(" ");
+                if (!(matchContent.equals(""))){
+                    int num = 0;
+                    for ( ; num <split_String.length ; num++){
+                        if (split_String[num].equals(matchContent))
+                            break;
+                    }
+
+                    integer = integer + num;
+                }
+
+                //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度  6
+                if ((split_String.length - word_length)  <  integer){
+                    return null;
+                }
+
+                //取词位置
+                int number = integer;
+
+                for (int num = 0;num<word_length;num++){
+                    get_word = split_String[number]+" ";
+                    number++;
+                    return_string += get_word;
+                }
+                System.err.println("W："+return_string);
+                if (return_string.length()>0){
+                    return return_string.trim();
+                }else {
+                    return null;
+                }
+
+                //取字母
+            case "l":
+            case "L":
+                String split = returnString.split(matchContent)[0];
+                Integer splitInteger =split.length();
+                int start = integer + splitInteger;
+                if (start+word_length > returnString.length()){
+                    return null;
+                }
+                return_string = returnString.substring(start, start+word_length);
+                System.err.println("L："+return_string);
+        }
+        if (return_string.length()>0){
+            return return_string.trim();
+        }else {
+            return null;
+        }
+    }
 
     /**
-     * @method: 取词
+     * @method: 取词     (依靠关键词)
      *         //取词方法
      * @Param: [     action提取方法 ：取词 取版本, returnString 返回信息的一行, matchContent 提取关键字, integer 位置, length 长度WLs]
      * 提取方法 ：取词 取版本  返回信息的一行 提取关键字 位置 长度WLs
@@ -370,7 +450,7 @@ public class Utils {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static String wordSelection(String returnString,String matchContent,Integer integer,String length){
+    public static String wordSelection1(String returnString,String matchContent,Integer integer,String length){
         // 获取 W、L、S
         String substring = length.substring(length.length() - 1, length.length());
         //获取取值长度

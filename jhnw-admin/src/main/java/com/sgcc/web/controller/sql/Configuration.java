@@ -16,20 +16,25 @@ public class Configuration {
     /** 最大超时时间 */
     public static Long numberOfCycles;
 
-    public static void getConfiguration1(){
-        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(bootstrap_file,"configuration");
-        minimumTimeout = Long.valueOf(ymlByFileName.get("configuration.minimumTimeout")).longValue();
-        maximumTimeout = Long.valueOf(ymlByFileName.get("configuration.maximumTimeout")).longValue();
-        numberOfCycles = Long.valueOf(ymlByFileName.get("configuration.numberOfCycles")).longValue();
-    }
+    /** 标识符 */
+    public static String identifier;
 
     public static void getConfiguration() {
         Configuration configuration = new Configuration();
+
         //Map<String, String> ymlMap = configuration.getYmlMap();
         Map<String, String> ymlMap = configuration.readMapFromyml();
         minimumTimeout = Long.valueOf(ymlMap.get("minimumTimeout")).longValue();
         maximumTimeout = Long.valueOf(ymlMap.get("maximumTimeout")).longValue();
         numberOfCycles = Long.valueOf(ymlMap.get("numberOfCycles")).longValue();
+        identifier = ymlMap.get("identifier");
+    }
+
+    public static void getConfiguration1(){
+        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(bootstrap_file,"configuration");
+        minimumTimeout = Long.valueOf(ymlByFileName.get("configuration.minimumTimeout")).longValue();
+        maximumTimeout = Long.valueOf(ymlByFileName.get("configuration.maximumTimeout")).longValue();
+        numberOfCycles = Long.valueOf(ymlByFileName.get("configuration.numberOfCycles")).longValue();
     }
 
     public Map<String,String> getYmlMap() {

@@ -597,6 +597,7 @@ public class SwitchInteraction {
 
             String commandString =""; //预设交换机返回结果
             String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)
+            boolean loop = false;
 
             //遍历数据表命令 分割得到的 命令数组
             for (String command:commandsplit){
@@ -652,7 +653,7 @@ public class SwitchInteraction {
                             deviceBrand = Utils.switchfailure(user_String, returnString);
                             // 存在故障返回 false
                             if (!deviceBrand){
-
+                                loop = true;
                                 System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
 
                                 WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + " 故障:"+returnString+"\r\n");
@@ -663,11 +664,8 @@ public class SwitchInteraction {
                                 }else if (way.equalsIgnoreCase("telnet")){
                                     telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent," ",user_String.get("notFinished"));
                                 }
-
-                                break;
                             }
                         }
-
                     }
 
                     returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
@@ -735,6 +733,7 @@ public class SwitchInteraction {
                     String[] returnString_split = commandString.split("\r\n");
                     for (String string_split:returnString_split){
                         if (!Utils.judgmentError( user_String,string_split)){
+                            loop = true;
                             System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                             WebSocketService.sendMessage("error"+userName,user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
                             break;
@@ -752,6 +751,10 @@ public class SwitchInteraction {
             // 注释掉 可能会在两条交换机返回信息中 存在 "\r\n\r\n" 情况 按"\r\n"分割可能会出现空白元素
             //String command_String = Utils.trimString(return_sum);
 
+            if (loop){
+                continue;
+            }
+
             //分析第一条ID basicInformation.getProblemId() (为 问题扫描逻辑表  ID)
             String first_problem_scanLogic_Id = basicInformation.getProblemId();
             // 获取交换机 基本信息命令 列表 根据分析ID获取问题扫描逻辑详细信息
@@ -760,7 +763,7 @@ public class SwitchInteraction {
                     return_sum, first_problem_scanLogic_Id);
 
             if (extractInformation_string1.indexOf("错误") !=-1){
-                break;
+                continue;
             }
 
             if (extractInformation_string1.equals("") || extractInformation_string1 == null){
@@ -820,6 +823,12 @@ public class SwitchInteraction {
                     user_String.put("firmwareVersion",firmwareVersion);
                     //子版本号
                     user_String.put("subversionNumber",subversionNumber);
+
+                    WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +
+                            "设备品牌："+deviceBrand+
+                            "设备型号："+deviceModel+
+                            "内部固件版本："+firmwareVersion+
+                            "子版本号："+subversionNumber+"\r\n");
 
                     return AjaxResult.success(map);
                 }
@@ -977,12 +986,33 @@ public class SwitchInteraction {
                 return_information_array, "", "",
                 0, first_problem_scanLogic_Id, null,0, 0, numberOfCycles);// loop end
 
+        if (strings == null){
+            return "获取基本信息错误";
+        }
+
         if (strings.indexOf("错误") !=-1){
             return strings;
         }
 
+        strings = strings +"(TM)";
+
+        strings = removeIdentifier(strings);
+
         //控制台 输出  交换机 基本信息
         System.err.print("\r\n基本信息："+strings+"\r\n");
+        return strings;
+    }
+
+    /**
+     * 去除标识符  （TM） ®
+     * @param strings
+     * @return
+     */
+    public static String removeIdentifier(String strings) {
+        String[] identifiersplit = Configuration.identifier.split(";");
+        for (String identifier:identifiersplit){
+            strings =strings.replace(identifier,"");
+        }
         return strings;
     }
 
@@ -1268,17 +1298,19 @@ public class SwitchInteraction {
                 }else if (action.equals("子版本号")){
                     wordSelection_string = user_String.get("subversionNumber");
                 }else {
+                    //取词操作
                     wordSelection_string = Utils.wordSelection(
-                            return_information_array[num], matchContent, //返回信息的一行 提取关键字
+                            return_information_array[num],matchContent, //返回信息的一行 提取关键字
                             problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
                 }
-
-                wordSelection_string = Utils.judgeResultWordSelection(wordSelection_string);
 
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
                 if (wordSelection_string == null){
                     return "取词失败！";
                 }
+
+                wordSelection_string = Utils.judgeResultWordSelection(wordSelection_string);
+
 
                 //problemScanLogic.getWordName() 取词名称
                 //problemScanLogic.getExhibit() 是否可以显示
