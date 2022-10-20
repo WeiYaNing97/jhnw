@@ -431,7 +431,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:false,
+        chuxian:true,
         display:'inline-block',
         paddingLeft:'0px',
         // padqj

@@ -115,24 +115,12 @@
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-            <div v-else-if="item.targetType === 'matchfal'"
-                 style="display: inline-block;padding-left:308px">
+            <div v-else-if="item.targetType === 'failed'" style="display: inline-block;padding-left:308px">
               <el-form-item label="失败"></el-form-item>
               <el-form-item style="visibility: hidden">
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-
-            <div v-else-if="item.targetType === 'wloop'" :key="index"
-                 style="display: inline-block">
-              <el-form-item label="循环" :prop="'dynamicItem.' + index + '.cycleStartId'">
-                <el-input v-model="item.cycleStartId" style="width: 150px"></el-input>
-              </el-form-item>
-              <el-form-item>
-                <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
-              </el-form-item>
-            </div>
-
             <div v-else-if="item.targetType === 'dimmatch'" :key="index" style="display: inline-block">
               <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
                 <el-input v-model="item.matchContent"></el-input>
@@ -142,10 +130,13 @@
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-            <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 308px">
-              <el-form-item label="失败"></el-form-item>
-              <el-form-item style="visibility: hidden">
-                <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            <div v-else-if="item.targetType === 'wloop'" :key="index"
+                 style="display: inline-block">
+              <el-form-item label="循环" :prop="'dynamicItem.' + index + '.cycleStartId'">
+                <el-input v-model="item.cycleStartId" style="width: 150px"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
               </el-form-item>
             </div>
             <div v-else-if="item.targetType === 'lipre'" :key="index" style="display:inline-block">
@@ -160,13 +151,12 @@
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-            <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 466px">
+            <div v-else-if="item.targetType === 'failedH'" style="display: inline-block;padding-left: 466px">
               <el-form-item label="失败"></el-form-item>
               <el-form-item style="visibility: hidden">
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-
             <div v-else-if="item.targetType === 'dimpre'" :key="index" style="display: inline-block">
               <el-form-item label="按行模糊匹配" :prop="'dynamicItem.' + index + '.relative'">
                 <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
@@ -179,13 +169,6 @@
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-            <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 466px">
-              <el-form-item label="失败"></el-form-item>
-              <el-form-item style="visibility: hidden">
-                <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-              </el-form-item>
-            </div>
-
             <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
               <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
                 <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
@@ -224,7 +207,7 @@
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-            <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 268px">
+            <div v-else-if="item.targetType === 'failedB'" style="display: inline-block;padding-left: 268px">
               <el-form-item label="失败"></el-form-item>
               <el-form-item style="visibility: hidden">
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -314,6 +297,9 @@ export default {
   name: "Look_test",
   data() {
     return {
+        //全文、按行、比较
+        allOne:[],
+        allTwo:[],
         //查看问题集合
         lookLists:[],
         //全部展开
@@ -500,11 +486,11 @@ export default {
                   this.$set(eeee,'nextIndex',thisNext.onlyIndex)
               }
               if (eeee.action === '取词'){
-                  if (eeee.classify === '单词'){
+                  if (eeee.classify === 'W'){
                       eeee.length = `${eeee.length1}W`
-                  }else if (eeee.classify === '字母'){
+                  }else if (eeee.classify === 'L'){
                       eeee.length = `${eeee.length1}L`
-                  }else if (eeee.classify === '字符串'){
+                  }else if (eeee.classify === 'S'){
                       eeee.length = `${eeee.length1}S`
                   }
               }
@@ -683,6 +669,7 @@ export default {
                           } else if (chae.action === '取词') {
                               this.$set(chae, 'targetType', 'takeword')
                               // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
+                              //伟仔疑问
                               if (chae.length.slice(chae.length.length - 1) === 'W') {
                                   this.$set(chae, 'classify', '单词')
                               } else if (chae.length.slice(chae.length.length - 1) === 'S') {
@@ -891,11 +878,6 @@ export default {
                       // this.fDa.push(JSON.parse(weizai))
                       // this.fDa.push(eval(wei))
                   })
-                  const quanjf = ''
-                  const hangjf = ''
-                  const quanmf = ''
-                  const hangmf = ''
-                  const bif = ''
                   this.fDa.forEach(chae=>{
                       if (chae.hasOwnProperty('command') == true){
                           this.$set(chae,'targetType','command')
@@ -908,17 +890,34 @@ export default {
                       }else if (chae.matched === '全文精确匹配'){
                           this.$set(chae,'targetType','match')
                           this.huichasss.push(chae)
-                          this.quanjf = chae.onlyIndex
-                      }else if(chae.onlyIndex === this.quanjf && chae.trueFalse === '失败'){
-                          this.$set(chae,'targetType','matchfal')
+                          this.allOne.push(chae.onlyIndex)
+                      }else if (chae.matched === '全文模糊匹配'){
+                          this.$set(chae,'targetType','dimmatch')
                           this.huichasss.push(chae)
+                          this.allOne.push(chae.onlyIndex)
                       }else if (chae.matched === '按行精确匹配'){
                           this.$set(chae,'targetType','lipre')
                           this.huichasss.push(chae)
-                          this.hangjf = chae.onlyIndex
-                      }else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败'){
-                          this.$set(chae,'targetType','liprefal')
+                          this.allTwo.push(chae.onlyIndex)
+                      }else if (chae.matched === '按行模糊匹配'){
+                          this.$set(chae,'targetType','dimpre')
                           this.huichasss.push(chae)
+                          this.allTwo.push(chae.onlyIndex)
+                      }else if (chae.action === '比较'){
+                          this.$set(chae,'targetType','analyse')
+                          // bixiala bizui
+                          this.bizui = true
+                          this.bixiala = false
+                          this.huichasss.push(chae)
+                      }else if(chae.trueFalse === '失败'){
+                          if (this.allOne.includes(chae.onlyIndex)){
+                              this.$set(chae,'targetType','failed')
+                          }else if (this.allTwo.includes(chae.onlyIndex)){
+                              this.$set(chae,'targetType','failedH')
+                          }else {
+                              this.$set(chae,'targetType','failedB')
+                          }
+                          this.huicha.push(chae)
                       }else if (chae.action === '取词'){
                           this.$set(chae,'targetType','takeword')
                           // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
@@ -932,20 +931,6 @@ export default {
                           // chae.classify = chae.length.slice(chae.length.length-1)
                           chae.length1 = chae.length.slice(0,chae.length.length-1)
                           this.huichasss.push(chae)
-                      }else if (chae.matched === '全文模糊匹配'){
-                          this.$set(chae,'targetType','dimmatch')
-                          this.huichasss.push(chae)
-                          this.quanmf = chae.onlyIndex
-                      }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
-                          this.$set(chae,'targetType','dimmatchfal')
-                          this.huichasss.push(chae)
-                      }else if (chae.matched === '按行模糊匹配'){
-                          this.$set(chae,'targetType','dimpre')
-                          this.huichasss.push(chae)
-                          this.hangmf = chae.onlyIndex
-                      }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
-                          this.$set(chae,'targetType','dimprefal')
-                          this.huichasss.push(chae)
                       }else if (chae.action === '问题'){
                           this.$set(chae,'targetType','prodes')
                           if (chae.tNextId === '异常'){
@@ -956,16 +941,6 @@ export default {
                           this.huichasss.push(chae)
                       }else if (chae.action === '循环'){
                           this.$set(chae,'targetType','wloop')
-                          this.huichasss.push(chae)
-                      }else if (chae.action === '比较'){
-                          this.$set(chae,'targetType','analyse')
-                          // bixiala bizui
-                          this.bizui = true
-                          this.bixiala = false
-                          this.huichasss.push(chae)
-                          this.bif = chae.onlyIndex
-                      }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
-                          this.$set(chae,'targetType','analysefal')
                           this.huichasss.push(chae)
                       }
                   })
@@ -1038,7 +1013,7 @@ export default {
               this.$set(item1,'matched','全文精确匹配')
               this.$set(item1,'trueFalse','成功')
               const item2 = {
-                  targetType:'matchfal',
+                  targetType:'failed',
                   onlyIndex:thisData
               }
               this.$set(item2,'trueFalse','失败')
@@ -1048,7 +1023,7 @@ export default {
               this.$set(item1,'matched','全文模糊匹配')
               this.$set(item1,'trueFalse','成功')
               const item2 = {
-                  targetType:'dimmatchfal',
+                  targetType:'failed',
                   onlyIndex:thisData
               }
               this.$set(item2,'trueFalse','失败')
@@ -1059,7 +1034,7 @@ export default {
               this.$set(item1,'trueFalse','成功')
               this.$set(item1,'position',0)
               const item2 = {
-                  targetType:'liprefal',
+                  targetType:'failedH',
                   onlyIndex:thisData
               }
               this.$set(item2,'trueFalse','失败')
@@ -1070,7 +1045,7 @@ export default {
               this.$set(item1,'trueFalse','成功')
               this.$set(item1,'position',0)
               const item2 = {
-                  targetType:'dimprefal',
+                  targetType:'failedH',
                   onlyIndex:thisData
               }
               this.$set(item2,'trueFalse','失败')
@@ -1080,7 +1055,7 @@ export default {
               this.$set(item1,'action','比较')
               this.$set(item1,'trueFalse','成功')
               const item2 = {
-                  targetType:'analysefal',
+                  targetType:'failedB',
                   onlyIndex:thisData
               }
               this.$set(item2,'trueFalse','失败')
