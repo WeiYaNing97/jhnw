@@ -417,12 +417,12 @@
                 const handForm = useForm.map(x => JSON.stringify(x))
                 let form1 = new FormData();
                 console.log(this.proId)
-                form1.append('totalQuestionTableId',this.proId)
+                form1.append('basicInformationId',this.proId)
                 form1.append('jsonPojoList',handForm)
                 console.log(handForm)
                 this.newValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
                 return request({
-                    url:`/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+                    url:`/sql/DefinitionProblemController/updatebasicAnalysis?basicInformationId=${this.proId}`,
                     method:'post',
                     data:handForm
                 }).then(response=>{

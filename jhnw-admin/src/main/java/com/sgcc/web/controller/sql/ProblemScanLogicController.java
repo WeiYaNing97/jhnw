@@ -6,6 +6,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 
@@ -112,7 +113,7 @@ public class ProblemScanLogicController extends BaseController {
 
     /*获取参数名：用户名、密码*/
     /**
-     * @method: getParameterNameCollection
+     * @method: getParameterNameCollection    命令ID 没有带ID之前的 方法
      * @Param: [totalQuestionTableId]
      * @return: java.util.List<java.lang.String>
      * @Author: 天幕顽主
@@ -128,8 +129,111 @@ public class ProblemScanLogicController extends BaseController {
                 || totalQuestionTable.getCommandId().equals("")){
             return null;
         }
+        String problemScanLogicID = totalQuestionTable.getCommandId();
+        if (problemScanLogicID == null){
+            return null;
+        }
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
+        String ProblemId = null;
+        if (problemScanLogicID.indexOf("分析") != -1){
+            ProblemId = problemScanLogicID.replaceAll("分析","");
+        }else if (problemScanLogicID.indexOf("命令") != -1){
+            problemScanLogicID = problemScanLogicID.replaceAll("命令","");
+        }
+        do {
+            String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
+
+            problemScanLogicID = "";
+
+            for (String problemID:problemScanLogicIDsplit){
+                if (ProblemId == null){
+                    commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+                    CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
+                    if (commandLogic == null || commandLogic.getProblemId() == null){
+                        return null;
+                    }
+                    commandLogicList.add(commandLogic);
+
+                    if (commandLogic.getResultCheckId().equals("0")){
+                        //根据第一个分析ID 查询出所有的数据条数
+                        List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
+                        if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+                            return null;
+                        }
+                        for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                            problemScanLogics.add(problemScanLogic);
+                            if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
+                                problemScanLogicID += problemScanLogic.gettComId()+":";
+                            }
+                            if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
+                                problemScanLogicID += problemScanLogic.getfComId()+":";
+                            }
+                        }
+                    }else {
+                        problemScanLogicID = commandLogic.getEndIndex()+":";
+                    }
+
+                    if (problemScanLogicID!=""){
+                        break;
+                    }
+                }
+
+                if (ProblemId != null){
+
+                    //根据第一个分析ID 查询出所有的数据条数
+                    List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(ProblemId);//commandLogic.getProblemId()
+                    ProblemId = null;
+                    if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+                        return null;
+                    }
+                    for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                        problemScanLogics.add(problemScanLogic);
+                        if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
+                            problemScanLogicID += problemScanLogic.gettComId()+":";
+                        }
+                        if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
+                            problemScanLogicID += problemScanLogic.getfComId()+":";
+                        }
+                    }
+
+                    if (problemScanLogicID!=""){
+                        break;
+                    }
+                }
+
+            }
+
+        }while (problemScanLogicID.indexOf(":")!=-1);
+
+        List<String> wordNameList = new ArrayList<>();
+        for (ProblemScanLogic pojo:problemScanLogics){
+            if (pojo.getWordName() != null){
+                wordNameList.add(pojo.getWordName());
+            }
+        }
+        return wordNameList;
+    }
+
+    /**
+     * @method: getParameterNameCollection    命令ID 没有带ID之前的 方法
+     * @Param: [totalQuestionTableId]
+     * @return: java.util.List<java.lang.String>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @RequestMapping("/getParameterNameCollectionNO")
+    public List<String> getParameterNameCollectionNO(Long totalQuestionTableId){
+        //根据问题ID 获取问题表数据
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        //如果问题表数据没有定义 扫描命令的ID 则 返回null
+        if (totalQuestionTable == null
+                || totalQuestionTable.getCommandId() == null
+                || totalQuestionTable.getCommandId().equals("")){
+            return null;
+        }
         //扫描命令的ID
-        String commandIdString = totalQuestionTable.getCommandId();
+        String commandIdString = totalQuestionTable.getCommandId().substring(2,totalQuestionTable.getCommandId().length());
         //hashset 获得 参数名 唯一
         HashSet<String> parameterName = new HashSet<>();
         do {

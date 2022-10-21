@@ -34,11 +34,11 @@ import java.util.regex.Pattern;
 public class DefinitionProblemController extends BaseController {
 
     @Autowired
-    private ICommandLogicService commandLogicService;
+    private static ICommandLogicService commandLogicService;
     @Autowired
     private static IProblemScanLogicService problemScanLogicService;
     @Autowired
-    private ITotalQuestionTableService totalQuestionTableService;
+    private static ITotalQuestionTableService totalQuestionTableService;
     @Autowired
     private static IBasicInformationService basicInformationService;
 
@@ -785,7 +785,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @RequestMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
-    public AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
+    public static AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final List<String>[] analysisList = new List[]{new ArrayList<>()};
@@ -819,7 +819,7 @@ public class DefinitionProblemController extends BaseController {
     }
 
     //@RequestMapping("getAnalysisList")
-    public List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
+    public static List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable){
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
 
@@ -828,6 +828,9 @@ public class DefinitionProblemController extends BaseController {
         }
 
         String problemScanLogicID = totalQuestionTables.get(0).getCommandId();
+        if (problemScanLogicID == null){
+            return null;
+        }
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
         String ProblemId = null;
@@ -1164,7 +1167,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public String problemScanLogicSting(ProblemScanLogic problemScanLogic){
+    public static String problemScanLogicSting(ProblemScanLogic problemScanLogic){
         //定义一个 符合 前端字符串的 实体类
         ProblemScanLogicVO problemScanLogicVO = new ProblemScanLogicVO();
         //成功 && 失败
@@ -1386,6 +1389,41 @@ public class DefinitionProblemController extends BaseController {
 
 
 
+    /*定义分析问题数据修改*/
+    @RequestMapping("updatebasicAnalysis")
+    //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
+    public boolean updatebasicAnalysis(@RequestParam Long basicInformationId,@RequestBody List<String> pojoList){
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+        BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
+
+        List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(basicInformation.getProblemId());//commandLogic.getProblemId()
+
+        //将相同ID  时间戳 的 实体类 放到一个实体
+        List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
+
+        HashSet<String> problemScanLogicSet = new HashSet<>();
+        for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            problemScanLogicSet.add(problemScanLogic.getId());
+        }
+
+        for (String id:problemScanLogicSet){
+            int j = problemScanLogicService.deleteProblemScanLogicById(id);
+            if (j<=0){
+                return false;
+            }
+        }
+        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(pojoList,basicInformationId);
+
+        if (!insertInformationAnalysisMethod){
+            return false;
+        }
+        return true;
+
+    }
+
+
+
+
     //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
     public boolean updateAnalysisTwo(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
 
@@ -1498,7 +1536,14 @@ public class DefinitionProblemController extends BaseController {
             future.cancel(true);
             executor.shutdown();
         }
-        return AjaxResult.success(analysisList[0]);
+        List<String> List = analysisList[0];
+        List<String> strings = new ArrayList<>();
+        for (String stringList:List){
+            if (stringList != null && !(stringList.equals("null"))){
+                strings.add(stringList);
+            }
+        }
+        return AjaxResult.success(strings);
     }
 
     public  List<String>  getBasicInformationProblemScanLogic(String problemId) {
