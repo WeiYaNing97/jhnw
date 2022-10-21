@@ -609,6 +609,7 @@ export default {
               this.forms.dynamicItem = this.formss.dynamicItemss
               this.huichasss = []
               this.showNo= true
+              this.zhidu = true
               return request({
                   url:'/sql/DefinitionProblemController/getAnalysisList',
                   method:'post',

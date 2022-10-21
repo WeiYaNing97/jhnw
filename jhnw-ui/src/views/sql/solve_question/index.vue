@@ -367,6 +367,7 @@ export default {
       paraLi(){
           let form = new FormData();
           form.append('totalQuestionTableId',this.proId)
+          console.log(this.proId)
           return request({
               url:'/sql/problem_scan_logic/getParameterNameCollection',
               method:'post',
