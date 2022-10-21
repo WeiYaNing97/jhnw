@@ -800,6 +800,7 @@ public class SwitchInteraction {
                     num = num+2;
                     subversionNumber = return_result_split[num];
                 }
+
                 if (!deviceModel.equals("") && !deviceBrand.equals("") && !firmwareVersion.equals("") && !subversionNumber.equals("")){
                     // 根据交换机信息查询 获取 扫描问题的 命令ID
                     /*List<String> stringList = new ArrayList<>();
@@ -833,6 +834,11 @@ public class SwitchInteraction {
                     return AjaxResult.success(map);
                 }
             }
+            WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +
+                    "设备品牌："+deviceBrand+
+                    "设备型号："+deviceModel+
+                    "内部固件版本："+firmwareVersion+
+                    "子版本号："+subversionNumber+"\r\n");
         }
 
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
