@@ -825,7 +825,7 @@ public class SwitchInteraction {
                     //子版本号
                     user_String.put("subversionNumber",subversionNumber);
 
-                    WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +
+                    WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +"基本信息："+
                             "设备品牌："+deviceBrand+
                             "设备型号："+deviceModel+
                             "内部固件版本："+firmwareVersion+
@@ -834,7 +834,7 @@ public class SwitchInteraction {
                     return AjaxResult.success(map);
                 }
             }
-            WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +
+            WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +"基本信息："+
                     "设备品牌："+deviceBrand+
                     "设备型号："+deviceModel+
                     "内部固件版本："+firmwareVersion+
