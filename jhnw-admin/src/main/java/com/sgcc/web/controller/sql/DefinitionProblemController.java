@@ -919,8 +919,10 @@ public class DefinitionProblemController extends BaseController {
 
         List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
-            System.err.println(hashMap.get(number+1));
-            stringList.add(hashMap.get(number+1));
+            if (hashMap.get(number+1)!=null && !(hashMap.get(number+1).equals("null"))){
+                System.err.println(hashMap.get(number+1));
+                stringList.add(hashMap.get(number+1));
+            }
         }
 
         return stringList;
