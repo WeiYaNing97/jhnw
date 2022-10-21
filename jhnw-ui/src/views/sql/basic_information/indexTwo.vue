@@ -114,7 +114,7 @@
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
           <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-            <el-input v-model="item.length" style="width: 80px" placeholder="几个词"></el-input>
+            <el-input v-model="item.length1" style="width: 80px" placeholder="几个词"></el-input>
             <el-select v-model="item.classify" placeholder="单词/行" style="width: 80px">
               <el-option label="单词" value="W"></el-option>
               <el-option label="字母" value="L"></el-option>
@@ -237,8 +237,7 @@
                 zhidu:true,
                 showNo:true,
                 checked:false,
-                brandList:[],
-                comsss:{},
+                comsss:[],
                 proId:'',
                 // isLog:true,
                 // 遮罩层
@@ -395,11 +394,11 @@
                     }
                     if (eeee.action === '取词'){
                         if (eeee.classify === '单词'){
-                            eeee.length = `${eeee.length}W`
+                            eeee.length = `${eeee.length1}W`
                         }else if (eeee.classify === '字母'){
-                            eeee.length = `${eeee.length}L`
+                            eeee.length = `${eeee.length1}L`
                         }else if (eeee.classify === '字符串'){
-                            eeee.length = `${eeee.length}S`
+                            eeee.length = `${eeee.length1}S`
                         }
                     }
                     this.$set(eeee,'pageIndex',thisIndex+1)
@@ -417,12 +416,13 @@
                 })
                 const handForm = useForm.map(x => JSON.stringify(x))
                 let form1 = new FormData();
+                console.log(this.proId)
                 form1.append('totalQuestionTableId',this.proId)
                 form1.append('jsonPojoList',handForm)
                 console.log(handForm)
                 this.newValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
                 return request({
-                    url:`http://192.168.1.98/dev-api/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
+                    url:`/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
                     method:'post',
                     data:handForm
                 }).then(response=>{
@@ -435,19 +435,19 @@
                     url:'/sql/basic_information/getPojolist',
                     method:'get',
                 }).then(response=>{
-                    console.log(response)
-                    this.brandList = []
                     this.comsss = response
                     console.log(this.comsss)
-
-                    // response.map(item=>{
-                    //     this.brandList.push(item.command)
-                    // })
                 })
             },
             //查看获取基本信息
             chakan(){
                 console.log(this.basicCom)
+                this.comsss.forEach(e=>{
+                    if (this.basicCom === e.problemId){
+                        this.proId = e.id
+                        console.log(this.proId)
+                    }
+                })
                 this.forms.dynamicItem = this.formss.dynamicItemss
                 return request({
                     url:'/sql/DefinitionProblemController/getBasicInformationProblemScanLogic',
@@ -503,7 +503,6 @@
                             this.huicha.push(chae)
                         }else if (chae.action === '取词'){
                             this.$set(chae,'targetType','takeword')
-                            // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
                             console.log(chae.length.slice(chae.length.length-1))
                             if (chae.length.slice(chae.length.length-1) === 'W'){
                                 this.$set(chae,'classify','单词')
@@ -512,7 +511,6 @@
                             }else if (chae.length.slice(chae.length.length-1) === 'L'){
                                 this.$set(chae,'classify','字母')
                             }
-                            // chae.classify = chae.length.slice(chae.length.length-1)
                             chae.length = chae.length.slice(0,chae.length.length-1)
                             console.log(chae.length)
                             this.huicha.push(chae)
@@ -535,23 +533,6 @@
                     this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
                 })
             },
-            //获取问题ID
-            cproId(){
-                // this.$delete(this.queryParams,'commandId')
-                let form = new FormData()
-                console.log(this.queryParams)
-                for (var key in this.queryParams){
-                    form.append(key,this.queryParams[key])
-                }
-                return request({
-                    url:'/sql/total_question_table/totalQuestionTableId',
-                    method:'post',
-                    data:form
-                }).then(response=>{
-                    console.log(response)
-                    this.proId = response
-                })
-            },
             //删除
             deleteItem (item, index) {
                 this.forms.dynamicItem.splice(index,1)
@@ -566,107 +547,6 @@
                     }
                 })
                 this.forms.dynamicItem.splice(shaAll,1)
-            },
-
-            //回显定义问题
-            chaxun(){
-                console.log(this.queryParams)
-                this.showNo= true
-                return request({
-                    url:'/sql/DefinitionProblemController/getAnalysisList',
-                    method:'post',
-                    data:JSON.stringify(this.queryParams)
-                }).then(response=>{
-                    console.log(response)
-                    response.data.forEach(l=>{
-                        const wei = l.replace(/"=/g,'":')
-                        this.fDa.push(JSON.parse(wei))
-                    })
-                    const huicha = []
-                    const quanjf = ''
-                    const hangjf = ''
-                    const quanmf = ''
-                    const hangmf = ''
-                    const bif = ''
-                    this.fDa.forEach(chae=>{
-                        if (chae.hasOwnProperty('command') == true){
-                            this.$set(chae,'targetType','command')
-                            if (chae.resultCheckId === 0){
-                                this.$set(chae,'resultCheckId','自定义校验')
-                            }else  if (chae.resultCheckId === 1){
-                                this.$set(chae,'resultCheckId','常规校验')
-                            }
-                            huicha.push(chae)
-                        }else if (chae.matched === '全文精确匹配'){
-                            this.$set(chae,'targetType','match')
-                            huicha.push(chae)
-                        }else if(chae.onlyIndex === this.quanjf && chae.trueFalse === '失败'){
-                            this.$set(chae,'targetType','matchfal')
-                            huicha.push(chae)
-                        }else if (chae.matched === '按行精确匹配'){
-                            this.$set(chae,'targetType','lipre')
-                            huicha.push(chae)
-                            this.hangjf = chae.onlyIndex
-                        }else if (chae.onlyIndex === this.hangjf && chae.trueFalse === '失败'){
-                            this.$set(chae,'targetType','liprefal')
-                            huicha.push(chae)
-                        }else if (chae.action === '取词'){
-                            this.$set(chae,'targetType','takeword')
-                            // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
-                            console.log(chae.length.slice(chae.length.length-1))
-                            if (chae.length.slice(chae.length.length-1) === 'W'){
-                                this.$set(chae,'classify','单词')
-                                console.log('sss')
-                            }else  if (chae.length.slice(chae.length.length-1) === 'S'){
-                                this.$set(chae,'classify','字符串')
-                            }else if (chae.length.slice(chae.length.length-1) === 'L'){
-                                this.$set(chae,'classify','字母')
-                            }
-                            // chae.classify = chae.length.slice(chae.length.length-1)
-                            chae.length = chae.length.slice(0,chae.length.length-1)
-                            console.log(chae.length)
-                            huicha.push(chae)
-                        }else if (chae.matched === '全文模糊匹配'){
-                            this.$set(chae,'targetType','dimmatch')
-                            huicha.push(chae)
-                            this.quanmf = chae.onlyIndex
-                        }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
-                            this.$set(chae,'targetType','dimmatchfal')
-                            huicha.push(chae)
-                        }else if (chae.matched === '按行模糊匹配'){
-                            this.$set(chae,'targetType','dimpre')
-                            huicha.push(chae)
-                            this.hangmf = chae.onlyIndex
-                        }else if (chae.onlyIndex === this.quanmf && chae.trueFalse === '失败'){
-                            this.$set(chae,'targetType','dimprefal')
-                            huicha.push(chae)
-                        }else if (chae.action === '问题'){
-                            this.$set(chae,'targetType','prodes')
-                            if (chae.tNextId === '异常'){
-                                this.$set(chae,'tNextId','有问题')
-                            }else if (chae.tNextId === '安全'){
-                                this.$set(chae,'tNextId','无问题')
-                            }
-                            huicha.push(chae)
-                        }else if (chae.action === '循环'){
-                            this.$set(chae,'targetType','wloop')
-                            huicha.push(chae)
-                        }else if (chae.action === '比较'){
-                            this.$set(chae,'targetType','analyse')
-                            // bixiala bizui
-                            this.bizui = true
-                            this.bixiala = false
-                            huicha.push(chae)
-                            this.bif = chae.onlyIndex
-                        }else if (chae.onlyIndex === this.bif && chae.trueFalse === '失败'){
-                            this.$set(chae,'targetType','analysefal')
-                            huicha.push(chae)
-                        }
-                    })
-                    huicha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
-                    this.forms.dynamicItem = this.forms.dynamicItem.concat(huicha)
-                    this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
-                })
             },
             //编辑
             xiugai(){

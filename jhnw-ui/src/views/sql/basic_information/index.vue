@@ -1,30 +1,30 @@
 <template>
   <!--  <div class="app-container" @contextmenu="showMenu">-->
   <div class="app-container">
-    <el-form ref="form" :model="form" :rules="rules" :inline="true">
-      <el-form-item label="ip" prop="ip">
-        <el-input v-model="form.ip" style="width: 150px" size="small" placeholder="请输入ip" />
-      </el-form-item>
-      <el-form-item label="用户名" prop="name">
-        <el-input v-model="form.name" style="width: 120px" placeholder="请输入用户名" />
-      </el-form-item>
-      <el-form-item label="密码" prop="password">
-        <el-input v-model="form.password" style="width: 150px" placeholder="请输入密码" />
-      </el-form-item>
-      <el-form-item label="方式" prop="mode">
-        <el-select v-model="form.mode" placeholder="方式" style="width: 100px">
-          <el-option label="ssh" value="ssh"></el-option>
-          <el-option label="telnet" value="telnet"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="端口号" prop="port">
-        <el-input v-model="form.port" style="width: 66px" placeholder="" />
-      </el-form-item>
-      <el-form-item label="配置密码" prop="configureCiphers">
-        <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
-      </el-form-item>
-    </el-form>
-    <el-button type="primary" size="small" @click="ceshi1">测试</el-button>
+<!--    <el-form ref="form" :model="form" :rules="rules" :inline="true">-->
+<!--      <el-form-item label="ip" prop="ip">-->
+<!--        <el-input v-model="form.ip" style="width: 150px" size="small" placeholder="请输入ip" />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="用户名" prop="name">-->
+<!--        <el-input v-model="form.name" style="width: 120px" placeholder="请输入用户名" />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="密码" prop="password">-->
+<!--        <el-input v-model="form.password" style="width: 150px" placeholder="请输入密码" />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="方式" prop="mode">-->
+<!--        <el-select v-model="form.mode" placeholder="方式" style="width: 100px">-->
+<!--          <el-option label="ssh" value="ssh"></el-option>-->
+<!--          <el-option label="telnet" value="telnet"></el-option>-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="端口号" prop="port">-->
+<!--        <el-input v-model="form.port" style="width: 66px" placeholder="" />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="配置密码" prop="configureCiphers">-->
+<!--        <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />-->
+<!--      </el-form-item>-->
+<!--    </el-form>-->
+<!--    <el-button type="primary" size="small" @click="ceshi1">测试</el-button>-->
     <hr style='border:1px inset #D2E9FF;'>
 
     <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
