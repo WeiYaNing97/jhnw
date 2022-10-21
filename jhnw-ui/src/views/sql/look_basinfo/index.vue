@@ -52,13 +52,13 @@
           <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'failed'" style="display: inline-block;padding-left:308px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -67,7 +67,7 @@
           <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -79,13 +79,13 @@
           <el-form-item label="匹配内容">
             <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'failedH'" style="display: inline-block;padding-left: 466px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -97,7 +97,7 @@
           <el-form-item label="匹配内容">
             <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
@@ -144,13 +144,13 @@
                          :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="成功"></el-form-item>
+          <el-form-item label="True"></el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'failedB'" style="display: inline-block;padding-left: 268px">
-          <el-form-item label="失败"></el-form-item>
+          <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>

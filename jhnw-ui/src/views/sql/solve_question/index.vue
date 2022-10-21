@@ -250,7 +250,7 @@ export default {
               this.$set(e,'resultCheckId','1')
           })
           const handForm = useForm.map(x => JSON.stringify(x))
-          alert(handForm)
+          console.log(handForm)
           console.log(this.proId)
           const aaa = {
               "a1":this.queryParams,

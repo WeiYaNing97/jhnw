@@ -56,9 +56,12 @@
       <el-form-item>
         <el-button type="primary" @click="chakan">查看修复命令</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="xiugai" icon="el-icon-edit">修改</el-button>
+      </el-form-item>
     </el-form>
     <hr style='border:1px inset #D2E9FF;'>
-    <el-form ref="forms" :inline="true" :model="forms" v-show="showNo">
+    <el-form ref="forms" :inline="true" :model="forms" v-show="showNo" :disabled="zhidu">
       <el-form-item label="解决命令:"></el-form-item>
       <el-form-item>
         <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
@@ -119,6 +122,7 @@
 <script>
 import { listLook_solve, getLook_solve, delLook_solve, addLook_solve, updateLook_solve, exportLook_solve } from "@/api/sql/look_solve";
 import axios from 'axios'
+import {MessageBox} from "element-ui"
 import request from '@/utils/request'
 
 export default {
@@ -126,6 +130,10 @@ export default {
   data() {
     return {
       // 遮罩层
+        //
+        lookCha:[],
+        //只读
+        zhidu:true,
         //通用基本信息下拉集合
         genList:[],
         proNameList:[],
@@ -142,6 +150,14 @@ export default {
         checkedQ:false,
         forms:{
             dynamicItem:[
+                {
+                    test:'test',
+                    onlyIndex:''
+                }
+            ]
+        },
+        formss:{
+            dynamicItemss:[
                 {
                     test:'test',
                     onlyIndex:''
@@ -192,9 +208,18 @@ export default {
     this.getList();
   },
   methods: {
+      //编辑
+      xiugai(){
+          MessageBox.confirm('确定去修改吗？','提示').then(c=>{
+              this.zhidu = false
+          }).catch(ee=>{
+              this.$message.warning('取消修改!')
+          })
+      },
       //先返回该问题ID，然后回显
       chakan(){
           this.showNo = true
+          this.forms.dynamicItem = this.formss.dynamicItemss
           console.log(this.queryParams)
           let form = new FormData();
           for (var key in this.queryParams){
@@ -218,18 +243,18 @@ export default {
                       const wei = ee.replace(/=/g,":")
                       this.wDa.push(JSON.parse(wei))
                   })
-                  const lookCha = []
                   this.wDa.forEach(e=>{
+                      this.lookCha = []
                       if (e.para == ''){
                           this.$set(e,'targetType','command')
-                          lookCha.push(e)
+                          this.lookCha.push(e)
                       }else if (e.para != ''){
                           this.$set(e,'targetType','compar')
-                          lookCha.push(e)
+                          this.lookCha.push(e)
                       }
                   })
-                  lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
-                  this.forms.dynamicItem = this.forms.dynamicItem.concat(lookCha)
+                  this.lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+                  this.forms.dynamicItem = this.forms.dynamicItem.concat(this.lookCha)
               })
           })
           // axios({
