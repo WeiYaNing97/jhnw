@@ -428,13 +428,13 @@ public class TotalQuestionTableController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping(value = "/totalQuestionTableId")
-    public Long totalQuestionTableId( String brand, String type, String firewareVersion, String subversionNumber, String problemName, String typeProblem,String temProName)
+    public Long totalQuestionTableId( String brand, String type, String firewareVersion, String subVersion, String problemName, String typeProblem,String temProName)
     {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setBrand(brand);
         totalQuestionTable.setType(type);
         totalQuestionTable.setFirewareVersion(firewareVersion);
-        totalQuestionTable.setSubVersion(subversionNumber);
+        totalQuestionTable.setSubVersion(subVersion);
         totalQuestionTable.setProblemName(problemName);
         totalQuestionTable.setTypeProblem(typeProblem);
         totalQuestionTable.setTemProName(temProName);
