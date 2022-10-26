@@ -4,8 +4,10 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.web.controller.sql.SwitchInteraction;
+import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -50,9 +52,19 @@ public class ScanFixedThreadPool {
                         // 扫描一台交换机 的 所以问题
                         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password,configureCiphers, port, loginUser,time,null);
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
-                            WebSocketService.sendMessage("error"+userName,"\r\nIP地址:"+ip +"\r\n问题:交换机连接失败\r\n");
+                            WebSocketService.sendMessage(userName,"错误:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
+                            try {
+                                PathHelper.writeDataToFile("错误:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                            WebSocketService.sendMessage("error"+userName,"\r\nIP地址:"+ip + "\r\n问题:未定义该交换机获取基本信息命令及分析\r\n");
+                            WebSocketService.sendMessage(userName,"错误:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
+                            try {
+                                PathHelper.writeDataToFile("错误:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

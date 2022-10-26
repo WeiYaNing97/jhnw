@@ -8,3 +8,5 @@ configuration:
   numberOfCycles: 10
   # 标识符
   identifier: (TM);®
+  # 日志路径
+  logPath: "D:\IdeaProjects\github\beifen\jhnwadminlog"

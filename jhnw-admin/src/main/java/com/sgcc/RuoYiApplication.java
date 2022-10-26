@@ -2,6 +2,7 @@ package com.sgcc;
 
 import com.sgcc.web.controller.sql.Configuration;
 import com.sgcc.web.controller.sql.MemoryCPU;
+import com.sgcc.web.controller.util.PathHelper;
 import org.hyperic.sigar.SigarException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

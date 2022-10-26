@@ -16,10 +16,13 @@ import com.sgcc.sql.service.*;
 import com.sgcc.web.controller.thread.DirectionalScanThreadPool;
 import com.sgcc.web.controller.thread.ScanFixedThreadPool;
 import com.sgcc.web.controller.util.EncryptUtil;
+import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.util.RSAUtils;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -145,8 +148,12 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描结束\r\n");
-
+        WebSocketService.sendMessage(login.getUsername(),"互动："+"扫描结束\r\n");
+        try {
+            PathHelper.writeDataToFile("互动："+"扫描结束\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return "扫描结束";
     }
 
@@ -240,8 +247,12 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n扫描结束\r\n");
-
+        WebSocketService.sendMessage(login.getUsername(),"互动："+"扫描结束\r\n");
+        try {
+            PathHelper.writeDataToFile("互动："+"扫描结束\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return "扫描结束";
     }
 
@@ -389,7 +400,12 @@ public class SwitchInteraction {
 
                 if (ajaxResult !=null && ajaxResult.get("msg").equals("未定义交换机问题")){
                     LoginUser user = (LoginUser) user_Object.get("loginUser");
-                    WebSocketService.sendMessage("error"+user.getUsername(),"\r\nip:"+user_String.get("ip") + "未定问题"+"\r\n");
+                    WebSocketService.sendMessage(user.getUsername(),"错误:"+"ip:"+user_String.get("ip") + "未定问题"+"\r\n");
+                    try {
+                        PathHelper.writeDataToFile("错误:"+"ip:"+user_String.get("ip") + "未定问题"+"\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 return basicInformationList_ajaxResult;
@@ -477,19 +493,14 @@ public class SwitchInteraction {
         if(is_the_connection_successful){
             //enable
             String enable = enable(objectList);
-
             if (enable.equals("交换机连接成功")){
                 return AjaxResult.success(objectList);
             }else {
                 return AjaxResult.error("交换机连接失败");
             }
-
         }else {
-
             return AjaxResult.error("交换机连接失败");
-
         }
-
     }
 
     //enable
@@ -629,11 +640,21 @@ public class SwitchInteraction {
                     deviceBrand = true;
                     if (way.equalsIgnoreCase("ssh")){
                         //  WebSocket 传输 命令
-                        WebSocketService.sendMessage("badao"+userName,command);
+                        WebSocketService.sendMessage(userName,"互动:"+command+"\r\n");
+                        try {
+                            PathHelper.writeDataToFile("互动:"+command+"\r\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
                     }else if (way.equalsIgnoreCase("telnet")){
                         //  WebSocket 传输 命令
-                        WebSocketService.sendMessage("badao"+userName,command);
+                        WebSocketService.sendMessage(userName,"互动:"+command);
+                        try {
+                            PathHelper.writeDataToFile("互动:"+command+"\r\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
                     }
                     //  WebSocket 传输 交换机返回结果
@@ -656,7 +677,14 @@ public class SwitchInteraction {
                                 loop = true;
                                 System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
 
-                                WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") + " 故障:"+returnString+"\r\n");
+                                WebSocketService.sendMessage(userName,"故障:"+user_String.get("ip") + ":"+returnString+"\r\n");
+
+                                try {
+                                    PathHelper.writeDataToFile("故障:"+user_String.get("ip") + ":"+returnString+"\r\n");
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
                                 returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString);
 
                                 if (way.equalsIgnoreCase("ssh")){
@@ -706,7 +734,14 @@ public class SwitchInteraction {
 
                 }
 
-                WebSocketService.sendMessage("badao"+userName,current_return_log);
+                WebSocketService.sendMessage(userName,"互动:"+current_return_log+"\r\n");
+
+                try {
+                    PathHelper.writeDataToFile("互动:"+current_return_log+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
                 returnRecord.setCurrentIdentifier(current_identifier);
@@ -720,7 +755,12 @@ public class SwitchInteraction {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage("badao"+userName,current_identifier);
+                WebSocketService.sendMessage(userName,"互动:"+current_identifier+"\r\n");
+                try {
+                    PathHelper.writeDataToFile("互动:"+current_identifier+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 //存储交换机返回数据 插入数据库
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
@@ -735,7 +775,13 @@ public class SwitchInteraction {
                         if (!Utils.judgmentError( user_String,string_split)){
                             loop = true;
                             System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
-                            WebSocketService.sendMessage("error"+userName,user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
+                            WebSocketService.sendMessage(userName,"错误:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
+                            try {
+                                PathHelper.writeDataToFile("错误:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                             break;
                         }
                     }
@@ -825,20 +871,27 @@ public class SwitchInteraction {
                     //子版本号
                     user_String.put("subversionNumber",subversionNumber);
 
-                    WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +"基本信息："+
-                            "设备品牌："+deviceBrand+
-                            "设备型号："+deviceModel+
-                            "内部固件版本："+firmwareVersion+
-                            "子版本号："+subversionNumber+"\r\n");
+                    WebSocketService.sendMessage(userName,"系统信息:"+user_String.get("ip") +"基本信息："+ "设备品牌："+deviceBrand+ "设备型号："+deviceModel+ "内部固件版本："+firmwareVersion+ "子版本号："+subversionNumber+"\r\n");
+
+                    try {
+                        PathHelper.writeDataToFile("系统信息:"+user_String.get("ip") +"基本信息："+ "设备品牌："+deviceBrand+ "设备型号："+deviceModel+ "内部固件版本："+firmwareVersion+ "子版本号："+subversionNumber+"\r\n");
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                     return AjaxResult.success(map);
                 }
             }
-            WebSocketService.sendMessage("error"+userName,"\r\n"+user_String.get("ip") +"基本信息："+
-                    "设备品牌："+deviceBrand+
-                    "设备型号："+deviceModel+
-                    "内部固件版本："+firmwareVersion+
-                    "子版本号："+subversionNumber+"\r\n");
+            WebSocketService.sendMessage(userName,"系统信息:"+user_String.get("ip") +"基本信息："+ "设备品牌："+deviceBrand+ "设备型号："+deviceModel+ "内部固件版本："+firmwareVersion+ "子版本号："+subversionNumber+"\r\n");
+
+            try {
+                PathHelper.writeDataToFile("系统信息:"+user_String.get("ip") +"基本信息："+ "设备品牌："+deviceBrand+ "设备型号："+deviceModel+ "内部固件版本："+firmwareVersion+ "子版本号："+subversionNumber+"\r\n");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
@@ -1067,11 +1120,12 @@ public class SwitchInteraction {
             if (loop > numberOfCycles){
 
                 LoginUser loginUser = (LoginUser) user_Object.get("loginUser");
-                WebSocketService.sendMessage("error"+loginUser.getUsername(),user_String.get("ip")+ ":"+
-                        "问题类型"+totalQuestionTable.getTypeProblem()+
-                                "问题名称"+totalQuestionTable.getTemProName()+
-                                "错误:"+"循环超时"+"\r\n");
-
+                WebSocketService.sendMessage(loginUser.getUsername(),"错误:"+user_String.get("ip")+ ":"+ "问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()+ "错误:"+"循环超时"+"\r\n");
+                try {
+                    PathHelper.writeDataToFile("错误:"+user_String.get("ip")+ ":"+ "问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()+ "错误:"+"循环超时"+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return null;
             }
             firstID = problemScanLogic.getCycleStartId();
@@ -1885,11 +1939,25 @@ public class SwitchInteraction {
             deviceBrand = true;
 
             if (way.equalsIgnoreCase("ssh")) {
-                WebSocketService.sendMessage("badao" + userName, command);
+                WebSocketService.sendMessage(userName, "互动:" + command+"\r\n");
+
+                try {
+                    PathHelper.writeDataToFile("互动:" + command+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 command_string = connectMethod.sendCommand(user_String.get("ip"), sshConnect, command, notFinished);
                 //command_string = Utils.removeLoginInformation(command_string);
             } else if (way.equalsIgnoreCase("telnet")) {
-                WebSocketService.sendMessage("badao" + userName, command);
+                WebSocketService.sendMessage(userName, "互动:" + command+"\r\n");
+
+                try {
+                    PathHelper.writeDataToFile("互动:" + command+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 command_string = telnetSwitchMethod.sendCommand(user_String.get("ip"), telnetComponent, command, notFinished);
                 //command_string = Utils.removeLoginInformation(command_string);
             }
@@ -1905,10 +1973,15 @@ public class SwitchInteraction {
                     deviceBrand = Utils.switchfailure(user_String, returnString);
                     if (!deviceBrand) {
                         System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
-                        WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
-                                + "\r\n故障:"+returnString+"\r\n");
-                        returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
+                        WebSocketService.sendMessage(userName,"故障:"+"IP:"+user_String.get("ip")+":"+returnString+"\r\n");
 
+                        try {
+                            PathHelper.writeDataToFile("故障:"+"IP:"+user_String.get("ip")+":"+returnString+"\r\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
                         if (way.equalsIgnoreCase("ssh")){
                             connectMethod.sendCommand(user_String.get("ip"),sshConnect,"\r ",user_String.get("notFinished"));
                         }else if (way.equalsIgnoreCase("telnet")){
@@ -1960,7 +2033,13 @@ public class SwitchInteraction {
 
         }
 
-        WebSocketService.sendMessage("badao"+userName,current_return_log);
+        WebSocketService.sendMessage(userName,"互动:"+current_return_log+"\r\n");
+
+        try {
+            PathHelper.writeDataToFile("互动:"+current_return_log+"\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //按行切割，最后一位应该是 标识符
         String current_identifier = split[split.length-1].trim();
@@ -1975,7 +2054,13 @@ public class SwitchInteraction {
             current_identifier = current_identifier.substring(2,current_identifier.length());
         }
 
-        WebSocketService.sendMessage("badao"+userName,current_identifier);
+        WebSocketService.sendMessage(userName,"互动:"+current_identifier+"\r\n");
+        try {
+            PathHelper.writeDataToFile("互动:"+current_identifier+"\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         //返回信息表，返回插入条数
         returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
@@ -1989,10 +2074,14 @@ public class SwitchInteraction {
             for (String string_split:returnString_split){
                 if (!Utils.judgmentError( user_String,string_split)){
                     System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
-                    WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
-                            + "\r\n问题:"+totalQuestionTable.getProblemName()
-                            +"\r\n命令:" +command
-                            +"\r\n错误:"+command_string+"\r\n");
+                    WebSocketService.sendMessage(userName,"错误:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
+
+                    try {
+                        PathHelper.writeDataToFile("错误:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     List<Object> objectList = new ArrayList<>();
                     objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string));
                     return objectList;

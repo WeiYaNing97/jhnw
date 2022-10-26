@@ -19,37 +19,18 @@ public class Configuration {
     /** 标识符 */
     public static String identifier;
 
+    /** 日志路径 */
+    public static String logPath;
+
     public static void getConfiguration() {
         Configuration configuration = new Configuration();
 
-        //Map<String, String> ymlMap = configuration.getYmlMap();
         Map<String, String> ymlMap = configuration.readMapFromyml();
         minimumTimeout = Long.valueOf(ymlMap.get("minimumTimeout")).longValue();
         maximumTimeout = Long.valueOf(ymlMap.get("maximumTimeout")).longValue();
         numberOfCycles = Long.valueOf(ymlMap.get("numberOfCycles")).longValue();
         identifier = ymlMap.get("identifier");
-    }
-
-    public static void getConfiguration1(){
-        Map<String, String> ymlByFileName = YmlUtils.getYmlByFileName(bootstrap_file,"configuration");
-        minimumTimeout = Long.valueOf(ymlByFileName.get("configuration.minimumTimeout")).longValue();
-        maximumTimeout = Long.valueOf(ymlByFileName.get("configuration.maximumTimeout")).longValue();
-        numberOfCycles = Long.valueOf(ymlByFileName.get("configuration.numberOfCycles")).longValue();
-    }
-
-    public Map<String,String> getYmlMap() {
-        String urlproject = System.getProperty("user.dir");
-        String urlyml = urlproject+"\\jhnw-admin\\src\\main\\resources\\configurationFile.yml" ;
-        String returnymlSting = readStringFromyml(urlyml);
-        String[] yml_split = returnymlSting.split("\r\n");
-        Map<String,String> ymlMap = new HashMap<>();
-        for (String yml_String:yml_split){
-            String[] key_value_split = yml_String.split(":");
-            if (key_value_split.length == 2){
-                ymlMap.put(key_value_split[0].trim(),key_value_split[1].trim());
-            }
-        }
-        return ymlMap;
+        logPath = ymlMap.get("logPath");
     }
 
     public Map<String,String> readMapFromyml() {
@@ -77,22 +58,4 @@ public class Configuration {
         return ymlMap;
     }
 
-    public static String readStringFromyml(String txtpath) {
-        File file = new File(txtpath);
-        StringBuilder result = new StringBuilder();
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String s = null;
-            while ((s = br.readLine()) != null) {
-               String returnSting = (System.lineSeparator() + s).trim()+"\r\n";
-                if (returnSting.indexOf("#") ==-1){
-                    result.append(returnSting);
-                }
-            }
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result.toString();
-    }
 }

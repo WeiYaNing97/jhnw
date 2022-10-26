@@ -15,6 +15,7 @@ import com.sgcc.sql.service.*;
 
 import com.sgcc.web.controller.thread.RepairFixedThreadPool;
 import com.sgcc.web.controller.util.EncryptUtil;
+import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 
 import org.springframework.beans.BeanUtils;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -152,7 +154,13 @@ public class SolveProblemController {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage("badao"+login.getUsername(),"\r\n修复结束\r\n");
+        WebSocketService.sendMessage(login.getUsername(),"互动："+"修复结束\r\n");
+
+        try {
+            PathHelper.writeDataToFile("互动："+"修复结束\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static Map<String,String> getUserMap(String userinformation) {
@@ -286,10 +294,14 @@ public class SolveProblemController {
                     switchScanResultLists.add(switchScanResult);
                 }else {
 
-                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
-                            +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                            +"交换机基本信息不一致");
+                    WebSocketService.sendMessage(loginUser.getUsername(),"错误:"+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"交换机基本信息不一致"+"\r\n");
+                    try {
 
+                        PathHelper.writeDataToFile("错误:"+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"交换机基本信息不一致"+"\r\n");
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             if (switchScanResultLists.size() == 0){
@@ -311,9 +323,14 @@ public class SolveProblemController {
             for (SwitchScanResult switchScanResult:switchScanResultLists){
 
                 if(switchScanResult.getComId() == null || switchScanResult.getComId().equals("null")){
-                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
-                            +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                            +"未定义解决问题命令\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+
+                    try {
+                        PathHelper.writeDataToFile("错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     break;
                 }
 
@@ -322,9 +339,14 @@ public class SolveProblemController {
                 List<String> commandList = queryParameterSet(switchScanResult.getComId() + "");
 
                 if (commandList == null){
-                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
-                            +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                            +"未定义解决问题命令\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+
+                    try {
+                        PathHelper.writeDataToFile("错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     break;
                 }
 
@@ -342,16 +364,26 @@ public class SolveProblemController {
                     int i = switchScanResultService.updateSwitchScanResult(switchScanResult);
 
                     if (i<=0){
-                        WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
-                                +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                                +"修复失败\r\n");
+                        WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
+
+                        try {
+                            PathHelper.writeDataToFile("错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                     }
 
                 }
                 if(solveProblem.indexOf("错误") != -1){
-                    WebSocketService.sendMessage("error"+loginUser.getUsername(),"问题名称："
-                            +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"\r\n"
-                            +"修复失败\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
+
+                    try {
+                        PathHelper.writeDataToFile("错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                 }
 
                 //getUnresolvedProblemInformationByIds(loginUser,problemIds);
@@ -534,12 +566,26 @@ public class SolveProblemController {
 
                 if (requestConnect_way.equalsIgnoreCase("ssh")){
 
-                    WebSocketService.sendMessage("badao"+loginUser.getUsername(),command);
+                    WebSocketService.sendMessage(loginUser.getUsername(),"互动:"+command+"\r\n");
+
+                    try {
+                        PathHelper.writeDataToFile("互动:"+command+"\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
-                    WebSocketService.sendMessage("badao"+loginUser.getUsername(),command);
+                    WebSocketService.sendMessage(loginUser.getUsername(),"互动:"+command+"\r\n");
+
+                    try {
+                        PathHelper.writeDataToFile("互动:"+command+"\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
                     //commandString = Utils.removeLoginInformation(commandString);
                 }
@@ -559,8 +605,14 @@ public class SolveProblemController {
 
                             String userName = loginUser.getUsername();
                             System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
-                            WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
-                                    + "\r\n故障:"+returnString+"\r\n");
+                            WebSocketService.sendMessage(userName,"故障：IP:"+user_String.get("ip") +":"+returnString+"\r\n");
+
+                            try {
+                                PathHelper.writeDataToFile("故障：IP:"+user_String.get("ip") +":"+returnString+"\r\n");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                             returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString+"\r\n");
                             String way = user_String.get("mode");
                             if (way.equalsIgnoreCase("ssh")){
@@ -606,7 +658,14 @@ public class SolveProblemController {
                 if (!current_return_log_substring_start.equals("\r\n")){
                     current_return_log = "\r\n"+current_return_log;
                 }
-                WebSocketService.sendMessage("badao"+loginUser.getUsername(),current_return_log);
+                WebSocketService.sendMessage(loginUser.getUsername(),"互动:"+current_return_log+"\r\n");
+
+                try {
+                    PathHelper.writeDataToFile("互动:"+current_return_log+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 //当前标识符 如：<H3C> [H3C]
 
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
@@ -624,11 +683,24 @@ public class SolveProblemController {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage("badao"+loginUser.getUsername(),current_identifier);
+                WebSocketService.sendMessage(loginUser.getUsername(),"互动:"+current_identifier+"\r\n");
+
+                try {
+                    PathHelper.writeDataToFile("互动:"+current_identifier+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             }else if (commandString_split.length == 1){
                 returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
-                WebSocketService.sendMessage("badao"+loginUser.getUsername(),"\r\n"+commandString_split[0]+"\r\n");
+                WebSocketService.sendMessage(loginUser.getUsername(),"互动:"+commandString_split[0]+"\r\n");
+
+                try {
+                    PathHelper.writeDataToFile("互动:"+commandString_split[0]+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
 
             //返回信息表，返回插入条数
@@ -643,13 +715,17 @@ public class SolveProblemController {
                 for (String string_split:returnString_split){
                     if (!Utils.judgmentError( user_String,string_split)){
                         String userName = loginUser.getUsername();
-                        WebSocketService.sendMessage("error"+userName,"\r\nIP:"+user_String.get("ip")
-                                +"\r\n问题:"+switchScanResult.getProblemName()
-                                +"\r\n命令:" +command
-                                +"\r\n错误:"+string_split+"\r\n");
+                        WebSocketService.sendMessage(userName,"错误：IP："+user_String.get("ip") +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
+
+                        try {
+                            PathHelper.writeDataToFile("错误：IP："+user_String.get("ip") +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                         List<Object> objectList = new ArrayList<>();
                         objectList.add(AjaxResult.error(user_String.get("ip")+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:"+string_split));
-
                         return user_String.get("ip")+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:"+string_split;
 
                     }
@@ -759,7 +835,7 @@ public class SolveProblemController {
             }
         }
 
-        WebSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);
+        WebSocketService.sendMessage("loophole:"+loginUser.getUsername(),scanResultsVOList);
 
         return scanResultsVOList;
     }
