@@ -56,16 +56,16 @@ public class DirectionalScanThreadPool {
                         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password, configureCiphers , port, loginUser,time, totalQuestionTables);
 
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
-                            WebSocketService.sendMessage(userName,"错误:"+ip + ":交换机连接失败\r\n");
+                            WebSocketService.sendMessage(userName,"风险:"+ip + ":交换机连接失败\r\n");
                             try {
-                                PathHelper.writeDataToFile("错误:"+ip + ":交换机连接失败\r\n");
+                                PathHelper.writeDataToFile("风险:"+ip + ":交换机连接失败\r\n");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                            WebSocketService.sendMessage(userName,"错误:"+ip + ":未定义该交换机获取基本信息命令及分析\r\n");
+                            WebSocketService.sendMessage(userName,"风险:"+ip + ":未定义该交换机获取基本信息命令及分析\r\n");
                             try {
-                                PathHelper.writeDataToFile("错误:"+ip + ":未定义该交换机获取基本信息命令及分析\r\n");
+                                PathHelper.writeDataToFile("风险:"+ip + ":未定义该交换机获取基本信息命令及分析\r\n");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

@@ -1,8 +1,5 @@
 package com.sgcc.web.controller.util;
 
-
-import com.sgcc.web.controller.sql.Configuration;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -18,6 +15,9 @@ public class PathHelper {
      * @throws IOException
      */
     public static void writeDataToFile(String str) throws IOException {
+        String logPresent = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
+        logPresent = "["+logPresent+"] ";
+        str = logPresent + str ;
         //文件目录
         File writefile;
         BufferedWriter bw;

@@ -52,16 +52,16 @@ public class ScanFixedThreadPool {
                         // 扫描一台交换机 的 所以问题
                         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password,configureCiphers, port, loginUser,time,null);
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
-                            WebSocketService.sendMessage(userName,"错误:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
+                            WebSocketService.sendMessage(userName,"风险:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
                             try {
-                                PathHelper.writeDataToFile("错误:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
+                                PathHelper.writeDataToFile("风险:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                            WebSocketService.sendMessage(userName,"错误:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
+                            WebSocketService.sendMessage(userName,"风险:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
                             try {
-                                PathHelper.writeDataToFile("错误:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
+                                PathHelper.writeDataToFile("风险:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

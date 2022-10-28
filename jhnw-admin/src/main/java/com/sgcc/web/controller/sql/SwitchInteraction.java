@@ -59,6 +59,11 @@ public class SwitchInteraction {
     @Autowired
     private static ISwitchScanResultService switchScanResultService;
 
+    /*==================================================================================================================
+    ====================================================================================================================
+    ====================================================================================================================
+    ==================================================================================================================*/
+
     /***
      * @method: 多线程扫描 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
      * @Param: [switchInformation]
@@ -148,20 +153,15 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage(login.getUsername(),"互动："+"扫描结束\r\n");
+        WebSocketService.sendMessage(login.getUsername(),"发送和接收："+"扫描结束\r\n");
         try {
-            PathHelper.writeDataToFile("互动："+"扫描结束\r\n");
+            PathHelper.writeDataToFile("系统信息："+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
         return "扫描结束";
     }
 
-
-    /*==================================================================================================================
-    ====================================================================================================================
-    ====================================================================================================================
-    ==================================================================================================================*/
 
     /***
     * @method: 多线程扫描 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
@@ -247,9 +247,9 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage(login.getUsername(),"互动："+"扫描结束\r\n");
+        WebSocketService.sendMessage(login.getUsername(),"发送和接收："+"扫描结束\r\n");
         try {
-            PathHelper.writeDataToFile("互动："+"扫描结束\r\n");
+            PathHelper.writeDataToFile("系统信息："+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -400,9 +400,9 @@ public class SwitchInteraction {
 
                 if (ajaxResult !=null && ajaxResult.get("msg").equals("未定义交换机问题")){
                     LoginUser user = (LoginUser) user_Object.get("loginUser");
-                    WebSocketService.sendMessage(user.getUsername(),"错误:"+"ip:"+user_String.get("ip") + "未定问题"+"\r\n");
+                    WebSocketService.sendMessage(user.getUsername(),"风险:"+"ip:"+user_String.get("ip") + "未定问题"+"\r\n");
                     try {
-                        PathHelper.writeDataToFile("错误:"+"ip:"+user_String.get("ip") + "未定问题"+"\r\n");
+                        PathHelper.writeDataToFile("风险:"+"ip:"+user_String.get("ip") + "未定问题"+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -561,7 +561,6 @@ public class SwitchInteraction {
     }
 
 
-
     /**
      * @method: 获取交换机基本信息  多个命令依次执行 按，分割
      * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法,
@@ -640,18 +639,18 @@ public class SwitchInteraction {
                     deviceBrand = true;
                     if (way.equalsIgnoreCase("ssh")){
                         //  WebSocket 传输 命令
-                        WebSocketService.sendMessage(userName,"互动:"+command+"\r\n");
+                        WebSocketService.sendMessage(userName,"发送和接收:"+command+"\r\n");
                         try {
-                            PathHelper.writeDataToFile("互动:"+command+"\r\n");
+                            PathHelper.writeDataToFile("发送:"+command+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                         commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
                     }else if (way.equalsIgnoreCase("telnet")){
                         //  WebSocket 传输 命令
-                        WebSocketService.sendMessage(userName,"互动:"+command);
+                        WebSocketService.sendMessage(userName,"发送和接收:"+command);
                         try {
-                            PathHelper.writeDataToFile("互动:"+command+"\r\n");
+                            PathHelper.writeDataToFile("发送:"+command+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -734,10 +733,10 @@ public class SwitchInteraction {
 
                 }
 
-                WebSocketService.sendMessage(userName,"互动:"+current_return_log+"\r\n");
+                WebSocketService.sendMessage(userName,"发送和接收:"+current_return_log+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFile("互动:"+current_return_log+"\r\n");
+                    PathHelper.writeDataToFile("接收:"+current_return_log+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -755,9 +754,9 @@ public class SwitchInteraction {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage(userName,"互动:"+current_identifier+"\r\n");
+                WebSocketService.sendMessage(userName,"发送和接收:"+current_identifier+"\r\n");
                 try {
-                    PathHelper.writeDataToFile("互动:"+current_identifier+"\r\n");
+                    PathHelper.writeDataToFile("接收:"+current_identifier+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -775,9 +774,9 @@ public class SwitchInteraction {
                         if (!Utils.judgmentError( user_String,string_split)){
                             loop = true;
                             System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
-                            WebSocketService.sendMessage(userName,"错误:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
+                            WebSocketService.sendMessage(userName,"风险:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
                             try {
-                                PathHelper.writeDataToFile("错误:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
+                                PathHelper.writeDataToFile("风险:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -1939,10 +1938,10 @@ public class SwitchInteraction {
             deviceBrand = true;
 
             if (way.equalsIgnoreCase("ssh")) {
-                WebSocketService.sendMessage(userName, "互动:" + command+"\r\n");
+                WebSocketService.sendMessage(userName, "发送和接收:" + command+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFile("互动:" + command+"\r\n");
+                    PathHelper.writeDataToFile("发送:" + command+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -1950,10 +1949,10 @@ public class SwitchInteraction {
                 command_string = connectMethod.sendCommand(user_String.get("ip"), sshConnect, command, notFinished);
                 //command_string = Utils.removeLoginInformation(command_string);
             } else if (way.equalsIgnoreCase("telnet")) {
-                WebSocketService.sendMessage(userName, "互动:" + command+"\r\n");
+                WebSocketService.sendMessage(userName, "发送和接收:" + command+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFile("互动:" + command+"\r\n");
+                    PathHelper.writeDataToFile("发送:" + command+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -2033,10 +2032,10 @@ public class SwitchInteraction {
 
         }
 
-        WebSocketService.sendMessage(userName,"互动:"+current_return_log+"\r\n");
+        WebSocketService.sendMessage(userName,"发送和接收:"+current_return_log+"\r\n");
 
         try {
-            PathHelper.writeDataToFile("互动:"+current_return_log+"\r\n");
+            PathHelper.writeDataToFile("接收:"+current_return_log+"\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -2054,9 +2053,9 @@ public class SwitchInteraction {
             current_identifier = current_identifier.substring(2,current_identifier.length());
         }
 
-        WebSocketService.sendMessage(userName,"互动:"+current_identifier+"\r\n");
+        WebSocketService.sendMessage(userName,"发送和接收:"+current_identifier+"\r\n");
         try {
-            PathHelper.writeDataToFile("互动:"+current_identifier+"\r\n");
+            PathHelper.writeDataToFile("接收:"+current_identifier+"\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -2074,10 +2073,10 @@ public class SwitchInteraction {
             for (String string_split:returnString_split){
                 if (!Utils.judgmentError( user_String,string_split)){
                     System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
-                    WebSocketService.sendMessage(userName,"错误:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
+                    WebSocketService.sendMessage(userName,"风险:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
 
                     try {
-                        PathHelper.writeDataToFile("错误:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
+                        PathHelper.writeDataToFile("风险:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

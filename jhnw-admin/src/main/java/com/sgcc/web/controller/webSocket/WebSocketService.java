@@ -120,6 +120,7 @@ public class WebSocketService {
         }
     }
 
+
     public static void sendMessage(String userName,String string){
         try {
             WebSocketClient webSocketClient = webSocketMap.get(userName);
