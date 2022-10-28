@@ -205,6 +205,32 @@ export default {
       deleteItem (item, index) {
           this.forms.dynamicItem.splice(index,1)
       },
+      //下拉列表通用
+      general(e){
+          this.who = e.target.getAttribute('name')
+          let newPar = {}
+          for (var key in this.queryParams){
+              newPar[key] = this.queryParams[key]
+          }
+          for (let i in newPar){
+              if (newPar[i] === 'null'){
+                  newPar[i] = ''
+              }
+          }
+          console.log(newPar)
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'post',
+              data:newPar
+          }).then(response=>{
+              console.log(response)
+              this.genList = this.quchong(response,this.who)
+              let kong = {
+                  [this.who] : 'null'
+              }
+              this.genList.push(kong)
+          })
+      },
       //获取该问题ID
       chakan(){
           let form = new FormData();
@@ -219,6 +245,7 @@ export default {
               method:'post',
               data:form
           }).then(response=>{
+              console.log(response+'sssss')
               if (typeof (response) === 'number'){
                   this.showNo = true
                   this.proId = response
@@ -338,31 +365,7 @@ export default {
           })
           return ret
       },
-      //下拉列表通用
-      general(e){
-          this.who = e.target.getAttribute('name')
-          let newPar = {}
-          for (var key in this.queryParams){
-              newPar[key] = this.queryParams[key]
-          }
-          for (let i in newPar){
-              if (newPar[i] === 'null'){
-                  newPar[i] = ''
-              }
-          }
-          return request({
-              url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
-          }).then(response=>{
-              console.log(response)
-              this.genList = this.quchong(response,this.who)
-              let kong = {
-                  [this.who] : 'null'
-              }
-              this.genList.push(kong)
-          })
-      },
+
       //下拉框获取后台参数
       paraLi(){
           let form = new FormData();
@@ -373,104 +376,8 @@ export default {
               method:'post',
               data:form
           }).then(response=>{
-              this.paraList = response
-          })
-      },
-      brandLi(){
-          return request({
-              url:'/sql/total_question_table/brandlist',
-              method:'post',
-          }).then(response=>{
-              this.brandList = response
-          })
-      },
-      typeLi(){
-          const typeOne = {}
-          const brandO = this.queryParams.brand
-          this.$set(typeOne,'brand',brandO)
-          return request({
-              url:'/sql/total_question_table/typelist',
-              method:'post',
-              data:JSON.stringify(typeOne)
-          }).then(response=>{
-              this.typeList = response
-          })
-      },
-      fireLi(){
-          const fireOne = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          this.$set(fireOne,'brand',brandO)
-          this.$set(fireOne,'type',typeO)
-          return request({
-              url:'/sql/total_question_table/firewareVersionlist',
-              method:'post',
-              data:JSON.stringify(fireOne)
-          }).then(response=>{
-              this.fireList = response
-          })
-      },
-      subLi(){
-          const subOne = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          const fireO = this.queryParams.firewareVersion
-          this.$set(subOne,'brand',brandO)
-          this.$set(subOne,'type',typeO)
-          this.$set(subOne,'firewareVersion',fireO)
-          return request({
-              url:'/sql/total_question_table/subVersionlist',
-              method:'post',
-              data:JSON.stringify(subOne)
-          }).then(response=>{
-              this.subList = response
-          })
-      },
-      proType(){
-          return request({
-              url:'/sql/total_question_table/typeProblemlist',
-              method:'post',
-          }).then(response=>{
-              this.typeProList = response
-          })
-      },
-      temPro(e){
-          var type0 = this.queryParams.typeProblem
-          if(type0 != ''){
-              return request({
-                  url:'/sql/total_question_table/temProNamelist',
-                  method:'post',
-                  data:type0
-              }).then(response=>{
-                  this.temProNameList = response
-                  console.log(response)
-              })
-          }else {
-              this.$message.warning('问题类型未选择')
-          }
-      },
-      //下拉框问题
-      chawenti(e){
-          const wentilist = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          const firO = this.queryParams.firewareVersion
-          const subO = this.queryParams.subVersion
-          const protypeO = this.queryParams.typeProblem
-          const pronameO = this.queryParams.temProName
-          this.$set(wentilist,'brand',brandO)
-          this.$set(wentilist,'type',typeO)
-          this.$set(wentilist,'firewareVersion',firO)
-          this.$set(wentilist,'subVersion',subO)
-          this.$set(wentilist,'typeProblem',protypeO)
-          this.$set(wentilist,'temProName',pronameO)
-          return request({
-              url:'/sql/total_question_table/problemNameList',
-              method:'post',
-              data:JSON.stringify(wentilist)
-          }).then(response=>{
               console.log(response)
-              this.proNameList = response
+              this.paraList = response
           })
       },
 
