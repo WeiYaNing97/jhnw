@@ -1567,12 +1567,24 @@ public class SwitchInteraction {
                     line_n,firstID,problemScanLogicList,null,insertsInteger, loop, numberOfCycles);
             return loop_string;
         }
-
+        String condition = problemScanLogic.getRelativePosition().equals("null")?"全文":"按行";
+        LoginUser loginUser= (LoginUser) user_Object.get("loginUser");
         //如果 问题索引字段 不为空 null 则 说明  分析数据 是 分析出问题或者可以结束了
         // problemScanLogic.getProblemId() 可以为 有问题(前端显示:异常) 无问题(前端显示:安全) 完成
         if (problemScanLogic.getProblemId()!=null){
             //有问题 无问题
-            if (problemScanLogic.getProblemId().indexOf("问题")!=-1){
+            if (problemScanLogic.getProblemId().indexOf("问题")!=-1
+                    || (problemScanLogic.getProblemId().indexOf("问题") ==-1  && problemScanLogic.getProblemId().indexOf("完成") ==-1)){
+
+                if (problemScanLogic.getProblemId().indexOf("问题") ==-1  && problemScanLogic.getProblemId().indexOf("完成") ==-1){
+                    //  自定义   问题
+                    WebSocketService.sendMessage(loginUser.getUsername(),"风险:"+user_String.get("ip")+ ":"+ "问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()+ "风险:"+problemScanLogic.getProblemId()+"\r\n");
+                    try {
+                        PathHelper.writeDataToFile("风险:"+user_String.get("ip")+ ":"+ "问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()+ "风险:"+problemScanLogic.getProblemId()+"\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
 
                 /*try {
                     Thread.sleep(1000*3);
@@ -1699,6 +1711,19 @@ public class SwitchInteraction {
                 //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
                 boolean matchAnalysis_true_false = Utils.matchAnalysis(matched, information_line_n, matchContent);
 
+                if (matchAnalysis_true_false){
+                    //  自定义   问题
+                    WebSocketService.sendMessage(loginUser.getUsername(),"true and false:"+user_String.get("ip")+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                            ":"+condition+matched+problemScanLogic.getMatchContent()+"成功\r\n");
+                    try {
+                        PathHelper.writeDataToFile("true and false:"+user_String.get("ip")+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                                ":"+condition+matched+problemScanLogic.getMatchContent()+"成功\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
 
@@ -1742,6 +1767,17 @@ public class SwitchInteraction {
                     if (relativePosition.equals("null") && num<return_information_array.length-1){
                         continue;
                     }
+
+                    //  自定义   问题
+                    WebSocketService.sendMessage(loginUser.getUsername(),"true and false:"+user_String.get("ip")+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                            ":"+condition+matched+problemScanLogic.getMatchContent()+"失败\r\n");
+                    try {
+                        PathHelper.writeDataToFile("true and false:"+user_String.get("ip")+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                                ":"+condition+matched+problemScanLogic.getMatchContent()+"失败\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
 
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
                         List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), user_Object);
@@ -1799,8 +1835,30 @@ public class SwitchInteraction {
 
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
                 if (wordSelection_string == null){
+
+                    //  自定义   问题
+                    WebSocketService.sendMessage(loginUser.getUsername(),"true and false:"+user_String.get("ip")+  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                            ":取词"+problemScanLogic.getWordName()+"失败\r\n");
+                    try {
+                        PathHelper.writeDataToFile("true and false:"+user_String.get("ip")+  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                                ":取词"+problemScanLogic.getWordName()+"失败\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     return "取词失败！";
                 }
+
+                //  自定义   问题
+                WebSocketService.sendMessage(loginUser.getUsername(),"true and false:"+user_String.get("ip") +  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                        ":取词"+problemScanLogic.getWordName()+"成功\r\n");
+                try {
+                    PathHelper.writeDataToFile("true and false:"+user_String.get("ip") +  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                            ":取词"+problemScanLogic.getWordName()+"成功\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
 
                 wordSelection_string = Utils.judgeResultWordSelection(wordSelection_string);
 
@@ -1846,6 +1904,31 @@ public class SwitchInteraction {
 
                 //比较
                 boolean compare_boolean = Utils.compareVersion(user_String,compare,current_Round_Extraction_String);
+
+
+                if (compare_boolean){
+                    //  自定义   问题
+                    WebSocketService.sendMessage(loginUser.getUsername(),"true and false:"+user_String.get("ip")+ (totalQuestionTable!=null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                            ":比较"+problemScanLogic.getCompare()+"成功\r\n");
+                    try {
+                        PathHelper.writeDataToFile("true and false:"+user_String.get("ip")+ (totalQuestionTable!=null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                                ":比较"+problemScanLogic.getCompare()+"成功\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else {
+                    //  自定义   问题
+                    WebSocketService.sendMessage(loginUser.getUsername(),"true and false:"+user_String.get("ip")+ (totalQuestionTable!=null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                            ":比较"+problemScanLogic.getCompare()+"失败\r\n");
+                    try {
+                        PathHelper.writeDataToFile("true and false:"+user_String.get("ip")+ (totalQuestionTable!=null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
+                                ":比较"+problemScanLogic.getCompare()+"失败\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
 
                 if (compare_boolean){
 
@@ -2039,9 +2122,10 @@ public class SwitchInteraction {
         //系统登录人 手机号
         String phonenumber = loginUser.getUser().getPhonenumber();
         //截取 有问题 还是 无问题
-        String substring = problemScanLogic.getProblemId().substring(0, 3);
+        String substring = problemScanLogic.getProblemId().substring(0,problemScanLogic.getProblemId().length() - (totalQuestionTable.getId()+"").length());
         //截取 问题代码
-        String problemId = problemScanLogic.getProblemId().substring(3, problemScanLogic.getProblemId().length());
+
+        String problemId = totalQuestionTable.getId()+"";
 
         SwitchScanResult switchScanResult = new SwitchScanResult();
 

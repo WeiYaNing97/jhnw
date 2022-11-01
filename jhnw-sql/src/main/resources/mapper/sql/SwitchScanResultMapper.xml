@@ -78,11 +78,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ssrt.create_time create_timeTwo,
 
         ssrt.problem_id problem_id,
+
         CASE ssrt.if_question
                 WHEN '有问题' THEN '异常'
                 WHEN '无问题' THEN '安全'
                 WHEN '完成' THEN '完成'
                 WHEN '已解决' THEN '已解决'
+				ELSE ssrt.if_question
                 END if_question,
 
         ssrt.com_id com_id,
