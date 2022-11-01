@@ -597,7 +597,13 @@ public class DefinitionProblemController extends BaseController {
         //如果动作属性不为空  且动作属性参数为 有无问题时  需要清空动作属性
         if (hashMap.get("action")!=null && hashMap.get("action").indexOf("问题")!=-1){
             //problemId字段 存放 有无问题 加 问题表数据ID
-            hashMap.put("problemId",hashMap.get("WTNextId")+hashMap.get("problemId"));
+
+            String problemIdnull = hashMap.get("problemId");
+            if (problemIdnull == null || problemIdnull.equals("null")){
+                problemIdnull = "";
+            }
+
+            hashMap.put("problemId",hashMap.get("WTNextId")+problemIdnull);
             //清空动作属性
             hashMap.put("action",null);
             //当 有无问题为完成时  则  problemId ==  完成
@@ -808,12 +814,15 @@ public class DefinitionProblemController extends BaseController {
         } catch (ExecutionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+
         } catch (TimeoutException e) {
             // TODO Auto-generated catch block
             return AjaxResult.error("查询超时");
+
         }finally{
             future.cancel(true);
             executor.shutdown();
+
         }
         return AjaxResult.success(analysisList[0]);
     }
@@ -841,9 +850,7 @@ public class DefinitionProblemController extends BaseController {
         }
         do {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
-
             problemScanLogicID = "";
-
             for (String problemID:problemScanLogicIDsplit){
                 if (ProblemId == null){
                     commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
@@ -852,7 +859,6 @@ public class DefinitionProblemController extends BaseController {
                         return null;
                     }
                     commandLogicList.add(commandLogic);
-
                     if (commandLogic.getResultCheckId().equals("0")){
                         //根据第一个分析ID 查询出所有的数据条数
                         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
@@ -871,14 +877,12 @@ public class DefinitionProblemController extends BaseController {
                     }else {
                         problemScanLogicID = commandLogic.getEndIndex()+":";
                     }
-
                     if (problemScanLogicID!=""){
                         break;
                     }
                 }
 
                 if (ProblemId != null){
-
                     //根据第一个分析ID 查询出所有的数据条数
                     List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(ProblemId);//commandLogic.getProblemId()
                     ProblemId = null;
@@ -894,29 +898,23 @@ public class DefinitionProblemController extends BaseController {
                             problemScanLogicID += problemScanLogic.getfComId()+":";
                         }
                     }
-
                     if (problemScanLogicID!=""){
                         break;
                     }
                 }
-
             }
-
         }while (problemScanLogicID.indexOf(":")!=-1);
-
         HashMap<Long,String> hashMap = new HashMap<>();
-
         for (CommandLogic commandLogic:commandLogicList){
             String commandLogicString = commandLogicString(commandLogic);
             String[] commandLogicStringsplit = commandLogicString.split(":");
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
         }
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
-            String problemScanLogicString = problemScanLogicSting(problemScanLogic);
+            String problemScanLogicString = problemScanLogicSting(problemScanLogic,totalQuestionTables.get(0).getId()+"");
             String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
-
         List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
             if (hashMap.get(number+1)!=null && !(hashMap.get(number+1).equals("null"))){
@@ -924,7 +922,6 @@ public class DefinitionProblemController extends BaseController {
                 stringList.add(hashMap.get(number+1));
             }
         }
-
         return stringList;
     }
 
@@ -945,13 +942,11 @@ public class DefinitionProblemController extends BaseController {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
             for (String id:problemScanLogicIDsplit){
                 problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
-
                 ProblemScanLogic pojo = problemScanLogicHashMap.get(id);
                 if (pojo!=null){
                     problemScanLogicHashMap.put(id,pojo);
                     continue;
                 }
-
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
                 problemScanLogicHashMap.put(id,problemScanLogic);
                 if (problemScanLogic ==null){
@@ -1169,7 +1164,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static String problemScanLogicSting(ProblemScanLogic problemScanLogic){
+    public static String problemScanLogicSting(ProblemScanLogic problemScanLogic,String id){
         //定义一个 符合 前端字符串的 实体类
         ProblemScanLogicVO problemScanLogicVO = new ProblemScanLogicVO();
         //成功 && 失败
@@ -1266,11 +1261,20 @@ public class DefinitionProblemController extends BaseController {
                 }
 
                 problemId = problemId.substring(3,problemId.length());
-            }
-            if (problemId.equals("完成")){
+            }else if (problemId.equals("完成")){
                 problemScanLogicVO.setAction("问题");
                 problemScanLogicVO.settNextId(problemId);
                 problemId = null;
+            }else {
+                if (id == null){
+                    problemScanLogicVO.setAction("问题");
+                    problemScanLogicVO.settNextId(problemId);
+                    problemId = null;
+                }else {
+                    problemScanLogicVO.setAction("问题");
+                    problemScanLogicVO.settNextId(problemId.substring(0,problemId.length()-id.length()));
+                    problemId = id;
+                }
             }
         }
         problemScanLogicVO.setProblemId(problemId);
@@ -1555,7 +1559,7 @@ public class DefinitionProblemController extends BaseController {
         }
         HashMap<Long,String> hashMap = new HashMap<>();
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-            String problemScanLogicString = problemScanLogicSting(problemScanLogic);
+            String problemScanLogicString = problemScanLogicSting(problemScanLogic,null);
             String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
