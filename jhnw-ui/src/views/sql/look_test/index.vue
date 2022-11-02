@@ -216,7 +216,7 @@
 
             <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
               <el-form-item label="有无问题">
-                <el-select v-model="item.tNextId" placeholder="有无问题、完成">
+                <el-select v-model="item.tNextId" filterable allow-create placeholder="异常、安全、完成、自定义">
                   <el-option label="异常" value="有问题"></el-option>
                   <el-option label="安全" value="无问题"></el-option>
                   <el-option label="完成" value="完成"></el-option>
@@ -289,7 +289,7 @@
 <script>
 import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_test, exportLook_test } from "@/api/sql/look_test";
 import axios from 'axios'
-import  {MessageBox} from "element-ui";
+import  {MessageBox} from "element-ui"
 import request from '@/utils/request'
 import log from "../../monitor/job/log";
 
@@ -322,13 +322,7 @@ export default {
         zhidu:true,
         showNo:false,
         checked:false,
-        proNameList:[],
         temProNameList:[],
-        typeProList:[],
-        brandList:[],
-        fireList:[],
-        typeList:[],
-        subList:[],
         proId:'',
         // isLog:true,
       // 遮罩层
@@ -804,64 +798,6 @@ export default {
           }
       },
       //下拉框获取后台数据
-      brandLi(){
-          return request({
-              url:'/sql/total_question_table/brandlist',
-              method:'post',
-          }).then(response=>{
-              this.brandList = response
-          })
-      },
-      typeLi(){
-          const typeOne = {}
-          const brandO = this.queryParams.brand
-          this.$set(typeOne,'brand',brandO)
-          return request({
-              url:'/sql/total_question_table/typelist',
-              method:'post',
-              data:JSON.stringify(typeOne)
-          }).then(response=>{
-              this.typeList = response
-          })
-      },
-      fireLi(){
-          const fireOne = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          this.$set(fireOne,'brand',brandO)
-          this.$set(fireOne,'type',typeO)
-          return request({
-              url:'/sql/total_question_table/firewareVersionlist',
-              method:'post',
-              data:JSON.stringify(fireOne)
-          }).then(response=>{
-              this.fireList = response
-          })
-      },
-      subLi(){
-          const subOne = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          const fireO = this.queryParams.firewareVersion
-          this.$set(subOne,'brand',brandO)
-          this.$set(subOne,'type',typeO)
-          this.$set(subOne,'firewareVersion',fireO)
-          return request({
-              url:'/sql/total_question_table/subVersionlist',
-              method:'post',
-              data:JSON.stringify(subOne)
-          }).then(response=>{
-              this.subList = response
-          })
-      },
-      proType(){
-          return request({
-              url:'/sql/total_question_table/typeProblemlist',
-              method:'post',
-          }).then(response=>{
-              this.typeProList = response
-          })
-      },
       temPro(e){
           var type0 = this.queryParams.typeProblem
           if(type0 != ''){
@@ -876,30 +812,6 @@ export default {
           }else {
               this.$message.warning('问题类型未选择')
           }
-      },
-      //下拉框问题
-      chawenti(){
-          const wentilist = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          const firO = this.queryParams.firewareVersion
-          const subO = this.queryParams.subVersion
-          const protypeO = this.queryParams.typeProblem
-          const pronameO = this.queryParams.temProName
-          this.$set(wentilist,'brand',brandO)
-          this.$set(wentilist,'type',typeO)
-          this.$set(wentilist,'firewareVersion',firO)
-          this.$set(wentilist,'subVersion',subO)
-          this.$set(wentilist,'typeProblem',protypeO)
-          this.$set(wentilist,'temProName',pronameO)
-          return request({
-              url:'/sql/total_question_table/problemNameList',
-              method:'post',
-              data:JSON.stringify(wentilist)
-          }).then(response=>{
-              console.log(response)
-              this.proNameList = response
-          })
       },
       //获取问题ID
       cproId(){

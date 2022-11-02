@@ -270,7 +270,7 @@
           <el-form-item label="有无问题">
 <!--            prop="'dynamicItem.' + index + '.prodes'"-->
 <!--            <el-input v-model="item.prodes"></el-input>-->
-            <el-select v-model="item.tNextId" placeholder="异常安全、完成">
+            <el-select v-model="item.tNextId" filterable allow-create @blur="proNameShu" placeholder="异常、安全、完成、自定义">
               <el-option label="异常" value="有问题"></el-option>
               <el-option label="安全" value="无问题"></el-option>
               <el-option label="完成" value="完成"></el-option>
@@ -843,6 +843,13 @@ export default {
                 }
             }
         })
+      },
+      //有无问题、自定义输入
+      proNameShu(e){
+          let value = e.target.value
+          // if(value){
+          //    item.tNextId = value
+          // }
       },
       //下拉列表输入
       subShu(e){

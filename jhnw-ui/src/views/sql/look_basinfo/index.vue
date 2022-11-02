@@ -157,7 +157,7 @@
         </div>
         <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
           <el-form-item label="有无问题">
-            <el-select v-model="item.tNextId" placeholder="有无问题、完成">
+            <el-select v-model="item.tNextId" filterable allow-create placeholder="异常、安全、完成、自定义">
               <el-option label="异常" value="有问题"></el-option>
               <el-option label="安全" value="无问题"></el-option>
               <el-option label="完成" value="完成"></el-option>

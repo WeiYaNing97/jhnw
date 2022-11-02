@@ -70,7 +70,7 @@
             wsInit() {
                 // localhost 192.168.1.98
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/badao'
-                const wsuri = `wss://${location.host}/dev-api/websocket/badao${Cookies.get('usName')}`
+                const wsuri = `wss://${location.host}/dev-api/websocket/${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws
@@ -102,6 +102,7 @@
             },
             wsMessageHanler(e) {
                 console.log('wsMessageHanler')
+                console.log(e.data)
                 this.textarea = this.textarea + e.data;
                 this.$nextTick(()=>{
                     const textarea = document.getElementById('webt')

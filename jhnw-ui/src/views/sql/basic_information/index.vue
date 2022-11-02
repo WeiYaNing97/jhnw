@@ -9,7 +9,7 @@
         <el-input v-model="form.name" style="width: 120px" placeholder="请输入用户名" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="form.password" style="width: 150px" placeholder="请输入密码" />
+        <el-input v-model="form.password" type="password" style="width: 150px" placeholder="请输入密码" />
       </el-form-item>
       <el-form-item label="方式" prop="mode">
         <el-select v-model="form.mode" placeholder="方式" style="width: 100px">
@@ -24,13 +24,16 @@
         <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
       </el-form-item>
     </el-form>
-    <el-button type="primary" size="small" @click="ceshi1">单步执行</el-button>
     <hr style='border:1px inset #D2E9FF;'>
-
+<!--    <el-button type="primary" size="small" @click="cesh">测试</el-button>-->
     <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
       <el-form-item label="定义获取基本信息命令">
-        <el-input v-model="basicCom" type="text"></el-input>
+        <el-input v-model="basicCom" type="text" style="width:260px" placeholder="命令用逗号分隔"></el-input>
       </el-form-item>
+      <el-button type="primary" size="small" @click="ceshi1" style="margin-top: 11px;margin-left: 50px">预执行</el-button>
+      <div style="display: inline-block;margin-left: 20px">
+        <el-input v-model="returnInfo" placeholder="展示获取基本信息" style="width:500px"></el-input>
+      </div>
       <br/>
       <el-form-item label="命令分析逻辑:"></el-form-item>
       <el-form-item>
@@ -207,7 +210,7 @@
           <el-form-item label="有无问题">
             <!--            prop="'dynamicItem.' + index + '.prodes'"-->
             <!--            <el-input v-model="item.prodes"></el-input>-->
-            <el-select v-model="item.tNextId" placeholder="异常、安全、完成">
+            <el-select v-model="item.tNextId" filterable allow-create placeholder="异常、安全、完成、自定义">
               <el-option label="异常" value="有问题"></el-option>
               <el-option label="安全" value="无问题"></el-option>
               <el-option label="完成" value="完成"></el-option>
@@ -271,6 +274,7 @@
     import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, exportJh_test1 } from "@/api/sql/jh_test1";
     import TinymceEditor from "@/components/Tinymce/TinymceEditor"
     import request from '@/utils/request'
+    import  {MessageBox} from "element-ui"
     import { JSEncrypt } from 'jsencrypt'
 
     export default {
@@ -280,6 +284,8 @@
         },
         data() {
             return {
+                //
+                returnInfo:'',
                 //问题详情
                 particular:'',
                 partShow:true,
@@ -351,9 +357,8 @@
                     password:'',
                     mode:'ssh',
                     port:'',
-                    configureCiphers:''
+                    configureCiphers:null
                 },
-                deviceInfo:[],
                 forms: {
                     dynamicItem:[
                         {
@@ -380,15 +385,15 @@
             reloadv(){
 
             },
+            //测试
+            cesh(){
+                this.returnInfo = '设备品牌：H3C,型号：S2152，版本：5.20.99，子版本：1106'
+            },
             //单步执行
             ceshi1(){
-                // let deviceInfo = []
                 console.log(this.form)
-                // this.deviceInfo.push(this.form)
                 // var encrypt = new JSEncrypt()
                 // encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-                // var pass = encrypt.encrypt(this.deviceInfo[0].password)
-                // this.$set(this.deviceInfo[0],'password',pass)
                 // var pass = encrypt.encrypt(this.form.password)
                 // this.form.password = pass
                 // console.log(this.form.password)
@@ -451,8 +456,9 @@
                     method:'post',
                     data:handForm
                 }).then(response=>{
-                    this.$message.success('提交成功!')
+                    // this.$message.success('提交成功!')
                     console.log(response)
+                    this.returnInfo  = response
                 })
             },
             //下载
@@ -601,7 +607,7 @@
                 }
                 this.$set(item1,'checked',false)
                 const thisIndex = this.forms.dynamicItem.indexOf(item)
-                console.log(thisIndex)
+                // console.log(thisIndex)
                 //动态添加的样式空格问题
                 // console.log(this.$refs.btn[thisIndex])
                 // console.log(item)
@@ -699,57 +705,62 @@
             },
             //提交获取基本信息命令
             tijiao(){
+                MessageBox.confirm('确定提交吗？','提示').then(c=>{
+                    // this.zhidu = false
+                    //基本信息命令
+                    console.log(this.basicCom)
+                    console.log(typeof (this.basicCom))
+                    const useForm = []
+                    const useLess = []
+                    this.forms.dynamicItem.forEach(e=>{
+                        if (e.test === "test"){
+                            useLess.push(e)
+                        }else {
+                            useForm.push(e)
+                        }
+                    })
+                    useForm.forEach(eeee=>{
+                        const thisIndex = useForm.indexOf(eeee)
+                        if(useForm.length != thisIndex+1){
+                            const thisNext = useForm[thisIndex+1]
+                            this.$set(eeee,'nextIndex',thisNext.onlyIndex)
+                        }
+                        if (eeee.action === '取词'){
+                            eeee.length = `${eeee.length1}${eeee.classify}`
+                        }
+                        if (this.jiaoyan == '常规校验'){
+                            this.$set(eeee,'resultCheckId','1')
+                        }else {
+                            this.$set(eeee,'resultCheckId','0')
+                        }
+                        this.$set(eeee,'pageIndex',thisIndex+1)
+                        if (eeee.targetType == 'takeword'){
+                            const takeWordt = useForm.indexOf(eeee)
+                            var quciC = ''
+                            useForm.map((e11)=>{
+                                const takeWl = useForm.indexOf(e11)
+                                if(takeWl == takeWordt-1){
+                                    quciC = e11.matchContent
+                                }
+                            })
+                            this.$set(eeee,'matchContent',quciC)
+                        }
+                    })
+                    const handForm = useForm.map(x => JSON.stringify(x))
+                    console.log(handForm)
+                    return request({
+                        url:`/sql/DefinitionProblemController/insertInformationAnalysis?command=${this.basicCom}`,
+                        method:'post',
+                        data:handForm
+                    }).then(response=>{
+                        this.$message.success('提交成功!')
+                    })
+                    // window.location.reload()   刷新页面
+                    // this.$router.go(0)   刷新页面
+                }).catch(ee=>{
+                    this.$message.warning('取消提交!')
+                })
                 // this.forms.dynamicItem.shift(); hasOwnProperty(存在) 删除数组第一个元素
-                //基本信息命令
-                console.log(this.basicCom)
-                console.log(typeof (this.basicCom))
-                const useForm = []
-                const useLess = []
-                this.forms.dynamicItem.forEach(e=>{
-                    if (e.test === "test"){
-                        useLess.push(e)
-                    }else {
-                        useForm.push(e)
-                    }
-                })
-                useForm.forEach(eeee=>{
-                    const thisIndex = useForm.indexOf(eeee)
-                    if(useForm.length != thisIndex+1){
-                        const thisNext = useForm[thisIndex+1]
-                        this.$set(eeee,'nextIndex',thisNext.onlyIndex)
-                    }
-                    if (eeee.action === '取词'){
-                        eeee.length = `${eeee.length1}${eeee.classify}`
-                    }
-                    if (this.jiaoyan == '常规校验'){
-                        this.$set(eeee,'resultCheckId','1')
-                    }else {
-                        this.$set(eeee,'resultCheckId','0')
-                    }
-                    this.$set(eeee,'pageIndex',thisIndex+1)
-                    if (eeee.targetType == 'takeword'){
-                        const takeWordt = useForm.indexOf(eeee)
-                        var quciC = ''
-                        useForm.map((e11)=>{
-                            const takeWl = useForm.indexOf(e11)
-                            if(takeWl == takeWordt-1){
-                                quciC = e11.matchContent
-                            }
-                        })
-                        this.$set(eeee,'matchContent',quciC)
-                    }
-                })
-                const handForm = useForm.map(x => JSON.stringify(x))
-                console.log(handForm)
-                return request({
-                    url:`/sql/DefinitionProblemController/insertInformationAnalysis?command=${this.basicCom}`,
-                    method:'post',
-                    data:handForm
-                }).then(response=>{
-                    this.$message.success('提交成功!')
-                })
-                // window.location.reload()   刷新页面
-                // this.$router.go(0)   刷新页面
             },
 
             // 表单重置

@@ -85,7 +85,7 @@
       width="50%"
       :before-close="handleClose">
 <!--      <TinymceEditor :proxiang="proxiang" ref="abc"></TinymceEditor>-->
-      <el-input type="textarea" v-model="particular" rows="15" readonly="true"></el-input>
+      <el-input type="textarea" v-model="particular" rows="15" readonly></el-input>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
     <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -336,7 +336,7 @@
                     'color':'green'
                 }
                 if(row.column.label === '是否异常'){
-                    if (row.row.ifQuestion === '异常'){
+                    if (row.row.ifQuestion != '安全'){
                         return reds
                     }else if (row.row.ifQuestion === '已解决'){
                         return greens
