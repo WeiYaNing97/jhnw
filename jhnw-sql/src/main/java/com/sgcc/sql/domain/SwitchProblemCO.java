@@ -15,7 +15,11 @@ public class SwitchProblemCO
 {
     public Long hproblemId;
 
+    /*交换机扫描结果表 ID*/
     public Long questionId;
+
+    /*参数*/
+    public String dynamicInformation;
 
     /** 问题索引 */
     @Excel(name = "问题索引")
@@ -142,12 +146,20 @@ public class SwitchProblemCO
         this.problemDescribeId = problemDescribeId;
     }
 
+    public String getDynamicInformation() {
+        return dynamicInformation;
+    }
+
+    public void setDynamicInformation(String dynamicInformation) {
+        this.dynamicInformation = dynamicInformation;
+    }
 
     @Override
     public String toString() {
         return "SwitchProblemCO{" +
                 "hproblemId=" + hproblemId +
                 ", questionId=" + questionId +
+                ", dynamicInformation='" + dynamicInformation + '\'' +
                 ", problemId='" + problemId + '\'' +
                 ", ifQuestion='" + ifQuestion + '\'' +
                 ", comId='" + comId + '\'' +
@@ -159,4 +171,6 @@ public class SwitchProblemCO
                 ", valueInformationVOList=" + valueInformationVOList +
                 '}';
     }
+
+
 }

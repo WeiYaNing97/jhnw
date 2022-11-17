@@ -16,13 +16,13 @@ public class ServerEncoder implements Encoder.Text<ArrayList> {
 
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
+        //
         // 这里不重要
     }
 
     @Override
     public void init(EndpointConfig arg0) {
-        // TODO Auto-generated method stub
+        //
         // 这里也不重要
 
     }

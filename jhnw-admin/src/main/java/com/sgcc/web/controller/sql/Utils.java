@@ -25,6 +25,11 @@ public class Utils {
     }
 
     /**
+     *
+     * TODO 修整字符串 去除多余 "\r\n" 连续空格
+     *
+     * a
+     *
      * @method: 修整字符串
      * @Param: [resultString] 交换机返回信息
      * @E-mail: WeiYaNing97@163.com
@@ -74,6 +79,10 @@ public class Utils {
     }
 
     /**
+     * TODO 判断是否为错误命令
+     *
+     * a
+     *
     * @method: 判断是否为错误命令 或是否执行成功  简单判断
     * @Param: [str] 交换机返回信息
     * @return: boolean  判断命令是否错误 错误为false 正确为true
@@ -105,6 +114,11 @@ public class Utils {
 
 
     /**
+     * todo 判断是否故障
+     *
+     * a
+     *
+     *
      * @method: 判断是否故障
      * @Param: [str] 交换机返回信息
      * @return: boolean  判断命令是否故障 故障为false 正常为true
@@ -361,6 +375,11 @@ public class Utils {
     }
 
     /**
+     * TODO 取词逻辑
+     *
+     *
+     * a
+     *
      * @method: 取词 按位置取词
      * //取词方法
      * @Param: [     action提取方法 ：取词 取版本, returnString 返回信息的一行, matchContent 提取关键字, integer 位置, length 长度WLs]
@@ -518,6 +537,9 @@ public class Utils {
     }
 
     /**
+     * todo 匹配方法
+     *
+     *
      * @method: 匹配方法
      * matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
      * @Param: [matchType  精确匹配  模糊匹配  不存在
@@ -578,6 +600,10 @@ public class Utils {
 
 
     /**
+     * todo 去除登录信息
+     *
+     * a
+     *
      * @method: 去除登录信息
      * @Param: [switchInformation]
      * @return: java.lang.String

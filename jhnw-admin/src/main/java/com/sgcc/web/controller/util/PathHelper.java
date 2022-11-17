@@ -30,7 +30,6 @@ public class PathHelper {
                 writefile.createNewFile();
                 writefile = new File(path);
             } catch (IOException e) {
-                // TODO 自动生成的 catch 块
                 e.printStackTrace();
             }
         }
@@ -40,7 +39,6 @@ public class PathHelper {
                 writefile.createNewFile();
                 writefile = new File(path);
             } catch (IOException e) {
-                // TODO 自动生成的 catch 块
                 e.printStackTrace();
             }
         }*/
@@ -52,7 +50,6 @@ public class PathHelper {
             fw.close();
 
         } catch (IOException e) {
-            // TODO 自动生成的 catch 块
             e.printStackTrace();
         }
     }

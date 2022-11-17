@@ -58,5 +58,5 @@ public interface CommandLogicMapper
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteCommandLogicByIds(Long[] ids);
+    public int deleteCommandLogicByIds(String[] ids);
 }

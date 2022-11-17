@@ -79,7 +79,6 @@ public class RSAUtils {
 			PublicKey publicKey = factory.generatePublic(x509EncodedKeySpec);
 			return publicKey;
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidKeySpecException e) {
 			e.printStackTrace();
@@ -99,7 +98,6 @@ public class RSAUtils {
 			PrivateKey privateKey = factory.generatePrivate(pkcs8EncodedKeySpec);
 			return privateKey;
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidKeySpecException e) {
 			e.printStackTrace();

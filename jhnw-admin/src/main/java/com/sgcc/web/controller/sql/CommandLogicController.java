@@ -100,7 +100,7 @@ public class CommandLogicController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:command_logic:remove')")
     @Log(title = "命令逻辑", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable String[] ids)
     {
         return toAjax(commandLogicService.deleteCommandLogicByIds(ids));
     }

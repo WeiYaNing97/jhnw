@@ -76,7 +76,7 @@ public class CommandLogicServiceImpl implements ICommandLogicService
      * @return 结果
      */
     @Override
-    public int deleteCommandLogicByIds(Long[] ids)
+    public int deleteCommandLogicByIds(String[] ids)
     {
         return commandLogicMapper.deleteCommandLogicByIds(ids);
     }

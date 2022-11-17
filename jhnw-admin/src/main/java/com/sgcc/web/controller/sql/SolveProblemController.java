@@ -244,9 +244,10 @@ public class SolveProblemController {
             return AjaxResult.error("交换机连接失败");
         }
 
-        List<Object> objectList = (List<Object>) requestConnect_ajaxResult.get("data");
+        Map<String,Object> objectMap = (Map<String,Object>) requestConnect_ajaxResult.get("data");
+
         //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
-        String requestConnect_way = objectList.get(1).toString();
+        String requestConnect_way = (String) objectMap.get("way");
         //SSH 连接工具
         SshConnect sshConnect = null;
         //SSH 连接工具
@@ -255,11 +256,11 @@ public class SolveProblemController {
         //如果连接方式为ssh则 连接方法返回集合参数为 connectMethod参数
         //如果连接方式为telnet则 连接方法返回集合参数为 telnetSwitchMethod参数
         if (requestConnect_way.equalsIgnoreCase("ssh")){
-            connectMethod = (SshMethod)objectList.get(6);
-            sshConnect = (SshConnect)objectList.get(8);
+            connectMethod = (SshMethod)objectMap.get("connectMethod");
+            sshConnect = (SshConnect)objectMap.get("sshConnect");
         }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-            telnetSwitchMethod = (TelnetSwitchMethod)objectList.get(7);
-            telnetComponent = (TelnetComponent)objectList.get(9);
+            telnetSwitchMethod = (TelnetSwitchMethod)objectMap.get("telnetSwitchMethod");
+            telnetComponent = (TelnetComponent)objectMap.get("telnetComponent");
         }
 
         //解析返回参数

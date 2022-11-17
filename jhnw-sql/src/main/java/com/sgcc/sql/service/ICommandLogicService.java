@@ -50,7 +50,7 @@ public interface ICommandLogicService
      * @param ids 需要删除的命令逻辑主键集合
      * @return 结果
      */
-    public int deleteCommandLogicByIds(Long[] ids);
+    public int deleteCommandLogicByIds(String[] ids);
 
     /**
      * 删除命令逻辑信息

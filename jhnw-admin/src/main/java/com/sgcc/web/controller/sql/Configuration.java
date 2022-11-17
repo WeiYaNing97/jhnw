@@ -13,7 +13,7 @@ public class Configuration {
     /** 最大超时时间 */
     public static Long maximumTimeout;
 
-    /** 最大超时时间 */
+    /** 最大循环次数*/
     public static Long numberOfCycles;
 
     /** 标识符 */

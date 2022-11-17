@@ -17,11 +17,14 @@ import com.sgcc.sql.domain.TotalQuestionTableCO;
 import com.sgcc.sql.domain.TotalQuestionTableVO;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.system.service.ISysUserService;
+import com.sgcc.web.controller.util.PathHelper;
+import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -79,7 +82,10 @@ public class TotalQuestionTableController extends BaseController
 
 
     /**
-     * 查询问题及命令列表PojoList
+     *
+     * a
+     *
+     * 查询交换机问题列表PojoList
      */
     @RequestMapping("/selectPojoList")
     public List<TotalQuestionTable> selectPojoList(@RequestBody TotalQuestionTable totalQuestionTable)
@@ -115,7 +121,10 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
-     * 获取问题及命令详细信息
+     *
+     * a
+     *
+     * 获取交换机问题的详细信息
      */
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:query')")
     @GetMapping(value = "/{id}")
@@ -197,12 +206,21 @@ public class TotalQuestionTableController extends BaseController
 
 
     /**
-     * 新增问题及命令
+     *
+     * a
+     *
+     *
+     * 新增问题
+     * @param totalQuestionTable
+     * @return
      */
     @RequestMapping("add")
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable)
     {
+        //系统登陆人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
         TotalQuestionTable pojo = new TotalQuestionTable();
         String brand = null;
         if (!(totalQuestionTable.getBrand().equals(""))){
@@ -241,13 +259,21 @@ public class TotalQuestionTableController extends BaseController
         pojo.setTemProName(temProName);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
         if (totalQuestionTables.size() != 0){
+
+            //传输登陆人姓名 及问题简述
+            WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"交换机问题已存在\r\n");
+            try {
+                //插入问题简述及问题路径
+                PathHelper.writeDataToFile("风险："+"交换机问题已存在\r\n"
+                        +"方法com.sgcc.web.controller.sql.total_question_table.add");
+            } catch ( IOException e) {
+                e.printStackTrace();
+            }
+
             return  AjaxResult.error("问题已存在");
         }
         int insert = 0;
         try{
-            if (totalQuestionTable.getBrand().equals("")){
-                totalQuestionTable.setBrand("*");
-            }
             if (totalQuestionTable.getType().equals("")){
                 totalQuestionTable.setType("*");
             }
@@ -261,6 +287,15 @@ public class TotalQuestionTableController extends BaseController
 
         }catch (Exception e){
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
+                //传输登陆人姓名 及问题简述
+                WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"SQL唯一约束异常,问题已存在\r\n");
+                try {
+                    //插入问题简述及问题路径
+                    PathHelper.writeDataToFile("风险："+"SQL唯一约束异常,问题已存在\r\n"
+                            +"方法com.sgcc.web.controller.sql.total_question_table.add");
+                } catch ( IOException e1) {
+                    e1.printStackTrace();
+                }
                 //返回成功
                 return  AjaxResult.error("SQL唯一约束异常,问题已存在");
             }

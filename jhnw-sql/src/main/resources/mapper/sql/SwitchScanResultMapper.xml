@@ -21,6 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <collection property="switchProblemCOList"  ofType="com.sgcc.sql.domain.SwitchProblemCO"
                     javaType="java.util.ArrayList">
             <result property="questionId"    column="question_id"    />
+            <result property="dynamicInformation"    column="dynamic_information"    />
             <result property="problemId"    column="problem_id"    />
             <result property="ifQuestion"    column="if_question"    />
             <result property="comId"    column="com_id"    />
@@ -64,6 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="pojoVo">
         select
         ssrt.id question_id,
+        ssrt.dynamic_information dynamic_information,
         ssrt.switch_ip switch_ip,
         ssrt.brand brand,
         ssrt.switch_type switch_type,

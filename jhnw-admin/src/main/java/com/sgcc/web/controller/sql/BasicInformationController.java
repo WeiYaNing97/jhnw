@@ -104,6 +104,8 @@ public class BasicInformationController extends BaseController
     }
 
     /**
+     * a
+     *
      * 查询获取基本信息命令列表
      */
     @GetMapping("/getPojolist")
