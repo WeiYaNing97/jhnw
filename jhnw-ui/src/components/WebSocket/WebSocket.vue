@@ -1,11 +1,38 @@
 <template>
   <div>
 <!--    <el-button @click="sendDataToServer" >给后台发送消息</el-button>-->
-    <el-input
-      id="webt"
-      type="textarea"
-      style="white-space: pre-wrap;"
-      v-model="textarea" :rows="10" readonly></el-input>
+<!--    <el-input-->
+<!--      id="webt"-->
+<!--      type="textarea"-->
+<!--      style="white-space: pre-wrap;"-->
+<!--      v-model="textarea" :rows="10" readonly></el-input>-->
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+      <el-tab-pane label="系统信息" name="first">
+        <el-input
+          id="webtTwo"
+          resize="none"
+          type="textarea"
+          style="white-space: pre-wrap;"
+          v-model="textareaInfo" :rows="10" readonly></el-input>
+      </el-tab-pane>
+      <el-tab-pane label="发送与接收" name="second">
+        <el-input
+          resize="none"
+          id="webtOne"
+          type="textarea"
+          style="white-space: pre-wrap;"
+          v-model="textareaOne" :rows="10" readonly></el-input>
+      </el-tab-pane>
+      <el-tab-pane label="风险" name="third">
+        <el-input
+          id="webtThree"
+          resize="none"
+          type="textarea"
+          style="white-space: pre-wrap;"
+          v-model="textareaRisk" :rows="10" readonly></el-input>
+      </el-tab-pane>
+    </el-tabs>
+
   </div>
 </template>
 
@@ -15,6 +42,7 @@
         name: "WebSocket",
         data() {
             return {
+                activeName:'second',
                 //扫描结束
                 saoend:false,
                 //修复结束
@@ -27,7 +55,10 @@
                 ws: '',
                 // ws定时器
                 wsTimer: null,
-                textarea:''
+                textarea:'',
+                textareaOne:'',
+                textareaRisk:'',
+                textareaInfo:''
             }
         },
         async mounted() {
@@ -36,12 +67,12 @@
         },
         watch:{
             //检测扫描结束、修复结束
-            textarea(){
-                if (this.textarea.includes('扫描结束')){
+            textareaOne(){
+                if (this.textareaOne.includes('扫描结束')){
                     this.saoend = true
                     console.log(this.saoend)
                 }
-                if (this.textarea.includes('修复结束')){
+                if (this.textareaOne.includes('修复结束')){
                     this.repairend = true
                 }
             }
@@ -50,6 +81,10 @@
             const usname = Cookies.get('usName')
         },
         methods: {
+            //
+            handleClick(tab, event) {
+                console.log(tab, event);
+            },
             //给父组件显示
             geifuone(){
               return this.saoend
@@ -101,12 +136,25 @@
                 console.log('ws建立连接成功')
             },
             wsMessageHanler(e) {
-                console.log('wsMessageHanler')
-                console.log(e.data)
-                this.textarea = this.textarea + e.data;
+                // console.log('wsMessageHanler')
+                // console.log(e.data)
+                if (e.data.indexOf('发送和接收') != -1){
+                    this.textareaOne = this.textareaOne + e.data
+                }else if (e.data.indexOf('系统信息') != -1){
+                    this.textareaInfo = this.textareaInfo + e.data
+                }else if (e.data.indexOf('风险') != -1){
+                    this.textareaRisk = this.textareaRisk + e.data
+                }
+                // this.textarea = this.textarea + e.data;
                 this.$nextTick(()=>{
-                    const textarea = document.getElementById('webt')
-                    textarea.scrollTop = textarea.scrollHeight
+                    // const textarea = document.getElementById('webt')
+                    const textareaOne = document.getElementById('webtOne')
+                    const textareaTwo = document.getElementById('webtTwo')
+                    const textareaThree = document.getElementById('webtThree')
+                    // textarea.scrollTop = textarea.scrollHeight
+                    textareaOne.scrollTop = textareaOne.scrollHeight
+                    textareaTwo.scrollTop = textareaTwo.scrollHeight
+                    textareaThree.scrollTop = textareaThree.scrollHeight
                 })
             },
             /**

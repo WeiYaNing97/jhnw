@@ -129,7 +129,11 @@ export default {
   name: "Look_solve",
   data() {
     return {
-      // 遮罩层
+        //返回列表个数
+        lieNum:0,
+        //返回列表复制
+        returnCopy:[],
+        // 遮罩层
         //
         lookCha:[],
         //只读
@@ -218,74 +222,62 @@ export default {
       },
       //先返回该问题ID，然后回显
       chakan(){
-          this.showNo = true
-          this.forms.dynamicItem = this.formss.dynamicItemss
-          console.log(this.queryParams)
-          let form = new FormData();
-          for (var key in this.queryParams){
-              form.append(key,this.queryParams[key]);
-          }
-          return request({
-              url:'/sql/total_question_table/totalQuestionTableId',
-              method:'post',
-              data:form
-          }).then(response=>{
-              this.proId = response
+          if (this.lieNum !=1){
+              //TODO 做标记用的
+              alert('查找条件过于模糊,请完善!')
+          }else {
+              this.queryParams.brand = this.returnCopy[0].brand
+              this.queryParams.type = this.returnCopy[0].type
+              this.queryParams.firewareVersion = this.returnCopy[0].firewareVersion
+              this.queryParams.subVersion = this.returnCopy[0].subVersion
+              this.queryParams.typeProblem = this.returnCopy[0].typeProblem
+              this.queryParams.temProName = this.returnCopy[0].temProName
+              this.queryParams.problemName = this.returnCopy[0].problemName
+              // this.showNo = true
+              this.forms.dynamicItem = this.formss.dynamicItemss
+              console.log(this.queryParams)
               let form = new FormData()
-              form.append('totalQuestionTableId',this.proId)
+              for (var key in this.queryParams){
+                  form.append(key,this.queryParams[key]);
+              }
               return request({
-                  url:'/sql/SolveProblemController/queryCommandListBytotalQuestionTableId',
+                  url:'/sql/total_question_table/totalQuestionTableId',
                   method:'post',
                   data:form
               }).then(response=>{
-                  console.log(response)
-                  response.forEach(ee=>{
-                      const wei = ee.replace(/=/g,":")
-                      this.wDa.push(JSON.parse(wei))
-                  })
-                  this.wDa.forEach(e=>{
-                      this.lookCha = []
-                      if (e.para == ''){
-                          this.$set(e,'targetType','command')
-                          this.lookCha.push(e)
-                      }else if (e.para != ''){
-                          this.$set(e,'targetType','compar')
-                          this.lookCha.push(e)
+                  this.proId = response
+                  let form = new FormData()
+                  form.append('totalQuestionTableId',this.proId)
+                  return request({
+                      url:'/sql/SolveProblemController/queryCommandListBytotalQuestionTableId',
+                      method:'post',
+                      data:form
+                  }).then(response=>{
+                      console.log(response)
+                      if (response.length != 0){
+                          this.showNo = true
+                          response.forEach(ee=>{
+                              const wei = ee.replace(/=/g,":")
+                              this.wDa.push(JSON.parse(wei))
+                          })
+                          this.wDa.forEach(e=>{
+                              this.lookCha = []
+                              if (e.para == ''){
+                                  this.$set(e,'targetType','command')
+                                  this.lookCha.push(e)
+                              }else if (e.para != ''){
+                                  this.$set(e,'targetType','compar')
+                                  this.lookCha.push(e)
+                              }
+                          })
+                          this.lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+                          this.forms.dynamicItem = this.forms.dynamicItem.concat(this.lookCha)
+                      }else {
+                          alert('未定义该问题解决逻辑，请定义!')
                       }
                   })
-                  this.lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
-                  this.forms.dynamicItem = this.forms.dynamicItem.concat(this.lookCha)
               })
-          })
-          // axios({
-          //     url:'http://192.168.1.98/dev-api/sql/total_question_table/totalQuestionTableId',
-          //     data:form
-          // }).then(res=>{
-          //     this.proId = res.data
-          //     let form = new FormData();
-          //     form.append('totalQuestionTableId',this.proId)
-          //     axios({
-          //         url:'http://192.168.1.98/dev-api/sql/SolveProblemController/queryCommandListBytotalQuestionTableId',
-          //         data:form
-          //     }).then(res=>{
-          //         res.data.forEach(ee=>{
-          //             const wei = ee.replace(/=/g,":")
-          //             this.wDa.push(JSON.parse(wei))
-          //         })
-          //         const lookCha = []
-          //         this.wDa.forEach(e=>{
-          //             if (e.para == ''){
-          //                 this.$set(e,'targetType','command')
-          //                 lookCha.push(e)
-          //             }else if (e.para != ''){
-          //                 this.$set(e,'targetType','compar')
-          //                 lookCha.push(e)
-          //             }
-          //         })
-          //         lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
-          //         this.forms.dynamicItem = this.forms.dynamicItem.concat(lookCha)
-          //     })
-          // })
+          }
       },
       //提交
       submitUseForm(){
@@ -372,6 +364,8 @@ export default {
               data:newPar
           }).then(response=>{
               console.log(response)
+              this.lieNum = response.length
+              this.returnCopy = response
               this.genList = this.quchong(response,this.who)
               let kong = {
                   [this.who] : 'null'

@@ -1,118 +1,137 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
-      <el-form-item label="设备基本信息:"></el-form-item>
-      <el-form-item label="品牌" prop="brand">
-        <el-select v-model="queryParams.brand" placeholder="品牌"
-                   name="brand" @focus="general($event)" style="width: 150px">
-          <el-option v-for="(item,index) in genList"
-                     :key="index" :label="item.brand" :value="item.brand"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="型号" prop="type">
-        <el-select v-model="queryParams.type" placeholder="型号"
-                   name="type" @focus="general($event)" style="width: 150px">
-          <el-option v-for="(item,index) in genList"
-                     :key="index" :label="item.type" :value="item.type"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="固件版本" prop="firewareVersion">
-        <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                   name="firewareVersion" @focus="general($event)" style="width: 150px">
-          <el-option v-for="(item,index) in genList"
-                     :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="子版本" prop="subVersion">
-        <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                   name="subVersion" @focus="general($event)" style="width: 150px">
-          <el-option v-for="(item,index) in genList"
-                     :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
-        </el-select>
-      </el-form-item>
-      <br/>
-      <el-form-item label="问题概要:"></el-form-item>
-      <el-form-item label="问题类型" prop="typeProblem">
-        <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
-                   name="typeProblem" @focus="general($event)">
-          <el-option v-for="(item,index) in genList" :key="index"
-                     :label="item.typeProblem" :value="item.typeProblem"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="范式名称">
-        <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                   name="temProName" @focus="general($event)">
-          <el-option v-for="(item,index) in genList" :key="index"
-                     :label="item.temProName" :value="item.temProName"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="问题名称">
-        <el-select v-model="queryParams.problemName" placeholder="请选择问题"
-                   name="problemName" @focus="general($event)">
-          <el-option v-for="(item,index) in genList" :key="index"
-                     :label="item.problemName" :value="item.problemName"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="chakan">定义修复命令</el-button>
-      </el-form-item>
-    </el-form>
-    <hr style='border:1px inset #D2E9FF;'>
-    <el-form ref="forms" :inline="true" :model="forms" v-show="showNo">
-      <el-form-item label="解决命令:"></el-form-item>
-      <el-form-item>
-        <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
-      </el-form-item>
-      <div v-for="(item,index) in forms.dynamicItem" :key="index" :label="index">
-        <el-form-item v-if="index!=0">
-          <el-checkbox v-model="item.checked"></el-checkbox>
-        </el-form-item>
-        <el-form-item v-if="index!=0">{{index}}</el-form-item>
-        <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
-        <div v-if="item.targetType === 'command'" :key="index" style="display: inline-block">
-          <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
-            <el-input v-model="item.command"></el-input>
+    <el-row>
+      <el-col :span="18">
+        <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
+          <el-form-item label="设备基本信息:"></el-form-item>
+          <el-form-item label="品牌" prop="brand">
+            <el-select v-model="queryParams.brand" placeholder="品牌"
+                       name="brand" @focus="general($event)" style="width: 150px">
+              <el-option v-for="(item,index) in genList"
+                         :key="index" :label="item.brand" :value="item.brand"></el-option>
+            </el-select>
           </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+          <el-form-item label="型号" prop="type">
+            <el-select v-model="queryParams.type" placeholder="型号"
+                       name="type" @focus="general($event)" style="width: 150px">
+              <el-option v-for="(item,index) in genList"
+                         :key="index" :label="item.type" :value="item.type"></el-option>
+            </el-select>
           </el-form-item>
-        </div>
-        <div v-if="item.targetType === 'compar'" :key="index" style="display: inline-block">
-          <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
-            <el-input v-model="item.command"></el-input>
+          <el-form-item label="固件版本" prop="firewareVersion">
+            <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
+                       name="firewareVersion" @focus="general($event)" style="width: 150px">
+              <el-option v-for="(item,index) in genList"
+                         :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
+            </el-select>
           </el-form-item>
-          <el-form-item label="参数">
-            <el-select v-model="item.para" placeholder="参数"
-                       @focus="paraLi" style="width: 150px">
-              <el-option v-for="(item,index) in paraList"
-                         :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+          <el-form-item label="子版本" prop="subVersion">
+            <el-select v-model="queryParams.subVersion" placeholder="子版本"
+                       name="subVersion" @focus="general($event)" style="width: 150px">
+              <el-option v-for="(item,index) in genList"
+                         :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
+            </el-select>
+          </el-form-item>
+          <br/>
+          <el-form-item label="问题概要:"></el-form-item>
+          <el-form-item label="问题类型" prop="typeProblem">
+            <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
+                       name="typeProblem" @focus="general($event)">
+              <el-option v-for="(item,index) in genList" :key="index"
+                         :label="item.typeProblem" :value="item.typeProblem"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="范式名称">
+            <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
+                       name="temProName" @focus="general($event)">
+              <el-option v-for="(item,index) in genList" :key="index"
+                         :label="item.temProName" :value="item.temProName"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="问题名称">
+            <el-select v-model="queryParams.problemName" placeholder="请选择问题"
+                       name="problemName" @focus="general($event)">
+              <el-option v-for="(item,index) in genList" :key="index"
+                         :label="item.problemName" :value="item.problemName"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
-            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+            <el-button type="primary" @click="repair">定义修复命令</el-button>
           </el-form-item>
+        </el-form>
+        <hr style='border:1px inset #D2E9FF;'>
+        <el-form ref="forms" :inline="true" :model="forms" v-show="showNo">
+          <el-form-item label="解决命令:"></el-form-item>
+          <el-form-item>
+            <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
+          </el-form-item>
+          <div v-for="(item,index) in forms.dynamicItem" :key="index" :label="index">
+            <el-form-item v-if="index!=0">
+              <el-checkbox v-model="item.checked"></el-checkbox>
+            </el-form-item>
+            <el-form-item v-if="index!=0">{{index}}</el-form-item>
+            <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+            <div v-if="item.targetType === 'command'" :key="index" style="display: inline-block">
+              <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
+                <el-input v-model="item.command"></el-input>
+              </el-form-item>
+              <el-form-item>
+                <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+              </el-form-item>
+            </div>
+            <div v-if="item.targetType === 'compar'" :key="index" style="display: inline-block">
+              <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
+                <el-input v-model="item.command"></el-input>
+              </el-form-item>
+              <el-form-item label="参数">
+                <el-select v-model="item.para" placeholder="参数"
+                           @focus="paraLi" style="width: 150px">
+                  <el-option v-for="(item,index) in paraList"
+                             :key="index" :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item>
+                <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+              </el-form-item>
+            </div>
+            <el-form-item>
+              <el-dropdown trigger="click">
+                <el-button type="primary"><i class="el-icon-plus"></i></el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item>
+                    <el-button @click="addItem('command',item)" type="primary">命令</el-button>
+                  </el-dropdown-item>
+                  <el-dropdown-item>
+                    <el-button @click="addItem('compar',item)" type="primary">命令+参数</el-button>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </el-form-item>
+          </div>
+          <el-form-item>
+            <el-button @click="submitUseForm" type="primary">提交</el-button>
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <el-col :span="6">
+        <div style="border-left: 1px solid #DCDFE6;padding-left: 5px">
+          <el-input
+            v-model="deptName"
+            placeholder="请输入关键字过滤"
+            clearable
+            size="small"
+            prefix-icon="el-icon-search"
+            style="margin-bottom: 20px;width: 80%"
+          />
+          <el-tree :data="lookLists" :default-expand-all="zhankaiAll"
+                   :props="defaultProps" :filter-node-method="filterNode"
+                   @node-click="handleNodeClick" ref="treeone"></el-tree>
         </div>
-        <el-form-item>
-          <el-dropdown trigger="click">
-            <el-button type="primary"><i class="el-icon-plus"></i></el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>
-                <el-button @click="addItem('command',item)" type="primary">命令</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('compar',item)" type="primary">命令+参数</el-button>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </el-form-item>
-      </div>
-      <el-form-item>
-        <el-button @click="submitUseForm" type="primary">提交</el-button>
-      </el-form-item>
-    </el-form>
+      </el-col>
+    </el-row>
 
   </div>
 </template>
@@ -129,6 +148,16 @@ export default {
     },
   data() {
     return {
+        deptName:undefined,
+        //右侧列表查看问题集合
+        lookLists:[],
+        //右侧列表全部展开
+        zhankaiAll:true,
+        //
+        defaultProps: {
+            children: 'children',
+            label: 'label'
+        },
         //通用基本信息下拉集合
         genList:[],
       proNameList:[],
@@ -200,7 +229,18 @@ export default {
     mounted:function(){
 
     },
+    watch:{
+        // 根据输入筛选专项
+        deptName(val) {
+            this.$refs.treeone.filter(val);
+        },
+    },
   methods: {
+      //筛选条件
+      filterNode(value, data){
+          if (!value) return true;
+          return data.label.indexOf(value) !== -1;
+      },
       //点击末尾删除图标
       deleteItem (item, index) {
           this.forms.dynamicItem.splice(index,1)
@@ -224,6 +264,24 @@ export default {
               data:newPar
           }).then(response=>{
               console.log(response)
+              this.lookLists = []
+              //转化为树结构
+              for (let i = 0;i<response.length;i++){
+                  let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
+                  let loser = {
+                      label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
+                      children: [{
+                          label:response[i].problemName,
+                          id:response[i].id
+                          // children:[{
+                          //     label:response[i].temProName,
+                          //     id:response[i].id
+                          // }]
+                      }]
+                  }
+                  this.lookLists.push(loser)
+              }
+
               this.genList = this.quchong(response,this.who)
               let kong = {
                   [this.who] : 'null'
@@ -231,30 +289,54 @@ export default {
               this.genList.push(kong)
           })
       },
-      //获取该问题ID
-      chakan(){
-          let form = new FormData();
-          console.log(this.queryParams)
-          for (var key in this.queryParams){
-              if (key != 'notFinished'&&key != 'commandId'){
-                  form.append(key,this.queryParams[key])
-              }
-          }
+      //右侧列表点击
+      handleNodeClick(lookLists){
+          this.proId = lookLists.id
+          console.log(this.proId)
           return request({
-              url:'/sql/total_question_table/totalQuestionTableId',
-              method:'post',
-              data:form
+              url:'/sql/total_question_table/'+ this.proId,
+              method:'get',
           }).then(response=>{
-              console.log(response+'sssss')
-              if (typeof (response) === 'number'){
-                  this.showNo = true
-                  this.proId = response
-                  console.log(this.proId)
-              }else {
-                  this.$message.warning('未定义该问题!请先定义问题!')
-              }
-
+              console.log(response)
+              this.queryParams.brand = response.data.brand
+              this.queryParams.type = response.data.type
+              this.queryParams.firewareVersion = response.data.firewareVersion
+              this.queryParams.subVersion = response.data.subVersion
+              this.queryParams.typeProblem = response.data.typeProblem
+              this.queryParams.temProName = response.data.temProName
+              this.queryParams.problemName = response.data.problemName
+              this.showNo = true
           })
+      },
+      //获取该问题ID
+      repair(){
+          if (this.lookLists.length != 1 && this.showNo === false){
+              alert('条件过于模糊,请完善!')
+          }else if (this.showNo === true){
+              alert('修复定义已显示，请勿重复点击!')
+          } else {
+              let form = new FormData()
+              console.log(this.queryParams)
+              for (var key in this.queryParams){
+                  if (key != 'notFinished'&&key != 'commandId'){
+                      form.append(key,this.queryParams[key])
+                  }
+              }
+              return request({
+                  url:'/sql/total_question_table/totalQuestionTableId',
+                  method:'post',
+                  data:form
+              }).then(response=>{
+                  console.log(response+'sssss')
+                  if (typeof (response) === 'number'){
+                      this.showNo = true
+                      this.proId = response
+                      console.log(this.proId)
+                  }else {
+                      this.$message.warning('未定义该问题!请先定义问题!')
+                  }
+              })
+          }
       },
       //提交
       submitUseForm(){
@@ -480,3 +562,14 @@ export default {
   }
 };
 </script>
+
+<style>
+  /*.el-divider--vertical{*/
+  /*  !*display:inline-block;*!*/
+  /*  !*width:1px;*!*/
+  /*  height:100%;*/
+  /*  !*margin:0 8px;*!*/
+  /*  !*vertical-align:middle;*!*/
+  /*  !*position:relative;*!*/
+  /*}*/
+</style>

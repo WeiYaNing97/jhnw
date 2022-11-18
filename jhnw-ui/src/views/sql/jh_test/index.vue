@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
-      <el-form-item style="margin-left: 15px">
+      <el-form-item style="margin-left: 15px;width: 100%">
         <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
@@ -16,15 +16,20 @@
                  style="height: 30px;cursor: pointer">
           <br/>
           <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>
+          <br/>
+          <span>无模板请下载模板:</span>
+          <el-button type="text" size="small" icon="el-icon-download"
+                     @click="xiazai" style="margin-left: 10px">下载模板</el-button>
           <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="daorusure">确 定</el-button>
           </span>
         </el-dialog>
-        <el-button type="primary" size="small" icon="el-icon-download"
-                   @click="xiazai" style="margin-left: 10px">下载模板</el-button>
-        <el-input-number size="small" style="margin-left: 10px" v-model="num" controls-position="right"
-                         @change="handleChange" :min="1" :max="5"></el-input-number>
+        <div style="display: inline-block;float: right;margin-right: 100px">
+          <p style="display: inline-block;margin: 0">允许最大扫描进程数:</p>
+          <el-input-number size="small" style="width:75px" v-model="num" controls-position="right"
+                           @change="handleChange" :min="1" :max="5"></el-input-number>
+        </div>
 <!--        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
       <el-divider></el-divider>
@@ -33,8 +38,8 @@
           <!--      表格展示列表-->
           <p style="margin: 0;text-align: center">扫描设备信息</p>
           <el-table :data="tableData" style="width: 100%"
-                    max-height="300" @select="xuanze">
-            <el-table-column type="index" width="50"></el-table-column>
+                    max-height="300" ref="tableData" @select="xuanze">
+            <el-table-column type="index" width="40"></el-table-column>
             <el-table-column type="selection" width="45"></el-table-column>
             <el-table-column prop="ip" label="设备IP" width="130">
               <template slot-scope="{ row }">
@@ -71,7 +76,6 @@
                 <span v-else>{{ row.port }}</span>
               </template>
             </el-table-column>
-
             <el-table-column prop="configureCiphers" label="配置密码" width="80">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
@@ -79,12 +83,12 @@
                 <span v-else>{{ row.conCip }}</span>
               </template>
             </el-table-column>
-
-            <el-table-column label="操作" width="100">
+            <el-table-column label="操作" width="120">
               <template slot-scope="{ row }">
                 <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small">确定</el-button>
                 <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
                 <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
+                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -204,17 +208,19 @@ export default {
         //查询树
         deptName:undefined,
         shuru:false,
-        tableData: [{
-            ip: '',
-            name: '',
-            password:'',
-            passmi:'********',
-            mode:'ssh',
-            port:22,
-            isEdit:false,
-            conCip:'********',
-            configureCiphers:''
-        }],
+        tableData: [
+        //     {
+        //     ip: '',
+        //     name: '',
+        //     password:'',
+        //     passmi:'********',
+        //     mode:'ssh',
+        //     port:22,
+        //     isEdit:false,
+        //     conCip:'********',
+        //     configureCiphers:''
+        // }
+        ],
         xuanzhong:[
 
         ],
@@ -314,6 +320,12 @@ export default {
                 alert('扫描已结束!')
             }
         },
+        //默认全部选中
+        tableData(){
+            this.$nextTick(()=>{
+
+            })
+        }
     },
   created() {
       this.xunhuanxiufu()
@@ -737,5 +749,11 @@ export default {
   }
   .el-divider--horizontal{
     margin: 10px 0;
+  }
+  .el-form-item__content{
+    width: 100%;
+  }
+  .el-dialog__body{
+    padding: 20px 20px;
   }
 </style>

@@ -3,7 +3,7 @@
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="基本信息命令" prop="brand">
         <el-select v-model="basicCom" placeholder="基本信息命令"
-                   filterable allow-create @focus="brandLi" style="width: 250px">
+                   filterable allow-create @focus="basComs" style="width: 250px">
           <el-option v-for="(item,index) in comsss"
                      :value-key="index" :label="item.command" :value="item.problemId"></el-option>
         </el-select>
@@ -13,6 +13,9 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="xiugai" type="primary">编辑</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="shanchutest" type="primary" v-show="shanShow">删除</el-button>
       </el-form-item>
     </el-form>
 
@@ -207,7 +210,6 @@
       <el-form-item>
         <el-button @click="submitUseForm" type="primary">提交</el-button>
       </el-form-item>
-
     </el-form>
   </div>
 </template>
@@ -223,6 +225,8 @@
         name: "Look_basinfo",
         data() {
             return {
+                //删除按钮是否显示
+                shanShow:false,
                 //全文、按行、比较
                 allOne:[],
                 allTwo:[],
@@ -430,7 +434,7 @@
                 })
             },
             //下拉框获取后台数据
-            brandLi(){
+            basComs(){
                 return request({
                     url:'/sql/basic_information/getPojolist',
                     method:'get',
@@ -445,6 +449,7 @@
                 if (this.basicCom === ''){
                     alert('查询条件不能为空！')
                 }else {
+                    this.shanShow = true
                     this.comsss.forEach(e=>{
                         if (this.basicCom === e.problemId){
                             this.proId = e.id
@@ -508,7 +513,7 @@
                                 this.huicha.push(chae)
                             }else if (chae.action === '取词'){
                                 this.$set(chae,'targetType','takeword')
-                                console.log(chae.length.slice(chae.length.length-1))
+                                // console.log(chae.length.slice(chae.length.length-1))
                                 if (chae.length.slice(chae.length.length-1) === 'W'){
                                     this.$set(chae,'classify','单词')
                                 }else  if (chae.length.slice(chae.length.length-1) === 'S'){
@@ -517,7 +522,7 @@
                                     this.$set(chae,'classify','字母')
                                 }
                                 chae.length1 = chae.length.slice(0,chae.length.length-1)
-                                console.log(chae.length)
+                                // console.log(chae.length)
                                 this.huicha.push(chae)
                             }else if (chae.action === '问题'){
                                 this.$set(chae,'targetType','prodes')
@@ -561,7 +566,21 @@
                 }).catch(ee=>{
                     this.$message.warning('取消修改!')
                 })
-
+            },
+            //删除
+            shanchutest(){
+                MessageBox.confirm('确定删除吗？','提示').then(c=>{
+                    console.log(this.proId)
+                    return request({
+                        url:'/sql/DefinitionProblemController/deleteBasicInformationProblemScanLogic',
+                        method:'post',
+                        data:this.proId
+                    }).then(response=>{
+                        console.log('删除成功')
+                    })
+                }).catch(ee=>{
+                    this.$message.warning('取消删除!')
+                })
             },
             //全选
             handleCheckAllChange() {

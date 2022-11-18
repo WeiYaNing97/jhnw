@@ -14,7 +14,7 @@
               ref="treenow"
               v-show="chuci"
               @row-click="expandChangeone"
-              style="width: 100%;margin-bottom: 20px;"
+              style="width: 100%"
               row-key="hproblemId"
               :cell-style="hongse"
               default-expand-all
@@ -47,7 +47,7 @@
               ref="tree"
               v-show="huisao"
               @row-click="expandChange"
-              style="width: 100%;margin-bottom: 20px;"
+              style="width: 100%"
               row-key="hproblemId"
               :cell-style="hongse"
               default-expand-all

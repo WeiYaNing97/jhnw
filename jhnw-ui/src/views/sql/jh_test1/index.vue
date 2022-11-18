@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container" @contextmenu="showMenu">
+  <div class="app-container" @contextmenu="showMenu" :key="keys">
 <!--  <div class="app-container">-->
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="基本信息:"></el-form-item>
@@ -35,9 +35,6 @@
                        :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
           </el-select>
         </el-form-item>
-<!--        <el-form-item>-->
-<!--          <el-button type="primary" @click="tianjia(item)"><i class="el-icon-plus"></i></el-button>-->
-<!--        </el-form-item>-->
       <br/>
 <!--      <el-form-item>-->
 <!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
@@ -91,13 +88,13 @@
 <!--        <el-button type="primary" @click="hebing">定义问题命令</el-button>-->
 <!--      </el-form-item>-->
 <!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="ceshione">测试按钮</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
 <!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" @click="xiangqing">定义问题详情</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="shuaxin">刷新</el-button>
       </el-form-item>
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
@@ -320,9 +317,6 @@
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
         <el-button @click="guanbi" type="primary">关闭</el-button>
-<!--        仔仔-->
-<!--        <el-button @click="ceshi" type="primary">测试按钮</el-button>-->
-<!--        有用-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
@@ -337,20 +331,17 @@
     <el-button @click="partsub" type="primary" v-show="partShow" style="margin-top:20px">提交详情</el-button>
     <el-button @click="partclose" type="primary" v-show="partShow" style="margin-top:20px">关闭详情</el-button>
 
-    <vue-context-menu style="width: 100px;background: #eee;margin-left: auto;padding-left: 0px;height: 25px"
+    <vue-context-menu id="helpshow" style="width: 100px;background: #eee;margin-left: auto;padding-left: 0px;height: 25px"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
-      <v-contex-tmenu-item>菜单1</v-contex-tmenu-item>
+<!--      <v-contex-tmenu-item>菜单1</v-contex-tmenu-item>-->
     </vue-context-menu>
 
-<!--    帮助-->
-<!--    <el-button @click="bangzhu" style="width: 100px">帮助</el-button>-->
     <el-dialog
       title="提示"
       :visible.sync="dialogVisibleHelp"
-      style="padding: 10px;height: 500px"
-      width="30%"
-      :before-close="handleClose">
-      <div id="fatherq">
+      style="padding: 10px"
+      width="40%">
+      <div id="fatherq" class="qqqqq">
         <h3 style="font-weight: bolder" id="brand" ref="brand">品牌</h3>
         <p>请输入品牌：</p>
         <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
@@ -361,7 +352,7 @@
         <p>请输入子版本：</p>
         <h3 style="font-weight: bolder" id="typeProblem" ref="typeProblem">范式类型</h3>
         <p>请输入范式类型：</p>
-        <h3 style="font-weight: bolder" id="temProName" ref="typeProblem">范式名称</h3>
+        <h3 style="font-weight: bolder" id="temProName" ref="temProName">范式名称</h3>
         <p>请输入范式名称：</p>
         <h3 style="font-weight: bolder" id="problemName" ref="problemName">自定义名称</h3>
         <p>请输入自定义名称：</p>
@@ -391,38 +382,7 @@ export default {
     },
   data() {
     return {
-        options: [{
-            label: '基本',
-            options: [{
-                value: '品牌',
-                label: '品牌'
-            }, {
-                value: '型号',
-                label: '型号'
-            }, {
-                value: '固件版本',
-                label: '固件版本'
-            }, {
-                value: '子版本',
-                label: '子版本'
-            }]
-        }, {
-            label: '自定义',
-            options: [{
-                value: 'Chengdu',
-                label: '成都'
-            }, {
-                value: 'Shenzhen',
-                label: '深圳'
-            }, {
-                value: 'Guangzhou',
-                label: '广州'
-            }, {
-                value: 'Dalian',
-                label: '大连'
-            }]
-        }],
-
+        keys:1,
         //帮助
         whelp:'',
         dialogVisibleHelp:false,
@@ -431,12 +391,11 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:false,
+        chuxian:true,
         display:'inline-block',
         paddingLeft:'0px',
-        // padqj
-        //右键
         cpus:'',
+        //右键
         contextMenuData:{
           menuName:"demo",
             axis:{
@@ -519,7 +478,6 @@ export default {
     },
   created() {
       // this.getList();
-      // this.jiazai()
   },
     // 自动触发事件
     directives:{
@@ -530,32 +488,19 @@ export default {
         }
     },
   methods: {
-      //帮助
-      bangzhu(){
-          this.dialogVisibleHelp = true
-      },
-      handleClose(done) {
-          this.$confirm('确认关闭？')
-              .then(_ => {
-                  done();
-              })
-              .catch(_ => {});
-      },
       //重新赋值
       reloadv(){
 
       },
       //测试按钮
-      ceshi(){
-        console.log(this.forms.dynamicItem)
-      },
-      jiazai(){
-        alert('加载')
-      },
-      //添加
-      tianjia(item){
-          alert('添加')
-          this.$set(item)
+      shuaxin(){
+          console.log(this.$options.data.call(this))
+          this.keys++
+          console.log(this.$data)
+          // console.log(this.$options.data())
+          // console.log(document.getElementById('helpshow').style.display)
+          Object.assign(this.$data,this.$options.data.call(this))
+          // Object.assign(this.$data,this.$options.data())
       },
       //下载
       kanuser(){
@@ -574,7 +519,7 @@ export default {
       },
       //右键
       showMenu(){
-          // console.log('右击')
+          console.log('右击')
         event.preventDefault();
         var x = event.clientX;
         var y = event.clientY;
@@ -901,10 +846,6 @@ export default {
               this.queryParams.problemName = value
           }
       },
-      //仔仔测试
-      ceshione(){
-          console.log(this.queryParams)
-      },
       //合并按钮新的
       hebingnew(){
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
@@ -920,16 +861,20 @@ export default {
               }
           }
           console.log(shasha)
-          return request({
-              url:'/sql/total_question_table/add',
-              method:'post',
-              data:JSON.stringify(shasha)
-          }).then(response=>{
-              console.log(response)
-              this.$message.success('提交问题成功!')
-              this.proId = response.msg
-              this.chuxian = true
-          })
+          if (shasha.brand === '' && shasha.typeProblem === '' && shasha.temProName === ''){
+              alert('品牌、范式类型、范式名称 不得为空!')
+          }else {
+              return request({
+                  url:'/sql/total_question_table/add',
+                  method:'post',
+                  data:JSON.stringify(shasha)
+              }).then(response=>{
+                  console.log(response)
+                  this.$message.success('提交问题成功!')
+                  this.proId = response.msg
+                  this.chuxian = true
+              })
+          }
       },
       //合并按钮
       hebing(){
@@ -1332,7 +1277,6 @@ export default {
               console.log("成功")
               this.$message.success('提交成功!')
           })
-          // window.location.reload()   刷新页面
           // this.$router.go(0)   刷新页面
       },
       //关闭定义问题
@@ -1401,6 +1345,10 @@ export default {
 </script>
 
 <style>
+  .qqqqq{
+    height: 60vh;
+    overflow-x: hidden;
+  }
   .el-form-item{
     margin-top: 5px;
     margin-bottom: 5px;

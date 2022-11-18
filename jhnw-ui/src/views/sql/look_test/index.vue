@@ -6,7 +6,7 @@
           <el-form-item label="基本信息:"></el-form-item>
           <el-form-item label="品牌" prop="brand">
             <el-select v-model="queryParams.brand" placeholder="品牌"
-                       name="brand" @focus="general($event)" style="width: 150px">
+                       name="brand" @change="xuanChange" @focus="general($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.brand" :value="item.brand"></el-option>
             </el-select>
@@ -68,6 +68,9 @@
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="xiugai" icon="el-icon-edit" :disabled="isUse">修改</el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="shanchutest">删除</el-button>
           </el-form-item>
           <!--      <el-form-item>-->
           <!--        <el-button type="primary" @click="gaibian">改变</el-button>-->
@@ -270,17 +273,19 @@
         </el-form>
       </el-col>
       <el-col :span="6">
-        <el-input
-          v-model="deptName"
-          placeholder="请输入关键字过滤"
-          clearable
-          size="small"
-          prefix-icon="el-icon-search"
-          style="margin-bottom: 20px;width: 80%"
-        />
-        <el-tree :data="lookLists" :default-expand-all="zhankaiAll"
-                 :props="defaultProps" :filter-node-method="filterNode"
-                 @node-click="handleNodeClick" ref="treeone"></el-tree>
+        <div style="border-left: 1px solid #DCDFE6;padding-left: 5px">
+          <el-input
+            v-model="deptName"
+            placeholder="请输入关键字过滤"
+            clearable
+            size="small"
+            prefix-icon="el-icon-search"
+            style="margin-bottom: 20px;width: 80%"
+          />
+          <el-tree :data="lookLists" :default-expand-all="zhankaiAll"
+                   :props="defaultProps" :filter-node-method="filterNode"
+                   @node-click="handleNodeClick" ref="treeone"></el-tree>
+        </div>
       </el-col>
     </el-row>
   </div>
@@ -531,6 +536,10 @@ export default {
           })
           return ret
       },
+      //选择值变化时
+      xuanChange(){
+          console.log('ssss')
+      },
       //下拉列表通用
       general(e){
           this.who = e.target.getAttribute('name')
@@ -557,13 +566,15 @@ export default {
               for (let i = 0;i<response.length;i++){
                   let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
                   let loser = {
-                      label:xinall,
+                      // label:xinall,
+                      label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
                       children: [{
-                          label:response[i].typeProblem,
-                          children:[{
-                              label:response[i].temProName,
-                              id:response[i].id
-                          }]
+                          label:response[i].problemName,
+                          id:response[i].id
+                          // children:[{
+                          //     label:response[i].temProName,
+                          //     id:response[i].id
+                          // }]
                       }]
                   }
                   this.lookLists.push(loser)
@@ -597,6 +608,7 @@ export default {
       //回显定义问题
       chaxun(){
           console.log(this.queryParams)
+          console.log(this.lookLists)
           if (this.lookLists.length != 1 && this.cdy != true){
               alert('查找条件过于模糊,请完善')
           }else {
@@ -845,7 +857,6 @@ export default {
           })
           this.forms.dynamicItem.splice(shaAll,1)
       },
-
       //编辑
       xiugai(){
           MessageBox.confirm('确定去修改吗？','提示').then(c=>{
@@ -853,6 +864,10 @@ export default {
           }).catch(ee=>{
               this.$message.warning('取消修改!')
           })
+      },
+      //删除
+      shanchutest(){
+
       },
       //全选
       handleCheckAllChange() {
