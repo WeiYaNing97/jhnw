@@ -51,6 +51,7 @@ public class ScanFixedThreadPool {
                         // List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
                         // 扫描一台交换机 的 所以问题
                         AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(mode, ip, name, password,configureCiphers, port, loginUser,time,null);
+                        WebSocketService.sendMessage(userName,"scanThread:"+ip);
                         if (ajaxResult.get("msg").equals("交换机连接失败")){
                             WebSocketService.sendMessage(userName,"风险:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
                             try {
@@ -66,6 +67,7 @@ public class ScanFixedThreadPool {
                                 e.printStackTrace();
                             }
                         }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     } finally {

@@ -7,6 +7,7 @@ import com.sgcc.sql.domain.SwitchProblem;
 import com.sgcc.sql.domain.SwitchScanResult;
 import com.sgcc.sql.service.ISwitchProblemService;
 import com.sgcc.web.controller.sql.SolveProblemController;
+import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -72,6 +73,7 @@ public class RepairFixedThreadPool {
                         } finally {
                             countDownLatch.countDown();
                         }
+
                     }
 
                 }));
