@@ -269,7 +269,9 @@
           <el-form-item>
             <el-button @click="submitUseForm" type="primary">提交</el-button>
           </el-form-item>
-
+          <el-form-item>
+            <el-button @click="delAnalyse" type="primary">删除</el-button>
+          </el-form-item>
         </el-form>
       </el-col>
       <el-col :span="6">
@@ -302,6 +304,8 @@ export default {
   name: "Look_test",
   data() {
     return {
+        //右侧返回个数
+        lieNum:0,
         //全文、按行、比较
         allOne:[],
         allTwo:[],
@@ -522,6 +526,21 @@ export default {
               this.$message.success('提交修改成功!')
           })
       },
+      //删除分析问题逻辑
+      delAnalyse(){
+          MessageBox.confirm('确定删除该问题分析逻辑吗？','提示').then(c=>{
+              console.log(this.proId)
+              return request({
+                  url:'/sql/DefinitionProblemController/deleteScanningLogic',
+                  method:'post',
+                  data:this.proId
+              }).then(response=>{
+                  console.log('删除成功')
+              })
+          }).catch(ee=>{
+              this.$message.warning('取消删除!')
+          })
+      },
       //通用数组对象去重
       quchong(arr,key){
           let ret = []
@@ -559,6 +578,8 @@ export default {
               data:newPar
           }).then(response=>{
               console.log(response)
+              this.lieNum = response.length
+
               this.proId = response[0].id
               console.log(this.proId)
               this.lookLists = []
@@ -705,6 +726,7 @@ export default {
       //列表展示树结构-回显定义问题
       handleNodeClick(lookLists) {
           this.proId = lookLists.id
+          this.lieNum = 1
           console.log(this.proId)
           let id = this.proId
           if(typeof(id) === 'number'){
@@ -867,7 +889,22 @@ export default {
       },
       //删除
       shanchutest(){
-
+          if (this.lieNum != 1){
+              this.$message.error('数据过于模糊,请精准!')
+          }else {
+              console.log(this.proId)
+              MessageBox.confirm('确定删除该问题吗？','提示').then(c=>{
+                  return request({
+                      url:'/sql/total_question_table/deleteTotalQuestionTable',
+                      method:'post',
+                      data:this.proId
+                  }).then(response=>{
+                      console.log('删除成功')
+                  })
+              }).catch(ee=>{
+                  this.$message.warning('取消删除!')
+              })
+          }
       },
       //全选
       handleCheckAllChange() {

@@ -2,22 +2,26 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px;width: 100%">
-        <el-button type="primary" icon="el-icon-search" size="small" @click="saomiao">一键扫描</el-button>
+        <el-button type="success" icon="el-icon-search" size="small" @click="saomiao" round>一键扫描</el-button>
+        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
-        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
-          width="50%"
-          :before-close="handleClose">
+          width="50%">
           <input type="file" id="importBtn" @click="handleClick" @change="handleImport"
                  style="height: 30px;cursor: pointer">
+
+<!--          <label for="fileinp">-->
+<!--            <input type="button" id="btnchuan" value="选择文件"><span id="textone">请上传文档</span>-->
+<!--            <input type="file" id="fileinp" @click="handleClick" @change="handleImport"-->
+<!--                   style="height: 30px;cursor: pointer">-->
+<!--          </label>-->
+<!--          <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>-->
           <br/>
-          <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>
-          <br/>
-          <span>无模板请下载模板:</span>
+          <span>请下载模板:</span>
           <el-button type="text" size="small" icon="el-icon-download"
                      @click="xiazai" style="margin-left: 10px">下载模板</el-button>
           <span slot="footer" class="dialog-footer">
@@ -26,7 +30,7 @@
           </span>
         </el-dialog>
         <div style="display: inline-block;float: right;margin-right: 100px">
-          <p style="display: inline-block;margin: 0">允许最大扫描进程数:</p>
+          <p style="display: inline-block;margin: 0">允许最大扫描线程数:</p>
           <el-input-number size="small" style="width:75px" v-model="num" controls-position="right"
                            @change="handleChange" :min="1" :max="5"></el-input-number>
         </div>
@@ -38,9 +42,15 @@
           <!--      表格展示列表-->
           <p style="margin: 0;text-align: center">扫描设备信息</p>
           <el-table :data="tableData" style="width: 100%"
-                    max-height="300" ref="tableData" @select="xuanze">
+                    max-height="300" ref="tableData"
+                    :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
             <el-table-column type="index" width="40"></el-table-column>
             <el-table-column type="selection" width="45"></el-table-column>
+
+<!--            <el-table-column type="text" width="45">-->
+<!--              <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
+<!--            </el-table-column>-->
+
             <el-table-column prop="ip" label="设备IP" width="130">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.ip"
@@ -55,10 +65,10 @@
                 <span v-else>{{ row.name }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="password" label="密码" width="80">
+            <el-table-column prop="password" label="密码" width="100">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.password" type="password"
-                          placeholder="请输入密码" size="small" style="width: 110px"></el-input>
+                          placeholder="请输入密码" size="small" style="width: 90px"></el-input>
                 <span v-else>{{ row.passmi }}</span>
               </template>
             </el-table-column>
@@ -69,26 +79,26 @@
                 <span v-else>{{ row.mode }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="port" label="端口号" width="80">
+            <el-table-column prop="port" label="端口号" width="60">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.port"
                           placeholder="端口" size="small" style="width: 50px"></el-input>
                 <span v-else>{{ row.port }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="configureCiphers" label="配置密码" width="80">
+            <el-table-column prop="configureCiphers" label="配置密码" width="100">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
-                          placeholder="配置密码" size="small" style="width: 100px"></el-input>
+                          placeholder="配置密码" size="small" style="width: 90px"></el-input>
                 <span v-else>{{ row.conCip }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="120">
+            <el-table-column label="操作" width="90">
               <template slot-scope="{ row }">
                 <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small">确定</el-button>
                 <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
                 <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
-                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>
+<!--                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>-->
               </template>
             </el-table-column>
           </el-table>
@@ -196,6 +206,8 @@ export default {
     },
   data() {
     return {
+        //是否圆圈
+        loadingOne:true,
         //扫描项目选择是否显示
         showxiang:true,
         //定时接收true或者false
@@ -322,8 +334,13 @@ export default {
         },
         //默认全部选中
         tableData(){
-            this.$nextTick(()=>{
-
+            this.$nextTick(() => {
+                for (let i = 0; i < this.tableData.length; i++) {
+                    this.$refs.tableData.toggleRowSelection(
+                        this.tableData[i],
+                        true
+                    )
+                }
             })
         }
     },
@@ -384,12 +401,25 @@ export default {
           this.xuanzhong = JSON.parse(JSON.stringify(row))
           console.log(this.xuanzhong)
       },
+      //获取当前表格行index
+      tableRowClassName({row, rowIndex}) {
+          row.row_index = rowIndex;
+      },
+      //
+      dianhang(row){
+          let lineNum = row.row_index
+          this.tableData.forEach((row,index)=>{
+              if (lineNum != index){
+                  row.isEdit = false
+              }
+          })
+      },
       //新增设备
       xinzeng(){
           this.tableData.push({
-              ip: '',
-              name: '',
-              password:'',
+              ip: '192.168.1.100',
+              name: 'admin',
+              password:'admin',
               passmi:'********',
               mode:'ssh',
               port:22,
@@ -493,6 +523,9 @@ export default {
           if (!file) {
               return
           }
+
+          // document.getElementById('#textone').innerHTML = document.getElementById('#fileinp').value
+
           // 成功回调函数
           fileReader.onload = async (ev) => {
               try {
@@ -756,4 +789,24 @@ export default {
   .el-dialog__body{
     padding: 20px 20px;
   }
+  .el-loading-spinner{
+    margin-top: -15px;
+    height: 30px;
+  }
+  .el-loading-spinner .circular{
+    width: 20px;
+    height: 20px;
+  }
+  .el-loading-spinner .path{
+    stroke: #13ce66;
+  }
+  /*label{*/
+  /*  position: relative;*/
+  /*}*/
+  /*#fileinp{*/
+  /*  position: absolute;*/
+  /*  left: 0;*/
+  /*  top: 0;*/
+  /*  opacity: 0;*/
+  /*}*/
 </style>

@@ -3,7 +3,6 @@
 <!--    lishiData  nowData  tableDataqq-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
-<!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
 <!--    <el-button type="primary" size="small" @click="testall">所有测试</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
@@ -19,9 +18,15 @@
               :cell-style="hongse"
               default-expand-all
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
-      <el-table-column prop="switchIp" label="主机" width="150"></el-table-column>
-      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>
-      <el-table-column prop="typeProblem" label="问题类型"></el-table-column>
+<!--      <el-table-column prop="switchIp" label="主机" width="150"></el-table-column>-->
+<!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
+      <el-table-column prop="hebing" label="主机(基本信息)" width="350">
+        <template slot-scope="scope">
+          <!--          <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
+          <span v-loading="!scope.row.hebing == ''">{{ scope.row.hebing }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
       <el-table-column prop="problemName" label="问题"></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
       <el-table-column prop="solve" label="解决">
@@ -53,9 +58,10 @@
               default-expand-all
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
       <el-table-column prop="createTime" label="扫描时间" width="180"></el-table-column>
-      <el-table-column prop="switchIp" label="主机" width="130"></el-table-column>
-      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>
-      <el-table-column prop="typeProblem" label="问题类型"></el-table-column>
+<!--      <el-table-column prop="switchIp" label="主机" width="130"></el-table-column>-->
+<!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
+      <el-table-column prop="hebing" label="主机(基本信息)" width="320"></el-table-column>
+      <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
       <el-table-column prop="problemName" label="问题" ></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
       <el-table-column prop="solve" label="解决">
@@ -113,6 +119,8 @@
         },
         data() {
             return {
+                //
+                loadingOne:true,
                 //
                 lishifu:false,
                 //详情显示
@@ -388,6 +396,13 @@
                     response = changeTreeDate(response,'switchProblemCOList','children')
                     this.lishiData = response
                     const jiaid = this.lishiData
+                    //合并信息
+                    for(let i = 0;i<jiaid.length;i++){
+                        for (let g = 0;g<jiaid[i].children.length;g++){
+                            var hebingInfo = jiaid[i].children[g].switchIp + ' ' + jiaid[i].children[g].showBasicInfo
+                            this.$set(jiaid[i].children[g],'hebing',hebingInfo)
+                        }
+                    }
                     //返回数据添加hproblemId
                     for(let i = 0;i<jiaid.length;i++){
                         this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
@@ -761,6 +776,11 @@
                 let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
                 this.nowData = newJson1
                 const shu = this.nowData
+                //合并信息
+                for(let i = 0;i<shu.length;i++){
+                    var hebingInfo = '　　' + shu[i].switchIp + ' ' + shu[i].showBasicInfo
+                    this.$set(shu[i],'hebing',hebingInfo)
+                }
                 for (let i=0;i<shu.length;i++){
                     for (let g=0;g<shu[i].children.length;g++){
                         for (let m=0;m<shu[i].children[g].children.length;m++){
@@ -832,7 +852,17 @@
     }
 </script>
 
-<style scoped>
-
+<style>
+  .el-loading-mask{
+    position: inherit;
+  }
+  .el-loading-spinner{
+    width: auto;
+  }
+  .el-loading-spinner{
+    margin-top: -20px ! important;
+    height: 20px ! important;
+    margin-left: 25px;
+  }
 </style>
 

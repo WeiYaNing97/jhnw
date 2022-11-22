@@ -31,6 +31,16 @@
           style="white-space: pre-wrap;"
           v-model="textareaRisk" :rows="10" readonly></el-input>
       </el-tab-pane>
+
+      <el-tab-pane label="扫描结束" name="four">
+        <el-input
+          id="webtFour"
+          resize="none"
+          type="textarea"
+          style="white-space: pre-wrap;"
+          v-model="textareaEnd" :rows="10" readonly></el-input>
+      </el-tab-pane>
+
     </el-tabs>
 
   </div>
@@ -58,7 +68,8 @@
                 textarea:'',
                 textareaOne:'',
                 textareaRisk:'',
-                textareaInfo:''
+                textareaInfo:'',
+                textareaEnd:''
             }
         },
         async mounted() {
@@ -144,6 +155,8 @@
                     this.textareaInfo = this.textareaInfo + e.data
                 }else if (e.data.indexOf('风险') != -1){
                     this.textareaRisk = this.textareaRisk + e.data
+                }else if (e.data.indexOf('scanThread') != -1){
+                    this.textareaEnd = this.textareaEnd + e.data
                 }
                 // this.textarea = this.textarea + e.data;
                 this.$nextTick(()=>{

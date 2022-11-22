@@ -281,7 +281,6 @@ export default {
                   }
                   this.lookLists.push(loser)
               }
-
               this.genList = this.quchong(response,this.who)
               let kong = {
                   [this.who] : 'null'
