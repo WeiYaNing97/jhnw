@@ -14,13 +14,6 @@ import java.util.List;
  */
 public class MyUtils {
 
-    //时间排序 由大到小
-    public static List<Date> sortDate(List<Date> dateList){
-        dateList.sort((a1,a2) ->{
-            return a1.compareTo(a2);
-        });
-        return dateList;
-    }
 
     /**
      * @method: 多个连续空格 改为 多个单空格
@@ -75,6 +68,14 @@ public class MyUtils {
             e.printStackTrace();
         }
         return parse;
+    }
+
+    //时间排序 由大到小
+    public static List<Date> sortDate(List<Date> dateList){
+        dateList.sort((a1,a2) ->{
+            return a1.compareTo(a2);
+        });
+        return dateList;
     }
 
     public static void main(String[] args) {

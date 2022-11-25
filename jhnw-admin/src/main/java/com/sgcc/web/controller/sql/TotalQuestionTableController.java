@@ -22,6 +22,7 @@ import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -38,6 +39,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/sql/total_question_table")
+//事务
+@Transactional(rollbackFor = Exception.class)
 public class TotalQuestionTableController extends BaseController
 {
     @Autowired
@@ -151,17 +154,6 @@ public class TotalQuestionTableController extends BaseController
     {
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
         return toAjax(totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable));
-    }
-
-    /**
-     * 删除问题及命令
-     */
-    @PreAuthorize("@ss.hasPermi('sql:total_question_table:remove')")
-    @Log(title = "问题及命令", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
-        return toAjax(totalQuestionTableService.deleteTotalQuestionTableByIds(ids));
     }
 
     /**
@@ -598,5 +590,40 @@ public class TotalQuestionTableController extends BaseController
 
         return totalQuestionTableCOList;
     }
+
+
+    /**
+     *
+     * a
+     *
+     * 删除交换机问题
+     */
+    @PreAuthorize("@ss.hasPermi('sql:total_question_table:remove')")
+    @Log(title = "删除交换机问题", businessType = BusinessType.DELETE)
+    @RequestMapping("/deleteTotalQuestionTable")
+    public AjaxResult deleteTotalQuestionTable(@RequestBody Long id)
+    {
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
+        if (totalQuestionTable.getProblemSolvingId() != null){
+            boolean command = CommandLogicController.deleteProblemSolvingCommand(id);
+            if (!command){
+                return AjaxResult.error();
+            }
+        }
+        if (totalQuestionTable.getCommandId() != null){
+            boolean scan = DefinitionProblemController.deleteScanningLogic(id);
+            if (!scan){
+                return AjaxResult.error();
+            }
+        }
+        int i = totalQuestionTableService.deleteTotalQuestionTableById(id);
+        if (i<=0){
+            return AjaxResult.error();
+        }
+
+        return AjaxResult.success();
+    }
+
+
 
 }

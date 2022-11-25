@@ -12,6 +12,7 @@ import com.sgcc.web.controller.util.EncryptUtil;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,6 +37,8 @@ import com.sgcc.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/sql/switch_scan_result")
+//事务
+@Transactional(rollbackFor = Exception.class)
 public class SwitchScanResultController extends BaseController
 {
     @Autowired

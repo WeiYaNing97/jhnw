@@ -20,6 +20,7 @@ import com.sgcc.web.controller.webSocket.WebSocketService;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +40,8 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/sql/SolveProblemController")
+//事务
+@Transactional(rollbackFor = Exception.class)
 public class SolveProblemController {
 
     @Autowired
@@ -71,13 +74,29 @@ public class SolveProblemController {
      * @return: com.sgcc.common.core.domain.AjaxResult
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
+     *
      */
     @RequestMapping("queryCommandListBytotalQuestionTableId")
     @MyLog(title = "查询解决问题命令", businessType = BusinessType.OTHER)
     public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
+        //系统登陆人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
+            //传输登陆人姓名 及问题简述
+            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机问题表修复命令ID为空\r\n");
+            try {
+
+                //插入问题简述及问题路径
+                PathHelper.writeDataToFile("错误："+"交换机问题表修复命令ID为空\r\n"
+                        +"方法com.sgcc.web.controller.sql.SolveProblemController.queryCommandListBytotalQuestionTableId");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             return null;
         }
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
@@ -102,6 +121,13 @@ public class SolveProblemController {
     }
 
 
+    /**
+     *
+     * @param userinformation  交换机登录信息
+     * @param problemIdList  交换机扫描结果ID
+     * @param scanNum  线程数
+     * @param allProIdList  交换机所有扫描结果ID
+     */
     @RequestMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum ,@PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
@@ -163,6 +189,12 @@ public class SolveProblemController {
         }
     }
 
+    /**
+     * a
+     *
+     * 交换机登录信息提取
+     *
+     */
     public static Map<String,String> getUserMap(String userinformation) {
         //用户信息
         String userInformationString = userinformation;
@@ -214,6 +246,7 @@ public class SolveProblemController {
      * @return: com.sgcc.common.core.domain.AjaxResult
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
+     *
      */
     public AjaxResult batchSolution(Map<String,String> user_String,LoginUser loginUser, List<SwitchScanResult> switchScanResultList ,List<String> problemIds){
 
@@ -263,10 +296,9 @@ public class SolveProblemController {
             telnetComponent = (TelnetComponent)objectMap.get("telnetComponent");
         }
 
-        //解析返回参数
-        informationList = (List<Object>) requestConnect_ajaxResult.get("data");
+
         //是否连接成功
-        requestConnect_boolean = informationList.get(0).toString().equals("true");
+        requestConnect_boolean = (boolean) objectMap.get("TrueAndFalse");
 
         if (requestConnect_boolean){
 
@@ -279,10 +311,11 @@ public class SolveProblemController {
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
             AjaxResult basicInformationList_ajaxResult = SwitchInteraction.getBasicInformationList(user_String,user_Object);   //getBasicInformationList
+
             if (basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                 return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
             }
-
+            /*要修复问题的集合*/
             List<SwitchScanResult> switchScanResultLists = new ArrayList<>();
 
             for (SwitchScanResult switchScanResult:switchScanResultList){
@@ -305,6 +338,7 @@ public class SolveProblemController {
                     }
                 }
             }
+
             if (switchScanResultLists.size() == 0){
                 //getUnresolvedProblemInformationByIds(loginUser,problemIds);
                 if (problemIds != null){
@@ -320,19 +354,19 @@ public class SolveProblemController {
                 return AjaxResult.success("修复结束");
             }
 
-
+            /*遍历 需要修复的 交换机问题*/
             for (SwitchScanResult switchScanResult:switchScanResultLists){
 
                 if(switchScanResult.getComId() == null || switchScanResult.getComId().equals("null")){
-                    WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
 
                     try {
-                        PathHelper.writeDataToFile("错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                        PathHelper.writeDataToFile("风险："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    break;
+                    continue;
                 }
 
                 //传参 命令ID 和 参数ID
@@ -348,12 +382,13 @@ public class SolveProblemController {
                         e.printStackTrace();
                     }
 
-                    break;
+                    continue;
                 }
 
+                /*返回  map  参数名 ： 参数值*/
                 HashMap<String, String> valueHashMap = separationParameters(switchScanResult.getDynamicInformation());
 
-                //解决问题
+                //执行解决问题
                 String solveProblem = solveProblem(user_String,loginUser,informationList,switchScanResult, commandList,valueHashMap);//userName
 
                 if (solveProblem.equals("成功")){
@@ -410,6 +445,11 @@ public class SolveProblemController {
     }
 
 
+    /**
+     * todo  返回  map  参数名 ： 参数值
+     * @param dynamicInformation
+     * @return
+     */
     public static HashMap<String,String> separationParameters(String dynamicInformation) {
         HashMap<String,String> valueHashMap = new HashMap<>();
 
@@ -436,6 +476,10 @@ public class SolveProblemController {
     }
 
     /***
+     * todo 返回 命令集合 和 参数集合
+     *
+     * a
+     *
      * 返回 命令集合 和 参数集合
      * @method: queryParameterSet
      * @Param: []
@@ -487,7 +531,10 @@ public class SolveProblemController {
     }
 
     /**
-     * @method: 解决问题
+     *
+     * todo 执行解决问题
+     *
+     * @method: 执行解决问题
      * @Param: [parameterID]
      * @return: com.sgcc.common.core.domain.AjaxResult
      * @Author: 天幕顽主

@@ -367,15 +367,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null">fireware_version = #{firewareVersion},</if>
             <if test="subVersion != null">sub_version = #{subVersion},</if>
             <if test="notFinished != null">not_finished = #{notFinished},</if>
-            <if test="commandId != null">command_id = #{commandId},</if>
+            command_id = #{commandId},
             <if test="problemName != null">problem_name = #{problemName},</if>
 
             <if test="temProName != null">tem_pro_name = #{temProName},</if>
 
             <if test="typeProblem != null">type_problem = #{typeProblem},</if>
             <if test="problemDescribeId != null">problem_describe_id = #{problemDescribeId},</if>
-            <if test="problemSolvingId != null">problem_solving_id = #{problemSolvingId},</if>
-
+            problem_solving_id = #{problemSolvingId},
             <if test="remarks != null">remarks = #{remarks},</if>
             <if test="requiredItems != null">required_items = #{requiredItems},</if>
         </trim>

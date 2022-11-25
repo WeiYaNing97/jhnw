@@ -21,6 +21,7 @@ import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.util.RSAUtils;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -34,6 +35,8 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/sql/SwitchInteraction")
+//事务
+@Transactional(rollbackFor = Exception.class)
 public class SwitchInteraction {
 
     @Autowired

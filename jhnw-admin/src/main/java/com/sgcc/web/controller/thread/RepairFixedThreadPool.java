@@ -33,15 +33,13 @@ public class RepairFixedThreadPool {
 
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(threads);
 
-        int number = userinformation.size();
-
-        for (int i = 0 ; i<number ; i++){
+        for (int i = 0 ; i<userinformation.size() ; i++){
 
             List<SwitchScanResult> switchScanResultList = problemList.get(i);
             List<SwitchScanResult> switchScanResults = new ArrayList<>();
             for (SwitchScanResult switchScanResult:switchScanResultList){
                 // 查看 扫描出的问题 是否有问题
-                if (switchScanResult.getIfQuestion().equals("有问题")){
+                if (!(switchScanResult.getIfQuestion().equals("无问题"))){
                     switchScanResults.add(switchScanResult);
                 }
             }

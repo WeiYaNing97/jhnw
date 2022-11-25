@@ -4,19 +4,25 @@ import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
+import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.web.controller.util.PathHelper;
+import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +38,9 @@ import java.util.List;
 public class CommandLogicController extends BaseController
 {
     @Autowired
-    private ICommandLogicService commandLogicService;
+    private static ICommandLogicService commandLogicService;
     @Autowired
-    private ITotalQuestionTableService totalQuestionTableService;
+    private static ITotalQuestionTableService totalQuestionTableService;
 
 
     /**
@@ -112,7 +118,11 @@ public class CommandLogicController extends BaseController
 
 
     /**
-     * @method: 解决问题集合插入 及 问题表数据修改
+     *
+     * a
+     *
+     * 修复问题集合插入
+     * @method: 修复问题集合插入及问题表数据修改
      * @Param: [totalQuestionTableId, commandLogicList]
      * @return: boolean
      * @Author: 天幕顽主
@@ -120,26 +130,75 @@ public class CommandLogicController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
     @RequestMapping("insertModifyProblemCommandSet")
-    @MyLog(title = "解决问题集合插入", businessType = BusinessType.INSERT)
+    @MyLog(title = "修复问题集合插入", businessType = BusinessType.INSERT)
     public boolean insertModifyProblemCommandSet(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogicList){
 
+        //系统登陆人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
+
+        /*如果 修复命令集合为空  或者  交换机问题ID为0L 则 返回 false失败*/
+        if (commandLogicList.size() == 0 || totalQuestionTableId == 0l){
+            //传输登陆人姓名 及问题简述
+            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"定义修复交换机问题逻辑数据为空\r\n");
+            try {
+
+                //插入问题简述及问题路径
+                PathHelper.writeDataToFile("错误："+"定义修复交换机问题逻辑数据为空\r\n"
+                        +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+        /*  */
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
         List<CommandLogic> commandLogics = new ArrayList<>();
         for (int number=0;number<commandLogicList.size();number++){
-            CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
+            //CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
+            CommandLogic commandLogic = DefinitionProblemController.analysisCommandLogic(commandLogicList.get(number));
+
             commandLogics.add(commandLogic);
         }
+
         for (int number=0;number<commandLogics.size();number++){
+            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
             if (i<=0){
+                //传输登陆人姓名 及问题简述
+                WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"修复交换机问题命令插入失败\r\n");
+                try {
+
+                    //插入问题简述及问题路径
+                    PathHelper.writeDataToFile("错误："+"修复交换机问题命令插入失败\r\n"
+                            +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return false;
             }
             if (number == 0){
                 totalQuestionTable.setProblemSolvingId(commandLogics.get(number).getId());
             }
         }
+
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
         if (i<=0){
+            //传输登陆人姓名 及问题简述
+            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机问题实体类修复问题ID修改失败\r\n");
+            try {
+
+                //插入问题简述及问题路径
+                PathHelper.writeDataToFile("错误："+"交换机问题实体类修复问题ID修改失败\r\n"
+                        +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return false;
         }
         return true;
@@ -219,6 +278,10 @@ public class CommandLogicController extends BaseController
 
 
     /**
+     *
+     * a
+     *
+     *
      * @method: 修改解决问题命令List
      * @Param: [totalQuestionTableId]
      * @return: com.sgcc.common.core.domain.AjaxResult
@@ -228,7 +291,35 @@ public class CommandLogicController extends BaseController
     @RequestMapping("updateProblemSolvingCommand")
     @MyLog(title = "修改修复问题命令", businessType = BusinessType.UPDATE)
     public boolean updateProblemSolvingCommand(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogics){
+        boolean deleteProblemSolvingCommand = deleteProblemSolvingCommand(totalQuestionTableId);
+        if (!deleteProblemSolvingCommand){
+            return false;
+        }
+        //重新插入解决问题命令
+        boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
+        return insertModifyProblemCommand;
+    }
+
+
+    /**
+     *
+     * a
+     *
+     *
+     * @method: 删除解决问题命令List
+     * @Param: [totalQuestionTableId]
+     * @return: com.sgcc.common.core.domain.AjaxResult
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     *
+     */
+    @RequestMapping("deleteProblemSolvingCommand")
+    @MyLog(title = "删除修复问题命令", businessType = BusinessType.UPDATE)
+    public static boolean deleteProblemSolvingCommand(@RequestBody Long totalQuestionTableId){
         //根据 问题表 问题ID 查询 问题数据
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         //问题表 解决问题ID
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
@@ -243,14 +334,22 @@ public class CommandLogicController extends BaseController
             //当下一命令ID为0 的时候  结束
         }while (!(problemSolvingId.equals("0")));
         //删除解决问题命令
-        for (CommandLogic commandLogic:commandLogicList){
-            int i = commandLogicService.deleteCommandLogicById(commandLogic.getId());
-            if (i<=0){
-                return false;
-            }
+        String[] ids = new String[commandLogicList.size()];
+        for (int num = 0 ; num<commandLogicList.size();num++){
+            ids[num] = commandLogicList.get(num).getId();
         }
-        //重新插入解决问题命令
-        boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
-        return insertModifyProblemCommand;
+        int deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(ids);
+        if (deleteCommandLogicByIds<=0){
+            return false;
+        }
+        //修改解决问题命令字段
+        totalQuestionTable.setProblemSolvingId(null);
+        int updateTotalQuestionTable = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+        if (updateTotalQuestionTable<=0){
+            return false;
+        }
+        return true;
     }
+
+
 }
