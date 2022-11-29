@@ -23,6 +23,11 @@
       <el-form-item label="配置密码" prop="configureCiphers">
         <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
       </el-form-item>
+      <br/>
+      <el-button type="primary" size="small" @click="ceshi1" style="margin-top: 11px">预执行</el-button>
+      <div style="display: inline-block;margin-left: 20px">
+        <el-input v-model="returnInfo" placeholder="展示获取基本信息" style="width:500px"></el-input>
+      </div>
     </el-form>
     <hr style='border:1px inset #D2E9FF;'>
 <!--    <el-button type="primary" size="small" @click="cesh">测试</el-button>-->
@@ -30,10 +35,6 @@
       <el-form-item label="定义获取基本信息命令">
         <el-input v-model="basicCom" type="text" style="width:260px" placeholder="命令用逗号分隔"></el-input>
       </el-form-item>
-      <el-button type="primary" size="small" @click="ceshi1" style="margin-top: 11px;margin-left: 50px">预执行</el-button>
-      <div style="display: inline-block;margin-left: 20px">
-        <el-input v-model="returnInfo" placeholder="展示获取基本信息" style="width:500px"></el-input>
-      </div>
       <br/>
       <el-form-item label="命令分析逻辑:"></el-form-item>
       <el-form-item>
@@ -145,6 +146,8 @@
 
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
           <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
+            <el-input v-model="item.relative" style="width: 80px" placeholder="第几行"></el-input> --
+
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
             <el-input v-model="item.length1" style="width: 80px" placeholder="几个"></el-input>
             <el-select v-model="item.classify" @change="reloadv" placeholder="单词/行" style="width: 80px">
@@ -678,6 +681,7 @@
                 }
                 if(type == 'takeword'){
                     this.$set(item1,'action','取词')
+                    this.$set(item1,'position',0)
                 }
                 if (type == 'wloop'){
                     this.$set(item1,'action','循环')

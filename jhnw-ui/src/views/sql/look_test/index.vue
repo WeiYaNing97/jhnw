@@ -174,8 +174,10 @@
             </div>
             <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
               <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
+                <el-input v-model="item.relative" style="width: 80px" placeholder="第几行"></el-input> --
+
                 <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-                <el-input v-model="item.length1" style="width: 80px" placeholder="几个词"></el-input>
+                <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
                 <el-select v-model="item.classify" placeholder="单词/行" style="width: 80px">
                   <el-option label="单词" value="W"></el-option>
                   <el-option label="字母" value="L"></el-option>
@@ -489,13 +491,14 @@ export default {
                   this.$set(eeee,'nextIndex',thisNext.onlyIndex)
               }
               if (eeee.action === '取词'){
-                  if (eeee.classify === 'W'){
-                      eeee.length = `${eeee.length1}W`
-                  }else if (eeee.classify === 'L'){
-                      eeee.length = `${eeee.length1}L`
-                  }else if (eeee.classify === 'S'){
-                      eeee.length = `${eeee.length1}S`
-                  }
+                  // if (eeee.classify === 'W'){
+                  //     eeee.length = `${eeee.length1}W`
+                  // }else if (eeee.classify === 'L'){
+                  //     eeee.length = `${eeee.length1}L`
+                  // }else if (eeee.classify === 'S'){
+                  //     eeee.length = `${eeee.length1}S`
+                  // }
+                  eeee.length = `${eeee.length1}${eeee.classify}`
               }
               this.$set(eeee,'pageIndex',thisIndex+1)
               if (eeee.targetType == 'takeword'){
@@ -1011,6 +1014,7 @@ export default {
           }
           if(type == 'takeword'){
               this.$set(item1,'action','取词')
+              this.$set(item1,'position',0)
           }
           if (type == 'wloop'){
               this.$set(item1,'action','循环')

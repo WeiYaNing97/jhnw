@@ -31,16 +31,14 @@
           style="white-space: pre-wrap;"
           v-model="textareaRisk" :rows="10" readonly></el-input>
       </el-tab-pane>
-
-      <el-tab-pane label="扫描结束" name="four">
-        <el-input
-          id="webtFour"
-          resize="none"
-          type="textarea"
-          style="white-space: pre-wrap;"
-          v-model="textareaEnd" :rows="10" readonly></el-input>
-      </el-tab-pane>
-
+<!--      <el-tab-pane label="扫描结束" name="four" v-show="false">-->
+<!--        <el-input-->
+<!--          id="webtFour"-->
+<!--          resize="none"-->
+<!--          type="textarea"-->
+<!--          style="white-space: pre-wrap;"-->
+<!--          v-model="textareaEnd" :rows="10" readonly></el-input>-->
+<!--      </el-tab-pane>-->
     </el-tabs>
 
   </div>
@@ -69,7 +67,11 @@
                 textareaOne:'',
                 textareaRisk:'',
                 textareaInfo:'',
-                textareaEnd:''
+                textareaEnd:'',
+                //扫描完成的ip
+                saoendip:'',
+                //截取后的ip
+                ipEnd:''
             }
         },
         async mounted() {
@@ -96,6 +98,10 @@
             handleClick(tab, event) {
                 console.log(tab, event);
             },
+            //扫描完成ip
+            saowanip(){
+                return this.ipEnd
+            },
             //给父组件显示
             geifuone(){
               return this.saoend
@@ -117,6 +123,7 @@
                 // localhost 192.168.1.98
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/badao'
                 const wsuri = `wss://${location.host}/dev-api/websocket/${Cookies.get('usName')}`
+                // const wsuri = `ws://${location.host}/prod-api/websocket/${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws
@@ -149,6 +156,7 @@
             wsMessageHanler(e) {
                 // console.log('wsMessageHanler')
                 // console.log(e.data)
+
                 if (e.data.indexOf('发送和接收') != -1){
                     this.textareaOne = this.textareaOne + e.data
                 }else if (e.data.indexOf('系统信息') != -1){
@@ -157,7 +165,17 @@
                     this.textareaRisk = this.textareaRisk + e.data
                 }else if (e.data.indexOf('scanThread') != -1){
                     this.textareaEnd = this.textareaEnd + e.data
+                    this.saoendip = e.data
+                    console.log(this.saoendip)
                 }
+                //截取字符串
+                function getCaption(obj){
+                    const index = obj.lastIndexOf(":")
+                    const res = obj.substring(index+1,obj.length)
+                    return res
+                }
+                this.ipEnd = getCaption(this.saoendip)
+                console.log(this.ipEnd)
                 // this.textarea = this.textarea + e.data;
                 this.$nextTick(()=>{
                     // const textarea = document.getElementById('webt')

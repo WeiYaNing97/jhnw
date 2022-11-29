@@ -93,9 +93,9 @@
       <el-form-item>
         <el-button type="primary" @click="xiangqing">定义问题详情</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="shuaxin">刷新</el-button>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="shuaxin">刷新</el-button>-->
+<!--      </el-form-item>-->
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
 <!--      </el-form-item>-->
@@ -220,8 +220,12 @@
 
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
           <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
+
+<!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
+            <el-input v-model="item.relative" style="width: 80px" placeholder="第几行"></el-input> --
+
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-            <el-input v-model="item.length1" style="width: 80px" placeholder="几个"></el-input>
+            <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
             <el-select v-model="item.classify" @change="reloadv" placeholder="单词/行" style="width: 80px">
               <el-option label="单词" value="W"></el-option>
               <el-option label="字母" value="L"></el-option>
@@ -391,7 +395,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:true,
+        chuxian:false,
         display:'inline-block',
         paddingLeft:'0px',
         cpus:'',
@@ -1160,6 +1164,7 @@ export default {
           }
           if(type == 'takeword'){
               this.$set(item1,'action','取词')
+              this.$set(item1,'position',0)
           }
           if (type == 'wloop'){
               this.$set(item1,'action','循环')

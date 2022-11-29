@@ -23,7 +23,7 @@
       <el-table-column prop="hebing" label="主机(基本信息)" width="350">
         <template slot-scope="scope">
           <!--          <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
-          <span v-loading="!scope.row.hebing == ''">{{ scope.row.hebing }}</span>
+          <span v-loading="loadingOne = !scope.row.hebing == ''">{{ scope.row.hebing }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
@@ -735,6 +735,7 @@
             wsInit() {
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
                 const wsuri = `wss://${location.host}/dev-api/websocket/loophole${Cookies.get('usName')}`
+                // const wsuri = `ws://${location.host}/prod-api/websocket/loophole${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws

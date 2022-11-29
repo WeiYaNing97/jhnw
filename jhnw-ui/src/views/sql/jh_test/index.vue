@@ -7,6 +7,7 @@
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
+<!--        <el-button type="primary" @click="sonData" size="small">子组件数据</el-button>-->
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -414,6 +415,11 @@ export default {
               }
           })
       },
+      //查看子组件数据
+      sonData(){
+          let saowanip = this.$refs.webone.saowanip()
+          console.log(saowanip)
+      },
       //新增设备
       xinzeng(){
           this.tableData.push({
@@ -568,6 +574,8 @@ export default {
       },
       //一键扫描
       saomiao(){
+          let saowanip = this.$refs.webone.saowanip()
+          console.log(saowanip)
           //定时获取是否扫描结束
            this.torf = setInterval(this.saowan,5000)
           //最终扫描设备
