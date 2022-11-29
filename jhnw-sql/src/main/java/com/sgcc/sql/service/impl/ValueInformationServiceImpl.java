@@ -106,7 +106,7 @@ public class ValueInformationServiceImpl implements IValueInformationService
     @Override
     public List<ValueInformationVO> selectValueInformationVOListByID(Long id) {
         List<ValueInformation> valueInformationList = new ArrayList<>();
-        while (id!=0l){
+        while (id!=0L){
             ValueInformation valueInformation = valueInformationMapper.selectValueInformationById(id);
             valueInformationList.add(valueInformation);
             id = valueInformation.getOutId();
@@ -126,7 +126,7 @@ public class ValueInformationServiceImpl implements IValueInformationService
     public List<ValueInformation> selectValueInformationListByID(Long valueId) {
 
         List<ValueInformation> valueInformationList = new ArrayList<>();
-        while (valueId!=0l){
+        while (valueId!=0L){
             ValueInformation valueInformation = valueInformationMapper.selectValueInformationById(valueId);
             valueInformationList.add(valueInformation);
             valueId = valueInformation.getOutId();

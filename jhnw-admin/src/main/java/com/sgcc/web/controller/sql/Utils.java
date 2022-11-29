@@ -414,8 +414,9 @@ public class Utils {
                 if (!(matchContent.equals(""))){
                     int num = 0;
                     for ( ; num <split_String.length ; num++){
-                        if (split_String[num].equals(matchContent))
+                        if (split_String[num].equals(matchContent)) {
                             break;
+                        }
                     }
 
                     integer = integer + num;

@@ -763,6 +763,12 @@ public class DefinitionProblemController extends BaseController {
                 problemScanLogic.setAction(null);
             }
         }
+        /*如果取词 添加 按行直接取词 跳动光标*/
+        if (problemScanLogic.getAction() != null){
+            /** 相对位置 */
+            hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
+        }
+
         if (hashMap.get("rPosition")!=null && !(hashMap.get("rPosition").equals("null"))){
             /** 位置 */
             problemScanLogic.setrPosition(Integer.valueOf(hashMap.get("rPosition")).intValue());
@@ -1489,6 +1495,9 @@ public class DefinitionProblemController extends BaseController {
         String relative = null;
         //按列匹配
         String position = null;
+        problemScanLogicVO.setRelative(relative);
+        problemScanLogicVO.setPosition(position);
+
         if (problemScanLogic.getMatched()!=null && !(problemScanLogic.getMatched().equals("null"))){
             //匹配 不为 null 且 不为“null” 则
             if (problemScanLogic.getMatched().indexOf("匹配")!=-1 && problemScanLogic.getRelativePosition().equals("null")){
@@ -1499,11 +1508,11 @@ public class DefinitionProblemController extends BaseController {
                 String[] relativePositionSplit = relativePosition.split(",");
                 relative = relativePositionSplit[0];
                 position = relativePositionSplit[1];
+                problemScanLogicVO.setRelative(relative);
+                problemScanLogicVO.setPosition(position);
             }
         }
         problemScanLogicVO.setMatched(matched);
-        problemScanLogicVO.setRelative(relative);
-        problemScanLogicVO.setPosition(position);
 
 
 
@@ -1514,7 +1523,18 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getAction()!=null){
             String action = problemScanLogic.getAction();
             problemScanLogicVO.setAction(action);
+
+            if (!(problemScanLogic.getRelativePosition().equals("null"))){
+                String relativePosition = problemScanLogic.getRelativePosition();
+                String[] relativePositionSplit = relativePosition.split(",");
+                relative = relativePositionSplit[0];
+                position = relativePositionSplit[1];
+                problemScanLogicVO.setRelative(relative);
+                problemScanLogicVO.setPosition(position);
+            }
+
         }
+
         if (problemScanLogic.getrPosition()!=null){
             Integer rPosition = problemScanLogic.getrPosition();
             problemScanLogicVO.setrPosition(rPosition);

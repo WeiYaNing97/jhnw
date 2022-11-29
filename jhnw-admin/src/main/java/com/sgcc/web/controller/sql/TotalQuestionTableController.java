@@ -182,13 +182,13 @@ public class TotalQuestionTableController extends BaseController
     public boolean judgeSuperAdministrator() {
         LoginUser login = SecurityUtils.getLoginUser();
         Long userId = login.getUserId();
-        if (userId == 1l){
+        if (userId == 1L){
             return true;
         }else {
             SysUser sysUser = userService.selectUserById(userId);
             List<SysRole> roles = sysUser.getRoles();
             for (SysRole role:roles){
-                if (role.getRoleId() == 1l){
+                if (role.getRoleId() == 1L){
                     return true;
                 }
             }

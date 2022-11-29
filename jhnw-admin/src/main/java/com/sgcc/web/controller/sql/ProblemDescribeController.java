@@ -125,7 +125,7 @@ public class ProblemDescribeController extends BaseController
         pojo.setProblemDescribe(problemDescribe);
 
         //如果问题表 问题描述ID 不为0时 说明有问题描述，修改，只修改问题描述表描述字段
-        if (!(totalQuestionTable.getProblemDescribeId().equals(0l))){
+        if (!(totalQuestionTable.getProblemDescribeId().equals(0L))){
             pojo.setId(totalQuestionTable.getProblemDescribeId());
             int i = problemDescribeService.updateProblemDescribe(pojo);
             if (i>0){
@@ -157,7 +157,7 @@ public class ProblemDescribeController extends BaseController
         if (deleteProblemDescribeById>0){
             //根据 问题描述表ID  查询 问题表实体类
             TotalQuestionTable totalQuestionTable =  totalQuestionTableService.selectPojoByproblemDescribeId(id);
-            totalQuestionTable.setProblemDescribeId(0l);
+            totalQuestionTable.setProblemDescribeId(0L);
             int updateTotalQuestionTable = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
             return toAjax(updateTotalQuestionTable);
         }

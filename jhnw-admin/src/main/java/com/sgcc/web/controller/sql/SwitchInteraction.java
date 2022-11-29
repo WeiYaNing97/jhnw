@@ -2905,7 +2905,7 @@ public class SwitchInteraction {
                 String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                         executeScanCommandByCommandId_object,  "",  "");
 
-                return AjaxResult.success(analysisReturnResults_String);
+                //return AjaxResult.success(analysisReturnResults_String);
             }else if (totalQuestionTable.getCommandId().indexOf("分析") != -1){
                 List<Object> executeScanCommandByCommandId_object = new ArrayList<>();
                 executeScanCommandByCommandId_object.add("");
@@ -2914,7 +2914,7 @@ public class SwitchInteraction {
                 String analysisReturnResults_String = analysisReturnResults(user_String, user_Object , totalQuestionTable,
                         executeScanCommandByCommandId_object,  "",  "");
 
-                return AjaxResult.success(analysisReturnResults_String);
+                //return AjaxResult.success(analysisReturnResults_String);
             }
         }
         return null;

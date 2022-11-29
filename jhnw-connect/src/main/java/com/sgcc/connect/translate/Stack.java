@@ -112,9 +112,9 @@ public class Stack {
     public boolean isEmpty() {
         isEmpty = false;
 
-        if (objArr[0] == null)
-
+        if (objArr[0] == null) {
             isEmpty = true;
+        }
 
         return isEmpty;
 

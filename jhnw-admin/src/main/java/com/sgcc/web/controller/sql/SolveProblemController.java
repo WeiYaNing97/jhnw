@@ -32,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 与交换机交互方法类
@@ -260,8 +261,6 @@ public class SolveProblemController {
         user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
         user_Object.put("loginUser",loginUser);
 
-        //解析返回参数
-        List<Object> informationList = null;
         //是否连接成功
         boolean requestConnect_boolean = false;
         /* requestConnect方法：
@@ -369,9 +368,9 @@ public class SolveProblemController {
                     continue;
                 }
 
-                //传参 命令ID 和 参数ID
+                //传参 修复问题命令ID
                 //返回 命令集合 和 参数集合
-                List<String> commandList = queryParameterSet(switchScanResult.getComId() + "");
+                List<String> commandList = queryCommandSet(switchScanResult.getComId() + "");
 
                 if (commandList == null){
                     WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
@@ -389,7 +388,7 @@ public class SolveProblemController {
                 HashMap<String, String> valueHashMap = separationParameters(switchScanResult.getDynamicInformation());
 
                 //执行解决问题
-                String solveProblem = solveProblem(user_String,loginUser,informationList,switchScanResult, commandList,valueHashMap);//userName
+                String solveProblem = solveProblem(user_String,loginUser,objectMap,switchScanResult, commandList,valueHashMap);//userName
 
                 if (solveProblem.equals("成功")){
                     switchScanResult.setIfQuestion("已解决");
@@ -446,7 +445,9 @@ public class SolveProblemController {
 
 
     /**
-     * todo  返回  map  参数名 ： 参数值
+     *
+     *
+     * a
      * @param dynamicInformation
      * @return
      */
@@ -475,39 +476,6 @@ public class SolveProblemController {
         return valueHashMap;
     }
 
-    /***
-     * todo 返回 命令集合 和 参数集合
-     *
-     * a
-     *
-     * 返回 命令集合 和 参数集合
-     * @method: queryParameterSet
-     * @Param: []
-     * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     * 传参 命令ID 和 参数ID
-     */
-    @RequestMapping("queryParameterSet")
-    public List<String> queryParameterSet(String commandID){
-
-        if (commandID == null){
-            return null;
-        }
-
-        //根据 第一个命令 ID
-        //根据 命令ID commandID 查询命令集合
-        AjaxResult ajaxResult = queryCommandSet(commandID);
-        List<CommandLogic> commandLogicList = (List<CommandLogic>)ajaxResult.get("data");
-        //定义命令集合 commandList
-        List<String> commandList = new ArrayList<>();
-        //将命令 放入 命令集合
-        for (CommandLogic commandLogic:commandLogicList){
-            commandList.add(commandLogic.getCommand());
-        }
-
-        return commandList;
-    }
 
     /**
      * 查询命令集合
@@ -518,21 +486,25 @@ public class SolveProblemController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("queryCommandSet")
-    public AjaxResult queryCommandSet(String commandId_Long){
+    public List<String> queryCommandSet(String commandId){
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
+
         do {
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId_Long);
+            CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
             commandLogicList.add(commandLogic);
-            commandId_Long = commandLogic.getEndIndex();
-        }while (!(commandId_Long.equals("0")));
-        return AjaxResult.success(commandLogicList);
+            commandId = commandLogic.getEndIndex();
+        }while (!(commandId.equals("0")));
+
+        // todo JDK8 新特性测试
+        return commandLogicList.stream().map(m -> m.getCommand()).collect(Collectors.toList());
+
     }
 
     /**
      *
-     * todo 执行解决问题
+     * a
      *
      * @method: 执行解决问题
      * @Param: [parameterID]
@@ -543,7 +515,7 @@ public class SolveProblemController {
     @RequestMapping("solveProblem")
     public String solveProblem(Map<String,String> user_String,
                                LoginUser loginUser,
-                               List<Object> informationList,
+                               Map<String,Object> objectMap,
                                SwitchScanResult switchScanResult,
                                List<String> commandList,
                                HashMap<String,String> valueHashMap){
@@ -571,7 +543,7 @@ public class SolveProblemController {
         TelnetSwitchMethod telnetSwitchMethod = null;
 
         //连接方式：ssh 或 telnet
-        String requestConnect_way = informationList.get(1).toString();
+        String requestConnect_way = (String)objectMap.get("way");
         //如果连接方式为ssh则 连接方法返回集合最后一个参数为 connectMethod参数
         //如果连接方式为telnet则 连接方法返回集合最后一个参数为 telnetSwitchMethod参数
         SshConnect sshConnect = null;
@@ -579,11 +551,11 @@ public class SolveProblemController {
 
 
         if (requestConnect_way.equalsIgnoreCase("ssh")){
-            connectMethod = (SshMethod)informationList.get(6);
-            sshConnect = (SshConnect)informationList.get(8);
+            connectMethod = (SshMethod)objectMap.get("connectMethod");
+            sshConnect = (SshConnect)objectMap.get("sshConnect");
         }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-            telnetSwitchMethod = (TelnetSwitchMethod)informationList.get(7);
-            telnetComponent = (TelnetComponent)informationList.get(9);
+            telnetSwitchMethod = (TelnetSwitchMethod)objectMap.get("telnetSwitchMethod");
+            telnetComponent = (TelnetComponent)objectMap.get("telnetComponent");
         }
 
         String commandString =""; //预设交换机返回结果
@@ -622,7 +594,7 @@ public class SolveProblemController {
                         e.printStackTrace();
                     }
 
-                    commandString = connectMethod.sendCommand((String) informationList.get(2),sshConnect,command,null);
+                    commandString = connectMethod.sendCommand((String) objectMap.get("hostIp"),sshConnect,command,null);
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
@@ -634,7 +606,7 @@ public class SolveProblemController {
                         e.printStackTrace();
                     }
 
-                    commandString = telnetSwitchMethod.sendCommand((String) informationList.get(2),telnetComponent,command,null);
+                    commandString = telnetSwitchMethod.sendCommand((String) objectMap.get("hostIp"),telnetComponent,command,null);
                     //commandString = Utils.removeLoginInformation(commandString);
                 }
 

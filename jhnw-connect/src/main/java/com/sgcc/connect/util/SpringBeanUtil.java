@@ -25,8 +25,9 @@ public class SpringBeanUtil implements ApplicationContextAware {
      */
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String name) {
-        if(name == null || applicationContext == null)
+        if(name == null || applicationContext == null) {
             return null;
+        }
         return (T) applicationContext.getBean(name);
     }
 

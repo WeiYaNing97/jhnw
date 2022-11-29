@@ -58,7 +58,7 @@ public class ScheduledTasks {
         for (int number = 0 ; number<switchProblemList.size(); number++){
             switchProblemId[number] = switchProblemList.get(number).getId();
 
-            if (switchProblemList.get(number).getValueId() !=0l){
+            if (switchProblemList.get(number).getValueId() !=0L){
                 valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);
                 List<ValueInformation> valueInformationList = valueInformationService.selectValueInformationListByID(switchProblemList.get(number).getValueId());
                 for (ValueInformation valueInformation:valueInformationList){

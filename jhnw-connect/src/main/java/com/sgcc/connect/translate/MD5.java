@@ -23,8 +23,9 @@ public class MD5 {
      * 
      */
     public static String md5(String input) throws UnsupportedEncodingException {
-        if (input == null)
+        if (input == null){
             return null;
+        }
 
         try {
             // 拿到一个MD5转换器（如果想要SHA1参数换成”SHA1”）
