@@ -33,7 +33,16 @@
 <!--    <el-button type="primary" size="small" @click="cesh">测试</el-button>-->
     <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
       <el-form-item label="定义获取基本信息命令">
-        <el-input v-model="basicCom" type="text" style="width:260px" placeholder="命令用逗号分隔"></el-input>
+
+        <div v-for="(item,index) in forms.testsss" :key="item.key">
+          <el-input v-model="item.value" placeholder="命令"></el-input>
+        </div>
+
+        <el-input v-model="custom" placeholder="品牌"></el-input>
+
+<!--        <el-input v-model="basicCom" type="text" style="width:260px" placeholder="命令用逗号分隔"></el-input>-->
+        <el-button @click="tianyi">+</el-button>
+        <el-button @click="kantest">查看</el-button>
       </el-form-item>
       <br/>
       <el-form-item label="命令分析逻辑:"></el-form-item>
@@ -293,6 +302,8 @@
                 particular:'',
                 partShow:true,
                 basicCom:'',
+                custom:'',
+                a111:['sss','ssss'],
                 //必选项
                 //隐藏定义问题
                 chuxian:true,
@@ -369,6 +380,11 @@
                             onlyIndex:''
                         }
                     ],
+                    testsss:[
+                        {
+                            value:''
+                        }
+                    ]
                 },
                 flagchange:0,
                 // 表单校验
@@ -384,6 +400,23 @@
             // this.jiazai()
         },
         methods: {
+            //添加一行
+            tianyi(){
+                // addDomain() {
+                //     this.dynamicValidateForm.domains.push({
+                //         value: '',
+                //         key: Date.now()
+                //     });
+                // }
+                this.forms.testsss.push({
+                    value:''
+                })
+            },
+            kantest(){
+                // console.log(this.forms)
+                console.log(this.forms.testsss)
+                console.log(this.custom)
+            },
             //重新赋值
             reloadv(){
 
@@ -752,8 +785,14 @@
                     })
                     const handForm = useForm.map(x => JSON.stringify(x))
                     console.log(handForm)
+                    var command = []
+                    this.forms.testsss.forEach(e=>{
+                        command.push(e.value)
+                    })
+                    var custom = this.custom
                     return request({
-                        url:`/sql/DefinitionProblemController/insertInformationAnalysis?command=${this.basicCom}`,
+                        // url:`/sql/DefinitionProblemController/insertInformationAnalysis?command=${this.basicCom}`,
+                        url:'/sql/DefinitionProblemController/insertInformationAnalysis/'+command+'/'+custom,
                         method:'post',
                         data:handForm
                     }).then(response=>{

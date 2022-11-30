@@ -72,9 +72,9 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主=:=
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("insertInformationAnalysis/{custom}")
+    @RequestMapping("insertInformationAnalysis/{command}/{custom}")
     @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.UPDATE)
-    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@RequestParam String[] command,@PathVariable  String custom){
+    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable  String custom){
 
         custom = "["+custom+"]";
 

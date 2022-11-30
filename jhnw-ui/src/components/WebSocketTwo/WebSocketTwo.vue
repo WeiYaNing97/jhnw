@@ -60,7 +60,14 @@
       <el-table-column prop="createTime" label="扫描时间" width="180"></el-table-column>
 <!--      <el-table-column prop="switchIp" label="主机" width="130"></el-table-column>-->
 <!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
-      <el-table-column prop="hebing" label="主机(基本信息)" width="320"></el-table-column>
+      <el-table-column prop="hebing" label="主机(基本信息)" width="320">
+
+        <template slot-scope="scope">
+          <!--          <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
+          <span v-loading="loadingOne = !scope.row.hebing == ''">{{ scope.row.hebing }}</span>
+        </template>
+
+      </el-table-column>
       <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
       <el-table-column prop="problemName" label="问题" ></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
