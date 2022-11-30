@@ -8,6 +8,7 @@ import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.BasicInformation;
+import com.sgcc.sql.domain.BasicInformationVO;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ProblemScanLogic;
 import com.sgcc.sql.service.IBasicInformationService;
@@ -115,7 +116,30 @@ public class BasicInformationController extends BaseController
     public List<BasicInformation> getPojolist()
     {
         List<BasicInformation> list = basicInformationService.selectBasicInformationList(null);
-        return list;
+
+        /*List<BasicInformationVO> basicInformationVOList = new ArrayList<>();
+        for (BasicInformation basicInformation:list){
+            BasicInformationVO basicInformationVO = new BasicInformationVO();
+            basicInformationVO.setId(basicInformation.getId());
+            String[] CommandsCustom = basicInformation.getCommand().split("\\[");
+            String[] comand = CommandsCustom[0].split("=:=");
+            String custom = CommandsCustom[1].replace("]", "");
+            basicInformationVO.setCommand(comand);
+            basicInformationVO.setCustom(custom);
+            basicInformationVO.setProblemId(basicInformation.getProblemId());
+            basicInformationVOList.add(basicInformationVO);
+        }*/
+
+        List<BasicInformation> pojolist = new ArrayList<>();
+        for (BasicInformation basicInformation:list){
+            BasicInformation pojo = new BasicInformation();
+            pojo.setId(basicInformation.getId());
+            pojo.setCommand(basicInformation.getCommand().replace("=:=","、").replace("\\[","\\ ["));
+            pojo.setProblemId(basicInformation.getProblemId());
+            pojolist.add(pojo);
+        }
+
+        return pojolist;
     }
 
 }
