@@ -3,7 +3,7 @@
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="基本信息命令" prop="brand">
         <el-select v-model="basicCom" placeholder="基本信息命令"
-                   filterable allow-create @focus="basComs" style="width: 250px">
+                   filterable allow-create @focus="basComs" style="width: 400px">
           <el-option v-for="(item,index) in comsss"
                      :value-key="index" :label="item.command" :value="item.problemId"></el-option>
         </el-select>
@@ -11,9 +11,9 @@
       <el-form-item>
         <el-button @click="chakan" type="primary">查看</el-button>
       </el-form-item>
-      <el-form-item>
-        <el-button @click="xiugai" type="primary">编辑</el-button>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button @click="xiugai" type="primary">编辑</el-button>-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button @click="shanchutest" type="primary" v-show="shanShow">删除</el-button>
       </el-form-item>
@@ -209,9 +209,9 @@
         </el-form-item>
       </div>
 
-      <el-form-item>
-        <el-button @click="submitUseForm" type="primary">提交</el-button>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button @click="submitUseForm" type="primary">提交</el-button>-->
+<!--      </el-form-item>-->
     </el-form>
   </div>
 </template>

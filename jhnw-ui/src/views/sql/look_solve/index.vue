@@ -372,7 +372,7 @@ export default {
                           this.lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
                           this.forms.dynamicItem = this.forms.dynamicItem.concat(this.lookCha)
                       }else {
-                          alert('未定义该问题解决逻辑，请定义!')
+                          alert('未定义该问题修复逻辑，请定义!')
                       }
                   })
               })

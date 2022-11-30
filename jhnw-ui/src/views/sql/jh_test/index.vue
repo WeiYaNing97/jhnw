@@ -423,9 +423,18 @@ export default {
       //新增设备
       xinzeng(){
           this.tableData.push({
-              ip: '192.168.1.100',
-              name: 'admin',
-              password:'admin',
+              // ip: '192.168.1.100',
+              // name: 'admin',
+              // password:'admin',
+              // passmi:'********',
+              // mode:'ssh',
+              // port:22,
+              // isEdit:true,
+              // conCip:'********',
+              // configureCiphers:''
+              ip: '',
+              name: '',
+              password:'',
               passmi:'********',
               mode:'ssh',
               port:22,
@@ -778,7 +787,10 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
+  .el-form-item__content{
+    width: 100% !important;
+  }
   .el-input--suffix .el-input__inner{
     padding-right: 10px;
   }
@@ -790,9 +802,6 @@ export default {
   }
   .el-divider--horizontal{
     margin: 10px 0;
-  }
-  .el-form-item__content{
-    width: 100%;
   }
   .el-dialog__body{
     padding: 20px 20px;

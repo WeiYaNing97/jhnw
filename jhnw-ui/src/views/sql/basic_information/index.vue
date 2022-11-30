@@ -26,22 +26,21 @@
       <br/>
       <el-button type="primary" size="small" @click="ceshi1" style="margin-top: 11px">预执行</el-button>
       <div style="display: inline-block;margin-left: 20px">
-        <el-input v-model="returnInfo" placeholder="展示获取基本信息" style="width:500px"></el-input>
+        <el-input v-model="returnInfo" readonly placeholder="展示获取基本信息" style="width:500px"></el-input>
       </div>
     </el-form>
     <hr style='border:1px inset #D2E9FF;'>
-<!--    <el-button type="primary" size="small" @click="cesh">测试</el-button>-->
     <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
       <el-form-item label="定义获取基本信息命令">
 
-        <div v-for="(item,index) in forms.testsss" :key="item.key">
-          <el-input v-model="item.value" placeholder="命令"></el-input>
-        </div>
-
-        <el-input v-model="custom" placeholder="品牌"></el-input>
+        <el-input v-model="custom" placeholder="品牌" style="width: 110px;margin-bottom: 10px"></el-input>
+          <div v-for="(item,index) in forms.testsss" :key="item.key">
+            <el-input v-model="item.value" placeholder="命令" style="width: 300px;margin-bottom: 5px"></el-input>
+            <el-button @click="removeItem(index)" style="display: inline-block">删除</el-button>
+          </div>
 
 <!--        <el-input v-model="basicCom" type="text" style="width:260px" placeholder="命令用逗号分隔"></el-input>-->
-        <el-button @click="tianyi">+</el-button>
+        <el-button @click="tianyi">添加命令</el-button>
         <el-button @click="kantest">查看</el-button>
       </el-form-item>
       <br/>
@@ -301,9 +300,7 @@
                 //问题详情
                 particular:'',
                 partShow:true,
-                basicCom:'',
                 custom:'',
-                a111:['sss','ssss'],
                 //必选项
                 //隐藏定义问题
                 chuxian:true,
@@ -417,13 +414,12 @@
                 console.log(this.forms.testsss)
                 console.log(this.custom)
             },
+            removeItem(index){
+                this.forms.testsss.splice(index,1)
+            },
             //重新赋值
             reloadv(){
 
-            },
-            //测试
-            cesh(){
-                this.returnInfo = '设备品牌：H3C,型号：S2152，版本：5.20.99，子版本：1106'
             },
             //单步执行
             ceshi1(){
@@ -439,7 +435,10 @@
                 let mode = this.form.mode
                 let port = this.form.port
                 let configureCiphers = this.form.configureCiphers
-                let command = this.basicCom
+                var command = []
+                this.forms.testsss.forEach(e=>{
+                    command.push(e.value)
+                })
                 // let zuihouall = this.deviceInfo.map(x=>JSON.stringify(x))
                 // console.log(zuihouall)
                 // var qqq = JSON.stringify(zuihouall)
@@ -742,67 +741,71 @@
             },
             //提交获取基本信息命令
             tijiao(){
-                MessageBox.confirm('确定提交吗？','提示').then(c=>{
-                    // this.zhidu = false
-                    //基本信息命令
-                    console.log(this.basicCom)
-                    console.log(typeof (this.basicCom))
-                    const useForm = []
-                    const useLess = []
-                    this.forms.dynamicItem.forEach(e=>{
-                        if (e.test === "test"){
-                            useLess.push(e)
-                        }else {
-                            useForm.push(e)
-                        }
-                    })
-                    useForm.forEach(eeee=>{
-                        const thisIndex = useForm.indexOf(eeee)
-                        if(useForm.length != thisIndex+1){
-                            const thisNext = useForm[thisIndex+1]
-                            this.$set(eeee,'nextIndex',thisNext.onlyIndex)
-                        }
-                        if (eeee.action === '取词'){
-                            eeee.length = `${eeee.length1}${eeee.classify}`
-                        }
-                        if (this.jiaoyan == '常规校验'){
-                            this.$set(eeee,'resultCheckId','1')
-                        }else {
-                            this.$set(eeee,'resultCheckId','0')
-                        }
-                        this.$set(eeee,'pageIndex',thisIndex+1)
-                        if (eeee.targetType == 'takeword'){
-                            const takeWordt = useForm.indexOf(eeee)
-                            var quciC = ''
-                            useForm.map((e11)=>{
-                                const takeWl = useForm.indexOf(e11)
-                                if(takeWl == takeWordt-1){
-                                    quciC = e11.matchContent
-                                }
-                            })
-                            this.$set(eeee,'matchContent',quciC)
-                        }
-                    })
-                    const handForm = useForm.map(x => JSON.stringify(x))
-                    console.log(handForm)
-                    var command = []
-                    this.forms.testsss.forEach(e=>{
-                        command.push(e.value)
-                    })
-                    var custom = this.custom
+                // window.location.reload()   刷新页面
+                // this.$router.go(0)   刷新页面
+                // this.zhidu = false
+                //基本信息命令
+                const useForm = []
+                const useLess = []
+                this.forms.dynamicItem.forEach(e=>{
+                    if (e.test === "test"){
+                        useLess.push(e)
+                    }else {
+                        useForm.push(e)
+                    }
+                })
+                useForm.forEach(eeee=>{
+                    const thisIndex = useForm.indexOf(eeee)
+                    if(useForm.length != thisIndex+1){
+                        const thisNext = useForm[thisIndex+1]
+                        this.$set(eeee,'nextIndex',thisNext.onlyIndex)
+                    }
+                    if (eeee.action === '取词'){
+                        eeee.length = `${eeee.length1}${eeee.classify}`
+                    }
+                    if (this.jiaoyan == '常规校验'){
+                        this.$set(eeee,'resultCheckId','1')
+                    }else {
+                        this.$set(eeee,'resultCheckId','0')
+                    }
+                    this.$set(eeee,'pageIndex',thisIndex+1)
+                    if (eeee.targetType == 'takeword'){
+                        const takeWordt = useForm.indexOf(eeee)
+                        var quciC = ''
+                        useForm.map((e11)=>{
+                            const takeWl = useForm.indexOf(e11)
+                            if(takeWl == takeWordt-1){
+                                quciC = e11.matchContent
+                            }
+                        })
+                        this.$set(eeee,'matchContent',quciC)
+                    }
+                })
+                const handForm = useForm.map(x => JSON.stringify(x))
+                console.log(handForm)
+                var command = []
+                this.forms.testsss.forEach(e=>{
+                    command.push(e.value)
+                })
+                var custom = this.custom
+                if(handForm.length == 0){
+                    alert('提交失败,分析逻辑不能为空!')
+                }else {
                     return request({
-                        // url:`/sql/DefinitionProblemController/insertInformationAnalysis?command=${this.basicCom}`,
-                        url:'/sql/DefinitionProblemController/insertInformationAnalysis/'+command+'/'+custom,
+                        // url:'/sql/DefinitionProblemController/insertInformationAnalysis/'+command+'/'+custom,
                         method:'post',
                         data:handForm
                     }).then(response=>{
                         this.$message.success('提交成功!')
                     })
-                    // window.location.reload()   刷新页面
-                    // this.$router.go(0)   刷新页面
-                }).catch(ee=>{
-                    this.$message.warning('取消提交!')
-                })
+                }
+
+
+                // MessageBox.confirm('确定提交吗？','提示').then(c=>{
+                //
+                // }).catch(ee=>{
+                //     this.$message.warning('取消提交!')
+                // })
                 // this.forms.dynamicItem.shift(); hasOwnProperty(存在) 删除数组第一个元素
             },
 

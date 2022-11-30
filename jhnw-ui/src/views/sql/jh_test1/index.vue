@@ -1349,7 +1349,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
   .qqqqq{
     height: 60vh;
     overflow-x: hidden;
