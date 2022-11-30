@@ -80,7 +80,7 @@ public class SwitchInteraction {
     @RequestMapping("testToObtainBasicInformation/{ip}/{name}/{password}/{port}/{mode}/{configureCiphers}/{command}")
     @MyLog(title = "测试获取交换机基本信息逻辑执行结果", businessType = BusinessType.OTHER)
     public String testToObtainBasicInformation(@PathVariable String ip,@PathVariable String name,@PathVariable String password,@PathVariable String port,@PathVariable String mode,@PathVariable String configureCiphers,
-                                               @PathVariable String command,@RequestBody List<String> pojoList) {
+                                               @PathVariable String[] command,@RequestBody List<String> pojoList) {
 
         LoginUser loginUser = SecurityUtils.getLoginUser();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -746,7 +746,7 @@ public class SwitchInteraction {
      * 通过返回提取的信息，给基本属性赋值
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      */
-    public static AjaxResult getBasicInformationTest(Map<String,String> user_String,Map<String,Object> user_Object,String commands ,List<ProblemScanLogic> problemScanLogicList) {
+    public static AjaxResult getBasicInformationTest(Map<String,String> user_String,Map<String,Object> user_Object,String[] commands ,List<ProblemScanLogic> problemScanLogicList) {
         //四个参数 赋值
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
@@ -757,7 +757,7 @@ public class SwitchInteraction {
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
 
-        if (commands == null){
+        if (commands.length == 0){
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
 
@@ -766,9 +766,8 @@ public class SwitchInteraction {
         String way = user_String.get("mode");
         //目前获取基本信息命令是多个命令是由,号分割的，
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
-        String[] removecustom = commands.split("\\[");
 
-        String[] commandsplit = removecustom[0].split("=:=");
+        String[] commandsplit = commands;
 
         String commandString =""; //预设交换机返回结果
         String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)
@@ -1099,7 +1098,8 @@ public class SwitchInteraction {
             String way = user_String.get("mode");
             //目前获取基本信息命令是多个命令是由,号分割的，
             // 所以需要根据, 来分割。例如：display device manuinfo,display ver
-            String[] commandsplit = basicInformation.getCommand().split(",");
+            String[] removecustom = basicInformation.getCommand().split("\\[");
+            String[] commandsplit = removecustom[0].split("=:=");
 
             String commandString =""; //预设交换机返回结果
             String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)

@@ -48,20 +48,6 @@ public class DefinitionProblemController extends BaseController {
     @Autowired
     private static IBasicInformationService basicInformationService;
 
-    public static void main(String[] args) {
-        String command = "dis cu=:=command=:=";
-
-        System.err.println(command);
-
-        System.err.println(command.length());
-
-        System.err.println("=:=".length());
-
-        System.err.println("dis cu=:=command=:=".length() - "=:=".length());
-
-        System.err.println("dis cu=:=command=:=".subSequence(0,"dis cu=:=command=:=".length() - "=:=".length()));
-    }
-
 
     /**
      * a
@@ -74,7 +60,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @RequestMapping("insertInformationAnalysis/{command}/{custom}")
     @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.UPDATE)
-    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable  String custom){
+    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
 
         custom = "["+custom+"]";
 
