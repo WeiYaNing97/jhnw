@@ -404,7 +404,7 @@ public class Utils {
             case "W":
             case "s":
             case "S":
-                //以matchContent 为参照  获取位置 因为后期转化为数组，关键词后第一位为 [0]
+                //以matchContent 为参照  获取位置 因为后期转化为数组，关键词为 [0]
                 String get_word = "";
                 get_word = "";
 

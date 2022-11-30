@@ -766,7 +766,9 @@ public class SwitchInteraction {
         String way = user_String.get("mode");
         //目前获取基本信息命令是多个命令是由,号分割的，
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
-        String[] commandsplit = commands.split(",");
+        String[] removecustom = commands.split("\\[");
+
+        String[] commandsplit = removecustom[0].split("=:=");
 
         String commandString =""; //预设交换机返回结果
         String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)

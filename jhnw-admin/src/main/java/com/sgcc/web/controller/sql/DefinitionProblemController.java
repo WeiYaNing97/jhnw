@@ -48,24 +48,49 @@ public class DefinitionProblemController extends BaseController {
     @Autowired
     private static IBasicInformationService basicInformationService;
 
+    public static void main(String[] args) {
+        String command = "dis cu=:=command=:=";
+
+        System.err.println(command);
+
+        System.err.println(command.length());
+
+        System.err.println("=:=".length());
+
+        System.err.println("dis cu=:=command=:=".length() - "=:=".length());
+
+        System.err.println("dis cu=:=command=:=".subSequence(0,"dis cu=:=command=:=".length() - "=:=".length()));
+    }
+
+
     /**
      * a
      *
      * @method: 定义获取基本信息命令插入
      * @Param: [jsonPojoList]
      * @return: void
-     * @Author: 天幕顽主
+     * @Author: 天幕顽主=:=
      * @E-mail: WeiYaNing97@163.com
      */
-    @RequestMapping("insertInformationAnalysis")
+    @RequestMapping("insertInformationAnalysis/{custom}")
     @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.UPDATE)
-    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@RequestParam String command){
+    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@RequestParam String[] command,@PathVariable  String custom){
+
+        custom = "["+custom+"]";
+
+        String comands = null;
+
+        for (int num = 0 ;num < command.length; num++){
+            comands = comands + command[num] + "=:=";
+        }
+        comands = comands.substring(0,comands.length()-"=:=".length()) + custom;
+
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         //创建实体类
         BasicInformation basicInformation = new BasicInformation();
         //放入获取交换机基本信息命令
-        basicInformation.setCommand(command);
+        basicInformation.setCommand(comands);
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         int i = basicInformationService.insertBasicInformation(basicInformation);
         //当i<=0时插入失败
@@ -767,6 +792,7 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getAction() != null){
             /** 相对位置 */
             hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
+            problemScanLogic.setRelativePosition(hashMap.get("relativePosition"));
         }
 
         if (hashMap.get("rPosition")!=null && !(hashMap.get("rPosition").equals("null"))){
