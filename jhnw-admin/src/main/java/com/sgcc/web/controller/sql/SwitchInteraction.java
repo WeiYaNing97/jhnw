@@ -200,6 +200,15 @@ public class SwitchInteraction {
             System.err.println("banben："+data.get("banben"));
             System.err.println("zibanben："+data.get("zibanben"));
 
+
+            /*关闭连接交换机*/
+            if (requestConnect_way.equalsIgnoreCase("ssh")){
+                connectMethod.closeConnect(sshConnect);
+            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
+                telnetSwitchMethod.closeSession(telnetComponent);
+            }
+
+
             return "设备品牌："+data.get("pinpai")+" 设备型号："+data.get("xinghao")+" 内部固件版本："+data.get("banben")+" 子版本号："+data.get("zibanben");
         }
 
