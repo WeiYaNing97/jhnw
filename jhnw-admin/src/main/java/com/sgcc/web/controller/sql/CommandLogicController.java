@@ -333,11 +333,15 @@ public class CommandLogicController extends BaseController
             problemSolvingId = commandLogic.getEndIndex();
             //当下一命令ID为0 的时候  结束
         }while (!(problemSolvingId.equals("0")));
+
         //删除解决问题命令
         String[] ids = new String[commandLogicList.size()];
         for (int num = 0 ; num<commandLogicList.size();num++){
             ids[num] = commandLogicList.get(num).getId();
         }
+
+
+
         int deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(ids);
         if (deleteCommandLogicByIds<=0){
             return false;

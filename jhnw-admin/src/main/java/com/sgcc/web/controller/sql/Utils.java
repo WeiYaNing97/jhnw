@@ -390,13 +390,13 @@ public class Utils {
      */
     public static String wordSelection(String returnString,String matchContent,int integer,String length){
         // 获取 W、L、S
-        String substring = length.substring(length.length() - 1, length.length());
+        String substring = length.substring(length.length() - 1, length.length());//取词类型
         //获取取值长度
-        int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();
+        int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();//取词长度
         //预设返回值
         String return_string = "";
 
-        returnString = repaceWhiteSapce(returnString);
+        returnString = repaceWhiteSapce(returnString); // 连续空格改为 1 个空格
 
         switch (substring){
             // 取词和取字符串
@@ -408,9 +408,9 @@ public class Utils {
                 String get_word = "";
                 get_word = "";
 
-                String returnString_string = returnString.trim();
+                String returnString_trim = returnString.trim(); //交换机返回 信息 去除 前后空格
 
-                String[] split_String = returnString_string.split(" ");
+                String[] split_String = returnString_trim.split(" ");
                 if (!(matchContent.equals(""))){
                     int num = 0;
                     for ( ; num <split_String.length ; num++){
@@ -420,6 +420,8 @@ public class Utils {
                     }
 
                     integer = integer + num;
+                }else if (matchContent.equals("")){
+                    integer = integer - 1 ;
                 }
 
                 //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度  6
@@ -453,6 +455,7 @@ public class Utils {
                 }
                 return_string = returnString.substring(start, start+word_length);
                 System.err.println("L："+return_string);
+
         }
         if (return_string.length()>0){
             return return_string.trim();

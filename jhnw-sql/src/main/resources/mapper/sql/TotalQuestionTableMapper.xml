@@ -72,7 +72,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <sql id="selectTotalQuestionTableVo">
-        select id, brand, type, fireware_version,sub_version,not_finished, command_id, problem_name,tem_pro_name,type_problem, problem_describe_id ,problem_solving_id,remarks,required_items from total_question_table
+        select id, brand, type, fireware_version,sub_version,not_finished, command_id, type_problem,tem_pro_name,problem_name, problem_describe_id ,problem_solving_id,remarks,required_items from total_question_table
     </sql>
 
     <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
@@ -121,10 +121,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY id DESC
     </select>
 
+    <!--ORDER BY id DESC-->
     <select id="queryVagueScannableQuestionsList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
         ${sql}
-        ORDER BY id DESC
+
     </select>
 
     <select id="selectTotalQuestionTableListInsert" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">

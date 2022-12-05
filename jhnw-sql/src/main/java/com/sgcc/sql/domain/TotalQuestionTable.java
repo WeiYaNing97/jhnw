@@ -39,17 +39,18 @@ public class TotalQuestionTable extends BaseEntity
     @Excel(name = "启动命令ID")
     private String commandId;
 
-    /** 问题名称 */
-    @Excel(name = "问题名称")
-    private String problemName;
+    /** 范式种类 */
+    @Excel(name = "问题种类")
+    private String typeProblem;
 
-    /** 问题名称 */
+
+    /** 范式名称 */
     @Excel(name = "问题名称")
     private String temProName;
 
-    /** 问题种类 */
-    @Excel(name = "问题种类")
-    private String typeProblem;
+    /** 问题名称 */
+    @Excel(name = "问题名称")
+    private String problemName;
 
     /** 问题详细说明和指导索引 */
     @Excel(name = "问题详细说明和指导索引")

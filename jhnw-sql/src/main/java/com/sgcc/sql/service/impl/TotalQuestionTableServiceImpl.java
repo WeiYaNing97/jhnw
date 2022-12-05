@@ -228,6 +228,7 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
             }
             subVersionSQL = subVersionSQL +")";
         }
+
         String sql = "where brand = \'" + totalQuestionTable.getBrand() + "\' ";
         if (totalQuestionTable.getType() != null && totalQuestionTable.getType() != ""){
             sql = sql + typeSQL;
@@ -238,7 +239,8 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         if (totalQuestionTable.getSubVersion() != null && totalQuestionTable.getSubVersion() != ""){
             sql = sql + subVersionSQL;
         }
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableMapper.queryVagueScannableQuestionsList(sql);
+
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableMapper.queryVagueScannableQuestionsList(sql + " ORDER BY type_problem,tem_pro_name,problem_name");
         return totalQuestionTables;
     }
 
