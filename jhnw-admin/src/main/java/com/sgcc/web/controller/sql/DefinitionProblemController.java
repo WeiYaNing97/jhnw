@@ -1,31 +1,37 @@
 package com.sgcc.web.controller.sql;
 
+import cn.hutool.poi.excel.ExcelExtractorUtil;
+import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.common.utils.ServletUtils;
+import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.connect.util.SpringBeanUtil;
-import com.sgcc.generator.config.GenConfig;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.IBasicInformationService;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.system.service.ISysUserService;
 import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.webSocket.WebSocketService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author 天幕顽主
@@ -47,6 +53,93 @@ public class DefinitionProblemController extends BaseController {
     private static ITotalQuestionTableService totalQuestionTableService;
     @Autowired
     private static IBasicInformationService basicInformationService;
+    @Autowired
+    private ISysUserService userService;
+
+    /**
+     * 导出问题及命令列表
+     */
+    public static AjaxResult totalQuestionTableExport(List<TotalQuestionTable> list)
+    {
+        ExcelUtil<TotalQuestionTable> util = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
+        AjaxResult exportExcel = util.exportExcel(list, "问题及命令数据");
+        return exportExcel;
+    }
+    /**
+     * 导出命令逻辑列表
+     */
+    public static AjaxResult commandLogicExport(List<CommandLogic> list)
+    {
+        ExcelUtil<CommandLogic> util = new ExcelUtil<CommandLogic>(CommandLogic.class);
+        return util.exportExcel(list, "命令逻辑数据");
+    }
+    /**
+     * 导出问题扫描逻辑列表
+     */
+    public static AjaxResult problemScanLogicExport(List<ProblemScanLogic> list)
+    {
+        ExcelUtil<ProblemScanLogic> util = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
+        return util.exportExcel(list, "问题扫描逻辑数据");
+    }
+
+    @GetMapping("/scanningSQL")
+    public static void scanningSQL(@RequestBody Long totalQuestionTableId) {
+
+        List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
+
+        //系统登陆人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        /*问题*/
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+        totalQuestionTableList.add(totalQuestionTable);
+        totalQuestionTableExport(totalQuestionTableList);
+
+        HashMap<String, Object> scanLogicalEntityClass = DefinitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
+        /*命令数据*/
+        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        commandLogicExport(commandLogicList);
+
+        /*分析数据*/
+        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+        List<ProblemScanLogic> problemScanLogicList = DefinitionProblemController.definitionProblem(problemScanLogics);
+        problemScanLogicExport(problemScanLogicList);
+
+    }
+
+    @PostMapping("/importData")
+    @ResponseBody
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
+    {
+        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
+        List<SysUser> userList = util.importExcel(file.getInputStream());
+        /*String operName = ShiroUtils.getSysUser().getLoginName();
+        String message = userService.importUser(userList, updateSupport, operName);
+        return AjaxResult.success(message);*/
+
+        return null;
+    }
+
+
+    // todo 测试导入 main
+    public static void main(String[] args) {
+        InputStream is = null;
+        try {
+            is = new FileInputStream(new File("D:\\ruoyi\\uploadPath\\download\\95ea0625-6160-4084-8bf4-65f82792329c_问题扫描逻辑数据.xlsx"));
+            ExcelUtil<ProblemScanLogic> util = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
+            try {
+                List<ProblemScanLogic> problemScanLogicList = util.importExcel(is);
+                for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                    System.err.println(problemScanLogic.getMatchContent());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     /**
@@ -64,7 +157,7 @@ public class DefinitionProblemController extends BaseController {
 
         custom = "["+custom+"]";
 
-        String comands = null;
+        String comands = "";
 
         for (int num = 0 ;num < command.length; num++){
             comands = comands + command[num] + "=:=";
@@ -976,7 +1069,7 @@ public class DefinitionProblemController extends BaseController {
     @RequestMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
     public static AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
-
+        scanningSQL(totalQuestionTable.getId());
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
@@ -1243,7 +1336,7 @@ public class DefinitionProblemController extends BaseController {
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
         /*根据命令集合 获取 命令ID数组，根据分析逻辑集合 获取 分析逻辑ID 数组*/
-        List<String> commandLogicIdList = commandLogicList.stream().map(p -> p.getId()).distinct().collect(Collectors.toList());
+        /*List<String> commandLogicIdList = commandLogicList.stream().map(p -> p.getId()).distinct().collect(Collectors.toList());
         List<String> problemScanLogicIdList = problemScanLogics.stream().map(p -> p.getId()).distinct().collect(Collectors.toList());
         String[] commandLogicId = new String[commandLogicIdList.size()];
         String[] problemScanLogicId = new String[problemScanLogicIdList.size()];
@@ -1252,7 +1345,11 @@ public class DefinitionProblemController extends BaseController {
         }
         for (int i = 0 ; i<problemScanLogicIdList.size() ;i++){
             problemScanLogicId[i] = problemScanLogicIdList.get(i);
-        }
+        }*/
+
+        String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
+        String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
+
 
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         int deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(commandLogicId);
@@ -1757,10 +1854,12 @@ public class DefinitionProblemController extends BaseController {
         /*因为是要删除 需要ID唯一 所以不需要拆分 */
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(basicInformation.getProblemId(),SecurityUtils.getLoginUser());//commandLogic.getProblemId()
 
-        String[] ids = new String[problemScanLogicList.size()];
+        /*String[] ids = new String[problemScanLogicList.size()];
         for (int i=0;i<problemScanLogicList.size();i++){
             ids[i] = problemScanLogicList.get(i).getId();
-        }
+        }*/
+
+        String[] ids = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
 
         int j = problemScanLogicService.deleteProblemScanLogicByIds(ids);
         if (j<=0){
@@ -1927,10 +2026,12 @@ public class DefinitionProblemController extends BaseController {
             return false;
         }
 
-        String[] arr = new String[problemScanLogicList.size()];
+        /*String[] arr = new String[problemScanLogicList.size()];
         for (int i = 0;i<problemScanLogicList.size();i++){
             arr[i] = problemScanLogicList.get(i).getId();
-        }
+        }*/
+
+        String[] arr = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
 
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
         int i = problemScanLogicService.deleteProblemScanLogicByIds(arr);

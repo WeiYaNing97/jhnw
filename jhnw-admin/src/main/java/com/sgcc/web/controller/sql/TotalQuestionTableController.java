@@ -12,9 +12,7 @@ import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
-import com.sgcc.sql.domain.TotalQuestionTable;
-import com.sgcc.sql.domain.TotalQuestionTableCO;
-import com.sgcc.sql.domain.TotalQuestionTableVO;
+import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.system.service.ISysUserService;
 import com.sgcc.web.controller.util.PathHelper;
@@ -28,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -48,6 +47,19 @@ public class TotalQuestionTableController extends BaseController
 
     @Autowired
     private ISysUserService userService;
+
+    /**
+     * 导出问题及命令列表
+     */
+    @PreAuthorize("@ss.hasPermi('sql:total_question_table:export')")
+    @Log(title = "问题及命令", businessType = BusinessType.EXPORT)
+    @GetMapping("/export")
+    public AjaxResult export(TotalQuestionTable totalQuestionTable)
+    {
+        List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        ExcelUtil<TotalQuestionTable> util = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
+        return util.exportExcel(list, "问题及命令数据");
+    }
 
 
     /**
@@ -109,19 +121,6 @@ public class TotalQuestionTableController extends BaseController
         return list.get(0).getId();
     }
 
-
-    /**
-     * 导出问题及命令列表
-     */
-    @PreAuthorize("@ss.hasPermi('sql:total_question_table:export')")
-    @Log(title = "问题及命令", businessType = BusinessType.EXPORT)
-    @GetMapping("/export")
-    public AjaxResult export(TotalQuestionTable totalQuestionTable)
-    {
-        List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
-        ExcelUtil<TotalQuestionTable> util = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
-        return util.exportExcel(list, "问题及命令数据");
-    }
 
     /**
      *

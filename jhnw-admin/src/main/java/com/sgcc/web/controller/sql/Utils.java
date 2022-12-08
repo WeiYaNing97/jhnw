@@ -811,4 +811,21 @@ public class Utils {
         return 0;
     }
 
+
+    public static void main(String[] args) {
+        List<String> problemIdList = new ArrayList<>();
+        problemIdList.add("1");
+        problemIdList.add("12");
+        problemIdList.add("13");
+        problemIdList.add("14");
+        problemIdList.add("15");
+        problemIdList.add("16");
+
+        String[] ids = problemIdList.toArray(new String[problemIdList.size()]);
+
+        for (String id:ids){
+            System.err.println(id);
+        }
+    }
+
 }

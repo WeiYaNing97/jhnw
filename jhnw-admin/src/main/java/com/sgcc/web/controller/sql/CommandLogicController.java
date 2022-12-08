@@ -335,12 +335,12 @@ public class CommandLogicController extends BaseController
         }while (!(problemSolvingId.equals("0")));
 
         //删除解决问题命令
-        String[] ids = new String[commandLogicList.size()];
+        /*String[] ids = new String[commandLogicList.size()];
         for (int num = 0 ; num<commandLogicList.size();num++){
             ids[num] = commandLogicList.get(num).getId();
-        }
+        }*/
 
-
+        String[] ids = commandLogicList.stream().map(l ->l.getId()).toArray(String[]::new);
 
         int deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(ids);
         if (deleteCommandLogicByIds<=0){

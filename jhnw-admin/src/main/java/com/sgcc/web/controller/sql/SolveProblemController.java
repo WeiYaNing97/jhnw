@@ -134,10 +134,11 @@ public class SolveProblemController {
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum ,@PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
         LoginUser login = SecurityUtils.getLoginUser();
 
-        Long[] ids = new Long[problemIdList.size()];
+        /*Long[] ids = new Long[problemIdList.size()];
         for (int number = 0 ; number<problemIdList.size();number++){
             ids[number] = Integer.valueOf(problemIdList.get(number)).longValue();
-        }
+        }*/
+        Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
 
         // 根据 问题ID  查询 扫描出的问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
@@ -152,7 +153,6 @@ public class SolveProblemController {
         List<Map<String,String>> userObject = new ArrayList<>();
         // 迭代器遍历HashSet：
         Iterator<String> iterator = userHashSet.iterator();
-        System.out.println("--------迭代器遍历HashSet----------");
         while(iterator.hasNext()){
             Map<String, String> userMap = getUserMap(iterator.next());
             userObject.add(userMap);
@@ -488,17 +488,17 @@ public class SolveProblemController {
     @RequestMapping("queryCommandSet")
     public List<String> queryCommandSet(String commandId){
 
-        List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<String> commandLogicList = new ArrayList<>();
 
         do {
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-            commandLogicList.add(commandLogic);
+            commandLogicList.add(commandLogic.getCommand());
             commandId = commandLogic.getEndIndex();
         }while (!(commandId.equals("0")));
 
         // todo JDK8 新特性测试
-        return commandLogicList.stream().map(m -> m.getCommand()).collect(Collectors.toList());
+        return commandLogicList;
 
     }
 
@@ -767,10 +767,13 @@ public class SolveProblemController {
     @RequestMapping("getUnresolvedProblemInformationByIds")
     public List<ScanResultsVO> getUnresolvedProblemInformationByIds(LoginUser loginUser,List<String> problemIds){//待测
 
-        Long[] id = new Long[problemIds.size()];
+        /*Long[] id = new Long[problemIds.size()];
         for (int idx = 0; idx < problemIds.size(); idx++){
             id[idx] = Long.parseLong(problemIds.get(idx));
-        }
+        }*/
+
+        Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
+
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByIds(id);
 
@@ -1209,10 +1212,15 @@ public class SolveProblemController {
     @RequestMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测
 
-        Long[] id = new Long[problemIds.size()];
+        /*Long[] id = new Long[problemIds.size()];
         for (int idx = 0; idx < problemIds.size(); idx++){
             id[idx] = Long.parseLong(problemIds.get(idx));
-        }
+        }*/
+
+        Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
+
+
+
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListByIds(id);
 

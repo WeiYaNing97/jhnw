@@ -16,6 +16,7 @@ public class BasicInformation extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键 */
+    @Excel(name = "主键")
     private Long id;
 
     /** 命令 */
@@ -23,7 +24,7 @@ public class BasicInformation extends BaseEntity
     private String command;
 
     /** 返回分析id */
-    @Excel(name = "返回分析id")
+    @Excel(name = "分析索引")
     private String problemId;
 
     public void setId(Long id) 

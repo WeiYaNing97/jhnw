@@ -14,6 +14,7 @@ public class TotalQuestionTable extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键索引 */
+    @Excel(name = "主键")
     private Long id;
 
     /** 品牌 */
@@ -33,23 +34,23 @@ public class TotalQuestionTable extends BaseEntity
     private String subVersion;
 
     /** 未完成 */
-    @Excel(name = "未完成")
+    @Excel(name = "未完成标志")
     private String notFinished;
     /** 启动命令ID */
-    @Excel(name = "启动命令ID")
+    @Excel(name = "扫描索引")
     private String commandId;
 
     /** 范式种类 */
-    @Excel(name = "问题种类")
+    @Excel(name = "范式分类")
     private String typeProblem;
 
 
     /** 范式名称 */
-    @Excel(name = "问题名称")
+    @Excel(name = "范式名称")
     private String temProName;
 
     /** 问题名称 */
-    @Excel(name = "问题名称")
+    @Excel(name = "自定义名称")
     private String problemName;
 
     /** 问题详细说明和指导索引 */
@@ -57,11 +58,11 @@ public class TotalQuestionTable extends BaseEntity
     private Long problemDescribeId;
 
     /** 解决问题命令ID */
-    @Excel(name = "解决问题命令ID")
+    @Excel(name = "解决问题命令索引")
     private String problemSolvingId;
 
     /** 备注 */
-    @Excel(name = "备注")
+    @Excel(name = "问题备注")
     private String remarks;
 
     /** 是否必扫 */
