@@ -67,7 +67,8 @@ public class SysUserController extends BaseController
     {
         List<SysUser> list = userService.selectUserList(user);
         ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        return util.exportExcel(list, "用户数据");
+        AjaxResult exportExcel = util.exportExcel(list, "用户数据");
+        return exportExcel;
     }
 
     @Log(title = "用户管理", businessType = BusinessType.IMPORT)

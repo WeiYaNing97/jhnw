@@ -82,8 +82,8 @@ public class DefinitionProblemController extends BaseController {
         return util.exportExcel(list, "问题扫描逻辑数据");
     }
 
-    @GetMapping("/scanningSQL")
-    public static void scanningSQL(@RequestBody Long totalQuestionTableId) {
+    @RequestMapping("/scanningSQL")
+    public static AjaxResult scanningSQL(@RequestBody Long totalQuestionTableId) {
 
         List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
 
@@ -93,18 +93,23 @@ public class DefinitionProblemController extends BaseController {
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         totalQuestionTableList.add(totalQuestionTable);
-        totalQuestionTableExport(totalQuestionTableList);
+        List<String> fileName = new ArrayList<>();
+        AjaxResult totalQuestionTableExport = totalQuestionTableExport(totalQuestionTableList);
+        fileName.add(totalQuestionTableExport.get("msg")+"");
 
         HashMap<String, Object> scanLogicalEntityClass = DefinitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
         /*命令数据*/
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-        commandLogicExport(commandLogicList);
+        AjaxResult commandLogicExport = commandLogicExport(commandLogicList);
+        fileName.add(commandLogicExport.get("msg")+"");
 
         /*分析数据*/
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
         List<ProblemScanLogic> problemScanLogicList = DefinitionProblemController.definitionProblem(problemScanLogics);
-        problemScanLogicExport(problemScanLogicList);
-
+        AjaxResult problemScanLogicExport = problemScanLogicExport(problemScanLogicList);
+        fileName.add(problemScanLogicExport.get("msg")+"");
+        AjaxResult ajaxResult = new AjaxResult(200, "成功", fileName);
+        return ajaxResult;
     }
 
     @PostMapping("/importData")
