@@ -53,8 +53,7 @@ public class DefinitionProblemController extends BaseController {
     private static ITotalQuestionTableService totalQuestionTableService;
     @Autowired
     private static IBasicInformationService basicInformationService;
-    @Autowired
-    private ISysUserService userService;
+
 
     /**
      * 导出问题及命令列表
@@ -85,29 +84,65 @@ public class DefinitionProblemController extends BaseController {
     @RequestMapping("/scanningSQL")
     public static AjaxResult scanningSQL(@RequestBody Long totalQuestionTableId) {
 
-        List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
+        totalQuestionTableId = null;
+
+        Long[] totalQuestionTableIds = new Long[1];
+        totalQuestionTableIds[0] = totalQuestionTableId;
 
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+        //List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
+        List<String> fileName = new ArrayList<>();
+
         /*问题*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        totalQuestionTableList.add(totalQuestionTable);
-        List<String> fileName = new ArrayList<>();
-        AjaxResult totalQuestionTableExport = totalQuestionTableExport(totalQuestionTableList);
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        if (totalQuestionTableId != null){
+            totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(totalQuestionTableIds);
+        }else {
+            totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(null);
+        }
+        AjaxResult totalQuestionTableExport = totalQuestionTableExport(totalQuestionTables);
         fileName.add(totalQuestionTableExport.get("msg")+"");
 
-        HashMap<String, Object> scanLogicalEntityClass = DefinitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
-        /*命令数据*/
-        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+
+        for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
+
+            HashMap<String, Object> scanLogicalEntityClass = DefinitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
+            if (scanLogicalEntityClass == null){
+                continue;
+            }
+
+            /*命令数据*/
+            List<CommandLogic> commandLogics = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+            if (commandLogics == null){
+                continue;
+            }
+            for (CommandLogic pojo:commandLogics){
+                commandLogicList.add(pojo);
+            }
+
+            /*分析数据*/
+            List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+            if (problemScanLogics == null){
+                continue;
+            }
+            for (ProblemScanLogic pojo:problemScanLogics){
+                problemScanLogicList.add(pojo);
+            }
+
+        }
+
         AjaxResult commandLogicExport = commandLogicExport(commandLogicList);
         fileName.add(commandLogicExport.get("msg")+"");
 
-        /*分析数据*/
-        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-        List<ProblemScanLogic> problemScanLogicList = DefinitionProblemController.definitionProblem(problemScanLogics);
-        AjaxResult problemScanLogicExport = problemScanLogicExport(problemScanLogicList);
+        List<ProblemScanLogic> pojoList = DefinitionProblemController.definitionProblem(problemScanLogicList);
+        AjaxResult problemScanLogicExport = problemScanLogicExport(pojoList);
+
         fileName.add(problemScanLogicExport.get("msg")+"");
+
         AjaxResult ajaxResult = new AjaxResult(200, "成功", fileName);
         return ajaxResult;
     }
@@ -116,34 +151,21 @@ public class DefinitionProblemController extends BaseController {
     @ResponseBody
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
     {
-        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
-        List<SysUser> userList = util.importExcel(file.getInputStream());
-        /*String operName = ShiroUtils.getSysUser().getLoginName();
-        String message = userService.importUser(userList, updateSupport, operName);
-        return AjaxResult.success(message);*/
+        ExcelUtil<TotalQuestionTable> totalQuestionTableutil = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
+        List<TotalQuestionTable> totalQuestionTableutilList = totalQuestionTableutil.importExcel(file.getInputStream());
+        if (totalQuestionTableutilList == null){
+            ExcelUtil<CommandLogic> commandLogicutil = new ExcelUtil<CommandLogic>(CommandLogic.class);
+            List<CommandLogic> commandLogicutilList = commandLogicutil.importExcel(file.getInputStream());
+            if (commandLogicutilList == null){
+                ExcelUtil<ProblemScanLogic> problemScanLogicutil = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
+                List<ProblemScanLogic> problemScanLogicutilList = problemScanLogicutil.importExcel(file.getInputStream());
+                return null;
+            }
+        }
 
         return null;
     }
 
-
-    // todo 测试导入 main
-    public static void main(String[] args) {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(new File("D:\\ruoyi\\uploadPath\\download\\95ea0625-6160-4084-8bf4-65f82792329c_问题扫描逻辑数据.xlsx"));
-            ExcelUtil<ProblemScanLogic> util = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
-            try {
-                List<ProblemScanLogic> problemScanLogicList = util.importExcel(is);
-                for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-                    System.err.println(problemScanLogic.getMatchContent());
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
 
 
 

@@ -15,6 +15,7 @@ public class ProblemScanLogic extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键索引 */
+    @Excel(name = "主键")
     private String id;
 
     /** 匹配 */
@@ -86,7 +87,7 @@ public class ProblemScanLogic extends BaseEntity
     private Long returnCmdId;
 
     /** 循环起始ID */
-    @Excel(name = "循环起始ID")
+    @Excel(name = "循环起始索引")
     private String cycleStartId;
 
 

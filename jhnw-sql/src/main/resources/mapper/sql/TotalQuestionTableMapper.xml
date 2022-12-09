@@ -76,7 +76,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 
     <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+
         <include refid="selectTotalQuestionTableVo"/>
+
         <where>
             <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
             <if test="type != null  and type != ''"> and type = #{type}</if>
@@ -95,7 +97,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="remarks != null "> and remarks = #{remarks}</if>
             <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
         </where>
+
         ORDER BY id DESC
+
     </select>
 
     <select id="queryScannableQuestionsList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
