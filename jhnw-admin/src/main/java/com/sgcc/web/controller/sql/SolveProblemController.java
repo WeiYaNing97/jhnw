@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public class SolveProblemController {
 
     @Autowired
-    private ICommandLogicService commandLogicService;
+    private static ICommandLogicService commandLogicService;
 
     @Autowired
     private IValueInformationService valueInformationService;
@@ -370,7 +370,9 @@ public class SolveProblemController {
 
                 //传参 修复问题命令ID
                 //返回 命令集合 和 参数集合
-                List<String> commandList = queryCommandSet(switchScanResult.getComId() + "");
+                List<CommandLogic> commandLogics = queryCommandSet(switchScanResult.getComId() + "");
+                // todo JDK8 新特性测试
+                List<String> commandList = commandLogics.stream().map(m -> m.getCommand()).collect(Collectors.toList());
 
                 if (commandList == null){
                     WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
@@ -486,18 +488,17 @@ public class SolveProblemController {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("queryCommandSet")
-    public List<String> queryCommandSet(String commandId){
+    public static List<CommandLogic> queryCommandSet(String commandId){
 
-        List<String> commandLogicList = new ArrayList<>();
+        List<CommandLogic> commandLogicList = new ArrayList<>();
 
         do {
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-            commandLogicList.add(commandLogic.getCommand());
+            commandLogicList.add(commandLogic);
             commandId = commandLogic.getEndIndex();
         }while (!(commandId.equals("0")));
 
-        // todo JDK8 新特性测试
         return commandLogicList;
 
     }

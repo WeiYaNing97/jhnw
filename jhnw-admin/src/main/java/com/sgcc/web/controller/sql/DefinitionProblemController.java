@@ -61,16 +61,24 @@ public class DefinitionProblemController extends BaseController {
     public static AjaxResult totalQuestionTableExport(List<TotalQuestionTable> list)
     {
         ExcelUtil<TotalQuestionTable> util = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
-        AjaxResult exportExcel = util.exportExcel(list, "问题及命令数据");
+        AjaxResult exportExcel = util.exportExcel(list, "问题表");
         return exportExcel;
     }
     /**
-     * 导出命令逻辑列表
+     * 导出扫描命令逻辑列表
      */
     public static AjaxResult commandLogicExport(List<CommandLogic> list)
     {
         ExcelUtil<CommandLogic> util = new ExcelUtil<CommandLogic>(CommandLogic.class);
-        return util.exportExcel(list, "命令逻辑数据");
+        return util.exportExcel(list, "扫描命令表");
+    }
+    /**
+     * 导出修复命令逻辑列表
+     */
+    public static AjaxResult repaircommandLogicExport(List<CommandLogic> list)
+    {
+        ExcelUtil<CommandLogic> util = new ExcelUtil<CommandLogic>(CommandLogic.class);
+        return util.exportExcel(list, "修复命令表");
     }
     /**
      * 导出问题扫描逻辑列表
@@ -78,7 +86,7 @@ public class DefinitionProblemController extends BaseController {
     public static AjaxResult problemScanLogicExport(List<ProblemScanLogic> list)
     {
         ExcelUtil<ProblemScanLogic> util = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
-        return util.exportExcel(list, "问题扫描逻辑数据");
+        return util.exportExcel(list, "分析表");
     }
 
     @RequestMapping("/scanningSQL")
@@ -106,6 +114,7 @@ public class DefinitionProblemController extends BaseController {
         fileName.add(totalQuestionTableExport.get("msg")+"");
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
+        List<CommandLogic> repaircommandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
 
         for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
@@ -133,7 +142,19 @@ public class DefinitionProblemController extends BaseController {
                 problemScanLogicList.add(pojo);
             }
 
+            if(totalQuestionTable.getProblemSolvingId() != null){
+                List<CommandLogic> commandPojoList = SolveProblemController.queryCommandSet(totalQuestionTable.getProblemSolvingId());
+                if (commandPojoList == null){
+                    continue;
+                }
+                for (CommandLogic pojo:commandPojoList){
+                    repaircommandLogicList.add(pojo);
+                }
+            }
         }
+
+        AjaxResult repaircommandLogicExport = repaircommandLogicExport(repaircommandLogicList);
+        fileName.add(repaircommandLogicExport.get("msg")+"");
 
         AjaxResult commandLogicExport = commandLogicExport(commandLogicList);
         fileName.add(commandLogicExport.get("msg")+"");
@@ -414,10 +435,11 @@ public class DefinitionProblemController extends BaseController {
      */
     @RequestMapping("definitionProblemJsonPojo")
     @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
-    public boolean definitionProblemJson(@RequestBody List<String> jsonPojoList){
+    public boolean definitionProblemJson(@RequestBody List<String> jsonPojoList){//@RequestParam Long totalQuestionTableId,
+        Long totalQuestionTableId = 137L;
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
-        boolean definitionProblemJsonboolean = definitionProblemJsonPojo(jsonPojoList,loginUser);
+        boolean definitionProblemJsonboolean = definitionProblemJsonPojo(totalQuestionTableId,jsonPojoList,loginUser);
         return definitionProblemJsonboolean;
     }
 
@@ -433,7 +455,7 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     //@RequestMapping("definitionProblemJsonPojo")
-    public boolean definitionProblemJsonPojo(@RequestBody List<String> jsonPojoList,LoginUser loginUser){//@RequestBody List<String> jsonPojoList
+    public boolean definitionProblemJsonPojo(Long totalQuestionTableId,@RequestBody List<String> jsonPojoList,LoginUser loginUser){//@RequestBody List<String> jsonPojoList
 
        /* String problemScanLogicString = "";
         for (String pojo:jsonPojoList){
@@ -515,7 +537,7 @@ public class DefinitionProblemController extends BaseController {
             if (problemScanLogic.getProblemId()!=null &&problemScanLogic.getProblemId().indexOf("问题")!=-1){
                 // todo 有问题 无问题 自定义 获取  问题ID 的方法
                 if (problemScanLogic.getProblemId().indexOf("有问题")!=-1 || problemScanLogic.getProblemId().indexOf("无问题")!=-1){
-                    totalQuestionTableById = problemScanLogic.getProblemId().substring(3,problemScanLogic.getProblemId().length());
+                    totalQuestionTableById = totalQuestionTableId+"";
                 }
             }
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
@@ -690,8 +712,6 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("tNextId",null);
         /** true下一条命令索引 */
         hashMap.put("tComId",null);
-        /** 问题索引 */
-        hashMap.put("problemId",null);
         /** false行号 */
         hashMap.put("fLine",null);
         /** true行号 */
@@ -801,10 +821,6 @@ public class DefinitionProblemController extends BaseController {
                     /** true行号 */
                     hashMap.put("trueFalse",split1);
                     break;
-                case "problemId":
-                    /** 问题索引 */
-                    hashMap.put("problemId",split1);
-                    break;
             }
         }
         /*当匹配方式不为空 且 包含 按行 时  则为 按行匹配 则需要 拼接 relativePosition 值*/
@@ -855,18 +871,9 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("action")!=null && hashMap.get("action").indexOf("问题")!=-1){
             //problemId字段 存放 有无问题 加 问题表数据ID
 
-            String problemIdnull = hashMap.get("problemId");
-            if (problemIdnull == null || problemIdnull.equals("null")){
-                problemIdnull = "";
-            }
-
-            hashMap.put("problemId",hashMap.get("WTNextId")+problemIdnull);
+            hashMap.put("problemId",hashMap.get("WTNextId"));
             //清空动作属性
             hashMap.put("action",null);
-            //当 有无问题为完成时  则  problemId ==  完成
-            if(hashMap.get("WTNextId").equals("完成")){
-                hashMap.put("problemId",hashMap.get("WTNextId"));
-            }
         }
 
         /** 主键索引 */
@@ -939,13 +946,12 @@ public class DefinitionProblemController extends BaseController {
         if (hashMap.get("tComId")!=null){
             problemScanLogic.settComId(hashMap.get("tComId"));
         }
-        /** true问题索引 */
+
+        /*问题*/
         if (hashMap.get("problemId")!=null){
             problemScanLogic.setProblemId(hashMap.get("problemId"));
-            if (problemScanLogic.getProblemId().equals("null")){
-                problemScanLogic.setProblemId(null);
-            }
         }
+
         /** false行号 */
         if (hashMap.get("fLine")!=null){
             problemScanLogic.setfLine(hashMap.get("fLine"));
@@ -998,10 +1004,12 @@ public class DefinitionProblemController extends BaseController {
                 problemScanLogicf.setId(problemScanLogic.getId());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
+
                 problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
                 problemScanLogic.setfLine(null);
                 problemScanLogic.setfNextId(null);
+
                 problemScanLogic.setProblemId(null);
                 problemScanLogic.setfComId(null);
                 ProblemScanLogics.add(problemScanLogicf);
@@ -1051,6 +1059,7 @@ public class DefinitionProblemController extends BaseController {
                         problemScanLogic.setfNextId(pojo.getfNextId());
                         problemScanLogic.setfComId(pojo.getfComId());
                         problemScanLogic.setProblemId(pojo.getProblemId());
+
                     }
                 }
             }
@@ -1097,6 +1106,7 @@ public class DefinitionProblemController extends BaseController {
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
     public static AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
         scanningSQL(totalQuestionTable.getId());
+
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
@@ -1715,36 +1725,32 @@ public class DefinitionProblemController extends BaseController {
             nextIndex = problemScanLogic.getfComId();
         }
         problemScanLogicVO.setNextIndex(nextIndex);
-        String problemId = null;
-        if (problemScanLogic.getProblemId()!=null){
-            problemId = problemScanLogic.getProblemId();
-            if (problemId.indexOf("问题")!=-1){
-                problemScanLogicVO.setAction("问题");
 
-                if(problemId.substring(0,3).equals("有问题")){
+        String problem = null;
+        if (problemScanLogic.getProblemId()!=null){
+            /* 有问题 无问题*/
+            problem = problemScanLogic.getProblemId();
+            if (problem.indexOf("问题")!=-1){
+                problemScanLogicVO.setAction("问题");
+                if(problem.equals("有问题")){
                     problemScanLogicVO.settNextId("异常");
-                }else if(problemId.substring(0,3).equals("无问题")){
+                }else if(problem.equals("无问题")){
                     problemScanLogicVO.settNextId("安全");
                 }
-
-                problemId = problemId.substring(3,problemId.length());
-            }else if (problemId.equals("完成")){
+            }else if (problem.equals("完成")){
                 problemScanLogicVO.setAction("问题");
-                problemScanLogicVO.settNextId(problemId);
-                problemId = null;
+                problemScanLogicVO.settNextId(problem);
             }else {
                 if (id == null){
                     problemScanLogicVO.setAction("问题");
-                    problemScanLogicVO.settNextId(problemId);
-                    problemId = null;
+                    problemScanLogicVO.settNextId(problem);
                 }else {
                     problemScanLogicVO.setAction("问题");
-                    problemScanLogicVO.settNextId(problemId.substring(0,problemId.length()-id.length()));
-                    problemId = id;
+                    problemScanLogicVO.settNextId(problemScanLogic.getProblemId());
                 }
             }
         }
-        problemScanLogicVO.setProblemId(problemId);
+
         String cycleStartId = null;
         if (problemScanLogic.getCycleStartId()!=null){
             cycleStartId = problemScanLogic.getCycleStartId();
@@ -1860,7 +1866,7 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
-        boolean definitionProblemJsonPojo = definitionProblemJsonPojo(pojoList,loginUser);//jsonPojoList
+        boolean definitionProblemJsonPojo = definitionProblemJsonPojo(totalQuestionTableId,pojoList,loginUser);//jsonPojoList
         return definitionProblemJsonPojo;
     }
 

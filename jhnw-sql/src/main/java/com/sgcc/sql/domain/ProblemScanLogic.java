@@ -263,6 +263,7 @@ public class ProblemScanLogic extends BaseEntity
                 ", compare='" + compare + '\'' +
                 ", tNextId='" + tNextId + '\'' +
                 ", tComId='" + tComId + '\'' +
+
                 ", problemId='" + problemId + '\'' +
                 ", fLine='" + fLine + '\'' +
                 ", tLine='" + tLine + '\'' +

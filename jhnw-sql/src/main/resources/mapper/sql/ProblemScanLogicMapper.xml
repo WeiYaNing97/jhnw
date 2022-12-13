@@ -28,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <sql id="selectProblemScanLogicVo">
         select id, matched, relative_position, match_content, action, r_position, length, exhibit, word_name, compare,
-        f_line,t_Line,t_next_id, t_com_id, problem_id, f_next_id, f_com_id, return_cmd_id, cycle_start_id from problem_scan_logic
+        f_line,t_Line,t_next_id, t_com_id,problem_id,  f_next_id, f_com_id, return_cmd_id, cycle_start_id from problem_scan_logic
     </sql>
 
     <select id="selectProblemScanLogicList" parameterType="com.sgcc.sql.domain.ProblemScanLogic" resultMap="ProblemScanLogicResult">
@@ -47,7 +47,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tLine != null  and tLine != ''"> and t_line = #{tLine}</if>
             <if test="tNextId != null  and tNextId != ''"> and t_next_id = #{tNextId}</if>
             <if test="tComId != null  and tComId != ''"> and t_com_id = #{tComId}</if>
+
             <if test="problemId != null  and problemId != ''"> and problem_id = #{problemId}</if>
+
             <if test="fNextId != null  and fNextId != ''"> and f_next_id = #{fNextId}</if>
             <if test="fComId != null  and fComId != ''"> and f_com_id = #{fComId}</if>
             <if test="returnCmdId != null "> and return_cmd_id = #{returnCmdId}</if>
@@ -77,7 +79,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tLine != null">t_line,</if>
             <if test="tNextId != null">t_next_id,</if>
             <if test="tComId != null">t_com_id,</if>
+
             <if test="problemId != null">problem_id,</if>
+
             <if test="fNextId != null">f_next_id,</if>
             <if test="fComId != null">f_com_id,</if>
             <if test="returnCmdId != null">return_cmd_id,</if>
@@ -98,7 +102,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tLine != null">#{tLine},</if>
             <if test="tNextId != null">#{tNextId},</if>
             <if test="tComId != null">#{tComId},</if>
+
             <if test="problemId != null">#{problemId},</if>
+
             <if test="fNextId != null">#{fNextId},</if>
             <if test="fComId != null">#{fComId},</if>
             <if test="returnCmdId != null">#{returnCmdId},</if>
@@ -122,7 +128,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="tLine != null">t_line = #{tLine},</if>
             <if test="tNextId != null">t_next_id = #{tNextId},</if>
             <if test="tComId != null">t_com_id = #{tComId},</if>
+
             <if test="problemId != null">problem_id = #{problemId},</if>
+
             <if test="fNextId != null">f_next_id = #{fNextId},</if>
             <if test="fComId != null">f_com_id = #{fComId},</if>
             <if test="returnCmdId != null">return_cmd_id = #{returnCmdId},</if>

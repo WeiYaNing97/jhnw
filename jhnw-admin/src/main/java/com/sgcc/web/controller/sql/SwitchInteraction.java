@@ -2168,7 +2168,7 @@ public class SwitchInteraction {
         String phonenumber = loginUser.getUser().getPhonenumber();
 
         //截取 有问题 还是 无问题
-        String substring = problemScanLogic.getProblemId().substring(0,problemScanLogic.getProblemId().length() - (totalQuestionTable.getId()+"").length());
+        String substring = problemScanLogic.getProblemId();
         //截取 问题代码
 
         String problemId = totalQuestionTable.getId()+"";

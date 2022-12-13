@@ -334,10 +334,12 @@ public class ProblemScanLogicController extends BaseController {
                 problemScanLogicf.setId(problemScanLogic.getId());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
+
                 problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
                 problemScanLogic.setfLine(null);
                 problemScanLogic.setfNextId(null);
+
                 problemScanLogic.setProblemId(null);
                 problemScanLogic.setfComId(null);
                 ProblemScanLogics.add(problemScanLogicf);
