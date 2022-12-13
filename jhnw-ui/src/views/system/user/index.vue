@@ -644,11 +644,15 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
+      console.log(queryParams)
       this.$modal.confirm('是否确认导出所有用户数据项？').then(() => {
         this.exportLoading = true;
+        console.log(exportUser(queryParams))
         return exportUser(queryParams);
       }).then(response => {
+          console.log(response)
         this.$download.name(response.msg);
+          console.log(response.msg)
         this.exportLoading = false;
       }).catch(() => {});
     },

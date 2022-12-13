@@ -72,6 +72,9 @@
           <el-form-item>
             <el-button type="primary" @click="shanchutest">删除</el-button>
           </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="exportData">导出</el-button>
+          </el-form-item>
           <!--      <el-form-item>-->
           <!--        <el-button type="primary" @click="gaibian">改变</el-button>-->
           <!--      </el-form-item>-->
@@ -296,7 +299,7 @@
 </template>
 
 <script>
-import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_test, exportLook_test } from "@/api/sql/look_test";
+import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_test, exportLook_test, test_export } from "@/api/sql/look_test";
 import axios from 'axios'
 import  {MessageBox} from "element-ui"
 import request from '@/utils/request'
@@ -491,14 +494,13 @@ export default {
                   this.$set(eeee,'nextIndex',thisNext.onlyIndex)
               }
               if (eeee.action === '取词'){
-                  // if (eeee.classify === 'W'){
-                  //     eeee.length = `${eeee.length1}W`
-                  // }else if (eeee.classify === 'L'){
-                  //     eeee.length = `${eeee.length1}L`
-                  // }else if (eeee.classify === 'S'){
-                  //     eeee.length = `${eeee.length1}S`
-                  // }
-                  eeee.length = `${eeee.length1}${eeee.classify}`
+                  if (eeee.classify === '单词'){
+                      eeee.length = `${eeee.length1}W`
+                  }else if (eeee.classify === '字母'){
+                      eeee.length = `${eeee.length1}L`
+                  }else if (eeee.classify === '字符串'){
+                      eeee.length = `${eeee.length1}S`
+                  }
               }
               this.$set(eeee,'pageIndex',thisIndex+1)
               if (eeee.targetType == 'takeword'){
@@ -696,7 +698,6 @@ export default {
                           this.huichasss.push(chae)
                       }else if (chae.action === '取词'){
                           this.$set(chae,'targetType','takeword')
-                          // this.$set(chae,'classify',chae.length.slice(chae.length.length-1))
                           if (chae.length.slice(chae.length.length-1) === 'W'){
                               this.$set(chae,'classify','单词')
                           }else  if (chae.length.slice(chae.length.length-1) === 'S'){
@@ -704,7 +705,6 @@ export default {
                           }else if (chae.length.slice(chae.length.length-1) === 'L'){
                               this.$set(chae,'classify','字母')
                           }
-                          // chae.classify = chae.length.slice(chae.length.length-1)
                           chae.length1 = chae.length.slice(0,chae.length.length-1)
                           this.huichasss.push(chae)
                       }else if (chae.action === '问题'){
@@ -889,6 +889,40 @@ export default {
           }).catch(ee=>{
               this.$message.warning('取消修改!')
           })
+      },
+      //导出数据库
+      exportData(){
+          // var intData = '112'
+          // return request({
+          //     url:'/sql/DefinitionProblemController/scanningSQL',
+          //     method:'post',
+          //     data:intData
+          // }).then(response=>{
+          //     console.log('ssss')
+          // })
+          console.log(this.proId)
+          // return request({
+          //     // url:'/sql/DefinitionProblemController/scanningSQL',
+          //     url:`/sql/DefinitionProblemController/scanningSQL?totalQuestionTableId=${this.proId}`,
+          //     method:'post'
+          // }).then(response=>{
+          //     console.log('testomne')
+          // })
+          const idT = this.proId
+          this.$modal.confirm('是否确认导出？').then(() => {
+              this.exportLoading = true
+              return test_export(idT)
+              // console.log(return test_export(idT))
+          }).then(response => {
+              console.log(response)
+              console.log(response.data.length)
+              // this.$download.name(response.data[0])
+              for (let i = 0;i<response.data.length;i++){
+                  this.$download.name(response.data[i])
+              }
+              // console.log(response.msg)
+              this.exportLoading = false
+          }).catch(() => {})
       },
       //删除
       shanchutest(){

@@ -85,9 +85,6 @@
         <el-button type="primary" @click="hebingnew">定义问题命令</el-button>
       </el-form-item>
 <!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="hebing">定义问题命令</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
 <!--      </el-form-item>-->
       <el-form-item>
@@ -880,46 +877,6 @@ export default {
               })
           }
       },
-      //合并按钮
-      hebing(){
-          let form = new FormData();
-          for (var key in this.queryParams){
-              if (key != 'notFinished'&&key != 'requiredItems'&&key != 'commandId'&&key != 'remarks'){
-                  form.append(key,this.queryParams[key])
-              }
-          }
-          console.log(this.queryParams)
-          return request({
-              url:'/sql/total_question_table/totalQuestionTableId',
-              method:'post',
-              data:form
-          }).then(response=>{
-              console.log(response)
-              if (typeof(response) === 'number'){
-                  this.chuxian = true
-                  this.proId = response
-              }else {
-                  // this.$message.error('没有定义该问题,请先定义问题在定义命令！')
-                  var shasha = JSON.parse(JSON.stringify(this.queryParams))
-                  this.$delete(shasha,'commandId')
-                  if (shasha.requiredItems === true){
-                      this.$set(shasha,'requiredItems','1')
-                  }else {
-                      this.$set(shasha,'requiredItems','0')
-                  }
-                  console.log(shasha)
-                  return request({
-                      url:'/sql/total_question_table/add',
-                      method:'post',
-                      data:JSON.stringify(shasha)
-                  }).then(response=>{
-                      this.$message.success('提交问题成功!')
-                      this.proId = response.msg
-                      this.chuxian = true
-                  })
-              }
-          })
-      },
       //提交问题，返回问题ID
       tiwenti(){
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
@@ -1274,8 +1231,10 @@ export default {
           })
           const handForm = useForm.map(x => JSON.stringify(x))
           console.log(handForm)
+          console.log(this.proId)
           return request({
-              url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
+              // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
+              url:`/sql/DefinitionProblemController/definitionProblemJsonPojo?totalQuestionTableId=${this.proId}`,
               method:'post',
               data:handForm
           }).then(response=>{

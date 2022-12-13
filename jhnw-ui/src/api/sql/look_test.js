@@ -51,3 +51,13 @@ export function exportLook_test(query) {
     params: query
   })
 }
+
+//修改
+export function test_export(ids) {
+  return request({
+    url:'/sql/DefinitionProblemController/scanningSQL',
+    method:'post',
+    // params:ids
+    data:ids
+  })
+}

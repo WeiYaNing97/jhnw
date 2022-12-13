@@ -41,7 +41,7 @@
 
 <!--        <el-input v-model="basicCom" type="text" style="width:260px" placeholder="命令用逗号分隔"></el-input>-->
         <el-button @click="tianyi">添加命令</el-button>
-        <el-button @click="kantest">查看</el-button>
+<!--        <el-button @click="kantest">查看</el-button>-->
       </el-form-item>
       <br/>
       <el-form-item label="命令分析逻辑:"></el-form-item>
@@ -792,14 +792,13 @@
                     alert('提交失败,分析逻辑不能为空!')
                 }else {
                     return request({
-                        // url:'/sql/DefinitionProblemController/insertInformationAnalysis/'+command+'/'+custom,
+                        url:'/sql/DefinitionProblemController/insertInformationAnalysis/'+command+'/'+custom,
                         method:'post',
                         data:handForm
                     }).then(response=>{
                         this.$message.success('提交成功!')
                     })
                 }
-
 
                 // MessageBox.confirm('确定提交吗？','提示').then(c=>{
                 //

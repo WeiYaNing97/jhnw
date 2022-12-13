@@ -3,8 +3,8 @@
 <!--    lishiData  nowData  tableDataqq-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
+    <p>我是：{{ endIp }}</p>
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
-<!--    <el-button type="primary" size="small" @click="testall">所有测试</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
 <!--    当前扫描-->
@@ -17,13 +17,15 @@
               row-key="hproblemId"
               :cell-style="hongse"
               default-expand-all
-              :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
+              :tree-props="{children: 'children',hasChildren: 'hasChildren'}"
+              :cell-class-name="lookDom"
+              :span-method="arraySpanMethodOne">
 <!--      <el-table-column prop="switchIp" label="主机" width="150"></el-table-column>-->
 <!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
-      <el-table-column prop="hebing" label="主机(基本信息)" width="350">
+      <el-table-column prop="hebing" label="主机(基本信息)" width="230">
         <template slot-scope="scope">
-          <!--          <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
-          <span v-loading="loadingOne = !scope.row.hebing == ''">{{ scope.row.hebing }}</span>
+<!--          <span v-loading="loadingOne = !scope.row.hebing == ''">{{ scope.row.hebing }}</span>-->
+          <span class="el-icon-circle-check" v-loading="scope.row.loading">{{ scope.row.hebing }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
@@ -39,7 +41,6 @@
           <el-button style="margin-left: 0" size="mini" type="text"
                      v-show="scope.row.hasOwnProperty('switchIp')&&!scope.row.hasOwnProperty('typeProblem')"
                      @click.stop="xiuall(scope.row)">单台修复</el-button>
-<!--          &&saowanend-->
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
                      @click="xiangqing(scope.row)">详情</el-button>
@@ -56,17 +57,12 @@
               row-key="hproblemId"
               :cell-style="hongse"
               default-expand-all
-              :tree-props="{children: 'children',hasChildren: 'hasChildren'}">
+              :tree-props="{children: 'children',hasChildren: 'hasChildren'}"
+              :span-method="arraySpanMethodTwo">
       <el-table-column prop="createTime" label="扫描时间" width="180"></el-table-column>
 <!--      <el-table-column prop="switchIp" label="主机" width="130"></el-table-column>-->
 <!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
-      <el-table-column prop="hebing" label="主机(基本信息)" width="320"></el-table-column>
-
-<!--      <template slot-scope="scope">-->
-<!--        &lt;!&ndash;          <div style="height: 30px;width:30px" v-loading="loadingOne"></div>&ndash;&gt;-->
-<!--        <span v-loading="loadingOne = !scope.row.hebing == ''">{{ scope.row.hebing }}</span>-->
-<!--      </template>-->
-
+      <el-table-column prop="hebing" label="主机(基本信息)" width="200"></el-table-column>
       <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
       <el-table-column prop="problemName" label="问题" ></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
@@ -122,9 +118,12 @@
             xiufuend:false,
             queryParams:'',
             num:'',
+            endIp:''
         },
         data() {
             return {
+                //
+                endIpCopy:'',
                 //
                 loadingOne:true,
                 //
@@ -159,118 +158,6 @@
                 wsTimer: null,
                 nowData:[],
                 lishiData:[],
-                tableDataqq: [
-                    {
-                        switchIp:'192.168.1.100',
-                        showBasicInfo:'(H3C S2152 5.20.99 1106)',
-                        hproblemId:13462523456,
-                        children:[
-                            {
-                            switchIp:null,
-                            switchName:'admin',
-                            switchPassword:'admin',
-                            typeProblem: '安全配置',
-                            hproblemId:12345671,
-                            children: [
-                                {
-                                    problemName:'密码明文存储',
-                                    problemDescribeId:2,
-                                    ifQuestion:'异常',
-                                    hproblemId:12345711,
-                                    questionId:1,
-                                    comId:'1653277339109',
-                                    valueId:1,
-                                    valueInformationVOList:[
-                                        {
-                                            hproblemId:11123462567111,
-                                            dynamicVname:'用户名',
-                                            dynamicInformation:'admin',
-                                            exhibit:'是'
-                                        },
-                                        {
-                                            hproblemId:11123462567111,
-                                            dynamicVname:'用户名',
-                                            dynamicInformation:'admin11',
-                                            exhibit:'是'
-                                        }
-                                    ]
-                                },
-                                {
-                                    problemName:'telnet开启',
-                                    ifQuestion:'安全',
-                                    problemDescribeId:3,
-                                    hproblemId:11423511,
-                                    questionId:12,
-                                    comId:'1653277229109',
-                                    valueId:1,
-                                    valueInformationVOList:[
-                                        {
-                                            hproblemId:1157155555461111,
-                                            dynamicVname:'用户名',
-                                            dynamicInformation:'admin111',
-                                            exhibit:'是'
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                            {
-                                switchIp:null,
-                                switchName:'admin',
-                                switchPassword:'admin',
-                                typeProblem: '设备缺陷',
-                                hproblemId:1135242,
-                                children: [
-                                    {
-                                        problemName:'没有配置管理地址',
-                                        ifQuestion:'异常',
-                                        hproblemId:113456771342,
-                                        questionId:112,
-                                        comId:'1653277339101',
-                                        valueId:1,
-                                        valueInformationVOList:[
-                                            {
-                                                hproblemId:11113456753411,
-                                                dynamicVname:'用户名',
-                                                dynamicInformation:'admin222',
-                                                exhibit:'是'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        switchIp:'192.168.1.1',
-                        showBasicInfo:'(H3C S2152 5.20.99 1106)',
-                        hproblemId:212543,
-                        children:[{
-                            switchIp:null,
-                            switchName:'admin11',
-                            switchPassword:'admin',
-                            typeProblem: '安全配置',
-                            hproblemId:22356472,
-                            children: [
-                                {
-                                    problemName:'密码明文存储',
-                                    ifQuestion:'安全',
-                                    hproblemId:254676522,
-                                    questionId:10,
-                                    valueInformationVOList:[
-                                        {
-                                            hproblemId:1134523541111,
-                                            dynamicVname:'用户名',
-                                            dynamicInformation:'admin2222',
-                                            exhibit:'是'
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        ]
-                    }
-                ],
                 loading:false,
                 formLabelWidth:'50px',
                 xiuform:{
@@ -288,17 +175,46 @@
                 if (this.saowanend === true){
                     this.xianshi = !this.saowanend
                 }
+            },
+            endIp(){
+                console.log(this.endIp)
+                this.endIpCopy = this.endIp
+                const shu11 = this.nowData
+                for(let i = 0;i<shu11.length;i++){
+                    if (this.endIp == shu11[i].switchIp){
+                        this.$set(shu11[i],'loading',false)
+                    }
+                }
             }
         },
         created(){
             // const usname = Cookies.get('usName')
-            // this.xiujieshu()
         },
         methods: {
-            //修复结束
-            xiujieshu(){
-                if (this.xiufuend === false){
-                    this.lishi()
+            //给icon添加class、样式
+            lookDom({ row, column, rowIndex, columnIndex }){
+                if (this.endIpCopy == row.switchIp){
+                    return 'table-oneStyle'
+                }
+            },
+            //当前扫描信息合并列
+            arraySpanMethodOne({ row, column, rowIndex, columnIndex }){
+                if (row.hebing != null){
+                    if (columnIndex === 0) {
+                        return [1, 2];
+                    } else if (columnIndex === 1) {
+                        return [0, 0];
+                    }
+                }
+            },
+            //历史扫描合并列
+            arraySpanMethodTwo({ row, column, rowIndex, columnIndex }) {
+                if (row.hebing != null){
+                    if (columnIndex === 1) {
+                        return [1, 2];
+                    } else if (columnIndex === 2) {
+                        return [0, 0];
+                    }
                 }
             },
             //展开折叠当前列表
@@ -307,34 +223,6 @@
             },
             expandChangeone(row){
               this.$refs.treenow.toggleRowExpansion(row)
-            },
-            //测试总按钮
-            testall(){
-                // this.$refs.abc.geizi()
-              // console.log('总测试')
-              //   console.log(this.saowanend)
-                const shu = this.tableDataqq
-                console.log(shu)
-                for (let i=0;i<shu.length;i++){
-                    for (let g=0;g<shu[i].children.length;g++){
-                        for (let m=0;m<shu[i].children[g].children.length;m++){
-                            if (shu[i].children[g].children[m].valueInformationVOList.length > 0){
-                                let mi1 = ''
-                                let mi2 = ''
-                                for (let n = 0;n<shu[i].children[g].children[m].valueInformationVOList.length;n++){
-                                    if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit != '否'){
-                                        mi1 = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation
-                                        mi2 = mi2+' '+mi1
-                                        console.log(mi2)
-                                    }
-                                }
-                                const wenti = shu[i].children[g].children[m].problemName
-                                const zuihou = mi2 +" "+ wenti
-                                this.$set(shu[i].children[g].children[m],'problemName',zuihou)
-                            }
-                        }
-                    }
-                }
             },
             //测试总按钮
             wenben(){
@@ -783,9 +671,14 @@
                 let newJson1 = changeTreeDate(newJson,'switchProblemCOList','children')
                 this.nowData = newJson1
                 const shu = this.nowData
+                //给ip添加loading
+                for(let i = 0;i<shu.length;i++){
+                    this.$set(shu[i],'loading',true)
+                }
                 //合并信息
                 for(let i = 0;i<shu.length;i++){
-                    var hebingInfo = '　　' + shu[i].switchIp + ' ' + shu[i].showBasicInfo
+                    var hebingInfo = '　' + shu[i].switchIp + ' ' + shu[i].showBasicInfo
+                    // var hebingInfo = shu[i].switchIp + ' ' + shu[i].showBasicInfo
                     this.$set(shu[i],'hebing',hebingInfo)
                 }
                 for (let i=0;i<shu.length;i++){
@@ -860,16 +753,32 @@
 </script>
 
 <style scoped>
-  .el-loading-mask{
+  >>> .el-table td.el-table__cell{
+    border-bottom: none !important;
+  }
+  >>> .el-loading-mask{
     position: inherit;
   }
-  .el-loading-spinner{
+  >>> .el-loading-spinner{
     width: auto;
-  }
-  .el-loading-spinner{
     margin-top: -20px ! important;
     height: 20px ! important;
-    margin-left: 25px;
+    margin-left: -5px;
+  }
+  >>> .el-loading-spinner .circular{
+    width: 20px;
+    height: 20px;
+  }
+  >>> .el-loading-spinner .path{
+    stroke: #13ce66;
+  }
+  >>> .el-icon-circle-check:before{
+    display: none;
+  }
+  >>> .table-oneStyle .el-icon-circle-check:before{
+    display: inline-block;
+    color: #00ff80;
+    font-size: 18px;
   }
 </style>
 

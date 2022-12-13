@@ -72,6 +72,20 @@ export const constantRoutes = [
       }
     ]
   },
+  //修改
+  {
+    path: '',
+    component: Layout,
+    redirect: 'scan_page',
+    children: [
+      {
+        path: 'scan_page',
+        component: (resolve) => require(['@/views/scan_page'], resolve),
+        name: 'scan_page',
+        meta: { title: '扫描', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
   {
     path: '/user',
     component: Layout,

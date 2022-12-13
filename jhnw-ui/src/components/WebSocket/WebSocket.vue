@@ -83,28 +83,33 @@
             textareaOne(){
                 if (this.textareaOne.includes('扫描结束')){
                     this.saoend = true
-                    console.log(this.saoend)
                 }
                 if (this.textareaOne.includes('修复结束')){
                     this.repairend = true
                 }
+            },
+            saoendip(){
+                this.postendIp()
+            },
+            saoend(){
+                this.postEnd()
             }
         },
         created(){
             const usname = Cookies.get('usName')
         },
         methods: {
+            //扫描结束传给父组件
+            postEnd(){
+                this.$emit('eventOne',this.saoend)
+            },
+            //扫描完成ip传给父组件
+            postendIp(){
+                this.$emit('event',this.ipEnd)
+            },
             //
             handleClick(tab, event) {
                 console.log(tab, event);
-            },
-            //扫描完成ip
-            saowanip(){
-                return this.ipEnd
-            },
-            //给父组件显示
-            geifuone(){
-              return this.saoend
             },
             geifurepaired(){
                 return this.repairend
@@ -155,7 +160,6 @@
             },
             wsMessageHanler(e) {
                 // console.log('wsMessageHanler')
-                // console.log(e.data)
 
                 if (e.data.indexOf('发送和接收') != -1){
                     this.textareaOne = this.textareaOne + e.data

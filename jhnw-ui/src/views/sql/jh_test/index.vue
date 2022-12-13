@@ -2,12 +2,12 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px;width: 100%">
-        <el-button type="success" icon="el-icon-search" size="small" @click="saomiao" round>一键扫描</el-button>
+        <el-button type="success" icon="el-icon-search" size="small" @click="saomiao" v-if="this.scanShow == true" round>一键扫描</el-button>
+        <el-button type="success" size="small" @click="cancelScan" v-if="!this.scanShow == true" round>取消扫描</el-button>
         <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
-<!--        <el-button type="primary" @click="sonData" size="small">子组件数据</el-button>-->
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -145,11 +145,12 @@
     <el-divider></el-divider>
 <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
 
-    <WebSocketTwo :queryParams="queryParams" ref="webtwo" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
+    <WebSocketTwo :queryParams="queryParams" ref="webtwo"
+                  :endIp="endIp" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
-        <WebSocket ref="webone"></WebSocket>
+        <WebSocket ref="webone" @event="getendIp" @eventOne="postEnd"></WebSocket>
       </el-row>
     </div>
 
@@ -191,9 +192,10 @@
 
 <script>
 import { listJh_test, getJh_test, delJh_test, addJh_test, updateJh_test, exportJh_test } from "@/api/sql/jh_test";
-import WebSocket from '@/components/WebSocket/WebSocket';
-import WebSocketOne from "@/components/WebSocketOne/WebSocketOne";
-import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo";
+import WebSocket from '@/components/WebSocket/WebSocket'
+import WebSocketOne from "@/components/WebSocketOne/WebSocketOne"
+import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo"
+import  {MessageBox} from "element-ui"
 import log from "../../monitor/job/log"
 import * as XLSX from 'xlsx'
 import request from '@/utils/request'
@@ -207,12 +209,15 @@ export default {
     },
   data() {
     return {
+        //扫描完成ip
+        endIp:'',
         //是否圆圈
         loadingOne:true,
         //扫描项目选择是否显示
         showxiang:true,
         //定时接收true或者false
         torf:false,
+        torfOne:false,
         //是否扫描完成
         saowanend:false,
         //修复是否完成
@@ -264,6 +269,8 @@ export default {
       multiple: true,
       // 显示搜索条件
       showSearch: true,
+      //一键扫描显示
+        scanShow:true,
       // 总条数
       total: 0,
       // 嘉豪测试表格数据
@@ -352,6 +359,16 @@ export default {
       // this.getList();
   },
   methods: {
+      //
+      postEnd(data){
+          console.log(data)
+          this.saowanend = data
+      },
+      //
+      getendIp(data){
+          this.endIp = data
+          console.log(this.endIp)
+      },
       // 筛选节点
       filterNode(value, data) {
           if (!value) return true;
@@ -415,26 +432,21 @@ export default {
               }
           })
       },
-      //查看子组件数据
-      sonData(){
-          let saowanip = this.$refs.webone.saowanip()
-          console.log(saowanip)
-      },
       //新增设备
       xinzeng(){
           this.tableData.push({
-              // ip: '192.168.1.100',
-              // name: 'admin',
-              // password:'admin',
+              ip: '192.168.1.100',
+              name: 'admin',
+              password:'admin',
               // passmi:'********',
               // mode:'ssh',
               // port:22,
               // isEdit:true,
               // conCip:'********',
               // configureCiphers:''
-              ip: '',
-              name: '',
-              password:'',
+              // ip: '',
+              // name: '',
+              // password:'',
               passmi:'********',
               mode:'ssh',
               port:22,
@@ -455,14 +467,6 @@ export default {
       //专项扫描
       handleNodeClick(fenxiang) {
 
-      },
-      //扫描完成弹窗,后面定时执行
-      saowan(){
-          this.saowanend = this.$refs.webone.geifuone()
-          console.log(this.saowanend)
-          if (this.saowanend === true){
-              clearInterval(this.torf)
-          }
       },
       //定时获取是否修复结束
       cirxiufu(){
@@ -581,12 +585,17 @@ export default {
           // 读取文件 成功后执行上面的回调函数
           fileReader.readAsBinaryString(file)
       },
+      //取消扫描
+      cancelScan(){
+          MessageBox.confirm('确定取消扫描吗？','提示').then(c=>{
+              this.scanShow = true
+          }).catch(ee=>{
+              this.$message.warning('阿斯顿撒大撒大')
+          })
+      },
       //一键扫描
       saomiao(){
-          let saowanip = this.$refs.webone.saowanip()
-          console.log(saowanip)
-          //定时获取是否扫描结束
-           this.torf = setInterval(this.saowan,5000)
+          this.scanShow = false
           //最终扫描设备
           let zuihou = []
           if (this.xuanzhong.length>0){
@@ -622,12 +631,13 @@ export default {
           console.log(zuihouall)
           if(totalQuestionTableId.length == 0){
               console.log('全部扫描')
+              this.$message.success('扫描请求以提交!')
               return request({
                   url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
                   method:'post',
                   data:zuihouall
               }).then(response=>{
-                  this.$message.success('扫描请求以提交!')
+                  console.log('日志')
               })
           }else {
               console.log('专项扫描')
@@ -788,7 +798,7 @@ export default {
 
 
 <style scoped>
-  .el-form-item__content{
+  >>> .el-form-item__content{
     width: 100% !important;
   }
   .el-input--suffix .el-input__inner{
@@ -796,9 +806,6 @@ export default {
   }
   .el-form-item{
     margin-bottom: 10px;
-  }
-  .el-table th.el-table__cell.is-leaf, .el-table td.el-table__cell{
-    border-bottom: none;
   }
   .el-divider--horizontal{
     margin: 10px 0;
@@ -809,13 +816,6 @@ export default {
   .el-loading-spinner{
     margin-top: -15px;
     height: 30px;
-  }
-  .el-loading-spinner .circular{
-    width: 20px;
-    height: 20px;
-  }
-  .el-loading-spinner .path{
-    stroke: #13ce66;
   }
   /*label{*/
   /*  position: relative;*/
