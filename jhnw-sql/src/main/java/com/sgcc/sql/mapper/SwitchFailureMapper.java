@@ -61,4 +61,6 @@ public interface SwitchFailureMapper
      */
     public int deleteSwitchFailureByFailureIds(Long[] failureIds);
 
+    /*删除数据表所有数据*/
+    int deleteSwitchFailureByFailure();
 }

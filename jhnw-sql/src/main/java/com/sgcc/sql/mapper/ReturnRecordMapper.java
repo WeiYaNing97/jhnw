@@ -71,4 +71,7 @@ public interface ReturnRecordMapper
     List<ReturnRecord> selectReturnRecordListByDataTime(String data);
 
     int deleteReturnRecordByDate(@Param("stringData") String stringData);
+
+    /*删除数据表所有数据*/
+    int deleteReturnRecord();
 }

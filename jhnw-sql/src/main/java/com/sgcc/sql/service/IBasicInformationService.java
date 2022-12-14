@@ -60,4 +60,10 @@ public interface IBasicInformationService
      */
     public int deleteBasicInformationById(Long id);
 
+    /**
+     * 删除所有获取基本信息命令信息
+     *
+     * @return 结果
+     */
+    public int deleteBasicInformation();
 }

@@ -74,6 +74,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from command_logic where id = #{id}
     </delete>
 
+    <!--删除数据表所有数据-->
+    <delete id="deleteCommandLogic" parameterType="String">
+        delete from command_logic
+    </delete>
+
     <delete id="deleteCommandLogicByIds" parameterType="String">
         delete from command_logic where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">

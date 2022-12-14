@@ -136,4 +136,6 @@ public interface ITotalQuestionTableService
 
     List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable pojo);
 
+    /*删除数据表所有数据*/
+    int deleteTotalQuestionTable();
 }

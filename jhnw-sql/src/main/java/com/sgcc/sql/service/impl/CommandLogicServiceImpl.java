@@ -92,4 +92,10 @@ public class CommandLogicServiceImpl implements ICommandLogicService
     {
         return commandLogicMapper.deleteCommandLogicById(id);
     }
+
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteCommandLogic() {
+        return commandLogicMapper.deleteCommandLogic();
+    }
 }

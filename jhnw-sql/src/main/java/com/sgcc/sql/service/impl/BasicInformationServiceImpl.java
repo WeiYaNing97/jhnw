@@ -92,4 +92,10 @@ public class BasicInformationServiceImpl implements IBasicInformationService
         return basicInformationMapper.deleteBasicInformationById(id);
     }
 
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteBasicInformation() {
+        return basicInformationMapper.deleteBasicInformation();
+    }
+
 }

@@ -99,4 +99,10 @@ public class SwitchFailureServiceImpl implements ISwitchFailureService
     {
         return switchFailureMapper.deleteSwitchFailureByFailureId(failureId);
     }
+
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteSwitchFailureByFailure() {
+        return switchFailureMapper.deleteSwitchFailureByFailure();
+    }
 }

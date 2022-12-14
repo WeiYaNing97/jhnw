@@ -114,4 +114,10 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
         String stringData = "create_time < '"+data+"'";
         return returnRecordMapper.deleteReturnRecordByDate(stringData);
     }
+
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteReturnRecord() {
+        return returnRecordMapper.deleteReturnRecord();
+    }
 }

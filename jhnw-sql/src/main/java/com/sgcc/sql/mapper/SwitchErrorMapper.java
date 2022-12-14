@@ -62,4 +62,6 @@ public interface SwitchErrorMapper
      */
     public int deleteSwitchErrorByErrorIds(Long[] errorIds);
 
+    /*删除数据表所有数据*/
+    int deleteSwitchErrorByError();
 }

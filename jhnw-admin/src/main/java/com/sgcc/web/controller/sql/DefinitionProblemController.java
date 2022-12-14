@@ -13,10 +13,7 @@ import com.sgcc.common.utils.ServletUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.*;
-import com.sgcc.sql.service.IBasicInformationService;
-import com.sgcc.sql.service.ICommandLogicService;
-import com.sgcc.sql.service.IProblemScanLogicService;
-import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.sql.service.*;
 import com.sgcc.system.service.ISysUserService;
 import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.webSocket.WebSocketService;
@@ -53,6 +50,56 @@ public class DefinitionProblemController extends BaseController {
     private static ITotalQuestionTableService totalQuestionTableService;
     @Autowired
     private static IBasicInformationService basicInformationService;
+    @Autowired
+    private static IReturnRecordService returnRecordService;
+    @Autowired
+    private static ISwitchErrorService switchErrorService;
+    @Autowired
+    private static ISwitchFailureService switchFailureService;
+    @Autowired
+    private static ISwitchScanResultService switchScanResultService;
+
+    /**
+     * 删除数据表所有数据
+     */
+    @RequestMapping("deleteAllTable")
+    public static void deleteAllTable() {
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
+        returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
+        switchErrorService = SpringBeanUtil.getBean(ISwitchErrorService.class);
+        switchFailureService = SpringBeanUtil.getBean(ISwitchFailureService.class);
+        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+
+        /*删除数据表所有数据*/
+        /*获取交换机基本信息命令*/
+        int deleteBasicInformation =  basicInformationService.deleteBasicInformation();
+        System.err.println("deleteBasicInformation:"+deleteBasicInformation);
+        /*交换机问题表*/
+        int deleteTotalQuestionTable =  totalQuestionTableService.deleteTotalQuestionTable();
+        System.err.println("deleteTotalQuestionTable:"+deleteTotalQuestionTable);
+        /*交换机扫描命令 和 修复交换机问题命令 表*/
+        int deleteCommandLogic =  commandLogicService.deleteCommandLogic();
+        System.err.println("deleteCommandLogic:"+deleteCommandLogic);
+        /*扫描交换机问题分析表*/
+        int deleteProblemScanLogic = problemScanLogicService.deleteProblemScanLogic();
+        System.err.println("deleteProblemScanLogic:"+deleteProblemScanLogic);
+        /*交换机返回信息表*/
+        int deleteReturnRecord = returnRecordService.deleteReturnRecord();
+        System.err.println("deleteReturnRecord:"+deleteReturnRecord);
+        /*交换机错误表*/
+        int deleteSwitchErrorByError = switchErrorService.deleteSwitchErrorByError();
+        System.err.println("deleteSwitchErrorByError:"+deleteSwitchErrorByError);
+        /*交换机故障表*/
+        int deleteSwitchFailureByFailure = switchFailureService.deleteSwitchFailureByFailure();
+        System.err.println("deleteSwitchFailureByFailure:"+deleteSwitchFailureByFailure);
+        /*交换机扫描结果表*/
+        int deleteSwitchScanResult = switchScanResultService.deleteSwitchScanResult();
+        System.err.println("deleteSwitchScanResult:"+deleteSwitchScanResult);
+
+    }
 
 
     /**
@@ -285,7 +332,6 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
-        System.err.println("\r\n"+"方法com.sgcc.web.controller.sql.DefinitionProblemController.insertInformationAnalysisMethod：\r\n");
         System.err.println("\r\n"+"前端出入数据：\r\n");
         for (String jsonPojo:jsonPojoList){
             System.err.println(jsonPojo);
@@ -435,8 +481,8 @@ public class DefinitionProblemController extends BaseController {
      */
     @RequestMapping("definitionProblemJsonPojo")
     @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
-    public boolean definitionProblemJson(@RequestBody List<String> jsonPojoList){//@RequestParam Long totalQuestionTableId,
-        Long totalQuestionTableId = 137L;
+    public boolean definitionProblemJson(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
+
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         boolean definitionProblemJsonboolean = definitionProblemJsonPojo(totalQuestionTableId,jsonPojoList,loginUser);
@@ -529,17 +575,10 @@ public class DefinitionProblemController extends BaseController {
         //将相同ID  时间戳 的 实体类 放到一个实体
         List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
 
-        String totalQuestionTableById = null;
+        String totalQuestionTableById = totalQuestionTableId+"";;
         String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
 
-            //提取 问题ID
-            if (problemScanLogic.getProblemId()!=null &&problemScanLogic.getProblemId().indexOf("问题")!=-1){
-                // todo 有问题 无问题 自定义 获取  问题ID 的方法
-                if (problemScanLogic.getProblemId().indexOf("有问题")!=-1 || problemScanLogic.getProblemId().indexOf("无问题")!=-1){
-                    totalQuestionTableById = totalQuestionTableId+"";
-                }
-            }
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
             if (i<=0){
@@ -567,15 +606,14 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
-        if(totalQuestionTableById!=null){
-            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-            TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
-            totalQuestionTable.setCommandId(commandId);
-            int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-            if (i<=0){
-                return false;
-            }
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
+        totalQuestionTable.setCommandId(commandId);
+        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+        if (i<=0){
+            return false;
         }
+
         return true;
     }
 
@@ -1105,7 +1143,6 @@ public class DefinitionProblemController extends BaseController {
     @RequestMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
     public static AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
-        scanningSQL(totalQuestionTable.getId());
 
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -1137,6 +1174,7 @@ public class DefinitionProblemController extends BaseController {
             executor.shutdown();
 
         }
+
         return AjaxResult.success(analysisList[0]);
     }
 

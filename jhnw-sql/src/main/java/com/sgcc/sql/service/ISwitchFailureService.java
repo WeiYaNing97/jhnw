@@ -62,4 +62,6 @@ public interface ISwitchFailureService
      */
     public int deleteSwitchFailureByFailureId(Long failureId);
 
+    /*删除数据表所有数据*/
+    int deleteSwitchFailureByFailure();
 }

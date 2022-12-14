@@ -117,4 +117,10 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     public List<SwitchScanResult> selectSwitchScanResultByDataAndUserName(String loginTime, String loginName) {
         return switchScanResultMapper.selectSwitchScanResultByDataAndUserName(loginTime,loginName);
     }
+
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteSwitchScanResult() {
+        return switchScanResultMapper.deleteSwitchScanResult();
+    }
 }

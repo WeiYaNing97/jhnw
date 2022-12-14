@@ -61,4 +61,7 @@ public interface ISwitchErrorService
 
     /*查询交换机错误列表*/
     List<SwitchError> selectSwitchErrorListByPojo(SwitchError switchError);
+
+    /*删除数据表所有数据*/
+    int deleteSwitchErrorByError();
 }

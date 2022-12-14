@@ -218,6 +218,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="deleteSwitchScanResultById" parameterType="Long">
         delete from switch_scan_result where id = #{id}
     </delete>
+    <!--删除数据表所有数据-->
+    <delete id="deleteSwitchScanResult" parameterType="Long">
+        delete from switch_scan_result
+    </delete>
 
     <delete id="deleteSwitchScanResultByIds" parameterType="String">
         delete from switch_scan_result where id in 

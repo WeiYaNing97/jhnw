@@ -86,6 +86,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from switch_error where error_id = #{errorId}
     </delete>
 
+    <!--删除数据表所有数据-->
+    <delete id="deleteSwitchErrorByError" parameterType="Long">
+        delete from switch_error
+    </delete>
+
     <delete id="deleteSwitchErrorByErrorIds" parameterType="String">
         delete from switch_error where error_id in 
         <foreach item="errorId" collection="array" open="(" separator="," close=")">

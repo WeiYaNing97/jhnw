@@ -52,6 +52,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from basic_information where id = #{id}
     </delete>
 
+    <!--删除数据表所有数据-->
+    <delete id="deleteBasicInformation" parameterType="Long">
+        delete from basic_information
+    </delete>
+
     <delete id="deleteBasicInformationByIds" parameterType="String">
         delete from basic_information where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">

@@ -60,4 +60,6 @@ public interface ICommandLogicService
      */
     public int deleteCommandLogicById(String id);
 
+    /*删除数据表所有数据*/
+    int deleteCommandLogic();
 }

@@ -274,4 +274,10 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.selectTotalQuestionTableListInsert(pojo);
     }
 
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteTotalQuestionTable() {
+        return totalQuestionTableMapper.deleteTotalQuestionTable();
+    }
+
 }

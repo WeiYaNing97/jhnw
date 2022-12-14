@@ -59,4 +59,7 @@ public interface CommandLogicMapper
      * @return 结果
      */
     public int deleteCommandLogicByIds(String[] ids);
+
+    /*删除数据表所有数据*/
+    int deleteCommandLogic();
 }

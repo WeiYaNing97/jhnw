@@ -98,6 +98,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from switch_failure where failure_id = #{failureId}
     </delete>
 
+    <!--删除数据表所有数据-->
+    <delete id="deleteSwitchFailureByFailure" parameterType="Long">
+        delete from switch_failure
+    </delete>
+
     <delete id="deleteSwitchFailureByFailureIds" parameterType="String">
         delete from switch_failure where failure_id in 
         <foreach item="failureId" collection="array" open="(" separator="," close=")">

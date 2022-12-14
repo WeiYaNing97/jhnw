@@ -60,4 +60,10 @@ public interface BasicInformationMapper
      */
     public int deleteBasicInformationByIds(Long[] ids);
 
+    /**
+     * 删除所有获取基本信息命令
+     *
+     * @return 结果
+     */
+    public int deleteBasicInformation();
 }

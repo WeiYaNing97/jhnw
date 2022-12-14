@@ -72,4 +72,6 @@ public interface ISwitchScanResultService
 
     List<SwitchScanResult> selectSwitchScanResultByDataAndUserName(String loginTime, String loginName);
 
+    /*删除数据表所有数据*/
+    int deleteSwitchScanResult();
 }

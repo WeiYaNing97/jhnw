@@ -100,4 +100,10 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
         }
         return switchErrors;
     }
+
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteSwitchErrorByError() {
+        return switchErrorMapper.deleteSwitchErrorByError();
+    }
 }

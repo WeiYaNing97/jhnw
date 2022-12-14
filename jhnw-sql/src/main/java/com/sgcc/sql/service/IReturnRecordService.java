@@ -70,4 +70,7 @@ public interface IReturnRecordService
     List<ReturnRecord> selectReturnRecordListByDataTime(String data);
 
     int deleteReturnRecordByDate(String data);
+
+    /*删除数据表所有数据*/
+    int deleteReturnRecord();
 }

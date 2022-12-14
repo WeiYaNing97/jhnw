@@ -71,4 +71,7 @@ public interface SwitchScanResultMapper
     List<SwitchProblemVO> selectSwitchScanResultListByDataAndUserName(@Param("currentTime") String loginTime,@Param("userName") String loginName);
 
     List<SwitchScanResult> selectSwitchScanResultByDataAndUserName(@Param("currentTime") String loginTime,@Param("userName") String loginName);
+
+    /*删除数据表所有数据*/
+    int deleteSwitchScanResult();
 }

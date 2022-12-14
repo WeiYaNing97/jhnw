@@ -60,4 +60,6 @@ public interface ProblemScanLogicMapper
      */
     public int deleteProblemScanLogicByIds(String[] ids);
 
+    /*删除数据表所有数据*/
+    int deleteProblemScanLogic();
 }

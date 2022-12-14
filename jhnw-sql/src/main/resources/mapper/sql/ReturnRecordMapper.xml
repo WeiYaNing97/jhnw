@@ -92,6 +92,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="deleteReturnRecordById" parameterType="Long">
         delete from return_record where id = #{id}
     </delete>
+    <!--删除数据表所有数据-->
+    <delete id="deleteReturnRecord" parameterType="Long">
+        delete from return_record
+    </delete>
 
     <delete id="deleteReturnRecordByIds" parameterType="String">
         delete from return_record where id in 

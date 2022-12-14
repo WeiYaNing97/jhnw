@@ -91,4 +91,10 @@ public class ProblemScanLogicServiceImpl implements IProblemScanLogicService
     {
         return problemScanLogicMapper.deleteProblemScanLogicById(id);
     }
+
+    /*删除数据表所有数据*/
+    @Override
+    public int deleteProblemScanLogic() {
+        return problemScanLogicMapper.deleteProblemScanLogic();
+    }
 }
