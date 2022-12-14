@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class PathHelper {
-    static String logPath = "D:\\IdeaProjects\\github\\beifen\\jhnwadminlog" ;//Configuration.logPath;
+    static String logPath = "E:\\jhnwadminlog" ;//Configuration.logPath;
     static String logTime = MyUtils.getDate("yyyy-MM-dd");
 
     /**

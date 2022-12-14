@@ -23,12 +23,12 @@ import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 public class RSAUtils {
+
 	public static final String PUBLIC_KEY = "publicKey";
 	public static final String PRIVATE_KEY = "privateKey";
-
 	public static final String SB_PUBLIC_KEY = "sb_publicKey";
 	public static final String SB_PRIVATE_KEY = "sb_privateKey";
-	
+
 	private static Map<String,byte[]> keyMap = new HashMap<String,byte[]>();
 	/**
 	 * base64编码
