@@ -112,6 +112,56 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
+    <insert id="insertProblemScanLogicImport" parameterType="com.sgcc.sql.domain.ProblemScanLogic" useGeneratedKeys="true" keyProperty="id">
+        insert into problem_scan_logic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="matched != null and matched != ''">matched,</if>
+            <if test="relativePosition != null and relativePosition != ''">relative_position,</if>
+            <if test="matchContent != null and matchContent != ''">match_content,</if>
+            <if test="action != null and action !=''">action,</if>
+            <if test="rPosition != null and rPosition != ''">r_position,</if>
+            <if test="length != null and length != ''">length,</if>
+            <if test="exhibit != null and exhibit != ''">exhibit,</if>
+            <if test="wordName != null and wordName != ''">word_name,</if>
+            <if test="compare != null and compare != ''">compare,</if>
+            <if test="fLine != null and fLine != ''">f_line,</if>
+            <if test="tLine != null and tLine != ''">t_line,</if>
+            <if test="tNextId != null and tNextId != ''">t_next_id,</if>
+            <if test="tComId != null and tComId != ''">t_com_id,</if>
+
+            <if test="problemId != null and problemId != ''">problem_id,</if>
+
+            <if test="fNextId != null and fNextId !=''">f_next_id,</if>
+            <if test="fComId != null and fComId != ''">f_com_id,</if>
+            <if test="returnCmdId != null and returnCmdId !=''">return_cmd_id,</if>
+            <if test="cycleStartId != null and cycleStartId != ''">cycle_start_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and  id != ''">#{id},</if>
+            <if test="matched != null and  matched != ''">#{matched},</if>
+            <if test="relativePosition != null and relativePosition != ''">#{relativePosition},</if>
+            <if test="matchContent != null and  matchContent != ''">#{matchContent},</if>
+            <if test="action != null and action !='' ">#{action},</if>
+            <if test="rPosition != null and rPosition != ''">#{rPosition},</if>
+            <if test="length != null and length != ''">#{length},</if>
+            <if test="exhibit != null and  exhibit != ''">#{exhibit},</if>
+            <if test="wordName != null and wordName != ''">#{wordName},</if>
+            <if test="compare != null and compare != ''">#{compare},</if>
+            <if test="fLine != null and fLine != ''">#{fLine},</if>
+            <if test="tLine != null and tLine != ''">#{tLine},</if>
+            <if test="tNextId != null and tNextId != ''">#{tNextId},</if>
+            <if test="tComId != null and tComId != ''">#{tComId},</if>
+
+            <if test="problemId != null and problemId != ''">#{problemId},</if>
+
+            <if test="fNextId != null and fNextId !=''">#{fNextId},</if>
+            <if test="fComId != null and fComId != ''">#{fComId},</if>
+            <if test="returnCmdId != null and returnCmdId !=''">#{returnCmdId},</if>
+            <if test="cycleStartId != null and cycleStartId != ''">#{cycleStartId},</if>
+        </trim>
+    </insert>
+
     <update id="updateProblemScanLogic" parameterType="com.sgcc.sql.domain.ProblemScanLogic">
         update problem_scan_logic
         <trim prefix="SET" suffixOverrides=",">

@@ -36,6 +36,7 @@ public interface TotalQuestionTableMapper
      * @return 结果
      */
     public int insertTotalQuestionTable(TotalQuestionTable totalQuestionTable);
+    int insertTotalQuestionTableImport(TotalQuestionTable totalQuestionTable);
 
     /**
      * 修改问题及命令

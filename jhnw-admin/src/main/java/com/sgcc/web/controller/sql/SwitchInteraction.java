@@ -1317,7 +1317,7 @@ public class SwitchInteraction {
                 }
 
                 //当前命令字符串 返回命令总和("\r\n"分隔)
-                return_sum += commandString+"\r\n\r\n";
+                return_sum += commandtrim + "\r\n" +commandString+"\r\n\r\n";
             }
             //修整 当前命令字符串 返回信息  去除多余 "\r\n" 连续空格
             //应该可以去除 因为 上面 每个单独命令已经执行过
@@ -1867,7 +1867,7 @@ public class SwitchInteraction {
                     //取词操作
                     wordSelection_string = Utils.wordSelection(
                             return_information_array[num],matchContent, //返回信息的一行 提取关键字
-                            problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
+                            relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
                 }
 
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
@@ -2170,7 +2170,6 @@ public class SwitchInteraction {
         //截取 有问题 还是 无问题
         String substring = problemScanLogic.getProblemId();
         //截取 问题代码
-
         String problemId = totalQuestionTable.getId()+"";
 
         SwitchScanResult switchScanResult = new SwitchScanResult();

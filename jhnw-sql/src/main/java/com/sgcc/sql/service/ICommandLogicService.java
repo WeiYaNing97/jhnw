@@ -35,6 +35,7 @@ public interface ICommandLogicService
      * @return 结果
      */
     public int insertCommandLogic(CommandLogic commandLogic);
+    int insertCommandLogicImport(CommandLogic commandLogic);
 
     /**
      * 修改命令逻辑
@@ -62,4 +63,5 @@ public interface ICommandLogicService
 
     /*删除数据表所有数据*/
     int deleteCommandLogic();
+
 }

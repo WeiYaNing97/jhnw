@@ -35,6 +35,7 @@ public interface ITotalQuestionTableService
      * @return 结果
      */
     public int insertTotalQuestionTable(TotalQuestionTable totalQuestionTable);
+    int insertTotalQuestionTableImport(TotalQuestionTable totalQuestionTable);
 
     /**
      * 修改问题及命令
@@ -138,4 +139,5 @@ public interface ITotalQuestionTableService
 
     /*删除数据表所有数据*/
     int deleteTotalQuestionTable();
+
 }

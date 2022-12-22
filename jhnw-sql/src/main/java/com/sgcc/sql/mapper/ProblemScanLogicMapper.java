@@ -35,6 +35,7 @@ public interface ProblemScanLogicMapper
      * @return 结果
      */
     public int insertProblemScanLogic(ProblemScanLogic problemScanLogic);
+    int insertProblemScanLogicImport(ProblemScanLogic problemScanLogic);
 
     /**
      * 修改问题扫描逻辑

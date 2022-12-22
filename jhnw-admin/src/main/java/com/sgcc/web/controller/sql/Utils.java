@@ -388,7 +388,7 @@ public class Utils {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static String wordSelection(String returnString,String matchContent,int integer,String length){
+    public static String wordSelection(String returnString,String matchContent,String relativePosition_line,int integer,String length){
         // 获取 W、L、S
         String substring = length.substring(length.length() - 1, length.length());//取词类型
         //获取取值长度
@@ -411,6 +411,11 @@ public class Utils {
                 String returnString_trim = returnString.trim(); //交换机返回 信息 去除 前后空格
 
                 String[] split_String = returnString_trim.split(" ");
+
+                if (!(relativePosition_line.equals("0"))){
+                    matchContent = "";
+                }
+
                 if (!(matchContent.equals(""))){
                     int num = 0;
                     for ( ; num <split_String.length ; num++){

@@ -57,6 +57,11 @@ public class CommandLogicServiceImpl implements ICommandLogicService
         return commandLogicMapper.insertCommandLogic(commandLogic);
     }
 
+    @Override
+    public int insertCommandLogicImport(CommandLogic commandLogic) {
+        return commandLogicMapper.insertCommandLogicImport(commandLogic);
+    }
+
     /**
      * 修改命令逻辑
      * 

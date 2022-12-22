@@ -35,6 +35,7 @@ public interface CommandLogicMapper
      * @return 结果
      */
     public int insertCommandLogic(CommandLogic commandLogic);
+    int insertCommandLogicImport(CommandLogic commandLogic);
 
     /**
      * 修改命令逻辑

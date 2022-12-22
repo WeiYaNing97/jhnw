@@ -57,6 +57,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
+    <insert id="insertCommandLogicImport" parameterType="com.sgcc.sql.domain.CommandLogic" useGeneratedKeys="true" keyProperty="id">
+        insert into command_logic
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="state != null and state != ''">state,</if>
+            <if test="cLine != null and cLine != ''">c_line,</if>
+            <if test="command != null and command != ''">command,</if>
+            <if test="resultCheckId != null and resultCheckId != ''">result_check_id,</if>
+            <if test="problemId != null and problemId != ''">problem_id,</if>
+            <if test="endIndex != null and endIndex != ''">end_index,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="state != null and state != ''">#{state},</if>
+            <if test="cLine != null and cLine != ''">#{cLine},</if>
+            <if test="command != null and command != ''">#{command},</if>
+            <if test="resultCheckId != null and resultCheckId != ''">#{resultCheckId},</if>
+            <if test="problemId != null and problemId != ''">#{problemId},</if>
+            <if test="endIndex != null and endIndex != ''">#{endIndex},</if>
+        </trim>
+    </insert>
+
     <update id="updateCommandLogic" parameterType="com.sgcc.sql.domain.CommandLogic">
         update command_logic
         <trim prefix="SET" suffixOverrides=",">

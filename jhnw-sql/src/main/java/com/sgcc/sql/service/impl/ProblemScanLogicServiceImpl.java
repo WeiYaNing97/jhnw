@@ -55,6 +55,10 @@ public class ProblemScanLogicServiceImpl implements IProblemScanLogicService
     {
         return problemScanLogicMapper.insertProblemScanLogic(problemScanLogic);
     }
+    @Override
+    public int insertProblemScanLogicImport(ProblemScanLogic problemScanLogic) {
+        return problemScanLogicMapper.insertProblemScanLogicImport(problemScanLogic);
+    }
 
     /**
      * 修改问题扫描逻辑

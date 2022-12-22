@@ -1,4 +1,6 @@
 # jhnw嘉豪交换机
+- Local:   https://localhost:70/
+  - Network: https://192.168.0.102:70/
 ## 扫描问题
 ###路径：
 http://localhost/dev-api/sql/SwitchInteraction/logInToGetBasicInformation

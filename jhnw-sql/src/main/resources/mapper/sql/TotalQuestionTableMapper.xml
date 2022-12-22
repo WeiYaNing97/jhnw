@@ -364,6 +364,48 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
+    <insert id="insertTotalQuestionTableImport" parameterType="com.sgcc.sql.domain.TotalQuestionTable" useGeneratedKeys="true" keyProperty="id">
+        insert into total_question_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="brand != null and brand != '' ">brand,</if>
+            <if test="type != null and type != '' ">type,</if>
+            <if test="firewareVersion != null and firewareVersion != '' ">fireware_version,</if>
+            <if test="subVersion != null and subVersion != '' ">sub_version,</if>
+            <if test="notFinished != null and notFinished != '' ">not_finished,</if>
+            <if test="commandId != null and commandId != '' ">command_id,</if>
+            <if test="problemName != null and problemName != '' ">problem_name,</if>
+
+            <if test="temProName != null and temProName != '' ">tem_pro_name,</if>
+
+            <if test="typeProblem != null and typeProblem != '' ">type_problem,</if>
+            <if test="problemDescribeId != null and problemDescribeId != '' ">problem_describe_id,</if>
+            <if test="problemSolvingId != null and problemSolvingId != '' ">problem_solving_id,</if>
+
+            <if test="remarks != null and remarks != '' ">remarks,</if>
+            <if test="requiredItems != null and requiredItems != ''">required_items,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="brand != null and brand != '' ">#{brand},</if>
+            <if test="type != null and type != '' ">#{type},</if>
+            <if test="firewareVersion != null and firewareVersion != '' ">#{firewareVersion},</if>
+            <if test="subVersion != null and subVersion != '' ">#{subVersion},</if>
+            <if test="notFinished != null and notFinished != '' ">#{notFinished},</if>
+            <if test="commandId != null and commandId != '' ">#{commandId},</if>
+            <if test="problemName != null and problemName != '' ">#{problemName},</if>
+
+            <if test="temProName != null and temProName != '' ">#{temProName},</if>
+
+            <if test="typeProblem != null and typeProblem != '' ">#{typeProblem},</if>
+            <if test="problemDescribeId != null and problemDescribeId != '' ">#{problemDescribeId},</if>
+            <if test="problemSolvingId != null and problemSolvingId != '' ">#{problemSolvingId},</if>
+
+            <if test="remarks != null and remarks != '' ">#{remarks},</if>
+            <if test="requiredItems != null and requiredItems != ''">#{requiredItems},</if>
+        </trim>
+    </insert>
+
+
+
     <update id="updateTotalQuestionTable" parameterType="com.sgcc.sql.domain.TotalQuestionTable">
         update total_question_table
         <trim prefix="SET" suffixOverrides=",">

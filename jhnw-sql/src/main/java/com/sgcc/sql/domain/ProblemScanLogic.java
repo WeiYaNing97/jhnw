@@ -96,6 +96,7 @@ public class ProblemScanLogic extends BaseEntity
     }
 
 
+
     public String getId() {
         return id;
     }
@@ -248,6 +249,51 @@ public class ProblemScanLogic extends BaseEntity
         this.cycleStartId = cycleStartId;
     }
 
+
+    /*导入首字母大写*/
+    public Integer getRPosition() {
+        return rPosition;
+    }
+    public void setRPosition(Integer rPosition) {
+        this.rPosition = rPosition;
+    }
+    public String getTNextId() {
+        return tNextId;
+    }
+    public void setTNextId(String tNextId) {
+        this.tNextId = tNextId;
+    }
+    public String getTComId() {
+        return tComId;
+    }
+    public void setTComId(String tComId) {
+        this.tComId = tComId;
+    }
+    public String getFLine() {
+        return fLine;
+    }
+    public void setFLine(String fLine) {
+        this.fLine = fLine;
+    }
+    public String getTLine() {
+        return tLine;
+    }
+    public void setTLine(String tLine) {
+        this.tLine = tLine;
+    }
+    public String getFNextId() {
+        return fNextId;
+    }
+    public void setFNextId(String fNextId) {
+        this.fNextId = fNextId;
+    }
+    public String getFComId() {
+        return fComId;
+    }
+    public void setFComId(String fComId) {
+        this.fComId = fComId;
+    }
+
     @Override
     public String toString() {
         return "ProblemScanLogic{" +
@@ -263,7 +309,6 @@ public class ProblemScanLogic extends BaseEntity
                 ", compare='" + compare + '\'' +
                 ", tNextId='" + tNextId + '\'' +
                 ", tComId='" + tComId + '\'' +
-
                 ", problemId='" + problemId + '\'' +
                 ", fLine='" + fLine + '\'' +
                 ", tLine='" + tLine + '\'' +

@@ -103,6 +103,14 @@ public class CommandLogic extends BaseEntity
         this.endIndex = endIndex;
     }
 
+    /*导入*/
+    public String getCLine() {
+        return cLine;
+    }
+    public void setCLine(String cLine) {
+        this.cLine = cLine;
+    }
+
     @Override
     public String toString() {
         return "CommandLogic{" +

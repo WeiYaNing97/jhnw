@@ -59,6 +59,12 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.insertTotalQuestionTable(totalQuestionTable);
     }
 
+    @Override
+    public int insertTotalQuestionTableImport(TotalQuestionTable totalQuestionTable) {
+        return totalQuestionTableMapper.insertTotalQuestionTableImport(totalQuestionTable);
+    }
+
+
     /**
      * 修改问题及命令
      * 

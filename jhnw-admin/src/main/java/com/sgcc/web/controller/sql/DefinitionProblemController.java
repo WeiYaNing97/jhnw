@@ -61,6 +61,7 @@ public class DefinitionProblemController extends BaseController {
 
     /**
      * 删除数据表所有数据
+     *
      */
     @RequestMapping("deleteAllTable")
     public static void deleteAllTable() {
@@ -198,6 +199,7 @@ public class DefinitionProblemController extends BaseController {
                     repaircommandLogicList.add(pojo);
                 }
             }
+
         }
 
         AjaxResult repaircommandLogicExport = repaircommandLogicExport(repaircommandLogicList);
@@ -219,15 +221,39 @@ public class DefinitionProblemController extends BaseController {
     @ResponseBody
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
     {
-        ExcelUtil<TotalQuestionTable> totalQuestionTableutil = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
-        List<TotalQuestionTable> totalQuestionTableutilList = totalQuestionTableutil.importExcel(file.getInputStream());
-        if (totalQuestionTableutilList == null){
+        /*上传文件名称*/
+        String originalFilename = file.getOriginalFilename();
+
+        if (originalFilename.indexOf("问题表") != -1){
+            ExcelUtil<TotalQuestionTable> totalQuestionTableutil = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
+            List<TotalQuestionTable> totalQuestionTableutilList = totalQuestionTableutil.importExcel(file.getInputStream());
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+
+            for (TotalQuestionTable totalQuestionTable:totalQuestionTableutilList){
+                totalQuestionTable.setId(null);
+                /*插入*/
+                int insert= totalQuestionTableService.insertTotalQuestionTableImport(totalQuestionTable);
+                System.err.println("totalQuestionTableService:"+insert);
+
+            }
+
+        }else if (originalFilename.indexOf("分析表") != -1){
+            ExcelUtil<ProblemScanLogic> problemScanLogicutil = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
+            List<ProblemScanLogic> problemScanLogicutilList = problemScanLogicutil.importExcel(file.getInputStream());
+            problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
+            for (ProblemScanLogic problemScanLogic:problemScanLogicutilList){
+                int insert = problemScanLogicService.insertProblemScanLogicImport(problemScanLogic);
+                System.err.println("problemScanLogicService:"+insert);
+
+            }
+        }else if (originalFilename.indexOf("命令表") != -1){
             ExcelUtil<CommandLogic> commandLogicutil = new ExcelUtil<CommandLogic>(CommandLogic.class);
             List<CommandLogic> commandLogicutilList = commandLogicutil.importExcel(file.getInputStream());
-            if (commandLogicutilList == null){
-                ExcelUtil<ProblemScanLogic> problemScanLogicutil = new ExcelUtil<ProblemScanLogic>(ProblemScanLogic.class);
-                List<ProblemScanLogic> problemScanLogicutilList = problemScanLogicutil.importExcel(file.getInputStream());
-                return null;
+            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+            for (CommandLogic commandLogic:commandLogicutilList){
+                int insert = commandLogicService.insertCommandLogicImport(commandLogic);
+                System.err.println("commandLogicService:"+insert);
+
             }
         }
 
@@ -1075,32 +1101,100 @@ public class DefinitionProblemController extends BaseController {
         for (ProblemScanLogic problemScanLogic:pojoList){
             hashSet.add(problemScanLogic.getId());
         }
-        //创建ProblemScanLogic 集合 放入获取分析ID 作为返回的 实体类集合
-        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
-        for (String problemScanLogicId:hashSet){
-            ProblemScanLogic problemScanLogic = new ProblemScanLogic();
-            problemScanLogic.setId(problemScanLogicId);
-            problemScanLogicList.add(problemScanLogic);
-        }
-        //遍历前端返回的集合
-        for (ProblemScanLogic pojo:pojoList){
-            //遍历 分析ID 不重复的 集合
-            for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-                //当 两个实体类的 分析ID 相等时 由前端返回的集合 赋值给 返回实体类
-                if (pojo.getId().equals(problemScanLogic.getId())){
-                    //pojo.getfLine()==null  时  前端返回的实体类 是成功或是不分成功失败的数据
-                    if (pojo.getfLine()==null){
-                        BeanUtils.copyProperties(pojo,problemScanLogic);
-                        problemScanLogic.setMatched(pojo.getMatched()!=null?pojo.getMatched():null);
-                    }else {
-                        problemScanLogic.setfLine(pojo.getfLine());
-                        problemScanLogic.setfNextId(pojo.getfNextId());
-                        problemScanLogic.setfComId(pojo.getfComId());
-                        problemScanLogic.setProblemId(pojo.getProblemId());
 
-                    }
-                }
+        //创建ProblemScanLogic 集合 放入获取分析ID 作为返回的 实体类集合
+        Map<String,ProblemScanLogic> pojoMap = new HashMap<>();
+        for (String problemScanLogicId:hashSet){
+            ProblemScanLogic problem_scanLogic = new ProblemScanLogic();
+            problem_scanLogic.setId(problemScanLogicId);
+            pojoMap.put(problemScanLogicId,problem_scanLogic);
+        }
+
+
+        for (ProblemScanLogic pojo:pojoList){
+            String pojoId = pojo.getId();
+
+            ProblemScanLogic problemScanLogic = pojoMap.get(pojoId);
+
+            //当 两个实体类的 分析ID 相等时 由前端返回的集合 赋值给 返回实体类
+            String id = pojo.getId();
+            if (id != null) {
+                problemScanLogic.setId(id);
             }
+            String matched = pojo.getMatched();
+            if (matched != null){
+                problemScanLogic.setMatched(matched);
+            }
+            String relativePosition = pojo.getRelativePosition();
+            if (relativePosition != null) {
+                problemScanLogic.setRelativePosition(relativePosition);
+            }
+            String matchContent = pojo.getMatchContent();
+            if (matchContent != null) {
+                problemScanLogic.setMatchContent(matchContent);
+            }
+            String action = pojo.getAction();
+            if (action != null) {
+                problemScanLogic.setAction(action);
+            }
+            Integer rPosition = pojo.getrPosition();
+            if (rPosition != null) {
+                problemScanLogic.setrPosition(rPosition);
+            }
+            String length = pojo.getLength();
+            if (length != null) {
+                problemScanLogic.setLength(length);
+            }
+            String exhibit = pojo.getExhibit();
+            if (exhibit != null) {
+                problemScanLogic.setExhibit(exhibit);
+            }
+            String wordName = pojo.getWordName();
+            if (wordName != null) {
+                problemScanLogic.setWordName(wordName);
+            }
+            String compare = pojo.getCompare();
+            if (compare != null) {
+                problemScanLogic.setCompare(compare);
+            }
+            String tNextId = pojo.gettNextId();
+            if (tNextId != null) {
+                problemScanLogic.settNextId(tNextId);
+            }
+            String tComId = pojo.gettComId();
+            if (tComId != null) {
+                problemScanLogic.settComId(tComId);
+            }
+            String problemId = pojo.getProblemId();
+            if (problemId != null) {
+                problemScanLogic.setProblemId(problemId);
+            }
+            String fLine = pojo.getfLine();
+            if (fLine != null) {
+                problemScanLogic.setfLine(fLine);
+            }
+            String tLine = pojo.gettLine();
+            if (tLine != null) {
+                problemScanLogic.settLine(tLine);
+            }
+            String fNextId = pojo.getfNextId();
+            if (fNextId != null) {
+                problemScanLogic.setfNextId(fNextId);
+            }
+            String fComId = pojo.getfComId();
+            if (fComId != null) {
+                problemScanLogic.setfComId(fComId);
+            }
+            Long returnCmdId = pojo.getReturnCmdId();
+            if (returnCmdId != null) {
+                problemScanLogic.setReturnCmdId(returnCmdId);
+            }
+            String cycleStartId = pojo.getCycleStartId();
+            if (cycleStartId != null) {
+                problemScanLogic.setCycleStartId(cycleStartId);
+            }
+            pojoMap.put(pojoId,problemScanLogic);
+
         }
 
         //根据 gettLine  排序
@@ -1124,6 +1218,13 @@ public class DefinitionProblemController extends BaseController {
         for (int i =0;i<problemScanLogics.length;i++){
             problemScanLogicList.add(problemScanLogics[i]);
         }*/
+        List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+        Iterator it = pojoMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry entry =(Map.Entry) it.next();
+            ProblemScanLogic problemScanLogic = (ProblemScanLogic) entry.getValue();
+            problemScanLogicList.add(problemScanLogic);
+        }
 
         return problemScanLogicList;
     }
