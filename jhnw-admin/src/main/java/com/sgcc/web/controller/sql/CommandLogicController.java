@@ -152,6 +152,7 @@ public class CommandLogicController extends BaseController
             }
             return false;
         }
+
         /*  */
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
@@ -164,8 +165,8 @@ public class CommandLogicController extends BaseController
             commandLogics.add(commandLogic);
         }
 
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         for (int number=0;number<commandLogics.size();number++){
-            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
             if (i<=0){
                 //传输登陆人姓名 及问题简述
@@ -187,6 +188,7 @@ public class CommandLogicController extends BaseController
         }
 
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+
         if (i<=0){
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机问题实体类修复问题ID修改失败\r\n");
@@ -201,7 +203,9 @@ public class CommandLogicController extends BaseController
             }
             return false;
         }
+
         return true;
+
     }
 
     /**
@@ -325,6 +329,7 @@ public class CommandLogicController extends BaseController
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
         //解决问题命令集合
         List<CommandLogic> commandLogicList = new ArrayList<>();
+
         do {
             // 根据解决问题ID 查询 解决问题命令
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
@@ -346,6 +351,7 @@ public class CommandLogicController extends BaseController
         if (deleteCommandLogicByIds<=0){
             return false;
         }
+
         //修改解决问题命令字段
         totalQuestionTable.setProblemSolvingId(null);
         int updateTotalQuestionTable = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);

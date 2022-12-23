@@ -131,6 +131,7 @@ public class SolveProblemController {
      */
     @RequestMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
+
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum ,@PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
         LoginUser login = SecurityUtils.getLoginUser();
 
@@ -249,6 +250,7 @@ public class SolveProblemController {
      * @E-mail: WeiYaNing97@163.com
      *
      */
+
     public AjaxResult batchSolution(Map<String,String> user_String,LoginUser loginUser, List<SwitchScanResult> switchScanResultList ,List<String> problemIds){
 
         Map<String,Object> user_Object = new HashMap<>();
