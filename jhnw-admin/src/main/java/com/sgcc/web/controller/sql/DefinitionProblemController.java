@@ -137,6 +137,11 @@ public class DefinitionProblemController extends BaseController {
         return util.exportExcel(list, "分析表");
     }
 
+    /**
+     * 交换机问题、分析、修复表数据导出
+     * @param totalQuestionTableId
+     * @return
+     */
     @RequestMapping("/scanningSQL")
     public static AjaxResult scanningSQL(@RequestBody Long totalQuestionTableId) {
 
@@ -158,6 +163,8 @@ public class DefinitionProblemController extends BaseController {
         }else {
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(null);
         }
+
+        /* 将交换机问题表 导出成 Excel 表格， 并返回 表名 和 路径 */
         AjaxResult totalQuestionTableExport = totalQuestionTableExport(totalQuestionTables);
         fileName.add(totalQuestionTableExport.get("msg")+"");
 
@@ -168,35 +175,32 @@ public class DefinitionProblemController extends BaseController {
         for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
 
             HashMap<String, Object> scanLogicalEntityClass = DefinitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
-            if (scanLogicalEntityClass == null){
-                continue;
+            if (scanLogicalEntityClass != null){
+                /*命令数据*/
+                List<CommandLogic> commandLogics = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+                if (commandLogics != null){
+                    for (CommandLogic pojo:commandLogics){
+                        commandLogicList.add(pojo);
+                    }
+                }
             }
 
-            /*命令数据*/
-            List<CommandLogic> commandLogics = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-            if (commandLogics == null){
-                continue;
-            }
-            for (CommandLogic pojo:commandLogics){
-                commandLogicList.add(pojo);
-            }
+
 
             /*分析数据*/
             List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-            if (problemScanLogics == null){
-                continue;
-            }
-            for (ProblemScanLogic pojo:problemScanLogics){
-                problemScanLogicList.add(pojo);
+            if (problemScanLogics != null){
+                for (ProblemScanLogic pojo:problemScanLogics){
+                    problemScanLogicList.add(pojo);
+                }
             }
 
             if(totalQuestionTable.getProblemSolvingId() != null){
                 List<CommandLogic> commandPojoList = SolveProblemController.queryCommandSet(totalQuestionTable.getProblemSolvingId());
-                if (commandPojoList == null){
-                    continue;
-                }
-                for (CommandLogic pojo:commandPojoList){
-                    repaircommandLogicList.add(pojo);
+                if (commandPojoList != null){
+                    for (CommandLogic pojo:commandPojoList){
+                        repaircommandLogicList.add(pojo);
+                    }
                 }
             }
 
@@ -223,7 +227,7 @@ public class DefinitionProblemController extends BaseController {
     {
         /*上传文件名称*/
         String originalFilename = file.getOriginalFilename();
-
+        int insert = -1;
         if (originalFilename.indexOf("问题表") != -1){
             ExcelUtil<TotalQuestionTable> totalQuestionTableutil = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
             List<TotalQuestionTable> totalQuestionTableutilList = totalQuestionTableutil.importExcel(file.getInputStream());
@@ -232,7 +236,7 @@ public class DefinitionProblemController extends BaseController {
             for (TotalQuestionTable totalQuestionTable:totalQuestionTableutilList){
                 totalQuestionTable.setId(null);
                 /*插入*/
-                int insert= totalQuestionTableService.insertTotalQuestionTableImport(totalQuestionTable);
+                insert= totalQuestionTableService.insertTotalQuestionTableImport(totalQuestionTable);
                 System.err.println("totalQuestionTableService:"+insert);
 
             }
@@ -242,7 +246,7 @@ public class DefinitionProblemController extends BaseController {
             List<ProblemScanLogic> problemScanLogicutilList = problemScanLogicutil.importExcel(file.getInputStream());
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             for (ProblemScanLogic problemScanLogic:problemScanLogicutilList){
-                int insert = problemScanLogicService.insertProblemScanLogicImport(problemScanLogic);
+                insert = problemScanLogicService.insertProblemScanLogicImport(problemScanLogic);
                 System.err.println("problemScanLogicService:"+insert);
 
             }
@@ -251,13 +255,17 @@ public class DefinitionProblemController extends BaseController {
             List<CommandLogic> commandLogicutilList = commandLogicutil.importExcel(file.getInputStream());
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             for (CommandLogic commandLogic:commandLogicutilList){
-                int insert = commandLogicService.insertCommandLogicImport(commandLogic);
+                insert = commandLogicService.insertCommandLogicImport(commandLogic);
                 System.err.println("commandLogicService:"+insert);
 
             }
         }
 
-        return null;
+        if (insert>0){
+            return AjaxResult.success();
+        }
+
+        return AjaxResult.error();
     }
 
 
