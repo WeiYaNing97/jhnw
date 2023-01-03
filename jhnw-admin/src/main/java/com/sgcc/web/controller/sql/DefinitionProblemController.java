@@ -675,6 +675,7 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("nextIndex","0");
         hashMap.put("pageIndex",null);
         hashMap.put("endIndex","0");
+        hashMap.put("para",null);
             /*遍历属性数组，以“：”分割为[“属性名”，“属性值”]的数组
                 ，使用 属性名 匹配 hashmap中的key值，给key值赋值*/
         for (String pojo:jsonPojo_split){
@@ -697,6 +698,9 @@ public class DefinitionProblemController extends BaseController {
                 case "pageIndex"://命令行号
                     hashMap.put("pageIndex",split1);
                     break;
+                case "para"://参数
+                    hashMap.put("para",split1);
+                    break;
             }
         }
 
@@ -712,7 +716,12 @@ public class DefinitionProblemController extends BaseController {
         commandLogic.setId(hashMap.get("onlyIndex"));
         /** 状态 */
         commandLogic.setState(null);
+
         /** 命令 */
+        if (hashMap.get("para") != null && !(hashMap.get("para").equals(""))){
+            hashMap.put("command",hashMap.get("command")+":"+hashMap.get("para"));
+        }
+
         commandLogic.setCommand(hashMap.get("command"));
         /** 返回结果验证id */
         commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
