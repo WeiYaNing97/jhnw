@@ -853,7 +853,13 @@ public class DefinitionProblemController extends BaseController {
                     break;
                 case "matchContent":
                     /** 匹配内容 */
-                    hashMap.put("matchContent",split1);
+
+                    if (split1.equals("null")){
+                        hashMap.put("matchContent",null);
+                    }else {
+                        hashMap.put("matchContent",split1);
+                    }
+
                     break;
                 case "action":
                     /** 动作 */

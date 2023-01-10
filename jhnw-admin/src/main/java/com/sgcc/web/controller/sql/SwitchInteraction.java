@@ -548,8 +548,6 @@ public class SwitchInteraction {
             AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
             //AjaxResult basicInformationList_ajaxResult = getBasicInformationCurrency(user_String, user_Object); //basicInformationCurrency
 
-            //user_String.put("deviceModel","S3600-28P-EI");
-
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
 
                 //5.获取交换机可扫描的问题并执行分析操作
