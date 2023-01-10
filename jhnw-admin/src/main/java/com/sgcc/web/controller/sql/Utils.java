@@ -37,6 +37,7 @@ public class Utils {
      * 去除多余 "\r\n" 连续空格
      */
     public static String trimString(String resultString){
+        resultString = resultString.replace("\r\r","\r");
         resultString = resultString.replace("\r\n\r\n"," "+"\r\n"+" ");
         resultString = resultString.replace(" \r\n \r\n"," "+"\r\n"+" ");
         resultString = resultString.replace("\r\n"," "+"\r\n"+" ");

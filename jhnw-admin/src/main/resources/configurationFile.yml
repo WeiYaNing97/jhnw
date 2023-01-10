@@ -6,7 +6,11 @@ configuration:
   maximumTimeout: 60000
   # 循环次数
   numberOfCycles: 10
-  # 标识符
+  # 标识符  两个标识符之间以;分阁
   identifier: (TM);®
   # 日志路径
   logPath: "D:\IdeaProjects\github\beifen\jhnwadminlog"
+  # 设备品牌 两个品牌之间以;分阁
+  equipmentBrand: H3C
+  # 设备型号 两个型号之间以;分阁
+  equipmentModel: S*;N*

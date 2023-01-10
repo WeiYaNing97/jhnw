@@ -1082,10 +1082,11 @@ public class DefinitionProblemController extends BaseController {
         for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
             if (problemScanLogic.getfLine()!=null){
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
+
                 problemScanLogicf.setId(problemScanLogic.getId());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
-
+                problemScanLogicf.setLength(problemScanLogic.getLength());
                 problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
                 problemScanLogic.setfLine(null);
