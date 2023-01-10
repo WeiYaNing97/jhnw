@@ -1,7 +1,7 @@
 <template>
   <!--  <div class="app-container" @contextmenu="showMenu">-->
   <div class="app-container">
-    <el-form ref="form" :model="form" :rules="rules" :inline="true">
+    <el-form ref="form" :model="form" :rules="rules" :inline="true" v-show="showOrYu">
       <el-form-item label="ip" prop="ip">
         <el-input v-model="form.ip" style="width: 150px" size="small" placeholder="请输入ip" />
       </el-form-item>
@@ -9,6 +9,7 @@
         <el-input v-model="form.name" style="width: 120px" placeholder="请输入用户名" />
       </el-form-item>
       <el-form-item label="密码" prop="password">
+<!--        <el-input v-model="form.password" type="password" scrollHeight style="width: 150px" placeholder="请输入密码" />-->
         <el-input v-model="form.password" type="password" style="width: 150px" placeholder="请输入密码" />
       </el-form-item>
       <el-form-item label="方式" prop="mode">
@@ -24,12 +25,12 @@
         <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
       </el-form-item>
       <br/>
-      <el-button type="primary" size="small" @click="ceshi1" style="margin-top: 11px">预执行</el-button>
+      <el-button type="primary" size="small" @click="ceshi1" style="margin-top: 11px">执行</el-button>
       <div style="display: inline-block;margin-left: 20px">
         <el-input v-model="returnInfo" readonly placeholder="展示获取基本信息" style="width:500px"></el-input>
       </div>
     </el-form>
-    <hr style='border:1px inset #D2E9FF;'>
+    <hr style='border:1px inset #D2E9FF;' v-show="showOrYu">
     <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
       <el-form-item label="定义获取基本信息命令">
 
@@ -271,6 +272,9 @@
       <el-form-item>
         <el-button @click="tijiao" type="primary">提交</el-button>
       </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="showYu">预执行</el-button>
+      </el-form-item>
 
     </el-form>
 
@@ -295,6 +299,8 @@
         },
         data() {
             return {
+                //预执行是否显示
+                showOrYu:false,
                 //
                 returnInfo:'',
                 //问题详情
@@ -738,6 +744,10 @@
                     }
                 })
                 this.forms.dynamicItem.splice(shaAll,1)
+            },
+            //预执行显示
+            showYu(){
+                this.showOrYu = !this.showOrYu
             },
             //提交获取基本信息命令
             tijiao(){

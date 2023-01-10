@@ -9,7 +9,6 @@
               type="info"
               plain
               icon="el-icon-upload2"
-              size="mini"
               @click="handleImport"
               v-hasPermi="['system:user:import']"
             >导入</el-button>
@@ -19,11 +18,24 @@
               type="warning"
               plain
               icon="el-icon-download"
-              size="mini"
               :loading="exportLoading"
               @click="exportData"
               v-hasPermi="['system:user:export']"
             >导出</el-button>
+          </el-col>
+          <el-col :span="1.5">
+<!--            <el-button-->
+<!--              type="warning"-->
+<!--              plain-->
+<!--              icon="el-icon-download"-->
+<!--              size="mini"-->
+<!--              :loading="exportLoading"-->
+<!--              @click="exportData"-->
+<!--              v-hasPermi="['system:user:export']"-->
+<!--            >导出</el-button>-->
+            <el-button  type="danger"
+                        plain icon="el-icon-delete"
+                        @click="delDatabase">清空数据库</el-button>
           </el-col>
         </el-row>
       </el-col>
@@ -68,6 +80,8 @@
     import Treeselect from "@riophae/vue-treeselect";
     import "@riophae/vue-treeselect/dist/vue-treeselect.css";
     import request from '@/utils/request'
+    import  {MessageBox} from "element-ui"
+    import log from "../../monitor/job/log";
 
     export default {
         name: "User",
@@ -130,25 +144,20 @@
             // 取消按钮
             cancel() {
                 this.open = false;
-                this.reset();
             },
-            // 表单重置
-            reset() {
-                this.form = {
-                    userId: undefined,
-                    deptId: undefined,
-                    userName: undefined,
-                    nickName: undefined,
-                    password: undefined,
-                    phonenumber: undefined,
-                    email: undefined,
-                    sex: undefined,
-                    status: "0",
-                    remark: undefined,
-                    postIds: [],
-                    roleIds: []
-                };
-                this.resetForm("form");
+            //清空数据库
+            delDatabase(){
+                MessageBox.confirm('确定清空数据库吗？','提示').then(c=>{
+                    console.log('sssss')
+                    return request({
+                        url:'/sql/DefinitionProblemController/deleteAllTable',
+                        method:'post'
+                    }).then(response=>{
+                        console.log(response)
+                    })
+                }).catch(ee=>{
+                    this.$message.warning('清空操作已取消!')
+                })
             },
             //导出数据库数据
             exportData(){
@@ -162,11 +171,9 @@
                     }).then(response=>{
                         console.log(response)
                         console.log(response.data.length)
-                        // this.$download.name(response.data[0])
                         for (let i = 0;i<response.data.length;i++){
                             this.$download.name(response.data[i])
                         }
-                        // console.log(response.msg)
                         this.exportLoading = false
                     })
                 }).catch(() => {})

@@ -45,24 +45,25 @@
       <el-form-item label="分类概要:"></el-form-item>
       <el-form-item label="范式分类" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
-                   filterable allow-create @focus="general($event)" @blur="typeProShu">
+                   filterable allow-create @focus="generalA($event)" @blur="typeProShu">
           <el-option v-for="(item,index) in genList" :key="index"
                      :label="item.typeProblem" :value="item.typeProblem"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="范式名称">
         <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                   filterable allow-create @focus="general($event)" name="temProName" @blur="temProShu">
+                   filterable allow-create @focus="generalB($event)" name="temProName" @blur="temProShu">
           <el-option v-for="(item,index) in genList" :key="index"
                      :label="item.temProName" :value="item.temProName"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="自定义名称">
-        <el-select v-model="queryParams.problemName" placeholder="请输入问题名称"
-                   filterable allow-create @focus="general($event)" name="problemName" @blur="proSelect">
-          <el-option v-for="(item,index) in genList" :key="index"
-                     :label="item.problemName" :value="item.problemName"></el-option>
-        </el-select>
+<!--        <el-select v-model="queryParams.problemName" placeholder="请输入问题名称"-->
+<!--                   filterable allow-create @focus="general($event)" name="problemName" @blur="proSelect">-->
+<!--          <el-option v-for="(item,index) in genList" :key="index"-->
+<!--                     :label="item.problemName" :value="item.problemName"></el-option>-->
+<!--        </el-select>-->
+        <el-input v-model="queryParams.problemName" placeholder="请输入问题名称"></el-input>
       </el-form-item>
       <br/>
       <el-form-item label="其它:"></el-form-item>
@@ -127,7 +128,7 @@
 <!--              <el-option label="自定义校验" value="自定义校验"></el-option>-->
 <!--            </el-select>-->
             <el-select v-model="item.jiaoyan" placeholder="校验方式" value="常规校验">
-              <el-option label="常规校验" value="常规校验" selected></el-option>
+<!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
               <el-option label="自定义校验" value="自定义校验"></el-option>
             </el-select>
           </el-form-item>
@@ -595,6 +596,52 @@ export default {
           })
           return ret
       },
+      //范式分类
+      generalA(e){
+          this.who = e.target.getAttribute('name')
+          console.log(this.who)
+          let newPar = {}
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'post',
+              data:newPar
+          }).then(response=>{
+              console.log(response)
+              this.genList = this.quchong(response,this.who)
+              let kong = {
+                  [this.who] : 'null'
+              }
+              this.genList.push(kong)
+          })
+      },
+      //范式名称
+      generalB(e){
+          if (this.queryParams.typeProblem === ''){
+              this.$message.warning('请先选择范式分类!')
+          }else {
+              this.who = e.target.getAttribute('name')
+              console.log(this.who)
+              let newPar = {}
+              for (var key in this.queryParams){
+                  if (key == 'typeProblem'){
+                      newPar[key] = this.queryParams[key]
+                  }
+              }
+              return request({
+                  url:'/sql/total_question_table/selectPojoList',
+                  method:'post',
+                  data:newPar
+              }).then(response=>{
+                  console.log(response)
+                  //范式
+                  this.genList = this.quchong(response,this.who)
+                  let kong = {
+                      [this.who] : 'null'
+                  }
+                  this.genList.push(kong)
+              })
+          }
+      },
       //下拉列表通用
       general(e){
           this.who = e.target.getAttribute('name')
@@ -617,13 +664,6 @@ export default {
               data:newPar
           }).then(response=>{
               console.log(response)
-              //范式
-              this.normalType = this.quchong(response,'typeProblem')
-              console.log(this.normalType)
-              if (this.who === 'typeProblem'){
-                  console.log('sss')
-              }
-
               this.genList = this.quchong(response,this.who)
               let kong = {
                   [this.who] : 'null'
@@ -863,7 +903,7 @@ export default {
           }
           console.log(shasha)
           if (shasha.brand === '' && shasha.typeProblem === '' && shasha.temProName === ''){
-              alert('品牌、范式类型、范式名称 不得为空!')
+              alert('品牌、范式分类、范式名称 不得为空!')
           }else {
               return request({
                   url:'/sql/total_question_table/add',
@@ -886,13 +926,11 @@ export default {
           }else {
               this.$set(shasha,'requiredItems','0')
           }
-          console.log(shasha)
           return request({
               url:'/sql/total_question_table/add',
               method:'post',
               data:JSON.stringify(shasha)
           }).then(response=>{
-              console.log(response)
               this.$message.success('提交问题成功!')
               this.proId = response.msg
           })
@@ -923,7 +961,8 @@ export default {
       xiangqing(){
           let form = new FormData();
           for (var key in this.queryParams){
-              if (key != 'notFinished'&&key != 'requiredItems'&&key != 'commandId'&&key != 'remarks'){
+              // if (key != 'notFinished'&&key != 'requiredItems'&&key != 'commandId'&&key != 'remarks'){
+                  if (key != 'notFinished'&&key != 'requiredItems'&&key != 'remarks'){
                   form.append(key,this.queryParams[key])
               }
           }
@@ -1040,7 +1079,7 @@ export default {
           const thisIndex = this.forms.dynamicItem.indexOf(item)
           console.log(thisIndex)
           //动态添加的样式空格问题
-          console.log(this.$refs.btn[thisIndex])
+          // console.log(this.$refs.btn[thisIndex])
           console.log(item)
           // this.$set(item,'nextIndex',thisData)
           if(type == 'match'){
@@ -1232,15 +1271,20 @@ export default {
           const handForm = useForm.map(x => JSON.stringify(x))
           console.log(handForm)
           console.log(this.proId)
-          return request({
-              // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
-              url:`/sql/DefinitionProblemController/definitionProblemJsonPojo?totalQuestionTableId=${this.proId}`,
-              method:'post',
-              data:handForm
-          }).then(response=>{
-              console.log("成功")
-              this.$message.success('提交成功!')
-          })
+          if (this.proId != ''){
+              return request({
+                  // url:'/sql/DefinitionProblemController/definitionProblemJsonPojo',
+                  url:`/sql/DefinitionProblemController/definitionProblemJsonPojo?totalQuestionTableId=${this.proId}`,
+                  method:'post',
+                  data:handForm
+              }).then(response=>{
+                  console.log(response)
+                  this.$message.success('提交成功!')
+              })
+          }else {
+              this.$message.warning('未定义该问题，提交失败!')
+          }
+
           // this.$router.go(0)   刷新页面
       },
       //关闭定义问题

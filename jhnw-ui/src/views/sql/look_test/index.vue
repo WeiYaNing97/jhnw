@@ -6,28 +6,28 @@
           <el-form-item label="基本信息:"></el-form-item>
           <el-form-item label="品牌" prop="brand">
             <el-select v-model="queryParams.brand" placeholder="品牌"
-                       name="brand" @change="xuanChange" @focus="general($event)" style="width: 150px">
+                       name="brand" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.brand" :value="item.brand"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="型号" prop="type">
             <el-select v-model="queryParams.type" placeholder="型号"
-                       name="type" @focus="general($event)" style="width: 150px">
+                       name="type" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.type" :value="item.type"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="固件版本" prop="firewareVersion">
             <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                       name="firewareVersion" @focus="general($event)" style="width: 150px">
+                       name="firewareVersion" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="子版本" prop="subVersion">
             <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                       name="subVersion" @focus="general($event)" style="width: 150px">
+                       name="subVersion" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
             </el-select>
@@ -42,25 +42,26 @@
           <el-form-item label="分类概要:"></el-form-item>
           <el-form-item label="范式分类" prop="typeProblem">
             <el-select v-model="queryParams.typeProblem" placeholder="范式分类"
-                       name="typeProblem" @focus="general($event)">
+                       name="typeProblem" @change="xuanChange" @focus="generalOne($event)">
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.typeProblem" :value="item.typeProblem"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="范式名称">
             <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                       name="temProName" @focus="general($event)">
+                       name="temProName" @change="xuanChange" @focus="generalOne($event)">
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.temProName" :value="item.temProName"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="自定义名称">
-            <el-select v-model="queryParams.problemName" placeholder="自定义名称"
-                       name="problemName" @focus="general($event)">
-<!--              @change="cproId"-->
-              <el-option v-for="(item,index) in genList" :key="index"
-                         :label="item.problemName" :value="item.problemName"></el-option>
-            </el-select>
+<!--            <el-select v-model="queryParams.problemName" placeholder="自定义名称"-->
+<!--                       name="problemName" @change="xuanChange" @focus="generalOne($event)">-->
+<!--&lt;!&ndash;              @change="cproId"&ndash;&gt;-->
+<!--              <el-option v-for="(item,index) in genList" :key="index"-->
+<!--                         :label="item.problemName" :value="item.problemName"></el-option>-->
+<!--            </el-select>-->
+            <el-input v-model="queryParams.problemName" placeholder="请输入问题名称"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="chaxun">查看定义</el-button>
@@ -72,9 +73,9 @@
           <el-form-item>
             <el-button type="primary" @click="shanchutest">删除</el-button>
           </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="exportData">导出</el-button>
-          </el-form-item>
+<!--          <el-form-item>-->
+<!--            <el-button type="primary" @click="exportData">导出</el-button>-->
+<!--          </el-form-item>-->
           <!--      <el-form-item>-->
           <!--        <el-button type="primary" @click="gaibian">改变</el-button>-->
           <!--      </el-form-item>-->
@@ -541,6 +542,7 @@ export default {
                   data:this.proId
               }).then(response=>{
                   console.log('删除成功')
+                  this.$message.success('删除成功!')
               })
           }).catch(ee=>{
               this.$message.warning('取消删除!')
@@ -562,7 +564,73 @@ export default {
       },
       //选择值变化时
       xuanChange(){
-          console.log('ssss')
+          let newPar = {}
+          for (var key in this.queryParams){
+              newPar[key] = this.queryParams[key]
+          }
+          for (let i in newPar){
+              if (newPar[i] === 'null'){
+                  newPar[i] = ''
+              }
+          }
+          console.log(newPar)
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'post',
+              data:newPar
+          }).then(response=>{
+              console.log(response)
+              //有歧义
+              this.lieNum = response.length
+              this.proId = response[0].id
+              console.log(this.proId)
+
+              this.lookLists = []
+              //转化为树结构
+              for (let i = 0;i<response.length;i++){
+                  let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
+                  let loser = {
+                      // label:xinall,
+                      label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
+                      children: [{
+                          label:response[i].problemName,
+                          id:response[i].id
+                          // children:[{
+                          //     label:response[i].temProName,
+                          //     id:response[i].id
+                          // }]
+                      }]
+                  }
+                  this.lookLists.push(loser)
+              }
+          })
+      },
+      //点击事件
+      generalOne(e){
+          this.who = e.target.getAttribute('name')
+          let newPar = {}
+          for (var key in this.queryParams){
+              newPar[key] = this.queryParams[key]
+          }
+          for (let i in newPar){
+              if (newPar[i] === 'null'){
+                  newPar[i] = ''
+              }
+          }
+          console.log(newPar)
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'post',
+              data:newPar
+          }).then(response=>{
+              console.log(response)
+              this.genList = this.quchong(response,this.who)
+              let kong = {
+                  [this.who] : 'null'
+              }
+              this.genList.push(kong)
+              console.log(this.genList)
+          })
       },
       //下拉列表通用
       general(e){
@@ -587,6 +655,7 @@ export default {
 
               this.proId = response[0].id
               console.log(this.proId)
+
               this.lookLists = []
               //转化为树结构
               for (let i = 0;i<response.length;i++){
@@ -892,22 +961,7 @@ export default {
       },
       //导出数据库
       exportData(){
-          // var intData = '112'
-          // return request({
-          //     url:'/sql/DefinitionProblemController/scanningSQL',
-          //     method:'post',
-          //     data:intData
-          // }).then(response=>{
-          //     console.log('ssss')
-          // })
           console.log(this.proId)
-          // return request({
-          //     // url:'/sql/DefinitionProblemController/scanningSQL',
-          //     url:`/sql/DefinitionProblemController/scanningSQL?totalQuestionTableId=${this.proId}`,
-          //     method:'post'
-          // }).then(response=>{
-          //     console.log('testomne')
-          // })
           const idT = this.proId
           this.$modal.confirm('是否确认导出？').then(() => {
               this.exportLoading = true
@@ -937,6 +991,7 @@ export default {
                       data:this.proId
                   }).then(response=>{
                       console.log('删除成功')
+                      this.$message.success('删除成功!')
                   })
               }).catch(ee=>{
                   this.$message.warning('取消删除!')

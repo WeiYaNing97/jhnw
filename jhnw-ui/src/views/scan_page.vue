@@ -338,6 +338,7 @@
                 if (this.saowanend === true){
                     console.log('扫描已结束!')
                     alert('扫描已结束!')
+                    this.scanShow = true
                 }
             },
             //默认全部选中
@@ -353,7 +354,7 @@
             }
         },
         created() {
-            this.xunhuanxiufu()
+            // this.xunhuanxiufu()
             // let us = Cookies.get("userInfo")
             // console.log(us)
             // this.getList();
@@ -449,7 +450,7 @@
                     // password:'',
                     passmi:'********',
                     mode:'ssh',
-                    port:22,
+                    port:'22',
                     isEdit:true,
                     conCip:'********',
                     configureCiphers:''

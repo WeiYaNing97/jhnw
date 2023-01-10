@@ -3,7 +3,7 @@
 <!--    lishiData  nowData  tableDataqq-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
     <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
-    <p>我是：{{ endIp }}</p>
+<!--    <p>我是：{{ endIp }}</p>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 
@@ -56,7 +56,7 @@
               style="width: 100%"
               row-key="hproblemId"
               :cell-style="hongse"
-              default-expand-all
+              :default-expand-all="false"
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}"
               :span-method="arraySpanMethodTwo">
       <el-table-column prop="createTime" label="扫描时间" width="180"></el-table-column>
