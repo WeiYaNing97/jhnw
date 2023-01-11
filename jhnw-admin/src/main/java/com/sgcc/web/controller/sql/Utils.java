@@ -818,20 +818,19 @@ public class Utils {
     }
 
 
-    public static void main(String[] args) {
-        List<String> problemIdList = new ArrayList<>();
-        problemIdList.add("1");
-        problemIdList.add("12");
-        problemIdList.add("13");
-        problemIdList.add("14");
-        problemIdList.add("15");
-        problemIdList.add("16");
-
-        String[] ids = problemIdList.toArray(new String[problemIdList.size()]);
-
-        for (String id:ids){
-            System.err.println(id);
+    /**
+     * 判断字符串中是否包含数字
+     * @param source 待判断字符串
+     * @return 字符串中是否包含数字，true：包含数字，false：不包含数字
+     */
+    public static boolean containDigit(String source) {
+        char ch;
+        for(int i=0; i<source.length();i++){
+        ch = source.charAt(i);
+        if(ch >= '0' && ch <= '9') {
+            return true;
         }
+        }
+        return false;
     }
-
 }

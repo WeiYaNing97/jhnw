@@ -143,9 +143,8 @@ public class DefinitionProblemController extends BaseController {
      * @return
      */
     @RequestMapping("/scanningSQL")
-    public static AjaxResult scanningSQL(@RequestBody Long totalQuestionTableId) {
-
-        totalQuestionTableId = null;
+    public static AjaxResult scanningSQL() {
+        Long totalQuestionTableId = null;
 
         Long[] totalQuestionTableIds = new Long[1];
         totalQuestionTableIds[0] = totalQuestionTableId;

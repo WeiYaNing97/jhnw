@@ -441,6 +441,7 @@ public class SwitchInteraction {
         // IP地址 ip
         // 用户名 name
         // 用户密码 password
+        // 配置密码 configureCiphers
         // 端口号 port
         // 扫描时间 ScanningTime
         user_String.put("mode",mode);//登录方式
