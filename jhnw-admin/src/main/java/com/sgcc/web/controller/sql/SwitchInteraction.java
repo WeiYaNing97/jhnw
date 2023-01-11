@@ -1344,7 +1344,12 @@ public class SwitchInteraction {
             }
 
             //当前命令字符串 返回命令总和("\r\n"分隔)
-            return_sum +=  commandtrim +"\r\n"+ commandString+"\r\n";
+            if(way.equalsIgnoreCase("ssh")){
+                return_sum +=  commandtrim +"\r\n"+ commandString+"\r\n";
+            }else {
+                // telnet 自带
+                return_sum +=  commandString+"\r\n";
+            }
         }
         //修整 当前命令字符串 返回信息  去除多余 "\r\n" 连续空格
         //应该可以去除 因为 上面 每个单独命令已经执行过
@@ -3105,7 +3110,7 @@ public class SwitchInteraction {
         }
 
         List<Object> objectList = new ArrayList<>();
-        objectList.add(command.trim()+"\r\n"+command_string);//交换机返回信息
+        objectList.add(way.equalsIgnoreCase("ssh") ? command.trim()+"\r\n"+command_string : command_string);//交换机返回信息
         System.err.println("\r\n交换机返回信息:"+command.trim()+"\r\n"+command_string+"\r\n");
         objectList.add(first_problem_scanLogic_Id);//分析第一条ID
         return objectList;

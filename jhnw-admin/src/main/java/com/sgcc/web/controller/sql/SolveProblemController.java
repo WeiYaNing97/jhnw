@@ -139,6 +139,7 @@ public class SolveProblemController {
         for (int number = 0 ; number<problemIdList.size();number++){
             ids[number] = Integer.valueOf(problemIdList.get(number)).longValue();
         }*/
+
         Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
 
         // 根据 问题ID  查询 扫描出的问题
