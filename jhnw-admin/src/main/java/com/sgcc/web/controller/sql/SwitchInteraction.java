@@ -21,6 +21,9 @@ import com.sgcc.web.controller.util.EncryptUtil;
 import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.util.RSAUtils;
 import com.sgcc.web.controller.webSocket.WebSocketService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +35,9 @@ import java.util.stream.Collectors;
 
 /**
  * 与交换机交互方法类
- * @date 2022年01月05日 14:18
+ * @date 2022年01月05日 14:
+ *
+ *
  */
 
 @RestController

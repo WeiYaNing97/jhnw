@@ -17,6 +17,9 @@ import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.system.service.ISysUserService;
 import com.sgcc.web.controller.util.PathHelper;
 import com.sgcc.web.controller.webSocket.WebSocketService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -205,7 +208,30 @@ public class TotalQuestionTableController extends BaseController
      * @param totalQuestionTable
      * @return
      */
-    @RequestMapping("add")
+    @ApiOperation("新增问题")
+    @ApiImplicitParams({
+            //@ApiImplicitParam(name = "id", value = "主键ID", dataType = "Long", dataTypeClass = Long.class),
+
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "type", value = "型号", dataType = "String", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "subVersion", value = "子版本", dataType = "String", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志", dataType = "String", dataTypeClass = String.class),
+
+            //@ApiImplicitParam(name = "commandId", value = "扫描索引", dataType = "String", dataTypeClass = String.class),
+
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataType = "String", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataType = "String", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataType = "String", dataTypeClass = String.class),
+
+            //@ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引", dataType = "Long", dataTypeClass = Long.class),
+            //@ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引", dataType = "String", dataTypeClass = String.class)
+
+            @ApiImplicitParam(name = "remarks", value = "问题备注", dataType = "String", dataTypeClass = String.class),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫", dataType = "Long", dataTypeClass = Long.class)
+    })
+
+    @PostMapping("add")
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable)
     {

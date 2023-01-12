@@ -139,11 +139,12 @@ public class DefinitionProblemController extends BaseController {
 
     /**
      * 交换机问题、分析、修复表数据导出
-     * @param totalQuestionTableId
+     * @param
      * @return
      */
     @RequestMapping("/scanningSQL")
     public static AjaxResult scanningSQL() {
+
         Long totalQuestionTableId = null;
 
         Long[] totalQuestionTableIds = new Long[1];

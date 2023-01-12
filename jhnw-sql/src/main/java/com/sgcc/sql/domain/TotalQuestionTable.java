@@ -36,6 +36,7 @@ public class TotalQuestionTable extends BaseEntity
     /** 未完成 */
     @Excel(name = "未完成标志")
     private String notFinished;
+
     /** 启动命令ID */
     @Excel(name = "扫描索引")
     private String commandId;
