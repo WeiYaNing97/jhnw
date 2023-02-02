@@ -2,6 +2,8 @@ package com.sgcc.sql.domain;
 
 import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.core.domain.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 问题及命令对象 total_question_table
@@ -9,65 +11,80 @@ import com.sgcc.common.core.domain.BaseEntity;
  * @author 韦亚宁
  * @date 2021-12-14
  */
+@ApiModel(value = "TotalQuestionTable", description = "交换机问题实体")
 public class TotalQuestionTable extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
     /** 主键索引 */
     @Excel(name = "主键")
+    @ApiModelProperty("主键")
     private Long id;
 
     /** 品牌 */
     @Excel(name = "品牌")
+    @ApiModelProperty("品牌")
     private String brand;
 
     /** 型号 */
     @Excel(name = "型号")
+    @ApiModelProperty("型号")
     private String type;
 
     /** 内部固件版本 */
     @Excel(name = "内部固件版本")
+    @ApiModelProperty("内部固件版本")
     private String firewareVersion;
 
     /** 子版本号 */
     @Excel(name = "子版本号")
+    @ApiModelProperty("子版本号")
     private String subVersion;
 
     /** 未完成 */
     @Excel(name = "未完成标志")
+    @ApiModelProperty("未完成标志")
     private String notFinished;
 
     /** 启动命令ID */
     @Excel(name = "扫描索引")
+    @ApiModelProperty("扫描索引")
     private String commandId;
 
     /** 范式种类 */
     @Excel(name = "范式分类")
+    @ApiModelProperty("范式分类")
     private String typeProblem;
 
 
     /** 范式名称 */
     @Excel(name = "范式名称")
+    @ApiModelProperty("范式名称")
     private String temProName;
 
     /** 问题名称 */
     @Excel(name = "自定义名称")
+    @ApiModelProperty("自定义名称")
     private String problemName;
 
     /** 问题详细说明和指导索引 */
     @Excel(name = "问题详细说明和指导索引")
+    @ApiModelProperty("问题详细说明和指导索引")
     private Long problemDescribeId;
 
     /** 解决问题命令ID */
     @Excel(name = "解决问题命令索引")
+    @ApiModelProperty("解决问题命令索引")
     private String problemSolvingId;
 
     /** 备注 */
     @Excel(name = "问题备注")
+    @ApiModelProperty("问题备注")
     private String remarks;
 
     /** 是否必扫 */
     @Excel(name = "是否必扫")
+    @ApiModelProperty("是否必扫")
     private Long requiredItems;
 
     public static long getSerialVersionUID() {

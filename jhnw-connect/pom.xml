@@ -20,11 +20,12 @@
             <groupId>com.sgcc</groupId>
             <artifactId>jhnw-common</artifactId>
         </dependency>
-        <!--SQL-->
+
+        <!--SQL
         <dependency>
             <groupId>com.sgcc</groupId>
             <artifactId>jhnw-sql</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- jsch支持 -->
         <dependency>
