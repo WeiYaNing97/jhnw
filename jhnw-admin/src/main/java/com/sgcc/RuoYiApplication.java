@@ -31,10 +31,8 @@ public class RuoYiApplication
 
         try {
             Configuration.getConfiguration();
-            MemoryCPU.Memory_CPU();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (SigarException e) {
+            MemoryCPU.initSystemInfo();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
