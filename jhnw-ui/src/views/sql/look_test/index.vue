@@ -61,17 +61,20 @@
 <!--              <el-option v-for="(item,index) in genList" :key="index"-->
 <!--                         :label="item.problemName" :value="item.problemName"></el-option>-->
 <!--            </el-select>-->
-            <el-input v-model="queryParams.problemName" placeholder="请输入问题名称"></el-input>
+            <el-input v-model="queryParams.problemName" :disabled="true" placeholder="自定义问题名称"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="chaxun">查看定义</el-button>
+            <el-button type="primary" @click="chaxun" icon="el-icon-search" size="small">查看</el-button>
             <!--        :disabled="!isNull"-->
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="xiugai" icon="el-icon-edit" :disabled="isUse">修改</el-button>
+            <el-button type="primary" @click="xiugai" icon="el-icon-edit" :disabled="isUse" size="small">修改</el-button>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="shanchutest">删除</el-button>
+            <el-button type="primary" @click="shanchutest" icon="el-icon-delete" size="small">删除</el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="addNew" icon="el-icon-plus" size="small">新增</el-button>
           </el-form-item>
 <!--          <el-form-item>-->
 <!--            <el-button type="primary" @click="exportData">导出</el-button>-->
@@ -304,10 +307,12 @@ import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_tes
 import axios from 'axios'
 import  {MessageBox} from "element-ui"
 import request from '@/utils/request'
+import router from '@/router/index'
 import log from "../../monitor/job/log";
 
 export default {
   name: "Look_test",
+  inject:["reload"],
   data() {
     return {
         //右侧返回个数
@@ -362,13 +367,23 @@ export default {
       open: false,
       // 查询参数
       queryParams: {
-        problemName:'',
-        temProName:'',
-        typeProblem:'',
-        brand:'',
-        type:'',
-        firewareVersion:'',
-        subVersion:''
+        // problemName:'',
+        // temProName:'',
+        // typeProblem:'',
+        // brand:'',
+        // type:'',
+        // firewareVersion:'',
+        // subVersion:''
+
+
+
+          problemName:undefined,
+          temProName:undefined,
+          typeProblem:undefined,
+          brand:undefined,
+          type:undefined,
+          firewareVersion:undefined,
+          subVersion:undefined
         // commandId:'1'
       },
       // 表单参数
@@ -405,7 +420,7 @@ export default {
     };
   },
   created() {
-    this.getList();
+    // this.getList();
   },
   watch:{
       // 根据输入筛选专项
@@ -526,7 +541,7 @@ export default {
           // alert(JSON.stringify(this.oldValue))
           return request({
               url:`/sql/DefinitionProblemController/updateAnalysis?totalQuestionTableId=${this.proId}`,
-              method:'post',
+              method:'put',
               data:handForm
           }).then(response=>{
               this.$message.success('提交修改成功!')
@@ -538,7 +553,7 @@ export default {
               console.log(this.proId)
               return request({
                   url:'/sql/DefinitionProblemController/deleteScanningLogic',
-                  method:'post',
+                  method:'delete',
                   data:this.proId
               }).then(response=>{
                   console.log('删除成功')
@@ -574,17 +589,18 @@ export default {
               }
           }
           console.log(newPar)
+          console.log(typeof newPar)
+          console.log(typeof this.queryParams)
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              params: newPar
           }).then(response=>{
               console.log(response)
               //有歧义
               this.lieNum = response.length
               this.proId = response[0].id
               console.log(this.proId)
-
               this.lookLists = []
               //转化为树结构
               for (let i = 0;i<response.length;i++){
@@ -605,7 +621,7 @@ export default {
               }
           })
       },
-      //点击事件
+      //下拉列表通用事件
       generalOne(e){
           this.who = e.target.getAttribute('name')
           let newPar = {}
@@ -620,8 +636,8 @@ export default {
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              params:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
@@ -629,10 +645,10 @@ export default {
                   [this.who] : 'null'
               }
               this.genList.push(kong)
-              console.log(this.genList)
+              // console.log(this.genList)
           })
       },
-      //下拉列表通用
+      //下拉列表通用（最初）
       general(e){
           this.who = e.target.getAttribute('name')
           let newPar = {}
@@ -713,8 +729,9 @@ export default {
               this.zhidu = true
               return request({
                   url:'/sql/DefinitionProblemController/getAnalysisList',
-                  method:'post',
-                  data:JSON.stringify(this.queryParams)
+                  method:'get',
+                  // data:JSON.stringify(this.queryParams)
+                  params:this.queryParams
               }).then(response=>{
                   console.log(response)
                   this.fDa = []
@@ -819,18 +836,22 @@ export default {
                   this.queryParams.problemName = response.data.problemName
                   return request({
                       url: '/sql/DefinitionProblemController/getAnalysisList',
-                      method: 'post',
-                      data: response.data
+                      method: 'get',
+                      // data: response.data
+                      params:response.data
                   }).then(response => {
                       console.log(response)
                       if (response.msg === '操作成功'){
                           this.cdy = true
                       }
                       this.fDa = []
-                      response.data.forEach(l => {
-                          const wei = l.replace(/"=/g, '":')
-                          this.fDa.push(JSON.parse(wei))
-                      })
+                      if (response.data != null){
+                          console.log('不为空')
+                          response.data.forEach(l => {
+                              const wei = l.replace(/"=/g, '":')
+                              this.fDa.push(JSON.parse(wei))
+                          })
+                      }
                       this.fDa.forEach(chae => {
                           if (chae.hasOwnProperty('command') == true) {
                               this.$set(chae, 'targetType', 'command')
@@ -978,6 +999,12 @@ export default {
               this.exportLoading = false
           }).catch(() => {})
       },
+      //新增
+      addNew(){
+          router.push({
+              path:'/sql/jh_test1'
+          })
+      },
       //删除
       shanchutest(){
           if (this.lieNum != 1){
@@ -986,12 +1013,14 @@ export default {
               console.log(this.proId)
               MessageBox.confirm('确定删除该问题吗？','提示').then(c=>{
                   return request({
+                      // url:'/sql/total_question_table/deleteTotalQuestionTable/' + this.proId,
                       url:'/sql/total_question_table/deleteTotalQuestionTable',
-                      method:'post',
+                      method:'delete',
                       data:this.proId
+                      // params:this.proId
                   }).then(response=>{
-                      console.log('删除成功')
                       this.$message.success('删除成功!')
+                      this.reload()
                   })
               }).catch(ee=>{
                   this.$message.warning('取消删除!')

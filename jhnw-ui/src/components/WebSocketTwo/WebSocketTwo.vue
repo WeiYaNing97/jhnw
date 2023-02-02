@@ -2,7 +2,9 @@
   <div>
 <!--    lishiData  nowData  tableDataqq-->
     <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
-    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>
+
+<!--    <el-button type="success" size="small" @click="testOne">测试</el-button>-->
+<!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <p>我是：{{ endIp }}</p>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
@@ -402,6 +404,10 @@
                     this.$message.success('修复请求以提交!')
                     console.log('成功')
                 })
+            },
+            //测试按钮
+            testOne(){
+                console.log('awdawadaw')
             },
             //当前扫描一键修复所有问题
             allxiu(){

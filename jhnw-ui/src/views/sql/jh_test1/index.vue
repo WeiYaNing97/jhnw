@@ -2,7 +2,7 @@
   <div class="app-container" @contextmenu="showMenu" :key="keys">
 <!--  <div class="app-container">-->
     <el-form :model="queryParams" ref="queryForm" :inline="true">
-      <el-form-item label="基本信息:"></el-form-item>
+      <el-form-item label="设备信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
                      filterable allow-create @blur="brandShu" @focus="general($event)"
@@ -42,7 +42,7 @@
 <!--          <el-option label="未定义问题" value="0"></el-option>-->
 <!--        </el-select>-->
 <!--      </el-form-item>-->
-      <el-form-item label="分类概要:"></el-form-item>
+      <el-form-item label="风险分类:"></el-form-item>
       <el-form-item label="范式分类" prop="typeProblem">
         <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
                    filterable allow-create @focus="generalA($event)" @blur="typeProShu">
@@ -67,9 +67,9 @@
       </el-form-item>
       <br/>
       <el-form-item label="其它:"></el-form-item>
-      <el-form-item>
-        <el-checkbox v-model="queryParams.requiredItems">必扫问题</el-checkbox>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-checkbox v-model="queryParams.requiredItems">必扫问题</el-checkbox>-->
+<!--      </el-form-item>-->
       <el-form-item label="备注">
         <el-input v-model="queryParams.remarks"></el-input>
       </el-form-item>
@@ -82,15 +82,21 @@
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="tiwenti">提交问题</el-button>-->
 <!--      </el-form-item>-->
-      <el-form-item>
-        <el-button type="primary" @click="hebingnew">定义问题命令</el-button>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="hebingnew">定义问题命令</el-button>-->
+<!--      </el-form-item>-->
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
 <!--      </el-form-item>-->
-      <el-form-item>
-        <el-button type="primary" @click="xiangqing">定义问题详情</el-button>
-      </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="xiangqing">定义问题详情</el-button>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="subProblem">合并按钮</el-button>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" @click="oneone">测</el-button>-->
+<!--      </el-form-item>-->
 <!--      <el-form-item>-->
 <!--        <el-button type="primary" @click="shuaxin">刷新</el-button>-->
 <!--      </el-form-item>-->
@@ -317,8 +323,8 @@
       </div>
 
       <el-form-item>
-        <el-button @click="tijiao" type="primary">提交</el-button>
-        <el-button @click="guanbi" type="primary">关闭</el-button>
+<!--        <el-button @click="tijiao" type="primary">提交</el-button>-->
+        <el-button @click="subProblem" type="primary">定义问题</el-button>
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
@@ -393,7 +399,7 @@ export default {
         partShow:false,
         //必选项
         //隐藏定义问题
-        chuxian:false,
+        chuxian:true,
         display:'inline-block',
         paddingLeft:'0px',
         cpus:'',
@@ -603,8 +609,9 @@ export default {
           let newPar = {}
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              // data:newPar
+              params: newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
@@ -629,8 +636,9 @@ export default {
               }
               return request({
                   url:'/sql/total_question_table/selectPojoList',
-                  method:'post',
-                  data:newPar
+                  method:'get',
+                  // data:newPar
+                  params:newPar
               }).then(response=>{
                   console.log(response)
                   //范式
@@ -660,8 +668,9 @@ export default {
           }
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              // data:newPar
+              params:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
@@ -885,6 +894,117 @@ export default {
           let value = e.target.value
           if(value){
               this.queryParams.problemName = value
+          }
+      },
+      //1.31
+      oneone(){
+          const useForm = []
+          const useLess = []
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.test === "test"){
+                  useLess.push(e)
+              }else {
+                  useForm.push(e)
+              }
+          })
+          const handForm = useForm.map(x => JSON.stringify(x))
+          console.log(handForm)
+          if (handForm.length < 1){
+              console.log('xxx')
+              this.$message.error('sss')
+          }else {
+              console.log('www')
+          }
+      },
+      //定义问题合并提交
+      subProblem(){
+          var subNewPro = JSON.parse(JSON.stringify(this.queryParams))
+          if (subNewPro.requiredItems === true){
+              this.$set(subNewPro,'requiredItems','1')
+          }else {
+              this.$set(subNewPro,'requiredItems','0')
+          }
+          for (let i in subNewPro){
+              if (subNewPro[i] === 'null'){
+                  subNewPro[i] = ''
+              }
+          }
+          if (subNewPro.brand == '' || subNewPro.typeProblem == '' || subNewPro.temProName == ''){
+              alert('品牌、范式分类、范式名称 不得为空!')
+          }else {
+              return request({
+                  url:'/sql/total_question_table/add',
+                  method:'post',
+                  data:JSON.stringify(subNewPro)
+              }).then(response=>{
+                  console.log(response)
+                  this.proId = response.msg
+                  console.log(typeof this.proId)
+                  // if (typeof(this.proId) === 'number'){
+                  if (this.proId != ''){
+                      console.log('数字')
+                      const useForm = []
+                      const useLess = []
+                      this.forms.dynamicItem.forEach(e=>{
+                          if (e.test === "test"){
+                              useLess.push(e)
+                          }else {
+                              useForm.push(e)
+                          }
+                      })
+                      useForm.forEach(eeee=>{
+                          const thisIndex = useForm.indexOf(eeee)
+                          if(useForm.length != thisIndex+1){
+                              const thisNext = useForm[thisIndex+1]
+                              this.$set(eeee,'nextIndex',thisNext.onlyIndex)
+                          }
+                          if (eeee.action === '取词'){
+                              eeee.length = `${eeee.length1}${eeee.classify}`
+                          }
+                          if (eeee.jiaoyan == '常规校验'){
+                              this.$set(eeee,'resultCheckId','1')
+                          }else {
+                              this.$set(eeee,'resultCheckId','0')
+                          }
+                          this.$set(eeee,'pageIndex',thisIndex+1)
+                          if (eeee.targetType == 'takeword'){
+                              const takeWordt = useForm.indexOf(eeee)
+                              var quciC = ''
+                              useForm.map((e11)=>{
+                                  const takeWl = useForm.indexOf(e11)
+                                  if(takeWl == takeWordt-1){
+                                      quciC = e11.matchContent
+                                  }
+                              })
+                              this.$set(eeee,'matchContent',quciC)
+                          }
+                          //拆分有无问题
+                          if (eeee.action === '问题'){
+                              const neid = eeee.action
+                              console.log(neid)
+                              const thisData = Date.now()
+                              console.log(thisData)
+                          }
+                      })
+                      const handForm = useForm.map(x => JSON.stringify(x))
+                      console.log(handForm)
+                      if (handForm.length < 1){
+                          this.$message.warning('分析逻辑不能为空!')
+                      }else {
+                          return request({
+                              url:`/sql/DefinitionProblemController/definitionProblemJsonPojo?totalQuestionTableId=${this.proId}`,
+                              method:'post',
+                              data:handForm
+                          }).then(response=>{
+                              console.log(response)
+                              this.$message.success('提交问题成功!')
+                          })
+                      }
+                  }else {
+                      this.$message.error('提交问题失败!')
+                  }
+                  this.chuxian = true
+              })
           }
       },
       //合并按钮新的
@@ -1287,11 +1407,6 @@ export default {
 
           // this.$router.go(0)   刷新页面
       },
-      //关闭定义问题
-      guanbi(){
-          this.chuxian = false
-      },
-
     // 表单重置
     reset() {
       this.form = {

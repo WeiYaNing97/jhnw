@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" size="small" style="margin-bottom: 10px" @click="lishi">历史扫描</el-button>
+<!--    <el-button type="primary" size="small" style="margin-bottom: 10px" @click="lishi">历史扫描</el-button>-->
     <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"
@@ -55,6 +55,9 @@
                 newArr:[]
             }
         },
+        mounted:function(){
+          this.lishi()
+        },
         methods:{
             //展开折叠当前列表
             expandChange(row){
@@ -66,12 +69,12 @@
                     'color':'red'
                 }
                 let greens = {
-                    'color':'green'
+                    'color':'#008080'
                 }
                 if(row.column.label === '是否异常'){
-                    if (row.row.ifQuestion != '安全'){
+                    if (row.row.ifQuestion == '异常'){
                         return reds
-                    }else if (row.row.ifQuestion === '已解决'){
+                    }else if (row.row.ifQuestion == '已解决'){
                         return greens
                     }
                 }
@@ -120,6 +123,7 @@
                 const allProIdList = []
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const scanNum = this.num
+                // const scanNum = 1
                 console.log(userinformation)
                 console.log(problemIdList)
                 return request({
@@ -195,9 +199,11 @@
                     }
                 }
                 const userinformation = list1.map(x=>JSON.stringify(x))
-                const scanNum = this.num
+                // const scanNum = this.num
+                const scanNum = 1
                 console.log(problemIdList)
                 console.log(userinformation)
+                console.log(allProIdList)
                 return request({
                     url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
@@ -224,7 +230,7 @@
                 this.huisao = true
                 return request({
                     url:'/sql/SolveProblemController/getUnresolvedProblemInformationByUserName',
-                    method:'post',
+                    method:'get'
                 }).then(response=>{
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {
                         let strtest = JSON.stringify(arrayJsonObj);

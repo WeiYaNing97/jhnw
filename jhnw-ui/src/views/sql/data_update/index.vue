@@ -89,7 +89,7 @@
         components: { Treeselect },
         data() {
             return {
-                proId:126,
+                // proId:126,
                 // 遮罩层
                 loading: true,
                 // 导出遮罩层
@@ -161,13 +161,13 @@
             },
             //导出数据库数据
             exportData(){
-                console.log(this.proId)
+                // console.log(this.proId)
                 this.$modal.confirm('是否确认导出？').then(() => {
                     this.exportLoading = true
                     return request({
                         url:'/sql/DefinitionProblemController/scanningSQL',
                         method:'post',
-                        data:this.proId
+                        // data:this.proId
                     }).then(response=>{
                         console.log(response)
                         console.log(response.data.length)

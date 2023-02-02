@@ -122,7 +122,7 @@ export default {
       lun(){
           return request({
               url:'/sql/get_Memory_CPU',
-              method:'post',
+              method:'get',
           }).then(response=>{
               var R1 = response.indexOf('内存使用率')
               var R2 = response.indexOf('CPU总数')

@@ -1,13 +1,28 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true" v-show="showSearch" label-width="40px" :show-message="false">
+    <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true"
+             v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px;width: 100%">
-        <el-button type="success" icon="el-icon-search" size="small" @click="saomiao" v-if="this.scanShow == true" round>一键扫描</el-button>
-        <el-button type="success" size="small" @click="cancelScan" v-if="!this.scanShow == true" round>取消扫描</el-button>
-        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>
         <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
-                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>
+                   size="small" @click="dialogVisible = true">批量导入</el-button>
+        <el-button type="success" icon="el-icon-search" size="small" @click="fullScan"
+                   v-if="this.scanShow == true" :disabled="this.scanUse == false" round>全面扫描</el-button>
+        <el-button type="warning" size="small" @click="cancelScan"
+                   v-if="this.cancelShow == true" icon="el-icon-circle-close" round>取消扫描</el-button>
+<!--        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>-->
+
+        <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"
+                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>
+
+        <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
+                   @click="rStart" size="small">返  回</el-button>
+
+        <el-button type="primary" @click="repairAll" v-if="this.scanShow == true"
+                   icon="el-icon-search" size="small">一键修复</el-button>
+<!--        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>-->
+<!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
+<!--                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>-->
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -37,9 +52,38 @@
         </div>
         <!--        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
+
+<!--      新添加-->
+      <el-dialog
+        title="扫描项目选择"
+        :visible.sync="dialogVisibleSpecial"
+        width="50%"
+        :before-close="handleClose">
+        <div style="overflow: auto;height: 340px">
+          <el-input
+            v-model="deptName"
+            placeholder="请输入查找内容"
+            clearable
+            size="small"
+            prefix-icon="el-icon-search"
+            style="margin-bottom: 20px"
+          />
+<!--          <el-scrollbar style="height:100%">-->
+            <el-tree show-checkbox
+                     :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
+                     @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>
+<!--          </el-scrollbar>-->
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="specialSearchStart">开始扫描</el-button>
+          <el-button @click="dialogVisibleSpecial = false">取 消</el-button>
+<!--          <el-button type="primary" @click="dialogVisibleSpecial = false">确 定</el-button>-->
+        </span>
+      </el-dialog>
+
       <el-divider></el-divider>
-      <el-row>
-        <el-col :span="14">
+<!--      <el-row>-->
+<!--        <el-col :span="14">-->
           <!--      表格展示列表-->
           <p style="margin: 0;text-align: center">扫描设备信息</p>
           <el-table :data="tableData" style="width: 100%"
@@ -52,49 +96,49 @@
             <!--              <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
             <!--            </el-table-column>-->
 
-            <el-table-column prop="ip" label="设备IP" width="130">
+            <el-table-column prop="ip" label="设备IP">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.ip"
                           placeholder="请输入ip" size="small" style="width: 120px"></el-input>
                 <span v-else>{{ row.ip }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="name" label="用户名" width="130">
+            <el-table-column prop="name" label="用户名">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.name"
                           placeholder="请输入用户名" size="small" style="width: 120px"></el-input>
                 <span v-else>{{ row.name }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="password" label="密码" width="100">
+            <el-table-column prop="password" label="密码">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.password" type="password"
                           placeholder="请输入密码" size="small" style="width: 90px"></el-input>
                 <span v-else>{{ row.passmi }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="mode" label="连接方式" width="80">
+            <el-table-column prop="mode" label="连接方式">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.mode"
                           placeholder="连接方式" size="small" style="width: 70px"></el-input>
                 <span v-else>{{ row.mode }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="port" label="端口号" width="60">
+            <el-table-column prop="port" label="端口号">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.port"
                           placeholder="端口" size="small" style="width: 50px"></el-input>
                 <span v-else>{{ row.port }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="configureCiphers" label="配置密码" width="100">
+            <el-table-column prop="configureCiphers" label="配置密码">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
                           placeholder="配置密码" size="small" style="width: 90px"></el-input>
                 <span v-else>{{ row.conCip }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="90">
+            <el-table-column label="操作">
               <template slot-scope="{ row }">
                 <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small">确定</el-button>
                 <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
@@ -103,28 +147,28 @@
               </template>
             </el-table-column>
           </el-table>
-        </el-col>
-        <el-col :span="10" v-show="showxiang">
-          <p style="margin: 0;text-align: center">扫描项目选择</p>
-          <div>
-            <el-input
-              v-model="deptName"
-              placeholder="请输入查找内容"
-              clearable
-              size="small"
-              prefix-icon="el-icon-search"
-              style="margin-bottom: 20px;width: 80%;margin-left: 50px"
-            />
-          </div>
-          <div style="max-height: 300px">
-            <el-scrollbar style="height:100%">
-              <el-tree style="max-height: 300px;width: 95%;margin-left:50px" show-checkbox
-                       :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
-                       @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>
-            </el-scrollbar>
-          </div>
-        </el-col>
-      </el-row>
+<!--        </el-col>-->
+<!--        <el-col :span="10" v-show="showxiang">-->
+<!--          <p style="margin: 0;text-align: center">扫描项目选择</p>-->
+<!--          <div>-->
+<!--            <el-input-->
+<!--              v-model="deptName"-->
+<!--              placeholder="请输入查找内容"-->
+<!--              clearable-->
+<!--              size="small"-->
+<!--              prefix-icon="el-icon-search"-->
+<!--              style="margin-bottom: 20px;width: 80%;margin-left: 50px"-->
+<!--            />-->
+<!--          </div>-->
+<!--          <div style="max-height: 300px">-->
+<!--            <el-scrollbar style="height:100%">-->
+<!--              <el-tree style="max-height: 300px;width: 95%;margin-left:50px" show-checkbox-->
+<!--                       :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"-->
+<!--                       @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>-->
+<!--            </el-scrollbar>-->
+<!--          </div>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
 
       <el-dialog
         title="提示"
@@ -207,6 +251,7 @@
             WebSocketOne,
             WebSocketTwo
         },
+        inject:["reload"],
         data() {
             return {
                 //扫描完成ip
@@ -255,6 +300,7 @@
                 importData:[],
                 dialogVisible:false,
                 dialogVisibleXiu:false,
+                dialogVisibleSpecial:false,
                 //多台隐身
                 duoShow:true,
                 // 遮罩层
@@ -269,8 +315,12 @@
                 multiple: true,
                 // 显示搜索条件
                 showSearch: true,
+                //一键扫描是否可用
+                scanUse:false,
                 //一键扫描显示
                 scanShow:true,
+                cancelShow:false,
+                rStartShow:false,
                 // 总条数
                 total: 0,
                 // 嘉豪测试表格数据
@@ -338,11 +388,18 @@
                 if (this.saowanend === true){
                     console.log('扫描已结束!')
                     alert('扫描已结束!')
-                    this.scanShow = true
+                    this.rStartShow = true
+                    this.cancelShow = false
                 }
             },
             //默认全部选中
             tableData(){
+                console.log(this.tableData.length)
+                if (this.tableData.length != 0){
+                    this.scanUse = true
+                }else {
+                    this.scanUse = false
+                }
                 this.$nextTick(() => {
                     for (let i = 0; i < this.tableData.length; i++) {
                         this.$refs.tableData.toggleRowSelection(
@@ -360,6 +417,14 @@
             // this.getList();
         },
         methods: {
+            rStart(){
+                // this.$router.go(0)
+                this.reload()
+            },
+            //一键修复
+            repairAll(){
+                this.$refs.webtwo.allxiu()
+            },
             //
             postEnd(data){
                 console.log(data)
@@ -374,6 +439,47 @@
             filterNode(value, data) {
                 if (!value) return true;
                 return data.label.indexOf(value) !== -1;
+            },
+            //专项扫描
+            specialSearch(){
+                this.dialogVisibleSpecial = true
+                this.showxiang = true
+                var ce = {}
+                return request({
+                    url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
+                    method:'post',
+                    data:ce
+                }).then(response=>{
+                    console.log(response)
+                    function changeTreeDate(arrayJsonObj,oldKey,newKey) {
+                        let strtest = JSON.stringify(arrayJsonObj);
+                        let reg = new RegExp(oldKey,'g');
+                        let newStr = strtest.replace(reg,newKey);
+                        return JSON.parse(newStr);
+                    }
+                    response = changeTreeDate(response,'totalQuestionTableVOList','children')
+                    response = changeTreeDate(response,'totalQuestionTableList','children')
+                    for (let i = 0;i<response.length;i++){
+                        for (let g = 0;g<response[i].children.length;g++){
+                            this.$delete(response[i].children[g],'typeProblem')
+                            for (let m = 0;m<response[i].children[g].children.length;m++){
+                                this.$delete(response[i].children[g].children[m],'typeProblem')
+                                this.$delete(response[i].children[g].children[m],'temProName')
+                                let pinjie = response[i].children[g].children[m].problemName+' '+'('+
+                                    response[i].children[g].children[m].brand+' '+
+                                    response[i].children[g].children[m].type+' '+
+                                    response[i].children[g].children[m].firewareVersion+' '+
+                                    response[i].children[g].children[m].subVersion+')'
+                                this.$set(response[i].children[g].children[m],'problemName',pinjie)
+                            }
+                        }
+                    }
+                    response = changeTreeDate(response,'typeProblem','label')
+                    response = changeTreeDate(response,'temProName','label')
+                    response = changeTreeDate(response,'problemName','label')
+                    this.fenxiang = response
+                    console.log(this.fenxiang)
+                })
             },
             //专项所有
             zhuanall(){
@@ -520,11 +626,12 @@
             },
             //关闭导入弹窗
             handleClose(done) {
-                this.$confirm('确认关闭？')
-                    .then(_ => {
-                        done();
-                    })
-                    .catch(_ => {});
+                // this.$confirm('确认关闭？')
+                //     .then(_ => {
+                //         done();
+                //     })
+                //     .catch(_ => {});
+                this.dialogVisibleSpecial = false
             },
             //下载模板
             xiazai(){
@@ -594,7 +701,113 @@
                     this.$message.warning('阿斯顿撒大撒大')
                 })
             },
-            //一键扫描
+            //专项开始扫描
+            specialSearchStart(){
+                this.scanShow = false
+                this.cancelShow = true
+                //最终扫描设备
+                let zuihou = []
+                if (this.xuanzhong.length>0){
+                    zuihou = this.xuanzhong
+                }else {
+                    zuihou = JSON.parse(JSON.stringify(this.tableData))
+                }
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<zuihou.length;i++){
+                    this.$delete(zuihou[i],'isEdit')
+                    this.$delete(zuihou[i],'passmi')
+                    this.$delete(zuihou[i],'conCip')
+                    //给用户密码加密
+                    var pass = encrypt.encrypt(zuihou[i].password)
+                    this.$set(zuihou[i],'password',pass)
+
+                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
+                    this.$set(zuihou[i],'configureCiphers',passPei)
+                }
+                //传输几个线程
+                const scanNum = this.num
+                //专项扫描的所有id
+                var zhuanid = this.$refs.treeone.getCheckedKeys()
+                const totalQuestionTableId = []
+                for(let i = 0;i<=zhuanid.length;i++){
+                    if (typeof(zhuanid[i])!='undefined'){
+                        totalQuestionTableId.push(zhuanid[i])
+                    }
+                }
+                console.log(totalQuestionTableId)
+                let zuihouall = zuihou.map(x=>JSON.stringify(x))
+                console.log(zuihouall)
+                if(totalQuestionTableId.length == 0){
+                    this.$alert('专项扫描没有选择要扫描的项,如果想要扫描特定项请重新选择!', '专项扫描', {
+                        confirmButtonText: '确定',
+                        type:'warning'
+                        // callback: action => {
+                        //     this.$message({
+                        //         type: 'info',
+                        //         message: `action: ${ action }`
+                        //     });
+                        // }
+                    });
+                    // this.$message.success('扫描请求以提交!')
+                    // return request({
+                    //     url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+                    //     method:'post',
+                    //     data:zuihouall
+                    // }).then(response=>{
+                    //     console.log('日志')
+                    // })
+                }else {
+                    this.dialogVisibleSpecial = false
+                    console.log('专项扫描')
+                    return request({
+                        url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
+                        method:'post',
+                        data:zuihouall
+                    }).then(response=>{
+                        // this.$message.success('扫描请求以提交!')
+                    })
+                }
+            },
+            //全面扫描new
+            fullScan(){
+                this.scanUse = false
+                this.scanShow = false
+                this.cancelShow = true
+                //最终扫描设备
+                let zuihou = []
+                if (this.xuanzhong.length>0){
+                    zuihou = this.xuanzhong
+                }else {
+                    zuihou = JSON.parse(JSON.stringify(this.tableData))
+                }
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<zuihou.length;i++){
+                    this.$delete(zuihou[i],'isEdit')
+                    this.$delete(zuihou[i],'passmi')
+                    this.$delete(zuihou[i],'conCip')
+                    //给密码加密
+                    var pass = encrypt.encrypt(zuihou[i].password)
+                    this.$set(zuihou[i],'password',pass)
+                    //给配置密码加密
+                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
+                    this.$set(zuihou[i],'configureCiphers',passPei)
+                }
+                //传输几个线程
+                const scanNum = this.num
+                let zuihouall = zuihou.map(x=>JSON.stringify(x))
+                console.log(zuihouall)
+                this.$message.success('扫描请求以提交!')
+                return request({
+                    url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+                    method:'post',
+                    data:zuihouall
+                }).then(response=>{
+                    console.log('日志')
+                })
+            },
+            //全面扫描
             saomiao(){
                 this.scanShow = false
                 //最终扫描设备
@@ -799,6 +1012,9 @@
 
 
 <style scoped>
+  >>> .el-dialog{
+    height: 500px;
+  }
   >>> .el-form-item__content{
     width: 100% !important;
   }
@@ -811,7 +1027,7 @@
   .el-divider--horizontal{
     margin: 10px 0;
   }
-  .el-dialog__body{
+  >>> .el-dialog__body{
     padding: 20px 20px;
   }
   .el-loading-spinner{

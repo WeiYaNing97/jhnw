@@ -72,6 +72,14 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path:'',
+    children:[{
+      path:'/testone',
+      name:'testone'
+    }
+    ]
+  },
   //新增修改处
   // {
   //   path: '',

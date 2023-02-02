@@ -88,6 +88,11 @@
                     this.repairend = true
                 }
             },
+            textareaInfo(){
+                if (this.textareaInfo.includes('扫描结束')){
+                    this.saoend = true
+                }
+            },
             saoendip(){
                 this.postendIp()
             },

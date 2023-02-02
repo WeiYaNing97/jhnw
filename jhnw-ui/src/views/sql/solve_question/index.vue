@@ -259,8 +259,9 @@ export default {
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              // data:newPar
+              params: newPar
           }).then(response=>{
               console.log(response)
               //有歧义
@@ -303,8 +304,9 @@ export default {
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              // data:newPar
+              params:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
@@ -377,7 +379,7 @@ export default {
               this.showNo = true
           })
       },
-      //获取该问题ID
+      //定义修复命令(获取该问题ID)
       repair(){
           if (this.lookLists.length != 1 && this.showNo === false){
               alert('条件过于模糊,请完善!')
@@ -393,10 +395,10 @@ export default {
               }
               return request({
                   url:'/sql/total_question_table/totalQuestionTableId',
-                  method:'post',
-                  data:form
+                  method:'get',
+                  // data:form
+                  params:form
               }).then(response=>{
-                  console.log(response+'sssss')
                   if (typeof (response) === 'number'){
                       this.showNo = true
                       this.proId = response
