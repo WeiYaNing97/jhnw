@@ -32,7 +32,7 @@ public class MemoryCPU {
     private static String CPUUtilization = null;//CPU利用率
 
     @ApiOperation("获取服务器CPU、内存大小及使用率")
-    @PostMapping("/get_Memory_CPU")
+    @GetMapping("/get_Memory_CPU")
     public String get_Memory_CPU() {
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+
                 "内存使用率 : "+MemoryUsage+"\r\n"+
