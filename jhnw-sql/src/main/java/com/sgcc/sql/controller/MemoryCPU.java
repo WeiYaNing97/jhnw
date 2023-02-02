@@ -2,6 +2,7 @@ package com.sgcc.sql.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +38,7 @@ public class MemoryCPU {
     private static String CPUUtilization = null;//CPU利用率
 
     @ApiOperation("获取服务器CPU、内存大小及使用率")
-    @PostMapping("/get_Memory_CPU")
+    @GetMapping("/get_Memory_CPU")
     public String get_Memory_CPU() {
         initSystemInfo();
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+

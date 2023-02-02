@@ -232,7 +232,7 @@ public class SwitchInteraction {
     @ApiOperation("专项扫描问题")
     @GetMapping("directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项扫描问题", businessType = BusinessType.OTHER)
-    public String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
+    public String directionalScann(List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
@@ -337,7 +337,7 @@ public class SwitchInteraction {
     })
     @GetMapping("multipleScans/{scanNum}")
     @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
-    public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {//待测
+    public String multipleScans(List<String> switchInformation,@PathVariable  Long scanNum) {//待测
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
         for (String information:switchInformation){

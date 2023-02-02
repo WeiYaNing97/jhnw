@@ -982,7 +982,7 @@ public class DefinitionProblemController extends BaseController {
     @ApiOperation("查询定义分析问题数据")
     @GetMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
-    public static AjaxResult getAnalysisListTimeouts(@RequestBody TotalQuestionTable totalQuestionTable) {
+    public static AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
 
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -1777,7 +1777,7 @@ public class DefinitionProblemController extends BaseController {
     @ApiOperation("回显获取交换机基本信息逻辑数据")
     @GetMapping("getBasicInformationProblemScanLogic")
     @MyLog(title = "回显获取交换机基本信息逻辑数据", businessType = BusinessType.OTHER)
-    public AjaxResult getBasicInformationProblemScanLogicTimeouts(@RequestBody String problemId) {
+    public AjaxResult getBasicInformationProblemScanLogicTimeouts(String problemId) {
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 

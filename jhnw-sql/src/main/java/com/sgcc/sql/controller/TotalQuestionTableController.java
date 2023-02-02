@@ -105,7 +105,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/selectPojoList")
     @ApiOperation("查询交换机问题列表")
-    public List<TotalQuestionTable> selectPojoList(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<TotalQuestionTable> selectPojoList(TotalQuestionTable totalQuestionTable)
     {
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         return list;
@@ -116,7 +116,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("查询交换机问题列表忽略扫描索引CommandId")
     @GetMapping("/select")
-    public Long select(@RequestBody TotalQuestionTable totalQuestionTable)
+    public Long select(TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
@@ -329,7 +329,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/typelist")
     @ApiOperation("根据实体类查询品牌")
-    public List<String> typelist(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<String> typelist(TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypelist(totalQuestionTable);
@@ -352,7 +352,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/firewareVersionlist")
     @ApiOperation("根据实体类查询内部固件版本")
-    public List<String> firewareVersionlist(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<String> firewareVersionlist(TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable);
@@ -375,7 +375,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/subVersionlist")
     @ApiOperation("根据实体类查询子版本号")
-    public List<String> subVersionlist(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<String> subVersionlist(TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
@@ -420,7 +420,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/temProNamelist")
     @ApiOperation("根据问题种类查询范本问题名称")
-    public List<String> temProNamelist(@RequestBody String typeProblem)
+    public List<String> temProNamelist(String typeProblem)
     {
         List<String> typeProblemlist = totalQuestionTableService.selectTemProNamelistBytypeProblem(typeProblem);
         if (typeProblemlist.size() == 0){
@@ -438,7 +438,7 @@ public class TotalQuestionTableController extends BaseController
     */
     @GetMapping("/problemNameList")
     @ApiOperation("根据问题实体类查询问题名称")
-    public List<String> problemNameList(@RequestBody TotalQuestionTable totalQuestionTable)
+    public List<String> problemNameList(TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setCommandId(null);
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
@@ -510,7 +510,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/fuzzyQueryListByPojo")
     @ApiOperation("根据实体类模糊查询 实体类集合")
-    public List<TotalQuestionTableCO> fuzzyQueryListByPojo(@RequestBody TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
+    public List<TotalQuestionTableCO> fuzzyQueryListByPojo(TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
     {
         List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTableList.size() == 0){
@@ -568,7 +568,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("根据实体类模糊查询实体类集合")
     @GetMapping("/fuzzyQueryListByPojoMybatis")
-    public List<TotalQuestionTableCO> fuzzyQueryListBymybatis(@RequestBody TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
+    public List<TotalQuestionTableCO> fuzzyQueryListBymybatis(TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
     {
         List<TotalQuestionTableVO> totalQuestionTableList = totalQuestionTableService.fuzzyQueryListBymybatis(totalQuestionTable);
         if (totalQuestionTableList.size() == 0){
