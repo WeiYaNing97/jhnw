@@ -806,6 +806,11 @@ public class DefinitionProblemController extends BaseController {
          * 原实体类 放入 需要返回的实体类集合
          * */
         List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
+
+        if (ProblemScanLogicList == null){
+            return ProblemScanLogics;
+        }
+
         for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
             if (problemScanLogic.getfLine()!=null){
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
@@ -1097,7 +1102,11 @@ public class DefinitionProblemController extends BaseController {
 
                 problemId = null;
                 if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-                    return null;
+                    HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
+                    ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
+                    ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
+                    return ScanLogicalEntityMap;
+
                 }
                 /*遍历分析实体类集合，筛选出 命令ID  拼接命令String*/
                 for (ProblemScanLogic problemScanLogic:problemScanLogicList){
@@ -1157,7 +1166,10 @@ public class DefinitionProblemController extends BaseController {
                         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
                         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandid);
                         if (commandLogic == null || commandLogic.getProblemId() == null){
-                            return null;
+                            HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
+                            ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
+                            ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
+                            return ScanLogicalEntityMap;
                         }
                         commandLogicList.add(commandLogic);
 
@@ -1177,7 +1189,10 @@ public class DefinitionProblemController extends BaseController {
                             problemScanLogicList =splitSuccessFailureLogic(problemScanLogicList);
 
                             if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-                                return null;
+                                HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
+                                ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
+                                ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
+                                return ScanLogicalEntityMap;
                             }
                             /*遍历分析实体类集合，筛选出 命令ID  拼接命令String*/
                             for (ProblemScanLogic problemScanLogic:problemScanLogicList){
@@ -1242,20 +1257,11 @@ public class DefinitionProblemController extends BaseController {
 
         /*获取命令集合和分析逻辑集合*/
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
-        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-        /*根据命令集合 获取 命令ID数组，根据分析逻辑集合 获取 分析逻辑ID 数组*/
-        /*List<String> commandLogicIdList = commandLogicList.stream().map(p -> p.getId()).distinct().collect(Collectors.toList());
-        List<String> problemScanLogicIdList = problemScanLogics.stream().map(p -> p.getId()).distinct().collect(Collectors.toList());
-        String[] commandLogicId = new String[commandLogicIdList.size()];
-        String[] problemScanLogicId = new String[problemScanLogicIdList.size()];
-        for (int i = 0 ; i<commandLogicIdList.size() ;i++){
-            commandLogicId[i] = commandLogicIdList.get(i);
-        }
-        for (int i = 0 ; i<problemScanLogicIdList.size() ;i++){
-            problemScanLogicId[i] = problemScanLogicIdList.get(i);
-        }*/
 
+        /*命令集合*/
+        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        /*分析逻辑集合*/
+        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
         String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
         String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
 
@@ -1266,13 +1272,12 @@ public class DefinitionProblemController extends BaseController {
             deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(commandLogicId);
         }
 
-        if (deleteCommandLogicByIds>0){
+        /*当命令删除成功 且 存在分析时*/
+        if (deleteCommandLogicByIds>0 && problemScanLogicId.length>0){
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             int deleteProblemScanLogicByIds = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicId);
             if (deleteProblemScanLogicByIds>0){
-
                 totalQuestionTable.setCommandId(null);
-
                 int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
                 if (updateQuestionTableById>0){
                     /*删除成功*/
@@ -1299,7 +1304,27 @@ public class DefinitionProblemController extends BaseController {
                     e.printStackTrace();
                 }
             }
-        }else {
+        } else if (deleteCommandLogicByIds>0){
+            /*只有 存在命令 没有分析*/
+            totalQuestionTable.setCommandId(null);
+
+            int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+            if (updateQuestionTableById>0){
+                /*删除成功*/
+                return true;
+            }else {
+                //传输登陆人姓名 及问题简述
+                WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"扫描交换机问题表数据删除失败\r\n");
+                try {
+                    //插入问题简述及问题路径
+                    PathHelper.writeDataToFile("风险："+"扫描交换机问题表数据删除失败\r\n"
+                            +"方法com.sgcc.web.controller.sql.DefinitionProblemController.deleteScanningLogic");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } else {
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"扫描交换机问题命令删除失败\r\n");
             try {

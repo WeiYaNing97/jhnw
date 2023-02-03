@@ -900,6 +900,7 @@ public class SolveProblemController {
 
         SwitchScanResult pojo = new SwitchScanResult();
         pojo.setUserName(userName);
+        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultList(pojo);
         HashMap<Long,SwitchScanResult> hashMap = new HashMap<>();
         for (SwitchScanResult switchScanResult:list){
