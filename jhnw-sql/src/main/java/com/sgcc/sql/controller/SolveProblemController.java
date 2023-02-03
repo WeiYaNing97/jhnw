@@ -61,10 +61,10 @@ public class SolveProblemController {
      * @E-mail: WeiYaNing97@163.com
      *
      */
-    @GetMapping("queryCommandListBytotalQuestionTableId")
+    @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
     @ApiOperation("查询修复问题命令")
     @MyLog(title = "查询解决问题命令", businessType = BusinessType.OTHER)
-    public List<String> queryCommandListBytotalQuestionTableId(Long totalQuestionTableId){
+    public List<String> queryCommandListBytotalQuestionTableId(@PathVariable Long totalQuestionTableId){
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 

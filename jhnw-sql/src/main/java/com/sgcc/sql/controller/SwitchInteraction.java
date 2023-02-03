@@ -230,9 +230,9 @@ public class SwitchInteraction {
      * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("专项扫描问题")
-    @GetMapping("directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
+    @PostMapping("directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项扫描问题", businessType = BusinessType.OTHER)
-    public String directionalScann(List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
+    public String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
@@ -335,9 +335,9 @@ public class SwitchInteraction {
             @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataType = "List<String>", dataTypeClass = Object.class),
             @ApiImplicitParam(name = "scanNum", value = "线程数", dataType = "Long", dataTypeClass = Long.class),
     })
-    @GetMapping("multipleScans/{scanNum}")
+    @PostMapping("multipleScans/{scanNum}")
     @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
-    public String multipleScans(List<String> switchInformation,@PathVariable  Long scanNum) {//待测
+    public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {//待测
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
         for (String information:switchInformation){
