@@ -114,7 +114,7 @@
             },
             //
             handleClick(tab, event) {
-                console.log(tab, event);
+                console.log(tab, event)
             },
             geifurepaired(){
                 return this.repairend

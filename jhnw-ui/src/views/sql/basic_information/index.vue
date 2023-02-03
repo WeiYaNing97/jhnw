@@ -494,8 +494,9 @@
                 console.log(handForm)
                 return request({
                     url:'/sql/SwitchInteraction/testToObtainBasicInformation/'+ip+'/'+name+'/'+password+'/'+port+'/'+mode+'/'+configureCiphers+'/'+command,
-                    method:'post',
-                    data:handForm
+                    method:'get',
+                    // data:handForm
+                    params:handForm
                 }).then(response=>{
                     // this.$message.success('提交成功!')
                     console.log(response)

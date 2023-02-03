@@ -133,8 +133,8 @@
 <!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
 <!--              <el-option label="自定义校验" value="自定义校验"></el-option>-->
 <!--            </el-select>-->
-            <el-select v-model="item.jiaoyan" placeholder="校验方式" value="常规校验">
-<!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
+            <el-select v-model="item.jiaoyan" placeholder="校验方式">
+              <el-option label="常规校验" value="常规校验" selected></el-option>
               <el-option label="自定义校验" value="自定义校验"></el-option>
             </el-select>
           </el-form-item>

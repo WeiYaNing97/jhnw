@@ -18,7 +18,7 @@
         <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
                    @click="rStart" size="small">返  回</el-button>
 
-        <el-button type="primary" @click="repairAll" v-if="this.scanShow == true"
+        <el-button type="success" @click="repairAll" v-if="this.rStartShow == true"
                    icon="el-icon-search" size="small">一键修复</el-button>
 <!--        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>-->
 <!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
@@ -803,6 +803,7 @@
                     url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
                     method:'post',
                     data:zuihouall
+                    // params:zuihouall
                 }).then(response=>{
                     console.log('日志')
                 })

@@ -55,11 +55,11 @@
                          :label="item.problemName" :value="item.problemName"></el-option>
             </el-select>
           </el-form-item>
+<!--          <el-form-item>-->
+<!--            <el-button type="primary" @click="chakan">查看修复命令</el-button>-->
+<!--          </el-form-item>-->
           <el-form-item>
-            <el-button type="primary" @click="chakan">查看修复命令</el-button>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="xiugai" icon="el-icon-edit">修改</el-button>
+            <el-button type="primary" @click="xiugai" v-if="this.changeShow === true" icon="el-icon-edit">修改</el-button>
           </el-form-item>
         </el-form>
         <hr style='border:1px inset #D2E9FF;'>
@@ -115,8 +115,13 @@
             </el-form-item>
           </div>
           <el-form-item>
-            <el-button @click="submitUseForm" type="primary">提交</el-button>
+            <el-button @click="submitUseFormChange" v-if="this.firstShow === false" type="primary">提交修</el-button>
           </el-form-item>
+
+          <el-form-item>
+            <el-button @click="submitUseForm" v-if="this.firstShow === true" type="primary">提交初</el-button>
+          </el-form-item>
+
           <el-form-item>
             <el-button @click="delRepair" type="primary">删除</el-button>
           </el-form-item>
@@ -156,6 +161,8 @@ export default {
         lookLists:[],
         //右侧列表全部展开
         zhankaiAll:true,
+        changeShow:false,
+        firstShow:false,
         //
         defaultProps: {
             children: 'children',
@@ -250,42 +257,32 @@ export default {
           this.proId = lookLists.id
           console.log(this.proId)
           this.lieNum = 1
-          console.log(this.lieNum)
-          return request({
-              url:'/sql/total_question_table/'+ this.proId,
-              method:'get',
-          }).then(response=>{
-              console.log(response)
-              this.queryParams.brand = response.data.brand
-              this.queryParams.type = response.data.type
-              this.queryParams.firewareVersion = response.data.firewareVersion
-              this.queryParams.subVersion = response.data.subVersion
-              this.queryParams.typeProblem = response.data.typeProblem
-              this.queryParams.temProName = response.data.temProName
-              this.queryParams.problemName = response.data.problemName
-              this.showNo = true
-              this.forms.dynamicItem = this.formss.dynamicItemss
-              this.lookCha = []
-              console.log(this.queryParams)
-              let form = new FormData()
-              for (var key in this.queryParams){
-                  form.append(key,this.queryParams[key]);
-              }
+          if (this.proId != undefined){
               return request({
-                  url:'/sql/total_question_table/totalQuestionTableId',
-                  method:'post',
-                  data:form
+                  url:'/sql/total_question_table/'+ this.proId,
+                  method:'get',
               }).then(response=>{
-                  this.proId = response
-                  let form = new FormData()
-                  form.append('totalQuestionTableId',this.proId)
+                  console.log(response)
+                  this.queryParams.brand = response.data.brand
+                  this.queryParams.type = response.data.type
+                  this.queryParams.firewareVersion = response.data.firewareVersion
+                  this.queryParams.subVersion = response.data.subVersion
+                  this.queryParams.typeProblem = response.data.typeProblem
+                  this.queryParams.temProName = response.data.temProName
+                  this.queryParams.problemName = response.data.problemName
+                  this.showNo = true
+                  this.forms.dynamicItem = this.formss.dynamicItemss
+                  this.lookCha = []
+                  console.log(this.queryParams)
                   return request({
-                      url:'/sql/SolveProblemController/queryCommandListBytotalQuestionTableId',
-                      method:'post',
-                      data:form
+                      url:'/sql/SolveProblemController/queryCommandListBytotalQuestionTableId/' + this.proId,
+                      method:'get',
                   }).then(response=>{
                       console.log(response)
                       if (response.length != 0){
+                          this.zhidu = !this.zhidu
+                          this.changeShow = true
+                          this.firstShow = false
                           this.showNo = true
                           this.wDa = []
                           response.forEach(ee=>{
@@ -305,16 +302,46 @@ export default {
                           this.lookCha.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
                           this.forms.dynamicItem = this.forms.dynamicItem.concat(this.lookCha)
                       }else {
-                          alert('未定义该问题解决逻辑，请定义!')
+                          this.$confirm('未定义该问题解决逻辑，是否定义?', '提示', {
+                              confirmButtonText: '确定',
+                              cancelButtonText: '取消',
+                              type: 'warning'
+                          }).then(() => {
+                              console.log('dingyi')
+                              this.zhidu = !this.zhidu
+                              this.firstShow = true
+                              this.changeShow = false
+                          }).catch(() => {
+                              // this.$message({
+                              //     type: 'info',
+                              //     message: '已取消删除'
+                              // })
+                          })
                       }
                   })
+                  // let form = new FormData()
+                  // for (var key in this.queryParams){
+                  //     form.append(key,this.queryParams[key]);
+                  // }
+                  // return request({
+                  //     url:'/sql/total_question_table/totalQuestionTableId',
+                  //     method:'get',
+                  //     // data:form
+                  //     params:form
+                  // }).then(response=>{
+                  //     console.log(response)
+                  //     this.proId = response
+                  //     let form = new FormData()
+                  //     form.append('totalQuestionTableId',this.proId)
+                  //     console.log(form)
+                  // })
               })
-          })
+          }
       },
       //编辑
       xiugai(){
           MessageBox.confirm('确定去修改吗？','提示').then(c=>{
-              this.zhidu = false
+              this.zhidu = !this.zhidu
           }).catch(ee=>{
               this.$message.warning('取消修改!')
           })
@@ -341,16 +368,19 @@ export default {
               }
               return request({
                   url:'/sql/total_question_table/totalQuestionTableId',
-                  method:'post',
-                  data:form
+                  method:'get',
+                  // data:form
+                  params:form
               }).then(response=>{
+                  console.log(response)
                   this.proId = response
                   let form = new FormData()
                   form.append('totalQuestionTableId',this.proId)
                   return request({
-                      url:'/sql/SolveProblemController/queryCommandListBytotalQuestionTableId',
-                      method:'post',
-                      data:form
+                      url:'/sql/SolveProblemController/queryCommandListBytotalQuestionTableId/' + this.proId,
+                      method:'get',
+                      // data:form
+                      // params:form
                   }).then(response=>{
                       console.log(response)
                       if (response.length != 0){
@@ -378,8 +408,54 @@ export default {
               })
           }
       },
-      //提交
+      //初次提交
       submitUseForm(){
+          const useForm = []
+          const useLess = []
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.test === "test"){
+                  useLess.push(e)
+              }else {
+                  useForm.push(e)
+              }
+          })
+          useForm.forEach(e=>{
+              const thisIndex = useForm.indexOf(e)
+              if(useForm.length != thisIndex+1){
+                  const thisNext = useForm[thisIndex+1]
+                  this.$set(e,'nextIndex',thisNext.onlyIndex)
+              }
+              this.$set(e,'pageIndex',thisIndex+1)
+              this.$set(e,'resultCheckId','1')
+          })
+          const handForm = useForm.map(x => JSON.stringify(x))
+          console.log(handForm)
+          console.log(this.proId)
+          // const aaa = {
+          //     "a1":this.queryParams,
+          //     "a2":handForm
+          // }
+          // let form1 = new FormData();
+          // const a1 = {"ip":"1"}
+          // form1.append("commandLogicList",handForm)
+          // form1.append("commandValueList",handForm)
+          return request({
+              url:`/sql/command_logic/insertModifyProblemCommandSet?totalQuestionTableId=${this.proId}`,
+              method:'post',
+              data:handForm
+          }).then(response=>{
+              this.$message.success('提交成功!')
+              console.log("成功")
+          })
+          //     // url:'/dev-api/sql/ConnectController/definitionProblem?totalQuestionTableId=23&aaa=33',
+          //     url:`http://192.168.1.98/dev-api/sql/command_logic/insertModifyProblemCommandSet?totalQuestionTableId=${this.proId}`,
+          //     // data:{
+          //     //     "commandLogicList":handForm,
+          //     //     "commandValueList":handForm
+          //     // }
+      },
+      //修改后提交
+      submitUseFormChange(){
           const useForm = []
           const useLess = []
           this.forms.dynamicItem.forEach(e=>{
@@ -401,7 +477,7 @@ export default {
           const handForm = useForm.map(x => JSON.stringify(x))
           return request({
               url:`/sql/command_logic/updateProblemSolvingCommand?totalQuestionTableId=${this.proId}`,
-              method:'post',
+              method:'put',
               data:handForm
           }).then(response=>{
               this.$message.success('提交成功!')
@@ -414,10 +490,10 @@ export default {
           MessageBox.confirm('确定删除吗？','提示').then(c=>{
               return request({
                   url:'/sql/command_logic/deleteProblemSolvingCommand',
-                  method:'post',
+                  method:'delete',
                   data:this.proId
               }).then(response=>{
-                  console.log('删除成功')
+                  this.$message.success('删除成功!')
               })
           }).catch(ee=>{
               this.$message.warning('取消删除!')
@@ -471,14 +547,15 @@ export default {
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              // data:newPar
+              params: newPar
           }).then(response=>{
               console.log(response)
               //有歧义
               this.lieNum = response.length
-              this.proId = response[0].id
-              console.log(this.proId)
+              // this.proId = response[0].id
+              // console.log(this.proId)
 
               this.lookLists = []
               //转化为树结构
@@ -515,8 +592,9 @@ export default {
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
-              method:'post',
-              data:newPar
+              method:'get',
+              // data:newPar
+              params:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
@@ -577,13 +655,16 @@ export default {
       },
       //下拉框获取后台参数
       paraLi(){
-          let form = new FormData();
+          let form = new FormData()
           form.append('totalQuestionTableId',this.proId)
+          console.log(this.proId)
           return request({
               url:'/sql/problem_scan_logic/getParameterNameCollection',
-              method:'post',
-              data:form
+              method:'get',
+              // data:form
+              params:this.proId
           }).then(response=>{
+              console.log(response)
               this.paraList = response
           })
       },

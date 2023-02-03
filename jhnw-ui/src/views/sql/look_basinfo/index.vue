@@ -304,7 +304,7 @@
             };
         },
         created() {
-            this.getList();
+
         },
         watch:{
             newValue:{
@@ -706,16 +706,6 @@
                 num = num.toString()
                 return num
             },
-
-            /** 查询查看问题列表 */
-            getList() {
-                this.loading = true;
-                listLook_test(this.queryParams).then(response => {
-                    this.look_testList = response.rows;
-                    this.total = response.total;
-                    this.loading = false;
-                });
-            },
             // 取消按钮
             cancel() {
                 this.open = false;
@@ -729,16 +719,6 @@
                     version: null
                 };
                 this.resetForm("form");
-            },
-            /** 搜索按钮操作 */
-            handleQuery() {
-                this.queryParams.pageNum = 1;
-                this.getList();
-            },
-            /** 重置按钮操作 */
-            resetQuery() {
-                this.resetForm("queryForm");
-                this.handleQuery();
             },
         }
     };
