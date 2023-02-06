@@ -11,6 +11,6 @@ configuration:
   # 日志路径
   logPath: "D:\IdeaProjects\github\beifen\jhnwadminlog"
   # 设备品牌 两个品牌之间以;分阁
-  equipmentBrand: H3C
+  equipmentBrand: H3C;CISCO;HUAWEI;TP-LINK;Tenda;Ruijie;MERCURY;HIKVISION
   # 设备型号 两个型号之间以;分阁
   equipmentModel: S*;N*

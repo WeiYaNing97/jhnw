@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.Data;
 import lombok.Synchronized;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -1800,9 +1801,9 @@ public class DefinitionProblemController extends BaseController {
      * @return
      */
     @ApiOperation("回显获取交换机基本信息逻辑数据")
-    @GetMapping("getBasicInformationProblemScanLogic")
+    @GetMapping("getBasicInformationProblemScanLogic/{problemId}")
     @MyLog(title = "回显获取交换机基本信息逻辑数据", businessType = BusinessType.OTHER)
-    public AjaxResult getBasicInformationProblemScanLogicTimeouts(String problemId) {
+    public AjaxResult getBasicInformationProblemScanLogicTimeouts(@PathVariable String problemId) {
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 

@@ -954,4 +954,17 @@ public class MyUtils {
         }
         return false;
     }
+
+    /*判断 字符串集合 元素是否都包含 数字*/
+    public static boolean thereAreNumbersInTheSet(List<String> stringList) {
+        for (String string:stringList){
+            /*如果不包含数字 则返回false */
+            boolean b = containDigit(string);
+            /*当 b 为 false 时 应返回 false*/
+            if (!b){
+                return false;
+            }
+        }
+        return true;
+    }
 }
