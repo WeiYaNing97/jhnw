@@ -34,7 +34,9 @@ public class GetBasicInformationController {
      * 通过null 查询初所有会的交换机基本信息的命令字符串集合
      * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
      * 通过返回提取的信息，给基本属性赋值
+     *
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
+     *
      */
     public static AjaxResult getBasicInformationCurrency(Map<String,String> user_String, Map<String,Object> user_Object) {
         //四个参数 赋值
@@ -42,11 +44,9 @@ public class GetBasicInformationController {
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
         TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
         TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
-
         //获取登录系统用户信息
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String userName = loginUser.getUsername();
-
         //basicInformation : display device manuinfo,display ver
         //连接方式 ssh telnet
         String way = user_String.get("mode");
@@ -54,10 +54,10 @@ public class GetBasicInformationController {
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
 
         /*H3C*/
-        String[] commandsplit = {"dis ver","show version"};
-
+        String[] commandsplit = Configuration.getBrandCommand.split(";");
         String commandString =""; //预设交换机返回结果
         String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)
+
         //遍历数据表命令 分割得到的 命令数组
         for (String command:commandsplit){
             //创建 存储交换机返回数据 实体类

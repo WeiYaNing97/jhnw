@@ -25,10 +25,16 @@ public class Configuration {
     /** 日志路径 */
     public static String logPath;
 
+    /** 获取设备品牌命令 */
+    public static String getBrandCommand;
     /** 设备品牌 */
     public static String equipmentBrand;
     /** 设备型号 */
     public static String equipmentModel;
+    /** 设备版本 */
+    public static String deviceVersion;
+    /** 设备子版本 */
+    public static String deviceSubversion;
 
     public static void getConfiguration() {
         Configuration configuration = new Configuration();
@@ -39,8 +45,12 @@ public class Configuration {
         numberOfCycles = Long.valueOf(ymlMap.get("numberOfCycles")).longValue();
         identifier = ymlMap.get("identifier");
         logPath = ymlMap.get("logPath");
+
+        getBrandCommand = ymlMap.get("getBrandCommand");
         equipmentBrand = ymlMap.get("equipmentBrand");
         equipmentModel = ymlMap.get("equipmentModel");
+        deviceVersion = ymlMap.get("deviceVersion");
+        deviceSubversion = ymlMap.get("deviceSubversion");
     }
 
     public Map<String,String> readMapFromyml() {

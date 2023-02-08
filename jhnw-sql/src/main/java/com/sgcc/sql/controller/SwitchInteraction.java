@@ -68,11 +68,6 @@ public class SwitchInteraction {
     @Autowired
     private static ISwitchScanResultService switchScanResultService;
 
-    /*==================================================================================================================
-    ====================================================================================================================
-    ====================================================================================================================
-    ==================================================================================================================*/
-
     /**
      *
      * a
@@ -487,7 +482,15 @@ public class SwitchInteraction {
         //返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
         //                         connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）
         //                         SshConnect ssh连接工具 或者 TelnetComponent telnet连接工具（其中一个，为空者不存在）]
-        AjaxResult requestConnect_ajaxResult = requestConnect(user_String);
+
+        AjaxResult requestConnect_ajaxResult = null;
+        for (int number = 0; number <4 ; number++){
+            requestConnect_ajaxResult = requestConnect(user_String);
+            if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
+                break;
+            }
+        }
+
 
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){

@@ -73,6 +73,8 @@ public class RepairFixedThreadPool {
                                 System.err.println("\r\n未定义该交换机获取基本信息命令及分析\r\n");
                             }else if (ajaxResult.get("msg").equals("交换机连接失败")){
                                 System.err.println("\r\n交换机连接失败\r\n");
+                            }else if (ajaxResult.get("msg").equals("未定义修复命令")){
+                                System.err.println("\r\n未定义修复命令\r\n");
                             }else if (ajaxResult.get("msg").equals("修复结束")){
                                 System.err.println("\r\n修复结束\r\n");
                             }

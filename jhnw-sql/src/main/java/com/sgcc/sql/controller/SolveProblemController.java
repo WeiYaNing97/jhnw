@@ -354,10 +354,23 @@ public class SolveProblemController {
                     continue;
                 }
 
+                /*如果交换机扫描结果中 未定义 修复问题 则 去交换机问题表中查询 并赋值*/
+                if (switchScanResult.getComId() == null){
+                    totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+                    TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Long.valueOf(switchScanResult.getProblemId()).longValue());
+                    if (totalQuestionTable.getProblemSolvingId() != null){
+
+                        switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());
+
+                    }else {
+                        return AjaxResult.error("未定义修复命令");
+                    }
+                }
+
                 //传参 修复问题命令ID
                 //返回 命令集合 和 参数集合
                 List<CommandLogic> commandLogics = queryCommandSet(switchScanResult.getComId() + "");
-                // todo JDK8 新特性测试
+                // todo JDK8新特性测试
                 List<String> commandList = commandLogics.stream().map(m -> m.getCommand()).collect(Collectors.toList());
 
                 if (commandList == null){
