@@ -63,18 +63,18 @@
 <!--            </el-select>-->
             <el-input v-model="queryParams.problemName" :disabled="true" placeholder="自定义问题名称"></el-input>
           </el-form-item>
+<!--          <el-form-item>-->
+<!--            <el-button type="primary" @click="chaxun" icon="el-icon-search" size="small">查看</el-button>-->
+<!--            &lt;!&ndash;        :disabled="!isNull"&ndash;&gt;-->
+<!--          </el-form-item>-->
           <el-form-item>
-            <el-button type="primary" @click="chaxun" icon="el-icon-search" size="small">查看</el-button>
-            <!--        :disabled="!isNull"-->
+            <el-button type="primary" @click="addNew" icon="el-icon-plus" size="small" plain>新增</el-button>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="xiugai" icon="el-icon-edit" :disabled="isUse" size="small">修改</el-button>
+            <el-button type="success" @click="xiugai" icon="el-icon-edit" :disabled="isUse" size="small" plain>修改</el-button>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="shanchutest" icon="el-icon-delete" size="small">删除</el-button>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="addNew" icon="el-icon-plus" size="small">新增</el-button>
+            <el-button type="danger" @click="shanchutest" icon="el-icon-delete" size="small" plain>删除</el-button>
           </el-form-item>
 <!--          <el-form-item>-->
 <!--            <el-button type="primary" @click="exportData">导出</el-button>-->
@@ -99,7 +99,7 @@
               <el-checkbox v-model="item.checked"></el-checkbox>
             </el-form-item>
             <el-form-item v-if="index!=0">{{index}}</el-form-item>
-            <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+            <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
             <div v-if="item.targetType === 'command'" :key="index"
                  style="display: inline-block">
               <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
@@ -545,6 +545,7 @@ export default {
               data:handForm
           }).then(response=>{
               this.$message.success('提交修改成功!')
+              this.reload()
           })
       },
       //删除分析问题逻辑
@@ -1011,7 +1012,7 @@ export default {
               this.$message.error('数据过于模糊,请精准!')
           }else {
               console.log(this.proId)
-              MessageBox.confirm('确定删除该问题吗？','提示').then(c=>{
+              MessageBox.confirm('确定删除该问题以及分析逻辑、修改逻辑吗？','提示').then(c=>{
                   return request({
                       // url:'/sql/total_question_table/deleteTotalQuestionTable/' + this.proId,
                       url:'/sql/total_question_table/deleteTotalQuestionTable',

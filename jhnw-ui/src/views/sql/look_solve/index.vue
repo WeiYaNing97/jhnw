@@ -76,7 +76,7 @@
               <el-checkbox v-model="item.checked"></el-checkbox>
             </el-form-item>
             <el-form-item v-if="index!=0">{{index}}</el-form-item>
-            <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+            <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
             <div v-if="item.targetType === 'command'" :key="index" style="display: inline-block">
               <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
                 <el-input v-model="item.command"></el-input>
@@ -115,11 +115,8 @@
             </el-form-item>
           </div>
           <el-form-item>
-            <el-button @click="submitUseFormChange" v-if="this.firstShow === false" type="primary">提交修</el-button>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button @click="submitUseForm" v-if="this.firstShow === true" type="primary">提交初</el-button>
+            <el-button @click="submitUseFormChange" v-if="this.firstShow === false" type="primary">提交</el-button>
+            <el-button @click="submitUseForm" v-if="this.firstShow === true" type="primary">提交</el-button>
           </el-form-item>
 
           <el-form-item>
@@ -244,7 +241,7 @@ export default {
     };
   },
   created() {
-    // this.getList();
+
   },
   methods: {
       //筛选条件
@@ -280,7 +277,6 @@ export default {
                   }).then(response=>{
                       console.log(response)
                       if (response.length != 0){
-                          this.zhidu = !this.zhidu
                           this.changeShow = true
                           this.firstShow = false
                           this.showNo = true
@@ -308,7 +304,7 @@ export default {
                               type: 'warning'
                           }).then(() => {
                               console.log('dingyi')
-                              this.zhidu = !this.zhidu
+                              this.zhidu = false
                               this.firstShow = true
                               this.changeShow = false
                           }).catch(() => {
@@ -341,7 +337,7 @@ export default {
       //编辑
       xiugai(){
           MessageBox.confirm('确定去修改吗？','提示').then(c=>{
-              this.zhidu = !this.zhidu
+              this.zhidu = false
           }).catch(ee=>{
               this.$message.warning('取消修改!')
           })
@@ -445,7 +441,7 @@ export default {
               data:handForm
           }).then(response=>{
               this.$message.success('提交成功!')
-              console.log("成功")
+              this.reload()
           })
           //     // url:'/dev-api/sql/ConnectController/definitionProblem?totalQuestionTableId=23&aaa=33',
           //     url:`http://192.168.1.98/dev-api/sql/command_logic/insertModifyProblemCommandSet?totalQuestionTableId=${this.proId}`,
@@ -482,18 +478,20 @@ export default {
           }).then(response=>{
               this.$message.success('提交成功!')
               console.log("成功")
+              this.reload()
           })
       },
       //删除修复问题
       delRepair(){
           console.log(this.proId)
-          MessageBox.confirm('确定删除吗？','提示').then(c=>{
+          MessageBox.confirm('确定删除修复问题逻辑吗？','提示').then(c=>{
               return request({
                   url:'/sql/command_logic/deleteProblemSolvingCommand',
                   method:'delete',
                   data:this.proId
               }).then(response=>{
                   this.$message.success('删除成功!')
+                  this.reload()
               })
           }).catch(ee=>{
               this.$message.warning('取消删除!')
@@ -659,10 +657,10 @@ export default {
           form.append('totalQuestionTableId',this.proId)
           console.log(this.proId)
           return request({
-              url:'/sql/problem_scan_logic/getParameterNameCollection',
+              url:'/sql/problem_scan_logic/getParameterNameCollection/' + this.proId,
               method:'get',
               // data:form
-              params:this.proId
+              // params:this.proId
           }).then(response=>{
               console.log(response)
               this.paraList = response
@@ -752,43 +750,9 @@ export default {
               this.$set(liu,'checked',false)
           })
       },
-    /** 查询查看解决列表 */
-    getList() {
-      this.loading = true;
-      listLook_solve(this.queryParams).then(response => {
-        this.look_solveList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      });
-    },
     // 取消按钮
     cancel() {
       this.open = false;
-      this.reset();
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        command: null,
-        comvalue: null
-      };
-      this.resetForm("form");
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.command)
-      this.single = selection.length!==1
-      this.multiple = !selection.length
     },
   }
 };

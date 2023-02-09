@@ -3,9 +3,10 @@
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true"
              v-show="showSearch" label-width="40px" :show-message="false">
       <el-form-item style="margin-left: 15px;width: 100%">
-        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>
+        <el-button type="primary" @click="xinzeng" v-if="this.scanShow == true"
+                   icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
-                   size="small" @click="dialogVisible = true">批量导入</el-button>
+                   size="small" v-if="this.scanShow == true" @click="dialogVisible = true">批量导入</el-button>
         <el-button type="success" icon="el-icon-search" size="small" @click="fullScan"
                    v-if="this.scanShow == true" :disabled="this.scanUse == false" round>全面扫描</el-button>
         <el-button type="warning" size="small" @click="cancelScan"
@@ -245,7 +246,7 @@
     import request from '@/utils/request'
     import { JSEncrypt } from 'jsencrypt'
     export default {
-        name: "scan_page",
+        name: "Scan_page",
         components:{
             WebSocket,
             WebSocketOne,
@@ -542,18 +543,18 @@
             //新增设备
             xinzeng(){
                 this.tableData.push({
-                    ip: '192.168.1.100',
-                    name: 'admin',
-                    password:'admin',
+                    // ip: '192.168.1.100',
+                    // name: 'admin',
+                    // password:'admin',
                     // passmi:'********',
                     // mode:'ssh',
                     // port:22,
                     // isEdit:true,
                     // conCip:'********',
                     // configureCiphers:''
-                    // ip: '',
-                    // name: '',
-                    // password:'',
+                    ip: '',
+                    name: '',
+                    password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',

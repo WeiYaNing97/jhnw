@@ -166,7 +166,7 @@
             wsMessageHanler(e) {
                 // console.log('wsMessageHanler')
 
-                if (e.data.indexOf('发送和接收') != -1){
+                if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){
                     this.textareaOne = this.textareaOne + e.data
                 }else if (e.data.indexOf('系统信息') != -1){
                     this.textareaInfo = this.textareaInfo + e.data

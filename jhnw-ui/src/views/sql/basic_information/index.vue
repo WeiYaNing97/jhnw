@@ -25,7 +25,7 @@
         <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
       </el-form-item>
       <br/>
-      <el-button type="primary" size="small" @click="ceshi1" style="margin-top: 11px">执行</el-button>
+      <el-button type="primary" size="small" @click="scanAdvance" style="margin-top: 11px">执行</el-button>
       <div style="display: inline-block;margin-left: 20px">
         <el-input v-model="returnInfo" readonly placeholder="展示获取基本信息" style="width:500px"></el-input>
       </div>
@@ -270,7 +270,7 @@
       </div>
 
       <el-form-item>
-        <el-button @click="tijiao" type="primary">提交</el-button>
+        <el-button @click="subForm" type="primary">提交</el-button>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="showYu">预执行</el-button>
@@ -374,7 +374,7 @@
                     password:'',
                     mode:'ssh',
                     port:'',
-                    configureCiphers:null
+                    configureCiphers:''
                 },
                 forms: {
                     dynamicItem:[
@@ -427,81 +427,91 @@
             reloadv(){
 
             },
-            //单步执行
-            ceshi1(){
+            //预执行
+            scanAdvance(){
                 console.log(this.form)
+                if (this.form.ip != '' && this.form.name != '' && this.form.password != '' && this.form.mode != '' && this.form.port != ''){
+                    let ip = this.form.ip
+                    let name = this.form.name
+                    let password = this.form.password
+                    let mode = this.form.mode
+                    let port = this.form.port
+                    let configureCiphers = ''
+                    if(this.form.configureCiphers == ''){
+                        configureCiphers = null
+                    }else {
+                        configureCiphers = this.form.configureCiphers
+                    }
+                    var command = []
+                    this.forms.testsss.forEach(e=>{
+                        command.push(e.value)
+                    })
+                    // let zuihouall = this.deviceInfo.map(x=>JSON.stringify(x))
+                    // console.log(zuihouall)
+                    // var qqq = JSON.stringify(zuihouall)
+                    // console.log(typeof zuihouall)
+                    //
+                    // let form11 = new FormData();
+                    // for (var key in this.form){
+                    //     form11.append(key,this.form[key])
+                    // }
+                    const useForm = []
+                    const useLess = []
+                    this.forms.dynamicItem.forEach(e=>{
+                        if (e.test === "test"){
+                            useLess.push(e)
+                        }else {
+                            useForm.push(e)
+                        }
+                    })
+                    useForm.forEach(eeee=>{
+                        const thisIndex = useForm.indexOf(eeee)
+                        if(useForm.length != thisIndex+1){
+                            const thisNext = useForm[thisIndex+1]
+                            this.$set(eeee,'nextIndex',thisNext.onlyIndex)
+                        }
+                        if (eeee.action === '取词'){
+                            eeee.length = `${eeee.length1}${eeee.classify}`
+                        }
+                        if (this.jiaoyan == '常规校验'){
+                            this.$set(eeee,'resultCheckId','1')
+                        }else {
+                            this.$set(eeee,'resultCheckId','0')
+                        }
+                        this.$set(eeee,'pageIndex',thisIndex+1)
+                        if (eeee.targetType == 'takeword'){
+                            const takeWordt = useForm.indexOf(eeee)
+                            var quciC = ''
+                            useForm.map((e11)=>{
+                                const takeWl = useForm.indexOf(e11)
+                                if(takeWl == takeWordt-1){
+                                    quciC = e11.matchContent
+                                }
+                            })
+                            this.$set(eeee,'matchContent',quciC)
+                        }
+                    })
+                    const handForm = useForm.map(x => JSON.stringify(x))
+                    console.log(handForm)
+                    return request({
+                        url:'/sql/SwitchInteraction/testToObtainBasicInformation/'+ip+'/'+name+'/'+password+'/'+port+'/'+mode+'/'+configureCiphers+'/'+command,
+                        method:'post',
+                        data:handForm
+                    }).then(response=>{
+                        // this.$message.success('提交成功!')
+                        console.log(response)
+                        this.returnInfo  = response
+                    })
+                }else {
+                    alert('ip、用户名、密码、端口号、方式不得为空!')
+                }
                 // var encrypt = new JSEncrypt()
                 // encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
                 // var pass = encrypt.encrypt(this.form.password)
                 // this.form.password = pass
                 // console.log(this.form.password)
-                let ip = this.form.ip
-                let name = this.form.name
-                let password = this.form.password
-                let mode = this.form.mode
-                let port = this.form.port
-                let configureCiphers = this.form.configureCiphers
-                var command = []
-                this.forms.testsss.forEach(e=>{
-                    command.push(e.value)
-                })
-                // let zuihouall = this.deviceInfo.map(x=>JSON.stringify(x))
-                // console.log(zuihouall)
-                // var qqq = JSON.stringify(zuihouall)
-                // console.log(typeof zuihouall)
-                //
-                // let form11 = new FormData();
-                // for (var key in this.form){
-                //     form11.append(key,this.form[key])
-                // }
-                const useForm = []
-                const useLess = []
-                this.forms.dynamicItem.forEach(e=>{
-                    if (e.test === "test"){
-                        useLess.push(e)
-                    }else {
-                        useForm.push(e)
-                    }
-                })
-                useForm.forEach(eeee=>{
-                    const thisIndex = useForm.indexOf(eeee)
-                    if(useForm.length != thisIndex+1){
-                        const thisNext = useForm[thisIndex+1]
-                        this.$set(eeee,'nextIndex',thisNext.onlyIndex)
-                    }
-                    if (eeee.action === '取词'){
-                        eeee.length = `${eeee.length1}${eeee.classify}`
-                    }
-                    if (this.jiaoyan == '常规校验'){
-                        this.$set(eeee,'resultCheckId','1')
-                    }else {
-                        this.$set(eeee,'resultCheckId','0')
-                    }
-                    this.$set(eeee,'pageIndex',thisIndex+1)
-                    if (eeee.targetType == 'takeword'){
-                        const takeWordt = useForm.indexOf(eeee)
-                        var quciC = ''
-                        useForm.map((e11)=>{
-                            const takeWl = useForm.indexOf(e11)
-                            if(takeWl == takeWordt-1){
-                                quciC = e11.matchContent
-                            }
-                        })
-                        this.$set(eeee,'matchContent',quciC)
-                    }
-                })
-                const handForm = useForm.map(x => JSON.stringify(x))
-                console.log(handForm)
-                return request({
-                    url:'/sql/SwitchInteraction/testToObtainBasicInformation/'+ip+'/'+name+'/'+password+'/'+port+'/'+mode+'/'+configureCiphers+'/'+command,
-                    method:'get',
-                    // data:handForm
-                    params:handForm
-                }).then(response=>{
-                    // this.$message.success('提交成功!')
-                    console.log(response)
-                    this.returnInfo  = response
-                })
+
+
             },
             //下载
             kanuser(){
@@ -751,7 +761,7 @@
                 this.showOrYu = !this.showOrYu
             },
             //提交获取基本信息命令
-            tijiao(){
+            subForm(){
                 // window.location.reload()   刷新页面
                 // this.$router.go(0)   刷新页面
                 // this.zhidu = false

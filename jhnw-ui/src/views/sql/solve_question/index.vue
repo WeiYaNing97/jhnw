@@ -73,7 +73,7 @@
               <el-checkbox v-model="item.checked"></el-checkbox>
             </el-form-item>
             <el-form-item v-if="index!=0">{{index}}</el-form-item>
-            <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+            <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
             <div v-if="item.targetType === 'command'" :key="index" style="display: inline-block">
               <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
                 <el-input v-model="item.command"></el-input>

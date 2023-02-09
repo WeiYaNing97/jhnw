@@ -324,7 +324,7 @@
 
       <el-form-item>
 <!--        <el-button @click="tijiao" type="primary">提交</el-button>-->
-        <el-button @click="subProblem" type="primary">定义问题</el-button>
+        <el-button @click="subProblem" type="primary">提交</el-button>
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
@@ -382,9 +382,11 @@
 import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, exportJh_test1 } from "@/api/sql/jh_test1";
 import TinymceEditor from "@/components/Tinymce/TinymceEditor"
 import request from '@/utils/request'
+import router from '@/router/index'
 
 export default {
   name: "Jh_test1",
+    inject:["reload"],
     components:{
         TinymceEditor
     },
@@ -610,7 +612,6 @@ export default {
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
-              // data:newPar
               params: newPar
           }).then(response=>{
               console.log(response)
@@ -929,9 +930,7 @@ export default {
                   subNewPro[i] = ''
               }
           }
-          if (subNewPro.brand == '' || subNewPro.typeProblem == '' || subNewPro.temProName == ''){
-              alert('品牌、范式分类、范式名称 不得为空!')
-          }else {
+          if (subNewPro.brand != '' && subNewPro.typeProblem != '' && subNewPro.temProName != '' && this.forms.dynamicItem.length > 1){
               return request({
                   url:'/sql/total_question_table/add',
                   method:'post',
@@ -998,6 +997,10 @@ export default {
                           }).then(response=>{
                               console.log(response)
                               this.$message.success('提交问题成功!')
+                              this.reload()
+                              router.push({
+                                  path:'/sql/look_test'
+                              })
                           })
                       }
                   }else {
@@ -1005,6 +1008,8 @@ export default {
                   }
                   this.chuxian = true
               })
+          }else {
+              alert('品牌、范式分类、范式名称、分析逻辑不得为空!')
           }
       },
       //合并按钮新的

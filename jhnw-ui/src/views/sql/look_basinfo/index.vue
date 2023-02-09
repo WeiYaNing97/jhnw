@@ -3,19 +3,23 @@
     <el-form :model="queryParams" ref="queryForm" :inline="true">
       <el-form-item label="基本信息命令" prop="brand">
         <el-select v-model="basicCom" placeholder="基本信息命令"
-                   filterable allow-create @focus="basComs" style="width: 400px">
+                   filterable allow-create @focus="basComs" @change="chakan" style="width: 400px">
           <el-option v-for="(item,index) in comsss"
                      :value-key="index" :label="item.command" :value="item.problemId"></el-option>
         </el-select>
       </el-form-item>
+<!--      <el-form-item>-->
+<!--        <el-button @click="chakan" type="primary">查看</el-button>-->
+<!--      </el-form-item>-->
+
       <el-form-item>
-        <el-button @click="chakan" type="primary">查看</el-button>
+        <el-button @click="addAdvance" type="primary" size="small" icon="el-icon-plus" plain>新增</el-button>
       </el-form-item>
 <!--      <el-form-item>-->
 <!--        <el-button @click="xiugai" type="primary">编辑</el-button>-->
 <!--      </el-form-item>-->
       <el-form-item>
-        <el-button @click="shanchutest" type="primary" v-show="shanShow">删除</el-button>
+        <el-button @click="delAdvance" type="danger" size="small" icon="el-icon-delete" v-show="shanShow" plain>删除</el-button>
       </el-form-item>
     </el-form>
 
@@ -217,11 +221,12 @@
 </template>
 
 <script>
-    import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_test, exportLook_test } from "@/api/sql/look_test";
+    import { listLook_test, getLook_test, delLook_test, addLook_test, updateLook_test, exportLook_test } from "@/api/sql/look_test"
     import axios from 'axios'
     import  {MessageBox} from "element-ui"
     import request from '@/utils/request'
-    import log from "../../monitor/job/log";
+    import log from "../../monitor/job/log"
+    import router from '@/router/index'
 
     export default {
         name: "Look_basinfo",
@@ -447,6 +452,12 @@
                     console.log(this.comsss)
                 })
             },
+            //跳转新增预取规则
+            addAdvance(){
+                router.push({
+                    path:'/sql/basic_information'
+                })
+            },
             //查看获取基本信息
             chakan(){
                 console.log(this.basicCom)
@@ -462,9 +473,8 @@
                     })
                     this.forms.dynamicItem = this.formss.dynamicItemss
                     return request({
-                        url:'/sql/DefinitionProblemController/getBasicInformationProblemScanLogic',
-                        method:'post',
-                        data:this.basicCom
+                        url:'/sql/DefinitionProblemController/getBasicInformationProblemScanLogic/' + this.basicCom,
+                        method:'get',
                     }).then(response=>{
                         console.log(response)
                         this.fDa = []
@@ -572,15 +582,15 @@
                 })
             },
             //删除
-            shanchutest(){
+            delAdvance(){
                 MessageBox.confirm('确定删除吗？','提示').then(c=>{
                     console.log(this.proId)
                     return request({
                         url:'/sql/DefinitionProblemController/deleteBasicInformationProblemScanLogic',
-                        method:'post',
+                        method:'delete',
                         data:this.proId
                     }).then(response=>{
-                        console.log('删除成功')
+                        this.$message.success('删除成功!')
                     })
                 }).catch(ee=>{
                     this.$message.warning('取消删除!')

@@ -46,13 +46,15 @@
     import request from '@/utils/request'
     import TinymceEditor from "@/components/Tinymce/TinymceEditor"
     export default {
-        name: "history_scan",
+        name: "History_scan",
         data(){
             return{
                 lishiData:[],
                 loading:false,
                 huisao:true,
-                newArr:[]
+                newArr:[],
+                //详情内容
+                particular:'',
             }
         },
         mounted:function(){
@@ -85,6 +87,7 @@
             //查看详情
             xiangqing(row){
                 this.dialogVisible = true
+                console.log(row)
                 const xiangid = row.problemDescribeId
                 console.log(xiangid)
                 return request({
