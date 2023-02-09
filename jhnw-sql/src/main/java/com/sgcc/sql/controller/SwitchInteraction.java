@@ -1343,6 +1343,10 @@ public class SwitchInteraction {
                 continue;
             }
 
+            if (basicInformation.getProblemId() == null){
+                continue;
+            }
+
             //分析第一条ID basicInformation.getProblemId() (为 问题扫描逻辑表  ID)
             String first_problem_scanLogic_Id = basicInformation.getProblemId();
 
