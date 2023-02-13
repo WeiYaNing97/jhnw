@@ -120,12 +120,18 @@
               <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
                 <el-input v-model="item.matchContent"></el-input>
               </el-form-item>
+              <el-form-item label="光标位置">
+                <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
+                  <el-option label="当前行" value="0"></el-option>
+                  <el-option label="第一行" value="1"></el-option>
+                </el-select>
+              </el-form-item>
               <el-form-item label="True"></el-form-item>
               <el-form-item>
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
               </el-form-item>
             </div>
-            <div v-else-if="item.targetType === 'failed'" style="display: inline-block;padding-left:308px">
+            <div v-else-if="item.targetType === 'failed'" style="display: inline-block;padding-left:510px">
               <el-form-item label="False"></el-form-item>
               <el-form-item style="visibility: hidden">
                 <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -134,6 +140,12 @@
             <div v-else-if="item.targetType === 'dimmatch'" :key="index" style="display: inline-block">
               <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
                 <el-input v-model="item.matchContent"></el-input>
+              </el-form-item>
+              <el-form-item label="光标位置">
+                <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
+                  <el-option label="当前行" value="0"></el-option>
+                  <el-option label="第一行" value="1"></el-option>
+                </el-select>
               </el-form-item>
               <el-form-item label="True"></el-form-item>
               <el-form-item>
@@ -1079,9 +1091,13 @@ export default {
           this.$set(item1,'checked',false)
           const thisIndex = this.forms.dynamicItem.indexOf(item)
           // this.$set(item,'nextIndex',thisData)
+          if (type == 'command'){
+              this.$set(item1,'resultCheckId','0')
+          }
           if(type == 'match'){
               this.$set(item1,'matched','全文精确匹配')
               this.$set(item1,'trueFalse','成功')
+              this.$set(item1,'cursorRegion','0')
               const item2 = {
                   targetType:'failed',
                   onlyIndex:thisData
@@ -1092,6 +1108,7 @@ export default {
           if(type == 'dimmatch'){
               this.$set(item1,'matched','全文模糊匹配')
               this.$set(item1,'trueFalse','成功')
+              this.$set(item1,'cursorRegion','0')
               const item2 = {
                   targetType:'failed',
                   onlyIndex:thisData

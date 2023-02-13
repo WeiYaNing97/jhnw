@@ -147,7 +147,7 @@
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
           <el-form-item label="光标位置">
-            <el-select v-model="item.cursorRegion" placeholder="当前行">
+            <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
               <el-option label="当前行" value="0"></el-option>
               <el-option label="第一行" value="1"></el-option>
             </el-select>
@@ -158,7 +158,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'matchfal'"
-             style="display: inline-block;padding-left:602px">
+             style="display: inline-block;padding-left:515px">
           <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -179,12 +179,18 @@
           <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
+          <el-form-item label="光标位置">
+            <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
+              <el-option label="当前行" value="0"></el-option>
+              <el-option label="第一行" value="1"></el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label="True">{{ "\xa0" }}</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 308px">
+        <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 515px">
           <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -332,7 +338,7 @@
 <!--        <el-button @click="tijiao" type="primary">提交</el-button>-->
         <el-button @click="subProblem" type="primary">提交</el-button>
 
-        <el-button @click="testAll" type="primary">测试</el-button>
+<!--        <el-button @click="testAll" type="primary">测试</el-button>-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
@@ -413,16 +419,6 @@ export default {
         display:'inline-block',
         paddingLeft:'0px',
         cpus:'',
-        curReg:[
-            {
-              label:'当前行',
-              value:'0'
-            },
-            {
-                label:'第一行',
-                value:'1'
-            }
-        ],
         //右键
         contextMenuData:{
           menuName:"demo",
@@ -1229,10 +1225,14 @@ export default {
           // console.log(this.$refs.btn[thisIndex])
           console.log(item)
           // this.$set(item,'nextIndex',thisData)
+          if (type == 'command'){
+              this.$set(item1,'jiaoyan','自定义校验')
+          }
           if(type == 'match'){
               this.$refs.btn[thisIndex].labelss = '测试我'
               this.$set(item1,'matched','全文精确匹配')
               this.$set(item1,'trueFalse','成功')
+              this.$set(item1,'cursorRegion','0')
               // alert(event.target.getAttribute('label'))
               if (item.trueFalse === '成功'){
                   var iii = this.$refs.btn[index].style.paddingLeft
@@ -1254,6 +1254,7 @@ export default {
           if(type == 'dimmatch'){
               this.$set(item1,'matched','全文模糊匹配')
               this.$set(item1,'trueFalse','成功')
+              this.$set(item1,'cursorRegion','0')
               const item2 = {
                   targetType:'dimmatchfal',
                   onlyIndex:thisData
