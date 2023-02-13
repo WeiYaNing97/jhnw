@@ -1,7 +1,7 @@
 <template>
   <div>
 <!--    lishiData  nowData  tableDataqq-->
-    <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>
+<!--    <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>-->
 
 <!--    <el-button type="success" size="small" @click="testOne">测试</el-button>-->
 <!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
