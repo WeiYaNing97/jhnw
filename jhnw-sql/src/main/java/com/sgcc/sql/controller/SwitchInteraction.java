@@ -1685,7 +1685,11 @@ public class SwitchInteraction {
         String relativePosition_row ="";
         /*如果 relativePosition 不为 null 并且 不为 “null”
         * 则说明是按行匹配  需要获取 行数   或者列数（未做）*/
-        if (relativePosition!=null && !(relativePosition.equals("null"))){
+        /*
+        * relativePosition.indexOf("ull") == -1
+        * 不存在 ull  则是 不包含 null  和 full
+        * */
+        if (relativePosition!=null && relativePosition.indexOf("ull") == -1){
             String[] relativePosition_split = relativePosition.split(",");
             //相对位置行
             relativePosition_line = relativePosition_split[0];
@@ -1731,6 +1735,20 @@ public class SwitchInteraction {
         String compare = null;
         if (problemScanLogic.getCompare() != null){
             compare = problemScanLogic.getCompare();
+        }
+
+        /* todo 返回第0行*/
+        /*记录返回 第0行 之前的光标*/
+        int frontMarker = 0;
+        if (matched != null && matched.indexOf("full") != -1){
+            matched = matched.substring(0,matched.length()-4);
+            frontMarker = line_n;
+            line_n = 0 ;
+        }
+        if (action != null && action.indexOf("full") != -1){
+            action = action.substring(0,action.length()-4);
+            frontMarker = line_n;
+            line_n = 0 ;
         }
 
 
@@ -1810,7 +1828,8 @@ public class SwitchInteraction {
 
                     //relativePosition.equals("null") 全文检索
                     // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
-                    if (relativePosition.equals("null") && num<return_information_array.length-1){
+                    if ((problemScanLogic.getMatched().indexOf("full") != -1 || problemScanLogic.getRelativePosition().indexOf("null") != -1 )
+                            && num<return_information_array.length-1){
                         continue;
                     }
 
@@ -1861,6 +1880,9 @@ public class SwitchInteraction {
                             line_n, firstID, problemScanLogicList, currentID,
                             insertsInteger, loop, numberOfCycles, problemScanLogic);
 
+                    /*匹配失败 光标返回 回到0行之前位置 */
+                    line_n  =  frontMarker;
+
                     return falseLogic;
 
                 }
@@ -1885,6 +1907,8 @@ public class SwitchInteraction {
                     wordSelection_string = MyUtils.wordSelection(
                             return_information_array[num],matchContent, //返回信息的一行 提取关键字
                             relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
+
+                    System.err.println( "\r\n取词操作 取出词汇：" + wordSelection_string + "\r\n");
                 }
 
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败

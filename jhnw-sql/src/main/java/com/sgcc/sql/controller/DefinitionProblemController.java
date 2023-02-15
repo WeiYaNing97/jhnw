@@ -492,10 +492,17 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("matched",null);
         /** 相对位置 */
         hashMap.put("relativePosition",null);
+
         /** 相对位置 行*/
         hashMap.put("relative",null);
         /** 相对位置 列*/
         hashMap.put("position",null);
+
+
+        /** 返回 0 行*/
+        hashMap.put("cursorRegion",null); // 0 从当前行往下  1  全文
+
+
         /** 匹配内容 */
         hashMap.put("matchContent",null);
         /** 动作 */
@@ -566,6 +573,9 @@ public class DefinitionProblemController extends BaseController {
                         hashMap.put("matched","按行模糊匹配");
                     }
                     break;
+
+
+
                 case "relative":
                     /** 相对位置 行*/
                     hashMap.put("relative",split1);
@@ -574,10 +584,18 @@ public class DefinitionProblemController extends BaseController {
                     /** 相对位置 列*/
                     hashMap.put("position",split1);
                     break;
+
+                case "cursorRegion":
+                    /** 相对位置 列*/
+                    hashMap.put("cursorRegion",split1);
+                    break;
+
+
+
                 case "matchContent":
                     /** 匹配内容 */
 
-                    if (split1.equals("null")){
+                    if (split1 != null && split1.equals("null")){
                         hashMap.put("matchContent",null);
                     }else {
                         hashMap.put("matchContent",split1);
@@ -690,16 +708,19 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogic.setId(hashMap.get("id"));
         /** 匹配 */
         if (hashMap.get("matched")!=null){
-            problemScanLogic.setMatched(hashMap.get("matched").substring(2,hashMap.get("matched").length()));
+            problemScanLogic.setMatched(hashMap.get("matched").substring(2,hashMap.get("matched").length())
+                    + (hashMap.get("cursorRegion").equals("1")?"full":""));
             // 如果 匹配为 “null” 则  设为null
             if (problemScanLogic.getMatched().equals("null")){
                 problemScanLogic.setMatched(null);
             }
         }
+
         /** 相对位置 */
         if (hashMap.get("relativePosition")!=null){
             problemScanLogic.setRelativePosition(hashMap.get("relativePosition"));
         }
+
         /** 匹配内容 */
         if (hashMap.get("matchContent")!=null){
             problemScanLogic.setMatchContent(hashMap.get("matchContent"));
@@ -707,6 +728,9 @@ public class DefinitionProblemController extends BaseController {
         /** 动作 */
         if (hashMap.get("action")!=null){
             problemScanLogic.setAction(hashMap.get("action"));
+            if (hashMap.get("action").equals("取词") && hashMap.get("cursorRegion")!=null){
+                problemScanLogic.setAction(hashMap.get("action") + (hashMap.get("cursorRegion").equals("1")?"full":""));
+            }
             if (problemScanLogic.getAction().equals("null")){
                 problemScanLogic.setAction(null);
             }
@@ -817,6 +841,7 @@ public class DefinitionProblemController extends BaseController {
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
 
                 problemScanLogicf.setId(problemScanLogic.getId());
+                problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
                 problemScanLogicf.setLength(problemScanLogic.getLength());
@@ -1525,17 +1550,31 @@ public class DefinitionProblemController extends BaseController {
         String position = null;
         problemScanLogicVO.setRelative(relative);
         problemScanLogicVO.setPosition(position);
+        problemScanLogicVO.setCursorRegion("0");
 
         if (problemScanLogic.getMatched()!=null && !(problemScanLogic.getMatched().equals("null"))){
+
+            if (problemScanLogic.getMatched().indexOf("full")!=-1){
+                problemScanLogicVO.setCursorRegion("1");
+                problemScanLogic.setMatched(problemScanLogic.getMatched().substring(0,problemScanLogic.getMatched().length()-4));
+            }
+
             //匹配 不为 null 且 不为“null” 则
-            if (problemScanLogic.getMatched().indexOf("匹配")!=-1 && problemScanLogic.getRelativePosition().equals("null")){
+            if (problemScanLogic.getMatched().indexOf("匹配")!=-1
+                    &&
+                    problemScanLogic.getRelativePosition().indexOf("ull")!=-1){
+
                 matched = "全文"+problemScanLogic.getMatched();
+
+
             }else if (problemScanLogic.getMatched().indexOf("匹配")!=-1){
                 matched = "按行"+problemScanLogic.getMatched();
                 String relativePosition = problemScanLogic.getRelativePosition();
+
                 String[] relativePositionSplit = relativePosition.split(",");
                 relative = relativePositionSplit[0];
                 position = relativePositionSplit[1];
+
                 problemScanLogicVO.setRelative(relative);
                 problemScanLogicVO.setPosition(position);
             }
@@ -1551,6 +1590,11 @@ public class DefinitionProblemController extends BaseController {
         if (problemScanLogic.getAction()!=null){
             String action = problemScanLogic.getAction();
             problemScanLogicVO.setAction(action);
+
+            if (action.indexOf("full")!=-1){
+                problemScanLogicVO.setCursorRegion("1");
+                problemScanLogic.setAction(action.substring(0,action.length()-4));
+            }
 
             if (!(problemScanLogic.getRelativePosition().equals("null"))){
                 String relativePosition = problemScanLogic.getRelativePosition();
@@ -1654,6 +1698,9 @@ public class DefinitionProblemController extends BaseController {
                 +"\"matched\"" +"="+ "\""+ problemScanLogicVO.getMatched() +"\","
                 +"\"relative\"" +"="+ "\""+ problemScanLogicVO.getRelative() +"\","
                 +"\"position\"" +"="+ "\""+ problemScanLogicVO.getPosition() +"\","
+
+                +"\"cursorRegion\"" +"="+ "\""+ problemScanLogicVO.getCursorRegion() +"\","
+
                 +"\"matchContent\"" +"="+ "\""+ problemScanLogicVO.getMatchContent() +"\","
                 +"\"action\"" +"="+ "\""+ problemScanLogicVO.getAction() +"\","
                 +"\"tNextId\"" +"="+ "\""+ problemScanLogicVO.gettNextId() +"\","

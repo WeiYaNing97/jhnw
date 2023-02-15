@@ -32,6 +32,10 @@ public class ProblemScanLogicVO extends BaseEntity
     @Excel(name = "相对位置列")
     private String position;
 
+    /** 返回 0 行 */
+    @Excel(name = "返回 0 行")
+    private String cursorRegion;
+
     /** 匹配内容 */
     @Excel(name = "匹配内容")
     private String matchContent;
@@ -128,6 +132,14 @@ public class ProblemScanLogicVO extends BaseEntity
         this.position = position;
     }
 
+    public String getCursorRegion() {
+        return cursorRegion;
+    }
+
+    public void setCursorRegion(String cursorRegion) {
+        this.cursorRegion = cursorRegion;
+    }
+
     public String getMatchContent() {
         return matchContent;
     }
@@ -142,6 +154,14 @@ public class ProblemScanLogicVO extends BaseEntity
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public String gettNextId() {
+        return tNextId;
+    }
+
+    public void settNextId(String tNextId) {
+        this.tNextId = tNextId;
     }
 
     public Integer getrPosition() {
@@ -224,13 +244,6 @@ public class ProblemScanLogicVO extends BaseEntity
         this.pageIndex = pageIndex;
     }
 
-    public String gettNextId() {
-        return tNextId;
-    }
-
-    public void settNextId(String tNextId) {
-        this.tNextId = tNextId;
-    }
 
     @Override
     public String toString() {
@@ -240,6 +253,7 @@ public class ProblemScanLogicVO extends BaseEntity
                 ", matched='" + matched + '\'' +
                 ", relative='" + relative + '\'' +
                 ", position='" + position + '\'' +
+                ", cursorRegion='" + cursorRegion + '\'' +
                 ", matchContent='" + matchContent + '\'' +
                 ", action='" + action + '\'' +
                 ", tNextId='" + tNextId + '\'' +
