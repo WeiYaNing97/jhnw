@@ -1745,10 +1745,9 @@ public class SwitchInteraction {
             frontMarker = line_n;
             line_n = 0 ;
         }
-        if (action != null && action.indexOf("full") != -1){
-            action = action.substring(0,action.length()-4);
+        if (action != null && action.indexOf("full") != -1 && !(relativePosition_line.equals(""))){
             frontMarker = line_n;
-            line_n = 0 ;
+            line_n = Integer.valueOf(relativePosition_line).intValue();
         }
 
 
@@ -1783,39 +1782,7 @@ public class SwitchInteraction {
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
 
-                    /*if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.gettComId(),user_String.get("notFinished"),
-                                user_String.get("mode"), user_Object);
-
-                        if (executeScanCommandByCommandId_object.size() == 1){
-                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                                return ajaxResult.get("msg")+"";
-                            }
-                        }
-
-                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,totalQuestionTable,
-                                executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
-
-                        return analysisReturnResults_String;
-                    }
-
-                    //下一条true分析ID
-                    if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
-                        String tNextId = problemScanLogic.gettNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,problemScanLogicList,tNextId,insertsInteger, loop, numberOfCycles);
-                        //如果返回信息为null
-                        if (ProblemScanLogic_returnstring!=null){
-                            //内分析传到上一层
-                            //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                            extractInformation_string = ProblemScanLogic_returnstring;
-                            return ProblemScanLogic_returnstring;
-                        }
-                        return ProblemScanLogic_returnstring;
-                    }*/
-
+                    /*成功逻辑*/
                     String trueLogic = trueLogic(user_String, user_Object, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
@@ -1844,37 +1811,7 @@ public class SwitchInteraction {
                     }
 
 
-                    /*if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"), user_Object);
-
-                        if (executeScanCommandByCommandId_object.size() == 1){
-                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                                return ajaxResult.get("msg")+"";
-                            }
-                        }
-
-                        String analysisReturnResults_String = analysisReturnResults(user_String, user_Object,totalQuestionTable,
-                                executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
-                        return analysisReturnResults_String;
-                    }
-
-                    if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
-                        //下一条frue分析ID
-                        String fNextId = problemScanLogic.getfNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,problemScanLogicList,fNextId,insertsInteger, loop, numberOfCycles);
-                        //如果返回信息为null
-                        if (ProblemScanLogic_returnstring!=null){
-                            //内分析传到上一层
-                            //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                            extractInformation_string = ProblemScanLogic_returnstring;
-                            return ProblemScanLogic_returnstring;
-                        }
-                        return ProblemScanLogic_returnstring;
-                    }*/
-
+                    /*失败逻辑*/
                     String falseLogic = falseLogic(user_String, user_Object, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
@@ -1947,35 +1884,7 @@ public class SwitchInteraction {
                 extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
 
-                /*if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
-
-                    if (executeScanCommandByCommandId_object.size() == 1){
-                        AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                        if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                            return ajaxResult.get("msg")+"";
-                        }
-                    }
-
-                    String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
-                            executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
-
-                    return analysisReturnResults_String;
-                }
-
-                if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
-                    //下一ID
-                    String tNextId = problemScanLogic.gettNextId();
-                    String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
-                            return_information_array,current_Round_Extraction_String,extractInformation_string,
-                            line_n,firstID,problemScanLogicList,tNextId,insertsInteger, loop, numberOfCycles);
-                    if (ProblemScanLogic_returnstring!=null){
-                        extractInformation_string = ProblemScanLogic_returnstring;
-                        return ProblemScanLogic_returnstring;
-                    }
-                    return ProblemScanLogic_returnstring;
-                }*/
-
+                /*成功逻辑*/
                 String trueLogic = trueLogic(user_String, user_Object, totalQuestionTable,
                         return_information_array, current_Round_Extraction_String, extractInformation_string,
                         line_n, firstID, problemScanLogicList, currentID,
@@ -2017,36 +1926,7 @@ public class SwitchInteraction {
 
 
                 if (compare_boolean){
-
-                    /*if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.gettComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
-
-                        if (executeScanCommandByCommandId_object.size() == 1){
-                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                                return ajaxResult.get("msg")+"";
-                            }
-                        }
-
-                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
-                                executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
-                        return analysisReturnResults_String;
-                    }
-
-                    if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
-                        String tNextId = problemScanLogic.gettNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,problemScanLogicList,tNextId,insertsInteger, loop, numberOfCycles);
-
-                        if (ProblemScanLogic_returnstring!=null){
-                            extractInformation_string = ProblemScanLogic_returnstring;
-                            return ProblemScanLogic_returnstring;
-                        }
-
-                        return ProblemScanLogic_returnstring;
-                    }*/
-
+                    /*成功逻辑*/
                     String trueLogic = trueLogic(user_String, user_Object, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
@@ -2055,38 +1935,7 @@ public class SwitchInteraction {
                     return trueLogic;
 
                 }else {
-
-                    /*if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-                        List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(user_String,totalQuestionTable,problemScanLogic.getfComId(),user_String.get("notFinished"), user_String.get("mode"),user_Object);
-
-                        if (executeScanCommandByCommandId_object.size() == 1){
-                            AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                            if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                                return ajaxResult.get("msg")+"";
-                            }
-                        }
-
-                        String analysisReturnResults_String = analysisReturnResults(user_String,user_Object,totalQuestionTable,
-                                executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
-
-                        return analysisReturnResults_String;
-
-                    }
-
-                    if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=""){
-                        String fNextId = problemScanLogic.getfNextId();
-                        String ProblemScanLogic_returnstring = selectProblemScanLogicById(user_String,user_Object,totalQuestionTable,
-                                return_information_array,current_Round_Extraction_String,extractInformation_string,
-                                line_n,firstID,problemScanLogicList,fNextId,insertsInteger, loop, numberOfCycles);
-
-                        if (ProblemScanLogic_returnstring!=null){
-                            extractInformation_string = ProblemScanLogic_returnstring;
-                            return ProblemScanLogic_returnstring;
-                        }
-
-                        return ProblemScanLogic_returnstring;
-                    }*/
-
+                    /*失败逻辑*/
                     String falseLogic = falseLogic(user_String, user_Object, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
