@@ -1851,6 +1851,9 @@ public class SwitchInteraction {
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
                 if (wordSelection_string == null){
 
+                    /*取词逻辑失败 光标返回 回到0行之前位置 */
+                    line_n  =  frontMarker;
+
                     //  自定义   问题
                     WebSocketService.sendMessage(loginUser.getUsername(),"TrueAndFalse:"+user_String.get("ip")+  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
                             ":取词"+problemScanLogic.getWordName()+"失败\r\n");
