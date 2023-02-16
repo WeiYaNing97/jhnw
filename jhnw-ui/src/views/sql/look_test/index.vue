@@ -115,15 +115,27 @@
                 <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
               </el-form-item>
             </div>
-            <div v-else-if="item.targetType === 'match'" :key="index"
-                 style="display: inline-block">
-              <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
+            <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block">
+              <el-form-item label="位置">
+                <el-select v-model="item.relative" filterable allow-create placeholder="当前行" style="width: 110px">
+                  <el-option label="当前位置" value="present"></el-option>
+                  <el-option label="全文起始" value="full"></el-option>
+                  <el-option label="自定义行" value="" disabled></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
                 <el-input v-model="item.matchContent"></el-input>
               </el-form-item>
-              <el-form-item label="光标位置">
-                <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
-                  <el-option label="当前行" value="0"></el-option>
-                  <el-option label="第一行" value="1"></el-option>
+<!--              <el-form-item label="光标位置">-->
+<!--                <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">-->
+<!--                  <el-option label="当前行" value="0"></el-option>-->
+<!--                  <el-option label="第一行" value="1"></el-option>-->
+<!--                </el-select>-->
+<!--              </el-form-item>-->
+              <el-form-item label="类型">
+                <el-select v-model="item.matched" filterable allow-create placeholder="类型" style="width: 130px">
+                  <el-option label="精确匹配" value="精确匹配"></el-option>
+                  <el-option label="模糊匹配" value="模糊匹配"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item label="True"></el-form-item>
@@ -192,23 +204,28 @@
               </el-form-item>
             </div>
             <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
-              <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
-                <el-input v-model="item.relative" style="width: 80px" placeholder="第几行"></el-input> --
-
-                <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-                <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
+              <el-form-item label="位置">
+                <el-select v-model="item.cursorRegion" placeholder="当前位置" style="width: 110px">
+                  <el-option label="当前位置" value="0"></el-option>
+                  <el-option label="全文起始" value="1"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="取参" :prop="'dynamicItem.' + index + '.takeword'">
+                <el-input v-model="item.relative" style="width: 70px" placeholder="第几行"></el-input> --
+                <el-input v-model="item.rPosition" style="width: 70px" placeholder="第几个"></el-input> --
+                <el-input v-model="item.length1" style="width: 70px" placeholder="取几个"></el-input>
                 <el-select v-model="item.classify" placeholder="单词/行" style="width: 80px">
-                  <el-option label="单词" value="W"></el-option>
-                  <el-option label="字母" value="L"></el-option>
+                  <el-option label="词汇" value="W"></el-option>
+                  <el-option label="单字" value="L"></el-option>
                   <el-option label="字符串" value="S"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item>
                 <el-radio-group v-model="item.exhibit">
                   <el-radio label="显示" style="margin-right: 5px"></el-radio>
-                  <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='显示'"></el-input>
+                  <el-input style="width: 80px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='显示'"></el-input>
                   <el-radio label="不显示" style="margin-right: 5px"></el-radio>
-                  <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='不显示'"></el-input>
+                  <el-input style="width: 80px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='不显示'"></el-input>
                 </el-radio-group>
               </el-form-item>
               <el-form-item>
@@ -522,13 +539,7 @@ export default {
                   this.$set(eeee,'nextIndex',thisNext.onlyIndex)
               }
               if (eeee.action === '取词'){
-                  if (eeee.classify === '单词'){
-                      eeee.length = `${eeee.length1}W`
-                  }else if (eeee.classify === '字母'){
-                      eeee.length = `${eeee.length1}L`
-                  }else if (eeee.classify === '字符串'){
-                      eeee.length = `${eeee.length1}S`
-                  }
+                  eeee.length = `${eeee.length1}${eeee.classify}`
               }
               this.$set(eeee,'pageIndex',thisIndex+1)
               if (eeee.targetType == 'takeword'){
@@ -895,16 +906,17 @@ export default {
                               this.bizui = true
                               this.bixiala = false
                               this.huichasss.push(chae)
-                          } else if (chae.action === '取词') {
+                          } else if (chae.action.indexOf('取词') != -1) {
+                              console.log(chae)
                               this.$set(chae, 'targetType', 'takeword')
                               if (chae.length.slice(chae.length.length - 1) === 'W') {
-                                  this.$set(chae, 'classify', '单词')
+                                  this.$set(chae, 'classify', 'W')
                               } else if (chae.length.slice(chae.length.length - 1) === 'S') {
-                                  this.$set(chae, 'classify', '字符串')
+                                  this.$set(chae, 'classify', 'S')
                               } else if (chae.length.slice(chae.length.length - 1) === 'L') {
-                                  this.$set(chae, 'classify', '字母')
+                                  this.$set(chae, 'classify', 'L')
                               }
-                              chae.length1 = chae.length.slice(0, chae.length.length - 1)
+                              this.$set(chae,'length1',chae.length.slice(0, chae.length.length - 1))
                               this.huichasss.push(chae)
                           } else if (chae.action === '问题') {
                               this.$set(chae, 'targetType', 'prodes')
@@ -1095,9 +1107,10 @@ export default {
               this.$set(item1,'resultCheckId','0')
           }
           if(type == 'match'){
-              this.$set(item1,'matched','全文精确匹配')
+              this.$set(item1,'matched','精确匹配')
               this.$set(item1,'trueFalse','成功')
-              this.$set(item1,'cursorRegion','0')
+              // this.$set(item1,'cursorRegion','0')
+                this.$set(item1,'relative','present')
               const item2 = {
                   targetType:'failed',
                   onlyIndex:thisData
@@ -1151,6 +1164,7 @@ export default {
           if(type == 'takeword'){
               this.$set(item1,'action','取词')
               this.$set(item1,'position',0)
+              this.$set(item1,'cursorRegion','0')
           }
           if (type == 'wloop'){
               this.$set(item1,'action','循环')

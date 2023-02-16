@@ -143,13 +143,24 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
-          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
+          <el-form-item label="位置">
+            <el-select v-model="item.relative" filterable allow-create placeholder="当前位置" style="width: 110px">
+              <el-option label="当前位置" value="present"></el-option>
+              <el-option label="全文起始" value="full"></el-option>
+              <el-option label="自定义行" value="" disabled></el-option>
+            </el-select>
+          </el-form-item>
+<!--          <el-form-item>-->
+<!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">-->
+          <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
-          <el-form-item label="光标位置">
-            <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
-              <el-option label="当前行" value="0"></el-option>
-              <el-option label="第一行" value="1"></el-option>
+          <el-form-item label="类型">
+            <el-select v-model="item.matched" filterable allow-create placeholder="类型" style="width: 130px">
+              <el-option label="精确匹配" value="精确匹配"></el-option>
+              <el-option label="模糊匹配" value="模糊匹配"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="True">{{ "\xa0" }}</el-form-item>
@@ -158,7 +169,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'matchfal'"
-             style="display: inline-block;padding-left:515px">
+             style="display: inline-block;padding-left:591px">
           <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -190,7 +201,7 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 515px">
+        <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 459px">
           <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -235,16 +246,21 @@
         </div>
 
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
-          <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
-
+          <el-form-item label="位置">
+            <el-select v-model="item.cursorRegion" filterable allow-create placeholder="当前位置" style="width: 110px">
+              <el-option label="当前位置" value="0"></el-option>
+              <el-option label="全文起始" value="1"></el-option>
+<!--              <el-option label="自定义行" value="ding" disabled></el-option>-->
+            </el-select>
+          </el-form-item>
+          <el-form-item label="取参" :prop="'dynamicItem.' + index + '.takeword'">
 <!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
             <el-input v-model="item.relative" style="width: 80px" placeholder="第几行"></el-input> --
-
             <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
             <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
             <el-select v-model="item.classify" @change="reloadv" placeholder="单词/行" style="width: 80px">
-              <el-option label="单词" value="W"></el-option>
-              <el-option label="字母" value="L"></el-option>
+              <el-option label="词汇" value="W"></el-option>
+              <el-option label="单字" value="L"></el-option>
               <el-option label="字符串" value="S"></el-option>
             </el-select>
           </el-form-item>
@@ -306,7 +322,7 @@
                 <el-button @click="addItem('command',item)" type="primary">命令</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
-                <el-button @click="addItem('match',item,index)" type="primary">全文精确匹配</el-button>
+                <el-button @click="addItem('match',item,index)" type="primary">匹配</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>
@@ -338,7 +354,7 @@
 <!--        <el-button @click="tijiao" type="primary">提交</el-button>-->
         <el-button @click="subProblem" type="primary">提交</el-button>
 
-<!--        <el-button @click="testAll" type="primary">测试</el-button>-->
+        <el-button @click="testAll" type="primary">测试</el-button>
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
@@ -544,9 +560,9 @@ export default {
       //右键
       showMenu(){
           console.log('右击')
-        event.preventDefault();
-        var x = event.clientX;
-        var y = event.clientY;
+        event.preventDefault()
+        var x = event.clientX
+        var y = event.clientY
         this.contextMenuData.axis = {
             x,
             y,
@@ -862,6 +878,10 @@ export default {
           // }
       },
       //下拉列表输入
+      //自定义行
+      lineFreedom(e){
+          let value = e.target.value
+      },
       subShu(e){
           let value = e.target.value
           if(value){
@@ -933,6 +953,17 @@ export default {
       },
       //测试
       testAll(){
+          this.forms.dynamicItem.forEach(eeee=>{
+              if (eeee.matched === '全文精确匹配'){
+                  if (eeee.cursorRegionTest === 'D'){
+                      this.$set(eeee,'cursorRegion','0')
+                  }else if (eeee.cursorRegion === 'Q'){
+                      this.$set(eeee,'cursorRegion','1')
+                  }else {
+                      this.$set(eeee,'relative',eeee.cursorRegionTest)
+                  }
+              }
+          })
           console.log(this.forms.dynamicItem)
       },
       //定义问题合并提交
@@ -975,8 +1006,22 @@ export default {
                               const thisNext = useForm[thisIndex+1]
                               this.$set(eeee,'nextIndex',thisNext.onlyIndex)
                           }
+                          // if (eeee.matched === '全文精确匹配'){
+                          //     if (eeee.cursorRegion === 'D'){
+                          //         this.$set(eeee,'cursorRegion','0')
+                          //     }else if (eeee.cursorRegion === 'Q'){
+                          //         this.$set(eeee,'cursorRegion','1')
+                          //     }else {
+                          //         console.log('我')
+                          //     }
+                          // }
                           if (eeee.action === '取词'){
                               eeee.length = `${eeee.length1}${eeee.classify}`
+                              if (eeee.length === 'undefinedundefined'){
+                                  eeee.length = '0'
+                              }else {
+                                  eeee.length = `${eeee.length1}${eeee.classify}`
+                              }
                           }
                           if (eeee.jiaoyan == '常规校验'){
                               this.$set(eeee,'resultCheckId','1')
@@ -1230,9 +1275,10 @@ export default {
           }
           if(type == 'match'){
               this.$refs.btn[thisIndex].labelss = '测试我'
-              this.$set(item1,'matched','全文精确匹配')
+              // this.$set(item1,'matched','全文精确匹配')
               this.$set(item1,'trueFalse','成功')
-              this.$set(item1,'cursorRegion','0')
+              this.$set(item1,'relative','present')
+              this.$set(item1,'matched','精确匹配')
               // alert(event.target.getAttribute('label'))
               if (item.trueFalse === '成功'){
                   var iii = this.$refs.btn[index].style.paddingLeft
@@ -1309,6 +1355,7 @@ export default {
           if(type == 'takeword'){
               this.$set(item1,'action','取词')
               this.$set(item1,'position',0)
+              this.$set(item1,'cursorRegion','0')
           }
           if (type == 'wloop'){
               this.$set(item1,'action','循环')
@@ -1515,5 +1562,11 @@ export default {
   }
   .context-menu-list{
     height: 20px;
+  }
+  .vue-contextmenu-listWrapper{
+    height: 30px!important;
+  }
+  >>> .vue-contextmenu-listWrapper .context-menu-list{
+    height: 22px!important;
   }
 </style>
