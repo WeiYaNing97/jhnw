@@ -1675,8 +1675,6 @@ public class SwitchInteraction {
 
         }
 
-        String condition = problemScanLogic.getRelativePosition().equals("null")?"全文":"按行";
-
         //相对位置——行,列(1,0)
         String relativePosition = problemScanLogic.getRelativePosition();
         //相对位置行
@@ -1689,7 +1687,7 @@ public class SwitchInteraction {
         * relativePosition.indexOf("ull") == -1
         * 不存在 ull  则是 不包含 null  和 full
         * */
-        if (relativePosition!=null && relativePosition.indexOf("ull") == -1){
+        if (relativePosition!=null && relativePosition.indexOf("ull") == -1 && relativePosition.indexOf("present") == -1){
             String[] relativePosition_split = relativePosition.split(",");
             //相对位置行
             relativePosition_line = relativePosition_split[0];
@@ -1741,10 +1739,13 @@ public class SwitchInteraction {
         /*记录返回 第0行 之前的光标*/
         int frontMarker = 0;
         if (matched != null && matched.indexOf("full") != -1){
-            matched = matched.substring(0,matched.length()-4);
+            matched = matched.substring(0,4);
             frontMarker = line_n;
             line_n = 0 ;
+        }else if (matched != null && matched.indexOf("present") != -1){
+            matched = matched.substring(0,4);
         }
+
         if (action != null && action.indexOf("full") != -1 && !(relativePosition_line.equals(""))){
             frontMarker = line_n;
             line_n = Integer.valueOf(relativePosition_line).intValue();
@@ -1769,10 +1770,10 @@ public class SwitchInteraction {
                 if (matchAnalysis_true_false){
                     //  自定义   问题
                     WebSocketService.sendMessage(loginUser.getUsername(),"TrueAndFalse:"+user_String.get("ip") +  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                            ":"+condition+matched+problemScanLogic.getMatchContent()+"成功\r\n");
+                            ":"+matched+problemScanLogic.getMatchContent()+"成功\r\n");
                     try {
                         PathHelper.writeDataToFile("TrueAndFalse:"+user_String.get("ip")+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                                ":"+condition+matched+problemScanLogic.getMatchContent()+"成功\r\n");
+                                ":"+matched+problemScanLogic.getMatchContent()+"成功\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -1795,17 +1796,19 @@ public class SwitchInteraction {
 
                     //relativePosition.equals("null") 全文检索
                     // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
-                    if ((problemScanLogic.getMatched().indexOf("full") != -1 || problemScanLogic.getRelativePosition().indexOf("null") != -1 )
+                    if ((problemScanLogic.getMatched().indexOf("present") != -1
+                            || problemScanLogic.getMatched().indexOf("full") != -1
+                            || problemScanLogic.getRelativePosition().indexOf("ull") != -1 )
                             && num<return_information_array.length-1){
                         continue;
                     }
 
                     //  自定义   问题
                     WebSocketService.sendMessage(loginUser.getUsername(),"TrueAndFalse:"+user_String.get("ip")+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                            ":"+condition+matched+problemScanLogic.getMatchContent()+"失败\r\n");
+                            ":"+matched+problemScanLogic.getMatchContent()+"失败\r\n");
                     try {
                         PathHelper.writeDataToFile("TrueAndFalse:"+user_String.get("ip")+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                                ":"+condition+matched+problemScanLogic.getMatchContent()+"失败\r\n");
+                                ":"+matched+problemScanLogic.getMatchContent()+"失败\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

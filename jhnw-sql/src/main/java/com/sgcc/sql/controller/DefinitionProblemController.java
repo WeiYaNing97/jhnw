@@ -494,9 +494,9 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("relativePosition",null);
 
         /** 相对位置 行*/
-        hashMap.put("relative",null);
+        hashMap.put("relative","0");
         /** 相对位置 列*/
-        hashMap.put("position",null);
+        hashMap.put("position","0");
 
 
         /** 返回 0 行*/
@@ -552,29 +552,42 @@ public class DefinitionProblemController extends BaseController {
                     hashMap.put("id",split1);
                     break;
                 case "matched":// 匹配
+
+
+                    /*if (split1.equals("null")){
+                        *//** 匹配 *//*
+                        hashMap.put("matched",null);
+                    } else if (split1.equals("全文精确匹配")){
+                        *//** 匹配 *//*
+                        hashMap.put("matched","全文精确匹配");
+                        *//** 相对位置 *//*
+                        hashMap.put("relativePosition","null");
+                    }else if (split1.equals("全文模糊匹配")){
+                        *//** 匹配 *//*
+                        hashMap.put("matched","全文模糊匹配");
+                        *//** 相对位置 *//*
+                        hashMap.put("relativePosition","null");
+                    }else if (split1.equals("按行精确匹配")){
+                        *//** 匹配 *//*
+                        hashMap.put("matched","按行精确匹配");
+                    }else if (split1.equals("按行模糊匹配")){
+                        *//** 匹配 *//*
+                        hashMap.put("matched","按行模糊匹配");
+                    }
+                    break;*/
+
                     if (split1.equals("null")){
                         /** 匹配 */
                         hashMap.put("matched",null);
-                    } else if (split1.equals("全文精确匹配")){
+                    } else if (split1.equals("精确匹配")){
                         /** 匹配 */
-                        hashMap.put("matched","全文精确匹配");
-                        /** 相对位置 */
-                        hashMap.put("relativePosition","null");
-                    }else if (split1.equals("全文模糊匹配")){
+                        hashMap.put("matched","精确匹配");
+                    }else if (split1.equals("模糊匹配")){
                         /** 匹配 */
-                        hashMap.put("matched","全文模糊匹配");
-                        /** 相对位置 */
-                        hashMap.put("relativePosition","null");
-                    }else if (split1.equals("按行精确匹配")){
-                        /** 匹配 */
-                        hashMap.put("matched","按行精确匹配");
-                    }else if (split1.equals("按行模糊匹配")){
-                        /** 匹配 */
-                        hashMap.put("matched","按行模糊匹配");
+                        hashMap.put("matched","模糊匹配");
                     }
+
                     break;
-
-
 
                 case "relative":
                     /** 相对位置 行*/
@@ -651,28 +664,25 @@ public class DefinitionProblemController extends BaseController {
                     break;
             }
         }
+
         /*当匹配方式不为空 且 包含 按行 时  则为 按行匹配 则需要 拼接 relativePosition 值*/
-        if (hashMap.get("matched")!=null && hashMap.get("matched").indexOf("按行")!=-1){
+
+        /*之前的  全文按行 精确、模糊 匹配*/
+        /*if (hashMap.get("matched")!=null && hashMap.get("matched").indexOf("按行")!=-1){*/
+
+        /*精确、模糊 匹配*/
+        if (hashMap.get("matched")!=null){
             /** 相对位置 */
             hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
         }
+
         /*如果下一条分析数据为命令时 则 下一条ID  赋值给 命令ID*/
         if (ifCommand.equals("命令")){
             /** true下一条命令索引 */
             hashMap.put("tComId",hashMap.get("tNextId"));
             hashMap.put("tNextId",null);
         }
-        /*if (hashMap.get("action")!=null && hashMap.get("action").equals("取词")){
-            List<ProblemScanLogic> resultList=(List<ProblemScanLogic>)redisTemplate.opsForList().leftPop("problemScanLogic");
-            redisTemplate.opsForList().leftPush("problemScanLogic",resultList);
-            for (ProblemScanLogic pojo:resultList){
-                if ((pojo.gettNextId()!=null && pojo.gettNextId().equals(hashMap.get("id")))
-                        ||(pojo.getfNextId()!=null && pojo.getfNextId().equals(hashMap.get("id")))){
-                    hashMap.put("matchContent",pojo.getMatchContent());
-                    break;
-                }
-            }
-        }*/
+
         /*如果 trueFalse 为 失败时 则 成功行号、成功下一条分析、成功下一条命令 都复制给 失败对应 属性*/
         if (hashMap.get("trueFalse")!=null && hashMap.get("trueFalse").equals("失败")){
             //如果实体类是 失败 则 把默认成功数据 赋值给 失败数据
@@ -684,6 +694,7 @@ public class DefinitionProblemController extends BaseController {
             /** true下一条命令索引 */hashMap.put("tComId",null);
             /** true行号 */hashMap.put("tLine",null);
         }
+
         //如果动作属性不为空  且动作属性参数为 循环时  需要清空动作属性
         if (hashMap.get("action")!=null && hashMap.get("action").equals("循环")){
             //需要清空动作属性
@@ -708,8 +719,18 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogic.setId(hashMap.get("id"));
         /** 匹配 */
         if (hashMap.get("matched")!=null){
-            problemScanLogic.setMatched(hashMap.get("matched").substring(2,hashMap.get("matched").length())
-                    + (hashMap.get("cursorRegion").equals("1")?"full":""));
+            /*之前  全文 精确匹配 */
+            /*problemScanLogic.setMatched(hashMap.get("matched").substring(2,hashMap.get("matched").length())
+                    + (hashMap.get("cursorRegion").equals("1")?"full":""));*/
+
+            /*精确匹配*/
+            /*如果 relative  为 全文 或者 当前*/
+            if (hashMap.get("relative").equals("present") || hashMap.get("relative").equals("full")){
+                problemScanLogic.setMatched(hashMap.get("matched") + hashMap.get("relative"));
+            }else {
+                problemScanLogic.setMatched(hashMap.get("matched"));
+            }
+
             // 如果 匹配为 “null” 则  设为null
             if (problemScanLogic.getMatched().equals("null")){
                 problemScanLogic.setMatched(null);
@@ -728,7 +749,7 @@ public class DefinitionProblemController extends BaseController {
         /** 动作 */
         if (hashMap.get("action")!=null){
             problemScanLogic.setAction(hashMap.get("action"));
-            if (hashMap.get("action").equals("取词") && hashMap.get("cursorRegion")!=null){
+            if (hashMap.get("action").equals("取词") && hashMap.get("cursorRegion")!=null && hashMap.get("matched") ==null){
                 problemScanLogic.setAction(hashMap.get("action") + (hashMap.get("cursorRegion").equals("1")?"full":""));
             }
             if (problemScanLogic.getAction().equals("null")){
@@ -1545,42 +1566,32 @@ public class DefinitionProblemController extends BaseController {
         //匹配
         String matched = problemScanLogic.getMatched();
         //按行匹配
-        String relative = null;
+        String relative = "0";
         //按列匹配
-        String position = null;
+        String position = "0";
         problemScanLogicVO.setRelative(relative);
         problemScanLogicVO.setPosition(position);
         problemScanLogicVO.setCursorRegion("0");
 
         if (problemScanLogic.getMatched()!=null && !(problemScanLogic.getMatched().equals("null"))){
 
-            if (problemScanLogic.getMatched().indexOf("full")!=-1){
-                problemScanLogicVO.setCursorRegion("1");
-                problemScanLogic.setMatched(problemScanLogic.getMatched().substring(0,problemScanLogic.getMatched().length()-4));
+            if (problemScanLogic.getMatched().indexOf("present")!=-1 || problemScanLogic.getMatched().indexOf("full")!=-1){
+                matched = problemScanLogic.getMatched().substring(0,4);
             }
 
-            //匹配 不为 null 且 不为“null” 则
-            if (problemScanLogic.getMatched().indexOf("匹配")!=-1
-                    &&
-                    problemScanLogic.getRelativePosition().indexOf("ull")!=-1){
-
-                matched = "全文"+problemScanLogic.getMatched();
-
-
-            }else if (problemScanLogic.getMatched().indexOf("匹配")!=-1){
-                matched = "按行"+problemScanLogic.getMatched();
-                String relativePosition = problemScanLogic.getRelativePosition();
-
-                String[] relativePositionSplit = relativePosition.split(",");
-                relative = relativePositionSplit[0];
-                position = relativePositionSplit[1];
-
-                problemScanLogicVO.setRelative(relative);
-                problemScanLogicVO.setPosition(position);
-            }
         }
         problemScanLogicVO.setMatched(matched);
 
+        /* 如果 Ln Cn 不为 null  和  "null"  则  为 0,0 格式 则 需要分割*/
+        if (problemScanLogic.getRelativePosition()!=null && problemScanLogic.getRelativePosition().equals("null")){
+            String relativePosition = problemScanLogic.getRelativePosition();
+            String[] relativePositionSplit = relativePosition.split(",");
+            relative = relativePositionSplit[0];
+            position = relativePositionSplit[1];
+        }
+
+        problemScanLogicVO.setRelative(relative);
+        problemScanLogicVO.setPosition(position);
 
 
         if (problemScanLogic.getMatchContent()!=null){
