@@ -885,8 +885,13 @@ export default {
                                   this.$set(chae, 'resultCheckId', '常规校验')
                               }
                               this.huichasss.push(chae)
-                          } else if (chae.matched === '全文精确匹配') {
+                          } else if (chae.matched.indexOf('匹配') != -1) {
                               this.$set(chae, 'targetType', 'match')
+                              if (chae.matched.indexOf('精确匹配') != -1){
+                                  this.$set(chae, 'matched', '精确匹配')
+                              }else {
+                                  this.$set(chae, 'matched', '模糊匹配')
+                              }
                               this.huichasss.push(chae)
                               this.allOne.push(chae.onlyIndex)
                           } else if (chae.matched === '全文模糊匹配') {
@@ -1109,8 +1114,7 @@ export default {
           if(type == 'match'){
               this.$set(item1,'matched','精确匹配')
               this.$set(item1,'trueFalse','成功')
-              // this.$set(item1,'cursorRegion','0')
-                this.$set(item1,'relative','present')
+              this.$set(item1,'relative','present')
               const item2 = {
                   targetType:'failed',
                   onlyIndex:thisData
