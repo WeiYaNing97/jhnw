@@ -1675,6 +1675,8 @@ public class SwitchInteraction {
 
         }
 
+
+        String matching_logic = "";
         //相对位置——行,列(1,0)
         String relativePosition = problemScanLogic.getRelativePosition();
         //相对位置行
@@ -1687,10 +1689,11 @@ public class SwitchInteraction {
         * relativePosition.indexOf("ull") == -1
         * 不存在 ull  则是 不包含 null  和 full
         * */
-        if (relativePosition!=null && relativePosition.indexOf("ull") == -1 && relativePosition.indexOf("present") == -1){
+        if (relativePosition!=null && !(relativePosition.equals("null"))){
             String[] relativePosition_split = relativePosition.split(",");
             //相对位置行
             relativePosition_line = relativePosition_split[0];
+            matching_logic = matching_logic+relativePosition_line;
             //相对位置列
             relativePosition_row = relativePosition_split[1];
         }
@@ -1706,7 +1709,8 @@ public class SwitchInteraction {
         //分析数据 相对位置为空 或者 line_n !=0 不为0
         //relativePosition_line = "null" 则从头开始匹配
         //如果 !relativePosition_line.equals("null")  则 根据 relativePosition_line 行来分析
-        if (!relativePosition_line.equals("") || line_n !=0){
+        if ((!relativePosition_line.equals("") || line_n !=0)
+                && (!relativePosition_line.equals("full") && !relativePosition_line.equals("present"))){
             int line_number = 0;
             if (!relativePosition_line.equals("")){
                 line_number = Integer.valueOf(relativePosition_line).intValue();
@@ -1721,7 +1725,10 @@ public class SwitchInteraction {
         String matched = null;
         if (problemScanLogic.getMatched()!=null){
             matched = problemScanLogic.getMatched();
+            matching_logic = matched.substring(4,matched.length()) + "&" +matching_logic;
         }
+
+        System.err.println("\r\n"+matching_logic+"\r\n");
 
         //取词逻辑
         String action = null;

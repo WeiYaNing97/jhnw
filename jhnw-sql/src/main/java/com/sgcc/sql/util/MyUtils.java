@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
  */
 public class MyUtils {
 
+
     public static String isEmpty = "Is_Empty";
 
     /**

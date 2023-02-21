@@ -107,28 +107,6 @@ public class DefinitionProblemController extends BaseController {
      */
     public boolean insertInformationAnalysisMethod(LoginUser loginUser,@RequestBody List<String> jsonPojoList,Long basicInformationId){//@RequestBody List<String> jsonPojoList
 
-        /*定义一个变量 将 分析数据集合转变为长字符串*//*
-        String problemScanLogicString = "";
-        for (String pojo:jsonPojoList){
-            *//*以，为分割 拼接到一起*//*
-            problemScanLogicString = problemScanLogicString + pojo +",";
-        }
-        *//*如果 长字符串 不为"" 的时候说明 分析数据集合不为空*//*
-        if (!problemScanLogicString.equals("")){
-            jsonPojoList = new ArrayList<>();
-            *//*substring(0,problemScanLogicString.length()-1);
-            * 是为了去掉最后名的 ， *//*
-            problemScanLogicString = problemScanLogicString.substring(0,problemScanLogicString.length()-1);
-            *//*加， 后来 换成了 \r\n  然后以 \r\n 分隔 为数据  赋值 list  基本没变化*//*
-            problemScanLogicString = problemScanLogicString.replace("},","}\r\n");
-            String[] commandLogic_split = problemScanLogicString.split("\r\n");
-            for (int number=0; number<commandLogic_split.length; number++){
-                jsonPojoList.add(commandLogic_split[number]);
-            }
-        }else {
-            *//*如果分析数据集合为空则返回添加失败*//*
-            return false;
-        }*/
 
         if (jsonPojoList.size() == 0){
             //传输登陆人姓名 及问题简述
@@ -553,29 +531,6 @@ public class DefinitionProblemController extends BaseController {
                     break;
                 case "matched":// 匹配
 
-
-                    /*if (split1.equals("null")){
-                        *//** 匹配 *//*
-                        hashMap.put("matched",null);
-                    } else if (split1.equals("全文精确匹配")){
-                        *//** 匹配 *//*
-                        hashMap.put("matched","全文精确匹配");
-                        *//** 相对位置 *//*
-                        hashMap.put("relativePosition","null");
-                    }else if (split1.equals("全文模糊匹配")){
-                        *//** 匹配 *//*
-                        hashMap.put("matched","全文模糊匹配");
-                        *//** 相对位置 *//*
-                        hashMap.put("relativePosition","null");
-                    }else if (split1.equals("按行精确匹配")){
-                        *//** 匹配 *//*
-                        hashMap.put("matched","按行精确匹配");
-                    }else if (split1.equals("按行模糊匹配")){
-                        *//** 匹配 *//*
-                        hashMap.put("matched","按行模糊匹配");
-                    }
-                    break;*/
-
                     if (split1.equals("null")){
                         /** 匹配 */
                         hashMap.put("matched",null);
@@ -591,6 +546,7 @@ public class DefinitionProblemController extends BaseController {
 
                 case "relative":
                     /** 相对位置 行*/
+                    //有两种情况  数字  和 词汇
                     hashMap.put("relative",split1);
                     break;
                 case "position":
@@ -665,14 +621,14 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
-        /*当匹配方式不为空 且 包含 按行 时  则为 按行匹配 则需要 拼接 relativePosition 值*/
-
-        /*之前的  全文按行 精确、模糊 匹配*/
-        /*if (hashMap.get("matched")!=null && hashMap.get("matched").indexOf("按行")!=-1){*/
-
         /*精确、模糊 匹配*/
         if (hashMap.get("matched")!=null){
             /** 相对位置 */
+            if (hashMap.get("relative").indexOf(":")!=-1){
+                /* 位置 : 按行和全文 */
+                String[] relatives = hashMap.get("relative").split(":");
+                hashMap.put("relativePosition", relatives[0] +","+hashMap.get("position"));
+            }
             hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
         }
 
@@ -719,14 +675,13 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogic.setId(hashMap.get("id"));
         /** 匹配 */
         if (hashMap.get("matched")!=null){
-            /*之前  全文 精确匹配 */
-            /*problemScanLogic.setMatched(hashMap.get("matched").substring(2,hashMap.get("matched").length())
-                    + (hashMap.get("cursorRegion").equals("1")?"full":""));*/
 
             /*精确匹配*/
-            /*如果 relative  为 全文 或者 当前*/
-            if (hashMap.get("relative").equals("present") || hashMap.get("relative").equals("full")){
-                problemScanLogic.setMatched(hashMap.get("matched") + hashMap.get("relative"));
+            /*如果 relative  */
+            if (hashMap.get("relative").indexOf(":")!=-1){
+                /* 位置 ：按行和全文*/
+                String[] relatives = hashMap.get("relative").split(":");
+                problemScanLogic.setMatched(hashMap.get("matched") + relatives[1]);
             }else {
                 problemScanLogic.setMatched(hashMap.get("matched"));
             }
@@ -862,6 +817,7 @@ public class DefinitionProblemController extends BaseController {
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
 
                 problemScanLogicf.setId(problemScanLogic.getId());
+                problemScanLogicf.setMatched(problemScanLogic.getMatched());
                 problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
@@ -1583,10 +1539,17 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogicVO.setMatched(matched);
 
         /* 如果 Ln Cn 不为 null  和  "null"  则  为 0,0 格式 则 需要分割*/
-        if (problemScanLogic.getRelativePosition()!=null && problemScanLogic.getRelativePosition().equals("null")){
+        if (problemScanLogic.getRelativePosition()!=null && !(problemScanLogic.getRelativePosition().equals("null"))){
             String relativePosition = problemScanLogic.getRelativePosition();
             String[] relativePositionSplit = relativePosition.split(",");
             relative = relativePositionSplit[0];
+            // todo
+            if (problemScanLogic.getMatched()!=null && problemScanLogic.getMatched().indexOf("present")!=-1){
+                relative = relative +"&present";
+            }
+            if (problemScanLogic.getMatched()!=null && problemScanLogic.getMatched().indexOf("full")!=-1){
+                relative = relative +"&full";
+            }
             position = relativePositionSplit[1];
         }
 
