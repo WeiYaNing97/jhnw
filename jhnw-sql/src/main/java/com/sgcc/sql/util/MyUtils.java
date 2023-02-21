@@ -553,7 +553,7 @@ public class MyUtils {
                 }
 
                 //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度  6
-                if ((split_String.length - word_length)  <  integer){
+                if ((split_String.length - word_length)  <  integer || integer < 0){
                     return null;
                 }
 
