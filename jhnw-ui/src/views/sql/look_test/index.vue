@@ -116,14 +116,19 @@
               </el-form-item>
             </div>
             <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block">
+              <el-form-item label="匹配:" class="strongW"></el-form-item>
               <el-form-item label="位置">
-                <el-select v-model="item.relative" filterable allow-create placeholder="当前行" style="width: 110px">
+                <el-select v-model="item.relativeTest" @change="relType" filterable allow-create placeholder="当前行" style="width: 110px">
                   <el-option label="当前位置" value="present"></el-option>
                   <el-option label="全文起始" value="full"></el-option>
                   <el-option label="自定义行" value="" disabled></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
+              <el-form-item class="blockW">
+                <el-radio v-model="item.relativeType" label="present">按行匹配</el-radio>
+                <el-radio v-model="item.relativeType" label="full">全文匹配</el-radio>
+              </el-form-item>
+              <el-form-item label="内容" style="width: 170px" :prop="'dynamicItem.' + index + '.matchContent'">
                 <el-input v-model="item.matchContent"></el-input>
               </el-form-item>
 <!--              <el-form-item label="光标位置">-->
@@ -541,6 +546,9 @@ export default {
               if (eeee.action === '取词'){
                   eeee.length = `${eeee.length1}${eeee.classify}`
               }
+              if (eeee.targetType == 'match'){
+                  this.$set(eeee,'relative',eeee.relativeTest + '&' + eeee.relativeType)
+              }
               this.$set(eeee,'pageIndex',thisIndex+1)
               if (eeee.targetType == 'takeword'){
                   const takeWordt = useForm.indexOf(eeee)
@@ -887,11 +895,14 @@ export default {
                               this.huichasss.push(chae)
                           } else if (chae.matched.indexOf('匹配') != -1) {
                               this.$set(chae, 'targetType', 'match')
-                              if (chae.matched.indexOf('精确匹配') != -1){
-                                  this.$set(chae, 'matched', '精确匹配')
-                              }else {
-                                  this.$set(chae, 'matched', '模糊匹配')
-                              }
+                              // if (chae.matched.indexOf('精确匹配') != -1){
+                              //     this.$set(chae, 'matched', '精确匹配')
+                              // }else {
+                              //     this.$set(chae, 'matched', '模糊匹配')
+                              // }
+                              var strList = chae.relative.split('&')
+                              this.$set(chae,'relativeTest',strList[0])
+                              this.$set(chae,'relativeType',strList[1])
                               this.huichasss.push(chae)
                               this.allOne.push(chae.onlyIndex)
                           } else if (chae.matched === '全文模糊匹配') {
@@ -1097,6 +1108,20 @@ export default {
       chadingyi(){
           alert()
       },
+      //全文、按行联动
+      relType(){
+          this.forms.dynamicItem.forEach(e=>{
+              if (e.targetType == 'match'){
+                  if (e.relativeTest == 'full'){
+                      this.$set(e,'relativeType','full')
+                  }else if (e.relative == 'present'){
+                      this.$set(e,'relativeType','present')
+                  }else {
+                      this.$set(e,'relativeType','present')
+                  }
+              }
+          })
+      },
       //添加表单项
       addItem(type,item){
           const thisData = Date.now()
@@ -1114,7 +1139,8 @@ export default {
           if(type == 'match'){
               this.$set(item1,'matched','精确匹配')
               this.$set(item1,'trueFalse','成功')
-              this.$set(item1,'relative','present')
+              this.$set(item1,'relativeTest','present')
+              this.$set(item1,'relativeType','present')
               const item2 = {
                   targetType:'failed',
                   onlyIndex:thisData
@@ -1221,9 +1247,20 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
   .el-form-item{
     margin-top: 5px;
     margin-bottom: 5px;
+  }
+  >>> label{
+    font-weight: normal;
+  }
+  >>> .strongW label{
+    font-weight: 700;
+    padding-right: 0;
+  }
+  >>> .blockW label{
+    display: block;
+    margin-right: 5px;
   }
 </style>
