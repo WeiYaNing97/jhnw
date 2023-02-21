@@ -624,12 +624,13 @@ public class DefinitionProblemController extends BaseController {
         /*精确、模糊 匹配*/
         if (hashMap.get("matched")!=null){
             /** 相对位置 */
-            if (hashMap.get("relative").indexOf(":")!=-1){
+            if (hashMap.get("relative").indexOf("&")!=-1){
                 /* 位置 : 按行和全文 */
-                String[] relatives = hashMap.get("relative").split(":");
+                String[] relatives = hashMap.get("relative").split("&");
                 hashMap.put("relativePosition", relatives[0] +","+hashMap.get("position"));
+            }else {
+                hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
             }
-            hashMap.put("relativePosition",hashMap.get("relative")+","+hashMap.get("position"));
         }
 
         /*如果下一条分析数据为命令时 则 下一条ID  赋值给 命令ID*/
@@ -678,9 +679,9 @@ public class DefinitionProblemController extends BaseController {
 
             /*精确匹配*/
             /*如果 relative  */
-            if (hashMap.get("relative").indexOf(":")!=-1){
+            if (hashMap.get("relative").indexOf("&")!=-1){
                 /* 位置 ：按行和全文*/
-                String[] relatives = hashMap.get("relative").split(":");
+                String[] relatives = hashMap.get("relative").split("&");
                 problemScanLogic.setMatched(hashMap.get("matched") + relatives[1]);
             }else {
                 problemScanLogic.setMatched(hashMap.get("matched"));
