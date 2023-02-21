@@ -1551,6 +1551,9 @@ public class SwitchInteraction {
         不为空则，分析逻辑数据通过problemScanLogicList来存储。
         如果为空，则需要查询数据库。都是通过ID来获取具体分析逻辑数据。*/
         //控制台输出 分析表 分析ID
+        /**
+         * 判断是通过数据表获取逻辑 还是 前端传输逻辑
+         */
         System.err.print("\r\n执行分析ID:\r\n"+id+"\r\n");
         ProblemScanLogic problemScanLogic = null;
         if (problemScanLogicList == null){
@@ -1569,6 +1572,9 @@ public class SwitchInteraction {
 
         //如果循环ID不为空的话 说明 分析数据为循环分析 则 需要调出循环ID 当做 当前分析ID 继续执行
         //循环分析数据 不需要分析 功能指向循环位置
+        /**
+         * 判断是否是循环逻辑 并处理循环逻辑
+         */
         if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
             //比较循环次数和最大循环测试
             loop = loop +1;
@@ -1594,6 +1600,9 @@ public class SwitchInteraction {
         // todo 打算修改的 ProblemId  问题
         //如果 问题索引字段 不为空 null 则 说明  分析数据 是 分析出问题或者可以结束了
         // problemScanLogic.getProblemId() 可以为 有问题(前端显示:异常) 无问题(前端显示:安全) 完成
+        /**
+         * 是否有问题
+         */
         if (problemScanLogic.getProblemId()!=null){
             //有问题 无问题
             /*查看问题ID(ProblemId)字段。如果该字段不为空，则分析出问题了。
@@ -1611,12 +1620,6 @@ public class SwitchInteraction {
                         e.printStackTrace();
                     }
                 }
-
-                /*try {
-                    Thread.sleep(1000*3);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
 
                 //问题数据 插入问题表 如果有参数 及插入
                 //insertvalueInformationService(user_String,user_Object, totalQuestionTable,problemScanLogic,current_Round_Extraction_String);
@@ -1693,32 +1696,11 @@ public class SwitchInteraction {
             String[] relativePosition_split = relativePosition.split(",");
             //相对位置行
             relativePosition_line = relativePosition_split[0];
+
             matching_logic = matching_logic+relativePosition_line;
+
             //相对位置列
             relativePosition_row = relativePosition_split[1];
-        }
-        //分析数据 的 关键字
-        String matchContent = "";
-        if (problemScanLogic.getMatchContent()!=null){
-            matchContent = problemScanLogic.getMatchContent();
-            matchContent = matchContent.trim();
-        }
-
-        //标定从第line_n开始扫描
-        //相对位置行 relativePosition_line
-        //分析数据 相对位置为空 或者 line_n !=0 不为0
-        //relativePosition_line = "null" 则从头开始匹配
-        //如果 !relativePosition_line.equals("null")  则 根据 relativePosition_line 行来分析
-        if ((!relativePosition_line.equals("") || line_n !=0)
-                && (!relativePosition_line.equals("full") && !relativePosition_line.equals("present"))){
-            int line_number = 0;
-            if (!relativePosition_line.equals("")){
-                line_number = Integer.valueOf(relativePosition_line).intValue();
-            }
-            //line_n 为上一条分析的 成功确认索引  加 下一条相对位置 就是下一个索引位置
-            line_n = line_n + line_number;
-        }else {
-            line_n = 0 ;
         }
 
         //匹配逻辑
@@ -1726,9 +1708,16 @@ public class SwitchInteraction {
         if (problemScanLogic.getMatched()!=null){
             matched = problemScanLogic.getMatched();
             matching_logic = matched.substring(4,matched.length()) + "&" +matching_logic;
+            matched = matched.substring(0,4);
         }
 
-        System.err.println("\r\n"+matching_logic+"\r\n");
+
+        //分析数据 的 关键字
+        String matchContent = "";
+        if (problemScanLogic.getMatchContent()!=null){
+            matchContent = problemScanLogic.getMatchContent();
+            matchContent = matchContent.trim();
+        }
 
         //取词逻辑
         String action = null;
@@ -1742,20 +1731,63 @@ public class SwitchInteraction {
             compare = problemScanLogic.getCompare();
         }
 
-        /* todo 返回第0行*/
-        /*记录返回 第0行 之前的光标*/
+        /* 记录光标位置 */
         int frontMarker = 0;
-        if (matched != null && matched.indexOf("full") != -1){
-            matched = matched.substring(0,4);
-            frontMarker = line_n;
-            line_n = 0 ;
-        }else if (matched != null && matched.indexOf("present") != -1){
-            matched = matched.substring(0,4);
-        }
 
-        if (action != null && action.indexOf("full") != -1 && !(relativePosition_line.equals(""))){
+        /**
+         * 取词 ：相对于第一行取词
+         */
+        if (action != null && action.indexOf("full") != -1){
             frontMarker = line_n;
             line_n = Integer.valueOf(relativePosition_line).intValue();
+        }else if (action != null && action.indexOf("present") != -1){
+            int line_number = Integer.valueOf(relativePosition_line).intValue();
+            line_n = line_n + line_number;
+        }
+
+        if (matched != null){
+           /*
+                全文按行  &   relative
+
+            * full&full
+            * full&present
+            * present&present
+            * present&full
+
+            * full&N
+            * present&N
+            */
+            switch(matching_logic){
+                case "full&full" : //从第一行 全文扫描
+                    frontMarker = line_n;
+                    line_n = 1;
+                    break;
+                case "full&present":     //从当前行 全文扫描
+                case "present&present":  //只匹配当前行
+                    frontMarker = line_n;
+                    line_n = line_n;
+                    break;
+                case "present&full":     //全文匹配 当前行 无意义
+                    break;
+                default:
+                    String[] matching_logic_split = matching_logic.split("&");
+                    if (matching_logic_split.length == 2){
+                        int line_num = Integer.valueOf(matching_logic_split[1]).intValue();
+                        if (matching_logic.indexOf("full&") == -1) {
+                            if (matching_logic.indexOf("present&")!=-1){// 匹配 第N行
+                                frontMarker = line_n;
+                                line_n = line_n + line_num;
+                            }
+                        } else {// 从 第N行全文匹配
+                            frontMarker = line_n;
+                            line_n = line_num;
+                        }
+                    }
+                    if (relativePosition.equals("null")){
+                        frontMarker = line_n;
+                        line_n = line_n;
+                    }
+            }
         }
 
 
@@ -1803,9 +1835,8 @@ public class SwitchInteraction {
 
                     //relativePosition.equals("null") 全文检索
                     // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
-                    if ((problemScanLogic.getMatched().indexOf("present") != -1
-                            || problemScanLogic.getMatched().indexOf("full") != -1
-                            || problemScanLogic.getRelativePosition().indexOf("ull") != -1 )
+                    if ((matching_logic.indexOf("full&")!=-1
+                            || problemScanLogic.getRelativePosition().indexOf("null") != -1 )
                             && num<return_information_array.length-1){
                         continue;
                     }
@@ -1861,8 +1892,10 @@ public class SwitchInteraction {
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
                 if (wordSelection_string == null){
 
-                    /*取词逻辑失败 光标返回 回到0行之前位置 */
-                    line_n  =  frontMarker;
+                    if (action.indexOf("full") != -1){
+                        /*取词逻辑失败 光标返回 回到0行之前位置 */
+                        line_n  =  frontMarker;
+                    }
 
                     //  自定义   问题
                     WebSocketService.sendMessage(loginUser.getUsername(),"TrueAndFalse:"+user_String.get("ip")+  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
