@@ -145,7 +145,7 @@
         <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
           <el-form-item label="匹配:" class="strongW"></el-form-item>
           <el-form-item label="位置">
-            <el-select v-model="item.relativeTest" @change="relType" filterable allow-create placeholder="当前位置" style="width: 110px">
+            <el-select v-model="item.relativeTest" @change="relType(item)" filterable allow-create placeholder="当前位置" style="width: 110px">
               <el-option label="当前位置" value="present"></el-option>
               <el-option label="全文起始" value="full"></el-option>
               <el-option label="自定义行" value="" disabled></el-option>
@@ -253,7 +253,7 @@
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
           <el-form-item label="取参:" class="strongW"></el-form-item>
           <el-form-item label="位置">
-            <el-select v-model="item.cursorRegion" filterable allow-create placeholder="当前位置" style="width: 110px">
+            <el-select v-model="item.cursorRegion" placeholder="当前位置" style="width: 110px">
               <el-option label="当前位置" value="0"></el-option>
               <el-option label="全文起始" value="1"></el-option>
 <!--              <el-option label="自定义行" value="ding" disabled></el-option>-->
@@ -333,14 +333,14 @@
 <!--              <el-dropdown-item>-->
 <!--                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>-->
 <!--              </el-dropdown-item>-->
-              <el-dropdown-item>
-                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>
-              </el-dropdown-item>
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>-->
+<!--              </el-dropdown-item>-->
 <!--              <el-dropdown-item>-->
 <!--                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>-->
 <!--              </el-dropdown-item>-->
               <el-dropdown-item>
-                <el-button @click="addItem('takeword',item)" type="primary">取词</el-button>
+                <el-button @click="addItem('takeword',item)" type="primary">取参</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button @click="addItem('analyse',item)" type="primary">分析比较</el-button>
@@ -359,8 +359,7 @@
       <el-form-item>
 <!--        <el-button @click="tijiao" type="primary">提交</el-button>-->
         <el-button @click="subProblem" type="primary">提交</el-button>
-
-        <el-button @click="testAll" type="primary">测试</el-button>
+<!--        <el-button @click="testAll" type="primary">测试</el-button>-->
 <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
 <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
       </el-form-item>
@@ -428,6 +427,8 @@ export default {
     },
   data() {
     return {
+        //联动
+        clickLine:'',
         keys:1,
         //帮助
         whelp:'',
@@ -1282,9 +1283,10 @@ export default {
           return num
       },
       //全文、按行匹配 联动
-      relType(){
+      relType(item){
+          this.clickLine = item.onlyIndex
           this.forms.dynamicItem.forEach(e=>{
-              if (e.targetType == 'match'){
+              if (e.targetType == 'match' && e.onlyIndex == this.clickLine){
                   if (e.relativeTest == 'full'){
                       this.$set(e,'relativeType','full')
                   }else if (e.relative == 'present'){

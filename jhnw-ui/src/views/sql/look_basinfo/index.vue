@@ -41,7 +41,7 @@
         <el-form-item :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
         <div v-if="item.targetType === 'command'" :key="index"
              style="display: inline-block">
-          <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
+          <el-form-item label="命令：" class="strongW" :prop="'dynamicItem.' + index + '.command'">
             <el-input v-model="item.command"></el-input>
           </el-form-item>
           <el-form-item label="命令校验">
@@ -54,9 +54,20 @@
             <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'match'" :key="index"
-             style="display: inline-block">
-          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
+        <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block">
+          <el-form-item label="匹配:" class="strongW"></el-form-item>
+          <el-form-item label="位置">
+            <el-select v-model="item.relativeTest" filterable allow-create placeholder="当前位置" style="width: 110px">
+              <el-option label="当前位置" value="present"></el-option>
+              <el-option label="全文起始" value="full"></el-option>
+              <el-option label="自定义行" value="" disabled></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item class="blockW">
+            <el-radio v-model="item.relativeType" label="present">按行匹配</el-radio>
+            <el-radio v-model="item.relativeType" label="full">全文匹配</el-radio>
+          </el-form-item>
+          <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
             <el-input v-model="item.matchContent"></el-input>
           </el-form-item>
           <el-form-item label="True"></el-form-item>
@@ -64,7 +75,7 @@
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
-        <div v-else-if="item.targetType === 'failed'" style="display: inline-block;padding-left:308px">
+        <div v-else-if="item.targetType === 'failed'" style="display: inline-block;padding-left:546px">
           <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -111,7 +122,7 @@
         </div>
         <div v-else-if="item.targetType === 'wloop'" :key="index"
              style="display: inline-block">
-          <el-form-item label="循环" :prop="'dynamicItem.' + index + '.cycleStartId'">
+          <el-form-item label="循环：" class="strongW" :prop="'dynamicItem.' + index + '.cycleStartId'">
             <el-input v-model="item.cycleStartId" style="width: 150px"></el-input>
           </el-form-item>
           <el-form-item>
@@ -119,14 +130,21 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
-          <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
-            <el-input v-model="item.relative" style="width: 80px" placeholder="第几行"></el-input> --
-
-            <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-            <el-input v-model="item.length1" style="width: 80px" placeholder="几个词"></el-input>
+          <el-form-item label="取参：" class="strongW"></el-form-item>
+          <el-form-item label="位置">
+            <el-select v-model="item.cursorRegion" filterable allow-create placeholder="当前位置" style="width: 110px">
+              <el-option label="当前位置" value="0"></el-option>
+              <el-option label="全文起始" value="1"></el-option>
+              <!--              <el-option label="自定义行" value="ding" disabled></el-option>-->
+            </el-select>
+          </el-form-item>
+          <el-form-item :prop="'dynamicItem.' + index + '.takeword'">
+            <el-input v-model="item.relative" style="width: 80px" placeholder="行偏移"></el-input> --
+            <el-input v-model="item.rPosition" style="width: 80px" placeholder="列偏移"></el-input> --
+            <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
             <el-select v-model="item.classify" placeholder="单词/行" style="width: 80px">
-              <el-option label="单词" value="W"></el-option>
-              <el-option label="字母" value="L"></el-option>
+              <el-option label="词汇" value="W"></el-option>
+              <el-option label="单字" value="L"></el-option>
               <el-option label="字符串" value="S"></el-option>
             </el-select>
           </el-form-item>
@@ -143,7 +161,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
-          <el-form-item label="比较" v-show="bizui">
+          <el-form-item label="比较：" class="strongW" v-show="bizui">
             <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
           </el-form-item>
           <el-form-item label="比较" v-show="bixiala">
@@ -165,7 +183,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
-          <el-form-item label="有无问题">
+          <el-form-item label="异常：" class="strongW">
             <el-select v-model="item.tNextId" filterable allow-create placeholder="异常、安全、完成、自定义">
               <el-option label="异常" value="有问题"></el-option>
               <el-option label="安全" value="无问题"></el-option>
@@ -177,40 +195,40 @@
           </el-form-item>
         </div>
 
-        <el-form-item>
-          <el-dropdown trigger="click">
-            <el-button type="primary"><i class="el-icon-plus"></i></el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>
-                <el-button @click="addItem('command',item)" type="primary">命令</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('match',item)" type="primary">全文精确匹配</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('takeword',item)" type="primary">取词</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('analyse',item)" type="primary">分析比较</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('wloop',item)" type="primary">循环位置</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('prodes',item)" type="primary">问题名称</el-button>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </el-form-item>
+<!--        <el-form-item>-->
+<!--          <el-dropdown trigger="click">-->
+<!--            <el-button type="primary"><i class="el-icon-plus"></i></el-button>-->
+<!--            <el-dropdown-menu slot="dropdown">-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('command',item)" type="primary">命令</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('match',item)" type="primary">全文精确匹配</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('takeword',item)" type="primary">取词</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('analyse',item)" type="primary">分析比较</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('wloop',item)" type="primary">循环位置</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('prodes',item)" type="primary">问题名称</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--            </el-dropdown-menu>-->
+<!--          </el-dropdown>-->
+<!--        </el-form-item>-->
       </div>
 
 <!--      <el-form-item>-->
@@ -493,8 +511,11 @@
                                     this.$set(chae,'resultCheckId','常规校验')
                                 }
                                 this.huicha.push(chae)
-                            }else if (chae.matched === '全文精确匹配'){
+                            }else if (chae.matched.indexOf('匹配') != -1 && chae.trueFalse == '成功'){
                                 this.$set(chae,'targetType','match')
+                                var strList = chae.relative.split('&')
+                                this.$set(chae,'relativeTest',strList[0])
+                                this.$set(chae,'relativeType',strList[1])
                                 this.huicha.push(chae)
                                 // this.hangjf = chae.onlyIndex
                                 this.allOne.push(chae.onlyIndex)
@@ -734,9 +755,20 @@
     };
 </script>
 
-<style>
+<style scoped>
   .el-form-item{
     margin-top: 10px;
     margin-bottom: 10px;
+  }
+  >>> label{
+    font-weight: normal;
+  }
+  >>> .strongW label{
+    font-weight: 700;
+    padding-right: 0;
+  }
+  >>> .blockW label{
+    display: block;
+    margin-right: 5px;
   }
 </style>
