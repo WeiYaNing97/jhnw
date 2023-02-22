@@ -60,7 +60,7 @@
         <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
         <div v-if="item.targetType === 'command'" :key="index"
              style="display: inline-block">
-          <el-form-item label="命令" :prop="'dynamicItem.' + index + '.command'">
+          <el-form-item label="命令:" class="strongW" :prop="'dynamicItem.' + index + '.command'">
             <el-input v-model="item.command"></el-input>
           </el-form-item>
           <el-form-item label="命令校验">
@@ -74,22 +74,34 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
-          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">
-            <el-input v-model="item.matchContent"></el-input>
-          </el-form-item>
-          <el-form-item label="光标位置">
-            <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
-              <el-option label="当前行" value="0"></el-option>
-              <el-option label="第一行" value="1"></el-option>
+          <el-form-item label="匹配:" class="strongW"></el-form-item>
+          <el-form-item label="位置">
+            <el-select v-model="item.relativeTest" @change="relType(item)" filterable allow-create placeholder="当前位置" style="width: 110px">
+              <el-option label="当前位置" value="present"></el-option>
+              <el-option label="全文起始" value="full"></el-option>
+              <el-option label="自定义行" value="" disabled></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item class="blockW">
+            <el-radio v-model="item.relativeType" label="present">按行匹配</el-radio>
+            <el-radio v-model="item.relativeType" label="full">全文匹配</el-radio>
+          </el-form-item>
+          <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
+            <el-input v-model="item.matchContent"></el-input>
+          </el-form-item>
+<!--          <el-form-item label="光标位置">-->
+<!--            <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">-->
+<!--              <el-option label="当前行" value="0"></el-option>-->
+<!--              <el-option label="第一行" value="1"></el-option>-->
+<!--            </el-select>-->
+<!--          </el-form-item>-->
           <el-form-item label="True">{{ "\xa0" }}</el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'matchfal'"
-             style="display: inline-block;padding-left:515px">
+             style="display: inline-block;padding-left:549px">
           <el-form-item label="False"></el-form-item>
           <el-form-item style="visibility: hidden">
             <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
@@ -97,7 +109,7 @@
         </div>
         <div v-else-if="item.targetType === 'wloop'" :key="index"
              style="display: inline-block">
-          <el-form-item label="循环" :prop="'dynamicItem.' + index + '.cycleStartId'">
+          <el-form-item label="循环：" class="strongW" :prop="'dynamicItem.' + index + '.cycleStartId'">
             <el-input v-model="item.cycleStartId" style="width: 150px"
                       clearable @focus="shaxun"></el-input>
             <!--              disabled="true"-->
@@ -166,14 +178,21 @@
         </div>
 
         <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
-          <el-form-item label="取词" :prop="'dynamicItem.' + index + '.takeword'">
-            <el-input v-model="item.relative" style="width: 80px" placeholder="第几行"></el-input> --
-
-            <el-input v-model="item.rPosition" style="width: 80px" placeholder="第几个"></el-input> --
-            <el-input v-model="item.length1" style="width: 80px" placeholder="几个"></el-input>
-            <el-select v-model="item.classify" @change="reloadv" placeholder="单词/行" style="width: 80px">
-              <el-option label="单词" value="W"></el-option>
-              <el-option label="字母" value="L"></el-option>
+          <el-form-item label="取参:" class="strongW"></el-form-item>
+          <el-form-item label="位置">
+            <el-select v-model="item.cursorRegion" placeholder="当前位置" style="width: 110px">
+              <el-option label="当前位置" value="0"></el-option>
+              <el-option label="全文起始" value="1"></el-option>
+              <!--              <el-option label="自定义行" value="ding" disabled></el-option>-->
+            </el-select>
+          </el-form-item>
+          <el-form-item :prop="'dynamicItem.' + index + '.takeword'">
+            <el-input v-model="item.relative" style="width: 80px" placeholder="行偏移"></el-input> --
+            <el-input v-model="item.rPosition" style="width: 80px" placeholder="列偏移"></el-input> --
+            <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
+            <el-select v-model="item.classify" @change="reloadv" placeholder="词汇/单字/字符串" style="width: 80px">
+              <el-option label="词汇" value="W"></el-option>
+              <el-option label="单字" value="L"></el-option>
               <el-option label="字符串" value="S"></el-option>
             </el-select>
           </el-form-item>
@@ -208,7 +227,7 @@
           </el-form-item>
         </div>
         <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
-          <el-form-item label="比较" v-show="bizui">
+          <el-form-item label="比较：" class="strongW" v-show="bizui">
             <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
           </el-form-item>
           <el-form-item label="比较" v-show="bixiala">
@@ -231,7 +250,7 @@
         </div>
 
         <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
-          <el-form-item label="有无问题">
+          <el-form-item label="异常：" class="strongW">
             <!--            prop="'dynamicItem.' + index + '.prodes'"-->
             <!--            <el-input v-model="item.prodes"></el-input>-->
             <el-select v-model="item.tNextId" filterable allow-create placeholder="异常、安全、完成、自定义">
@@ -253,19 +272,19 @@
 <!--                <el-button @click="addItem('command',item)" type="primary">命令</el-button>-->
 <!--              </el-dropdown-item>-->
               <el-dropdown-item>
-                <el-button @click="addItem('match',item,index)" type="primary">全文精确匹配</el-button>
+                <el-button @click="addItem('match',item,index)" type="primary">匹配</el-button>
               </el-dropdown-item>
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>-->
+<!--              </el-dropdown-item>-->
+<!--              <el-dropdown-item>-->
+<!--                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>-->
+<!--              </el-dropdown-item>-->
               <el-dropdown-item>
-                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('takeword',item)" type="primary">取词</el-button>
+                <el-button @click="addItem('takeword',item)" type="primary">取参</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button @click="addItem('analyse',item)" type="primary">分析比较</el-button>
@@ -661,6 +680,21 @@
                 num = num.toString()
                 return num
             },
+            //全文、按行匹配 联动
+            relType(){
+                this.clickLine = item.onlyIndex
+                this.forms.dynamicItem.forEach(e=>{
+                    if (e.targetType == 'match' && e.onlyIndex == this.clickLine){
+                        if (e.relativeTest == 'full'){
+                            this.$set(e,'relativeType','full')
+                        }else if (e.relative == 'present'){
+                            this.$set(e,'relativeType','present')
+                        }else {
+                            this.$set(e,'relativeType','present')
+                        }
+                    }
+                })
+            },
             //添加表单项
             addItem(type,item,index){
                 const thisData = Date.now()
@@ -678,9 +712,11 @@
                 // this.$set(item,'nextIndex',thisData)
                 if(type == 'match'){
                     this.$refs.btn[thisIndex].labelss = '测试我'
-                    this.$set(item1,'matched','全文精确匹配')
-                    this.$set(item1,'cursorRegion','0')
+                    this.$set(item1,'matched','精确匹配')
+                    // this.$set(item1,'cursorRegion','0')
                     this.$set(item1,'trueFalse','成功')
+                    this.$set(item1,'relativeTest','present')
+                    this.$set(item1,'relativeType','present')
                     // alert(event.target.getAttribute('label'))
                     if (item.trueFalse === '成功'){
                         var iii = this.$refs.btn[index].style.paddingLeft
@@ -795,6 +831,9 @@
                         const thisNext = useForm[thisIndex+1]
                         this.$set(eeee,'nextIndex',thisNext.onlyIndex)
                     }
+                    if (eeee.targetType == 'match'){
+                        this.$set(eeee,'relative',eeee.relativeTest + '&' + eeee.relativeType)
+                    }
                     if (eeee.action === '取词'){
                         eeee.length = `${eeee.length1}${eeee.classify}`
                     }
@@ -903,9 +942,20 @@
     };
 </script>
 
-<style>
+<style scoped>
   .el-form-item{
     margin-top: 10px;
     margin-bottom: 10px;
+  }
+  >>> label{
+    font-weight: normal;
+  }
+  >>> .strongW label{
+    font-weight: 700;
+    padding-right: 0;
+  }
+  >>> .blockW label{
+    display: block;
+    margin-right: 5px;
   }
 </style>
