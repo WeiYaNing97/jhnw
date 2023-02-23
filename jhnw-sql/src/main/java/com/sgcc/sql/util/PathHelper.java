@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class PathHelper {
     /* todo  日志路径*/
-    static String logPath = "D:\\jhnwadminlog" ;//Configuration.logPath;
+    static String logPath = "E:\\jhnwadminlog" ;//Configuration.logPath;
     static String logTime = MyUtils.getDate("yyyy-MM-dd");
 
     /**
@@ -26,7 +26,7 @@ public class PathHelper {
         BufferedWriter bw;
         boolean append = true;  //  是否追加
         String path = "";
-        if (!Configuration.logPath.equals("")){
+        if (Configuration.logPath != null && !Configuration.logPath.equals("")){
             path = Configuration.logPath + "\\" +logTime +"log.txt";
         }else {
             path = logPath + "\\" +logTime +"log.txt";

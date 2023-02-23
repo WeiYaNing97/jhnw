@@ -122,8 +122,8 @@ public class ProblemScanLogicController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("获取定义的参数名")
-    @GetMapping("/getParameterNameCollection")
-    public List<String> getParameterNameCollection(Long totalQuestionTableId){
+    @GetMapping("/getParameterNameCollection/{totalQuestionTableId}")
+    public List<String> getParameterNameCollection(@PathVariable Long totalQuestionTableId){
         //根据问题ID 获取问题表数据
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         //如果问题表数据没有定义 扫描命令的ID 则 返回null
