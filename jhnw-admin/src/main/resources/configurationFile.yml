@@ -9,7 +9,7 @@ configuration:
   # 标识符  两个标识符之间以;分阁
   identifier: (TM);®
   # 日志路径
-  logPath: "D:\IdeaProjects\github\beifen\jhnwadminlog"
+  logPath: "E:\\jhnwadminlog"
 
   # 能够获取品牌的命令
   getBrandCommand: dis ver;show version

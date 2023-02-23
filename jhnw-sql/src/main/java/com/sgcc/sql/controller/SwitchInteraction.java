@@ -333,6 +333,7 @@ public class SwitchInteraction {
     @PostMapping("/multipleScans/{scanNum}")
     @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
     public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {//待测
+
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();
         for (String information:switchInformation){
@@ -398,6 +399,8 @@ public class SwitchInteraction {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String ScanningTime = simpleDateFormat.format(new Date());
         LoginUser login = SecurityUtils.getLoginUser();
+
+        WebSocketService.sendMessage("admin","");
 
         //ScanThread.switchLoginInformations(objectsList,ScanningTime,login);
         //线程池

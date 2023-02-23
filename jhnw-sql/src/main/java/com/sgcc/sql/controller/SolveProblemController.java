@@ -98,7 +98,7 @@ public class SolveProblemController {
         List<String> commandLogicStringList = new ArrayList<>();
         for (CommandLogic commandLogic:commandLogicList){
             String string = DefinitionProblemController.commandLogicString(commandLogic);
-            String[] split = string.split(":");
+            String[] split = string.split("=:=");
             System.err.println("\r\n"+split[1]+"\r\n");
             commandLogicStringList.add(split[1]);
         }

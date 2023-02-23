@@ -1,12 +1,15 @@
 package com.sgcc.sql.util;
 
+import com.sgcc.sql.controller.Configuration;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class PathHelper {
-    static String logPath = "E:\\jhnwadminlog" ;//Configuration.logPath;
+    /* todo  日志路径*/
+    static String logPath = "D:\\jhnwadminlog" ;//Configuration.logPath;
     static String logTime = MyUtils.getDate("yyyy-MM-dd");
 
     /**
@@ -22,7 +25,13 @@ public class PathHelper {
         File writefile;
         BufferedWriter bw;
         boolean append = true;  //  是否追加
-        String path = logPath + "\\" +logTime +"log.txt";
+        String path = "";
+        if (!Configuration.logPath.equals("")){
+            path = Configuration.logPath + "\\" +logTime +"log.txt";
+        }else {
+            path = logPath + "\\" +logTime +"log.txt";
+        }
+
         writefile = new File(path);
         if (writefile.exists() == false)   // 判断文件是否存在，不存在则生成
         {

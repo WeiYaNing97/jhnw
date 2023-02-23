@@ -1042,12 +1042,12 @@ public class DefinitionProblemController extends BaseController {
         HashMap<Long,String> hashMap = new HashMap<>();
         for (CommandLogic commandLogic:commandLogicList){
             String commandLogicString = commandLogicString(commandLogic);
-            String[] commandLogicStringsplit = commandLogicString.split(":");
+            String[] commandLogicStringsplit = commandLogicString.split("=:=");
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
         }
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
             String problemScanLogicString = problemScanLogicSting(problemScanLogic,totalQuestionTable.getId()+"");
-            String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
+            String[] problemScanLogicStringsplit = problemScanLogicString.split("=:=");
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
         List<String> stringList = new ArrayList<>();
@@ -1492,7 +1492,7 @@ public class DefinitionProblemController extends BaseController {
         commandLogicVO.setNextIndex(nextIndex);
         commandLogicVO.setPageIndex(pageIndex);
 
-        String commandLogicVOSting =commandLogicVO.getPageIndex()+":"+"{"
+        String commandLogicVOSting =commandLogicVO.getPageIndex()+"=:="+"{"
                 +"\"onlyIndex\"" +"="+ "\""+ commandLogicVO.getOnlyIndex() +"\","
                 +"\"trueFalse\"" +"="+ "\""+ commandLogicVO.getTrueFalse() +"\","
                 +"\"pageIndex\"" +"="+ "\""+ commandLogicVO.getPageIndex() +"\","
@@ -1564,12 +1564,12 @@ public class DefinitionProblemController extends BaseController {
         }
         if (problemScanLogic.getAction()!=null){
             String action = problemScanLogic.getAction();
-            problemScanLogicVO.setAction(action);
-
             if (action.indexOf("full")!=-1){
                 problemScanLogicVO.setCursorRegion("1");
-                problemScanLogic.setAction(action.substring(0,action.length()-4));
+                action=action.replace("full","");
+                problemScanLogic.setAction(action);
             }
+            problemScanLogicVO.setAction(action);
 
             if (!(problemScanLogic.getRelativePosition().equals("null"))){
                 String relativePosition = problemScanLogic.getRelativePosition();
@@ -1667,7 +1667,7 @@ public class DefinitionProblemController extends BaseController {
             problemScanLogicVO.setAction("循环");
         }
 
-        String problemScanLogicVOString = problemScanLogicVO.getPageIndex()+":"+"{"
+        String problemScanLogicVOString = problemScanLogicVO.getPageIndex()+"=:="+"{"
                 +"\"onlyIndex\"" +"="+ "\""+ problemScanLogicVO.getOnlyIndex() +"\","
                 +"\"trueFalse\"" +"="+ "\""+ problemScanLogicVO.getTrueFalse() +"\","
                 +"\"matched\"" +"="+ "\""+ problemScanLogicVO.getMatched() +"\","
@@ -1895,7 +1895,7 @@ public class DefinitionProblemController extends BaseController {
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
             /*因为获取交换机基本信息，故没有 问题ID 为null*/
             String problemScanLogicString = problemScanLogicSting(problemScanLogic,null);
-            String[] problemScanLogicStringsplit = problemScanLogicString.split(":");
+            String[] problemScanLogicStringsplit = problemScanLogicString.split("=:=");
             /*problemScanLogicStringsplit[0] 行号*/
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
