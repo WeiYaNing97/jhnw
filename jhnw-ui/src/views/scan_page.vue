@@ -697,9 +697,9 @@
             //取消扫描
             cancelScan(){
                 MessageBox.confirm('确定取消扫描吗？','提示').then(c=>{
-                    this.scanShow = true
+                    this.reload()
                 }).catch(ee=>{
-                    this.$message.warning('阿斯顿撒大撒大')
+                    this.$message.warning('已取消扫描!')
                 })
             },
             //专项开始扫描

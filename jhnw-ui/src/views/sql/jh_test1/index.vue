@@ -129,13 +129,14 @@
             <el-input v-model="item.command" name="comone" @focus="getName($event)"></el-input>
           </el-form-item>
           <el-form-item label="命令校验">
-<!--            <el-select v-model="jiaoyan" placeholder="校验方式" value="常规校验">-->
+<!--            <el-select v-model="item.jiaoyan" placeholder="校验方式">-->
 <!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
 <!--              <el-option label="自定义校验" value="自定义校验"></el-option>-->
 <!--            </el-select>-->
-            <el-select v-model="item.jiaoyan" placeholder="校验方式">
-              <el-option label="常规校验" value="常规校验" selected></el-option>
-              <el-option label="自定义校验" value="自定义校验"></el-option>
+
+            <el-select v-model="item.resultCheckId" placeholder="校验方式">
+              <el-option label="自定义校验" value="0"></el-option>
+              <el-option label="常规校验" value="1"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -463,7 +464,6 @@ export default {
         who:'',
         helpT:'',
         showha:false,
-        // jiaoyan:'常规校验',
         bizui:false,
         bixiala:true,
         radio:'1',
@@ -1029,11 +1029,6 @@ export default {
                           if (eeee.targetType == 'match'){
                               this.$set(eeee,'relative',eeee.relativeTest + '&' + eeee.relativeType)
                           }
-                          if (eeee.jiaoyan == '常规校验'){
-                              this.$set(eeee,'resultCheckId','1')
-                          }else {
-                              this.$set(eeee,'resultCheckId','0')
-                          }
                           this.$set(eeee,'pageIndex',thisIndex+1)
                           if (eeee.targetType == 'takeword'){
                               const takeWordt = useForm.indexOf(eeee)
@@ -1248,17 +1243,28 @@ export default {
           const cycleId = item.onlyIndex
           console.log(item)
           this.forms.dynamicItem.forEach(cy=>{
-              // if (cy.targetType === 'wloop'){
-              //     this.$set(cy,'cycleStartId',cycleId)
-              // }
               if (cy.hasOwnProperty('cycleStartId') != true && cy.targetType == 'wloop'){
-                  this.$set(cy,'cycleStartId',cycleId)
-                  if (item.relative == 'full'){
-                      alert('有异常')
+                  if (item.relativeTest == 'full'){
+                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
+                          confirmButtonText: '确定',
+                          cancelButtonText: '取消',
+                          type: 'warning'
+                      }).then(() => {
+                          // this.$message({
+                          //     type: 'success',
+                          //     message: '删除成功!'
+                          // });
+                      }).catch(() => {
+                          // this.$message({
+                          //     type: 'info',
+                          //     message: '已取消删除'
+                          // });
+                      });
                   }
+                  this.$set(cy,'cycleStartId',cycleId)
               }else if (cy.cycleStartId == ''){
-                  if (item.relative == 'full'){
-                      this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                  if (item.relativeTest == 'full'){
+                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
                           confirmButtonText: '确定',
                           cancelButtonText: '取消',
                           type: 'warning'
@@ -1313,7 +1319,7 @@ export default {
           console.log(item)
           // this.$set(item,'nextIndex',thisData)
           if (type == 'command'){
-              this.$set(item1,'jiaoyan','自定义校验')
+              this.$set(item1,'resultCheckId','0')
           }
           if(type == 'match'){
               this.$refs.btn[thisIndex].labelss = '测试我'
@@ -1475,16 +1481,6 @@ export default {
               if (eeee.action === '取词'){
                   eeee.length = `${eeee.length1}${eeee.classify}`
               }
-              if (eeee.jiaoyan == '常规校验'){
-                  this.$set(eeee,'resultCheckId','1')
-              }else {
-                  this.$set(eeee,'resultCheckId','0')
-              }
-              // if (this.jiaoyan == '常规校验'){
-              //     this.$set(eeee,'resultCheckId','1')
-              // }else {
-              //     this.$set(eeee,'resultCheckId','0')
-              // }
               this.$set(eeee,'pageIndex',thisIndex+1)
               if (eeee.targetType == 'takeword'){
                   const takeWordt = useForm.indexOf(eeee)

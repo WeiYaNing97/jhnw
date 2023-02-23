@@ -46,8 +46,8 @@
           </el-form-item>
           <el-form-item label="命令校验">
             <el-select v-model="item.resultCheckId" placeholder="校验方式">
-              <el-option label="常规校验" value="1"></el-option>
               <el-option label="自定义校验" value="0"></el-option>
+              <el-option label="常规校验" value="1"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -505,11 +505,6 @@
                         this.fDa.forEach(chae=>{
                             if (chae.hasOwnProperty('command') == true){
                                 this.$set(chae,'targetType','command')
-                                if (chae.resultCheckId === 0){
-                                    this.$set(chae,'resultCheckId','自定义校验')
-                                }else  if (chae.resultCheckId === 1){
-                                    this.$set(chae,'resultCheckId','常规校验')
-                                }
                                 this.huicha.push(chae)
                             }else if (chae.matched.indexOf('匹配') != -1 && chae.trueFalse == '成功'){
                                 this.$set(chae,'targetType','match')
@@ -546,7 +541,7 @@
                                     this.$set(chae,'targetType','failedB')
                                 }
                                 this.huicha.push(chae)
-                            }else if (chae.action === '取词'){
+                            }else if (chae.action.indexOf('取词') != -1){
                                 this.$set(chae,'targetType','takeword')
                                 // console.log(chae.length.slice(chae.length.length-1))
                                 if (chae.length.slice(chae.length.length-1) === 'W'){

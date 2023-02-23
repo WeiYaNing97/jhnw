@@ -107,8 +107,8 @@
               </el-form-item>
               <el-form-item label="命令校验">
                 <el-select v-model="item.resultCheckId" placeholder="校验方式">
-                  <el-option label="常规校验" value="1"></el-option>
                   <el-option label="自定义校验" value="0"></el-option>
+                  <el-option label="常规校验" value="1"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item>
@@ -351,6 +351,8 @@ export default {
   inject:["reload"],
   data() {
     return {
+        //联动
+        clickLine:'',
         //右侧返回个数
         lieNum:0,
         //全文、按行、比较
@@ -739,13 +741,25 @@ export default {
       //循环项获取index
       wcycle(item,event){
           const cycleId = item.onlyIndex
+          console.log(item)
           this.forms.dynamicItem.forEach(cy=>{
-              // if (cy.targetType === 'wloop'){
-              //     this.$set(cy,'cycleStartId',cycleId)
-              // }
               if (cy.hasOwnProperty('cycleStartId') != true && cy.targetType == 'wloop'){
+                  if (item.relativeTest == 'full'){
+                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
+                          confirmButtonText: '确定',
+                          cancelButtonText: '取消',
+                          type: 'warning'
+                      }).then(() => {}).catch(() => {});
+                  }
                   this.$set(cy,'cycleStartId',cycleId)
               }else if (cy.cycleStartId == ''){
+                  if (item.relativeTest == 'full'){
+                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
+                          confirmButtonText: '确定',
+                          cancelButtonText: '取消',
+                          type: 'warning'
+                      }).then(() => {}).catch(() => {});
+                  }
                   this.$set(cy,'cycleStartId',cycleId)
               }
           })
@@ -779,11 +793,6 @@ export default {
                   this.fDa.forEach(chae=>{
                       if (chae.hasOwnProperty('command') == true){
                           this.$set(chae,'targetType','command')
-                          if (chae.resultCheckId === 0){
-                              this.$set(chae,'resultCheckId','自定义校验')
-                          }else  if (chae.resultCheckId === 1){
-                              this.$set(chae,'resultCheckId','常规校验')
-                          }
                           this.huichasss.push(chae)
                       }else if (chae.matched === '全文精确匹配'){
                           this.$set(chae,'targetType','match')
@@ -889,19 +898,9 @@ export default {
                       this.fDa.forEach(chae => {
                           if (chae.hasOwnProperty('command') == true) {
                               this.$set(chae, 'targetType', 'command')
-                              if (chae.resultCheckId === 0) {
-                                  this.$set(chae, 'resultCheckId', '自定义校验')
-                              } else if (chae.resultCheckId === 1) {
-                                  this.$set(chae, 'resultCheckId', '常规校验')
-                              }
                               this.huichasss.push(chae)
                           } else if (chae.matched.indexOf('匹配') != -1 && chae.trueFalse == '成功') {
                               this.$set(chae, 'targetType', 'match')
-                              // if (chae.matched.indexOf('精确匹配') != -1){
-                              //     this.$set(chae, 'matched', '精确匹配')
-                              // }else {
-                              //     this.$set(chae, 'matched', '模糊匹配')
-                              // }
                               var strList = chae.relative.split('&')
                               this.$set(chae,'relativeTest',strList[0])
                               this.$set(chae,'relativeType',strList[1])
@@ -925,7 +924,6 @@ export default {
                               this.bixiala = false
                               this.huichasss.push(chae)
                           } else if (chae.action.indexOf('取词') != -1) {
-                              console.log(chae)
                               this.$set(chae, 'targetType', 'takeword')
                               if (chae.length.slice(chae.length.length - 1) === 'W') {
                                   this.$set(chae, 'classify', 'W')

@@ -660,13 +660,13 @@
                         console.log('ws建立连接失败')
                         this.wsInit()
                     }
-                }, 300000)
+                }, 3000)
             },
             wsOpenHanler(event) {
                 console.log('ws建立连接成功')
             },
             wsMessageHanler(e) {
-                console.log('wsMessageHanler')
+                console.log(e)
                 function changeTreeDate(arrayJsonObj,oldKey,newKey) {
                     let strtest = JSON.stringify(arrayJsonObj);
                     let reg = new RegExp(oldKey,'g');

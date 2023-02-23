@@ -164,8 +164,7 @@
                 console.log('ws建立连接成功')
             },
             wsMessageHanler(e) {
-                // console.log('wsMessageHanler')
-
+                console.log(e)
                 if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){
                     this.textareaOne = this.textareaOne + e.data
                 }else if (e.data.indexOf('系统信息') != -1){
@@ -184,7 +183,6 @@
                     return res
                 }
                 this.ipEnd = getCaption(this.saoendip)
-                console.log(this.ipEnd)
                 // this.textarea = this.textarea + e.data;
                 this.$nextTick(()=>{
                     // const textarea = document.getElementById('webt')

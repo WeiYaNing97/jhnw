@@ -1,36 +1,6 @@
 <template>
   <!--  <div class="app-container" @contextmenu="showMenu">-->
   <div class="app-container">
-    <el-form ref="form" :model="form" :rules="rules" :inline="true" v-show="showOrYu">
-      <el-form-item label="ip" prop="ip">
-        <el-input v-model="form.ip" style="width: 150px" size="small" placeholder="请输入ip" />
-      </el-form-item>
-      <el-form-item label="用户名" prop="name">
-        <el-input v-model="form.name" style="width: 120px" placeholder="请输入用户名" />
-      </el-form-item>
-      <el-form-item label="密码" prop="password">
-<!--        <el-input v-model="form.password" type="password" scrollHeight style="width: 150px" placeholder="请输入密码" />-->
-        <el-input v-model="form.password" type="password" style="width: 150px" placeholder="请输入密码" />
-      </el-form-item>
-      <el-form-item label="方式" prop="mode">
-        <el-select v-model="form.mode" placeholder="方式" style="width: 100px">
-          <el-option label="ssh" value="ssh"></el-option>
-          <el-option label="telnet" value="telnet"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="端口号" prop="port">
-        <el-input v-model="form.port" style="width: 66px" placeholder="" />
-      </el-form-item>
-      <el-form-item label="配置密码" prop="configureCiphers">
-        <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
-      </el-form-item>
-      <br/>
-      <el-button type="primary" size="small" @click="scanAdvance" style="margin-top: 11px">执行</el-button>
-      <div style="display: inline-block;margin-left: 20px">
-        <el-input v-model="returnInfo" readonly placeholder="展示获取基本信息" style="width:500px"></el-input>
-      </div>
-    </el-form>
-    <hr style='border:1px inset #D2E9FF;' v-show="showOrYu">
     <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
       <el-form-item label="定义获取基本信息命令">
 
@@ -64,9 +34,14 @@
             <el-input v-model="item.command"></el-input>
           </el-form-item>
           <el-form-item label="命令校验">
-            <el-select v-model="jiaoyan" placeholder="校验方式" value="常规校验">
-              <el-option label="常规校验" value="常规校验" selected></el-option>
-              <el-option label="自定义校验" value="自定义校验"></el-option>
+<!--            <el-select v-model="jiaoyan" placeholder="校验方式" value="常规校验">-->
+<!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
+<!--              <el-option label="自定义校验" value="自定义校验"></el-option>-->
+<!--            </el-select>-->
+
+            <el-select v-model="item.resultCheckId" placeholder="校验方式">
+              <el-option label="自定义校验" value="0"></el-option>
+              <el-option label="常规校验" value="1"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item>
@@ -308,7 +283,36 @@
       </el-form-item>
 
     </el-form>
-
+    <hr style='border:1px inset #D2E9FF;' v-show="showOrYu">
+    <el-form ref="form" :model="form" :rules="rules" :inline="true" v-show="showOrYu">
+      <el-form-item label="ip" prop="ip">
+        <el-input v-model="form.ip" style="width: 150px" size="small" placeholder="请输入ip" />
+      </el-form-item>
+      <el-form-item label="用户名" prop="name">
+        <el-input v-model="form.name" style="width: 120px" placeholder="请输入用户名" />
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <!--        <el-input v-model="form.password" type="password" scrollHeight style="width: 150px" placeholder="请输入密码" />-->
+        <el-input v-model="form.password" type="password" style="width: 150px" placeholder="请输入密码" />
+      </el-form-item>
+      <el-form-item label="方式" prop="mode">
+        <el-select v-model="form.mode" placeholder="方式" style="width: 100px">
+          <el-option label="ssh" value="ssh"></el-option>
+          <el-option label="telnet" value="telnet"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="端口号" prop="port">
+        <el-input v-model="form.port" style="width: 66px" placeholder="" />
+      </el-form-item>
+      <el-form-item label="配置密码" prop="configureCiphers">
+        <el-input v-model="form.configureCiphers" style="width: 150px" placeholder="请输入配置密码" />
+      </el-form-item>
+      <br/>
+      <el-button type="primary" size="small" @click="scanAdvance" style="margin-top: 11px">执行</el-button>
+      <div style="display: inline-block;margin-left: 20px">
+        <el-input v-model="returnInfo" readonly placeholder="展示获取基本信息" style="width:500px"></el-input>
+      </div>
+    </el-form>
     <vue-context-menu style="width: 172px;background: #eee;margin-left: auto"
                       :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
     </vue-context-menu>
@@ -330,6 +334,7 @@
         },
         data() {
             return {
+                clickLine:'',
                 //预执行是否显示
                 showOrYu:false,
                 //
@@ -366,7 +371,6 @@
                 who:'',
                 helpT:'',
                 showha:false,
-                jiaoyan:'常规校验',
                 bizui:false,
                 bixiala:true,
                 radio:'1',
@@ -404,7 +408,7 @@
                     name: '',
                     password:'',
                     mode:'ssh',
-                    port:'',
+                    port:'22',
                     configureCiphers:''
                 },
                 forms: {
@@ -504,10 +508,8 @@
                         if (eeee.action === '取词'){
                             eeee.length = `${eeee.length1}${eeee.classify}`
                         }
-                        if (this.jiaoyan == '常规校验'){
-                            this.$set(eeee,'resultCheckId','1')
-                        }else {
-                            this.$set(eeee,'resultCheckId','0')
+                        if (eeee.targetType == 'match'){
+                            this.$set(eeee,'relative',eeee.relativeTest + '&' + eeee.relativeType)
                         }
                         this.$set(eeee,'pageIndex',thisIndex+1)
                         if (eeee.targetType == 'takeword'){
@@ -665,13 +667,25 @@
             //循环项获取index
             wcycle(item,event){
                 const cycleId = item.onlyIndex
+                console.log(item)
                 this.forms.dynamicItem.forEach(cy=>{
-                    // if (cy.targetType === 'wloop'){
-                    //     this.$set(cy,'cycleStartId',cycleId)
-                    // }
                     if (cy.hasOwnProperty('cycleStartId') != true && cy.targetType == 'wloop'){
+                        if (item.relativeTest == 'full'){
+                            this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {}).catch(() => {});
+                        }
                         this.$set(cy,'cycleStartId',cycleId)
                     }else if (cy.cycleStartId == ''){
+                        if (item.relativeTest == 'full'){
+                            this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {}).catch(() => {});
+                        }
                         this.$set(cy,'cycleStartId',cycleId)
                     }
                 })
@@ -681,7 +695,7 @@
                 return num
             },
             //全文、按行匹配 联动
-            relType(){
+            relType(item){
                 this.clickLine = item.onlyIndex
                 this.forms.dynamicItem.forEach(e=>{
                     if (e.targetType == 'match' && e.onlyIndex == this.clickLine){
@@ -710,6 +724,9 @@
                 // console.log(this.$refs.btn[thisIndex])
                 // console.log(item)
                 // this.$set(item,'nextIndex',thisData)
+                if (type == 'command'){
+                    this.$set(item1,'resultCheckId','0')
+                }
                 if(type == 'match'){
                     this.$refs.btn[thisIndex].labelss = '测试我'
                     this.$set(item1,'matched','精确匹配')
@@ -781,6 +798,7 @@
                 if(type == 'takeword'){
                     this.$set(item1,'action','取词')
                     this.$set(item1,'position',0)
+                    this.$set(item1,'cursorRegion','0')
                 }
                 if (type == 'wloop'){
                     this.$set(item1,'action','循环')
@@ -836,11 +854,6 @@
                     }
                     if (eeee.action === '取词'){
                         eeee.length = `${eeee.length1}${eeee.classify}`
-                    }
-                    if (this.jiaoyan == '常规校验'){
-                        this.$set(eeee,'resultCheckId','1')
-                    }else {
-                        this.$set(eeee,'resultCheckId','0')
                     }
                     this.$set(eeee,'pageIndex',thisIndex+1)
                     if (eeee.targetType == 'takeword'){
