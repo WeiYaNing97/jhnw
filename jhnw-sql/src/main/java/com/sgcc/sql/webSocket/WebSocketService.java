@@ -89,6 +89,7 @@ public class WebSocketService {
      */
     @OnError
     public void onError(Session session, Throwable error) {
+
         log.error("用户错误:"+this.userName+",原因:"+error.getMessage());
         error.printStackTrace();
     }

@@ -1,9 +1,12 @@
 package com.sgcc.sql.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.core.domain.BaseEntity;
+
+import java.util.Date;
 
 /**
  * 返回信息对象 return_record
@@ -53,6 +56,10 @@ public class ReturnRecord extends BaseEntity
     /** 当前标识符 */
     @Excel(name = "当前标识符")
     private String currentIdentifier;
+
+    /** 创建时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
     public void setId(Long id) 
     {
@@ -145,6 +152,17 @@ public class ReturnRecord extends BaseEntity
     }
 
     @Override
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+
+    @Override
     public String toString() {
         return "ReturnRecord{" +
                 "id=" + id +
@@ -157,6 +175,7 @@ public class ReturnRecord extends BaseEntity
                 ", currentCommLog='" + currentCommLog + '\'' +
                 ", currentReturnLog='" + currentReturnLog + '\'' +
                 ", currentIdentifier='" + currentIdentifier + '\'' +
+                ", createTime=" + createTime +
                 '}';
     }
 }
