@@ -119,7 +119,7 @@
 
     <el-table v-loading="loading" :data="return_recordList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
+<!--      <el-table-column label="主键" align="center" prop="id" />-->
       <el-table-column label="系统登录人名称" align="center" prop="userName" />
       <el-table-column label="交换机IP" align="center" prop="switchIp" />
       <el-table-column label="品牌" align="center" prop="brand" />
@@ -127,8 +127,9 @@
       <el-table-column label="内部固件版本" align="center" prop="firewareVersion" />
       <el-table-column label="子版本号" align="center" prop="subVersion" />
       <el-table-column label="当前通信日志" align="center" prop="currentCommLog" />
-      <el-table-column label="当前返回日志 " align="center" prop="currentReturnLog" />
-      <el-table-column label="当前标识符" align="center" prop="currentIdentifier" />
+<!--      <el-table-column label="当前返回日志 " align="center" prop="currentReturnLog" />-->
+      <el-table-column label="操作时间" align="center" prop="createTime" />
+<!--      <el-table-column label="当前标识符" align="center" prop="currentIdentifier" />-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -148,7 +149,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -258,6 +259,7 @@ export default {
     getList() {
       this.loading = true;
       listReturn_record(this.queryParams).then(response => {
+        // console.log(response.rows)
         this.return_recordList = response.rows;
         this.total = response.total;
         this.loading = false;

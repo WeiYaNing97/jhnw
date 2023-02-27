@@ -660,7 +660,7 @@
                         console.log('ws建立连接失败')
                         this.wsInit()
                     }
-                }, 3000)
+                }, 300000)
             },
             wsOpenHanler(event) {
                 console.log('ws建立连接成功')
