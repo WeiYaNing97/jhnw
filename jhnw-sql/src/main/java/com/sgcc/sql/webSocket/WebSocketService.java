@@ -112,7 +112,9 @@ public class WebSocketService {
         try {
             WebSocketClient webSocketClient = webSocketMap.get(userName);
             if(webSocketClient!=null){
-                webSocketClient.getSession().getBasicRemote().sendObject(object);
+                synchronized(webSocketClient) {
+                    webSocketClient.getSession().getBasicRemote().sendObject(object);
+                }
             }
         } catch (IOException | EncodeException e) {
             e.printStackTrace();
@@ -125,7 +127,9 @@ public class WebSocketService {
         try {
             WebSocketClient webSocketClient = webSocketMap.get(userName);
             if(webSocketClient!=null){
-                webSocketClient.getSession().getBasicRemote().sendText(string);
+                synchronized(webSocketClient){
+                    webSocketClient.getSession().getBasicRemote().sendText(string);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
