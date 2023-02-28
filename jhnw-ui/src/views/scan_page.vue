@@ -200,7 +200,6 @@
     </div>
 
     <!--    <WebSocketOne></WebSocketOne>-->
-
     <!--      下一页-->
     <!--    <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
             @pagination="getList"-->
@@ -543,18 +542,18 @@
             //新增设备
             xinzeng(){
                 this.tableData.push({
-                    // ip: '192.168.1.100',
-                    // name: 'admin',
-                    // password:'admin',
+                    ip: '192.168.1.100',
+                    name: 'admin',
+                    password:'admin',
                     // passmi:'********',
                     // mode:'ssh',
                     // port:22,
                     // isEdit:true,
                     // conCip:'********',
                     // configureCiphers:''
-                    ip: '',
-                    name: '',
-                    password:'',
+                    // ip: '',
+                    // name: '',
+                    // password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
