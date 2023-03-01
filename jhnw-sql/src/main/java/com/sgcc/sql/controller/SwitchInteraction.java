@@ -2395,6 +2395,7 @@ public class SwitchInteraction {
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
+
             scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);

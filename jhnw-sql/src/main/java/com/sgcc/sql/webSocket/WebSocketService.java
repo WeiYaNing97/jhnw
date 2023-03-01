@@ -31,8 +31,7 @@ public class WebSocketService {
      * 连接建立成功调用的方法*/
     @OnOpen
     public void onOpen(Session session, @PathParam("userName") String userName) {
-        if(!webSocketMap.containsKey(userName))
-        {
+        if(!webSocketMap.containsKey(userName)) {
             addOnlineCount(); // 在线数 +1
         }
         this.session = session;
@@ -58,11 +57,10 @@ public class WebSocketService {
     public void onClose() {
         if(webSocketMap.containsKey(userName)){
             webSocketMap.remove(userName);
-            if(webSocketMap.size()>0)
-            {
+            //if(webSocketMap.size()>0) {
                 //从set中删除
                 subOnlineCount();
-            }
+            //}
         }
         log.info("--------------------------------调用关闭方法 onClose()--------------------------------------------");
         log.info(userName+"用户退出,当前在线人数为:" + getOnlineCount());
@@ -74,11 +72,20 @@ public class WebSocketService {
      * @param message 客户端发送过来的消息*/
     @OnMessage
     public void onMessage(String message, Session session) {
+
         log.info("收到用户消息:"+userName+",报文:"+message);
+
         //可以群发消息
         //消息保存到数据库、redis
-        if(StringUtils.isNotBlank(message)){
+        /*if(StringUtils.isNotBlank(message)){
 
+        }*/
+        if (message.equals("ping")){
+            try {
+                session.getBasicRemote().sendText("pong");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
