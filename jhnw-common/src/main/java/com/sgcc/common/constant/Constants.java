@@ -70,6 +70,11 @@ public class Constants
     public static final String LOGIN_TOKEN_KEY = "login_tokens:";
 
     /**
+     * 登录用户 redis key
+     */
+    public static final String LOGIN_ONKINE_USER_KEY = "login_onkine_users:";
+
+    /**
      * 防重提交 redis key
      */
     public static final String REPEAT_SUBMIT_KEY = "repeat_submit:";

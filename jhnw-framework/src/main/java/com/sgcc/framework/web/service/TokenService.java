@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 
 import com.sgcc.common.core.domain.entity.SysUser;
+import com.sgcc.common.exception.ServiceException;
 import com.sgcc.system.mapper.SysUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -97,12 +98,15 @@ public class TokenService
     /**
      * 删除用户身份信息
      */
-    public void delLoginUser(String token)
+    public void delLoginUser(String token,String userName)
     {
         if (StringUtils.isNotEmpty(token))
         {
+
             String userKey = getTokenKey(token);
             redisCache.deleteObject(userKey);
+
+            redisCache.deleteObject(Constants.LOGIN_ONKINE_USER_KEY + userName);
         }
     }
 
@@ -152,12 +156,25 @@ public class TokenService
         if (ifToken == 1L){
             expireTime = 60 * 24 *366;
         }
+
         loginUser.setLoginTime(System.currentTimeMillis());
         loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
         // 根据uuid将loginUser缓存
         String userKey = getTokenKey(loginUser.getToken());
+        //判断当前用户是否已经登录
+        String onlineUser = redisCache.getCacheObject(Constants.LOGIN_ONKINE_USER_KEY + loginUser.getUsername());
+        if (onlineUser != null) {
+            throw new ServiceException("用户已经登录，不允许再次登录！");
+        }
+
         redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
+
+        //存入Redis当前用户的登录信息的时候，再次存入哪个用户登录了！
+        String nowLoginUser = Constants.LOGIN_ONKINE_USER_KEY + loginUser.getUsername();
+        redisCache.setCacheObject(nowLoginUser, nowLoginUser, expireTime, TimeUnit.MINUTES);
     }
+
+
 
     /**
      * 设置用户代理信息
