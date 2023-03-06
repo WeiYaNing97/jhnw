@@ -968,4 +968,15 @@ public class MyUtils {
         }
         return true;
     }
+
+    /*判断 字符串 元素是否都包含 数字*/
+    public static boolean thereAreNumbers(String string) {
+        /*如果不包含数字 则返回false */
+        boolean b = containDigit(string);
+        /*当 b 为 false 时 应返回 false*/
+        if (!b){
+            return false;
+        }
+        return true;
+    }
 }

@@ -1074,6 +1074,9 @@ public class SolveProblemController {
             List<ScanResultsVO> scanResultsVOList = scanResultsCO.getScanResultsVOList();
             for (ScanResultsVO scanResultsVO:scanResultsVOList){
                 scanResultsVO.setCreateTime(null);
+                String switchIp = scanResultsVO.getSwitchIp();
+                String[] split = switchIp.split(":");
+                scanResultsVO.setSwitchIp(split[0]);
                 scanResultsVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                 for (SwitchProblemVO switchProblemVO:switchProblemVOList){

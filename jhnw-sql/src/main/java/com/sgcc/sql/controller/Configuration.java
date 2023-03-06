@@ -43,14 +43,15 @@ public class Configuration {
         minimumTimeout = Long.valueOf(ymlMap.get("minimumTimeout")).longValue();
         maximumTimeout = Long.valueOf(ymlMap.get("maximumTimeout")).longValue();
         numberOfCycles = Long.valueOf(ymlMap.get("numberOfCycles")).longValue();
-        identifier = ymlMap.get("identifier");
+        identifier = ymlMap.get("identifier").replaceAll("；",";");
         logPath = ymlMap.get("logPath");
 
-        getBrandCommand = ymlMap.get("getBrandCommand");
-        equipmentBrand = ymlMap.get("equipmentBrand");
-        equipmentModel = ymlMap.get("equipmentModel");
-        deviceVersion = ymlMap.get("deviceVersion");
-        deviceSubversion = ymlMap.get("deviceSubversion");
+        getBrandCommand = ymlMap.get("getBrandCommand").replaceAll("；",";");
+        equipmentBrand = ymlMap.get("equipmentBrand").replaceAll("；",";");
+        equipmentModel = ymlMap.get("equipmentModel").replaceAll("；",";");
+        deviceVersion = ymlMap.get("deviceVersion").replaceAll("；",";");
+        deviceSubversion = ymlMap.get("deviceSubversion").replaceAll("；",";");
+
     }
 
     public Map<String,String> readMapFromyml() {

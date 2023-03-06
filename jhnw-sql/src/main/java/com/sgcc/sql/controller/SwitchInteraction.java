@@ -428,7 +428,7 @@ public class SwitchInteraction {
      *
      *
     * @method: 扫描方法 logInToGetBasicInformation
-    * @Param: [mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，
+    * @Param: [threadName, mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，
      *          loginUser 登录人信息，time 扫描时间
      *          List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
     * @return: com.sgcc.common.core.domain.AjaxResult
@@ -436,7 +436,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @GetMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(String mode, String ip, String name, String password, String configureCiphers , int port,
+    public AjaxResult logInToGetBasicInformation(String threadName,String mode, String ip, String name, String password, String configureCiphers , int port,
                                                  LoginUser loginUser,String ScanningTime,List<TotalQuestionTable> totalQuestionTables) {
 
         //交换机信息
@@ -450,6 +450,7 @@ public class SwitchInteraction {
         // 配置密码 configureCiphers
         // 端口号 port
         // 扫描时间 ScanningTime
+        user_String.put("threadName",threadName);
         user_String.put("mode",mode);//登录方式
         user_String.put("ip",ip);//ip地址
         user_String.put("name",name);//用户名
@@ -560,7 +561,12 @@ public class SwitchInteraction {
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
+
+            AjaxResult getBasicInformationCurrency = GetBasicInformationController.getBasicInformationCurrency(user_String,user_Object);
+
             AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
+
+
 
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
 
@@ -1436,7 +1442,18 @@ public class SwitchInteraction {
                     stringList.add(deviceModel);
                     stringList.add(firmwareVersion);
                     stringList.add(subversionNumber);
-                    if (!(MyUtils.thereAreNumbersInTheSet(stringList))){
+
+                    boolean brand = false;
+                    String equipmentBrand = Configuration.equipmentBrand;
+                    String[] equipmentBrandsplit = equipmentBrand.split(";");
+                    for (String string:equipmentBrandsplit){
+                        if (deviceBrand.equalsIgnoreCase(string)){
+                            brand = true;
+                        }
+                    }
+
+
+                    if (!brand || !(MyUtils.thereAreNumbersInTheSet(stringList))){
                         break;
                     }
 
@@ -2110,7 +2127,7 @@ public class SwitchInteraction {
         SwitchScanResult switchScanResult = new SwitchScanResult();
 
         //插入问题数据
-        switchScanResult.setSwitchIp(user_String.get("ip")); // ip
+        switchScanResult.setSwitchIp(user_String.get("ip")+":"+user_String.get("threadName")); // ip
 
         switchScanResult.setBrand(totalQuestionTable.getBrand());
         switchScanResult.setSwitchType(totalQuestionTable.getType());
@@ -2403,6 +2420,9 @@ public class SwitchInteraction {
 
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             scanResultsVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            String switchIp = scanResultsVO.getSwitchIp();
+            String[] split = switchIp.split(":");
+            scanResultsVO.setSwitchIp(split[0]);
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
             for (SwitchProblemVO switchProblemVO:switchProblemVOList){
                 switchProblemVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());

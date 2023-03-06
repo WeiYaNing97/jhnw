@@ -11,6 +11,7 @@ configuration:
   # 日志路径
   logPath: "D:\\jhnwadminlog"
 
+
   # 能够获取品牌的命令
   getBrandCommand: dis ver;show version
   # 设备品牌 两个品牌之间以;分阁

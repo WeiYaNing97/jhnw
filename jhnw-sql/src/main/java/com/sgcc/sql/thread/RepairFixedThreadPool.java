@@ -14,11 +14,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
+ * 修复多线程
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com
  * @date 2022年07月29日 15:36
  */
 public class RepairFixedThreadPool {
+
+    // 用来存储线程名称的map
+    public static Map threadNameMap = new HashMap();
 
     /**
      *
@@ -49,48 +53,20 @@ public class RepairFixedThreadPool {
                 // 所有问题
                 List<String> problemIds = problemIdStrings;
                 LoginUser loginUser = user;
-
-
-                fixedThreadPool.submit(new Thread(new Runnable() {
-
-                    String threadName = Thread.currentThread().getName();
-
-                    @Override
-                    public void run() {
-
-                        try {
-
-                            System.err.println("活跃线程名："+threadName);
-                            threadMap.put(threadName,threadName);
-
-                            //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-                            int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-                            System.err.println("活跃线程数："+threadCount);
-
-                            SolveProblemController solveProblemController = new SolveProblemController();
-                            AjaxResult ajaxResult = solveProblemController.batchSolution(user_String,loginUser,switchScanResults,problemIds);
-                            if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                                System.err.println("\r\n未定义该交换机获取基本信息命令及分析\r\n");
-                            }else if (ajaxResult.get("msg").equals("交换机连接失败")){
-                                System.err.println("\r\n交换机连接失败\r\n");
-                            }else if (ajaxResult.get("msg").equals("未定义修复命令")){
-                                System.err.println("\r\n未定义修复命令\r\n");
-                            }else if (ajaxResult.get("msg").equals("修复结束")){
-                                System.err.println("\r\n修复结束\r\n");
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        } finally {
-                            countDownLatch.countDown();
-                            threadMap.remove(threadName);
-                        }
-                        //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-                        int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-                        System.err.println("活跃线程数："+threadCount);
-                    }
-                }));
+                String threadName = getThreadName(i);
+                threadNameMap.put(threadName, threadName);
+                fixedThreadPool.execute(new RepairFixedThread(threadName,user_String,loginUser,switchScanResults,problemIds));
             }
         }
         countDownLatch.await();
     }
+
+    public static void removeThread(String i) {
+        threadNameMap.remove(i);
+        System.out.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
+    }
+    public static String getThreadName(int i) {
+        return "threadname"+i;
+    }
+
 }

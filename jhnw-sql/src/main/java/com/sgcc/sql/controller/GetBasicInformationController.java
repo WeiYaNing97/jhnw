@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GetBasicInformationController {
@@ -240,7 +241,7 @@ public class GetBasicInformationController {
             }
 
             //当前命令字符串 返回命令总和("\r\n"分隔)
-            return_sum +=  commandtrim +"\r\n"+ commandString+"\r\n";
+            return_sum +=  commandString+"\r\n";
         }
 
 
@@ -302,30 +303,37 @@ public class GetBasicInformationController {
      * @return  返回  交换机基本信息
      */
     public static HashMap<String,String> analyzeStringToGetBasicInformation(String returns) {
+
         returns = returns.replace("\n","\r\n");
+
         String returns_String = MyUtils.trimString(returns);
         String equipmentBrand = Configuration.equipmentBrand;
         String equipmentModel = Configuration.equipmentModel;
         String[] equipmentBrandsplit = equipmentBrand.split(";");
         String[] equipmentModelsplit = equipmentModel.split(";");
+
         String brand = "";
         String model = "";
         String firmwareVersion = "";
         String subversionNo = "";
+
         HashMap<String,String> map = new HashMap<>();
         map.put("pinpai",null);
         map.put("xinghao",null);
         map.put("banben",null);
         map.put("zibanben",null);
+
         for (String brandString:equipmentBrandsplit){
             if (returns.indexOf(" "+ brandString +" ") != -1){
                 brand = brandString;
             }
         }
+
         String[] return_word = returns_String.trim().split(" ");
+
         if (!(brand.equals(""))){
             for (int number = 0 ; number < return_word.length; number++){
-                if (return_word[number].equals(brand)){
+                if (return_word[number].equalsIgnoreCase(brand)){
                     number = number +1;
                     String brand_after = return_word[number];
                     System.err.println(brand+"后面是："+brand_after);
@@ -333,7 +341,7 @@ public class GetBasicInformationController {
                         /*不以 * 开头*/
                         if (!(modelString.substring(0,1).equals("*"))){
                             modelString = modelString.replace("*", "");
-                            boolean b = StrUtil.startWith(brand_after, modelString);
+                            boolean b = (StrUtil.startWith(brand_after, modelString) && MyUtils.thereAreNumbers(brand_after) );
                             if (b){
                                 model = brand_after;
                                 break;
@@ -343,7 +351,7 @@ public class GetBasicInformationController {
                         if (!(modelString.substring(modelString.length()-1,modelString.length()).equals("*"))){
 
                             modelString = modelString.replace("*", "");
-                            boolean b = StrUtil.endWith(brand_after, modelString);
+                            boolean b = StrUtil.endWith(brand_after, modelString) && MyUtils.thereAreNumbers(brand_after) ;
                             if (b){
                                 model = brand_after;
                                 break;
@@ -355,7 +363,7 @@ public class GetBasicInformationController {
                                 !(modelString.substring(modelString.length()-1,modelString.length()).equals("*"))){
 
                             modelString = modelString.replace("*", "");
-                            boolean b = brand_after.indexOf(modelString)!=-1;
+                            boolean b = (brand_after.indexOf(modelString)!=-1)  && MyUtils.thereAreNumbers(brand_after) ;
                             if (b){
                                 model = brand_after;
                                 break;
@@ -370,23 +378,72 @@ public class GetBasicInformationController {
                 }
             }
         }
-        for (int number = 0 ; number < return_word.length; number++){
-            if (return_word[number].equals("Version")){
-                firmwareVersion = return_word[number+1];
+
+        /** 设备版本 */
+        String deviceVersion = Configuration.deviceVersion;
+        String[] deviceVersionSplit =deviceVersion.split(";");
+        for (String version:deviceVersionSplit){
+            String[] versionSplit = version.split(" ");
+            int versionNumber = versionSplit.length;
+            for (int number = 0 ; number < return_word.length; number++){
+                if (return_word[number].equalsIgnoreCase(versionSplit[0])){
+                    if (versionSplit.length == 1){
+                        firmwareVersion = return_word[number+1];
+                        break;
+                    }else {
+                        String device = "";
+                        for (int num = 0 ; num < versionNumber ; num++){
+                            device = device + return_word[number + num] +" ";
+                        }
+                        device = device.trim();
+                        if (deviceVersion.equalsIgnoreCase(device)){
+                            firmwareVersion =  return_word[number + (versionNumber-1) + 1];
+                            break;
+                        }
+                    }
+                }
             }
-            if (return_word[number].equals("Release")){
-                subversionNo = return_word[number+1];
-            }
-            if (!(firmwareVersion.equals("")) && !(subversionNo.equals(""))){
-                break;
-            }
+
         }
+
+
+        /** 设备子版本 */
+        String deviceSubversion = Configuration.deviceSubversion;
+        String[] deviceSubversionSplit =deviceSubversion.split(";");
+        for (String version:deviceSubversionSplit){
+            String[] versionSplit = version.split(" ");
+            int versionNumber = versionSplit.length;
+            for (int number = 0 ; number < return_word.length; number++){
+                if (return_word[number].equalsIgnoreCase(versionSplit[0])){
+                    if (versionSplit.length == 1){
+                        subversionNo = return_word[number+1];
+                        break;
+                    }else {
+                        String device = "";
+                        for (int num = 0 ; num < versionNumber ; num++){
+                            device = device + return_word[number + num] +" ";
+                        }
+                        device = device.trim();
+                        if (deviceSubversion.equalsIgnoreCase(device)){
+                            subversionNo =  return_word[number + (versionNumber-1) + 1];
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+
         System.err.println("品牌"+brand+"型号"+model+"版本"+firmwareVersion+"子版本"+subversionNo);
 
         map.put("pinpai",!(brand.equals(""))?brand:null);
         map.put("xinghao",!(model.equals(""))?model:null);
         map.put("banben",!(firmwareVersion.equals(""))?firmwareVersion:null);
         map.put("zibanben",!(subversionNo.equals(""))?subversionNo:null);
+
+        if (model.equals("")){
+
+        }
 
         return map;
     }
