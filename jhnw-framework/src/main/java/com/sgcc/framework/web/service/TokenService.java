@@ -161,11 +161,6 @@ public class TokenService
         loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
         // 根据uuid将loginUser缓存
         String userKey = getTokenKey(loginUser.getToken());
-        //判断当前用户是否已经登录
-        String onlineUser = redisCache.getCacheObject(Constants.LOGIN_ONKINE_USER_KEY + loginUser.getUsername());
-        if (onlineUser != null) {
-            throw new ServiceException("用户已经登录，不允许再次登录！");
-        }
 
         redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
 

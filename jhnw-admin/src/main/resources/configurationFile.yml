@@ -14,10 +14,6 @@ configuration:
 
   # 能够获取品牌的命令
   getBrandCommand: dis ver;show version
-  # 设备品牌 两个品牌之间以;分阁
-  equipmentBrand: H3C;CISCO;HUAWEI;TP-LINK;Tenda;Ruijie;MERCURY;HIKVISION
-  # 设备型号 两个型号之间以;分阁
-  equipmentModel: S*;N*
   # 设备版本 两个型号之间以;分阁
   deviceVersion: Version
   # 设备子版本 两个型号之间以;分阁

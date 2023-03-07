@@ -27,10 +27,7 @@ public class Configuration {
 
     /** 获取设备品牌命令 */
     public static String getBrandCommand;
-    /** 设备品牌 */
-    public static String equipmentBrand;
-    /** 设备型号 */
-    public static String equipmentModel;
+
     /** 设备版本 */
     public static String deviceVersion;
     /** 设备子版本 */
@@ -47,8 +44,7 @@ public class Configuration {
         logPath = ymlMap.get("logPath");
 
         getBrandCommand = ymlMap.get("getBrandCommand").replaceAll("；",";");
-        equipmentBrand = ymlMap.get("equipmentBrand").replaceAll("；",";");
-        equipmentModel = ymlMap.get("equipmentModel").replaceAll("；",";");
+
         deviceVersion = ymlMap.get("deviceVersion").replaceAll("；",";");
         deviceSubversion = ymlMap.get("deviceSubversion").replaceAll("；",";");
 

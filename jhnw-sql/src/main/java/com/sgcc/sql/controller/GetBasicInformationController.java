@@ -24,6 +24,8 @@ public class GetBasicInformationController {
 
     @Autowired
     private static IReturnRecordService returnRecordService;
+    @Autowired
+    private static IInformationService informationService;
 
     /**
      * @method: 通用获取交换机基本信息  多个命令依次执行 按，分割
@@ -307,10 +309,12 @@ public class GetBasicInformationController {
         returns = returns.replace("\n","\r\n");
 
         String returns_String = MyUtils.trimString(returns);
-        String equipmentBrand = Configuration.equipmentBrand;
+        /*String equipmentBrand = Configuration.equipmentBrand;
         String equipmentModel = Configuration.equipmentModel;
         String[] equipmentBrandsplit = equipmentBrand.split(";");
-        String[] equipmentModelsplit = equipmentModel.split(";");
+        String[] equipmentModelsplit = equipmentModel.split(";");*/
+        informationService = SpringBeanUtil.getBean(IInformationService.class);
+        List<String> brandList = informationService.selectDeviceBrandList();
 
         String brand = "";
         String model = "";
@@ -323,7 +327,7 @@ public class GetBasicInformationController {
         map.put("banben",null);
         map.put("zibanben",null);
 
-        for (String brandString:equipmentBrandsplit){
+        for (String brandString:brandList){
             if (returns.indexOf(" "+ brandString +" ") != -1){
                 brand = brandString;
             }
@@ -332,49 +336,13 @@ public class GetBasicInformationController {
         String[] return_word = returns_String.trim().split(" ");
 
         if (!(brand.equals(""))){
-            for (int number = 0 ; number < return_word.length; number++){
-                if (return_word[number].equalsIgnoreCase(brand)){
-                    number = number +1;
-                    String brand_after = return_word[number];
-                    System.err.println(brand+"后面是："+brand_after);
-                    for (String modelString:equipmentModelsplit){
-                        /*不以 * 开头*/
-                        if (!(modelString.substring(0,1).equals("*"))){
-                            modelString = modelString.replace("*", "");
-                            boolean b = (StrUtil.startWith(brand_after, modelString) && MyUtils.thereAreNumbers(brand_after) );
-                            if (b){
-                                model = brand_after;
-                                break;
-                            }
-                        }
-                        /*不以 * 结束*/
-                        if (!(modelString.substring(modelString.length()-1,modelString.length()).equals("*"))){
+            List<String> modelList = informationService.selectDeviceModelList(brand);
+            for (String modelString:modelList){
+                for (int number = 0 ; number < return_word.length; number++){
 
-                            modelString = modelString.replace("*", "");
-                            boolean b = StrUtil.endWith(brand_after, modelString) && MyUtils.thereAreNumbers(brand_after) ;
-                            if (b){
-                                model = brand_after;
-                                break;
-                            }
-                        }
-                        /*前后都有 *  */
-                        if (!(modelString.substring(0,1).equals("*"))
-                                &&
-                                !(modelString.substring(modelString.length()-1,modelString.length()).equals("*"))){
-
-                            modelString = modelString.replace("*", "");
-                            boolean b = (brand_after.indexOf(modelString)!=-1)  && MyUtils.thereAreNumbers(brand_after) ;
-                            if (b){
-                                model = brand_after;
-                                break;
-                            }
-                        }
+                    if (modelString.equalsIgnoreCase(return_word[number])){
+                        model = modelString;
                     }
-
-                    if (!(model.equals(""))){
-                        break;
-                    }
-
                 }
             }
         }
@@ -433,8 +401,6 @@ public class GetBasicInformationController {
             }
 
         }
-
-        System.err.println("品牌"+brand+"型号"+model+"版本"+firmwareVersion+"子版本"+subversionNo);
 
         map.put("pinpai",!(brand.equals(""))?brand:null);
         map.put("xinghao",!(model.equals(""))?model:null);

@@ -68,6 +68,9 @@ public class SwitchInteraction {
     @Autowired
     private static ISwitchScanResultService switchScanResultService;
 
+    @Autowired
+    private static IInformationService informationService;
+
     /**
      *
      * a
@@ -563,6 +566,11 @@ public class SwitchInteraction {
             //getBasicInformationList 通过扫描方式 获取 基本信息
 
             AjaxResult getBasicInformationCurrency = GetBasicInformationController.getBasicInformationCurrency(user_String,user_Object);
+            HashMap<String, String> data = (HashMap<String, String>) getBasicInformationCurrency.get("data");
+
+            System.err.println("==================================================================");
+            System.err.println("品牌"+data.get("pinpai")+"型号"+data.get("xinghao")+"版本"+data.get("banben")+"子版本"+data.get("zibanben"));
+            System.err.println("==================================================================");
 
             AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
 
@@ -1444,9 +1452,9 @@ public class SwitchInteraction {
                     stringList.add(subversionNumber);
 
                     boolean brand = false;
-                    String equipmentBrand = Configuration.equipmentBrand;
-                    String[] equipmentBrandsplit = equipmentBrand.split(";");
-                    for (String string:equipmentBrandsplit){
+                    informationService = SpringBeanUtil.getBean(IInformationService.class);
+                    List<String> brandList = informationService.selectDeviceBrandList();
+                    for (String string:brandList){
                         if (deviceBrand.equalsIgnoreCase(string)){
                             brand = true;
                         }
