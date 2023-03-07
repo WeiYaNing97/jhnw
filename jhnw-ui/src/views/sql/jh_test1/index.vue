@@ -1,8 +1,9 @@
 <template>
-<!--  <div class="app-container" @contextmenu="showMenu" :key="keys">-->
-  <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true">
-      <el-form-item label="设备信息:"></el-form-item>
+  <div>
+    <div class="app-container" @contextmenu.prevent="showMenu($event)">
+      <!--  <div class="app-container">-->
+      <el-form :model="queryParams" ref="queryForm" :inline="true">
+        <el-form-item label="设备信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
                      filterable allow-create @blur="brandShu" @focus="general($event)"
@@ -35,382 +36,389 @@
                        :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
           </el-select>
         </el-form-item>
-      <br/>
-<!--      <el-form-item>-->
-<!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
-<!--          <el-option label="所有问题" value="1"></el-option>-->
-<!--          <el-option label="未定义问题" value="0"></el-option>-->
-<!--        </el-select>-->
-<!--      </el-form-item>-->
-      <el-form-item label="风险分类:"></el-form-item>
-      <el-form-item label="范式分类" prop="typeProblem">
-        <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
-                   filterable allow-create @focus="generalA($event)" @blur="typeProShu">
-          <el-option v-for="(item,index) in genList" :key="index"
-                     :label="item.typeProblem" :value="item.typeProblem"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="范式名称">
-        <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                   filterable allow-create @focus="generalB($event)" name="temProName" @blur="temProShu">
-          <el-option v-for="(item,index) in genList" :key="index"
-                     :label="item.temProName" :value="item.temProName"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="自定义名称">
-<!--        <el-select v-model="queryParams.problemName" placeholder="请输入问题名称"-->
-<!--                   filterable allow-create @focus="general($event)" name="problemName" @blur="proSelect">-->
-<!--          <el-option v-for="(item,index) in genList" :key="index"-->
-<!--                     :label="item.problemName" :value="item.problemName"></el-option>-->
-<!--        </el-select>-->
-        <el-input v-model="queryParams.problemName" placeholder="请输入问题名称"></el-input>
-      </el-form-item>
-      <br/>
-      <el-form-item label="其它:"></el-form-item>
-<!--      <el-form-item>-->
-<!--        <el-checkbox v-model="queryParams.requiredItems">必扫问题</el-checkbox>-->
-<!--      </el-form-item>-->
-      <el-form-item label="备注">
-        <el-input v-model="queryParams.remarks"></el-input>
-      </el-form-item>
-      <el-form-item label="标识符">
-        <el-input v-model="queryParams.notFinished"
-                  clearable
-                  @focus="biaoshi($event)" name="biaoshi"></el-input>
-      </el-form-item>
-<!--      仔仔-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="tiwenti">提交问题</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="hebingnew">定义问题命令</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="xiangqing">定义问题详情</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="subProblem">合并按钮</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="oneone">测</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="shuaxin">刷新</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item>-->
-<!--      </el-form-item>-->
-
-    </el-form>
-    <hr style='border:1px inset #D2E9FF;'>
-
-    <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
-      <el-form-item label="检测方法:"></el-form-item>
-      <el-form-item>
-        <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
-      </el-form-item>
-      <div v-for="(item,index) in forms.dynamicItem" ref="btn" :key="index" :label="index">
-        <el-form-item v-if="index!=0">
-          <el-checkbox v-model="item.checked"></el-checkbox>
+        <br/>
+        <!--        //右键菜单-->
+        <ul v-show="visibleItem" :style="{left:left+'px',top:top+'px'}" class="contextmenu">
+          <li><el-button type="text" size="small" @click.native="handleDeleteOne">帮助</el-button></li>
+          <li><el-button type="text" size="small" @click.native="handleDownloadFile">复制</el-button></li>
+          <li><el-button type="text" size="small" @click.native="handlePreviewFile($event)">粘贴</el-button></li>
+        </ul>
+        <!--      <el-form-item>-->
+        <!--        <el-select v-model="queryParams.commandId" style="width: 120px">-->
+        <!--          <el-option label="所有问题" value="1"></el-option>-->
+        <!--          <el-option label="未定义问题" value="0"></el-option>-->
+        <!--        </el-select>-->
+        <!--      </el-form-item>-->
+        <el-form-item label="风险分类:"></el-form-item>
+        <el-form-item label="范式分类" prop="typeProblem">
+          <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
+                     filterable allow-create @focus="generalA($event)" @blur="typeProShu">
+            <el-option v-for="(item,index) in genList" :key="index"
+                       :label="item.typeProblem" :value="item.typeProblem"></el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item v-if="index!=0">{{index}}</el-form-item>
-        <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
-        <div v-if="item.targetType === 'command'" :key="index"
-             style="display: inline-block">
-          <el-form-item label="命令：" class="strongW" :prop="'dynamicItem.' + index + '.command'">
-            <el-input v-model="item.command" name="comone" @focus="getName($event)"></el-input>
-          </el-form-item>
-          <el-form-item label="命令校验">
-<!--            <el-select v-model="item.jiaoyan" placeholder="校验方式">-->
-<!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
-<!--              <el-option label="自定义校验" value="自定义校验"></el-option>-->
-<!--            </el-select>-->
+        <el-form-item label="范式名称">
+          <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
+                     filterable allow-create @focus="generalB($event)" name="temProName" @blur="temProShu">
+            <el-option v-for="(item,index) in genList" :key="index"
+                       :label="item.temProName" :value="item.temProName"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="自定义名称">
+          <!--        <el-select v-model="queryParams.problemName" placeholder="请输入问题名称"-->
+          <!--                   filterable allow-create @focus="general($event)" name="problemName" @blur="proSelect">-->
+          <!--          <el-option v-for="(item,index) in genList" :key="index"-->
+          <!--                     :label="item.problemName" :value="item.problemName"></el-option>-->
+          <!--        </el-select>-->
+          <el-input v-model="queryParams.problemName" name="problemName" placeholder="请输入问题名称"></el-input>
+        </el-form-item>
+        <br/>
+        <el-form-item label="其它:"></el-form-item>
+        <!--      <el-form-item>-->
+        <!--        <el-checkbox v-model="queryParams.requiredItems">必扫问题</el-checkbox>-->
+        <!--      </el-form-item>-->
+        <el-form-item label="备注">
+          <el-input v-model="queryParams.remarks" @focus="beizhu($event)" name="beizhu"></el-input>
+        </el-form-item>
+        <el-form-item label="标识符">
+          <el-input v-model="queryParams.notFinished"
+                    clearable
+                    @focus="biaoshi($event)" name="biaoshi"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click.native="testOne" icon="el-icon-delete" size="small" plain>测试按钮</el-button>
+        </el-form-item>
+        <!--      仔仔-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="tiwenti">提交问题</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="hebingnew">定义问题命令</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="xiangqing">定义问题详情</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="subProblem">合并按钮</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="oneone">测</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="shuaxin">刷新</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
+        <!--      </el-form-item>-->
+        <!--      <el-form-item>-->
+        <!--      </el-form-item>-->
 
-            <el-select v-model="item.resultCheckId" placeholder="校验方式">
-              <el-option label="自定义校验" value="0"></el-option>
-              <el-option label="常规校验" value="1"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
-          <el-form-item label="匹配:" class="strongW"></el-form-item>
-          <el-form-item label="位置">
-            <el-select v-model="item.relativeTest" @change="relType(item)" filterable allow-create placeholder="当前位置" style="width: 110px">
-              <el-option label="当前位置" value="present"></el-option>
-              <el-option label="全文起始" value="full"></el-option>
-              <el-option label="自定义行" value="" disabled></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item class="blockW">
-            <el-radio v-model="item.relativeType" label="present">按行匹配</el-radio>
-            <el-radio v-model="item.relativeType" label="full">全文匹配</el-radio>
-          </el-form-item>
-<!--          <el-form-item>-->
-<!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">-->
-          <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
-            <el-input v-model="item.matchContent"></el-input>
-          </el-form-item>
-<!--          <el-form-item label="类型">-->
-<!--            <el-select v-model="item.matched" filterable allow-create placeholder="类型" style="width: 130px">-->
-<!--              <el-option label="精确匹配" value="精确匹配"></el-option>-->
-<!--              <el-option label="模糊匹配" value="模糊匹配"></el-option>-->
-<!--            </el-select>-->
-<!--          </el-form-item>-->
-          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'matchfal'"
-             style="display: inline-block;padding-left:549px">
-          <el-form-item label="False"></el-form-item>
-          <el-form-item style="visibility: hidden">
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'wloop'" :key="index"
-             style="display: inline-block">
-          <el-form-item class="strongW" label="循环：" :prop="'dynamicItem.' + index + '.cycleStartId'">
-            <el-input v-model="item.cycleStartId" style="width: 150px"
-                      clearable @focus="shaxun"></el-input>
-<!--              disabled="true"-->
-          </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'dimmatch'" :key="index" style="display: inline-block">
-          <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
-            <el-input v-model="item.matchContent"></el-input>
-          </el-form-item>
-          <el-form-item label="光标位置">
-            <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
-              <el-option label="当前行" value="0"></el-option>
-              <el-option label="第一行" value="1"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 459px">
-          <el-form-item label="False"></el-form-item>
-          <el-form-item style="visibility: hidden">
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'lipre'" :key="index" style="display:inline-block">
-          <el-form-item label="按行精确匹配" :prop="'dynamicItem.' + index + '.relative'">
-            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
-          </el-form-item>
-          <el-form-item label="匹配内容">
-            <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
-          </el-form-item>
-          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 466px">
-          <el-form-item label="False"></el-form-item>
-          <el-form-item style="visibility: hidden">
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
+      </el-form>
+      <hr style='border:1px inset #D2E9FF;'>
 
-        <div v-else-if="item.targetType === 'dimpre'" :key="index" style="display: inline-block">
-          <el-form-item label="按行模糊匹配" :prop="'dynamicItem.' + index + '.relative'">
-            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
+      <el-form ref="forms" :inline="true" :model="forms" v-show="chuxian">
+        <el-form-item label="检测方法:"></el-form-item>
+        <el-form-item>
+          <el-checkbox v-model="checkedQ" @change="handleCheckAllChange">全选</el-checkbox>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="text" icon="el-icon-delete" @click="shanchu">删除</el-button>
+        </el-form-item>
+        <div v-for="(item,index) in forms.dynamicItem" ref="btn" :key="index" :label="index">
+          <el-form-item v-if="index!=0">
+            <el-checkbox v-model="item.checked"></el-checkbox>
           </el-form-item>
-          <el-form-item label="匹配内容">
-            <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
-          </el-form-item>
-          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 466px">
-          <el-form-item label="False"></el-form-item>
-          <el-form-item style="visibility: hidden">
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
+          <el-form-item v-if="index!=0">{{index}}</el-form-item>
+          <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
+          <div v-if="item.targetType === 'command'" :key="index"
+               style="display: inline-block">
+            <el-form-item label="命令：" class="strongW" :prop="'dynamicItem.' + index + '.command'">
+              <el-input v-model="item.command" name="comone" @focus="getName($event)"></el-input>
+            </el-form-item>
+            <el-form-item label="命令校验">
+              <!--            <el-select v-model="item.jiaoyan" placeholder="校验方式">-->
+              <!--              <el-option label="常规校验" value="常规校验" selected></el-option>-->
+              <!--              <el-option label="自定义校验" value="自定义校验"></el-option>-->
+              <!--            </el-select>-->
 
-        <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
-          <el-form-item label="取参:" class="strongW"></el-form-item>
-          <el-form-item label="位置">
-            <el-select v-model="item.cursorRegion" placeholder="当前位置" style="width: 110px">
-              <el-option label="当前位置" value="0"></el-option>
-              <el-option label="全文起始" value="1"></el-option>
-<!--              <el-option label="自定义行" value="ding" disabled></el-option>-->
-            </el-select>
-          </el-form-item>
-          <el-form-item :prop="'dynamicItem.' + index + '.takeword'">
-<!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
-            <el-input v-model="item.relative" style="width: 80px" placeholder="行偏移"></el-input> --
-            <el-input v-model="item.rPosition" style="width: 80px" placeholder="列偏移"></el-input> --
-            <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
-            <el-select v-model="item.classify" @change="reloadv" placeholder="词汇/单字/字符串" style="width: 80px">
-              <el-option label="词汇" value="W"></el-option>
-              <el-option label="单字" value="L"></el-option>
-              <el-option label="字符串" value="S"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item>
-            <el-radio-group v-model="item.exhibit">
-              <el-radio label="显示" style="margin-right: 5px"></el-radio>
-              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='显示'"></el-input>
-              <el-radio label="不显示" style="margin-right: 5px"></el-radio>
-              <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='不显示'"></el-input>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
-          <el-form-item label="比较：" class="strongW" v-show="bizui">
-            <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
-          </el-form-item>
-          <el-form-item label="比较" v-show="bixiala">
-            <el-select v-model="item.bi" filterable @change="bibi"
-                       v-show="bixiala" placeholder="例如:品牌<5.20.99">
-              <el-option v-for="(item,index) in biList"
-                         :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="True">{{ "\xa0" }}</el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
-        <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 268px">
-          <el-form-item label="False"></el-form-item>
-          <el-form-item style="visibility: hidden">
-            <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
-          </el-form-item>
-        </div>
+              <el-select v-model="item.resultCheckId" placeholder="校验方式">
+                <el-option label="自定义校验" value="0"></el-option>
+                <el-option label="常规校验" value="1"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
+            <el-form-item label="匹配:" class="strongW"></el-form-item>
+            <el-form-item label="位置">
+              <el-select v-model="item.relativeTest" @change="relType(item)" filterable allow-create placeholder="当前位置" style="width: 110px">
+                <el-option label="当前位置" value="present"></el-option>
+                <el-option label="全文起始" value="full"></el-option>
+                <el-option label="自定义行" value="" disabled></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item class="blockW">
+              <el-radio v-model="item.relativeType" label="present">按行匹配</el-radio>
+              <el-radio v-model="item.relativeType" label="full">全文匹配</el-radio>
+            </el-form-item>
+            <!--          <el-form-item>-->
+            <!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
+            <!--          </el-form-item>-->
+            <!--          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">-->
+            <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
+              <el-input v-model="item.matchContent"></el-input>
+            </el-form-item>
+            <!--          <el-form-item label="类型">-->
+            <!--            <el-select v-model="item.matched" filterable allow-create placeholder="类型" style="width: 130px">-->
+            <!--              <el-option label="精确匹配" value="精确匹配"></el-option>-->
+            <!--              <el-option label="模糊匹配" value="模糊匹配"></el-option>-->
+            <!--            </el-select>-->
+            <!--          </el-form-item>-->
+            <el-form-item label="True">{{ "\xa0" }}</el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'matchfal'"
+               style="display: inline-block;padding-left:549px">
+            <el-form-item label="False"></el-form-item>
+            <el-form-item style="visibility: hidden">
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'wloop'" :key="index"
+               style="display: inline-block">
+            <el-form-item class="strongW" label="循环：" :prop="'dynamicItem.' + index + '.cycleStartId'">
+              <el-input v-model="item.cycleStartId" style="width: 150px"
+                        clearable @focus="shaxun"></el-input>
+              <!--              disabled="true"-->
+            </el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'dimmatch'" :key="index" style="display: inline-block">
+            <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
+              <el-input v-model="item.matchContent"></el-input>
+            </el-form-item>
+            <el-form-item label="光标位置">
+              <el-select v-model="item.cursorRegion" placeholder="当前行" style="width: 130px">
+                <el-option label="当前行" value="0"></el-option>
+                <el-option label="第一行" value="1"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="True">{{ "\xa0" }}</el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'dimmatchfal'" style="display: inline-block;padding-left: 459px">
+            <el-form-item label="False"></el-form-item>
+            <el-form-item style="visibility: hidden">
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'lipre'" :key="index" style="display:inline-block">
+            <el-form-item label="按行精确匹配" :prop="'dynamicItem.' + index + '.relative'">
+              <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
+            </el-form-item>
+            <el-form-item label="匹配内容">
+              <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
+            </el-form-item>
+            <el-form-item label="True">{{ "\xa0" }}</el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'liprefal'" style="display: inline-block;padding-left: 466px">
+            <el-form-item label="False"></el-form-item>
+            <el-form-item style="visibility: hidden">
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
 
-        <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
-          <el-form-item label="异常：" class="strongW">
-<!--            prop="'dynamicItem.' + index + '.prodes'"-->
-<!--            <el-input v-model="item.prodes"></el-input>-->
-            <el-select v-model="item.tNextId" filterable allow-create @blur="proNameShu" placeholder="异常、安全、完成、自定义">
-              <el-option label="异常" value="有问题"></el-option>
-              <el-option label="安全" value="无问题"></el-option>
-              <el-option label="完成" value="完成"></el-option>
-            </el-select>
-          </el-form-item>
+          <div v-else-if="item.targetType === 'dimpre'" :key="index" style="display: inline-block">
+            <el-form-item label="按行模糊匹配" :prop="'dynamicItem.' + index + '.relative'">
+              <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
+            </el-form-item>
+            <el-form-item label="匹配内容">
+              <el-input v-model="item.matchContent" aria-placeholder="填写匹配内容"></el-input>
+            </el-form-item>
+            <el-form-item label="True">{{ "\xa0" }}</el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'dimprefal'" style="display: inline-block;padding-left: 466px">
+            <el-form-item label="False"></el-form-item>
+            <el-form-item style="visibility: hidden">
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+
+          <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
+            <el-form-item label="取参:" class="strongW"></el-form-item>
+            <el-form-item label="位置">
+              <el-select v-model="item.cursorRegion" placeholder="当前位置" style="width: 110px">
+                <el-option label="当前位置" value="0"></el-option>
+                <el-option label="全文起始" value="1"></el-option>
+                <!--              <el-option label="自定义行" value="ding" disabled></el-option>-->
+              </el-select>
+            </el-form-item>
+            <el-form-item :prop="'dynamicItem.' + index + '.takeword'">
+              <!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
+              <el-input v-model="item.relative" style="width: 80px" placeholder="行偏移"></el-input> --
+              <el-input v-model="item.rPosition" style="width: 80px" placeholder="列偏移"></el-input> --
+              <el-input v-model="item.length1" style="width: 80px" placeholder="取几个"></el-input>
+              <el-select v-model="item.classify" @change="reloadv" placeholder="词汇/单字/字符串" style="width: 80px">
+                <el-option label="词汇" value="W"></el-option>
+                <el-option label="单字" value="L"></el-option>
+                <el-option label="字符串" value="S"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-radio-group v-model="item.exhibit">
+                <el-radio label="显示" style="margin-right: 5px"></el-radio>
+                <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='显示'"></el-input>
+                <el-radio label="不显示" style="margin-right: 5px"></el-radio>
+                <el-input style="width: 120px" placeholder="参数名" v-model="item.wordName" v-if="item.exhibit==='不显示'"></el-input>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
+            <el-form-item label="比较：" class="strongW" v-show="bizui">
+              <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
+            </el-form-item>
+            <el-form-item label="比较" v-show="bixiala">
+              <el-select v-model="item.bi" filterable @change="bibi"
+                         v-show="bixiala" placeholder="例如:品牌<5.20.99">
+                <el-option v-for="(item,index) in biList"
+                           :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="True">{{ "\xa0" }}</el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+          <div v-else-if="item.targetType === 'analysefal'" style="display: inline-block;padding-left: 268px">
+            <el-form-item label="False"></el-form-item>
+            <el-form-item style="visibility: hidden">
+              <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
+            </el-form-item>
+          </div>
+
+          <div v-else-if="item.targetType === 'prodes'" :key="index" style="display:inline-block">
+            <el-form-item label="异常：" class="strongW">
+              <!--            prop="'dynamicItem.' + index + '.prodes'"-->
+              <!--            <el-input v-model="item.prodes"></el-input>-->
+              <el-select v-model="item.tNextId" filterable allow-create @blur="proNameShu" placeholder="异常、安全、完成、自定义">
+                <el-option label="异常" value="有问题"></el-option>
+                <el-option label="安全" value="无问题"></el-option>
+                <el-option label="完成" value="完成"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+            </el-form-item>
+          </div>
+
           <el-form-item>
-            <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
+            <el-dropdown trigger="click">
+              <el-button type="primary"><i class="el-icon-plus"></i></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>
+                  <el-button @click="addItem('command',item)" type="primary">命令</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button @click="addItem('match',item,index)" type="primary">匹配</el-button>
+                </el-dropdown-item>
+                <!--              <el-dropdown-item>-->
+                <!--                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>-->
+                <!--              </el-dropdown-item>-->
+                <!--              <el-dropdown-item>-->
+                <!--                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>-->
+                <!--              </el-dropdown-item>-->
+                <!--              <el-dropdown-item>-->
+                <!--                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>-->
+                <!--              </el-dropdown-item>-->
+                <el-dropdown-item>
+                  <el-button @click="addItem('takeword',item)" type="primary">取参</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button @click="addItem('analyse',item)" type="primary">分析比较</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button @click="addItem('wloop',item)" type="primary">循环位置</el-button>
+                </el-dropdown-item>
+                <el-dropdown-item>
+                  <el-button @click="addItem('prodes',item)" type="primary">问题名称</el-button>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </el-form-item>
         </div>
 
         <el-form-item>
-          <el-dropdown trigger="click">
-            <el-button type="primary"><i class="el-icon-plus"></i></el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>
-                <el-button @click="addItem('command',item)" type="primary">命令</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('match',item,index)" type="primary">匹配</el-button>
-              </el-dropdown-item>
-<!--              <el-dropdown-item>-->
-<!--                <el-button @click="addItem('dimmatch',item)" type="primary">全文模糊匹配</el-button>-->
-<!--              </el-dropdown-item>-->
-<!--              <el-dropdown-item>-->
-<!--                <el-button @click="addItem('lipre',item)" type="primary">按行精确匹配</el-button>-->
-<!--              </el-dropdown-item>-->
-<!--              <el-dropdown-item>-->
-<!--                <el-button @click="addItem('dimpre',item)" type="primary">按行模糊匹配</el-button>-->
-<!--              </el-dropdown-item>-->
-              <el-dropdown-item>
-                <el-button @click="addItem('takeword',item)" type="primary">取参</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('analyse',item)" type="primary">分析比较</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('wloop',item)" type="primary">循环位置</el-button>
-              </el-dropdown-item>
-              <el-dropdown-item>
-                <el-button @click="addItem('prodes',item)" type="primary">问题名称</el-button>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <!--        <el-button @click="tijiao" type="primary">提交</el-button>-->
+          <el-button @click="subProblem" type="primary">提交</el-button>
+          <!--        <el-button @click="testAll" type="primary">测试</el-button>-->
+          <!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
+          <!--        <el-button @click="proname" type="primary">问题名</el-button>-->
         </el-form-item>
-      </div>
 
-      <el-form-item>
-<!--        <el-button @click="tijiao" type="primary">提交</el-button>-->
-        <el-button @click="subProblem" type="primary">提交</el-button>
-<!--        <el-button @click="testAll" type="primary">测试</el-button>-->
-<!--        <el-button @click="jiejue" type="primary">解决问题</el-button>-->
-<!--        <el-button @click="proname" type="primary">问题名</el-button>-->
-      </el-form-item>
+      </el-form>
 
-    </el-form>
+      <TinymceEditor v-show="showha" ref="fuwenben"></TinymceEditor>
+      <el-button @click="yinyin" v-show="showha">隐藏</el-button>
+      <el-button @click="look" type="primary" v-show="showha" style="margin-top:20px">提交</el-button>
 
-    <TinymceEditor v-show="showha" ref="fuwenben"></TinymceEditor>
-    <el-button @click="yinyin" v-show="showha">隐藏</el-button>
-    <el-button @click="look" type="primary" v-show="showha" style="margin-top:20px">提交</el-button>
+      <el-input type="textarea" v-show="partShow" v-model="particular" rows="15"></el-input>
+      <el-button @click="partsub" type="primary" v-show="partShow" style="margin-top:20px">提交详情</el-button>
+      <el-button @click="partclose" type="primary" v-show="partShow" style="margin-top:20px">关闭详情</el-button>
 
-    <el-input type="textarea" v-show="partShow" v-model="particular" rows="15"></el-input>
-    <el-button @click="partsub" type="primary" v-show="partShow" style="margin-top:20px">提交详情</el-button>
-    <el-button @click="partclose" type="primary" v-show="partShow" style="margin-top:20px">关闭详情</el-button>
-
-    <vue-context-menu id="helpshow" style="width: 100px;background: #eee;margin-left: auto;padding-left: 0px;height: 25px"
-                      :contextMenuData="contextMenuData" @deletedata="deletedata" @showhelp="showhelp">
-<!--      <v-contex-tmenu-item>菜单1</v-contex-tmenu-item>-->
-    </vue-context-menu>
-
-    <el-dialog
-      title="提示"
-      :visible.sync="dialogVisibleHelp"
-      style="padding: 10px"
-      width="40%">
-      <div id="fatherq" class="qqqqq">
-        <h3 style="font-weight: bolder" id="brand" ref="brand">品牌</h3>
-        <p>请输入品牌：</p>
-        <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
-        <p>请输入型号：</p>
-        <h3 style="font-weight: bolder" id="firewareVersion" ref="firewareVersion">固件版本</h3>
-        <p>请输入固件版本：</p>
-        <h3 style="font-weight: bolder" id="subVersion" ref="subVersion">子版本</h3>
-        <p>请输入子版本：</p>
-        <h3 style="font-weight: bolder" id="typeProblem" ref="typeProblem">范式类型</h3>
-        <p>请输入范式类型：</p>
-        <h3 style="font-weight: bolder" id="temProName" ref="temProName">范式名称</h3>
-        <p>请输入范式名称：</p>
-        <h3 style="font-weight: bolder" id="problemName" ref="problemName">自定义名称</h3>
-        <p>请输入自定义名称：</p>
-        <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">标识符</h3>
-        <p>请输入标识符：</p>
-        <h3 style="font-weight: bolder" id="comone" ref="comone">命令</h3>
-        <p>请输入命令：</p>
-        <a :href="whelp" style="display: none" ref="bang"><span>阿斯顿撒大</span></a>
-      </div>
-      <span slot="footer" class="dialog-footer">
+      <el-dialog
+        title="提示"
+        :visible.sync="dialogVisibleHelp"
+        style="padding: 10px"
+        width="40%">
+        <div id="fatherq" class="qqqqq">
+          <h3 style="font-weight: bolder" id="brand" ref="brand">品牌</h3>
+          <p>请输入品牌：</p>
+          <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
+          <p>请输入型号：</p>
+          <h3 style="font-weight: bolder" id="firewareVersion" ref="firewareVersion">固件版本</h3>
+          <p>请输入固件版本：</p>
+          <h3 style="font-weight: bolder" id="subVersion" ref="subVersion">子版本</h3>
+          <p>请输入子版本：</p>
+          <h3 style="font-weight: bolder" id="typeProblem" ref="typeProblem">范式分类</h3>
+          <p>请输入范式类型：</p>
+          <h3 style="font-weight: bolder" id="temProName" ref="temProName">范式名称</h3>
+          <p>请输入范式名称：</p>
+          <h3 style="font-weight: bolder" id="problemName" ref="problemName">自定义名称</h3>
+          <p>请输入自定义名称：</p>
+          <h3 style="font-weight: bolder" id="beizhu" ref="beizhu">备注</h3>
+          <p>请输入备注：</p>
+          <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">标识符</h3>
+          <p>请输入标识符：</p>
+          <h3 style="font-weight: bolder" id="comone" ref="comone">命令</h3>
+          <p>请输入命令：</p>
+          <a :href="whelp" style="display: none" ref="bang"><span>阿斯顿撒大</span></a>
+        </div>
+        <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisibleHelp = false">取 消</el-button>
     <el-button type="primary" @click="dialogVisibleHelp = false">确 定</el-button>
   </span>
-    </el-dialog>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -428,6 +436,10 @@ export default {
     },
   data() {
     return {
+        //右键菜单
+        visibleItem:false,
+        top:0,
+        left:0,
         //联动
         clickLine:'',
         keys:1,
@@ -443,24 +455,6 @@ export default {
         display:'inline-block',
         paddingLeft:'0px',
         cpus:'',
-        //右键
-        contextMenuData:{
-          menuName:"demo",
-            axis:{
-              x:null,
-                y:null
-            },
-            menulists:[
-                {
-                    fnHandler:'showhelp',
-                    btnName:'帮助'
-                }
-                // {
-                //     fnHandler:'deletedata',
-                //     btnName:'删除当前数据'
-                // }
-            ]
-        },
         who:'',
         helpT:'',
         showha:false,
@@ -534,7 +528,64 @@ export default {
             }
         }
     },
+    watch:{
+        // 监听 visible，来触发关闭右键菜单，调用关闭菜单的方法
+        visibleItem(value) {
+            if (value) {
+                document.body.addEventListener('click', this.closeMenu)
+            } else {
+                document.body.removeEventListener('click', this.closeMenu)
+            }
+        }
+    },
   methods: {
+      //测试
+      testOne(){
+
+      },
+      //
+      handleDeleteOne(){
+          this.dialogVisibleHelp = true
+          this.whelp = `#${this.who}`
+          console.log(this.whelp)
+          setTimeout(()=>{
+              this.$refs.bang.click()
+              let h3l = document.getElementById('fatherq').getElementsByTagName('h3').length
+              for (let i = 0;i<h3l;i++){
+                  // console.log(document.getElementById('fatherq').getElementsByTagName('h3')[i])
+                  document.getElementById('fatherq').getElementsByTagName('h3')[i].classList.remove('redColor')
+              }
+              this.$refs[this.who].classList.add('redColor')
+          },0)
+          this.visibleItem = false;
+      },
+      handleDownloadFile(){
+          let copyInput = document.createElement('input')
+          var text = ''
+          if(window.getSelection()){
+              console.log(window.getSelection())
+              text = window.getSelection().toString()
+          }else if (document.selection && document.selection.type != 'Control'){
+              text = document.selection.createRange().text
+          }
+          copyInput.value = text
+          document.body.appendChild(copyInput)
+          copyInput.select()
+          // document.execCommand('Copy')
+          navigator.clipboard.writeText(text)
+          copyInput.remove();
+          console.log(text)
+      },
+      handlePreviewFile(e){
+          console.log(this.who)
+          navigator.clipboard.readText().then(text=>{
+              console.log(text)
+              document.getElementsByName(this.who)[0].value = text
+          })
+      },
+      closeMenu(){
+          this.visibleItem = false;
+      },
       //重新赋值
       reloadv(){
 
@@ -556,6 +607,11 @@ export default {
           console.log("ip",ip.split(":")[0])
           console.log(process.env.VUE_APP_HOST)
       },
+      //
+      beizhu(e){
+          this.who = e.target.getAttribute('name')
+          console.log(this.who)
+      },
       //右键
       biaoshi(e){
           this.who = e.target.getAttribute('name')
@@ -566,60 +622,22 @@ export default {
       },
       //右键
       showMenu(){
+          this.visibleItem = true
           console.log('右击')
-        event.preventDefault()
-        var x = event.clientX
-        var y = event.clientY
-        this.contextMenuData.axis = {
-            x,
-            y,
-        }
+          this.top = event.clientY
+          this.left = event.clientX
       },
-      //帮助
-      deletedata(){
-          console.log('delete!')
-      },
-      showhelp(){
-          this.dialogVisibleHelp = true
-          this.whelp = `#${this.who}`
-          setTimeout(()=>{
-              this.$refs.bang.click()
-              let h3l = document.getElementById('fatherq').getElementsByTagName('h3').length
-              for (let i = 0;i<h3l;i++){
-                  // console.log(document.getElementById('fatherq').getElementsByTagName('h3')[i])
-                  document.getElementById('fatherq').getElementsByTagName('h3')[i].classList.remove('redColor')
-              }
-              this.$refs[this.who].classList.add('redColor')
-          },0)
-      },
-      showhelps(){
-          if (this.who === 'biaoshi'){
-              this.dialogVisibleHelp = true
-              this.whelp = '#pinpai'
-              setTimeout(()=>{
-                  console.log(this.$refs.bang)
-                  this.$refs.bang.click()
-                  this.$refs.pinpai.style.color='red'
-              },0)
-          }else if (this.who === 'brand'){
-              this.helpT = '请输入交换机品牌'
-          }else if (this.who === 'type' ){
-              // this.helpT = '请输入交换机型号'
-              this.dialogVisibleHelp = true
-              this.whelp = '#xinghao'
-              setTimeout(()=>{
-                  console.log(this.$refs.bang)
-                  this.$refs.bang.click()
-                  this.$refs.xinghao.style.color='red'
-              },0)
-          }else if (this.who === 'firewareVersion' ){
-              this.helpT = '请输入交换机版本'
-          }else if (this.who === 'subVersion' ){
-              this.helpT = '请输入交换机子版本'
-          }else if (this.who === '' ){
-              this.helpT = ''
-          }else if (this.who === '' ){
-              this.helpT = ''
+      //获取选中信息
+      getSelection(){
+          if(window.getSelection()){
+              console.log(window.getSelection())
+             var text = window.getSelection().toString()
+              console.log(text)
+          }else if (document.selection && document.selection.type != 'Control'){
+              text = document.selection.createRange().text
+          }
+          if (text){
+              return text
           }
       },
       shaxun(){
@@ -1617,5 +1635,27 @@ export default {
   >>> .blockW label{
     display: block;
     margin-right: 5px;
+  }
+  .contextmenu {
+    margin: 0;
+    background: #fff;
+    z-index: 3000;
+    position: absolute;
+    list-style-type: none;
+    padding: 5px 0;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #333;
+    box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
+    position: fixed;
+  }
+  .contextmenu li {
+    margin: 0;
+    padding: 7px 16px;
+    cursor: pointer;
+  }
+  .contextmenu li:hover {
+    background: #eee;
   }
 </style>

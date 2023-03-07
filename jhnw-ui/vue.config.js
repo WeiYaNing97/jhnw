@@ -78,6 +78,10 @@ module.exports = {
         // }
       }
     },
+    // headers:{
+    //   'Access-Control-Allow-Origin':'*'
+    // },
+    // hotOnly:false,
     disableHostCheck: true
   },
   configureWebpack: {

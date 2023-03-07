@@ -1,19 +1,20 @@
 <template>
   <div class="app-container">
 <!--    <el-button type="primary" size="small" style="margin-bottom: 10px" @click="lishi">历史扫描</el-button>-->
+    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>
     <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"
               ref="tree"
               v-show="huisao"
-              @row-click="expandChange"
               style="width: 100%"
               row-key="hproblemId"
               :cell-style="hongse"
-              :default-expand-all="false"
+              @row-click='expandChange'
+              :default-expand-all='isExpansion'
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}"
               :span-method="arraySpanMethodTwo">
-      <el-table-column prop="createTime" label="扫描时间" width="180"></el-table-column>
+      <el-table-column prop="createTime" label="扫描时间" width="120"></el-table-column>
       <!--      <el-table-column prop="switchIp" label="主机" width="130"></el-table-column>-->
       <!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
       <el-table-column prop="hebing" label="主机(基本信息)" width="200"></el-table-column>
@@ -28,11 +29,14 @@
                      v-show="scope.row.ifQuestion==='异常'"
                      @click="xiufuone(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
-                     v-show="scope.row.switchIp != undefined"
+                     v-show="scope.row.switchIp != undefined && noPro == false"
                      @click.stop="xiuallone(scope.row)">单台修复</el-button>
-          <el-button style="margin-left: 0" type="success" plain round
-                     size="small" v-show="scope.row.createTime != undefined"
+          <el-button style="margin-left: 0" type="warning" plain round
+                     size="small" v-show="scope.row.createTime != undefined && noPro == false"
                      @click.stop="huitimeyijian(scope.row)">一键修复</el-button>
+          <el-button style="margin-left: 0" type="success" plain round
+                     size="small" v-show="scope.row.createTime != undefined && noPro == true"
+                     @click.stop="huitimeyijian(scope.row)">全部正常</el-button>
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
                      @click="xiangqing(scope.row)">详情</el-button>
@@ -45,23 +49,47 @@
 <script>
     import request from '@/utils/request'
     import TinymceEditor from "@/components/Tinymce/TinymceEditor"
+    import { ExportBriefDataDocx } from '@/utils/exportBriefDataDocx'
     export default {
         name: "History_scan",
         data(){
             return{
+                //报告
+                docxData:{
+                    tableData:[],
+                    year:'',
+                    month:''
+                },
                 lishiData:[],
                 loading:false,
                 huisao:true,
                 newArr:[],
                 //详情内容
                 particular:'',
+                isExpansion:true,
+                noPro:''
             }
         },
         mounted:function(){
           this.lishi()
         },
+        created(){
+            // this.expandChange()
+        },
         methods:{
-            //展开折叠当前列表
+            //导出
+            exportDocx(){
+                console.log('导出');
+                this.docxData.tableData = this.lishiData
+                this.docxData.year = 2022
+                this.docxData.month = 9
+                // ExportBriefDataDocx 是我导入的一个文件，里边写的是导出文本的核心代码
+                ExportBriefDataDocx('/报告test.docx', this.docxData, '导出的.docx')
+                // ExportBriefDataDocx('/text.docx', this.docxData, '文档导出.docx') // text.docx放在了根目录下的public文件夹下
+            },
+            // sessionStorage.setItem('','ok'),
+            // window.sessionStorage.setItem('','ok'),
+            // 展开折叠当前列表
             expandChange(row){
                 this.$refs.tree.toggleRowExpansion(row)
             },
@@ -182,6 +210,7 @@
                     for (let g = 0;g<allwenti[i].children.length;g++){
                         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
                             for (let n = 0;n<allwenti[i].children[g].children[m].children.length;n++){
+                                console.log(allwenti[i].children[g].children[m].children[n].hproblemId)
                                 if (allwenti[i].children[g].children[m].children[n].hproblemId === thisid){
                                     thisparip = allwenti[i].children[g].switchIp
                                 }
@@ -218,6 +247,13 @@
             },
             //历史扫描合并列
             arraySpanMethodTwo({ row, column, rowIndex, columnIndex }) {
+                if(row.createTime != null){
+                    if (columnIndex === 0) {
+                        return [1, 2];
+                    } else if (columnIndex === 1) {
+                        return [0, 0];
+                    }
+                }
                 if (row.hebing != null){
                     if (columnIndex === 1) {
                         return [1, 2];
@@ -246,21 +282,49 @@
                     response = changeTreeDate(response,'switchProblemCOList','children')
                     this.lishiData = response
                     const jiaid = this.lishiData
+                    const jiaid1 = this.lishiData
                     //合并信息
                     for(let i = 0;i<jiaid.length;i++){
                         for (let g = 0;g<jiaid[i].children.length;g++){
-                            var hebingInfo = jiaid[i].children[g].switchIp + ' ' + jiaid[i].children[g].showBasicInfo
+                            var beforeJieData = jiaid[i].children[g].switchIp
+                            var plcaeJie =  beforeJieData.indexOf(':')
+                            var afterJie = beforeJieData.substring(0,plcaeJie)
+                            var hebingInfo = afterJie + ' ' + jiaid[i].children[g].showBasicInfo
                             this.$set(jiaid[i].children[g],'hebing',hebingInfo)
                         }
                     }
+                    //修改ip
+
+                    // console.log(row)
+                    // const thisid = row.hproblemId
+                    // let thisparip = ''
+                    // const allwenti = this.lishiData
+                    // for(let i = 0;i<allwenti.length;i++){
+                    //     for (let g = 0;g<allwenti[i].children.length;g++){
+                    //         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
+                    //             for (let n = 0;n<allwenti[i].children[g].children[m].children.length;n++){
+                    //                 console.log(allwenti[i].children[g].children[m].children[n].hproblemId)
+                    //                 if (allwenti[i].children[g].children[m].children[n].hproblemId === thisid){
+                    //                     thisparip = allwenti[i].children[g].switchIp
+
                     //返回数据添加hproblemId
                     for(let i = 0;i<jiaid.length;i++){
-                        this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
+                        // this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
+                        this.$set(jiaid[i],'hproblemId',(Math.random()*10000+1))
                         for (let g = 0;g<jiaid[i].children.length;g++){
-                            this.$set(jiaid[i].children[g],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
+                            // this.$set(jiaid[i].children[g],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
+                            this.$set(jiaid[i].children[g],'hproblemId',(Math.random()*10000+1))
                             for (let m = 0;m<jiaid[i].children[g].children.length;m++){
+                                this.$set(jiaid[i].children[g].children[m],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
                                 for (let n = 0;n<jiaid[i].children[g].children[m].children.length;n++){
+                                    this.$set(jiaid[i].children[g].children[m].children[n],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
                                     this.$set(jiaid[i].children[g].children[m].children[n],'createTime',null)
+                                    //查找是否有问题
+                                    if (jiaid[i].children[g].children[m].children[n].ifQuestion.includes('异常')){
+                                        this.noPro = false
+                                    }else if (jiaid[i].children[g].children[m].children[n].ifQuestion.includes('安全')){
+                                        this.noPro = true
+                                    }
                                 }
                             }
                         }

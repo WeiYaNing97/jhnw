@@ -7,6 +7,7 @@
 <!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <p>我是：{{ endIp }}</p>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
+    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 <!--    当前扫描-->
     <el-table v-loading="loading"
@@ -104,11 +105,12 @@
 </template>
 
 <script>
-    import log from "../../views/monitor/job/log";
+    import log from "../../views/monitor/job/log"
     import axios from 'axios'
     import request from '@/utils/request'
     import Cookies from "js-cookie"
     import TinymceEditor from "@/components/Tinymce/TinymceEditor"
+    import { ExportBriefDataDocx } from '@/utils/exportBriefDataDocx'
     export default {
         name: "WebSocketTwo",
         components: {
@@ -123,6 +125,12 @@
         },
         data() {
             return {
+                //报告
+                docxData:{
+                    tableData:[],
+                    year:'',
+                    month:''
+                },
                 //
                 endIpCopy: '',
                 //
@@ -201,6 +209,16 @@
 
         },
         methods: {
+            //导出
+            exportDocx(){
+                console.log('导出');
+                this.docxData.tableData = this.nowData
+                this.docxData.year = 2022
+                this.docxData.month = 9
+                // ExportBriefDataDocx 是我导入的一个文件，里边写的是导出文本的核心代码
+                ExportBriefDataDocx('/报告.docx', this.docxData, '导出的.docx')
+                // ExportBriefDataDocx('/text.docx', this.docxData, '文档导出.docx') // text.docx放在了根目录下的public文件夹下
+            },
             //给icon添加class、样式
             lookDom({row, column, rowIndex, columnIndex}) {
                 if (this.endIpCopy == row.switchIp) {
@@ -750,8 +768,6 @@
                     console.log(this.alljiao.allInfo)
                     console.log(this.nowData)
                 }
-
-
             },
 
 
@@ -759,7 +775,7 @@
              * ws通信发生错误
              */
             wsErrorHanler(event) {
-                console.log('错误的' + "...." + event.code + "...." + event.reason + "...." + event.wasClean)
+                console.log('错误的' + "+" + event.code + "+" + event.reason + "+" + event.wasClean)
                 console.log(event, '通信发生错误')
                 this.wsInit()
             },
@@ -767,7 +783,7 @@
              * ws关闭
              */
             wsCloseHanler(event) {
-                console.log('正常的' + ",,,,," + event.code + ",,,,," + event.reason + ",,,," + event.wasClean)
+                console.log('正常的' + "+" + event.code + "+" + event.reason + "+" + event.wasClean)
                 console.log(event, 'ws关闭')
                 this.wsInit()
             },

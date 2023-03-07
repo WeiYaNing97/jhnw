@@ -76,6 +76,12 @@
           <el-form-item>
             <el-button type="danger" @click="shanchutest" icon="el-icon-delete" size="small" plain>删除</el-button>
           </el-form-item>
+          <el-form-item>
+            <el-button type="danger" @click.native="tuichu" icon="el-icon-delete" size="small" plain>退出</el-button>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="danger" @click.native="copy" icon="el-icon-delete" size="small" plain>复制</el-button>
+          </el-form-item>
 <!--          <el-form-item>-->
 <!--            <el-button type="primary" @click="exportData">导出</el-button>-->
 <!--          </el-form-item>-->
@@ -494,6 +500,29 @@ export default {
       }
     },
   methods: {
+      showMenu(){
+
+      },
+      copy(){
+          document.execCommand('Copy')
+          console.log(document.execCommand('Copy'))
+      },
+      tuichu(){
+          this.$store.dispatch('LogOut').then(() => {
+              console.log('执行退出')
+              // location.href = '/index';
+          })
+          // this.$confirm('确定注销并退出系统吗？', '提示', {
+          //     confirmButtonText: '确定',
+          //     cancelButtonText: '取消',
+          //     type: 'warning'
+          // }).then(() => {
+          //     this.$store.dispatch('LogOut').then(() => {
+          //         console.log('执行退出')
+          //         location.href = '/index';
+          //     })
+          // }).catch(() => {});
+      },
       a(){
           alert('sss')
       },

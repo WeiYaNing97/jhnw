@@ -403,7 +403,7 @@ public class SwitchInteraction {
         String ScanningTime = simpleDateFormat.format(new Date());
         LoginUser login = SecurityUtils.getLoginUser();
 
-        WebSocketService.sendMessage("admin","");
+//        WebSocketService.sendMessage("admin","");
 
         //ScanThread.switchLoginInformations(objectsList,ScanningTime,login);
         //线程池

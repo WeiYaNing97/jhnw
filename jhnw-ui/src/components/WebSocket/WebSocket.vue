@@ -1,6 +1,5 @@
 <template>
   <div>
-<!--    <el-button @click="sendDataToServer" >给后台发送消息</el-button>-->
 <!--    <el-input-->
 <!--      id="webt"-->
 <!--      type="textarea"-->
@@ -101,7 +100,14 @@
             }
         },
         created(){
-            const usname = Cookies.get('usName')
+            // const usname = Cookies.get('usName')
+            let timeXun = setInterval(() => {
+                if (this.webSocket.readyState === 1) {
+                    this.webSocket.send('ping')
+                } else {
+                    throw Error('服务未连接')
+                }
+            },30000)
         },
         methods: {
             //扫描结束传给父组件
@@ -119,13 +125,7 @@
             geifurepaired(){
                 return this.repairend
             },
-            sendDataToServer() {
-                if (this.webSocket.readyState === 1) {
-                    this.webSocket.send('来自前ssss端的数据')
-                } else {
-                    throw Error('服务未连接')
-                }
-            },
+
             /**
              * 初始化ws
              */
@@ -158,7 +158,7 @@
                         console.log('ws建立连接失败')
                         this.wsInit()
                     }
-                }, 300000)
+                }, 3000)
             },
             wsOpenHanler(event) {
                 console.log('ws建立连接成功')
@@ -199,6 +199,7 @@
              * ws通信发生错误
              */
             wsErrorHanler(event) {
+                console.log('错误的' + "+" + event.code + "+" + event.reason + "+" + event.wasClean)
                 console.log(event, '通信发生错误')
                 this.wsInit()
             },
@@ -206,6 +207,7 @@
              * ws关闭
              */
             wsCloseHanler(event) {
+                console.log('正常的' + "+" + event.code + "+" + event.reason + "+" + event.wasClean)
                 console.log(event, 'ws关闭')
                 this.wsInit()
             },

@@ -90,7 +90,7 @@
           <el-table :data="tableData" style="width: 100%"
                     max-height="300" ref="tableData"
                     :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
-            <el-table-column type="index" width="40"></el-table-column>
+            <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
             <el-table-column type="selection" width="45"></el-table-column>
 
             <!--            <el-table-column type="text" width="45">-->
@@ -100,48 +100,54 @@
             <el-table-column prop="ip" label="设备IP">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.ip"
-                          placeholder="请输入ip" size="small" style="width: 120px"></el-input>
+                          placeholder="请输入ip" size="small"></el-input>
                 <span v-else>{{ row.ip }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="name" label="用户名">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.name"
-                          placeholder="请输入用户名" size="small" style="width: 120px"></el-input>
+                          placeholder="请输入用户名" size="small"></el-input>
                 <span v-else>{{ row.name }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="password" label="密码">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.password" type="password"
-                          placeholder="请输入密码" size="small" style="width: 90px"></el-input>
+                          placeholder="请输入密码" size="small"></el-input>
                 <span v-else>{{ row.passmi }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="mode" label="连接方式">
               <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.mode"
-                          placeholder="连接方式" size="small" style="width: 70px"></el-input>
+<!--                <el-input v-if="row.isEdit" v-model="row.mode"-->
+<!--                          placeholder="连接方式" size="small"></el-input>-->
+
+                <el-select v-if="row.isEdit" v-model="row.mode" size="small" placeholder="连接方式">
+                  <el-option label="ssh" value="ssh"/>
+                  <el-option label="telnet" value="telnet"/>
+                </el-select>
+
                 <span v-else>{{ row.mode }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="port" label="端口号">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.port"
-                          placeholder="端口" size="small" style="width: 50px"></el-input>
+                          placeholder="端口" size="small"></el-input>
                 <span v-else>{{ row.port }}</span>
               </template>
             </el-table-column>
             <el-table-column prop="configureCiphers" label="配置密码">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
-                          placeholder="配置密码" size="small" style="width: 90px"></el-input>
+                          placeholder="配置密码" size="small"></el-input>
                 <span v-else>{{ row.conCip }}</span>
               </template>
             </el-table-column>
             <el-table-column label="操作">
               <template slot-scope="{ row }">
-                <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small">确定</el-button>
+                <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
                 <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
                 <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
                 <!--                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>-->
@@ -237,10 +243,8 @@
 <script>
     // import { listJh_test, getJh_test, delJh_test, addJh_test, updateJh_test, exportJh_test } from "@/api/sql/jh_test"
     import WebSocket from '@/components/WebSocket/WebSocket'
-    // import WebSocketOne from "@/components/WebSocketOne/WebSocketOne"
     import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo"
     import  {MessageBox} from "element-ui"
-    // import log from "../../monitor/job/log"
     import * as XLSX from 'xlsx'
     import request from '@/utils/request'
     import { JSEncrypt } from 'jsencrypt'
@@ -417,6 +421,9 @@
             // this.getList();
         },
         methods: {
+            indexMethod(index) {
+                return index + 1;
+            },
             rStart(){
                 // this.$router.go(0)
                 this.reload()
