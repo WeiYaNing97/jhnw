@@ -13,7 +13,7 @@ configuration:
 
 
   # 能够获取品牌的命令
-  getBrandCommand: dis ver;show version
+  getBrandCommand: show version;display version
   # 设备版本 两个型号之间以;分阁
   deviceVersion: Version
   # 设备子版本 两个型号之间以;分阁
