@@ -565,14 +565,15 @@ public class SwitchInteraction {
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
 
-            AjaxResult getBasicInformationCurrency = GetBasicInformationController.getBasicInformationCurrency(user_String,user_Object);
-            HashMap<String, String> data = (HashMap<String, String>) getBasicInformationCurrency.get("data");
+            AjaxResult basicInformationList_ajaxResult = GetBasicInformationController.getBasicInformationCurrency(user_String,user_Object);
+            HashMap<String, String> data = (HashMap<String, String>) basicInformationList_ajaxResult.get("data");
+
 
             System.err.println("==================================================================");
             System.err.println("品牌"+data.get("pinpai")+"型号"+data.get("xinghao")+"版本"+data.get("banben")+"子版本"+data.get("zibanben"));
             System.err.println("==================================================================");
 
-            AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
+            //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
 
 
 

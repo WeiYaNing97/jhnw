@@ -243,7 +243,7 @@ public class GetBasicInformationController {
             }
 
             //当前命令字符串 返回命令总和("\r\n"分隔)
-            return_sum +=  commandString+"\r\n";
+            return_sum =  commandString+"\r\n";
         }
 
 
@@ -269,6 +269,11 @@ public class GetBasicInformationController {
             //子版本号
             user_String.put("subversionNumber",hashMap.get("zibanben"));
 
+            WebSocketService.sendMessage(userName,"系统信息:"+user_String.get("ip") +"基本信息："+
+                    "设备品牌："+hashMap.get("pinpai")+
+                    "设备型号："+hashMap.get("xinghao")+
+                    "内部固件版本："+hashMap.get("banben")+
+                    "子版本号："+hashMap.get("zibanben")+"\r\n");
 
             return AjaxResult.success(hashMap);
         }
@@ -327,13 +332,17 @@ public class GetBasicInformationController {
         map.put("banben",null);
         map.put("zibanben",null);
 
+        String[] return_word = returns_String.trim().split(" ");
+
+
         for (String brandString:brandList){
-            if (returns.indexOf(" "+ brandString +" ") != -1){
-                brand = brandString;
+            for (int number = 0 ; number < return_word.length; number++){
+                if (brandString.equalsIgnoreCase(return_word[number])){
+                    brand = brandString;
+                    break;
+                }
             }
         }
-
-        String[] return_word = returns_String.trim().split(" ");
 
         if (!(brand.equals(""))){
             List<String> modelList = informationService.selectDeviceModelList(brand);

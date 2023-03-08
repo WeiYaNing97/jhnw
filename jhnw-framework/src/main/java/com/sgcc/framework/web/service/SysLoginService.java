@@ -99,9 +99,9 @@ public class SysLoginService
 
         //判断当前用户是否已经登录   如果登录 返回   用户已经登录，不允许再次登录！
         String onlineUser = redisCache.getCacheObject(Constants.LOGIN_ONKINE_USER_KEY + loginUser.getUsername());
-        if (onlineUser != null) {
+        /*if (onlineUser != null) {
             throw new ServiceException("用户已经登录，不允许再次登录！");
-        }
+        }*/
 
         // 生成token
         String token = tokenService.createToken(loginUser);
