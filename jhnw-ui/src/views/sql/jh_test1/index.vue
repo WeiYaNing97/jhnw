@@ -392,7 +392,7 @@
         width="40%">
         <div id="fatherq" class="qqqqq">
           <h3 style="font-weight: bolder" id="brand" ref="brand">品牌</h3>
-          <p>请输入品牌：</p>
+          <p>{{ this.baseConfig.help_txt.brand }}</p>
           <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
           <p>请输入型号：</p>
           <h3 style="font-weight: bolder" id="firewareVersion" ref="firewareVersion">固件版本</h3>
@@ -427,12 +427,13 @@ import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, ex
 import TinymceEditor from "@/components/Tinymce/TinymceEditor"
 import request from '@/utils/request'
 import router from '@/router/index'
-
+import help_txt from "../help_txt/help_txt"
 export default {
   name: "Jh_test1",
     inject:["reload"],
     components:{
-        TinymceEditor
+        TinymceEditor,
+        help_txt
     },
   data() {
     return {
@@ -444,6 +445,7 @@ export default {
         clickLine:'',
         keys:1,
         //帮助
+        help_show:false,
         whelp:'',
         dialogVisibleHelp:false,
         //问题详情
@@ -541,7 +543,8 @@ export default {
   methods: {
       //测试
       testOne(){
-
+          this.help_show = true
+          this.dialogVisibleHelp = true
       },
       //
       handleDeleteOne(){

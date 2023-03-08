@@ -7,7 +7,7 @@
 <!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <p>我是：{{ endIp }}</p>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
-    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>
+<!--    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 <!--    当前扫描-->
     <el-table v-loading="loading"

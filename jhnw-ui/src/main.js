@@ -35,6 +35,7 @@ import VueMeta from 'vue-meta'
 // 字典数据组件
 import DictData from '@/components/DictData'
 import VueContextMenu from "vue-contextmenu";
+import axios from "axios"
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
@@ -75,9 +76,13 @@ Vue.use(Element, {
 
 Vue.config.productionTip = false
 
+axios.get('./config.json').then(res=>{
+  Vue.prototype.baseConfig = JSON.parse(JSON.stringify(res.data))
+})
+
 new Vue({
   el: '#app',
   router,
   store,
   render: h => h(App)
-})
+}).$mount('#app')

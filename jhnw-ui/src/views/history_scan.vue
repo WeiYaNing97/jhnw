@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
 <!--    <el-button type="primary" size="small" style="margin-bottom: 10px" @click="lishi">历史扫描</el-button>-->
-    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>
+<!--    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>-->
     <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"

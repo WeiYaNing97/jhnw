@@ -45,11 +45,11 @@ export default  {
       },
          beforeunloadHandler(e) {
             this.beforeUnload_time = new Date().getTime();
-            console.log(this.beforeUnload_time)
-            console.log('关闭前')
-             this.$store.dispatch('LogOut').then(() => {
-                 console.log('执行了退出')
-             })
+            // console.log(this.beforeUnload_time)
+            // console.log('关闭前')
+             // this.$store.dispatch('LogOut').then(() => {
+             //     console.log('执行了退出')
+             // })
             // if (e) {
             //     e = e || window.event;
             //     console.log(e);
@@ -61,7 +61,7 @@ export default  {
         },
         unloadHandler(e){
             this.gap_time = new Date().getTime() - this.beforeUnload_time;
-            if (this.gap_time <= 5) {
+            if (this.gap_time <= 10) {
                 localStorage.clear()
                 Cookies.remove('Admin-Token')
                 Cookies.remove('usName')

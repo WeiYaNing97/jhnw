@@ -76,12 +76,12 @@
           <el-form-item>
             <el-button type="danger" @click="shanchutest" icon="el-icon-delete" size="small" plain>删除</el-button>
           </el-form-item>
-          <el-form-item>
-            <el-button type="danger" @click.native="tuichu" icon="el-icon-delete" size="small" plain>退出</el-button>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="danger" @click.native="copy" icon="el-icon-delete" size="small" plain>复制</el-button>
-          </el-form-item>
+<!--          <el-form-item>-->
+<!--            <el-button type="danger" @click.native="tuichu" icon="el-icon-delete" size="small" plain>退出</el-button>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <el-button type="danger" @click.native="copy" icon="el-icon-delete" size="small" plain>复制</el-button>-->
+<!--          </el-form-item>-->
 <!--          <el-form-item>-->
 <!--            <el-button type="primary" @click="exportData">导出</el-button>-->
 <!--          </el-form-item>-->
