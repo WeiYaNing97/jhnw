@@ -17,4 +17,4 @@ configuration:
   # 设备版本 两个型号之间以;分阁
   deviceVersion: Version
   # 设备子版本 两个型号之间以;分阁
-  deviceSubversion: Release
+  deviceSubversion: Release;Build;Release software

@@ -99,6 +99,7 @@ public class GetBasicInformationController {
                     }
                     commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
                 }
+
                 //  WebSocket 传输 交换机返回结果
                 returnRecord.setCurrentReturnLog(commandString);
                 //粗略查看是否存在 故障
@@ -249,6 +250,13 @@ public class GetBasicInformationController {
 
         HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(return_sum);
 
+        System.err.println("==================================================================");
+        System.err.println("品牌"+hashMap.get("pinpai"));
+        System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao"));
+        System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben"));
+        System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben")+"子版本"+hashMap.get("zibanben"));
+        System.err.println("==================================================================");
+
         if (hashMap.get("pinpai")!=null
                 && hashMap.get("xinghao")!=null
                 && hashMap.get("banben")!=null
@@ -351,6 +359,7 @@ public class GetBasicInformationController {
 
                     if (modelString.equalsIgnoreCase(return_word[number])){
                         model = modelString;
+                        break;
                     }
                 }
             }
