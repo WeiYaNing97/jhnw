@@ -764,6 +764,7 @@ public class SwitchInteraction {
                     return "交换机连接成功";
                 }
             }
+            /*思科交换机返回信息是 #  不需要发送 enable*/
         }else if (trim.substring(trim.length()-1,trim.length()).equals("#")){
             return "交换机连接成功";
         }
