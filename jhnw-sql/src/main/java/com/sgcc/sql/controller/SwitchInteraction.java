@@ -646,7 +646,9 @@ public class SwitchInteraction {
             //连接ssh 成功为 true  失败为  false
             sshConnect = connectMethod.requestConnect(hostIp, portID, userName, userPassword);
 
+
             if (sshConnect!=null){
+
                 is_the_connection_successful = true;
             }
         }else if (way.equalsIgnoreCase("telnet")){
@@ -699,6 +701,7 @@ public class SwitchInteraction {
             }else {
                 return AjaxResult.error("交换机连接失败");
             }
+
         }else {
             return AjaxResult.error("交换机连接失败");
         }
@@ -761,6 +764,8 @@ public class SwitchInteraction {
                     return "交换机连接成功";
                 }
             }
+        }else if (trim.substring(trim.length()-1,trim.length()).equals("#")){
+            return "交换机连接成功";
         }
 
         return "交换机连接失败";

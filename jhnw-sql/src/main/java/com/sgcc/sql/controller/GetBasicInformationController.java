@@ -245,46 +245,49 @@ public class GetBasicInformationController {
 
             //当前命令字符串 返回命令总和("\r\n"分隔)
             return_sum =  commandString+"\r\n";
+
+
+
+
+            HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(return_sum);
+
+            System.err.println("==================================================================");
+            System.err.println("品牌"+hashMap.get("pinpai"));
+            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao"));
+            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben"));
+            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben")+"子版本"+hashMap.get("zibanben"));
+            System.err.println("==================================================================");
+
+            if (hashMap.get("pinpai")!=null
+                    && hashMap.get("xinghao")!=null
+                    && hashMap.get("banben")!=null
+                    && hashMap.get("zibanben")!=null){
+
+                hashMap.put("pinpai",removeSpecialSymbols(hashMap.get("pinpai")));
+                hashMap.put("xinghao",removeSpecialSymbols(hashMap.get("xinghao")));
+                hashMap.put("banben",removeSpecialSymbols(hashMap.get("banben")));
+                hashMap.put("zibanben",removeSpecialSymbols(hashMap.get("zibanben")));
+
+
+                //设备型号
+                user_String.put("deviceModel",hashMap.get("xinghao"));
+                //设备品牌
+                user_String.put("deviceBrand",hashMap.get("pinpai"));
+                //内部固件版本
+                user_String.put("firmwareVersion",hashMap.get("banben"));
+                //子版本号
+                user_String.put("subversionNumber",hashMap.get("zibanben"));
+
+                WebSocketService.sendMessage(userName,"系统信息:"+user_String.get("ip") +"基本信息："+
+                        "设备品牌："+hashMap.get("pinpai")+
+                        "设备型号："+hashMap.get("xinghao")+
+                        "内部固件版本："+hashMap.get("banben")+
+                        "子版本号："+hashMap.get("zibanben")+"\r\n");
+
+                return AjaxResult.success(hashMap);
+            }
         }
 
-
-        HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(return_sum);
-
-        System.err.println("==================================================================");
-        System.err.println("品牌"+hashMap.get("pinpai"));
-        System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao"));
-        System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben"));
-        System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben")+"子版本"+hashMap.get("zibanben"));
-        System.err.println("==================================================================");
-
-        if (hashMap.get("pinpai")!=null
-                && hashMap.get("xinghao")!=null
-                && hashMap.get("banben")!=null
-                && hashMap.get("zibanben")!=null){
-
-            hashMap.put("pinpai",removeSpecialSymbols(hashMap.get("pinpai")));
-            hashMap.put("xinghao",removeSpecialSymbols(hashMap.get("xinghao")));
-            hashMap.put("banben",removeSpecialSymbols(hashMap.get("banben")));
-            hashMap.put("zibanben",removeSpecialSymbols(hashMap.get("zibanben")));
-
-
-            //设备型号
-            user_String.put("deviceModel",hashMap.get("xinghao"));
-            //设备品牌
-            user_String.put("deviceBrand",hashMap.get("pinpai"));
-            //内部固件版本
-            user_String.put("firmwareVersion",hashMap.get("banben"));
-            //子版本号
-            user_String.put("subversionNumber",hashMap.get("zibanben"));
-
-            WebSocketService.sendMessage(userName,"系统信息:"+user_String.get("ip") +"基本信息："+
-                    "设备品牌："+hashMap.get("pinpai")+
-                    "设备型号："+hashMap.get("xinghao")+
-                    "内部固件版本："+hashMap.get("banben")+
-                    "子版本号："+hashMap.get("zibanben")+"\r\n");
-
-            return AjaxResult.success(hashMap);
-        }
 
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
 
@@ -374,17 +377,21 @@ public class GetBasicInformationController {
             for (int number = 0 ; number < return_word.length; number++){
                 if (return_word[number].equalsIgnoreCase(versionSplit[0])){
                     if (versionSplit.length == 1){
-                        firmwareVersion = return_word[number+1];
-                        break;
+                        if (MyUtils.containDigit(return_word[number+1])){
+                            firmwareVersion = return_word[number+1];
+                            break;
+                        }
                     }else {
                         String device = "";
                         for (int num = 0 ; num < versionNumber ; num++){
                             device = device + return_word[number + num] +" ";
                         }
                         device = device.trim();
-                        if (deviceVersion.equalsIgnoreCase(device)){
-                            firmwareVersion =  return_word[number + (versionNumber-1) + 1];
-                            break;
+                        if (version.equalsIgnoreCase(device)){
+                            if (MyUtils.containDigit(return_word[number + (versionNumber-1) + 1])){
+                                firmwareVersion =  return_word[number + (versionNumber-1) + 1];
+                                break;
+                            }
                         }
                     }
                 }
@@ -402,17 +409,23 @@ public class GetBasicInformationController {
             for (int number = 0 ; number < return_word.length; number++){
                 if (return_word[number].equalsIgnoreCase(versionSplit[0])){
                     if (versionSplit.length == 1){
-                        subversionNo = return_word[number+1];
-                        break;
+                        if (MyUtils.containDigit(return_word[number+1])){
+                            subversionNo = return_word[number+1];
+                            break;
+                        }
+
                     }else {
                         String device = "";
                         for (int num = 0 ; num < versionNumber ; num++){
                             device = device + return_word[number + num] +" ";
                         }
                         device = device.trim();
-                        if (deviceSubversion.equalsIgnoreCase(device)){
-                            subversionNo =  return_word[number + (versionNumber-1) + 1];
-                            break;
+                        if (version.equalsIgnoreCase(device)){
+                            if (MyUtils.containDigit(return_word[number + (versionNumber-1) + 1])){
+                                subversionNo =  return_word[number + (versionNumber-1) + 1];
+                                break;
+                            }
+
                         }
                     }
                 }

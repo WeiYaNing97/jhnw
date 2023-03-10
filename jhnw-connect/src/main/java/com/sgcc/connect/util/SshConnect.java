@@ -170,6 +170,7 @@ public class SshConnect implements Runnable {
     public boolean login(String ip,String[] cmds) {
         SshInformation sshInformation = switchInformation.get(ip);
 
+
         //用户名 密码
         String user = cmds[0];
         String passWord = cmds[1];
@@ -178,8 +179,13 @@ public class SshConnect implements Runnable {
         try {
             //@method: jsch 获取会话
             //@Param: [user 用户名, this.ip IP地址, this.port 端口号]
+
+
             session = sshInformation.getJsch().getSession(user, sshInformation.getIp(), sshInformation.getPort());
+
+
             sshInformation.setSession(session);
+
             //输入密码
             sshInformation.getSession().setPassword(passWord);
             UserInfo ui = new SSHUserInfo() {
@@ -198,13 +204,18 @@ public class SshConnect implements Runnable {
             ((ChannelShell) sshInformation.getChannel()).setPtyType("dumb");
             //((ChannelShell) channel).setPty(false);
             sshInformation.getChannel().connect(3000);
+
+
             switchInformation.put(ip,sshInformation);
+
+
 
             new Thread(this).start();
             try {
                 Thread.sleep(sshInformation.getSleepTime());
             } catch (Exception e) {
             }
+
 
             return true;
         } catch (JSchException e) {

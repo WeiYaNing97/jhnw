@@ -30,6 +30,8 @@ public class SshMethod {
         //this.ReturnInformation = "";
         //创建连接 ip 端口号：22
         SshConnect sshConnect = new SshConnect(ip, port, null, null);
+
+
         //用户名、密码
         String[] cmds = { name, password};
         //连接方法
