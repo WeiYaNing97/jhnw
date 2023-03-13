@@ -46,6 +46,20 @@ public class FormworkController extends BaseController
     }
 
     /**
+     * 查询问题模板列表
+     */
+    @PreAuthorize("@ss.hasPermi('sql:formwork:list')")
+    @GetMapping("/listByformworkName")
+    public Formwork list(String formworkName)
+    {
+        Formwork formwork = new Formwork();
+        formwork.setFormworkName(formworkName);
+
+        List<Formwork> list = formworkService.selectFormworkList(formwork);
+        return list.get(0);
+    }
+
+    /**
      * 导出问题模板列表
      */
     @PreAuthorize("@ss.hasPermi('sql:formwork:export')")
