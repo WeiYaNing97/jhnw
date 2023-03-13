@@ -82,18 +82,18 @@ public class GetBasicInformationController {
                 deviceBrand = true;
                 if (way.equalsIgnoreCase("ssh")){
                     //  WebSocket 传输 命令
-                    WebSocketService.sendMessage(userName,"发送:"+command+"\r\n");
+                    WebSocketService.sendMessage(userName,user_String.get("ip")+"发送:"+command+"\r\n");
                     try {
-                        PathHelper.writeDataToFile("发送:"+command+"\r\n");
+                        PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
                 }else if (way.equalsIgnoreCase("telnet")){
                     //  WebSocket 传输 命令
-                    WebSocketService.sendMessage(userName,"发送:"+command);
+                    WebSocketService.sendMessage(userName,user_String.get("ip")+"发送:"+command);
                     try {
-                        PathHelper.writeDataToFile("发送:"+command+"\r\n");
+                        PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -188,10 +188,10 @@ public class GetBasicInformationController {
 
             }
 
-            WebSocketService.sendMessage(userName,"接收:"+current_return_log+"\r\n");
+            WebSocketService.sendMessage(userName,user_String.get("ip")+"接收:"+current_return_log+"\r\n");
 
             try {
-                PathHelper.writeDataToFile("接收:"+current_return_log+"\r\n");
+                PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+current_return_log+"\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -209,9 +209,9 @@ public class GetBasicInformationController {
                 current_identifier = current_identifier.substring(2,current_identifier.length());
             }
 
-            WebSocketService.sendMessage(userName,"接收:"+current_identifier+"\r\n");
+            WebSocketService.sendMessage(userName,user_String.get("ip")+"接收:"+current_identifier+"\r\n");
             try {
-                PathHelper.writeDataToFile("接收:"+current_identifier+"\r\n");
+                PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+current_identifier+"\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }

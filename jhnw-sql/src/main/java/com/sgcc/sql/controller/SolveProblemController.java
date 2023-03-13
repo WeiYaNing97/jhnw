@@ -576,10 +576,10 @@ public class SolveProblemController {
 
                 if (requestConnect_way.equalsIgnoreCase("ssh")){
 
-                    WebSocketService.sendMessage(loginUser.getUsername(),"发送:"+command+"\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),user_String.get("ip")+"发送:"+command+"\r\n");
 
                     try {
-                        PathHelper.writeDataToFile("发送:"+command+"\r\n");
+                        PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -588,10 +588,10 @@ public class SolveProblemController {
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
-                    WebSocketService.sendMessage(loginUser.getUsername(),"发送:"+command+"\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),user_String.get("ip")+"发送:"+command+"\r\n");
 
                     try {
-                        PathHelper.writeDataToFile("发送:"+command+"\r\n");
+                        PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -668,10 +668,10 @@ public class SolveProblemController {
                 if (!current_return_log_substring_start.equals("\r\n")){
                     current_return_log = "\r\n"+current_return_log;
                 }
-                WebSocketService.sendMessage(loginUser.getUsername(),"接收:"+current_return_log+"\r\n");
+                WebSocketService.sendMessage(loginUser.getUsername(),user_String.get("ip")+"接收:"+current_return_log+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFile("接收:"+current_return_log+"\r\n");
+                    PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+current_return_log+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -693,20 +693,20 @@ public class SolveProblemController {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage(loginUser.getUsername(),"接收:"+current_identifier+"\r\n");
+                WebSocketService.sendMessage(loginUser.getUsername(),user_String.get("ip")+"接收:"+current_identifier+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFile("接收"+current_identifier+"\r\n");
+                    PathHelper.writeDataToFile(user_String.get("ip")+"接收"+current_identifier+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
             }else if (commandString_split.length == 1){
                 returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
-                WebSocketService.sendMessage(loginUser.getUsername(),"接收:"+commandString_split[0]+"\r\n");
+                WebSocketService.sendMessage(loginUser.getUsername(),user_String.get("ip")+"接收:"+commandString_split[0]+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFile("接收:"+commandString_split[0]+"\r\n");
+                    PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+commandString_split[0]+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
