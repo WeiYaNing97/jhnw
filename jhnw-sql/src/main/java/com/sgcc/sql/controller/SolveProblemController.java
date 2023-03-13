@@ -168,7 +168,7 @@ public class SolveProblemController {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage(login.getUsername(),"发送和接收："+"修复结束\r\n");
+        WebSocketService.sendMessage(login.getUsername(),"接收："+"修复结束\r\n");
 
         try {
             PathHelper.writeDataToFile("系统信息："+"修复结束\r\n");
@@ -576,7 +576,7 @@ public class SolveProblemController {
 
                 if (requestConnect_way.equalsIgnoreCase("ssh")){
 
-                    WebSocketService.sendMessage(loginUser.getUsername(),"发送和接收:"+command+"\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),"发送:"+command+"\r\n");
 
                     try {
                         PathHelper.writeDataToFile("发送:"+command+"\r\n");
@@ -588,7 +588,7 @@ public class SolveProblemController {
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (requestConnect_way.equalsIgnoreCase("telnet")){
 
-                    WebSocketService.sendMessage(loginUser.getUsername(),"发送和接收:"+command+"\r\n");
+                    WebSocketService.sendMessage(loginUser.getUsername(),"发送:"+command+"\r\n");
 
                     try {
                         PathHelper.writeDataToFile("发送:"+command+"\r\n");
@@ -668,7 +668,7 @@ public class SolveProblemController {
                 if (!current_return_log_substring_start.equals("\r\n")){
                     current_return_log = "\r\n"+current_return_log;
                 }
-                WebSocketService.sendMessage(loginUser.getUsername(),"发送和接收:"+current_return_log+"\r\n");
+                WebSocketService.sendMessage(loginUser.getUsername(),"接收:"+current_return_log+"\r\n");
 
                 try {
                     PathHelper.writeDataToFile("接收:"+current_return_log+"\r\n");
@@ -693,7 +693,7 @@ public class SolveProblemController {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                WebSocketService.sendMessage(loginUser.getUsername(),"发送和接收:"+current_identifier+"\r\n");
+                WebSocketService.sendMessage(loginUser.getUsername(),"接收:"+current_identifier+"\r\n");
 
                 try {
                     PathHelper.writeDataToFile("接收"+current_identifier+"\r\n");
@@ -703,7 +703,7 @@ public class SolveProblemController {
 
             }else if (commandString_split.length == 1){
                 returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
-                WebSocketService.sendMessage(loginUser.getUsername(),"发送和接收:"+commandString_split[0]+"\r\n");
+                WebSocketService.sendMessage(loginUser.getUsername(),"接收:"+commandString_split[0]+"\r\n");
 
                 try {
                     PathHelper.writeDataToFile("接收:"+commandString_split[0]+"\r\n");

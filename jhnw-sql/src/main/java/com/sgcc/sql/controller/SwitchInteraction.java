@@ -413,7 +413,7 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage(login.getUsername(),"发送和接收："+"扫描结束\r\n");
+        WebSocketService.sendMessage(login.getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("系统信息："+"扫描结束\r\n");
         } catch (IOException e) {
