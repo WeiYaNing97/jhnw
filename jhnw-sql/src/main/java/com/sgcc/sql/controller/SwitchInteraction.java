@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 与交换机交互方法类
@@ -70,6 +71,9 @@ public class SwitchInteraction {
 
     @Autowired
     private static IInformationService informationService;
+
+    @Autowired
+    private static IFormworkService formworkService;
 
     /**
      *
@@ -219,6 +223,19 @@ public class SwitchInteraction {
         return  "交换机连接失败";
     }
 
+    @ApiOperation("模板扫描问题")
+    @PostMapping("/formworkScann/{formworkId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
+    @MyLog(title = "模板扫描问题", businessType = BusinessType.OTHER)
+    public static String formworkScann(@RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
+
+        formworkService = SpringBeanUtil.getBean(IFormworkService.class);
+        Formwork formwork = formworkService.selectFormworkById(formworkId);
+        String[] formworkSplit = formwork.getFormworkIndex().split(",");
+        List<Long> totalQuestionTableId = Arrays.stream(formworkSplit).map(t -> Long.valueOf(t).longValue()).collect(Collectors.toList());
+        String s = directionalScann(switchInformation, totalQuestionTableId, scanNum);
+        return s;
+    }
+
 
     /***
      * @method: 多线程扫描 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
@@ -230,7 +247,7 @@ public class SwitchInteraction {
     @ApiOperation("专项扫描问题")
     @PostMapping("/directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项扫描问题", businessType = BusinessType.OTHER)
-    public String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
+    public static String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<Object[]> objectsList = new ArrayList<>();

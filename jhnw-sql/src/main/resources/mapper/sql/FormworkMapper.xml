@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.FormworkMapper">
+    
+    <resultMap type="Formwork" id="FormworkResult">
+        <result property="id"    column="id"    />
+        <result property="formworkName"    column="formwork_name"    />
+        <result property="formworkIndex"    column="formwork_index"    />
+        <result property="reserve"    column="reserve"    />
+        <result property="reservetwo"    column="reserveTwo"    />
+    </resultMap>
+
+    <sql id="selectFormworkVo">
+        select id, formwork_name, formwork_index, reserve, reserveTwo from formwork
+    </sql>
+
+    <select id="selectFormworkList" parameterType="Formwork" resultMap="FormworkResult">
+        <include refid="selectFormworkVo"/>
+        <where>  
+            <if test="formworkName != null  and formworkName != ''"> and formwork_name like concat('%', #{formworkName}, '%')</if>
+            <if test="formworkIndex != null  and formworkIndex != ''"> and formwork_index = #{formworkIndex}</if>
+            <if test="reserve != null  and reserve != ''"> and reserve = #{reserve}</if>
+            <if test="reservetwo != null  and reservetwo != ''"> and reserveTwo = #{reservetwo}</if>
+        </where>
+    </select>
+    
+    <select id="selectFormworkById" parameterType="Long" resultMap="FormworkResult">
+        <include refid="selectFormworkVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectFormworkByIds" parameterType="Formwork" resultMap="FormworkResult">
+        <include refid="selectFormworkVo"/>
+        where id in
+        <foreach item="ids" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+        
+    <insert id="insertFormwork" parameterType="Formwork" useGeneratedKeys="true" keyProperty="id">
+        insert into formwork
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="formworkName != null and formworkName != ''">formwork_name,</if>
+            <if test="formworkIndex != null and formworkIndex != ''">formwork_index,</if>
+            <if test="reserve != null">reserve,</if>
+            <if test="reservetwo != null">reserveTwo,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="formworkName != null and formworkName != ''">#{formworkName},</if>
+            <if test="formworkIndex != null and formworkIndex != ''">#{formworkIndex},</if>
+            <if test="reserve != null">#{reserve},</if>
+            <if test="reservetwo != null">#{reservetwo},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFormwork" parameterType="Formwork">
+        update formwork
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="formworkName != null and formworkName != ''">formwork_name = #{formworkName},</if>
+            <if test="formworkIndex != null and formworkIndex != ''">formwork_index = #{formworkIndex},</if>
+            <if test="reserve != null">reserve = #{reserve},</if>
+            <if test="reservetwo != null">reserveTwo = #{reservetwo},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFormworkById" parameterType="Long">
+        delete from formwork where id = #{id}
+    </delete>
+
+    <delete id="deleteFormworkByIds" parameterType="String">
+        delete from formwork where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
