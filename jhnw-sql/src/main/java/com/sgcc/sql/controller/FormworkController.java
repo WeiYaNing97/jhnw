@@ -1,6 +1,8 @@
 package com.sgcc.sql.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,15 +48,26 @@ public class FormworkController extends BaseController
     }
 
     /**
+     * 查询问题模板名字列表
+     */
+    @PreAuthorize("@ss.hasPermi('sql:formwork:list')")
+    @GetMapping("/getNameList")
+    public List<String> getNameList(Formwork formwork)
+    {
+        List<Formwork> list = formworkService.selectFormworkList(formwork);
+        List<String> collect = list.stream().map(t -> t.getFormworkName()).collect(Collectors.toList());
+        return collect;
+    }
+
+    /**
      * 查询问题模板列表
      */
     @PreAuthorize("@ss.hasPermi('sql:formwork:list')")
-    @GetMapping("/listByformworkName")
+    @GetMapping("/pojoByformworkName")
     public Formwork list(String formworkName)
     {
         Formwork formwork = new Formwork();
         formwork.setFormworkName(formworkName);
-
         List<Formwork> list = formworkService.selectFormworkList(formwork);
         return list.get(0);
     }
