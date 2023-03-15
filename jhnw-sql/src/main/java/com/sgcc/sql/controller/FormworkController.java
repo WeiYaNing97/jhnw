@@ -50,7 +50,6 @@ public class FormworkController extends BaseController
     /**
      * 查询问题模板名字列表
      */
-    @PreAuthorize("@ss.hasPermi('sql:formwork:list')")
     @GetMapping("/getNameList")
     public List<String> getNameList(Formwork formwork)
     {
@@ -62,9 +61,8 @@ public class FormworkController extends BaseController
     /**
      * 查询问题模板列表
      */
-    @PreAuthorize("@ss.hasPermi('sql:formwork:list')")
     @GetMapping("/pojoByformworkName")
-    public Formwork list(String formworkName)
+    public Formwork pojoByformworkName(String formworkName)
     {
         Formwork formwork = new Formwork();
         formwork.setFormworkName(formworkName);

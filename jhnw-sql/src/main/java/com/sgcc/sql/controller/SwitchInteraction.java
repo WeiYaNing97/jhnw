@@ -613,7 +613,22 @@ public class SwitchInteraction {
 
                 return basicInformationList_ajaxResult;
             }
+
+            try {
+                PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") +"未定义该交换机获取基本信息命令及分析\r\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+        }
+
+        try {
+            PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") + "交换机连接失败\r\n");
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return AjaxResult.error("交换机连接失败");

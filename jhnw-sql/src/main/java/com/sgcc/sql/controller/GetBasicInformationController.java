@@ -236,11 +236,11 @@ public class GetBasicInformationController {
                             e.printStackTrace();
                         }
 
-                        break;
+                        continue;
                     }
                 }
 
-                break;
+                continue;
             }
 
             //当前命令字符串 返回命令总和("\r\n"分隔)
@@ -284,8 +284,34 @@ public class GetBasicInformationController {
                         "内部固件版本："+hashMap.get("banben")+
                         "子版本号："+hashMap.get("zibanben")+"\r\n");
 
+                try {
+                    PathHelper.writeDataToFileTest("系统信息:"+user_String.get("ip") +"成功基本信息："+
+                            "设备品牌："+hashMap.get("pinpai")+
+                            "设备型号："+hashMap.get("xinghao")+
+                            "内部固件版本："+hashMap.get("banben")+
+                            "子版本号："+hashMap.get("zibanben")+"\r\n");
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 return AjaxResult.success(hashMap);
+            }else {
+
+                try {
+                    PathHelper.writeDataToFileTest("系统信息:"+user_String.get("ip") +"失败基本信息："+
+                            "设备品牌："+hashMap.get("pinpai")+
+                            "设备型号："+hashMap.get("xinghao")+
+                            "内部固件版本："+hashMap.get("banben")+
+                            "子版本号："+hashMap.get("zibanben")+"\r\n");
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
+
+
         }
 
 
