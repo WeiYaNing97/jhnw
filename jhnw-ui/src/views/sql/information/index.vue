@@ -19,24 +19,24 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="预留字段1" prop="reserve1">
-        <el-input
-          v-model="queryParams.reserve1"
-          placeholder="请输入预留字段1"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="预留字段2" prop="reserve2">
-        <el-input
-          v-model="queryParams.reserve2"
-          placeholder="请输入预留字段2"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="预留字段1" prop="reserve1">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.reserve1"-->
+<!--          placeholder="请输入预留字段1"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="预留字段2" prop="reserve2">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.reserve2"-->
+<!--          placeholder="请输入预留字段2"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -95,13 +95,13 @@
       <el-table-column label="交换机信息id" align="center" prop="id" />
       <el-table-column label="交换机品牌" align="center" prop="deviceBrand" />
       <el-table-column label="交换机型号" align="center" prop="deviceModel" />
-      <el-table-column label="预留字段1" align="center" prop="reserve1" />
-      <el-table-column label="预留字段2" align="center" prop="reserve2" />
+<!--      <el-table-column label="预留字段1" align="center" prop="reserve1" />-->
+<!--      <el-table-column label="预留字段2" align="center" prop="reserve2" />-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
             size="mini"
-            type="text"
+            type="text"config
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['sql:information:edit']"
@@ -116,7 +116,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

@@ -2,6 +2,7 @@
   <div class="app-container">
 <!--    <el-button type="primary" size="small" style="margin-bottom: 10px" @click="lishi">历史扫描</el-button>-->
 <!--    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>-->
+<!--    <el-button type="primary" size="small" @click="printDel">打印报告</el-button>-->
     <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"
@@ -19,9 +20,9 @@
       <!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
       <el-table-column prop="hebing" label="主机(基本信息)" width="200"></el-table-column>
       <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
-      <el-table-column prop="problemName" label="问题" ></el-table-column>
+      <el-table-column prop="problemName" label="问题" width="300"></el-table-column>
       <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
-      <el-table-column prop="solve" label="解决">
+      <el-table-column prop="solve" label="操作">
         <template slot-scope="scope">
           <el-button size="mini"
                      type="text"
@@ -29,31 +30,104 @@
                      v-show="scope.row.ifQuestion==='异常'"
                      @click="xiufuone(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
-                     v-show="scope.row.switchIp != undefined && noPro == false"
+                     v-show="scope.row.switchIp != undefined"
                      @click.stop="xiuallone(scope.row)">单台修复</el-button>
           <el-button style="margin-left: 0" type="warning" plain round
-                     size="small" v-show="scope.row.createTime != undefined && noPro == false"
+                     size="small" v-show="scope.row.createTime != undefined"
                      @click.stop="huitimeyijian(scope.row)">一键修复</el-button>
-          <el-button style="margin-left: 0" type="success" plain round
-                     size="small" v-show="scope.row.createTime != undefined && noPro == true"
-                     @click.stop="huitimeyijian(scope.row)">全部正常</el-button>
+<!--          <el-button style="margin-left: 0" type="success" plain round-->
+<!--                     size="small" v-show="scope.row.createTime != undefined && noPro == true"-->
+<!--                     @click.stop="allTrue(scope.row)">全部正常</el-button>-->
+          <el-button style="margin-left: 10px" type="info" plain round
+                     size="small" v-show="scope.row.createTime != undefined"
+                     @click.stop="printBaogao(scope.row)" v-print="printTxt">打印报告</el-button>
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
                      @click="xiangqing(scope.row)">详情</el-button>
         </template>
       </el-table-column>
     </el-table>
-  </div>
+
+<!--    <div id="hisTxt" style="opacity: 0;position:absolute">-->
+      <div id="hisTxt" ref="pdf" v-if="printShow" style="margin: 0">
+          <div style="text-align:center"><h4>扫描报告</h4></div>
+          <span>扫描人:{{ this.usName }}</span>
+          <span style="padding-left: 10px">打印时间:{{ this.nowTime.toLocaleString() }}</span>
+          <el-table v-loading="loading"
+                    :data="printData"
+                    ref="tree"
+                    v-show="huisao"
+                    style="width: 100%"
+                    row-key="hproblemId"
+                    :cell-style="hongse"
+                    @row-click='expandChange'
+                    :default-expand-all='isExpansion'
+                    :tree-props="{children: 'children',hasChildren: 'hasChildren'}"
+                    :span-method="arraySpanMethodTwo">
+            <el-table-column prop="createTime" label="扫描时间" width="120"></el-table-column>
+            <!--      <el-table-column prop="switchIp" label="主机" width="130"></el-table-column>-->
+            <!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
+            <el-table-column prop="hebing" label="主机(基本信息)" width="200"></el-table-column>
+            <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
+            <el-table-column prop="problemName" label="问题" width="300"></el-table-column>
+            <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
+            <!--      <el-table-column prop="solve" label="解决">-->
+            <!--        <template slot-scope="scope">-->
+            <!--          <el-button size="mini"-->
+            <!--                     type="text"-->
+            <!--                     icon="el-icon-edit"-->
+            <!--                     v-show="scope.row.ifQuestion==='异常'"-->
+            <!--                     @click="xiufuone(scope.row)">修复</el-button>-->
+            <!--          <el-button style="margin-left: 0" size="mini" type="text"-->
+            <!--                     v-show="scope.row.switchIp != undefined && noPro == false"-->
+            <!--                     @click.stop="xiuallone(scope.row)">单台修复</el-button>-->
+            <!--          <el-button style="margin-left: 0" type="warning" plain round-->
+            <!--                     size="small" v-show="scope.row.createTime != undefined && noPro == false"-->
+            <!--                     @click.stop="huitimeyijian(scope.row)">一键修复</el-button>-->
+            <!--          <el-button style="margin-left: 0" type="success" plain round-->
+            <!--                     size="small" v-show="scope.row.createTime != undefined && noPro == true"-->
+            <!--                     @click.stop="huitimeyijian(scope.row)">全部正常</el-button>-->
+            <!--          <el-button size="mini" type="text" icon="el-icon-view"-->
+            <!--                     v-show="scope.row.hasOwnProperty('problemDescribeId')"-->
+            <!--                     @click="xiangqing(scope.row)">详情</el-button>-->
+            <!--        </template>-->
+            <!--      </el-table-column>-->
+          </el-table>
+      </div>
+    </div>
 </template>
 
 <script>
     import request from '@/utils/request'
     import TinymceEditor from "@/components/Tinymce/TinymceEditor"
     import { ExportBriefDataDocx } from '@/utils/exportBriefDataDocx'
+    import Cookies from 'js-cookie'
+    import { downloadPDF } from "../utils/pdf";
+    import jsPDF from 'jspdf'
     export default {
         name: "History_scan",
+        inject:["reload"],
+        props:{
+          title:{
+              type:String,
+              default:"sadsadasd",
+          }
+        },
         data(){
             return{
+                //
+                usName:'',
+                nowTime:'',
+                printShow:false,
+                printTxt:{
+                  id:'hisTxt',
+                  popTitle:this.title,
+                  targetStyles:['*'],
+                  preview:false,
+                  closeCallback(){
+                      console.log('打印窗口已经关闭')
+                  },
+                },
                 //报告
                 docxData:{
                     tableData:[],
@@ -61,6 +135,7 @@
                     month:''
                 },
                 lishiData:[],
+                printData:[],
                 loading:false,
                 huisao:true,
                 newArr:[],
@@ -72,19 +147,45 @@
         },
         mounted:function(){
           this.lishi()
+          this.getCook()
         },
         created(){
             // this.expandChange()
         },
         methods:{
+            noShow(){
+                this.printShow = false
+            },
+            getCook(){
+                this.usName = Cookies.get('usName')
+                console.log(this.usName)
+            },
+            //打印报告
+            printBaogao(row){
+                this.printShow = true
+                setTimeout(()=>{
+                    downloadPDF(this.$refs.pdf)
+                },0)
+                this.nowTime = new Date()
+                this.printData = []
+                this.printData.push(row)
+                setTimeout(this.noShow,5000)
+            },
+            //
+            printDel(){
+                console.log('ssss')
+            },
             //导出
             exportDocx(){
-                console.log('导出');
-                this.docxData.tableData = this.lishiData
-                this.docxData.year = 2022
-                this.docxData.month = 9
-                // ExportBriefDataDocx 是我导入的一个文件，里边写的是导出文本的核心代码
-                ExportBriefDataDocx('/报告test.docx', this.docxData, '导出的.docx')
+                downloadPDF(this.$refs.pdf)
+
+
+                // console.log('导出');
+                // this.docxData.tableData = this.lishiData
+                // this.docxData.year = 2022
+                // this.docxData.month = 9
+                // // ExportBriefDataDocx 是我导入的一个文件，里边写的是导出文本的核心代码
+                // ExportBriefDataDocx('/报告test.docx', this.docxData, '导出的.docx')
                 // ExportBriefDataDocx('/text.docx', this.docxData, '文档导出.docx') // text.docx放在了根目录下的public文件夹下
             },
             // sessionStorage.setItem('','ok'),
@@ -128,17 +229,25 @@
                     // this.$refs.abc.geizi()
                 })
             },
+            //
+            allTrue(){
+                console.log('全部正常!')
+            },
             //回显历史扫描某次时间一键修复
             huitimeyijian(row){
                 const problemIdList = []
+                //异常所对应的ip集合
                 const iplist = []
                 const yijian = row.children
                 console.log(yijian)
                 for (let i = 0;i<yijian.length;i++){
                     for (let g = 0;g<yijian[i].children.length;g++){
                         for (let m = 0;m<yijian[i].children[g].children.length;m++){
-                            iplist.push(yijian[i]['switchIp'])
-                            problemIdList.push(yijian[i].children[g].children[m].questionId)
+                            //3.16修改逻辑
+                            if (yijian[i].children[g].children[m].ifQuestion == '异常'){
+                                problemIdList.push(yijian[i].children[g].children[m].questionId)
+                                iplist.push(yijian[i]['switchIp'])
+                            }
                         }
                     }
                 }
@@ -157,6 +266,7 @@
                 // const scanNum = 1
                 console.log(userinformation)
                 console.log(problemIdList)
+                console.log(allProIdList)
                 return request({
                     url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
@@ -171,26 +281,39 @@
                 // setInterval(this.lishi,5000)
                 const thisip = row.switchIp
                 const listAll = row.children
+                console.log(row)
                 const list1 = []
+                const errIpList = []
                 const problemIdList = []
                 for(let i = 0;i<listAll.length;i++){
                     for (let g = 0;g<listAll[i].children.length;g++){
-                        problemIdList.push(listAll[i].children[g].questionId)
+                        // problemIdList.push(listAll[i].children[g].questionId)
+                        //3.16修改逻辑
+                        if (listAll[i].children[g].ifQuestion == '异常'){
+                            problemIdList.push(listAll[i].children[g].questionId)
+                            errIpList.push(row.switchIp)
+                        }
                     }
                 }
                 for (let i = 0;i<this.newArr.length;i++){
                     const chaip = this.newArr[i]
-                    if(chaip['ip'] === thisip){
-                        for (let g = 0;g<problemIdList.length;g++){
+                    for(let g = 0;g<errIpList.length;g++){
+                        if (chaip['ip'] == errIpList[g]){
                             list1.push(chaip)
                         }
                     }
+                    // if(chaip['ip'] === thisip){
+                    //     for (let g = 0;g<problemIdList.length;g++){
+                    //         list1.push(chaip)
+                    //     }
+                    // }
                 }
                 const allProIdList = []
                 const userinformation = list1.map(x=>JSON.stringify(x))
                 const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
+                console.log(allProIdList)
                 return request({
                     url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
                     method:'post',
@@ -210,7 +333,7 @@
                     for (let g = 0;g<allwenti[i].children.length;g++){
                         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
                             for (let n = 0;n<allwenti[i].children[g].children[m].children.length;n++){
-                                console.log(allwenti[i].children[g].children[m].children[n].hproblemId)
+                                // console.log(allwenti[i].children[g].children[m].children[n].hproblemId)
                                 if (allwenti[i].children[g].children[m].children[n].hproblemId === thisid){
                                     thisparip = allwenti[i].children[g].switchIp
                                 }
@@ -286,10 +409,10 @@
                     //合并信息
                     for(let i = 0;i<jiaid.length;i++){
                         for (let g = 0;g<jiaid[i].children.length;g++){
-                            var beforeJieData = jiaid[i].children[g].switchIp
-                            var plcaeJie =  beforeJieData.indexOf(':')
-                            var afterJie = beforeJieData.substring(0,plcaeJie)
-                            var hebingInfo = afterJie + ' ' + jiaid[i].children[g].showBasicInfo
+                            // var beforeJieData = jiaid[i].children[g].switchIp
+                            // var plcaeJie =  beforeJieData.indexOf(':')
+                            // var afterJie = beforeJieData.substring(0,plcaeJie)
+                            var hebingInfo = jiaid[i].children[g].switchIp + ' ' + jiaid[i].children[g].showBasicInfo
                             this.$set(jiaid[i].children[g],'hebing',hebingInfo)
                         }
                     }
@@ -309,11 +432,9 @@
 
                     //返回数据添加hproblemId
                     for(let i = 0;i<jiaid.length;i++){
-                        // this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
-                        this.$set(jiaid[i],'hproblemId',(Math.random()*10000+1))
+                        this.$set(jiaid[i],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
                         for (let g = 0;g<jiaid[i].children.length;g++){
-                            // this.$set(jiaid[i].children[g],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
-                            this.$set(jiaid[i].children[g],'hproblemId',(Math.random()*10000+1))
+                            this.$set(jiaid[i].children[g],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
                             for (let m = 0;m<jiaid[i].children[g].children.length;m++){
                                 this.$set(jiaid[i].children[g].children[m],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
                                 for (let n = 0;n<jiaid[i].children[g].children[m].children.length;n++){
@@ -390,4 +511,18 @@
   >>> .el-table td.el-table__cell{
     border-bottom: none !important;
   }
+  @page{
+    size: A4 portrait;
+  }
+  #hisTxt{
+    page-break-after: avoid;
+    page-break-after: avoid;
+  }
+</style>
+<style media="print">
+@media print {
+  html{
+    zoom: 80%;
+  }
+}
 </style>

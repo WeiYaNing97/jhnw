@@ -53,14 +53,14 @@
         <el-form-item label="范式分类" prop="typeProblem">
           <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
                      filterable allow-create @focus="generalA($event)" @blur="typeProShu">
-            <el-option v-for="(item,index) in genList" :key="index"
+            <el-option v-for="(item,index) in genListA" :key="index"
                        :label="item.typeProblem" :value="item.typeProblem"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="范式名称">
           <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
                      filterable allow-create @focus="generalB($event)" name="temProName" @blur="temProShu">
-            <el-option v-for="(item,index) in genList" :key="index"
+            <el-option v-for="(item,index) in genListB" :key="index"
                        :label="item.temProName" :value="item.temProName"></el-option>
           </el-select>
         </el-form-item>
@@ -294,7 +294,7 @@
             </el-form-item>
           </div>
           <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
-            <el-form-item label="比较：" class="strongW" v-show="bizui">
+            <el-form-item label="比较" v-show="bizui">
               <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
             </el-form-item>
             <el-form-item label="比较" v-show="bixiala">
@@ -392,25 +392,26 @@
         width="40%">
         <div id="fatherq" class="qqqqq">
           <h3 style="font-weight: bolder" id="brand" ref="brand">品牌</h3>
-          <p>{{ this.baseConfig.help_txt.brand }}</p>
+<!--          <p>{{ this.baseConfig.brand }}</p>-->
+<!--          <p>请输入版本:</p>-->
           <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
-          <p>请输入型号：</p>
+          <p>请输入型号:</p>
           <h3 style="font-weight: bolder" id="firewareVersion" ref="firewareVersion">固件版本</h3>
-          <p>请输入固件版本：</p>
+          <p>请输入固件版本:</p>
           <h3 style="font-weight: bolder" id="subVersion" ref="subVersion">子版本</h3>
-          <p>请输入子版本：</p>
+          <p>请输入子版本:</p>
           <h3 style="font-weight: bolder" id="typeProblem" ref="typeProblem">范式分类</h3>
-          <p>请输入范式类型：</p>
+          <p>请输入范式类型:</p>
           <h3 style="font-weight: bolder" id="temProName" ref="temProName">范式名称</h3>
-          <p>请输入范式名称：</p>
+          <p>请输入范式名称:</p>
           <h3 style="font-weight: bolder" id="problemName" ref="problemName">自定义名称</h3>
-          <p>请输入自定义名称：</p>
+          <p>请输入自定义名称:</p>
           <h3 style="font-weight: bolder" id="beizhu" ref="beizhu">备注</h3>
-          <p>请输入备注：</p>
+          <p>请输入备注:</p>
           <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">标识符</h3>
-          <p>请输入标识符：</p>
+          <p>请输入标识符:</p>
           <h3 style="font-weight: bolder" id="comone" ref="comone">命令</h3>
-          <p>请输入命令：</p>
+          <p>请输入命令:</p>
           <a :href="whelp" style="display: none" ref="bang"><span>阿斯顿撒大</span></a>
         </div>
         <span slot="footer" class="dialog-footer">
@@ -427,13 +428,14 @@ import { listJh_test1, getJh_test1, delJh_test1, addJh_test1, updateJh_test1, ex
 import TinymceEditor from "@/components/Tinymce/TinymceEditor"
 import request from '@/utils/request'
 import router from '@/router/index'
-import help_txt from "../help_txt/help_txt"
+// import help_txt from "../help_txt/help_txt";
+// import help_txt from "../help_txt/help_txt"
 export default {
   name: "Jh_test1",
     inject:["reload"],
     components:{
         TinymceEditor,
-        help_txt
+        // help_txt
     },
   data() {
     return {
@@ -465,6 +467,8 @@ export default {
         radio:'1',
         //通用基本信息下拉集合
         genList:[],
+        genListA:[],
+        genListB:[],
         //范式分类
         normalType:[],
         proNameList:[],
@@ -497,6 +501,7 @@ export default {
           notFinished:'---- More ----',
           typeProblem:'',
           temProName:'',
+          //是否必扫,先注释保留
           requiredItems:false,
           remarks:''
       },
@@ -670,14 +675,14 @@ export default {
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
-              params: newPar
+              data: newPar
           }).then(response=>{
               console.log(response)
-              this.genList = this.quchong(response,this.who)
+              this.genListA = this.quchong(response,this.who)
               let kong = {
                   [this.who] : 'null'
               }
-              this.genList.push(kong)
+              this.genListA.push(kong)
           })
       },
       //范式名称
@@ -687,25 +692,21 @@ export default {
           }else {
               this.who = e.target.getAttribute('name')
               console.log(this.who)
-              let newPar = {}
-              for (var key in this.queryParams){
-                  if (key == 'typeProblem'){
-                      newPar[key] = this.queryParams[key]
-                  }
+              let newPar = {
+                  typeProblem:this.queryParams.typeProblem
               }
               return request({
                   url:'/sql/total_question_table/selectPojoList',
                   method:'get',
-                  // data:newPar
-                  params:newPar
+                  data:newPar
               }).then(response=>{
                   console.log(response)
                   //范式
-                  this.genList = this.quchong(response,this.who)
+                  this.genListB = this.quchong(response,this.who)
                   let kong = {
                       [this.who] : 'null'
                   }
-                  this.genList.push(kong)
+                  this.genListB.push(kong)
               })
           }
       },
@@ -713,28 +714,33 @@ export default {
       general(e){
           this.who = e.target.getAttribute('name')
           console.log(this.who)
-          //
-          let newPar = {}
-          for (var key in this.queryParams){
-              if (key != 'notFinished'&&key != 'requiredItems'&&key != 'remarks'){
-                  newPar[key] = this.queryParams[key]
+          //查询对象
+          let newPar = {
+              brand:this.queryParams.brand,
+              type:this.queryParams.type,
+              firewareVersion:this.queryParams.firewareVersion,
+              subVersion:this.queryParams.subVersion
+          }
+          for (var key in newPar){
+              if (this.who == key){
+                  newPar[key] = ''
               }
           }
           for (let i in newPar){
-              if (newPar[i] === 'null'){
+              if (newPar[i] === '空'){
                   newPar[i] = ''
               }
           }
+          console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
-              // data:newPar
-              params:newPar
+              data:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
               let kong = {
-                  [this.who] : 'null'
+                  [this.who] : '空'
               }
               this.genList.push(kong)
           })

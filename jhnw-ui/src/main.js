@@ -36,6 +36,7 @@ import VueMeta from 'vue-meta'
 import DictData from '@/components/DictData'
 import VueContextMenu from "vue-contextmenu";
 import axios from "axios"
+import Print from 'vue-print-nb'
 
 // 全局方法挂载
 Vue.prototype.getDicts = getDicts
@@ -55,6 +56,7 @@ Vue.component('Editor', Editor)
 Vue.component('FileUpload', FileUpload)
 Vue.component('ImageUpload', ImageUpload)
 Vue.use(VueContextMenu)
+Vue.use(Print)
 
 Vue.use(directive)
 Vue.use(plugins)
@@ -76,9 +78,9 @@ Vue.use(Element, {
 
 Vue.config.productionTip = false
 
-axios.get('./config.json').then(res=>{
-  Vue.prototype.baseConfig = JSON.parse(JSON.stringify(res.data))
-})
+// axios.get('./config.json').then(res=>{
+//   Vue.prototype.baseConfig = JSON.parse(JSON.stringify(res.data))
+// })
 
 new Vue({
   el: '#app',

@@ -116,7 +116,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -261,6 +261,7 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
+        console.log(this.form.formworkIndex.length)
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {

@@ -418,16 +418,13 @@ export default {
         // type:'',
         // firewareVersion:'',
         // subVersion:''
-
-
-
-          problemName:undefined,
-          temProName:undefined,
-          typeProblem:undefined,
-          brand:undefined,
-          type:undefined,
-          firewareVersion:undefined,
-          subVersion:undefined
+          brand:'',
+          type:'',
+          firewareVersion:'',
+          subVersion:'',
+          problemName:'',
+          temProName:'',
+          typeProblem:''
         // commandId:'1'
       },
       // 表单参数
@@ -671,15 +668,10 @@ export default {
               for (let i = 0;i<response.length;i++){
                   let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
                   let loser = {
-                      // label:xinall,
                       label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
                       children: [{
                           label:response[i].problemName,
                           id:response[i].id
-                          // children:[{
-                          //     label:response[i].temProName,
-                          //     id:response[i].id
-                          // }]
                       }]
                   }
                   this.lookLists.push(loser)
@@ -698,63 +690,18 @@ export default {
                   newPar[i] = ''
               }
           }
+          for (var key in newPar){
+              if (this.who == key){
+                  newPar[key] = ''
+              }
+          }
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
-              params:newPar
-          }).then(response=>{
-              console.log(response)
-              this.genList = this.quchong(response,this.who)
-              let kong = {
-                  [this.who] : 'null'
-              }
-              this.genList.push(kong)
-              // console.log(this.genList)
-          })
-      },
-      //下拉列表通用（最初）
-      general(e){
-          this.who = e.target.getAttribute('name')
-          let newPar = {}
-          for (var key in this.queryParams){
-              newPar[key] = this.queryParams[key]
-          }
-          for (let i in newPar){
-              if (newPar[i] === 'null'){
-                  newPar[i] = ''
-              }
-          }
-          console.log(newPar)
-          return request({
-              url:'/sql/total_question_table/selectPojoList',
-              method:'post',
               data:newPar
           }).then(response=>{
               console.log(response)
-              this.lieNum = response.length
-
-              this.proId = response[0].id
-              console.log(this.proId)
-
-              this.lookLists = []
-              //转化为树结构
-              for (let i = 0;i<response.length;i++){
-                  let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
-                  let loser = {
-                      // label:xinall,
-                      label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
-                      children: [{
-                          label:response[i].problemName,
-                          id:response[i].id
-                          // children:[{
-                          //     label:response[i].temProName,
-                          //     id:response[i].id
-                          // }]
-                      }]
-                  }
-                  this.lookLists.push(loser)
-              }
               this.genList = this.quchong(response,this.who)
               let kong = {
                   [this.who] : 'null'

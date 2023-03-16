@@ -1,7 +1,7 @@
 <template>
   <div>
 <!--    lishiData  nowData  tableDataqq-->
-<!--    <el-button type="success" size="small" @click="allxiu" v-show="chuci" :disabled="this.xianshi">一键修复</el-button>-->
+<!--    <el-button type="success" size="small" @click="allxiu" v-show="chuci">一键修复</el-button>-->
 
 <!--    <el-button type="success" size="small" @click="testOne">测试</el-button>-->
 <!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
@@ -26,7 +26,6 @@
 <!--      <el-table-column prop="showBasicInfo" label="基本信息" width="200"></el-table-column>-->
       <el-table-column prop="hebing" label="主机(基本信息)" width="230">
         <template slot-scope="scope">
-<!--          <span v-loading="loadingOne = !scope.row.hebing == ''">{{ scope.row.hebing }}</span>-->
           <span class="el-icon-circle-check" v-loading="scope.row.loading">{{ scope.row.hebing }}</span>
         </template>
       </el-table-column>
@@ -125,6 +124,8 @@
         },
         data() {
             return {
+                //
+                noPro:true,
                 //报告
                 docxData:{
                     tableData:[],
@@ -134,8 +135,6 @@
                 //
                 endIpCopy: '',
                 //
-                loadingOne: true,
-                //
                 lishifu: false,
                 //详情显示
                 particular: '',
@@ -144,8 +143,6 @@
                 alljiao: {
                     allInfo: []
                 },
-                //禁用一键修复
-                xianshi: true,
                 //
                 wenbenben: '',
                 dialogVisible: false,
@@ -163,6 +160,7 @@
                 ws: '',
                 // ws定时器
                 wsTimer: null,
+                //当前扫描最终数据
                 nowData: [],
                 lishiData: [],
                 loading: false,
@@ -183,20 +181,32 @@
         watch: {
             saowanend() {
                 if (this.saowanend === true) {
-                    this.xianshi = !this.saowanend
+                    for (let i = 0; i < this.nowData.length; i++) {
+                        this.$set(this.nowData[i], 'loading', false)
+                        for (let g = 0; g < this.nowData[i].children.length; g++){
+                            for (let m = 0; m < this.nowData[i].children[g].children.length;m++){
+                                //查找是否有问题
+                                if (this.nowData[i].children[g].children[m].ifQuestion.includes('异常')){
+                                    this.noPro = false
+                                }
+                            }
+                            }
+                        }
+                    }
                 }
             },
             endIp() {
-                console.log(this.endIp)
                 this.endIpCopy = this.endIp
-                const shu11 = this.nowData
-                for (let i = 0; i < shu11.length; i++) {
-                    if (this.endIp == shu11[i].switchIp) {
-                        this.$set(shu11[i], 'loading', false)
+                // const shu11 = this.nowData
+                for (let i = 0; i < this.nowData.length; i++) {
+                    if (this.endIp == this.nowData[i].switchIp) {
+                        this.$set(this.nowData[i], 'loading', false)
                     }
                 }
-            }
-        },
+            },
+            noPro(){
+              this.postNoPro()
+            },
         created() {
             // const usname = Cookies.get('usName')
             let timeXun = setInterval(() => {
@@ -209,6 +219,10 @@
 
         },
         methods: {
+            //全部正常
+            postNoPro(){
+                this.$emit('allNoPro',this.noPro)
+            },
             //导出
             exportDocx(){
                 console.log('导出');
@@ -442,22 +456,33 @@
                 //问题ID集合
                 console.log(this.alljiao.allInfo)
                 const problemIdList = []
-                const iplist = []
+                //暂时注释，逻辑不对
+                // const iplist = []
+                //有异常的问题的ip集合
+                const errIpList = []
+                //页面中所有id集合
+                const allProIdList = []
                 const yijian = this.nowData
                 for (let i = 0; i < yijian.length; i++) {
                     for (let g = 0; g < yijian[i].children.length; g++) {
                         for (let m = 0; m < yijian[i].children[g].children.length; m++) {
-                            iplist.push(yijian[i]['switchIp'])
-                            problemIdList.push(yijian[i].children[g].children[m].questionId)
+                            // iplist.push(yijian[i]['switchIp'])
+                            if (yijian[i].children[g].children[m].ifQuestion == '异常'){
+                                problemIdList.push(yijian[i].children[g].children[m].questionId)
+                                //3.15添加逻辑
+                                errIpList.push(yijian[i].switchIp)
+                                console.log(errIpList)
+                            }
+                            allProIdList.push(yijian[i].children[g].children[m].questionId)
                         }
                     }
                 }
-                const allProIdList = problemIdList
+                // const allProIdList = problemIdList
                 const list1 = []
                 for (let i = 0; i < this.alljiao.allInfo.length; i++) {
                     const chaip = this.alljiao.allInfo[i]
-                    for (let g = 0; g < iplist.length; g++) {
-                        if (chaip['ip'] === iplist[g]) {
+                    for (let g = 0; g < errIpList.length; g++) {
+                        if (chaip['ip'] === errIpList[g]) {
                             list1.push(chaip)
                         }
                     }
@@ -466,6 +491,7 @@
                 const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
+                console.log(allProIdList)
                 return request({
                     url: '/sql/SolveProblemController/batchSolutionMultithreading/' + problemIdList + '/' + scanNum + '/' + allProIdList,
                     method: 'post',
@@ -514,6 +540,7 @@
                 //获取所有问题id
                 const allProIdList = []
                 const alliplist = []
+                //
                 const allyijian = this.nowData
                 for (let i = 0; i < allyijian.length; i++) {
                     for (let g = 0; g < allyijian[i].children.length; g++) {
@@ -524,14 +551,16 @@
                     }
                 }
                 console.log(allProIdList)
-                //
+                //单台 点击的修复 ip
                 const thisip = row.switchIp
                 const listAll = row.children
                 const list1 = []
                 const problemIdList = []
                 for (let i = 0; i < listAll.length; i++) {
                     for (let g = 0; g < listAll[i].children.length; g++) {
-                        problemIdList.push(listAll[i].children[g].questionId)
+                        if (listAll[i].children[g].ifQuestion == '异常'){
+                            problemIdList.push(listAll[i].children[g].questionId)
+                        }
                     }
                 }
                 for (let i = 0; i < this.alljiao.allInfo.length; i++) {
@@ -546,12 +575,12 @@
                 const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
+                console.log(allProIdList)
                 return request({
                     url: '/sql/SolveProblemController/batchSolutionMultithreading/' + problemIdList + '/' + scanNum + '/' + allProIdList,
                     method: 'post',
                     data: userinformation
                 }).then(response => {
-                    console.log('成功')
                     this.$message.success('修复请求以提交!')
                 })
             },
@@ -641,6 +670,7 @@
                 const scanNum = this.num
                 console.log(userinformation)
                 console.log(problemIdList)
+                console.log(allProIdList)
                 return request({
                     url: '/sql/SolveProblemController/batchSolutionMultithreading/' + problemIdList + '/' + scanNum + '/' + allProIdList,
                     method: 'post',
@@ -714,7 +744,6 @@
                         let newStr = strtest.replace(reg, newKey);
                         return JSON.parse(newStr);
                     }
-
                     let newJson = changeTreeDate(JSON.parse(e.data), 'switchProblemVOList', 'children')
                     let newJson1 = changeTreeDate(newJson, 'switchProblemCOList', 'children')
                     this.nowData = newJson1
@@ -722,6 +751,7 @@
                     //给ip添加loading
                     for (let i = 0; i < shu.length; i++) {
                         this.$set(shu[i], 'loading', true)
+                        console.log(shu[i])
                     }
                     //合并信息
                     for (let i = 0; i < shu.length; i++) {
@@ -729,6 +759,7 @@
                         // var hebingInfo = shu[i].switchIp + ' ' + shu[i].showBasicInfo
                         this.$set(shu[i], 'hebing', hebingInfo)
                     }
+                    //参数+问题名 拼接展示
                     for (let i = 0; i < shu.length; i++) {
                         for (let g = 0; g < shu[i].children.length; g++) {
                             for (let m = 0; m < shu[i].children[g].children.length; m++) {

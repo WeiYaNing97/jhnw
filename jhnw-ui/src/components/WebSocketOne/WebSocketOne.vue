@@ -80,7 +80,7 @@
                 this.textarea = this.textarea + e.data;
                 this.$nextTick(()=>{
                     const textarea = document.getElementById('webt')
-                    textarea.scrollTop = textarea.scrollHeight
+                    // textarea.scrollTop = textarea.scrollHeight
                 })
             },
             /**

@@ -16,11 +16,16 @@
         <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"
                    :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>
 
+<!--        <el-button type="success" @click="modelScan" v-if="this.scanShow == true"-->
+<!--                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>模板扫描</el-button>-->
+
         <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
                    @click="rStart" size="small">返  回</el-button>
 
-        <el-button type="success" @click="repairAll" v-if="this.rStartShow == true"
+        <el-button type="success" @click="repairAll" v-if="this.rStartShow == true && this.allNormal == false"
                    icon="el-icon-search" size="small">一键修复</el-button>
+        <el-button type="success" v-if="this.rStartShow == true && this.allNormal == true"
+                   icon="el-icon-search" size="small">全部正常</el-button>
 <!--        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>-->
 <!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
 <!--                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>-->
@@ -47,14 +52,14 @@
           </span>
         </el-dialog>
         <div style="display: inline-block;float: right;margin-right: 100px">
-          <p style="display: inline-block;margin: 0">允许最大扫描线程数:</p>
+          <p style="display: inline-block;margin: 0">扫描线程数:</p>
           <el-input-number size="small" style="width:75px" v-model="num" controls-position="right"
                            @change="handleChange" :min="1" :max="5"></el-input-number>
         </div>
         <!--        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
 
-<!--      新添加-->
+<!--      专项扫描-->
       <el-dialog
         title="扫描项目选择"
         :visible.sync="dialogVisibleSpecial"
@@ -72,7 +77,7 @@
 <!--          <el-scrollbar style="height:100%">-->
             <el-tree show-checkbox
                      :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
-                     @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>
+                     @node-click="handleNodeClick" :default-expand-all="true" ref="treeone" node-key="id"></el-tree>
 <!--          </el-scrollbar>-->
         </div>
         <span slot="footer" class="dialog-footer">
@@ -197,7 +202,7 @@
     <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
 
     <WebSocketTwo :queryParams="queryParams" ref="webtwo"
-                  :endIp="endIp" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
+                  :endIp="endIp" @allNoPro="postNoPro" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
@@ -237,6 +242,22 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="模板选择" class="modelDia" :visible.sync="dialogFormVisibleOne">
+      <el-form :model="formScan">
+        <el-form-item label="选择模板" label-width="80px">
+          <el-select v-model="formScan.model_name" placeholder="自定义模板"
+                     @change="getListModel" @focus="general($event)"
+                     name="model_name" style="width: 200px">
+            <el-option v-for="(item,index) in genList"
+                       :key="index" :label="item" :value="item"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer" style="margin-top: 150px">
+        <el-button type="primary" @click="modelScanStart">模板扫描</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -258,6 +279,15 @@
         inject:["reload"],
         data() {
             return {
+                //模板扫描
+                formScan:{
+                    model_name:''
+                },
+                formworkId:'',
+                dialogFormVisibleOne:false,
+                genList:[],
+                ////////
+                allNormal:true,
                 //扫描完成ip
                 endIp:'',
                 //是否圆圈
@@ -389,9 +419,11 @@
                 this.$refs.treeone.filter(val);
             },
             saowanend(){
-                if (this.saowanend === true){
+                if (this.saowanend == true){
                     console.log('扫描已结束!')
-                    alert('扫描已结束!')
+                    this.$alert('扫描已结束!', '提示', {
+                        confirmButtonText: '确定'
+                    })
                     this.rStartShow = true
                     this.cancelShow = false
                 }
@@ -421,6 +453,77 @@
             // this.getList();
         },
         methods: {
+            //模板扫描模块
+            general(e){
+                this.who = e.target.getAttribute('name')
+                console.log(this.who)
+                return request({
+                    url:'/sql/formwork/getNameList',
+                    method:'get',
+                }).then(response=>{
+                    console.log(response)
+                    this.genList = response
+                })
+            },
+            getListModel(){
+                return request({
+                    url:'/sql/formwork/pojoByformworkName?formworkName=' + this.formScan.model_name,
+                    method:'get',
+                }).then(response=>{
+                    console.log(response)
+                    this.formworkId = response.id
+                    console.log(this.formworkId)
+                })
+            },
+            //模板扫描展示
+            modelScan(){
+                this.dialogFormVisibleOne = true
+            },
+            modelScanStart(){
+                if (this.formworkId == ''){
+                    this.$message.warning('请选择模板!')
+                }else {
+                    this.dialogFormVisibleOne = false
+                    this.scanUse = false
+                    this.scanShow = false
+                    this.cancelShow = true
+                    //最终扫描设备
+                    let zuihou = []
+                    if (this.xuanzhong.length>0){
+                        zuihou = this.xuanzhong
+                    }else {
+                        zuihou = JSON.parse(JSON.stringify(this.tableData))
+                    }
+                    var encrypt = new JSEncrypt();
+                    encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                    for (let i = 0;i<zuihou.length;i++){
+                        this.$delete(zuihou[i],'isEdit')
+                        this.$delete(zuihou[i],'passmi')
+                        this.$delete(zuihou[i],'conCip')
+                        //给密码加密
+                        var pass = encrypt.encrypt(zuihou[i].password)
+                        this.$set(zuihou[i],'password',pass)
+                        //给配置密码加密
+                        var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
+                        this.$set(zuihou[i],'configureCiphers',passPei)
+                    }
+                    //传输几个线程
+                    const scanNum = this.num
+                    let zuihouall = zuihou.map(x=>JSON.stringify(x))
+                    console.log(zuihouall)
+                    // this.$message.success('扫描请求以提交!')
+                    console.log(this.formworkId)
+                    console.log(scanNum)
+                    return request({
+                        url:'/sql/SwitchInteraction/formworkScann/' + this.formworkId + '/' + scanNum,
+                        method:'post',
+                        data:zuihouall
+                    }).then(response=>{
+                        console.log('日志')
+                    })
+                }
+            },
+            /////////////////
             indexMethod(index) {
                 return index + 1;
             },
@@ -431,6 +534,11 @@
             //一键修复
             repairAll(){
                 this.$refs.webtwo.allxiu()
+            },
+            //全部正常
+            postNoPro(data){
+                this.allNormal = data
+                console.log(this.allNormal)
             },
             //
             postEnd(data){
@@ -454,7 +562,7 @@
                 var ce = {}
                 return request({
                     url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
-                    method:'post',
+                    method:'get',
                     data:ce
                 }).then(response=>{
                     console.log(response)
@@ -617,9 +725,6 @@
                         this.$set(this.importData[i],'passmi','********')
                         this.$set(this.importData[i],'conCip','********')
                         this.$set(this.importData[i],'isEdit',false)
-                        if (this.tableData[0].ip === '' && this.tableData[0].name === '' && this.tableData[0].password === ''){
-                            this.$delete(this.tableData,0)
-                        }
                         this.tableData.push(this.importData[i])
                     }
                     this.$message.success('批量导入成功!')
@@ -643,6 +748,7 @@
             //下载模板
             xiazai(){
                 window.location.href = '/交换机信息模板.xlsx'
+                this.dialogVisible = false
             },
             //批量导入
             handleClick() {
@@ -657,9 +763,7 @@
                 if (!file) {
                     return
                 }
-
                 // document.getElementById('#textone').innerHTML = document.getElementById('#fileinp').value
-
                 // 成功回调函数
                 fileReader.onload = async (ev) => {
                     try {
@@ -675,14 +779,19 @@
                         let arr = []
                         //item[]中的内容为Excel中数据的表头,上传的数据表头必须根据标题填写,否则无法读取
                         excelData.forEach((item,index) => {
-                            if(item.ip && item.用户名 && item.密码 && item.登录方式 && item.端口号){
+                            if(item.设备ip && item.用户名 && item.密码 && item.登录方式 && item.端口号){
                                 let obj = {}
-                                obj.ip = item["ip"]
+                                obj.ip = item["设备ip"]
                                 obj.name = item["用户名"]
                                 obj.password = item["密码"]
                                 obj.mode = item["登录方式"]
                                 obj.port = item["端口号"]
-                                obj.configureCiphers = item["配置密码"]
+
+                                if (item["配置密码"] == undefined){
+                                    obj.configureCiphers = ''
+                                }else {
+                                    obj.configureCiphers = item["配置密码"]
+                                }
                                 arr.push(obj)
                             }
                         });
@@ -805,7 +914,6 @@
                 const scanNum = this.num
                 let zuihouall = zuihou.map(x=>JSON.stringify(x))
                 console.log(zuihouall)
-                this.$message.success('扫描请求以提交!')
                 return request({
                     url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
                     method:'post',
@@ -1021,7 +1129,7 @@
 
 <style scoped>
   >>> .el-dialog{
-    height: 500px;
+    height: 300px;
   }
   >>> .el-form-item__content{
     width: 100% !important;
@@ -1051,4 +1159,8 @@
   /*  top: 0;*/
   /*  opacity: 0;*/
   /*}*/
+  >>> .el-dialog__wrapper.modelDia>.el-dialog{
+    width: 40%;
+    height: 360px;
+  }
 </style>
