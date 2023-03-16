@@ -16,16 +16,16 @@
         <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"
                    :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>
 
-<!--        <el-button type="success" @click="modelScan" v-if="this.scanShow == true"-->
-<!--                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>模板扫描</el-button>-->
+        <el-button type="success" @click="modelScan" v-if="this.scanShow == true"
+                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>模板扫描</el-button>
 
         <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
                    @click="rStart" size="small">返  回</el-button>
 
-        <el-button type="success" @click="repairAll" v-if="this.rStartShow == true && this.allNormal == false"
+        <el-button type="warning" @click="repairAll" v-if="this.rStartShow == true"
                    icon="el-icon-search" size="small">一键修复</el-button>
-        <el-button type="success" v-if="this.rStartShow == true && this.allNormal == true"
-                   icon="el-icon-search" size="small">全部正常</el-button>
+<!--        <el-button type="success" v-if="this.rStartShow == true && this.allNormal == true"-->
+<!--                   icon="el-icon-search" size="small">全部正常</el-button>-->
 <!--        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>-->
 <!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
 <!--                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>-->

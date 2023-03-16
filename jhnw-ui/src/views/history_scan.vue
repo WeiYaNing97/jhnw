@@ -30,14 +30,14 @@
                      v-show="scope.row.ifQuestion==='异常'"
                      @click="xiufuone(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
-                     v-show="scope.row.switchIp != undefined"
+                     v-show="scope.row.switchIp != undefined && scope.row.noPro"
                      @click.stop="xiuallone(scope.row)">单台修复</el-button>
           <el-button style="margin-left: 0" type="warning" plain round
-                     size="small" v-show="scope.row.createTime != undefined"
+                     size="small" v-show="scope.row.createTime != undefined && scope.row.noPro"
                      @click.stop="huitimeyijian(scope.row)">一键修复</el-button>
-<!--          <el-button style="margin-left: 0" type="success" plain round-->
-<!--                     size="small" v-show="scope.row.createTime != undefined && noPro == true"-->
-<!--                     @click.stop="allTrue(scope.row)">全部正常</el-button>-->
+          <el-button style="margin-left: 0" type="success" plain round
+                     size="small" v-show="scope.row.createTime != undefined && !scope.row.noPro"
+                     @click.stop="allTrue(scope.row)">全部正常</el-button>
           <el-button style="margin-left: 10px" type="info" plain round
                      size="small" v-show="scope.row.createTime != undefined"
                      @click.stop="printBaogao(scope.row)" v-print="printTxt">打印报告</el-button>
@@ -71,27 +71,6 @@
             <el-table-column prop="typeProblem" label="分类" width="120"></el-table-column>
             <el-table-column prop="problemName" label="问题" width="300"></el-table-column>
             <el-table-column prop="ifQuestion" label="是否异常"></el-table-column>
-            <!--      <el-table-column prop="solve" label="解决">-->
-            <!--        <template slot-scope="scope">-->
-            <!--          <el-button size="mini"-->
-            <!--                     type="text"-->
-            <!--                     icon="el-icon-edit"-->
-            <!--                     v-show="scope.row.ifQuestion==='异常'"-->
-            <!--                     @click="xiufuone(scope.row)">修复</el-button>-->
-            <!--          <el-button style="margin-left: 0" size="mini" type="text"-->
-            <!--                     v-show="scope.row.switchIp != undefined && noPro == false"-->
-            <!--                     @click.stop="xiuallone(scope.row)">单台修复</el-button>-->
-            <!--          <el-button style="margin-left: 0" type="warning" plain round-->
-            <!--                     size="small" v-show="scope.row.createTime != undefined && noPro == false"-->
-            <!--                     @click.stop="huitimeyijian(scope.row)">一键修复</el-button>-->
-            <!--          <el-button style="margin-left: 0" type="success" plain round-->
-            <!--                     size="small" v-show="scope.row.createTime != undefined && noPro == true"-->
-            <!--                     @click.stop="huitimeyijian(scope.row)">全部正常</el-button>-->
-            <!--          <el-button size="mini" type="text" icon="el-icon-view"-->
-            <!--                     v-show="scope.row.hasOwnProperty('problemDescribeId')"-->
-            <!--                     @click="xiangqing(scope.row)">详情</el-button>-->
-            <!--        </template>-->
-            <!--      </el-table-column>-->
           </el-table>
       </div>
     </div>
@@ -142,7 +121,6 @@
                 //详情内容
                 particular:'',
                 isExpansion:true,
-                noPro:''
             }
         },
         mounted:function(){
@@ -231,7 +209,7 @@
             },
             //
             allTrue(){
-                console.log('全部正常!')
+                this.$message.success('此按钮仅供展示，无作用!')
             },
             //回显历史扫描某次时间一键修复
             huitimeyijian(row){
@@ -441,10 +419,9 @@
                                     this.$set(jiaid[i].children[g].children[m].children[n],'hproblemId',Math.floor(Math.random() * (999999999999999 - 1) + 1))
                                     this.$set(jiaid[i].children[g].children[m].children[n],'createTime',null)
                                     //查找是否有问题
-                                    if (jiaid[i].children[g].children[m].children[n].ifQuestion.includes('异常')){
-                                        this.noPro = false
-                                    }else if (jiaid[i].children[g].children[m].children[n].ifQuestion.includes('安全')){
-                                        this.noPro = true
+                                    if (jiaid[i].children[g].children[m].children[n].ifQuestion == '异常'){
+                                        this.$set(jiaid[i].children[g],'noPro',true)
+                                        this.$set(jiaid[i],'noPro',true)
                                     }
                                 }
                             }
