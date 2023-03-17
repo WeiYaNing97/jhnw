@@ -232,8 +232,8 @@ public class SwitchInteraction {
         Formwork formwork = formworkService.selectFormworkById(formworkId);
         String[] formworkSplit = formwork.getFormworkIndex().split(",");
         List<Long> totalQuestionTableId = Arrays.stream(formworkSplit).map(t -> Long.valueOf(t).longValue()).collect(Collectors.toList());
-        String s = directionalScann(switchInformation, totalQuestionTableId, scanNum);
-        return s;
+        String formworkScann = directionalScann(switchInformation, totalQuestionTableId, scanNum);
+        return formworkScann;
     }
 
 
@@ -327,9 +327,9 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        WebSocketService.sendMessage(login.getUsername(),"系统信息："+"扫描结束\r\n");
+        WebSocketService.sendMessage(login.getUsername(),"接收："+"扫描结束\r\n");
         try {
-            PathHelper.writeDataToFile("系统信息："+"扫描结束\r\n");
+            PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -432,7 +432,7 @@ public class SwitchInteraction {
 
         WebSocketService.sendMessage(login.getUsername(),"接收："+"扫描结束\r\n");
         try {
-            PathHelper.writeDataToFile("系统信息："+"扫描结束\r\n");
+            PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -591,7 +591,7 @@ public class SwitchInteraction {
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
 
                 //5.获取交换机可扫描的问题并执行分析操作
-                AjaxResult ajaxResult = scanProblem(
+                /*AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                         user_Object,
                          totalQuestionTables);
@@ -609,7 +609,7 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
 
                 return basicInformationList_ajaxResult;
             }
@@ -726,6 +726,9 @@ public class SwitchInteraction {
         /* 返回信息 ： [是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
                 connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）]*/
         if(is_the_connection_successful){
+
+            System.err.println("连接成功");
+
             //enable
             String enable = enable(objectMap);
             if (enable.equals("交换机连接成功")){

@@ -53,11 +53,16 @@ public class ScanFixedThreadPool {
         countDownLatch.await();
     }
 
+
     public static void removeThread(String i) {
         threadNameMap.remove(i);
         System.out.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
     }
+
+
     public static String getThreadName(int i) {
         return "threadname"+i;
     }
+
+
 }

@@ -188,6 +188,7 @@ public class SshConnect implements Runnable {
 
             //输入密码
             sshInformation.getSession().setPassword(passWord);
+
             UserInfo ui = new SSHUserInfo() {
                 public void showMessage(String message) {
                 }
