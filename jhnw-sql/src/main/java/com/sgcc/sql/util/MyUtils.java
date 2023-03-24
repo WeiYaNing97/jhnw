@@ -113,6 +113,7 @@ public class MyUtils {
      * 去除多余 "\r\n" 连续空格
      */
     public static String trimString(String resultString){
+        resultString = resultString.replace("\n","\r\n");
         resultString = resultString.replace("\r\r","\r");
         resultString = resultString.replace("\r\n\r\n"," "+"\r\n"+" ");
         resultString = resultString.replace(" \r\n \r\n"," "+"\r\n"+" ");
@@ -212,6 +213,10 @@ public class MyUtils {
      * @E-mail: WeiYaNing97@163.com
      */
     public static boolean judgmentError(Map<String,String> user_String, String str){
+
+        /*if (str.length()>=5 && str.trim().substring(0,5).equalsIgnoreCase("Error")){
+            return false;
+        }*/
 
         String deviceBrand = user_String.get("deviceBrand");
         String deviceModel = user_String.get("deviceModel");

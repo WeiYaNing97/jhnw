@@ -1,4 +1,5 @@
 package com.sgcc;
+import com.sgcc.sql.controller.AdvancedFeatures;
 import com.sgcc.sql.controller.Configuration;
 import com.sgcc.sql.controller.MemoryCPU;
 import org.hyperic.sigar.SigarException;

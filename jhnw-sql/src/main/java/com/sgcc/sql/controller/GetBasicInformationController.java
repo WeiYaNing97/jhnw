@@ -234,9 +234,10 @@ public class GetBasicInformationController {
                             PathHelper.writeDataToFile("风险:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
+                        }finally {
+                            continue;
                         }
 
-                        continue;
                     }
                 }
 
@@ -289,7 +290,7 @@ public class GetBasicInformationController {
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n");
+                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -303,7 +304,7 @@ public class GetBasicInformationController {
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n");
+                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
 
                 } catch (IOException e) {
                     e.printStackTrace();

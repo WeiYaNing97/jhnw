@@ -518,6 +518,14 @@ public class SwitchInteraction {
 
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
+
+            try {
+                PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") + "交换机连接失败\r\n","交换机连接");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             return AjaxResult.error("交换机连接失败");
         }
 
@@ -590,6 +598,10 @@ public class SwitchInteraction {
 
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
 
+                HashMap<String,String> data = (HashMap<String,String>) basicInformationList_ajaxResult.get("data");
+
+                AdvancedFeatures.analyseOspf(user_String, data.get("pinpai"), user_Object);
+
                 //5.获取交换机可扫描的问题并执行分析操作
                 /*AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
@@ -615,20 +627,13 @@ public class SwitchInteraction {
             }
 
             try {
-                PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") +"未定义该交换机获取基本信息命令及分析\r\n");
+                PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") +"未定义该交换机获取基本信息命令及分析\r\n","基本信息");
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
 
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
-        }
-
-        try {
-            PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") + "交换机连接失败\r\n");
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return AjaxResult.error("交换机连接失败");
@@ -1377,11 +1382,11 @@ public class SwitchInteraction {
                                 e.printStackTrace();
                             }
 
-                            break;
+                            continue;
                         }
                     }
 
-                    break;
+                    continue;
                 }
 
                 //当前命令字符串 返回命令总和("\r\n"分隔)
@@ -2727,6 +2732,8 @@ public class SwitchInteraction {
         objectList.add(first_problem_scanLogic_Id);//分析第一条ID
         return objectList;
     }
+
+
 
     /**
      * @method: 执行分析
