@@ -220,6 +220,16 @@ public class SshConnect implements Runnable {
 
             return true;
         } catch (JSchException e) {
+
+            String serverVersion = session.getServerVersion();
+
+            // 连接失败，输出连接失败的原因并进行相应的处理
+            if (e.getCause() != null) {
+                System.out.println("Connection failed: " + e.getCause().getMessage());
+            } else {
+                System.out.println("Connection failed: " + e.getMessage());
+            }
+
             switchInformation.put(ip,sshInformation);
             return false;
         }
