@@ -199,6 +199,15 @@ public class SshConnect implements Runnable {
             sshInformation.getSession().setUserInfo(ui);
             sshInformation.getSession().connect(30000);
 
+            if (session.isConnected()) {
+                if ("SSH-2.0-JSCH-0.1.54".equals(session.getServerVersion())) {
+                    System.err.println(sshInformation.getIp() + "SSH2");
+                } else {
+                    System.err.println(sshInformation.getIp() + "SSH1");
+                }
+            }
+
+
             channel = sshInformation.getSession().openChannel("shell");
             sshInformation.setChannel(channel);
             //jscn 连接 linux 解决高亮显示乱码问题
