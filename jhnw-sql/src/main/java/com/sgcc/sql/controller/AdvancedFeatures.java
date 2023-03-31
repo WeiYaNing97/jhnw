@@ -39,7 +39,7 @@ public class AdvancedFeatures {
             for (Ospf ospf:ospfList){
 
                 try {
-                    PathHelper.writeDataToFileTest(user_String.get("ip")+":" + ospf.toString()+"\r\n","ospf");
+                    PathHelper.writeDataToFileByName(user_String.get("ip")+":" + ospf.toString()+"\r\n","ospf");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -306,10 +306,10 @@ public class AdvancedFeatures {
                     deviceBrand = MyUtils.switchfailure(user_String, returnString);
                     if (!deviceBrand) {
                         System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
-                        WebSocketService.sendMessage(userName,"故障:"+"IP:"+user_String.get("ip")+":"+returnString+"\r\n");
+                        WebSocketService.sendMessage(userName,"故障:"+user_String.get("ip")+":"+returnString+"\r\n");
 
                         try {
-                            PathHelper.writeDataToFile("故障:"+"IP:"+user_String.get("ip")+":"+returnString+"\r\n");
+                            PathHelper.writeDataToFile("故障:"+user_String.get("ip")+":"+returnString+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -406,10 +406,10 @@ public class AdvancedFeatures {
             for (String string_split:returnString_split){
                 if (!MyUtils.judgmentError( user_String,string_split)){
                     System.err.println("\r\n"+user_String.get("ip") +":" +command+ "错误:"+command_string+"\r\n");
-                    WebSocketService.sendMessage(userName,"风险:"+"IP:"+user_String.get("ip")  +"命令:" +command +":"+command_string+"\r\n");
+                    WebSocketService.sendMessage(userName,"风险:"+user_String.get("ip")  +"命令:" +command +":"+command_string+"\r\n");
 
                     try {
-                        PathHelper.writeDataToFile("风险:"+"IP:"+user_String.get("ip") + ":" +command +":"+command_string+"\r\n");
+                        PathHelper.writeDataToFile("风险:"+user_String.get("ip") + ":" +command +":"+command_string+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

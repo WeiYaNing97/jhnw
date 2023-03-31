@@ -615,10 +615,10 @@ public class SolveProblemController {
 
                             String userName = loginUser.getUsername();
                             System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
-                            WebSocketService.sendMessage(userName,"故障：IP:"+user_String.get("ip") +":"+returnString+"\r\n");
+                            WebSocketService.sendMessage(userName,"故障:"+user_String.get("ip") +":"+returnString+"\r\n");
 
                             try {
-                                PathHelper.writeDataToFile("故障：IP:"+user_String.get("ip") +":"+returnString+"\r\n");
+                                PathHelper.writeDataToFile("故障:"+user_String.get("ip") +":"+returnString+"\r\n");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -725,10 +725,10 @@ public class SolveProblemController {
                 for (String string_split:returnString_split){
                     if (!MyUtils.judgmentError( user_String,string_split)){
                         String userName = loginUser.getUsername();
-                        WebSocketService.sendMessage(userName,"风险：IP："+user_String.get("ip") +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
+                        WebSocketService.sendMessage(userName,"风险："+user_String.get("ip") +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
 
                         try {
-                            PathHelper.writeDataToFile("风险：IP："+user_String.get("ip") +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
+                            PathHelper.writeDataToFile("风险："+user_String.get("ip") +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
 
                         } catch (IOException e) {
                             e.printStackTrace();

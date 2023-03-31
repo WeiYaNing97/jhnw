@@ -44,6 +44,8 @@
             <artifactId>sigar</artifactId>
             <version>1.6.4</version>
         </dependency>
+
+        <!--连接交换机-->
         <dependency>
             <groupId>com.sgcc</groupId>
             <artifactId>jhnw-connect</artifactId>
@@ -69,7 +71,6 @@
 
 
         <!--CPU 和 内存-->
-
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>

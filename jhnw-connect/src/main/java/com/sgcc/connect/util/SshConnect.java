@@ -12,7 +12,9 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SshConnect implements Runnable {
@@ -167,10 +169,10 @@ public class SshConnect implements Runnable {
     * @Author: 天幕顽主
     * @E-mail: WeiYaNing97@163.com
     */
-    public boolean login(String ip,String[] cmds) {
+    public List<Object> login(String ip, String[] cmds) {
+        List<Object> objects = new ArrayList<>();
+
         SshInformation sshInformation = switchInformation.get(ip);
-
-
         //用户名 密码
         String user = cmds[0];
         String passWord = cmds[1];
@@ -226,21 +228,22 @@ public class SshConnect implements Runnable {
             } catch (Exception e) {
             }
 
-
-            return true;
+            objects.add(true);
+            return objects;
         } catch (JSchException e) {
-
+            objects.add(false);
             String serverVersion = session.getServerVersion();
-
             // 连接失败，输出连接失败的原因并进行相应的处理
             if (e.getCause() != null) {
                 System.out.println("Connection failed: " + e.getCause().getMessage());
+                objects.add(e.getCause().getMessage());
             } else {
                 System.out.println("Connection failed: " + e.getMessage());
+                objects.add(e.getMessage());
             }
 
             switchInformation.put(ip,sshInformation);
-            return false;
+            return objects;
         }
     }
 
@@ -429,7 +432,9 @@ public class SshConnect implements Runnable {
             logger.error("{} ssh cmds is null", this.ip);
             return null;
         }
-        if (login(ip,cmds)) {
+        List<Object> login = login(ip, cmds);
+        boolean loginBoolean = (boolean) login.get(0);
+        if (loginBoolean) {
             return batchCommand(ip,cmds,notFinished,othernEenterCmds,quit);
         }
         logger.error("{} ssh login error", this.ip);

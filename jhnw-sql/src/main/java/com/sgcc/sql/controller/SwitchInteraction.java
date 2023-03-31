@@ -76,25 +76,33 @@ public class SwitchInteraction {
     private static IFormworkService formworkService;
 
     /**
-     *
-     * a
      * 测试获取交换机基本信息逻辑执行结果
-     *
-     * @param command
-     * @param pojoList
+     * @param ip
+     * @param name
+     * @param password
+     * @param port
+     * @param mode
+     * @param configureCiphers   配置密码
+     * @param command    命令数组
+     * @param pojoList   分析数据集合
      * @return
      */
     @ApiOperation("预执行获取交换机基本信息")
     @PostMapping("testToObtainBasicInformation/{ip}/{name}/{password}/{port}/{mode}/{configureCiphers}/{command}")
     @MyLog(title = "测试获取交换机基本信息逻辑执行结果", businessType = BusinessType.OTHER)
-    public String testToObtainBasicInformation(@PathVariable String ip,@PathVariable String name,@PathVariable String password,@PathVariable String port,@PathVariable String mode,@PathVariable String configureCiphers,
-                                               @PathVariable String[] command,@RequestBody List<String> pojoList) {
+    public String testToObtainBasicInformation(@PathVariable String ip,@PathVariable String name,@PathVariable String password,@PathVariable String port,@PathVariable String mode,
+                                               @PathVariable String configureCiphers, @PathVariable String[] command,@RequestBody List<String> pojoList) {
 
+        /*登录用户信息  loginUser*/
         LoginUser loginUser = SecurityUtils.getLoginUser();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String scanningTime = simpleDateFormat.format(new Date());
+        /*用户扫描时间
+            Java时间设为二十四小时制和十二小时制的区别：
+            1) 二十四小时制： “yyyy-MM-dd HH:mm:ss”
+            2)十二小时制： “"yyyy-MM-dd hh:mm:ss"”
+        */
+        String scanningTime = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
 
-        //用户信息  及   交换机信息
+        //交换机用户信息 加 交换机信息
         Map<String,String> user_String = new HashMap<>();
         user_String.put("mode",mode);//登录方式
         user_String.put("ip",ip);//ip地址
@@ -125,8 +133,8 @@ public class SwitchInteraction {
         //系统登录人信息
         user_Object.put("loginUser",loginUser);
 
+        /*连接交换机   返回交换机信息 */
         AjaxResult requestConnect_ajaxResult = requestConnect(user_String);
-
         Map<String,Object> objectMap = (Map<String,Object>) requestConnect_ajaxResult.get("data");
 
         if (objectMap == null){
@@ -519,8 +527,20 @@ public class SwitchInteraction {
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
 
+            List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
+
+            for (int number = 1;number<loginError.size();number++){
+                String loginErrorString = loginError.get(number);
+                WebSocketService.sendMessage(loginUser.getUsername(),"风险:"+user_String.get("ip")+loginErrorString+"\r\n");
+                try {
+                    PathHelper.writeDataToFileByName(user_String.get("ip")+"风险:"+loginErrorString+"\r\n","交换机连接");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             try {
-                PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") + "交换机连接失败\r\n","交换机连接");
+                PathHelper.writeDataToFileByName("风险:"+user_String.get("ip") + "交换机连接失败\r\n","交换机连接");
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -603,7 +623,7 @@ public class SwitchInteraction {
                 AdvancedFeatures.analyseOspf(user_String, data.get("pinpai"), user_Object);
 
                 //5.获取交换机可扫描的问题并执行分析操作
-                /*AjaxResult ajaxResult = scanProblem(
+                AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                         user_Object,
                          totalQuestionTables);
@@ -621,13 +641,13 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }*/
+                }
 
                 return basicInformationList_ajaxResult;
             }
 
             try {
-                PathHelper.writeDataToFileTest("风险:"+user_String.get("ip") +"未定义该交换机获取基本信息命令及分析\r\n","基本信息");
+                PathHelper.writeDataToFileByName("风险:"+user_String.get("ip") +"未定义该交换机获取基本信息命令及分析\r\n","基本信息");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -677,12 +697,18 @@ public class SwitchInteraction {
         SshMethod connectMethod = null;
         TelnetSwitchMethod telnetSwitchMethod = null;
 
+        List<Object> objects = null;
         if (way.equalsIgnoreCase("ssh")){
             //创建ssh连接方法
             connectMethod = new SshMethod();
             //连接ssh 成功为 true  失败为  false
-            sshConnect = connectMethod.requestConnect(hostIp, portID, userName, userPassword);
+            objects = connectMethod.requestConnect(hostIp, portID, userName, userPassword);
 
+            boolean loginBoolean = (boolean) objects.get(0);
+
+            if (loginBoolean == true){
+                sshConnect =  (SshConnect)objects.get(1);
+            }
 
             if (sshConnect!=null){
 
@@ -700,19 +726,6 @@ public class SwitchInteraction {
 
         }
 
-        /*List<Object> objectList = new ArrayList<>();  //设定返回值 list集合
-        objectList.add(is_the_connection_successful); //元素0 ：是否连接成功
-        objectList.add(way);                          //元素1 ：连接方法
-        objectList.add(hostIp);                       //元素2 ：交换机ID
-        objectList.add(userName);                     //元素3 ：交换机登录用户
-        objectList.add(userPassword);                 //元素4 ：交换机登录用户密码
-        objectList.add(portID);                       //元素5 ：交换机连接端口号
-        objectList.add(connectMethod);                //元素6 ：ssh连接对象：如果连接方法为telnet则connectMethod为空，插入connectMethod失败
-        objectList.add(telnetSwitchMethod);           //元素7 ：telnet连接对象：如果连接方法为ssh则telnetSwitchMethod为空，插入telnetSwitchMethod失败
-        objectList.add(sshConnect);                   //元素8 ：ssh连接工具对象
-        objectList.add(telnetComponent);              //元素9 ：telnet连接工具对象
-        objectList.add(configureCiphers);             //元素10 ： 配置密码configureCiphers*/
-
         Map<String,Object> objectMap = new HashMap<>();  //设定返回值 list集合
         objectMap.put("TrueAndFalse",is_the_connection_successful); //元素0 ：是否连接成功
         objectMap.put("way",way);                          //元素1 ：连接方法
@@ -727,7 +740,6 @@ public class SwitchInteraction {
         objectMap.put("configureCiphers",configureCiphers);             //元素10 ： 配置密码configureCiphers
 
 
-
         /* 返回信息 ： [是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
                 connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）]*/
         if(is_the_connection_successful){
@@ -739,13 +751,18 @@ public class SwitchInteraction {
             if (enable.equals("交换机连接成功")){
                 return AjaxResult.success(objectMap);
             }else {
-                return AjaxResult.error("交换机连接失败");
+                AjaxResult ajaxResult = new AjaxResult();
+                ajaxResult.put("loginError",objects);
+                ajaxResult.put("msg","交换机连接失败");
+                return ajaxResult;
             }
 
         }else {
-            return AjaxResult.error("交换机连接失败");
+            AjaxResult ajaxResult = new AjaxResult();
+            ajaxResult.put("loginError",objects);
+            ajaxResult.put("msg","交换机连接失败");
+            return ajaxResult;
         }
-
     }
 
     /**
@@ -2592,10 +2609,10 @@ public class SwitchInteraction {
                     deviceBrand = MyUtils.switchfailure(user_String, returnString);
                     if (!deviceBrand) {
                         System.err.println("\r\n"+user_String.get("ip") + "故障:"+returnString+"\r\n");
-                        WebSocketService.sendMessage(userName,"故障:"+"IP:"+user_String.get("ip")+":"+returnString+"\r\n");
+                        WebSocketService.sendMessage(userName,"故障:"+user_String.get("ip")+":"+returnString+"\r\n");
 
                         try {
-                            PathHelper.writeDataToFile("故障:"+"IP:"+user_String.get("ip")+":"+returnString+"\r\n");
+                            PathHelper.writeDataToFile("故障:"+user_String.get("ip")+":"+returnString+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -2694,10 +2711,10 @@ public class SwitchInteraction {
             for (String string_split:returnString_split){
                 if (!MyUtils.judgmentError( user_String,string_split)){
                     System.err.println("\r\n"+user_String.get("ip")+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
-                    WebSocketService.sendMessage(userName,"风险:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
+                    WebSocketService.sendMessage(userName,"风险:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
 
                     try {
-                        PathHelper.writeDataToFile("风险:"+"IP:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
+                        PathHelper.writeDataToFile("风险:"+user_String.get("ip") + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

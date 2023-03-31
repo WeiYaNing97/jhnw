@@ -286,7 +286,7 @@ public class GetBasicInformationController {
                         "子版本号："+hashMap.get("zibanben")+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFileTest("系统信息:"+user_String.get("ip") +"成功基本信息："+
+                    PathHelper.writeDataToFileByName("系统信息:"+user_String.get("ip") +"成功基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
@@ -300,7 +300,7 @@ public class GetBasicInformationController {
             }else {
 
                 try {
-                    PathHelper.writeDataToFileTest("系统信息:"+user_String.get("ip") +"失败基本信息："+
+                    PathHelper.writeDataToFileByName("系统信息:"+user_String.get("ip") +"失败基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+

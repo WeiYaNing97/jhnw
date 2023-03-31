@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,21 +27,25 @@ public class SshMethod {
     * @E-mail: WeiYaNing97@163.com
     */
     @RequestMapping("requestConnect")
-    public SshConnect requestConnect(String ip, int port, String name, String password){
+    public List<Object> requestConnect(String ip, int port, String name, String password){
+
+        List<Object> objects = new ArrayList<>();
 
         //this.ReturnInformation = "";
         //创建连接 ip 端口号：22
         SshConnect sshConnect = new SshConnect(ip, port, null, null);
-
-
         //用户名、密码
         String[] cmds = { name, password};
         //连接方法
-        boolean login = sshConnect.login(ip,cmds);
-        if (login == true){
-            return sshConnect;
+        List<Object> login = sshConnect.login(ip, cmds);
+        boolean loginBoolean = (boolean) login.get(0);
+        if (loginBoolean == true){
+            objects.add(true);
+            objects.add(sshConnect);
+            return objects;
         }
-        return null;
+
+        return login;
     }
 
     /***

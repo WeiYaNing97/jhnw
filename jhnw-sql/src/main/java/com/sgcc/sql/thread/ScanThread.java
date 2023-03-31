@@ -61,16 +61,16 @@ public class ScanThread extends Thread  {
             WebSocketService.sendMessage(userName,"scanThread:"+ip);
 
             if (ajaxResult.get("msg").equals("交换机连接失败")){
-                WebSocketService.sendMessage(userName,"风险:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
+                WebSocketService.sendMessage(userName,"风险:"+ip +"问题:交换机连接失败\r\n");
                 try {
-                    PathHelper.writeDataToFile("风险:"+"IP地址:"+ip +"问题:交换机连接失败\r\n");
+                    PathHelper.writeDataToFile("风险:"+ip +"问题:交换机连接失败\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                WebSocketService.sendMessage(userName,"风险:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
+                WebSocketService.sendMessage(userName,"风险:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
                 try {
-                    PathHelper.writeDataToFile("风险:"+"IP地址:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
+                    PathHelper.writeDataToFile("风险:"+ip + "问题:未定义该交换机获取基本信息命令及分析\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
