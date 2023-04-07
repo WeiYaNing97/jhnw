@@ -14,19 +14,29 @@ public class ServiceImplUtils {
      * @return
      */
     public static List<String> getStringCollection(String value) {
-        if (value == null || value.equals("")){
-            return new ArrayList<>();
+        if (value.indexOf(".") == -1){
+            if (value == null || value.equals("")){
+                return new ArrayList<>();
+            }
+            char[] chars = value.toCharArray();
+            Integer integer = chars.length;
+            List<String> valueString = new ArrayList<>();
+            if (integer<0){
+                return null;
+            }
+            valueString.add(chars[0]+"");
+            for (int i = 1 ; i < integer;i++){
+                valueString.add(valueString.get(i-1) + chars[i]);
+            }
+            return valueString;
+        }else if (value.indexOf(".") != -1){
+            String[] split = value.split("\\.");
+            List<String> valueString = new ArrayList<>();
+            for (int num = 0 ; num < split.length ; num++){
+                valueString.add(split[num]);
+            }
+            return valueString;
         }
-        char[] chars = value.toCharArray();
-        Integer integer = chars.length;
-        List<String> valueString = new ArrayList<>();
-        if (integer<0){
-            return null;
-        }
-        valueString.add(chars[0]+"");
-        for (int i = 1 ; i < integer;i++){
-            valueString.add(valueString.get(i-1) + chars[i]);
-        }
-        return valueString;
+        return null;
     }
 }

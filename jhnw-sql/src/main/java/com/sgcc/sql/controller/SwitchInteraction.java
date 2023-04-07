@@ -226,6 +226,29 @@ public class SwitchInteraction {
 
 
             return "设备品牌："+data.get("pinpai")+" 设备型号："+data.get("xinghao")+" 内部固件版本："+data.get("banben")+" 子版本号："+data.get("zibanben");
+        }else {
+
+            List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
+
+            if (loginError != null){
+                for (int number = 1;number<loginError.size();number++){
+                    String loginErrorString = loginError.get(number);
+                    WebSocketService.sendMessage(loginUser.getUsername(),"风险:"+user_String.get("ip")+loginErrorString+"\r\n");
+                    try {
+                        PathHelper.writeDataToFileByName(user_String.get("ip")+"风险:"+loginErrorString+"\r\n","交换机连接");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            try {
+                PathHelper.writeDataToFileByName("风险:"+user_String.get("ip") + "交换机连接失败\r\n","交换机连接");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
         return  "交换机连接失败";
@@ -529,13 +552,15 @@ public class SwitchInteraction {
 
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
 
-            for (int number = 1;number<loginError.size();number++){
-                String loginErrorString = loginError.get(number);
-                WebSocketService.sendMessage(loginUser.getUsername(),"风险:"+user_String.get("ip")+loginErrorString+"\r\n");
-                try {
-                    PathHelper.writeDataToFileByName(user_String.get("ip")+"风险:"+loginErrorString+"\r\n","交换机连接");
-                } catch (IOException e) {
-                    e.printStackTrace();
+            if (loginError != null){
+                for (int number = 1;number<loginError.size();number++){
+                    String loginErrorString = loginError.get(number);
+                    WebSocketService.sendMessage(loginUser.getUsername(),"风险:"+user_String.get("ip")+loginErrorString+"\r\n");
+                    try {
+                        PathHelper.writeDataToFileByName(user_String.get("ip")+"风险:"+loginErrorString+"\r\n","交换机连接");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -612,16 +637,14 @@ public class SwitchInteraction {
 
             AjaxResult basicInformationList_ajaxResult = GetBasicInformationController.getBasicInformationCurrency(user_String,user_Object);
 
+
+            luminousAttenuation.getguangshuai(user_String,user_Object);
+
+
             //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
-
-
-
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
-
                 HashMap<String,String> data = (HashMap<String,String>) basicInformationList_ajaxResult.get("data");
-
                 AdvancedFeatures.analyseOspf(user_String, data.get("pinpai"), user_Object);
-
                 //5.获取交换机可扫描的问题并执行分析操作
                 AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
@@ -632,7 +655,6 @@ public class SwitchInteraction {
                 }else if (requestConnect_way.equalsIgnoreCase("telnet")){
                     telnetSwitchMethod.closeSession(telnetComponent);
                 }
-
                 if (ajaxResult !=null && ajaxResult.get("msg").equals("未定义交换机问题")){
                     LoginUser user = (LoginUser) user_Object.get("loginUser");
                     WebSocketService.sendMessage(user.getUsername(),"风险:"+"ip:"+user_String.get("ip") + "未定问题"+"\r\n");
@@ -642,20 +664,15 @@ public class SwitchInteraction {
                         e.printStackTrace();
                     }
                 }
-
                 return basicInformationList_ajaxResult;
             }
-
             try {
                 PathHelper.writeDataToFileByName("风险:"+user_String.get("ip") +"未定义该交换机获取基本信息命令及分析\r\n","基本信息");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
-
         return AjaxResult.error("交换机连接失败");
     }
 
@@ -743,20 +760,18 @@ public class SwitchInteraction {
         /* 返回信息 ： [是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
                 connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）]*/
         if(is_the_connection_successful){
-
-            System.err.println("连接成功");
-
             //enable
             String enable = enable(objectMap);
             if (enable.equals("交换机连接成功")){
                 return AjaxResult.success(objectMap);
             }else {
+
                 AjaxResult ajaxResult = new AjaxResult();
                 ajaxResult.put("loginError",objects);
                 ajaxResult.put("msg","交换机连接失败");
                 return ajaxResult;
-            }
 
+            }
         }else {
             AjaxResult ajaxResult = new AjaxResult();
             ajaxResult.put("loginError",objects);
@@ -2837,77 +2852,8 @@ public class SwitchInteraction {
             }
         }
 
-        List<TotalQuestionTable> TotalQuestionTablePojoList = new ArrayList<>();
-        Map<String,TotalQuestionTable> totalQuestionTableHashMap = new HashMap<>();
 
-        for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
-            String key =totalQuestionTable.getTypeProblem() + totalQuestionTable.getTemProName();
-            TotalQuestionTable pojo = totalQuestionTableHashMap.get(key);
-            if (pojo != null){
-                int usedNumber = 0;
-                if (!(pojo.getType().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(pojo.getFirewareVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(pojo.getSubVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                int newNumber = 0;
-                if (!(totalQuestionTable.getType().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(totalQuestionTable.getFirewareVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(totalQuestionTable.getSubVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (usedNumber < newNumber){
-                    totalQuestionTableHashMap.put(key,totalQuestionTable);
-                }else if (usedNumber == newNumber){
-                    String pojotype = pojo.getType();
-                    String totalQuestionTabletype = totalQuestionTable.getType();
-                    Integer typeinteger = MyUtils.filterAccurately(pojotype, totalQuestionTabletype);
-                    if (typeinteger == 1){
-                        totalQuestionTableHashMap.put(key,pojo);
-                    }else if (typeinteger == 2){
-                        totalQuestionTableHashMap.put(key,totalQuestionTable);
-                    }else if (typeinteger == 0){
-                        String pojofirewareVersion = pojo.getFirewareVersion();
-                        String totalQuestionTablefirewareVersion = totalQuestionTable.getFirewareVersion();
-                        Integer firewareVersioninteger = MyUtils.filterAccurately(pojofirewareVersion, totalQuestionTablefirewareVersion);
-                        if (firewareVersioninteger == 1){
-                            totalQuestionTableHashMap.put(key,pojo);
-                        }else if (firewareVersioninteger == 2){
-                            totalQuestionTableHashMap.put(key,totalQuestionTable);
-                        }else if (firewareVersioninteger == 0){
-                            String pojosubVersion = pojo.getSubVersion();
-                            String totalQuestionTablesubVersion = totalQuestionTable.getSubVersion();
-                            Integer subVersioninteger = MyUtils.filterAccurately(pojosubVersion, totalQuestionTablesubVersion);
-                            if (subVersioninteger == 1){
-                                totalQuestionTableHashMap.put(key,pojo);
-                            }else if (subVersioninteger == 2){
-                                totalQuestionTableHashMap.put(key,totalQuestionTable);
-                            }else if (subVersioninteger == 0){
-                                totalQuestionTableHashMap.put(key,totalQuestionTable);
-                            }
-                        }
-                    }
-                }else  if (usedNumber > newNumber) {
-                    totalQuestionTableHashMap.put(key,pojo);
-                }
-            }else {
-                totalQuestionTableHashMap.put(key,totalQuestionTable);
-            }
-        }
-        Iterator <Map.Entry< String, TotalQuestionTable >> iterator = totalQuestionTableHashMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry< String, TotalQuestionTable > entry = iterator.next();
-            TotalQuestionTablePojoList.add(entry.getValue());
-        }
-
+        List<TotalQuestionTable> TotalQuestionTablePojoList = MyUtils.ObtainPreciseEntityClasses(totalQuestionTableList);
 
         // todo 连续几个命令然后再执行 分析 可以做吗？
         for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){

@@ -6,6 +6,7 @@ import com.sgcc.sql.controller.SwitchErrorController;
 import com.sgcc.sql.controller.SwitchFailureController;
 import com.sgcc.sql.domain.SwitchError;
 import com.sgcc.sql.domain.SwitchFailure;
+import com.sgcc.sql.domain.TotalQuestionTable;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -36,6 +37,27 @@ public class MyUtils {
         Pattern pattern = Pattern.compile(regex);
         Matcher match = pattern.matcher(str);
         return match.find();
+    }
+    /**
+
+     * 该方法主要使用正则表达式来判断字符串中是否包含字母
+
+     * @author fenggaopan 2015年7月21日 上午9:49:40
+
+     * @param cardNum 待检验的原始卡号
+
+     * @return 返回是否包含
+
+     */
+
+    public static boolean judgeContainsStr(String cardNum) {
+
+        String regex=".*[a-zA-Z]+.*";
+
+        Matcher m = Pattern.compile(regex).matcher(cardNum);
+
+        return m.matches();
+
     }
 
     public static String getEntityClassString(Object object) {
@@ -100,30 +122,21 @@ public class MyUtils {
         return downloadPath;
     }
 
-    /**
-     *
-     * TODO 修整字符串 去除多余 "\r\n" 连续空格
-     *
-     * a
-     *
-     * @method: 修整字符串
-     * @Param: [resultString] 交换机返回信息
-     * @E-mail: WeiYaNing97@163.com
-     *
-     * 去除多余 "\r\n" 连续空格
-     */
-    public static String trimString(String resultString){
-        resultString = resultString.replace("\n","\r\n");
-        resultString = resultString.replace("\r\r","\r");
-        resultString = resultString.replace("\r\n\r\n"," "+"\r\n"+" ");
-        resultString = resultString.replace(" \r\n \r\n"," "+"\r\n"+" ");
-        resultString = resultString.replace("\r\n"," "+"\r\n"+" ");
-        resultString = resultString.replace("\r\n\r\n"," "+"\r\n"+" ");
-        resultString = resultString.replace(" \r\n \r\n"," "+"\r\n"+" ");
-        resultString = resultString.replace("\r\n"," "+"\r\n"+" ");
-        resultString = repaceWhiteSapce(resultString);
-        resultString = resultString.trim();
-        return resultString;
+
+    /*读取文章并按行存入数组*/
+    public static String trimString(String article) {
+        String lineSeparator = System.lineSeparator(); // 获取当前操作系统的换行符
+
+        // 读取文章并按行存入数组
+        String[] lines = article.split("\\r?\\n|\\r"); // 使用正则表达式按照任意一种换行符进行分割
+        article = "";
+        for (int num = 0;num<lines.length;num++){
+            article = article + lines[num].trim() +"\r\n";
+        }
+        article = article.substring(0,article.length()-2);
+        article = repaceWhiteSapce(article);
+        article = article.trim();
+        return article;
     }
 
 
@@ -985,5 +998,80 @@ public class MyUtils {
             return false;
         }
         return true;
+    }
+
+    public static List<TotalQuestionTable> ObtainPreciseEntityClasses(List<TotalQuestionTable> totalQuestionTableList) {
+        List<TotalQuestionTable> TotalQuestionTablePojoList = new ArrayList<>();
+        Map<String,TotalQuestionTable> totalQuestionTableHashMap = new HashMap<>();
+
+        for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
+            String key =totalQuestionTable.getTypeProblem() + totalQuestionTable.getTemProName();
+            TotalQuestionTable pojo = totalQuestionTableHashMap.get(key);
+            if (pojo != null){
+                int usedNumber = 0;
+                if (!(pojo.getType().equals("*"))){
+                    usedNumber = usedNumber +1;
+                }
+                if (!(pojo.getFirewareVersion().equals("*"))){
+                    usedNumber = usedNumber +1;
+                }
+                if (!(pojo.getSubVersion().equals("*"))){
+                    usedNumber = usedNumber +1;
+                }
+                int newNumber = 0;
+                if (!(totalQuestionTable.getType().equals("*"))){
+                    newNumber = newNumber +1;
+                }
+                if (!(totalQuestionTable.getFirewareVersion().equals("*"))){
+                    newNumber = newNumber +1;
+                }
+                if (!(totalQuestionTable.getSubVersion().equals("*"))){
+                    newNumber = newNumber +1;
+                }
+                if (usedNumber < newNumber){
+                    totalQuestionTableHashMap.put(key,totalQuestionTable);
+                }else if (usedNumber == newNumber){
+                    String pojotype = pojo.getType();
+                    String totalQuestionTabletype = totalQuestionTable.getType();
+                    Integer typeinteger = MyUtils.filterAccurately(pojotype, totalQuestionTabletype);
+                    if (typeinteger == 1){
+                        totalQuestionTableHashMap.put(key,pojo);
+                    }else if (typeinteger == 2){
+                        totalQuestionTableHashMap.put(key,totalQuestionTable);
+                    }else if (typeinteger == 0){
+                        String pojofirewareVersion = pojo.getFirewareVersion();
+                        String totalQuestionTablefirewareVersion = totalQuestionTable.getFirewareVersion();
+                        Integer firewareVersioninteger = MyUtils.filterAccurately(pojofirewareVersion, totalQuestionTablefirewareVersion);
+                        if (firewareVersioninteger == 1){
+                            totalQuestionTableHashMap.put(key,pojo);
+                        }else if (firewareVersioninteger == 2){
+                            totalQuestionTableHashMap.put(key,totalQuestionTable);
+                        }else if (firewareVersioninteger == 0){
+                            String pojosubVersion = pojo.getSubVersion();
+                            String totalQuestionTablesubVersion = totalQuestionTable.getSubVersion();
+                            Integer subVersioninteger = MyUtils.filterAccurately(pojosubVersion, totalQuestionTablesubVersion);
+                            if (subVersioninteger == 1){
+                                totalQuestionTableHashMap.put(key,pojo);
+                            }else if (subVersioninteger == 2){
+                                totalQuestionTableHashMap.put(key,totalQuestionTable);
+                            }else if (subVersioninteger == 0){
+                                totalQuestionTableHashMap.put(key,totalQuestionTable);
+                            }
+                        }
+                    }
+                }else  if (usedNumber > newNumber) {
+                    totalQuestionTableHashMap.put(key,pojo);
+                }
+            }else {
+                totalQuestionTableHashMap.put(key,totalQuestionTable);
+            }
+        }
+        Iterator <Map.Entry< String, TotalQuestionTable >> iterator = totalQuestionTableHashMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry< String, TotalQuestionTable > entry = iterator.next();
+            TotalQuestionTablePojoList.add(entry.getValue());
+        }
+
+        return TotalQuestionTablePojoList;
     }
 }

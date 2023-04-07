@@ -7,10 +7,10 @@ import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
-import com.sgcc.sql.domain.Ospf;
-import com.sgcc.sql.domain.OspfEnum;
-import com.sgcc.sql.domain.ReturnRecord;
+import com.sgcc.sql.domain.*;
+import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
+import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
@@ -26,6 +26,10 @@ public class AdvancedFeatures {
 
     @Autowired
     private static IReturnRecordService returnRecordService;
+    @Autowired
+    private static ITotalQuestionTableService totalQuestionTableService;
+    @Autowired
+    private static ICommandLogicService commandLogicService;
 
     public static void analyseOspf(Map<String,String> user_String, String command, Map<String,Object> user_Object) {
 
@@ -221,22 +225,25 @@ public class AdvancedFeatures {
      */
     public static String executeScanCommandByCommand(Map<String,String> user_String, String brand,
                                                            Map<String,Object> user_Object) {
-        //四参数赋值
-        String command = null;
-        switch (brand){
-            case "Cisco":
-            case "RuiJie":
-            case "MAIPU":
-            case "BDCOM(tm)":
-                command = "show ip ospf neighbor";
-                break;
-            case "HuaWei":
-                command = "display ospf peer brief";
-                break;
-            case "H3C":
-                command = "display ospf peer";
-                break;
-        }
+
+
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setBrand(user_String.get("deviceBrand"));
+        totalQuestionTable.setType(user_String.get("deviceModel"));
+        totalQuestionTable.setFirewareVersion(user_String.get("firmwareVersion"));
+        totalQuestionTable.setSubVersion(user_String.get("subversionNumber"));
+        totalQuestionTable.setTemProName("OSPF");
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
+        totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
+        TotalQuestionTable totalQuestionTablePojo = totalQuestionTables.get(0);
+
+        String commandId = totalQuestionTablePojo.getCommandId();
+        commandId = commandId.substring(2,commandId.length());
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
+        String command = commandLogic.getCommand();
+
 
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");

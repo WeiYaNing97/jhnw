@@ -259,7 +259,30 @@ public class SolveProblemController {
 
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
+
+            List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
+
+            if (loginError != null){
+                for (int number = 1;number<loginError.size();number++){
+                    String loginErrorString = loginError.get(number);
+                    WebSocketService.sendMessage(loginUser.getUsername(),"风险:"+user_String.get("ip")+loginErrorString+"\r\n");
+                    try {
+                        PathHelper.writeDataToFileByName(user_String.get("ip")+"风险:"+loginErrorString+"\r\n","交换机连接");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            try {
+                PathHelper.writeDataToFileByName("风险:"+user_String.get("ip") + "交换机连接失败\r\n","交换机连接");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             return AjaxResult.error("交换机连接失败");
+
         }
 
         Map<String,Object> objectMap = (Map<String,Object>) requestConnect_ajaxResult.get("data");

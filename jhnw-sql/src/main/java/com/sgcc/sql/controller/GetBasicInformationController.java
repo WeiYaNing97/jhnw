@@ -349,9 +349,8 @@ public class GetBasicInformationController {
      */
     public static HashMap<String,String> analyzeStringToGetBasicInformation(String returns) {
 
-        returns = returns.replace("\n","\r\n");
-
         String returns_String = MyUtils.trimString(returns);
+        returns_String = returns_String.replaceAll("\r\n"," ");
         /*String equipmentBrand = Configuration.equipmentBrand;
         String equipmentModel = Configuration.equipmentModel;
         String[] equipmentBrandsplit = equipmentBrand.split(";");

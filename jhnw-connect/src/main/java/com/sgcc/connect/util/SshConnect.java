@@ -12,10 +12,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SshConnect implements Runnable {
     protected Logger logger = LogManager.getLogger();
@@ -182,9 +179,7 @@ public class SshConnect implements Runnable {
             //@method: jsch 获取会话
             //@Param: [user 用户名, this.ip IP地址, this.port 端口号]
 
-
             session = sshInformation.getJsch().getSession(user, sshInformation.getIp(), sshInformation.getPort());
-
 
             sshInformation.setSession(session);
 

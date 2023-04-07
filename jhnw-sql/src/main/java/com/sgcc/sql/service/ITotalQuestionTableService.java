@@ -123,6 +123,7 @@ public interface ITotalQuestionTableService
     List<TotalQuestionTable> queryScannableQuestionsList(TotalQuestionTable totalQuestionTable);
     /*查询可扫描问题       带*  S*        */
     List<TotalQuestionTable> queryVagueScannableQuestionsList(TotalQuestionTable totalQuestionTable);
+    List<TotalQuestionTable> queryAdvancedFeaturesList(TotalQuestionTable totalQuestionTable);
 
     /*根据ID数组查询集合*/
     List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids);
@@ -139,5 +140,4 @@ public interface ITotalQuestionTableService
 
     /*删除数据表所有数据*/
     int deleteTotalQuestionTable();
-
 }
