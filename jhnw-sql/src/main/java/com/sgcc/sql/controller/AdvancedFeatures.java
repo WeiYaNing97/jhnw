@@ -31,17 +31,15 @@ public class AdvancedFeatures {
     @Autowired
     private static ICommandLogicService commandLogicService;
 
-    public static void analyseOspf(Map<String,String> user_String, String command, Map<String,Object> user_Object) {
+    public static void analyseOspf(Map<String,String> user_String, Map<String,Object> user_Object) {
 
-        String commandReturn = executeScanCommandByCommand(user_String, command, user_Object);
+        String commandReturn = executeScanCommandByCommand(user_String, user_Object);
 
         AjaxResult ospfListByString = getOspfListByString(commandReturn);
 
         if(ospfListByString.get("msg").equals("操作成功")){
             List<Ospf> ospfList = (List<Ospf>) ospfListByString.get("data");
-
             for (Ospf ospf:ospfList){
-
                 try {
                     PathHelper.writeDataToFileByName(user_String.get("ip")+":" + ospf.toString()+"\r\n","ospf");
                 } catch (IOException e) {
@@ -223,7 +221,7 @@ public class AdvancedFeatures {
      * @E-mail: WeiYaNing97@163.com
      * 分析ID 连接方式 ssh和telnet连接
      */
-    public static String executeScanCommandByCommand(Map<String,String> user_String, String brand,
+    public static String executeScanCommandByCommand(Map<String,String> user_String,
                                                            Map<String,Object> user_Object) {
 
 
@@ -237,14 +235,11 @@ public class AdvancedFeatures {
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
         totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
         TotalQuestionTable totalQuestionTablePojo = totalQuestionTables.get(0);
-
         String commandId = totalQuestionTablePojo.getCommandId();
         commandId = commandId.substring(2,commandId.length());
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         String command = commandLogic.getCommand();
-
-
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
         SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
         TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
@@ -254,11 +249,10 @@ public class AdvancedFeatures {
 
         //具体命令
         command = command.trim();
-
+        System.err.println("OSPF : "+command);
         //执行命令
         //命令返回信息
         String command_string = null;
-
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
 
@@ -327,9 +321,7 @@ public class AdvancedFeatures {
                         }else if (way.equalsIgnoreCase("telnet")){
                             telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,"\n ",user_String.get("notFinished"));
                         }
-
                         break;
-
                     }
                 }
 

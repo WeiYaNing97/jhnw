@@ -13,6 +13,7 @@ import com.sgcc.sql.service.*;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class GetBasicInformationController {
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      *
      */
+    @ApiOperation("通用获取交换机基本信息")
     public static AjaxResult getBasicInformationCurrency(Map<String,String> user_String, Map<String,Object> user_Object) {
         //四个参数 赋值
         SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
@@ -257,17 +259,20 @@ public class GetBasicInformationController {
             System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao"));
             System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben"));
             System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben")+"子版本"+hashMap.get("zibanben"));
+            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben")+"子版本"+hashMap.get("zibanben")+"设备"+hashMap.get("routerFlag"));
             System.err.println("==================================================================");
 
             if (hashMap.get("pinpai")!=null
                     && hashMap.get("xinghao")!=null
                     && hashMap.get("banben")!=null
-                    && hashMap.get("zibanben")!=null){
+                    && hashMap.get("zibanben")!=null
+                    && hashMap.get("routerFlag")!=null){
 
                 hashMap.put("pinpai",removeSpecialSymbols(hashMap.get("pinpai")));
                 hashMap.put("xinghao",removeSpecialSymbols(hashMap.get("xinghao")));
                 hashMap.put("banben",removeSpecialSymbols(hashMap.get("banben")));
                 hashMap.put("zibanben",removeSpecialSymbols(hashMap.get("zibanben")));
+                hashMap.put("routerFlag",removeSpecialSymbols(hashMap.get("routerFlag")));
 
 
                 //设备型号
@@ -278,19 +283,22 @@ public class GetBasicInformationController {
                 user_String.put("firmwareVersion",hashMap.get("banben"));
                 //子版本号
                 user_String.put("subversionNumber",hashMap.get("zibanben"));
+                user_String.put("routerFlag",hashMap.get("routerFlag"));
 
                 WebSocketService.sendMessage(userName,"系统信息:"+user_String.get("ip") +"基本信息："+
                         "设备品牌："+hashMap.get("pinpai")+
                         "设备型号："+hashMap.get("xinghao")+
                         "内部固件版本："+hashMap.get("banben")+
-                        "子版本号："+hashMap.get("zibanben")+"\r\n");
+                        "子版本号："+hashMap.get("zibanben")+
+                        "设备："+hashMap.get("routerFlag")+"\r\n");
 
                 try {
                     PathHelper.writeDataToFileByName("系统信息:"+user_String.get("ip") +"成功基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
+                            "子版本号："+hashMap.get("zibanben")+
+                            "设备："+hashMap.get("routerFlag")+"\r\n","基本信息");
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -304,7 +312,8 @@ public class GetBasicInformationController {
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
+                            "子版本号："+hashMap.get("zibanben")+
+                            "设备："+hashMap.get("routerFlag")+"\r\n","基本信息");
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -362,15 +371,16 @@ public class GetBasicInformationController {
         String model = "";
         String firmwareVersion = "";
         String subversionNo = "";
+        String router = "交换机";
 
         HashMap<String,String> map = new HashMap<>();
         map.put("pinpai",null);
         map.put("xinghao",null);
         map.put("banben",null);
         map.put("zibanben",null);
+        map.put("routerFlag",null);
 
-        String[] return_word = returns_String.trim().split(" ");
-
+        String[] return_word = returns_String.trim().toUpperCase().split(" ");
 
         for (String brandString:brandList){
             for (int number = 0 ; number < return_word.length; number++){
@@ -388,6 +398,18 @@ public class GetBasicInformationController {
 
                     if (modelString.equalsIgnoreCase(return_word[number])){
                         model = modelString;
+                        break;
+                    }
+                }
+            }
+        }
+        String routerFlag = Configuration.routerFlag;
+        String[] flagSplit = routerFlag.toUpperCase().split(";");
+        for (int number = 0 ; number < return_word.length; number++){
+            for (String flag:flagSplit){
+                if (return_word[number].startsWith(flag)){
+                    if (MyUtils.isNumeric(return_word[number])){
+                        router = return_word[number];
                         break;
                     }
                 }
@@ -459,10 +481,11 @@ public class GetBasicInformationController {
 
         }
 
-        map.put("pinpai",!(brand.equals(""))?brand:null);
-        map.put("xinghao",!(model.equals(""))?model:null);
-        map.put("banben",!(firmwareVersion.equals(""))?firmwareVersion:null);
-        map.put("zibanben",!(subversionNo.equals(""))?subversionNo:null);
+        map.put("pinpai",(brand.equals(""))?null:brand);
+        map.put("xinghao",(model.equals(""))?null:model);
+        map.put("banben",(firmwareVersion.equals(""))?null:firmwareVersion);
+        map.put("zibanben",(subversionNo.equals(""))?null:subversionNo);
+        map.put("routerFlag",(router.equals(""))?null:router);
 
         if (model.equals("")){
 

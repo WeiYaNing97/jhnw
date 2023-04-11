@@ -15,6 +15,7 @@ import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -34,131 +35,55 @@ public class luminousAttenuation {
     private static ICommandLogicService commandLogicService;
     @Autowired
     private static IReturnRecordService returnRecordService;
+    @ApiOperation("通用获取交换机基本信息")
+    public static void obtainLightDecay(Map<String,String> user_String, Map<String,Object> user_Object) {
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setBrand(user_String.get("deviceBrand"));
+        totalQuestionTable.setType(user_String.get("deviceModel"));
+        totalQuestionTable.setFirewareVersion(user_String.get("firmwareVersion"));
+        totalQuestionTable.setSubVersion(user_String.get("subversionNumber"));
+        totalQuestionTable.setTemProName("光衰端口号");
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
+        TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
+        if (totalQuestionTables.size()==0){
+        }else if (totalQuestionTables.size()==1){
+            totalQuestionTablePojo = totalQuestionTables.get(0);
+        }else {
+            totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
+            totalQuestionTablePojo = totalQuestionTables.get(0);
+        }
+        String commandId = totalQuestionTablePojo.getCommandId();
+        commandId = commandId.substring(2,commandId.length());
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
+        String command = commandLogic.getCommand();
+        String returnString = ObtainReturnResultsByCommand(user_String, user_Object, command);
 
-    public static void getguangshuai(Map<String,String> user_String, Map<String,Object> user_Object) {
-        String returnString =
-                "GigabitEthernet 2/1                      up        102    Full     100M      copper\n" +
-                "GigabitEthernet 2/2                      down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/3                      up        102    Full     1000M     copper\n" +
-                "GigabitEthernet 2/4                      down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/5                      up        1      Full     1000M     copper\n" +
-                "GigabitEthernet 2/6                      down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/7                      down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/8                      down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/9                      up        102    Full     1000M     copper\n" +
-                "GigabitEthernet 2/10                     up        1      Full     1000M     copper\n" +
-                "GigabitEthernet 2/11                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/12                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/13                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/14                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/15                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/16                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/17                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/18                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/19                     up        102    Full     1000M     copper\n" +
-                "GigabitEthernet 2/20                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/21                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/22                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/23                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/24                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/25                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/26                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/27                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/28                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/29                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/30                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/31                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/32                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/33                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/34                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/35                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/36                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/37                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/38                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/39                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/40                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/41                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/42                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/43                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/44                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/45                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/46                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/47                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 2/48                     down      1      Unknown  Unknown   copper\n" +
-                "GigabitEthernet 9/1                      up        routed Full     1000M     fiber\n" +
-                "GigabitEthernet 9/2                      up        routed Full     1000M     fiber\n" +
-                "GigabitEthernet 9/3                      up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/4                      down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/5                      up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/6                      down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/7                      up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/8                      down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/9                      up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/10                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/11                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/12                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/13                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/14                     up        routed Full     1000M     fiber\n" +
-                "GigabitEthernet 9/15                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/16                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/17                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/18                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/19                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/20                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/21                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/22                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/23                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/24                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/25                     up        102    Full     1000M     fiber\n" +
-                "GigabitEthernet 9/26                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/27                     down      102    Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/28                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/29                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/30                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/31                     down      110    Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/32                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/33                     down      110    Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/34                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/35                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/36                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/37                     up        1      Full     1000M     fiber\n" +
-                "GigabitEthernet 9/38                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/39                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/40                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/41                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/42                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/43                     down      1      Unknown  Unknown   fiber\n" +
-                "GigabitEthernet 9/44                     down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/1                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/2                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/3                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/4                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/5                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/6                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/7                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 5/8                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/1                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/2                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/3                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/4                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/5                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/6                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/7                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 6/8                   down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 9/45                  down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 9/46                  down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 9/47                  down      1      Unknown  Unknown   fiber\n" +
-                "TenGigabitEthernet 9/48                  down      1      Unknown  Unknown   fiber";
 
         List<String> port = getPort(returnString);
         if (port.size() == 0){
             /*没有端口号为开启状态*/
-            //return null;
+            try {
+                PathHelper.writeDataToFileByName("IP地址:"+user_String.get("ip")+"无UP状态端口号","光衰");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        HashMap<String, String> getparameter = getparameter(port, user_String, user_Object);
+        StringBuffer stringBuffer = new StringBuffer();
+        for (String str:port){
+            stringBuffer.append("IP地址:"+user_String.get("ip")+"端口号:"+str+"TX:"+getparameter.get(str+"TX")+"RX:"+getparameter.get(str+"RX")+"\r\n");
         }
 
-        getparameter(port,user_String,user_Object);
+        try {
+            PathHelper.writeDataToFileByName(stringBuffer.toString(),"光衰");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
+
     /*获取端口号*/
     public static List<String> getPort(String returnString) {
         returnString = MyUtils.trimString(returnString);
@@ -179,8 +104,8 @@ public class luminousAttenuation {
         return port;
     }
 
+    /* 根据 UP 截取端口号   */
     public static String getTerminalSlogan(String information){
-
         String[] informationSplit = information.toUpperCase().split(" UP ");
         information = null;
         for (String string:informationSplit){
@@ -191,6 +116,7 @@ public class luminousAttenuation {
                         if (MyUtils.judgeContainsStr(string_split[num])){
                             return string_split[num];
                         }else {
+                            /*例如：  GigabitEthernet 2/1 */
                             information =string_split[num];
                             return string_split[--num] +" "+ information ;
                         }
@@ -201,7 +127,9 @@ public class luminousAttenuation {
         return information;
     }
 
-    public static void getparameter(List<String> portNumber, Map<String,String> user_String, Map<String,Object> user_Object) {
+    /* 根据端口号 和 数据库中部定义的 获取光衰信息命令
+    * */
+    public static HashMap<String,String> getparameter(List<String> portNumber, Map<String,String> user_String, Map<String,Object> user_Object) {
 
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setBrand(user_String.get("deviceBrand"));
@@ -211,39 +139,34 @@ public class luminousAttenuation {
         totalQuestionTable.setTemProName("光衰");
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
-        totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
-        TotalQuestionTable totalQuestionTablePojo = totalQuestionTables.get(0);
+        TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
+        if (totalQuestionTables.size()==0){
 
+        }else if (totalQuestionTables.size()==1){
+            totalQuestionTablePojo = totalQuestionTables.get(0);
+        }else {
+            totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
+            totalQuestionTablePojo = totalQuestionTables.get(0);
+        }
         String commandId = totalQuestionTablePojo.getCommandId();
         commandId = commandId.substring(2,commandId.length());
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         String command = commandLogic.getCommand();
-        String com = "";
-
+        HashMap<String,String> hashMap = new HashMap<>();
         for (String port:portNumber){
-            com = command.replaceAll("端口号",port);
+            String com = command.replaceAll("端口号",port);
             String returnResults = ObtainReturnResultsByCommand(user_String, user_Object, com);
 
-            returnResults = "GigabitEthernet0/0/12 transceiver diagnostic information:\n" +
-                    "  Current diagnostic parameters:\n" +
-                    "    Temp(¡ãC)  Voltage(V)  Bias(mA)  RX power(dBm)  TX power(dBm)\n" +
-                    "    39        3.31        8.92      -6.88          -6.18\n" +
-                    "\n" +
-                    "<AnPingJu_H3C_7503E>";
-
-            HashMap<String, String> values = getValues(returnResults);
-
-
-            System.err.println("端口号"+port+"命令:"+com);
-            System.err.println("端口号"+port+"TX:"+values.get("TX"));
-            System.err.println("端口号"+port+"RX:"+values.get("RX"));
+            HashMap<String, String> values = getDecayValues(returnResults);
+            hashMap.put(port+"TX",values.get("TX"));
+            hashMap.put(port+"RX",values.get("RX"));
         }
-
+        return hashMap;
     }
 
 
-
+    /* 执行命令*/
     public static String ObtainReturnResultsByCommand(Map<String,String> user_String, Map<String,Object> user_Object,String command) {
 
         //四个参数 赋值
@@ -425,8 +348,8 @@ public class luminousAttenuation {
         return commandString;
     }
 
-    /*get参数*/
-    public static HashMap<String,String> getValues(String string) {
+    /*get 光衰 参数*/
+    public static HashMap<String,String> getDecayValues(String string) {
 
         string = MyUtils.trimString(string);
         String[] Line_split = string.split("\r\n");

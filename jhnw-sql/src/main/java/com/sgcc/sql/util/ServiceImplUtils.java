@@ -32,8 +32,10 @@ public class ServiceImplUtils {
         }else if (value.indexOf(".") != -1){
             String[] split = value.split("\\.");
             List<String> valueString = new ArrayList<>();
+            String keywords ="";
             for (int num = 0 ; num < split.length ; num++){
-                valueString.add(split[num]);
+                keywords = keywords + split[num]+".";
+                valueString.add(keywords.substring(0,keywords.length()-1));
             }
             return valueString;
         }

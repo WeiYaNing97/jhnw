@@ -60,6 +60,14 @@ public class MyUtils {
 
     }
 
+
+    /*判断字符串是否包含数字*/
+    public static boolean isNumeric(String str) {
+        Pattern pattern = Pattern.compile(".*[0-9].*");
+        return pattern.matcher(str).matches();
+    }
+
+
     public static String getEntityClassString(Object object) {
         //获取实体类 返回的是一个数组 数组的数据就是实体类中的字段
         Field[] fields = object.getClass().getDeclaredFields();
@@ -125,8 +133,7 @@ public class MyUtils {
 
     /*读取文章并按行存入数组*/
     public static String trimString(String article) {
-        String lineSeparator = System.lineSeparator(); // 获取当前操作系统的换行符
-
+        //String lineSeparator = System.lineSeparator(); // 获取当前操作系统的换行符
         // 读取文章并按行存入数组
         String[] lines = article.split("\\r?\\n|\\r"); // 使用正则表达式按照任意一种换行符进行分割
         article = "";

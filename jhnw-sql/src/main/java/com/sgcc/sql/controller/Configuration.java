@@ -27,11 +27,12 @@ public class Configuration {
 
     /** 获取设备品牌命令 */
     public static String getBrandCommand;
-
     /** 设备版本 */
     public static String deviceVersion;
     /** 设备子版本 */
     public static String deviceSubversion;
+    /** 路由器 */
+    public static String routerFlag;
 
     /** 邻居ID */
     public static String neighborID;
@@ -74,6 +75,7 @@ public class Configuration {
         portNumber = ymlMap.get("portNumber").replaceAll("；",";");
         BFDState = ymlMap.get("BFDState").replaceAll("；",";");
         ospfSpaceCharacter = ymlMap.get("ospfSpaceCharacter").replaceAll("；",";");
+        routerFlag = ymlMap.get("routerFlag").replaceAll("；",";");
 
     }
 

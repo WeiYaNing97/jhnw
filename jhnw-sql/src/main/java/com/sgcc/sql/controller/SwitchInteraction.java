@@ -637,14 +637,16 @@ public class SwitchInteraction {
 
             AjaxResult basicInformationList_ajaxResult = GetBasicInformationController.getBasicInformationCurrency(user_String,user_Object);
 
-
-            luminousAttenuation.getguangshuai(user_String,user_Object);
-
-
             //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
-                HashMap<String,String> data = (HashMap<String,String>) basicInformationList_ajaxResult.get("data");
-                AdvancedFeatures.analyseOspf(user_String, data.get("pinpai"), user_Object);
+
+                /*OSPF*/
+                AdvancedFeatures.analyseOspf(user_String, user_Object);
+
+                /*光衰*/
+                luminousAttenuation.obtainLightDecay(user_String,user_Object);
+
+
                 //5.获取交换机可扫描的问题并执行分析操作
                 AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
@@ -2696,10 +2698,13 @@ public class SwitchInteraction {
         String current_identifier = split[split.length-1].trim();
         returnRecord.setCurrentIdentifier(current_identifier);
         //当前标识符前后都没有\r\n
+        current_identifier = current_identifier.trim();
+        boolean b = current_identifier.trim().endsWith("\r\n");
         String current_identifier_substring_end = current_identifier.substring(current_identifier.length() - 2, current_identifier.length());
         if (current_identifier_substring_end.equals("\r\n")){
             current_identifier = current_identifier.substring(0,current_identifier.length()-2);
         }
+        boolean b1 = current_identifier.trim().startsWith("\r\n");
         String current_identifier_substring_start = current_identifier.substring(0, 2);
         if (current_identifier_substring_start.equals("\r\n")){
             current_identifier = current_identifier.substring(2,current_identifier.length());

@@ -19,6 +19,8 @@ configuration:
   deviceVersion: Version
   # 设备子版本 两个型号之间以;分阁
   deviceSubversion: Release;Build;RELEASE SOFTWARE
+  # 路由器标志
+  routerFlag: NE
 
   # OSPF
   # 邻居ID

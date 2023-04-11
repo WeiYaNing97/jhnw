@@ -179,7 +179,19 @@ public class SshConnect implements Runnable {
             //@method: jsch 获取会话
             //@Param: [user 用户名, this.ip IP地址, this.port 端口号]
 
+
             session = sshInformation.getJsch().getSession(user, sshInformation.getIp(), sshInformation.getPort());
+
+
+            /*Properties config = new Properties();
+            config.put("StrictHostKeyChecking", "no");
+            config.put("cipher.s2c", "aes128-cbc,aes192-cbc,aes256-cbc");
+            config.put("cipher.c2s", "aes128-cbc,aes192-cbc,aes256-cbc");
+            config.put("mac.s2c", "hmac-sha2-256,hmac-sha2-512,hmac-sha1");
+            config.put("mac.c2s", "hmac-sha2-256,hmac-sha2-512,hmac-sha1");
+            config.put("kex", "diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1");
+            session.setConfig(config);*/
+
 
             sshInformation.setSession(session);
 
