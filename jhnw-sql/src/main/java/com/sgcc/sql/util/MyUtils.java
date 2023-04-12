@@ -38,28 +38,32 @@ public class MyUtils {
         Matcher match = pattern.matcher(str);
         return match.find();
     }
+
     /**
-
      * 该方法主要使用正则表达式来判断字符串中是否包含字母
-
      * @author fenggaopan 2015年7月21日 上午9:49:40
-
      * @param cardNum 待检验的原始卡号
-
      * @return 返回是否包含
-
      */
-
     public static boolean judgeContainsStr(String cardNum) {
-
         String regex=".*[a-zA-Z]+.*";
-
         Matcher m = Pattern.compile(regex).matcher(cardNum);
-
         return m.matches();
-
     }
 
+    /**
+     * 查询字符串中首个数字出现的位置
+     * @param str 查询的字符串
+     * @return 若存在，返回位置索引，否则返回-1；
+     */
+    public static int findFirstIndexNumberOfStr(String str){
+        int i = -1;
+        Matcher matcher = Pattern.compile("[0-9]").matcher(str);
+        if(matcher.find()) {
+            i = matcher.start();
+        }
+        return i;
+    }
 
     /*判断字符串是否包含数字*/
     public static boolean isNumeric(String str) {
@@ -79,7 +83,6 @@ public class MyUtils {
                 // 输出属性名和属性值
                 String nameKey = fields[i].getName();
                 Object value = fields[i].get(object);
-
                 if (nameKey.equalsIgnoreCase("serialVersionUID")){
                     continue;
                 }
@@ -88,14 +91,10 @@ public class MyUtils {
                 e.printStackTrace();
             }
         }
-
         return sumString.substring(0,sumString.length()-1);
-
     }
 
-
     public static String fileWrite(List<String> documentContent,String fileName) {
-
         String absoluteFile = getAbsoluteFile(fileName + ".txt");
         try {
             /* 写入Txt文件 */
@@ -235,25 +234,20 @@ public class MyUtils {
      * @E-mail: WeiYaNing97@163.com
      */
     public static boolean judgmentError(Map<String,String> user_String, String str){
-
         /*if (str.length()>=5 && str.trim().substring(0,5).equalsIgnoreCase("Error")){
             return false;
         }*/
-
         String deviceBrand = user_String.get("deviceBrand");
         String deviceModel = user_String.get("deviceModel");
         String firmwareVersion = user_String.get("firmwareVersion");
         String subversionNumber = user_String.get("subversionNumber");
-
         SwitchError switchError = new SwitchError();
         switchError.setBrand(deviceBrand);
         switchError.setSwitchType(deviceModel);
         switchError.setFirewareVersion(firmwareVersion);
         switchError.setSubVersion(subversionNumber);
-
         SwitchErrorController switchErrorController = new SwitchErrorController();
         List<SwitchError> switchErrors = switchErrorController.selectSwitchErrorListByPojo(switchError);
-
         for (SwitchError pojo:switchErrors){
             if (str.indexOf(pojo.getErrorKeyword()) != -1){
                 return false;
@@ -282,21 +276,17 @@ public class MyUtils {
     Fan 1 failed
      */
     public static boolean switchfailure(Map<String,String> user_String,String switchInformation){
-
         String deviceBrand = user_String.get("deviceBrand");
         String deviceModel = user_String.get("deviceModel");
         String firmwareVersion = user_String.get("firmwareVersion");
         String subversionNumber = user_String.get("subversionNumber");
-
         SwitchFailure switchFailure = new SwitchFailure();
         switchFailure.setBrand(deviceBrand);
         switchFailure.setSwitchType(deviceModel);
         switchFailure.setFirewareVersion(firmwareVersion);
         switchFailure.setSubVersion(subversionNumber);
-
         SwitchFailureController switchFailureController = new SwitchFailureController();
         List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureListByPojo(switchFailure);
-
         for (SwitchFailure pojo:switchFailures){
             //包含 返回 false
             if (switchInformation.indexOf(pojo.getFailureKeyword()) !=-1){
@@ -319,14 +309,11 @@ public class MyUtils {
      */
     @RequestMapping("compareVersion")
     public static boolean compareVersion(Map<String,String> user_String, String compare,String current_Round_Extraction_String){
-
         String[] current_Round_Extraction_split = current_Round_Extraction_String.split("=:=");
         Map<String,String> value_String = new HashMap<>();
         if(!(current_Round_Extraction_String.equals(""))){
             for (int number = 0 ; number<current_Round_Extraction_split.length ; number = number +3){
-
                 value_String.put(current_Round_Extraction_split[number],current_Round_Extraction_split[number+2]);
-
             }
         }
 
@@ -350,7 +337,6 @@ public class MyUtils {
         getParameters = getParameters.replace(">",":");
         getParameters = getParameters.replace("=",":");
         String[] parameter = getParameters.split(":");
-
         String getComparisonNumber = compare;
         //参数一 替换 ：
         getComparisonNumber = getComparisonNumber.replace(parameter[0],":");
@@ -401,8 +387,6 @@ public class MyUtils {
             if (value2 != null){
                 parameter[2] = value2;
             }
-
-
             //第一组比较
             String[] compareArray1 = new String[3];
             compareArray1[0] = parameter[0];
@@ -415,7 +399,6 @@ public class MyUtils {
             compareArray2[1] = comparisonNumber[1];
             compareArray2[2] = parameter[2];
             compareList.add(compareArray2);
-
         }
 
         boolean compare_size;

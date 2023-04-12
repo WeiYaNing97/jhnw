@@ -647,7 +647,7 @@ public class SwitchInteraction {
                 luminousAttenuation.obtainLightDecay(user_String,user_Object);
 
 
-                //5.获取交换机可扫描的问题并执行分析操作
+                /*//5.获取交换机可扫描的问题并执行分析操作
                 AjaxResult ajaxResult = scanProblem(
                         user_String, //登录交换机的 用户信息 登录方式、ip、name、password
                         user_Object,
@@ -665,7 +665,7 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
+                }*/
                 return basicInformationList_ajaxResult;
             }
             try {

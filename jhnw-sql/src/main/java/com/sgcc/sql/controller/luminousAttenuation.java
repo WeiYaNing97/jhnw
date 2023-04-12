@@ -1,5 +1,6 @@
 package com.sgcc.sql.controller;
 
+import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
@@ -35,8 +36,9 @@ public class luminousAttenuation {
     private static ICommandLogicService commandLogicService;
     @Autowired
     private static IReturnRecordService returnRecordService;
-    @ApiOperation("通用获取交换机基本信息")
-    public static void obtainLightDecay(Map<String,String> user_String, Map<String,Object> user_Object) {
+    @ApiOperation("获取光衰参数")
+    public static AjaxResult obtainLightDecay(Map<String,String> user_String, Map<String,Object> user_Object) {
+        AjaxResult ajaxResult = new AjaxResult();
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setBrand(user_String.get("deviceBrand"));
         totalQuestionTable.setType(user_String.get("deviceModel"));
@@ -47,6 +49,13 @@ public class luminousAttenuation {
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
         TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
         if (totalQuestionTables.size()==0){
+            /*查询获取光衰端口号命令失败*/
+            try {
+                PathHelper.writeDataToFileByName("IP地址:"+user_String.get("ip")+"查询获取光衰端口号命令失败","光衰");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return AjaxResult.error("IP地址:"+user_String.get("ip")+"查询获取光衰端口号命令失败");
         }else if (totalQuestionTables.size()==1){
             totalQuestionTablePojo = totalQuestionTables.get(0);
         }else {
@@ -69,8 +78,18 @@ public class luminousAttenuation {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return AjaxResult.error("IP地址:"+user_String.get("ip")+"未获取到UP状态端口号");
         }
         HashMap<String, String> getparameter = getparameter(port, user_String, user_Object);
+        if (getparameter == null){
+            /*未获取到光衰参数*/
+            try {
+                PathHelper.writeDataToFileByName("IP地址:"+user_String.get("ip")+"未获取到光衰参数","光衰");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return AjaxResult.error("IP地址:"+user_String.get("ip")+"未获取到光衰参数");
+        }
         StringBuffer stringBuffer = new StringBuffer();
         for (String str:port){
             stringBuffer.append("IP地址:"+user_String.get("ip")+"端口号:"+str+"TX:"+getparameter.get(str+"TX")+"RX:"+getparameter.get(str+"RX")+"\r\n");
@@ -82,6 +101,7 @@ public class luminousAttenuation {
             e.printStackTrace();
         }
 
+        return AjaxResult.success();
     }
 
     /*获取端口号*/
@@ -141,7 +161,7 @@ public class luminousAttenuation {
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
         TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
         if (totalQuestionTables.size()==0){
-
+            return null;
         }else if (totalQuestionTables.size()==1){
             totalQuestionTablePojo = totalQuestionTables.get(0);
         }else {
@@ -156,6 +176,7 @@ public class luminousAttenuation {
         HashMap<String,String> hashMap = new HashMap<>();
         for (String port:portNumber){
             String com = command.replaceAll("端口号",port);
+            System.err.println("获取光衰参数命令:"+com);
             String returnResults = ObtainReturnResultsByCommand(user_String, user_Object, com);
 
             HashMap<String, String> values = getDecayValues(returnResults);

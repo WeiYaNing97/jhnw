@@ -233,8 +233,17 @@ public class AdvancedFeatures {
         totalQuestionTable.setTemProName("OSPF");
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
-        totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
-        TotalQuestionTable totalQuestionTablePojo = totalQuestionTables.get(0);
+
+        TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
+        if (totalQuestionTables.size()==0){
+            return null;
+        }else if (totalQuestionTables.size()==1){
+            totalQuestionTablePojo = totalQuestionTables.get(0);
+        }else {
+            totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
+            totalQuestionTablePojo = totalQuestionTables.get(0);
+        }
+
         String commandId = totalQuestionTablePojo.getCommandId();
         commandId = commandId.substring(2,commandId.length());
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);

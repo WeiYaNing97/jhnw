@@ -108,10 +108,10 @@ public class SshMethod {
             }
             string = "\n" + string.trim();
         }
-        if (notFinished == null && notFinished == ""){
+        if (notFinished == null || notFinished == ""){
             notFinished = "---- More ----";
         }
-        string = string.replace(" "+notFinished+"\n","");
+        string = string.replace(notFinished,"");
 
        // this.ReturnInformation = string;
         return string;

@@ -311,7 +311,7 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         if (totalQuestionTable.getSubVersion() != null && totalQuestionTable.getSubVersion() != ""){
             sql = sql + subVersionSQL;
         }
-        sql = sql + "and type_problem = \'高级功能\'";
+        sql = sql + "and type_problem = \'高级功能\'" + "and tem_pro_name = \'"+totalQuestionTable.getTemProName()+"\'";
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableMapper.queryVagueScannableQuestionsList(sql + " ORDER BY type_problem,tem_pro_name,problem_name");
         return totalQuestionTables;
     }
