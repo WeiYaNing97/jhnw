@@ -3,6 +3,8 @@ package com.sgcc.sql.thread;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.sql.controller.SwitchInteraction;
+import com.sgcc.sql.parametric.ParameterSet;
+import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
 
@@ -28,27 +30,21 @@ public class ScanFixedThreadPool {
     /**
      * newFixedThreadPool submit submit
      */
-    public static void switchLoginInformations(List<Object[]> objects, String ScanningTime,LoginUser login,int threads) throws InterruptedException {
+    public static void switchLoginInformations(ParameterSet parameterSet) throws InterruptedException {
 
         // 用于计数线程是否执行完成
-        CountDownLatch countDownLatch = new CountDownLatch(objects.size());
-        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(threads);
+        CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
 
         int i = 1;
-        for (Object[] objects3:objects){
-            String mode = (String)objects3[0];
-            String ip = (String)objects3[1];
-            String name = (String)objects3[2];
-            String password = (String)objects3[3];
-            String configureCiphers = (String) objects3[4];
-            int port = (int) objects3[5];
-            LoginUser loginUser = login;
-            String time = ScanningTime;
+        for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){
+
             String threadName = getThreadName(i);
+            switchParameters.setThreadName(threadName);
             i++;
             threadNameMap.put(threadName, threadName);
 
-            fixedThreadPool.execute(new ScanThread(threadName,mode, ip, name, password,configureCiphers, port, loginUser,time,countDownLatch,fixedThreadPool));
+            fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
         countDownLatch.await();
     }

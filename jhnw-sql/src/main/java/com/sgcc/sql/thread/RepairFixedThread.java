@@ -4,6 +4,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.sql.controller.SolveProblemController;
 import com.sgcc.sql.domain.SwitchScanResult;
+import com.sgcc.sql.parametric.SwitchParameters;
 
 import java.util.List;
 import java.util.Map;
@@ -13,9 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class RepairFixedThread extends Thread {
 
-
-    Map<String,String> user_String = null;
-    LoginUser loginUser = null;
+    SwitchParameters switchParameters = null;
     List<SwitchScanResult> switchScanResults = null;
     List<String> problemIds = null;
 
@@ -25,13 +24,16 @@ public class RepairFixedThread extends Thread {
 
     // 为线程命名
     public RepairFixedThread(String threadName,
-                             Map<String,String> user_String, LoginUser loginUser,
-                             List<SwitchScanResult> switchScanResults,List<String> problemIds) {
+                             SwitchParameters SwitchParameters,
+                             List<SwitchScanResult> switchScanResults,List<String> problemIds,
+                             CountDownLatch countDownLatch,ExecutorService fixedThreadPool) {
         super(threadName);
-        this.user_String = user_String;
-        this.loginUser = loginUser;
+        this.switchParameters = SwitchParameters;
         this.switchScanResults = switchScanResults;
         this.problemIds = problemIds;
+
+        this.countDownLatch = countDownLatch;
+        this.fixedThreadPool = fixedThreadPool;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class RepairFixedThread extends Thread {
             System.err.println("活跃线程数："+threadCount);
 
             SolveProblemController solveProblemController = new SolveProblemController();
-            AjaxResult ajaxResult = solveProblemController.batchSolution(user_String,loginUser,switchScanResults,problemIds);
+            AjaxResult ajaxResult = solveProblemController.batchSolution(switchParameters,switchScanResults,problemIds);
             if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                 System.err.println("\r\n未定义该交换机获取基本信息命令及分析\r\n");
             }else if (ajaxResult.get("msg").equals("交换机连接失败")){

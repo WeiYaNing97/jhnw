@@ -1,5 +1,6 @@
 package com.sgcc.sql.parametric;
 
+import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SshConnect;
@@ -9,6 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SwitchParameters {
+
+    private LoginUser loginUser;//登陆人信息
+    private String threadName;//线程名
+    private String scanningTime;//扫描时间
+    private String notFinished;
+
     /**
      * 交换机登录信息
      */
@@ -17,10 +24,12 @@ public class SwitchParameters {
     private String password; //密码
     private String configureCiphers;//配置密码
     private String mode;//连接方式
+    private Integer port;
 
     /**
      * 交换机属性信息
      */
+    private String routerFlag;
     private String deviceModel;//设备型号
     private String deviceBrand;//设备品牌
     private String firmwareVersion;//内部固件版本
@@ -139,22 +148,51 @@ public class SwitchParameters {
         return telnetComponent;
     }
 
-    @Override
-    public String toString() {
-        return "SwitchParameters{" +
-                "ip='" + ip + '\'' +
-                ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                ", configureCiphers='" + configureCiphers + '\'' +
-                ", mode='" + mode + '\'' +
-                ", deviceModel='" + deviceModel + '\'' +
-                ", deviceBrand='" + deviceBrand + '\'' +
-                ", firmwareVersion='" + firmwareVersion + '\'' +
-                ", subversionNumber='" + subversionNumber + '\'' +
-                ", connectMethod=" + connectMethod +
-                ", telnetSwitchMethod=" + telnetSwitchMethod +
-                ", sshConnect=" + sshConnect +
-                ", telnetComponent=" + telnetComponent +
-                '}';
+    public Integer getPort() {
+        return port;
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public LoginUser getLoginUser() {
+        return loginUser;
+    }
+
+    public void setLoginUser(LoginUser loginUser) {
+        this.loginUser = loginUser;
+    }
+
+    public String getThreadName() {
+        return threadName;
+    }
+
+    public void setThreadName(String threadName) {
+        this.threadName = threadName;
+    }
+
+    public String getRouterFlag() {
+        return routerFlag;
+    }
+
+    public void setRouterFlag(String routerFlag) {
+        this.routerFlag = routerFlag;
+    }
+
+    public String getScanningTime() {
+        return scanningTime;
+    }
+
+    public void setScanningTime(String scanningTime) {
+        this.scanningTime = scanningTime;
+    }
+
+    public String getNotFinished() {
+        return notFinished;
+    }
+
+    public void setNotFinished(String notFinished) {
+        this.notFinished = notFinished;
     }
 }

@@ -10,6 +10,7 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.domain.TotalQuestionTable;
+import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
@@ -37,13 +38,13 @@ public class luminousAttenuation {
     @Autowired
     private static IReturnRecordService returnRecordService;
     @ApiOperation("获取光衰参数")
-    public static AjaxResult obtainLightDecay(Map<String,String> user_String, Map<String,Object> user_Object) {
+    public static AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
         AjaxResult ajaxResult = new AjaxResult();
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand(user_String.get("deviceBrand"));
-        totalQuestionTable.setType(user_String.get("deviceModel"));
-        totalQuestionTable.setFirewareVersion(user_String.get("firmwareVersion"));
-        totalQuestionTable.setSubVersion(user_String.get("subversionNumber"));
+        totalQuestionTable.setBrand(switchParameters.getDeviceBrand());
+        totalQuestionTable.setType(switchParameters.getDeviceModel());
+        totalQuestionTable.setFirewareVersion(switchParameters.getFirmwareVersion());
+        totalQuestionTable.setSubVersion(switchParameters.getSubversionNumber());
         totalQuestionTable.setTemProName("光衰端口号");
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
@@ -51,11 +52,11 @@ public class luminousAttenuation {
         if (totalQuestionTables.size()==0){
             /*查询获取光衰端口号命令失败*/
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+user_String.get("ip")+"查询获取光衰端口号命令失败","光衰");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"查询获取光衰端口号命令失败","光衰");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return AjaxResult.error("IP地址:"+user_String.get("ip")+"查询获取光衰端口号命令失败");
+            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"查询获取光衰端口号命令失败");
         }else if (totalQuestionTables.size()==1){
             totalQuestionTablePojo = totalQuestionTables.get(0);
         }else {
@@ -67,32 +68,32 @@ public class luminousAttenuation {
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
         String command = commandLogic.getCommand();
-        String returnString = ObtainReturnResultsByCommand(user_String, user_Object, command);
+        String returnString = ObtainReturnResultsByCommand(switchParameters, command);
 
 
         List<String> port = getPort(returnString);
         if (port.size() == 0){
             /*没有端口号为开启状态*/
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+user_String.get("ip")+"无UP状态端口号","光衰");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号","光衰");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return AjaxResult.error("IP地址:"+user_String.get("ip")+"未获取到UP状态端口号");
+            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
         }
-        HashMap<String, String> getparameter = getparameter(port, user_String, user_Object);
+        HashMap<String, String> getparameter = getparameter(port, switchParameters);
         if (getparameter == null){
             /*未获取到光衰参数*/
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+user_String.get("ip")+"未获取到光衰参数","光衰");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未获取到光衰参数","光衰");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return AjaxResult.error("IP地址:"+user_String.get("ip")+"未获取到光衰参数");
+            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
         }
         StringBuffer stringBuffer = new StringBuffer();
         for (String str:port){
-            stringBuffer.append("IP地址:"+user_String.get("ip")+"端口号:"+str+"TX:"+getparameter.get(str+"TX")+"RX:"+getparameter.get(str+"RX")+"\r\n");
+            stringBuffer.append("IP地址:"+switchParameters.getIp()+"端口号:"+str+"TX:"+getparameter.get(str+"TX")+"RX:"+getparameter.get(str+"RX")+"\r\n");
         }
 
         try {
@@ -149,13 +150,13 @@ public class luminousAttenuation {
 
     /* 根据端口号 和 数据库中部定义的 获取光衰信息命令
     * */
-    public static HashMap<String,String> getparameter(List<String> portNumber, Map<String,String> user_String, Map<String,Object> user_Object) {
+    public static HashMap<String,String> getparameter(List<String> portNumber,SwitchParameters switchParameters) {
 
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand(user_String.get("deviceBrand"));
-        totalQuestionTable.setType(user_String.get("deviceModel"));
-        totalQuestionTable.setFirewareVersion(user_String.get("firmwareVersion"));
-        totalQuestionTable.setSubVersion(user_String.get("subversionNumber"));
+        totalQuestionTable.setBrand(switchParameters.getDeviceBrand());
+        totalQuestionTable.setType(switchParameters.getDeviceModel());
+        totalQuestionTable.setFirewareVersion(switchParameters.getFirmwareVersion());
+        totalQuestionTable.setSubVersion(switchParameters.getSubversionNumber());
         totalQuestionTable.setTemProName("光衰");
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
@@ -177,7 +178,7 @@ public class luminousAttenuation {
         for (String port:portNumber){
             String com = command.replaceAll("端口号",port);
             System.err.println("获取光衰参数命令:"+com);
-            String returnResults = ObtainReturnResultsByCommand(user_String, user_Object, com);
+            String returnResults = ObtainReturnResultsByCommand(switchParameters, com);
 
             HashMap<String, String> values = getDecayValues(returnResults);
             hashMap.put(port+"TX",values.get("TX"));
@@ -188,19 +189,8 @@ public class luminousAttenuation {
 
 
     /* 执行命令*/
-    public static String ObtainReturnResultsByCommand(Map<String,String> user_String, Map<String,Object> user_Object,String command) {
+    public static String ObtainReturnResultsByCommand(SwitchParameters switchParameters,String command) {
 
-        //四个参数 赋值
-        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
-        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
-        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
-        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
-        //获取登录系统用户信息
-        LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
-        String userName = loginUser.getUsername();
-        //basicInformation : display device manuinfo,display ver
-        //连接方式 ssh telnet
-        String way = user_String.get("mode");
         //目前获取基本信息命令是多个命令是由,号分割的，
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
 
@@ -210,12 +200,12 @@ public class luminousAttenuation {
         //创建 存储交换机返回数据 实体类
         ReturnRecord returnRecord = new ReturnRecord();
         int insert_Int = 0; //交换机返回结果插入数据库ID
-        returnRecord.setUserName(userName);
-        returnRecord.setSwitchIp(user_String.get("ip"));
-        returnRecord.setBrand(user_String.get("deviceBrand"));
-        returnRecord.setType(user_String.get("deviceModel"));
-        returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
-        returnRecord.setSubVersion(user_String.get("subversionNumber"));
+        returnRecord.setUserName(switchParameters.getLoginUser().getUsername());
+        returnRecord.setSwitchIp(switchParameters.getIp());
+        returnRecord.setBrand(switchParameters.getDeviceBrand());
+        returnRecord.setType(switchParameters.getDeviceModel());
+        returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
+        returnRecord.setSubVersion(switchParameters.getSubversionNumber());
         // 执行命令赋值
         String commandtrim = command.trim();
         returnRecord.setCurrentCommLog(commandtrim);
@@ -226,31 +216,31 @@ public class luminousAttenuation {
         boolean deviceBrand = true;
         do {
             deviceBrand = true;
-            if (way.equalsIgnoreCase("ssh")){
+            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 //  WebSocket 传输 命令
-                WebSocketService.sendMessage(userName,user_String.get("ip")+"发送:"+command+"\r\n");
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command+"\r\n");
                 try {
-                    PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
+                    PathHelper.writeDataToFile(switchParameters.getIp()+"发送:"+command+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
-            }else if (way.equalsIgnoreCase("telnet")){
+                commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,switchParameters.getNotFinished());
+            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 //  WebSocket 传输 命令
-                WebSocketService.sendMessage(userName,user_String.get("ip")+"发送:"+command);
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command);
                 try {
-                    PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
+                    PathHelper.writeDataToFile(switchParameters.getIp()+"发送:"+command+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
+                commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,switchParameters.getNotFinished());
             }
 
             //  WebSocket 传输 交换机返回结果
             returnRecord.setCurrentReturnLog(commandString);
             //粗略查看是否存在 故障
             // 存在故障返回 false 不存在故障返回 true
-            boolean switchfailure = MyUtils.switchfailure(user_String, commandString);
+            boolean switchfailure = MyUtils.switchfailure(switchParameters, commandString);
             // 存在故障返回 false
             if (!switchfailure){
                 // 交换机返回结果 按行 分割成 交换机返回信息数组
@@ -259,26 +249,26 @@ public class luminousAttenuation {
                 for (String returnString:commandStringSplit){
                     // 查看是否存在 故障
                     // 存在故障返回 false 不存在故障返回 true
-                    deviceBrand = MyUtils.switchfailure(user_String, returnString);
+                    deviceBrand = MyUtils.switchfailure(switchParameters, returnString);
                     // 存在故障返回 false
                     if (!deviceBrand){
 
-                        System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
+                        System.err.println("\r\n"+switchParameters.getIp() + "\r\n故障:"+returnString+"\r\n");
 
-                        WebSocketService.sendMessage(userName,"故障:"+user_String.get("ip") + ":"+returnString+"\r\n");
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
 
                         try {
-                            PathHelper.writeDataToFile("故障:"+user_String.get("ip") + ":"+returnString+"\r\n");
+                            PathHelper.writeDataToFile("故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
 
-                        returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString);
+                        returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
 
-                        if (way.equalsIgnoreCase("ssh")){
-                            connectMethod.sendCommand(user_String.get("ip"),sshConnect," ",user_String.get("notFinished"));
-                        }else if (way.equalsIgnoreCase("telnet")){
-                            telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent," ",user_String.get("notFinished"));
+                        if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                            switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
+                        }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                            switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",switchParameters.getNotFinished());
                         }
                     }
                 }
@@ -289,7 +279,7 @@ public class luminousAttenuation {
 
             if (insert_Int <= 0){
                 //传输登陆人姓名 及问题简述
-                WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机返回信息插入失败\r\n");
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"交换机返回信息插入失败\r\n");
                 try {
                     //插入问题简述及问题路径
                     PathHelper.writeDataToFile("错误："+"交换机返回信息插入失败\r\n"
@@ -334,10 +324,10 @@ public class luminousAttenuation {
 
         }
 
-        WebSocketService.sendMessage(userName,user_String.get("ip")+"接收:"+current_return_log+"\r\n");
+        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
         try {
-            PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+current_return_log+"\r\n");
+            PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -355,9 +345,9 @@ public class luminousAttenuation {
             current_identifier = current_identifier.substring(2,current_identifier.length());
         }
 
-        WebSocketService.sendMessage(userName,user_String.get("ip")+"接收:"+current_identifier+"\r\n");
+        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
         try {
-            PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+current_identifier+"\r\n");
+            PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

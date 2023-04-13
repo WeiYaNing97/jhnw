@@ -9,7 +9,6 @@ public class ParameterSet {
 
     private List<SwitchParameters> switchParameters; //交换机信息
     private LoginUser loginUser;//登陆人信息
-    private String scanningTime;//扫描时间
     private Integer threadCount;//线程数
     private List<TotalQuestionTable> TotalQuestionTablePojoList;//交换机问题
 
@@ -19,10 +18,6 @@ public class ParameterSet {
 
     public void setLoginUser(LoginUser loginUser) {
         this.loginUser = loginUser;
-    }
-
-    public void setScanningTime(String scanningTime) {
-        this.scanningTime = scanningTime;
     }
 
     public void setThreadCount(Integer threadCount) {
@@ -41,9 +36,6 @@ public class ParameterSet {
         return loginUser;
     }
 
-    public String getScanningTime() {
-        return scanningTime;
-    }
 
     public Integer getThreadCount() {
         return threadCount;
@@ -58,7 +50,6 @@ public class ParameterSet {
         return "ParameterSet{" +
                 "switchParameters=" + switchParameters +
                 ", loginUser=" + loginUser +
-                ", scanningTime='" + scanningTime + '\'' +
                 ", threadCount=" + threadCount +
                 ", TotalQuestionTablePojoList=" + TotalQuestionTablePojoList +
                 '}';

@@ -4,6 +4,9 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.sql.controller.SolveProblemController;
 import com.sgcc.sql.domain.SwitchScanResult;
+import com.sgcc.sql.parametric.ParameterSet;
+import com.sgcc.sql.parametric.SwitchParameters;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,15 +32,13 @@ public class RepairFixedThreadPool {
      * newFixedThreadPool submit submit
      *
      */
-    public void Solution(LoginUser user, List<Map<String,String>> userinformation, List<List<SwitchScanResult>> problemList, List<String> problemIdStrings, int threads) throws InterruptedException {
+    public void Solution(ParameterSet parameterSet, List<List<SwitchScanResult>> problemList, List<String> problemIdStrings) throws InterruptedException {
         // 用于计数线程是否执行完成
-        CountDownLatch countDownLatch = new CountDownLatch(userinformation.size());
+        CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
 
-        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(threads);
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
 
-        HashMap<String,String> threadMap = new HashMap<>();
-
-        for (int i = 0 ; i<userinformation.size() ; i++){
+        for (int i = 0 ; i<parameterSet.getSwitchParameters().size() ; i++){
 
             List<SwitchScanResult> switchScanResultList = problemList.get(i);
             List<SwitchScanResult> switchScanResults = new ArrayList<>();
@@ -49,13 +50,13 @@ public class RepairFixedThreadPool {
             }
             if (switchScanResults.size() != 0){
                 // 如果有问题 查询对应交换机登录信息
-                Map<String,String> user_String = userinformation.get(i);
+                SwitchParameters SwitchParameters = parameterSet.getSwitchParameters().get(i);
                 // 所有问题
                 List<String> problemIds = problemIdStrings;
-                LoginUser loginUser = user;
                 String threadName = getThreadName(i);
                 threadNameMap.put(threadName, threadName);
-                fixedThreadPool.execute(new RepairFixedThread(threadName,user_String,loginUser,switchScanResults,problemIds));
+                SwitchParameters.setThreadName(threadName);
+                fixedThreadPool.execute(new RepairFixedThread(threadName,SwitchParameters,switchScanResults,problemIds,countDownLatch,fixedThreadPool));
             }
         }
         countDownLatch.await();

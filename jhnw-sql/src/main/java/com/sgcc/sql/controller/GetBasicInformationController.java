@@ -9,6 +9,7 @@ import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.ReturnRecord;
+import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
@@ -43,18 +44,8 @@ public class GetBasicInformationController {
      *
      */
     @ApiOperation("通用获取交换机基本信息")
-    public static AjaxResult getBasicInformationCurrency(Map<String,String> user_String, Map<String,Object> user_Object) {
-        //四个参数 赋值
-        SshConnect sshConnect = (SshConnect) user_Object.get("sshConnect");
-        SshMethod connectMethod = (SshMethod) user_Object.get("connectMethod");
-        TelnetComponent telnetComponent = (TelnetComponent) user_Object.get("telnetComponent");
-        TelnetSwitchMethod telnetSwitchMethod = (TelnetSwitchMethod) user_Object.get("telnetSwitchMethod");
-        //获取登录系统用户信息
-        LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
-        String userName = loginUser.getUsername();
-        //basicInformation : display device manuinfo,display ver
-        //连接方式 ssh telnet
-        String way = user_String.get("mode");
+    public static AjaxResult getBasicInformationCurrency(SwitchParameters switchParameters) {
+
         //目前获取基本信息命令是多个命令是由,号分割的，
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
 
@@ -68,12 +59,12 @@ public class GetBasicInformationController {
             //创建 存储交换机返回数据 实体类
             ReturnRecord returnRecord = new ReturnRecord();
             int insert_Int = 0; //交换机返回结果插入数据库ID
-            returnRecord.setUserName(userName);
-            returnRecord.setSwitchIp(user_String.get("ip"));
-            returnRecord.setBrand(user_String.get("deviceBrand"));
-            returnRecord.setType(user_String.get("deviceModel"));
-            returnRecord.setFirewareVersion(user_String.get("firmwareVersion"));
-            returnRecord.setSubVersion(user_String.get("subversionNumber"));
+            returnRecord.setUserName(switchParameters.getLoginUser().getUsername());
+            returnRecord.setSwitchIp(switchParameters.getIp());
+            returnRecord.setBrand(switchParameters.getDeviceBrand());
+            returnRecord.setType(switchParameters.getDeviceModel());
+            returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
+            returnRecord.setSubVersion(switchParameters.getSubversionNumber());
             // 执行命令赋值
             String commandtrim = command.trim();
             returnRecord.setCurrentCommLog(commandtrim);
@@ -82,31 +73,32 @@ public class GetBasicInformationController {
             boolean deviceBrand = true;
             do {
                 deviceBrand = true;
-                if (way.equalsIgnoreCase("ssh")){
+                if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                     //  WebSocket 传输 命令
-                    WebSocketService.sendMessage(userName,user_String.get("ip")+"发送:"+command+"\r\n");
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command+"\r\n");
                     try {
-                        PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
+                        PathHelper.writeDataToFile(switchParameters.getIp()+"发送:"+command+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    commandString = connectMethod.sendCommand(user_String.get("ip"),sshConnect,command,user_String.get("notFinished"));
-                }else if (way.equalsIgnoreCase("telnet")){
+                    commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,null);
+                }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                     //  WebSocket 传输 命令
-                    WebSocketService.sendMessage(userName,user_String.get("ip")+"发送:"+command);
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command);
                     try {
-                        PathHelper.writeDataToFile(user_String.get("ip")+"发送:"+command+"\r\n");
+                        PathHelper.writeDataToFile(switchParameters.getIp()+"发送:"+command+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    commandString = telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent,command,user_String.get("notFinished"));
+                    commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,null);
+
                 }
 
                 //  WebSocket 传输 交换机返回结果
                 returnRecord.setCurrentReturnLog(commandString);
                 //粗略查看是否存在 故障
                 // 存在故障返回 false 不存在故障返回 true
-                boolean switchfailure = MyUtils.switchfailure(user_String, commandString);
+                boolean switchfailure = MyUtils.switchfailure(switchParameters, commandString);
                 // 存在故障返回 false
                 if (!switchfailure){
                     // 交换机返回结果 按行 分割成 交换机返回信息数组
@@ -115,26 +107,26 @@ public class GetBasicInformationController {
                     for (String returnString:commandStringSplit){
                         // 查看是否存在 故障
                         // 存在故障返回 false 不存在故障返回 true
-                        deviceBrand = MyUtils.switchfailure(user_String, returnString);
+                        deviceBrand = MyUtils.switchfailure(switchParameters, returnString);
                         // 存在故障返回 false
                         if (!deviceBrand){
 
-                            System.err.println("\r\n"+user_String.get("ip") + "\r\n故障:"+returnString+"\r\n");
+                            System.err.println("\r\n"+switchParameters.getIp() + "\r\n故障:"+returnString+"\r\n");
 
-                            WebSocketService.sendMessage(userName,"故障:"+user_String.get("ip") + ":"+returnString+"\r\n");
+                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
 
                             try {
-                                PathHelper.writeDataToFile("故障:"+user_String.get("ip") + ":"+returnString+"\r\n");
+                                PathHelper.writeDataToFile("故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
 
-                            returnRecord.setCurrentIdentifier(user_String.get("ip") + "出现故障:"+returnString);
+                            returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
 
-                            if (way.equalsIgnoreCase("ssh")){
-                                connectMethod.sendCommand(user_String.get("ip"),sshConnect," ",user_String.get("notFinished"));
-                            }else if (way.equalsIgnoreCase("telnet")){
-                                telnetSwitchMethod.sendCommand(user_String.get("ip"),telnetComponent," ",user_String.get("notFinished"));
+                            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                                switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",null);
+                            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                                switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",null);
                             }
                         }
                     }
@@ -145,7 +137,7 @@ public class GetBasicInformationController {
 
                 if (insert_Int <= 0){
                     //传输登陆人姓名 及问题简述
-                    WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机返回信息插入失败\r\n");
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"交换机返回信息插入失败\r\n");
                     try {
                         //插入问题简述及问题路径
                         PathHelper.writeDataToFile("错误："+"交换机返回信息插入失败\r\n"
@@ -190,10 +182,10 @@ public class GetBasicInformationController {
 
             }
 
-            WebSocketService.sendMessage(userName,user_String.get("ip")+"接收:"+current_return_log+"\r\n");
+            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
             try {
-                PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+current_return_log+"\r\n");
+                PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -211,9 +203,9 @@ public class GetBasicInformationController {
                 current_identifier = current_identifier.substring(2,current_identifier.length());
             }
 
-            WebSocketService.sendMessage(userName,user_String.get("ip")+"接收:"+current_identifier+"\r\n");
+            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
             try {
-                PathHelper.writeDataToFile(user_String.get("ip")+"接收:"+current_identifier+"\r\n");
+                PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -223,17 +215,17 @@ public class GetBasicInformationController {
             int update = returnRecordService.updateReturnRecord(returnRecord);
 
             //判断命令是否错误 错误为false 正确为true
-            if (!MyUtils.judgmentError( user_String,commandString)){
+            if (!MyUtils.judgmentError( switchParameters,commandString)){
                 //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
 
                 String[] returnString_split = commandString.split("\r\n");
                 for (String string_split:returnString_split){
-                    if (!MyUtils.judgmentError( user_String,string_split)){
+                    if (!MyUtils.judgmentError( switchParameters,string_split)){
 
-                        System.err.println("\r\n"+user_String.get("ip")+ ":" +command+ "错误:"+string_split+"\r\n");
-                        WebSocketService.sendMessage(userName,"风险:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
+                        System.err.println("\r\n"+switchParameters.getIp()+ ":" +command+ "错误:"+string_split+"\r\n");
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
                         try {
-                            PathHelper.writeDataToFile("风险:"+user_String.get("ip")+ ":" +command+ ":"+string_split+"\r\n");
+                            PathHelper.writeDataToFile("风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }finally {
@@ -275,17 +267,7 @@ public class GetBasicInformationController {
                 hashMap.put("routerFlag",removeSpecialSymbols(hashMap.get("routerFlag")));
 
 
-                //设备型号
-                user_String.put("deviceModel",hashMap.get("xinghao"));
-                //设备品牌
-                user_String.put("deviceBrand",hashMap.get("pinpai"));
-                //内部固件版本
-                user_String.put("firmwareVersion",hashMap.get("banben"));
-                //子版本号
-                user_String.put("subversionNumber",hashMap.get("zibanben"));
-                user_String.put("routerFlag",hashMap.get("routerFlag"));
-
-                WebSocketService.sendMessage(userName,"系统信息:"+user_String.get("ip") +"基本信息："+
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
                         "设备品牌："+hashMap.get("pinpai")+
                         "设备型号："+hashMap.get("xinghao")+
                         "内部固件版本："+hashMap.get("banben")+
@@ -293,7 +275,7 @@ public class GetBasicInformationController {
                         "设备："+hashMap.get("routerFlag")+"\r\n");
 
                 try {
-                    PathHelper.writeDataToFileByName("系统信息:"+user_String.get("ip") +"成功基本信息："+
+                    PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"成功基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
@@ -304,11 +286,16 @@ public class GetBasicInformationController {
                     e.printStackTrace();
                 }
 
-                return AjaxResult.success(hashMap);
+                switchParameters.setDeviceBrand(hashMap.get("pinpai"));
+                switchParameters.setDeviceModel(hashMap.get("xinghao"));
+                switchParameters.setFirmwareVersion(hashMap.get("banben"));
+                switchParameters.setSubversionNumber(hashMap.get("zibanben"));
+                switchParameters.setRouterFlag(hashMap.get("routerFlag"));
+                return AjaxResult.success(switchParameters);
             }else {
 
                 try {
-                    PathHelper.writeDataToFileByName("系统信息:"+user_String.get("ip") +"失败基本信息："+
+                    PathHelper.writeDataToFileByName("系统信息:"+ switchParameters.getIp() +"失败基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+

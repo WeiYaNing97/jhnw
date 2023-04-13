@@ -104,9 +104,12 @@ public class TelnetComponent {
 
         telnetInformation.setReturnInformation(removeGarbledCode(telnetInformation.getReturnInformation()));
 
-        System.err.print("\r\n"+telnetInformation.getReturnInformation());
+        String returnInformation = telnetInformation.getReturnInformation().trim();
+        if (returnInformation.startsWith(send));{
+            returnInformation = returnInformation.substring(send.length(),returnInformation.length());
+        }
 
-        return telnetInformation.getReturnInformation();
+        return returnInformation;
     }
 
     /**

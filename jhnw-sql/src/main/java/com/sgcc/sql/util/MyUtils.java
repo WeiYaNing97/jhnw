@@ -7,6 +7,7 @@ import com.sgcc.sql.controller.SwitchFailureController;
 import com.sgcc.sql.domain.SwitchError;
 import com.sgcc.sql.domain.SwitchFailure;
 import com.sgcc.sql.domain.TotalQuestionTable;
+import com.sgcc.sql.parametric.SwitchParameters;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -233,19 +234,16 @@ public class MyUtils {
      * @return: boolean  判断命令是否错误 错误为false 正确为true
      * @E-mail: WeiYaNing97@163.com
      */
-    public static boolean judgmentError(Map<String,String> user_String, String str){
+    public static boolean judgmentError(SwitchParameters switchParameters, String str){
         /*if (str.length()>=5 && str.trim().substring(0,5).equalsIgnoreCase("Error")){
             return false;
         }*/
-        String deviceBrand = user_String.get("deviceBrand");
-        String deviceModel = user_String.get("deviceModel");
-        String firmwareVersion = user_String.get("firmwareVersion");
-        String subversionNumber = user_String.get("subversionNumber");
+
         SwitchError switchError = new SwitchError();
-        switchError.setBrand(deviceBrand);
-        switchError.setSwitchType(deviceModel);
-        switchError.setFirewareVersion(firmwareVersion);
-        switchError.setSubVersion(subversionNumber);
+        switchError.setBrand(switchParameters.getDeviceBrand());
+        switchError.setSwitchType(switchParameters.getDeviceModel());
+        switchError.setFirewareVersion(switchParameters.getFirmwareVersion());
+        switchError.setSubVersion(switchParameters.getSubversionNumber());
         SwitchErrorController switchErrorController = new SwitchErrorController();
         List<SwitchError> switchErrors = switchErrorController.selectSwitchErrorListByPojo(switchError);
         for (SwitchError pojo:switchErrors){
@@ -275,16 +273,12 @@ public class MyUtils {
     %Apr  3 06:17:59:729 2000 H3C DEV/5/DEV_LOG:- 1 -
     Fan 1 failed
      */
-    public static boolean switchfailure(Map<String,String> user_String,String switchInformation){
-        String deviceBrand = user_String.get("deviceBrand");
-        String deviceModel = user_String.get("deviceModel");
-        String firmwareVersion = user_String.get("firmwareVersion");
-        String subversionNumber = user_String.get("subversionNumber");
+    public static boolean switchfailure(SwitchParameters switchParameters, String switchInformation){
         SwitchFailure switchFailure = new SwitchFailure();
-        switchFailure.setBrand(deviceBrand);
-        switchFailure.setSwitchType(deviceModel);
-        switchFailure.setFirewareVersion(firmwareVersion);
-        switchFailure.setSubVersion(subversionNumber);
+        switchFailure.setBrand(switchParameters.getDeviceBrand());
+        switchFailure.setSwitchType(switchParameters.getDeviceModel());
+        switchFailure.setFirewareVersion(switchParameters.getFirmwareVersion());
+        switchFailure.setSubVersion(switchParameters.getSubversionNumber());
         SwitchFailureController switchFailureController = new SwitchFailureController();
         List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureListByPojo(switchFailure);
         for (SwitchFailure pojo:switchFailures){
@@ -308,7 +302,7 @@ public class MyUtils {
      * @E-mail: WeiYaNing97@163.com
      */
     @RequestMapping("compareVersion")
-    public static boolean compareVersion(Map<String,String> user_String, String compare,String current_Round_Extraction_String){
+    public static boolean compareVersion(SwitchParameters switchParameters, String compare,String current_Round_Extraction_String){
         String[] current_Round_Extraction_split = current_Round_Extraction_String.split("=:=");
         Map<String,String> value_String = new HashMap<>();
         if(!(current_Round_Extraction_String.equals(""))){
@@ -319,13 +313,13 @@ public class MyUtils {
 
         //由 汉字 转化为 单词
         if (compare.indexOf("品牌")!=-1){
-            compare = compare.replace("品牌",user_String.get("deviceBrand"));
+            compare = compare.replace("品牌",switchParameters.getDeviceBrand());
         }else if (compare.indexOf("型号")!=-1){
-            compare = compare.replace("型号",user_String.get("deviceModel"));
+            compare = compare.replace("型号",switchParameters.getDeviceModel());
         }else if (compare.indexOf("固件版本")!=-1){
-            compare = compare.replace("固件版本",user_String.get("firmwareVersion"));
+            compare = compare.replace("固件版本",switchParameters.getFirmwareVersion());
         }else if (compare.indexOf("子版本")!=-1){
-            compare = compare.replace("子版本",user_String.get("subversionNumber"));
+            compare = compare.replace("子版本",switchParameters.getSubversionNumber());
         }
 
         // 获取比较参数
