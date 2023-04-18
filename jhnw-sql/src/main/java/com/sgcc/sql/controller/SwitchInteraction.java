@@ -1,7 +1,6 @@
 package com.sgcc.sql.controller;
 
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.util.StrUtil;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -15,6 +14,8 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.ParameterSet;
 import com.sgcc.sql.parametric.SwitchParameters;
+import com.sgcc.sql.senior.LuminousAttenuation;
+import com.sgcc.sql.senior.OSPFFeatures;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.thread.DirectionalScanThreadPool;
 import com.sgcc.sql.thread.ScanFixedThreadPool;
@@ -551,11 +552,8 @@ public class SwitchInteraction {
 
                 switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
 
-                /*OSPF*/
-                AdvancedFeatures.analyseOspf(switchParameters);
-
-                /*光衰*/
-                luminousAttenuation.obtainLightDecay(switchParameters);
+                OSPFFeatures.getOSPFValues(switchParameters);
+                LuminousAttenuation.obtainLightDecay(switchParameters);
 
 
                 //5.获取交换机可扫描的问题并执行分析操作
@@ -2450,6 +2448,7 @@ public class SwitchInteraction {
 
         //按行切割
         String[] split = command_string.split("\r\n");
+
 
 
         String current_return_log = "";

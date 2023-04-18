@@ -10,32 +10,3 @@ configuration:
   identifier: (TM);®
   # 日志路径
   logPath: "D:\\jhnwadminlog"
-
-
-  # 获取交换机基本信息
-  # 能够获取品牌的命令
-  getBrandCommand: show version;display version
-  # 设备版本 两个型号之间以;分阁
-  deviceVersion: Version
-  # 设备子版本 两个型号之间以;分阁
-  deviceSubversion: Release;Build;RELEASE SOFTWARE
-  # 路由器标志
-  routerFlag: NE
-
-  # OSPF
-  # 邻居ID
-  neighborID: Neighbor ID;Router ID
-  # 脉波重复间隔
-  pri: Pri;
-  # 状态
-  state: State;
-  # 停滞时间
-  deadTime: Dead Time;Dead-Time;DeadTime
-  # 住址
-  address: Address;Area Id;Neighbor Ad
-  # 端口号
-  portNumber: Interface
-  # BFD状态
-  BFDState: BFD State
-  # 间隔字符   例(端口号:GigabitEthernet 9/2中间存在空格)
-  ospfSpaceCharacter: GigabitEthernet

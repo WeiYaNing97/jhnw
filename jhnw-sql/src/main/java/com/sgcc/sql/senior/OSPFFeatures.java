@@ -1,4 +1,4 @@
-package com.sgcc.sql.controller;
+package com.sgcc.sql.senior;
 
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -7,11 +7,13 @@ import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
+import com.sgcc.sql.controller.Configuration;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.sql.util.CustomConfigurationController;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
@@ -23,37 +25,64 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class AdvancedFeatures {
+/**
+ * OSPF 功能
+ */
+public class OSPFFeatures {
 
     @Autowired
     private static IReturnRecordService returnRecordService;
-    @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
-    @Autowired
-    private static ICommandLogicService commandLogicService;
 
-    public static void analyseOspf(SwitchParameters switchParameters) {
-
-        String commandReturn = executeScanCommandByCommand(switchParameters);
-
-        if (commandReturn != null){
-            AjaxResult ospfListByString = getOspfListByString(commandReturn);
-
-            if(ospfListByString.get("msg").equals("操作成功")){
-                List<Ospf> ospfList = (List<Ospf>) ospfListByString.get("data");
-                for (Ospf ospf:ospfList){
-                    try {
-                        PathHelper.writeDataToFileByName(switchParameters.getIp()+":" + ospf.toString()+"\r\n","ospf");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
+    public static void getOSPFValues(SwitchParameters switchParameters) {
+        Object objectMap  = CustomConfigurationController.obtainConfigurationFileParameter("OSPF.command");
+        if (objectMap == null){
+            return;
+        }
+        String command = null;
+        if (objectMap instanceof Map){
+            Map<String,Object> commandMap = (Map<String,Object>)objectMap;
+            List<String> attributeList = new ArrayList<>();
+            String attribute = null;
+            if (switchParameters.getSubversionNumber() != null){
+                attribute = (switchParameters.getDeviceBrand()+">"+switchParameters.getDeviceModel()+">"+
+                        switchParameters.getFirmwareVersion() )+ ">"+switchParameters.getSubversionNumber();
+                attributeList.add(attribute);
+            }
+            attribute = switchParameters.getDeviceBrand()+">"+switchParameters.getDeviceModel()+">"+
+                    switchParameters.getFirmwareVersion();
+            attributeList.add(attribute);
+            attribute = switchParameters.getDeviceBrand()+">"+switchParameters.getDeviceModel();
+            attributeList.add(attribute);
+            attribute = switchParameters.getDeviceBrand();
+            attributeList.add(attribute);
+            for (int i = 0;i < attributeList.size();i++){
+                command = (String) commandMap.get(attributeList.get(i));
+                if (command!=null){
+                    break;
                 }
+            }
+        }
 
+        String commandReturn = executeScanCommandByCommand(switchParameters,command);
+
+        AjaxResult ospfListByString = getOspfListByString(commandReturn);
+        if(ospfListByString.get("msg").equals("操作成功")){
+            List<Ospf> ospfList = (List<Ospf>) ospfListByString.get("data");
+            for (Ospf ospf:ospfList){
+                try {
+                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":" + ospf.toString()+"\r\n","ospf");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
+    /**
+     * 根据交换机返回结果 获取 OSPF 参数
+     * @param returnString
+     * @return
+     */
     public static AjaxResult getOspfListByString(String returnString) {
         returnString = MyUtils.trimString(returnString);
         String[] returnStringSplit = returnString.split("\r\n");
@@ -149,8 +178,8 @@ public class AdvancedFeatures {
     /*去除属性值中间空格*/
     public static List<String> removOspfSpaceCharacter(List<String> strings) {
 
-        String  ospfSpaceCharacter = Configuration.ospfSpaceCharacter;
-        String[] ospfSpaceCharacterSplit = ospfSpaceCharacter.split(";");
+        String command = CustomConfigurationController.obtainConfigurationFileParameterValues("OSPF.ospfSpaceCharacter");
+        String[] ospfSpaceCharacterSplit = command.split(";");
         for (String SpaceCharacter:ospfSpaceCharacterSplit){
             for (int num = 0 ; num <strings.size();num++){
                 strings.set(num,strings.get(num).replaceAll(SpaceCharacter+" ",SpaceCharacter));
@@ -224,37 +253,8 @@ public class AdvancedFeatures {
      * @E-mail: WeiYaNing97@163.com
      * 分析ID 连接方式 ssh和telnet连接
      */
-    public static String executeScanCommandByCommand(SwitchParameters switchParameters) {
+    public static String executeScanCommandByCommand(SwitchParameters switchParameters,String command) {
 
-
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand(switchParameters.getDeviceBrand());
-        totalQuestionTable.setType(switchParameters.getDeviceModel());
-        totalQuestionTable.setFirewareVersion(switchParameters.getFirmwareVersion());
-        totalQuestionTable.setSubVersion(switchParameters.getSubversionNumber());
-        totalQuestionTable.setTemProName("OSPF");
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
-
-        TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
-        if (totalQuestionTables.size()==0){
-            return null;
-        }else if (totalQuestionTables.size()==1){
-            totalQuestionTablePojo = totalQuestionTables.get(0);
-        }else {
-            totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
-            totalQuestionTablePojo = totalQuestionTables.get(0);
-        }
-
-        String commandId = totalQuestionTablePojo.getCommandId();
-        commandId = commandId.substring(2,commandId.length());
-        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-        String command = commandLogic.getCommand();
-
-        //具体命令
-        command = command.trim();
-        System.err.println("OSPF : "+command);
         //执行命令
         //命令返回信息
         String command_string = null;
@@ -268,7 +268,7 @@ public class AdvancedFeatures {
         returnRecord.setType(switchParameters.getDeviceModel());
         returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
         returnRecord.setSubVersion(switchParameters.getSubversionNumber());
-        returnRecord.setCurrentCommLog(command.trim());
+        returnRecord.setCurrentCommLog(command);
         boolean deviceBrand = true;
 
         do {

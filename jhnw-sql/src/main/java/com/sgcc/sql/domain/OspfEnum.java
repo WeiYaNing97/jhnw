@@ -1,6 +1,8 @@
 package com.sgcc.sql.domain;
 
-import com.sgcc.sql.controller.Configuration;
+import com.sgcc.sql.util.CustomConfigurationController;
+
+import java.util.Map;
 
 public class OspfEnum {
 
@@ -21,20 +23,24 @@ public class OspfEnum {
 
 
     public static void assignment() {
+
+        Object escape = CustomConfigurationController.obtainConfigurationFileParameter("OSPF");
+        Map<String,Object> escapeMap = (Map<String,Object>) escape;
+
         /** 邻居ID */
-        neighborID = Configuration.neighborID.split(";");
+        neighborID = ((String) escapeMap.get("neighborID")).split(";");
         /** 脉波重复间隔 */
-        pri = Configuration.pri.split(";");
+        pri = ((String) escapeMap.get("pri")).split(";");
         /** 状态 */
-        state = Configuration.state.split(";");
+        state = ((String) escapeMap.get("state")).split(";");
         /** 停滞时间 */
-        deadTime = Configuration.deadTime.split(";");
+        deadTime = ((String) escapeMap.get("deadTime")).split(";");
         /** 住址 */
-        address = Configuration.address.split(";");
+        address = ((String) escapeMap.get("address")).split(";");
         /** 端口号 */
-        portNumber = Configuration.portNumber.split(";");
+        portNumber = ((String) escapeMap.get("portNumber")).split(";");
         /** BFD状态 */
-        BFDState = Configuration.BFDState.split(";");
+        BFDState = ((String) escapeMap.get("BFDState")).split(";");
     }
 
 

@@ -311,6 +311,72 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         if (totalQuestionTable.getSubVersion() != null && totalQuestionTable.getSubVersion() != ""){
             sql = sql + subVersionSQL;
         }
+        sql = sql + "and type_problem = \'高级功能\'";
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableMapper.queryVagueScannableQuestionsList(sql + " ORDER BY type_problem,tem_pro_name,problem_name");
+        return totalQuestionTables;
+    }
+
+    @Override
+    public List<TotalQuestionTable> queryAdvancedFeaturesListBytemProName(TotalQuestionTable totalQuestionTable) {
+        //and (type = #{type} or type = '*')
+        String typeSQL = "";
+        if (totalQuestionTable.getType() != null  && totalQuestionTable.getType() != ""){
+            String type = totalQuestionTable.getType();
+            typeSQL = "and (type = \'" + type +"\' OR type = '*' OR ";
+            List<String> stringCollection = ServiceImplUtils.getStringCollection(type);
+            for (String typeString:stringCollection){
+                typeSQL = typeSQL + "type = "+"\'" + typeString+"*\'" +" OR ";
+            }
+            char[] chars = typeSQL.toCharArray();
+            typeSQL = "";
+            for (int i=0 ;i<chars.length-4;i++ ){
+                typeSQL = typeSQL + chars[i];
+            }
+            typeSQL = typeSQL +")";
+        }
+        //and (fireware_version = #{firewareVersion} or fireware_version = '*')
+        String firewareVersionSQL = "";
+        if (totalQuestionTable.getFirewareVersion() != null  && totalQuestionTable.getFirewareVersion() != ""){
+            String firewareVersion = totalQuestionTable.getFirewareVersion();
+            firewareVersionSQL = "and (fireware_version = \'"+ firewareVersion +"\' OR fireware_version = '*' OR ";
+            List<String> stringCollection = ServiceImplUtils.getStringCollection(firewareVersion);
+            for (String typeString:stringCollection){
+                firewareVersionSQL = firewareVersionSQL + "fireware_version = "+"\'" + typeString+"*\'" +" OR ";
+            }
+            char[] chars = firewareVersionSQL.toCharArray();
+            firewareVersionSQL = "";
+            for (int i=0 ;i<chars.length-4;i++ ){
+                firewareVersionSQL = firewareVersionSQL + chars[i];
+            }
+            firewareVersionSQL = firewareVersionSQL +")";
+        }
+        //and (sub_version = #{subVersion} or sub_version = '*')
+        String subVersionSQL = "";
+        if (totalQuestionTable.getSubVersion() != null  && totalQuestionTable.getSubVersion() != ""){
+            String subVersion = totalQuestionTable.getSubVersion();
+            subVersionSQL = "and (sub_version = \'" + subVersion + "\' OR sub_version = '*' OR ";
+            List<String> stringCollection = ServiceImplUtils.getStringCollection(subVersion);
+            for (String typeString:stringCollection){
+                subVersionSQL = subVersionSQL + "sub_version = "+"\'" + typeString+"*\'" +" OR ";
+            }
+            char[] chars = subVersionSQL.toCharArray();
+            subVersionSQL = "";
+            for (int i=0 ;i<chars.length-4;i++ ){
+                subVersionSQL = subVersionSQL + chars[i];
+            }
+            subVersionSQL = subVersionSQL +")";
+        }
+
+        String sql = "where brand = \'" + totalQuestionTable.getBrand() + "\' ";
+        if (totalQuestionTable.getType() != null && totalQuestionTable.getType() != ""){
+            sql = sql + typeSQL;
+        }
+        if (totalQuestionTable.getFirewareVersion() != null && totalQuestionTable.getFirewareVersion() != ""){
+            sql = sql + firewareVersionSQL;
+        }
+        if (totalQuestionTable.getSubVersion() != null && totalQuestionTable.getSubVersion() != ""){
+            sql = sql + subVersionSQL;
+        }
         sql = sql + "and type_problem = \'高级功能\'" + "and tem_pro_name = \'"+totalQuestionTable.getTemProName()+"\'";
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableMapper.queryVagueScannableQuestionsList(sql + " ORDER BY type_problem,tem_pro_name,problem_name");
         return totalQuestionTables;

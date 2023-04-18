@@ -124,6 +124,7 @@ public interface ITotalQuestionTableService
     /*查询可扫描问题       带*  S*        */
     List<TotalQuestionTable> queryVagueScannableQuestionsList(TotalQuestionTable totalQuestionTable);
     List<TotalQuestionTable> queryAdvancedFeaturesList(TotalQuestionTable totalQuestionTable);
+    List<TotalQuestionTable> queryAdvancedFeaturesListBytemProName(TotalQuestionTable totalQuestionTable);
 
     /*根据ID数组查询集合*/
     List<TotalQuestionTable> selectTotalQuestionTableByIds(Long[] ids);

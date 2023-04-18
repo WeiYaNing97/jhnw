@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.MethodTableMapper">
+    
+    <resultMap type="MethodTable" id="MethodTableResult">
+        <result property="id"    column="id"    />
+        <result property="methodName"    column="method_name"    />
+        <result property="afferent"    column="afferent"    />
+        <result property="regain"    column="regain"    />
+        <result property="endIndex"    column="end_index"    />
+    </resultMap>
+
+    <sql id="selectMethodTableVo">
+        select id, method_name, afferent, regain, end_index from method_table
+    </sql>
+
+    <select id="selectMethodTableList" parameterType="MethodTable" resultMap="MethodTableResult">
+        <include refid="selectMethodTableVo"/>
+        <where>  
+            <if test="methodName != null  and methodName != ''"> and method_name like concat('%', #{methodName}, '%')</if>
+            <if test="afferent != null  and afferent != ''"> and afferent = #{afferent}</if>
+            <if test="regain != null  and regain != ''"> and regain = #{regain}</if>
+            <if test="endIndex != null  and endIndex != ''"> and end_index = #{endIndex}</if>
+        </where>
+    </select>
+    
+    <select id="selectMethodTableById" parameterType="String" resultMap="MethodTableResult">
+        <include refid="selectMethodTableVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertMethodTable" parameterType="MethodTable">
+        insert into method_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="methodName != null and methodName != ''">method_name,</if>
+            <if test="afferent != null and afferent != ''">afferent,</if>
+            <if test="regain != null and regain != ''">regain,</if>
+            <if test="endIndex != null and endIndex != ''">end_index,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="methodName != null and methodName != ''">#{methodName},</if>
+            <if test="afferent != null and afferent != ''">#{afferent},</if>
+            <if test="regain != null and regain != ''">#{regain},</if>
+            <if test="endIndex != null and endIndex != ''">#{endIndex},</if>
+         </trim>
+    </insert>
+
+    <update id="updateMethodTable" parameterType="MethodTable">
+        update method_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="methodName != null and methodName != ''">method_name = #{methodName},</if>
+            <if test="afferent != null and afferent != ''">afferent = #{afferent},</if>
+            <if test="regain != null and regain != ''">regain = #{regain},</if>
+            <if test="endIndex != null and endIndex != ''">end_index = #{endIndex},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMethodTableById" parameterType="String">
+        delete from method_table where id = #{id}
+    </delete>
+
+    <delete id="deleteMethodTableByIds" parameterType="String">
+        delete from method_table where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

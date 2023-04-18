@@ -1,4 +1,4 @@
-package com.sgcc.sql.controller;
+package com.sgcc.sql.senior;
 
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -14,6 +14,7 @@ import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.sql.util.CustomConfigurationController;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
@@ -21,57 +22,34 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
- * 光衰
+ * 光衰功能
  */
-public class luminousAttenuation {
+public class LuminousAttenuation {
 
-    @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
-    @Autowired
-    private static ICommandLogicService commandLogicService;
     @Autowired
     private static IReturnRecordService returnRecordService;
     @ApiOperation("获取光衰参数")
     public static AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
-        AjaxResult ajaxResult = new AjaxResult();
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand(switchParameters.getDeviceBrand());
-        totalQuestionTable.setType(switchParameters.getDeviceModel());
-        totalQuestionTable.setFirewareVersion(switchParameters.getFirmwareVersion());
-        totalQuestionTable.setSubVersion(switchParameters.getSubversionNumber());
-        totalQuestionTable.setTemProName("光衰端口号");
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
-        TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
-        if (totalQuestionTables.size()==0){
-            /*查询获取光衰端口号命令失败*/
-            try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"查询获取光衰端口号命令失败","光衰");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"查询获取光衰端口号命令失败");
-        }else if (totalQuestionTables.size()==1){
-            totalQuestionTablePojo = totalQuestionTables.get(0);
-        }else {
-            totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
-            totalQuestionTablePojo = totalQuestionTables.get(0);
-        }
-        String commandId = totalQuestionTablePojo.getCommandId();
-        commandId = commandId.substring(2,commandId.length());
-        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-        String command = commandLogic.getCommand();
+
+        String command = CustomConfigurationController.obtainConfigurationFileParameterValues("光衰." + switchParameters.getDeviceBrand()+".获取端口号命令");
+
         String returnString = ObtainReturnResultsByCommand(switchParameters, command);
 
+        List<String> port = luminousAttenuationgetPort(returnString);
 
-        List<String> port = getPort(returnString);
+        Object escape = CustomConfigurationController.obtainConfigurationFileParameter("光衰." + switchParameters.getDeviceBrand() + ".转译");
+
+        Map<String,String> escapeMap = (Map<String,String>) escape;
+        Set<String> mapKey = escapeMap.keySet();
+        for (String key:mapKey){
+            port = port.stream().map(m -> m.replace(key , escapeMap.get(key))).collect(Collectors.toList());
+        }
+
         if (port.size() == 0){
             /*没有端口号为开启状态*/
             try {
@@ -81,6 +59,7 @@ public class luminousAttenuation {
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
         }
+
         HashMap<String, String> getparameter = getparameter(port, switchParameters);
         if (getparameter == null){
             /*未获取到光衰参数*/
@@ -106,12 +85,12 @@ public class luminousAttenuation {
     }
 
     /*获取端口号*/
-    public static List<String> getPort(String returnString) {
+    public static List<String> luminousAttenuationgetPort(String returnString) {
         returnString = MyUtils.trimString(returnString);
         String[] returnStringSplit = returnString.split("\r\n");
         List<String> strings = new ArrayList<>();
         for (String string:returnStringSplit){
-            if ((string.toUpperCase().indexOf(" UP ")!=-1) && string.indexOf("/")!=-1){
+            if ((string.toUpperCase().indexOf(" UP ")!=-1) && (string.toUpperCase().indexOf("COPPER") == -1) && string.indexOf("/")!=-1){
                 strings.add(string.trim());
             }
         }
@@ -145,35 +124,15 @@ public class luminousAttenuation {
                 }
             }
         }
-        return information;
+        return information.replaceAll("GE","GigabitEthernet");
     }
 
     /* 根据端口号 和 数据库中部定义的 获取光衰信息命令
     * */
     public static HashMap<String,String> getparameter(List<String> portNumber,SwitchParameters switchParameters) {
 
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand(switchParameters.getDeviceBrand());
-        totalQuestionTable.setType(switchParameters.getDeviceModel());
-        totalQuestionTable.setFirewareVersion(switchParameters.getFirmwareVersion());
-        totalQuestionTable.setSubVersion(switchParameters.getSubversionNumber());
-        totalQuestionTable.setTemProName("光衰");
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.queryAdvancedFeaturesList(totalQuestionTable);
-        TotalQuestionTable totalQuestionTablePojo = new TotalQuestionTable();
-        if (totalQuestionTables.size()==0){
-            return null;
-        }else if (totalQuestionTables.size()==1){
-            totalQuestionTablePojo = totalQuestionTables.get(0);
-        }else {
-            totalQuestionTables = MyUtils.ObtainPreciseEntityClasses(totalQuestionTables);
-            totalQuestionTablePojo = totalQuestionTables.get(0);
-        }
-        String commandId = totalQuestionTablePojo.getCommandId();
-        commandId = commandId.substring(2,commandId.length());
-        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-        String command = commandLogic.getCommand();
+        String command = CustomConfigurationController.obtainConfigurationFileParameterValues("光衰." + switchParameters.getDeviceBrand()+".获取光衰参数命令");
+
         HashMap<String,String> hashMap = new HashMap<>();
         for (String port:portNumber){
             String com = command.replaceAll("端口号",port);

@@ -1,8 +1,6 @@
 package com.sgcc;
-import com.sgcc.sql.controller.AdvancedFeatures;
 import com.sgcc.sql.controller.Configuration;
 import com.sgcc.sql.controller.MemoryCPU;
-import org.hyperic.sigar.SigarException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;

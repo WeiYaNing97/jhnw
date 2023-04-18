@@ -1,5 +1,7 @@
 package com.sgcc.sql.controller;
 
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,32 +27,6 @@ public class Configuration {
     /** 日志路径 */
     public static String logPath;
 
-    /** 获取设备品牌命令 */
-    public static String getBrandCommand;
-    /** 设备版本 */
-    public static String deviceVersion;
-    /** 设备子版本 */
-    public static String deviceSubversion;
-    /** 路由器 */
-    public static String routerFlag;
-
-    /** 邻居ID */
-    public static String neighborID;
-    /** 脉波重复间隔 */
-    public static String pri;
-    /** 状态 */
-    public static String state;
-    /** 停滞时间 */
-    public static String deadTime;
-    /** 住址 */
-    public static String address;
-    /** 端口号 */
-    public static String portNumber;
-    /** BFD状态 */
-    public static String BFDState;
-    /** 间隔字符 */
-    public static String  ospfSpaceCharacter;
-
 
     public static void getConfiguration() {
         Configuration configuration = new Configuration();
@@ -61,23 +37,8 @@ public class Configuration {
         numberOfCycles = Long.valueOf(ymlMap.get("numberOfCycles")).longValue();
         identifier = ymlMap.get("identifier").replaceAll("；",";");
         logPath = ymlMap.get("logPath");
-
-        getBrandCommand = ymlMap.get("getBrandCommand").replaceAll("；",";");
-
-        deviceVersion = ymlMap.get("deviceVersion").replaceAll("；",";");
-        deviceSubversion = ymlMap.get("deviceSubversion").replaceAll("；",";");
-
-        neighborID = ymlMap.get("neighborID").replaceAll("；",";");
-        pri = ymlMap.get("pri").replaceAll("；",";");
-        state = ymlMap.get("state").replaceAll("；",";");
-        deadTime = ymlMap.get("deadTime").replaceAll("；",";");
-        address = ymlMap.get("address").replaceAll("；",";");
-        portNumber = ymlMap.get("portNumber").replaceAll("；",";");
-        BFDState = ymlMap.get("BFDState").replaceAll("；",";");
-        ospfSpaceCharacter = ymlMap.get("ospfSpaceCharacter").replaceAll("；",";");
-        routerFlag = ymlMap.get("routerFlag").replaceAll("；",";");
-
     }
+
 
     public Map<String,String> readMapFromyml() {
         //jar包内部用读取来测试
@@ -103,5 +64,6 @@ public class Configuration {
         }
         return ymlMap;
     }
+
 
 }

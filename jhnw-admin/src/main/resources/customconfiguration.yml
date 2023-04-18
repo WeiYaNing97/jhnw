@@ -1,0 +1,62 @@
+#获取交换机基本信息关键词
+BasicInformation:
+  # 能够获取品牌的命令
+  getBrandCommand: show version;display version
+  # 设备版本 两个型号之间以;分阁
+  deviceVersion: Version
+  # 设备子版本 两个型号之间以;分阁
+  deviceSubversion: Release;Build;RELEASE SOFTWARE
+  # 路由器标志
+  routerFlag: NE
+
+#OSPF
+OSPF:
+  #全部命令和参数支持精确匹配和模糊匹配，系统会优先执行精确匹配，然后执行模糊匹配。
+  #格式为：品牌>型号>版本>子版本;如果为模糊匹配，请省略后续输入。例如：
+        #输入为："H3C>s2152>5.20.99>1106："为精确匹配，如果输入为"H3C："即为模糊匹配
+  # 命令
+  command:
+
+    H3C: display ospf peer
+    H3C>S2152: display ospf peer
+    H3C>S2152>5.20.99: display ospf peer
+    H3C>S2152>5.20.99>1106: display ospf peer
+
+    HuaWei: display ospf peer brief
+    Cisco: show ip ospf neighbor
+    RuiJie: show ip ospf neighbor
+  # 邻居ID
+  neighborID: Neighbor ID;Router ID
+  # 脉波重复间隔
+  pri: Pri;
+  # 状态
+  state: State;
+  # 停滞时间
+  deadTime: Dead Time;Dead-Time;DeadTime
+  # 地址
+  address: Address;Area Id;Neighbor Ad
+  # 端口号
+  portNumber: Interface
+  # BFD状态
+  BFDState: BFD State
+  # 间隔字符   例(端口号:GigabitEthernet 9/2中间存在空格)
+  ospfSpaceCharacter: GigabitEthernet
+
+
+#光衰
+光衰:
+  H3C:
+    获取端口号命令: display interface brief
+    获取光衰参数命令: display transceiver diagnosis interface 端口号
+    转译:
+      GE: GigabitEthernet
+  RuiJie:
+    获取端口号命令: show interface status
+    获取光衰参数命令: show interface 端口号 transceiver diagnosis
+    转译:
+      GE: GigabitEthernet
+  HuaWei:
+    获取端口号命令: display interface brief
+    获取光衰参数命令: display transceiver interface 端口号 verbose
+    转译:
+      GE: GigabitEthernet
