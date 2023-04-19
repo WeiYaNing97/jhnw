@@ -734,10 +734,10 @@
 
             // ws服务端给客户端推送消息
             wsMessageHanler(e) {
-                console.log(e)
                 if (e.data === 'pong'){
-                    console.log(e.data)
+                    console.log('22222'+e.data)
                 }else {
+                    console.log(e)
                     function changeTreeDate(arrayJsonObj, oldKey, newKey) {
                         let strtest = JSON.stringify(arrayJsonObj);
                         let reg = new RegExp(oldKey, 'g');

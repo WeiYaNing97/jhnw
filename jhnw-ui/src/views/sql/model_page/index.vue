@@ -14,7 +14,9 @@
       <el-form-item style="display:inline-block;margin-left: 10px">
 <!--        <el-button @click="specialSearch">查看列表</el-button>-->
 <!--        <el-button @click="test_All">测试按钮</el-button>-->
-        <el-button @click="submit_Form" type="primary" round>提交</el-button>
+        <el-button @click="submit_Form" type="primary" plain round>提  交</el-button>
+        <el-button @click="del_modelInfo" type="danger" plain round>删  除</el-button>
+        <el-button @click="ospfTest" type="danger" plain round>测  试</el-button>
 <!--        <el-button @click="scanModel" type="primary" round>扫描模板</el-button>-->
       </el-form-item>
       <div>
@@ -65,8 +67,10 @@
 
 <script>
     import request from '@/utils/request'
+    import { delFormwork } from "@/api/sql/formwork"
     export default {
         name: "Model_page",
+        inject:["reload"],
         data(){
             return {
                 // //扫描设备
@@ -96,6 +100,8 @@
                 choose_modelId:[],
                 //模板id
                 formworkId:'',
+                //模板名称
+                del_modelName:'',
             }
         },
         created(){
@@ -113,7 +119,37 @@
         methods:{
             //扫描模板
             scanModel(){
-                this.dialogFormVisible = true
+                // this.dialogFormVisible = true
+            },
+            //ospf测试
+            ospfTest(){
+                return request({
+                    url:'/sql/formwork/testospf',
+                    method: 'get'
+                }).then(response=>{
+                    this.$message.success('成功!')
+                    this.reload()
+                })
+            },
+            //删除
+            del_modelInfo(){
+                if (this.formworkId != ''){
+                    this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        return request({
+                            url:'/sql/formwork/' + this.formworkId,
+                            method: 'delete'
+                        }).then(response=>{
+                            this.$message.success('删除成功!')
+                            this.reload()
+                        })
+                    })
+                }else {
+                    this.$modal.msgWarning('请选择删除项!')
+                }
             },
             //提交模板
             submit_Form(){
@@ -127,19 +163,36 @@
                 //创建实体类传给后台
                 const formwork = {
                     formworkName:this.form.model_name,
-                    formworkIndex:this.choose_modelId.join()
+                    formworkIndex:this.choose_modelId.join(),
+                    id:this.formworkId
                 }
                 if(this.form.model_name == ''){
                     this.$message.warning('名称不能为空!')
                 }else {
                     if(this.choose_modelId.length>0){
-                        return request({
-                            url:'/sql/formwork',
-                            method:'post',
-                            data:JSON.stringify(formwork)
-                        }).then(response=>{
-                            this.$message.success('提交成功!')
-                        })
+                        if (this.formworkId != ''){
+                            //修改
+                            console.log('进来修改了')
+                            console.log(JSON.stringify(formwork))
+                            return request({
+                                url:'/sql/formwork',
+                                method:'put',
+                                data:JSON.stringify(formwork)
+                            }).then(response=>{
+                                this.$message.success('修改成功!')
+                                this.reload()
+                            })
+                        }else {
+                            //新增
+                            return request({
+                                url:'/sql/formwork',
+                                method:'post',
+                                data:JSON.stringify(formwork)
+                            }).then(response=>{
+                                this.$message.success('提交成功!')
+                                this.reload()
+                            })
+                        }
                     }else {
                         this.$message.warning('请选择问题种类!')
                     }
@@ -157,6 +210,7 @@
                             console.log(response)
                             this.check_list = response.formworkIndex.split(',')
                             this.formworkId = response.id
+                            this.del_modelName = response.formworkName
                             console.log(this.formworkId)
                             console.log(this.check_list)
                         })
@@ -173,6 +227,7 @@
                     this.form.model_name = value
                 }
                 this.check_list = []
+                this.formworkId = ''
             },
             //获取模板list
             general(e){

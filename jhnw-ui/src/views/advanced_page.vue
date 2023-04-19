@@ -7,28 +7,32 @@
                    icon="el-icon-plus" size="small">新增设备</el-button>
         <el-button type="primary" icon="el-icon-d-arrow-right"
                    size="small" v-if="this.scanShow == true" @click="dialogVisible = true">批量导入</el-button>
-        <el-button type="success" icon="el-icon-search" size="small" @click="fullScan"
-                   v-if="this.scanShow == true" :disabled="this.scanUse == false" round>全面扫描</el-button>
-        <el-button type="warning" size="small" @click="cancelScan"
-                   v-if="this.cancelShow == true" icon="el-icon-circle-close" round>取消扫描</el-button>
-<!--        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>-->
+<!--        <el-button type="success" icon="el-icon-search" size="small" @click="fullScan"-->
+<!--                   v-if="this.scanShow == true" :disabled="this.scanUse == false" round>高级扫描</el-button>-->
 
         <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"
-                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>
+                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>高级扫描</el-button>
 
-        <el-button type="success" @click="modelScan" v-if="this.scanShow == true"
-                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>模板扫描</el-button>
+        <el-button type="warning" size="small" @click="cancelScan"
+                   v-if="this.cancelShow == true" icon="el-icon-circle-close" round>取消扫描</el-button>
+        <!--        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>-->
+
+<!--        <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"-->
+<!--                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>-->
+
+<!--        <el-button type="success" @click="modelScan" v-if="this.scanShow == true"-->
+<!--                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>模板扫描</el-button>-->
 
         <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
                    @click="rStart" size="small">返  回</el-button>
 
         <el-button type="warning" @click="repairAll" v-if="this.rStartShow == true"
                    icon="el-icon-search" size="small">一键修复</el-button>
-<!--        <el-button type="success" v-if="this.rStartShow == true && this.allNormal == true"-->
-<!--                   icon="el-icon-search" size="small">全部正常</el-button>-->
-<!--        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>-->
-<!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
-<!--                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>-->
+        <!--        <el-button type="success" v-if="this.rStartShow == true && this.allNormal == true"-->
+        <!--                   icon="el-icon-search" size="small">全部正常</el-button>-->
+        <!--        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>-->
+        <!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
+        <!--                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>-->
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
@@ -59,7 +63,7 @@
         <!--        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
 
-<!--      专项扫描-->
+      <!--      专项扫描-->
       <el-dialog
         title="扫描项目选择"
         :visible.sync="dialogVisibleSpecial"
@@ -74,113 +78,113 @@
             prefix-icon="el-icon-search"
             style="margin-bottom: 20px"
           />
-<!--          <el-scrollbar style="height:100%">-->
-            <el-tree show-checkbox
-                     :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
-                     @node-click="handleNodeClick" :default-expand-all="true" ref="treeone" node-key="id"></el-tree>
-<!--          </el-scrollbar>-->
+          <!--          <el-scrollbar style="height:100%">-->
+          <el-tree show-checkbox
+                   :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
+                   @node-click="handleNodeClick" :default-expand-all="true" ref="treeone" node-key="label"></el-tree>
+          <!--          </el-scrollbar>-->
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="specialSearchStart">开始扫描</el-button>
           <el-button @click="dialogVisibleSpecial = false">取 消</el-button>
-<!--          <el-button type="primary" @click="dialogVisibleSpecial = false">确 定</el-button>-->
+          <!--          <el-button type="primary" @click="dialogVisibleSpecial = false">确 定</el-button>-->
         </span>
       </el-dialog>
 
       <el-divider></el-divider>
-<!--      <el-row>-->
-<!--        <el-col :span="14">-->
-          <!--      表格展示列表-->
-          <p style="margin: 0;text-align: center">扫描设备信息</p>
-          <el-table :data="tableData" style="width: 100%"
-                    max-height="300" ref="tableData"
-                    :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
-            <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
-            <el-table-column type="selection" width="45"></el-table-column>
+      <!--      <el-row>-->
+      <!--        <el-col :span="14">-->
+      <!--      表格展示列表-->
+      <p style="margin: 0;text-align: center">扫描设备信息</p>
+      <el-table :data="tableData" style="width: 100%"
+                max-height="300" ref="tableData"
+                :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
+        <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
+        <el-table-column type="selection" width="45"></el-table-column>
 
-            <!--            <el-table-column type="text" width="45">-->
-            <!--              <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
-            <!--            </el-table-column>-->
+        <!--            <el-table-column type="text" width="45">-->
+        <!--              <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
+        <!--            </el-table-column>-->
 
-            <el-table-column prop="ip" label="设备IP">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.ip"
-                          placeholder="请输入ip" size="small"></el-input>
-                <span v-else>{{ row.ip }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="name" label="用户名">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.name"
-                          placeholder="请输入用户名" size="small"></el-input>
-                <span v-else>{{ row.name }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="password" label="密码">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.password" type="password"
-                          placeholder="请输入密码" size="small"></el-input>
-                <span v-else>{{ row.passmi }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="mode" label="连接方式">
-              <template slot-scope="{ row }">
-<!--                <el-input v-if="row.isEdit" v-model="row.mode"-->
-<!--                          placeholder="连接方式" size="small"></el-input>-->
+        <el-table-column prop="ip" label="设备IP">
+          <template slot-scope="{ row }">
+            <el-input v-if="row.isEdit" v-model="row.ip"
+                      placeholder="请输入ip" size="small"></el-input>
+            <span v-else>{{ row.ip }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="用户名">
+          <template slot-scope="{ row }">
+            <el-input v-if="row.isEdit" v-model="row.name"
+                      placeholder="请输入用户名" size="small"></el-input>
+            <span v-else>{{ row.name }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="password" label="密码">
+          <template slot-scope="{ row }">
+            <el-input v-if="row.isEdit" v-model="row.password" type="password"
+                      placeholder="请输入密码" size="small"></el-input>
+            <span v-else>{{ row.passmi }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="mode" label="连接方式">
+          <template slot-scope="{ row }">
+            <!--                <el-input v-if="row.isEdit" v-model="row.mode"-->
+            <!--                          placeholder="连接方式" size="small"></el-input>-->
 
-                <el-select v-if="row.isEdit" v-model="row.mode" size="small" placeholder="连接方式">
-                  <el-option label="ssh" value="ssh"/>
-                  <el-option label="telnet" value="telnet"/>
-                </el-select>
+            <el-select v-if="row.isEdit" v-model="row.mode" size="small" placeholder="连接方式">
+              <el-option label="ssh" value="ssh"/>
+              <el-option label="telnet" value="telnet"/>
+            </el-select>
 
-                <span v-else>{{ row.mode }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="port" label="端口号">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.port"
-                          placeholder="端口" size="small"></el-input>
-                <span v-else>{{ row.port }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="configureCiphers" label="配置密码">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
-                          placeholder="配置密码" size="small"></el-input>
-                <span v-else>{{ row.conCip }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="{ row }">
-                <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
-                <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
-                <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
-                <!--                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>-->
-              </template>
-            </el-table-column>
-          </el-table>
-<!--        </el-col>-->
-<!--        <el-col :span="10" v-show="showxiang">-->
-<!--          <p style="margin: 0;text-align: center">扫描项目选择</p>-->
-<!--          <div>-->
-<!--            <el-input-->
-<!--              v-model="deptName"-->
-<!--              placeholder="请输入查找内容"-->
-<!--              clearable-->
-<!--              size="small"-->
-<!--              prefix-icon="el-icon-search"-->
-<!--              style="margin-bottom: 20px;width: 80%;margin-left: 50px"-->
-<!--            />-->
-<!--          </div>-->
-<!--          <div style="max-height: 300px">-->
-<!--            <el-scrollbar style="height:100%">-->
-<!--              <el-tree style="max-height: 300px;width: 95%;margin-left:50px" show-checkbox-->
-<!--                       :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"-->
-<!--                       @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>-->
-<!--            </el-scrollbar>-->
-<!--          </div>-->
-<!--        </el-col>-->
-<!--      </el-row>-->
+            <span v-else>{{ row.mode }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="port" label="端口号">
+          <template slot-scope="{ row }">
+            <el-input v-if="row.isEdit" v-model="row.port"
+                      placeholder="端口" size="small"></el-input>
+            <span v-else>{{ row.port }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="configureCiphers" label="配置密码">
+          <template slot-scope="{ row }">
+            <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
+                      placeholder="配置密码" size="small"></el-input>
+            <span v-else>{{ row.conCip }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="{ row }">
+            <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
+            <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
+            <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
+            <!--                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>-->
+          </template>
+        </el-table-column>
+      </el-table>
+      <!--        </el-col>-->
+      <!--        <el-col :span="10" v-show="showxiang">-->
+      <!--          <p style="margin: 0;text-align: center">扫描项目选择</p>-->
+      <!--          <div>-->
+      <!--            <el-input-->
+      <!--              v-model="deptName"-->
+      <!--              placeholder="请输入查找内容"-->
+      <!--              clearable-->
+      <!--              size="small"-->
+      <!--              prefix-icon="el-icon-search"-->
+      <!--              style="margin-bottom: 20px;width: 80%;margin-left: 50px"-->
+      <!--            />-->
+      <!--          </div>-->
+      <!--          <div style="max-height: 300px">-->
+      <!--            <el-scrollbar style="height:100%">-->
+      <!--              <el-tree style="max-height: 300px;width: 95%;margin-left:50px" show-checkbox-->
+      <!--                       :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"-->
+      <!--                       @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>-->
+      <!--            </el-scrollbar>-->
+      <!--          </div>-->
+      <!--        </el-col>-->
+      <!--      </el-row>-->
 
       <el-dialog
         title="提示"
@@ -270,7 +274,7 @@
     import request from '@/utils/request'
     import { JSEncrypt } from 'jsencrypt'
     export default {
-        name: "Scan_page",
+        name: "Advanced_page",
         components:{
             WebSocket,
             // WebSocketOne,
@@ -566,6 +570,7 @@
                     data:ce
                 }).then(response=>{
                     console.log(response)
+
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {
                         let strtest = JSON.stringify(arrayJsonObj);
                         let reg = new RegExp(oldKey,'g');
@@ -573,28 +578,28 @@
                         return JSON.parse(newStr);
                     }
                     response = changeTreeDate(response,'totalQuestionTableVOList','children')
-                    response = changeTreeDate(response,'totalQuestionTableList','children')
+                    // response = changeTreeDate(response,'totalQuestionTableList','children')
                     for (let i = 0;i<response.length;i++){
                         for (let g = 0;g<response[i].children.length;g++){
                             this.$delete(response[i].children[g],'typeProblem')
-                            for (let m = 0;m<response[i].children[g].children.length;m++){
-                                this.$delete(response[i].children[g].children[m],'typeProblem')
-                                this.$delete(response[i].children[g].children[m],'temProName')
-                                let pinjie = response[i].children[g].children[m].problemName+' '+'('+
-                                    response[i].children[g].children[m].brand+' '+
-                                    response[i].children[g].children[m].type+' '+
-                                    response[i].children[g].children[m].firewareVersion+' '+
-                                    response[i].children[g].children[m].subVersion+')'
-                                this.$set(response[i].children[g].children[m],'problemName',pinjie)
-                            }
+                            // for (let m = 0;m<response[i].children[g].children.length;m++){
+                            //     this.$delete(response[i].children[g].children[m],'typeProblem')
+                            //     this.$delete(response[i].children[g].children[m],'temProName')
+                            //     // let pinjie = response[i].children[g].children[m].problemName+' '+'('+
+                            //     //     response[i].children[g].children[m].brand+' '+
+                            //     //     response[i].children[g].children[m].type+' '+
+                            //     //     response[i].children[g].children[m].firewareVersion+' '+
+                            //     //     response[i].children[g].children[m].subVersion+')'
+                            //     // this.$set(response[i].children[g].children[m],'problemName',pinjie)
+                            // }
                         }
                     }
                     response = changeTreeDate(response,'typeProblem','label')
                     response = changeTreeDate(response,'temProName','label')
-                    response = changeTreeDate(response,'problemName','label')
-                    //删除高级功能
+                    // response = changeTreeDate(response,'problemName','label')
+                    //只留下高级功能这一项
                     this.fenxiang = response.filter(item => {
-                        return item.label != '高级功能'
+                        return item.label == '高级功能'
                     })
                     console.log(this.fenxiang)
                 })
@@ -820,7 +825,7 @@
                     this.$message.warning('已取消扫描!')
                 })
             },
-            //专项开始扫描
+            //高级功能开始扫描
             specialSearchStart(){
                 this.scanShow = false
                 this.cancelShow = true
@@ -848,39 +853,29 @@
                 const scanNum = this.num
                 //专项扫描的所有id
                 var zhuanid = this.$refs.treeone.getCheckedKeys()
-                const totalQuestionTableId = []
+                const functionNameT = []
                 for(let i = 0;i<=zhuanid.length;i++){
                     if (typeof(zhuanid[i])!='undefined'){
-                        totalQuestionTableId.push(zhuanid[i])
+                        functionNameT.push(zhuanid[i])
                     }
                 }
-                console.log(totalQuestionTableId)
+                const functionName = functionNameT.filter(item=>{
+                    return item != '高级功能'
+                })
+                console.log(functionName)
                 let zuihouall = zuihou.map(x=>JSON.stringify(x))
                 console.log(zuihouall)
-                if(totalQuestionTableId.length == 0){
-                    this.$alert('专项扫描没有选择要扫描的项,如果想要扫描特定项请重新选择!', '专项扫描', {
+
+                if(functionNameT.length == 0){
+                    this.$alert('高级扫描没有选择要扫描的项,请重新选择!', '专项扫描', {
                         confirmButtonText: '确定',
                         type:'warning'
-                        // callback: action => {
-                        //     this.$message({
-                        //         type: 'info',
-                        //         message: `action: ${ action }`
-                        //     });
-                        // }
                     });
-                    // this.$message.success('扫描请求以提交!')
-                    // return request({
-                    //     url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
-                    //     method:'post',
-                    //     data:zuihouall
-                    // }).then(response=>{
-                    //     console.log('日志')
-                    // })
                 }else {
                     this.dialogVisibleSpecial = false
-                    console.log('专项扫描')
+                    console.log('高级扫描')
                     return request({
-                        url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
+                        url:'/sql/AdvancedFeatures/advancedFunction/'+scanNum+'/'+functionName,
                         method:'post',
                         data:zuihouall
                     }).then(response=>{

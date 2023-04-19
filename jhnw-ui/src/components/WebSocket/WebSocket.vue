@@ -164,36 +164,40 @@
                 console.log('ws建立连接成功')
             },
             wsMessageHanler(e) {
-                console.log(e)
-                if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){
-                    this.textareaOne = this.textareaOne + e.data
-                }else if (e.data.indexOf('系统信息') != -1){
-                    this.textareaInfo = this.textareaInfo + e.data
-                }else if (e.data.indexOf('风险') != -1){
-                    this.textareaRisk = this.textareaRisk + e.data
-                }else if (e.data.indexOf('scanThread') != -1){
-                    this.textareaEnd = this.textareaEnd + e.data
-                    this.saoendip = e.data
-                    console.log(this.saoendip)
+                if (e.data === 'pong'){
+                    console.log('00000'+e.data)
+                }else {
+                    console.log(e)
+                    if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){
+                        this.textareaOne = this.textareaOne + e.data
+                    }else if (e.data.indexOf('系统信息') != -1){
+                        this.textareaInfo = this.textareaInfo + e.data
+                    }else if (e.data.indexOf('风险') != -1){
+                        this.textareaRisk = this.textareaRisk + e.data
+                    }else if (e.data.indexOf('scanThread') != -1){
+                        this.textareaEnd = this.textareaEnd + e.data
+                        this.saoendip = e.data
+                        console.log(this.saoendip)
+                    }
+                    //截取字符串
+                    function getCaption(obj){
+                        const index = obj.lastIndexOf(":")
+                        const res = obj.substring(index+1,obj.length)
+                        return res
+                    }
+                    this.ipEnd = getCaption(this.saoendip)
+                    // this.textarea = this.textarea + e.data;
+                    this.$nextTick(()=>{
+                        // const textarea = document.getElementById('webt')
+                        const textareaOne = document.getElementById('webtOne')
+                        const textareaTwo = document.getElementById('webtTwo')
+                        const textareaThree = document.getElementById('webtThree')
+                        // textarea.scrollTop = textarea.scrollHeight
+                        textareaOne.scrollTop = textareaOne.scrollHeight
+                        textareaTwo.scrollTop = textareaTwo.scrollHeight
+                        textareaThree.scrollTop = textareaThree.scrollHeight
+                    })
                 }
-                //截取字符串
-                function getCaption(obj){
-                    const index = obj.lastIndexOf(":")
-                    const res = obj.substring(index+1,obj.length)
-                    return res
-                }
-                this.ipEnd = getCaption(this.saoendip)
-                // this.textarea = this.textarea + e.data;
-                this.$nextTick(()=>{
-                    // const textarea = document.getElementById('webt')
-                    const textareaOne = document.getElementById('webtOne')
-                    const textareaTwo = document.getElementById('webtTwo')
-                    const textareaThree = document.getElementById('webtThree')
-                    // textarea.scrollTop = textarea.scrollHeight
-                    textareaOne.scrollTop = textareaOne.scrollHeight
-                    textareaTwo.scrollTop = textareaTwo.scrollHeight
-                    textareaThree.scrollTop = textareaThree.scrollHeight
-                })
             },
             /**
              * ws通信发生错误

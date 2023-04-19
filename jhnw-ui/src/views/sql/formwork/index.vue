@@ -265,6 +265,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
+              console.log(this.form)
             updateFormwork(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;

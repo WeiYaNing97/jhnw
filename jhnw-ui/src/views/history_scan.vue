@@ -12,7 +12,6 @@
               row-key="hproblemId"
               :cell-style="hongse"
               @row-click='expandChange'
-              :default-expand-all='isExpansion'
               :tree-props="{children: 'children',hasChildren: 'hasChildren'}"
               :span-method="arraySpanMethodTwo">
       <el-table-column prop="createTime" label="扫描时间" width="120"></el-table-column>
@@ -50,9 +49,9 @@
 
 <!--    <div id="hisTxt" style="opacity: 0;position:absolute">-->
       <div id="hisTxt" ref="pdf" v-if="printShow" style="margin: 0">
-          <div style="text-align:center"><h4>扫描报告</h4></div>
-          <span>扫描人:{{ this.usName }}</span>
-          <span style="padding-left: 10px">打印时间:{{ this.nowTime.toLocaleString() }}</span>
+<!--          <div style="text-align:center"><h4>扫描报告</h4></div>-->
+<!--          <span>扫描人:{{ this.usName }}</span>-->
+<!--          <span style="padding-left: 10px">打印时间:{{ this.nowTime }}</span>-->
           <el-table v-loading="loading"
                     :data="printData"
                     ref="tree"
@@ -81,26 +80,27 @@
     import TinymceEditor from "@/components/Tinymce/TinymceEditor"
     import { ExportBriefDataDocx } from '@/utils/exportBriefDataDocx'
     import Cookies from 'js-cookie'
-    import { downloadPDF } from "../utils/pdf";
-    import jsPDF from 'jspdf'
+    import { downloadPDF } from "../utils/pdf"
     export default {
         name: "History_scan",
         inject:["reload"],
         props:{
           title:{
               type:String,
-              default:"sadsadasd",
+              default:Cookies.get('usName') + " 用户扫描报告",
           }
         },
         data(){
             return{
                 //
-                usName:'',
+
                 nowTime:'',
                 printShow:false,
                 printTxt:{
                   id:'hisTxt',
+                  // extraHead:'我是head' + this.nowTime,
                   popTitle:this.title,
+                  repeatTableHeader:true,
                   targetStyles:['*'],
                   preview:false,
                   closeCallback(){
@@ -135,8 +135,8 @@
                 this.printShow = false
             },
             getCook(){
-                this.usName = Cookies.get('usName')
-                console.log(this.usName)
+                // this.usName = Cookies.get('usName')
+                // console.log(this.usName)
             },
             //打印报告
             printBaogao(row){
@@ -144,14 +144,10 @@
                 setTimeout(()=>{
                     downloadPDF(this.$refs.pdf)
                 },0)
-                this.nowTime = new Date()
+                this.nowTime = new Date().toLocaleDateString()
                 this.printData = []
                 this.printData.push(row)
                 setTimeout(this.noShow,5000)
-            },
-            //
-            printDel(){
-                console.log('ssss')
             },
             //导出
             exportDocx(){
@@ -187,9 +183,6 @@
                         return greens
                     }
                 }
-                // if (row.row.ifQuestion === '异常'){
-                //     return reds
-                // }
             },
             //查看详情
             xiangqing(row){
