@@ -7,6 +7,7 @@ import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
+import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.domain.TotalQuestionTable;
@@ -18,8 +19,13 @@ import com.sgcc.sql.util.CustomConfigurationController;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.*;
@@ -29,11 +35,16 @@ import java.util.stream.Stream;
 /**
  * 光衰功能
  */
+@Api("光衰功能")
+@RestController
+@RequestMapping("/sql/LuminousAttenuation")
+@Transactional(rollbackFor = Exception.class)
 public class LuminousAttenuation {
 
     @Autowired
     private static IReturnRecordService returnRecordService;
-    @ApiOperation("获取光衰参数")
+
+
     public static AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
 
         String command = CustomConfigurationController.obtainConfigurationFileParameterValues("光衰." + switchParameters.getDeviceBrand()+".获取端口号命令");
@@ -76,6 +87,7 @@ public class LuminousAttenuation {
         }
 
         try {
+            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"光衰:"+ stringBuffer.toString()+"\r\n");
             PathHelper.writeDataToFileByName(stringBuffer.toString(),"光衰");
         } catch (IOException e) {
             e.printStackTrace();

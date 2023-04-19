@@ -1,27 +1,17 @@
 package com.sgcc.sql.thread;
 
-import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.parametric.ParameterSet;
 import com.sgcc.sql.parametric.SwitchParameters;
-import com.sgcc.sql.util.PathHelper;
-import com.sgcc.sql.webSocket.WebSocketService;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-/**
- * 扫描 全部问题 多线程
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
- * @date 2022年07月29日 15:36
- */
-public class ScanFixedThreadPool {
+public class AdvancedThreadPool {
+
 
     // 用来存储线程名称的map
     public static Map threadNameMap = new HashMap();
@@ -29,7 +19,7 @@ public class ScanFixedThreadPool {
     /**
      * newFixedThreadPool submit submit
      */
-    public static void switchLoginInformations(ParameterSet parameterSet) throws InterruptedException {
+    public static void switchLoginInformations(ParameterSet parameterSet, List<String> functionName) throws InterruptedException {
 
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
@@ -43,7 +33,7 @@ public class ScanFixedThreadPool {
             i++;
             threadNameMap.put(threadName, threadName);
 
-            fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool));//mode, ip, name, password,configureCiphers, port, loginUser,time
+            fixedThreadPool.execute(new AdvancedThread(threadName,switchParameters,functionName,countDownLatch,fixedThreadPool));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
         countDownLatch.await();
     }
@@ -58,6 +48,7 @@ public class ScanFixedThreadPool {
     public static String getThreadName(int i) {
         return "threadname"+i;
     }
+
 
 
 }

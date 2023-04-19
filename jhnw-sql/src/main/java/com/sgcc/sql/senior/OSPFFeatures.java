@@ -8,6 +8,7 @@ import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.connect.util.SshConnect;
 import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.controller.Configuration;
+import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.ICommandLogicService;
@@ -17,8 +18,13 @@ import com.sgcc.sql.util.CustomConfigurationController;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +34,10 @@ import java.util.Map;
 /**
  * OSPF 功能
  */
+@Api("OSPF功能相关")
+@RestController
+@RequestMapping("/sql/OSPFFeatures")
+@Transactional(rollbackFor = Exception.class)
 public class OSPFFeatures {
 
     @Autowired
@@ -55,10 +65,16 @@ public class OSPFFeatures {
             attributeList.add(attribute);
             attribute = switchParameters.getDeviceBrand();
             attributeList.add(attribute);
+            attribute = switchParameters.getDeviceBrand()+">*>"+switchParameters.getFirmwareVersion();
+            attributeList.add(attribute);
             for (int i = 0;i < attributeList.size();i++){
                 command = (String) commandMap.get(attributeList.get(i));
-                if (command!=null){
-                    break;
+                if (command!=null && i == attributeList.size()-2){
+                    String mohu = (String) commandMap.get(attributeList.get(++i));
+                    if (mohu !=null){
+                        command = mohu;
+                        break;
+                    }
                 }
             }
         }
@@ -70,6 +86,7 @@ public class OSPFFeatures {
             List<Ospf> ospfList = (List<Ospf>) ospfListByString.get("data");
             for (Ospf ospf:ospfList){
                 try {
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"ospf:"+ ospf.toString()+"\r\n");
                     PathHelper.writeDataToFileByName(switchParameters.getIp()+":" + ospf.toString()+"\r\n","ospf");
                 } catch (IOException e) {
                     e.printStackTrace();

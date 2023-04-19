@@ -448,25 +448,13 @@ public class SwitchInteraction {
     }
 
 
-
     /**
-     *
-     * a
-     *
-     *
-     *
-    * @method: 扫描方法 logInToGetBasicInformation
-    * @Param: [threadName, mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，
-     *          loginUser 登录人信息，time 扫描时间
-     *          List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
-    * @return: com.sgcc.common.core.domain.AjaxResult
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @GetMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables) {
-
-
+     * 连接交换机 获取交换机基本信息
+     * @param switchParameters
+     * @param totalQuestionTables
+     * @return
+     */
+    public static AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters) {
 
         //连接交换机  requestConnect：
         //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
@@ -512,19 +500,6 @@ public class SwitchInteraction {
         }
 
         //解析返回参数 data
-        /*
-        返回值 list集合
-        元素0 ：是否连接成功
-        元素1 ：连接方法
-        元素2 ：交换机IP
-        元素3 ：交换机登录用户
-        元素4 ：交换机登录用户密码
-        元素5 ：交换机连接端口号
-        元素6 ：ssh连接对象：如果连接方法为telnet则connectMethod为空，插入connectMethod失败
-        元素7 ：telnet连接对象：如果连接方法为ssh则telnetSwitchMethod为空，插入telnetSwitchMethod失败
-        元素8 ：ssh连接工具对象
-        元素9 ：telnet连接工具对象
-        */
 
         switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
 
@@ -547,40 +522,64 @@ public class SwitchInteraction {
 
             AjaxResult basicInformationList_ajaxResult = GetBasicInformationController.getBasicInformationCurrency(switchParameters);
 
-            //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
-            if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
-
-                switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
-                OSPFFeatures.getOSPFValues(switchParameters);
-                LuminousAttenuation.obtainLightDecay(switchParameters);
-
-
-                //5.获取交换机可扫描的问题并执行分析操作
-                AjaxResult ajaxResult = scanProblem(switchParameters,totalQuestionTables);
-                if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                    switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
-                }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                    switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
-                }
-                if (ajaxResult !=null && ajaxResult.get("msg").equals("未定义交换机问题")){
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ switchParameters.getIp() + "未定问题"+"\r\n");
-                    try {
-                        PathHelper.writeDataToFile("风险:"+"ip:"+ switchParameters.getIp() + "未定问题"+"\r\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return basicInformationList_ajaxResult;
-            }
-            try {
-                PathHelper.writeDataToFileByName("风险:"+switchParameters.getIp() +"未定义该交换机获取基本信息命令及分析\r\n","基本信息");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+            return basicInformationList_ajaxResult;
         }
         return AjaxResult.error("交换机连接失败");
+    }
+
+
+    /**
+     *
+     * a
+     *
+     *
+     *
+    * @method: 扫描方法 logInToGetBasicInformation
+    * @Param: [threadName, mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，
+     *          loginUser 登录人信息，time 扫描时间
+     *          List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
+    * @return: com.sgcc.common.core.domain.AjaxResult
+    * @Author: 天幕顽主
+    * @E-mail: WeiYaNing97@163.com
+    */
+    @GetMapping("logInToGetBasicInformation")
+    public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables) {
+
+        AjaxResult basicInformationList_ajaxResult = connectSwitchObtainBasicInformation(switchParameters);
+
+        //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
+        if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
+
+            switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
+
+            OSPFFeatures.getOSPFValues(switchParameters);
+            LuminousAttenuation.obtainLightDecay(switchParameters);
+
+
+            //5.获取交换机可扫描的问题并执行分析操作
+            AjaxResult ajaxResult = scanProblem(switchParameters,totalQuestionTables);
+            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
+            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
+            }
+            if (ajaxResult !=null && ajaxResult.get("msg").equals("未定义交换机问题")){
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ switchParameters.getIp() + "未定问题"+"\r\n");
+                try {
+                    PathHelper.writeDataToFile("风险:"+"ip:"+ switchParameters.getIp() + "未定问题"+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return basicInformationList_ajaxResult;
+        }
+        try {
+            PathHelper.writeDataToFileByName("风险:"+switchParameters.getIp() +"未定义该交换机获取基本信息命令及分析\r\n","基本信息");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+
     }
 
 

@@ -20,6 +20,7 @@ OSPF:
     H3C: display ospf peer
     H3C>S2152: display ospf peer
     H3C>S2152>5.20.99: display ospf peer
+    H3C>*>5.20.99: display ospf peer
     H3C>S2152>5.20.99>1106: display ospf peer
 
     HuaWei: display ospf peer brief
@@ -27,7 +28,7 @@ OSPF:
     RuiJie: show ip ospf neighbor
   # 邻居ID
   neighborID: Neighbor ID;Router ID
-  # 脉波重复间隔
+  # pri暂未使用，为占位列
   pri: Pri;
   # 状态
   state: State;

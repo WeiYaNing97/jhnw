@@ -291,10 +291,6 @@ public class DefinitionProblemController extends BaseController {
                     problemScanLogicList.add(problemScanLogic);
                     continue;
                 }
-            }else if (jsonPojoList.get(number).indexOf("method") !=-1){
-                //是
-
-
             }
         }
 
@@ -343,59 +339,6 @@ public class DefinitionProblemController extends BaseController {
         return true;
     }
 
-    public static MethodTable analysisMethodTable(@RequestBody String jsonPojo) {
-        /*第一步：去掉“{”“}”，然后以“，”分割（扫描逻辑中命令是否有带“，”的，会有影响）*/
-        MethodTable methodTable = new MethodTable();
-        jsonPojo = jsonPojo.replace("{","");
-        jsonPojo = jsonPojo.replace("}","");
-        String[]  jsonPojo_split = jsonPojo.split(",");
-
-        HashMap<String,String> hashMap = new HashMap<>();
-            /*遍历属性数组，以“：”分割为[“属性名”，“属性值”]的数组
-                ，使用 属性名 匹配 hashmap中的key值，给key值赋值*/
-        for (String pojo:jsonPojo_split){
-            String[] split = pojo.split(":");
-            String split0 = split[0].replace("\"","");
-            String split1 = split[1].replace("\"","");
-            switch (split0){
-                case "onlyIndex"://本层ID 主键ID
-                    hashMap.put("onlyIndex",split1);
-                    break;
-                case "method_name":// 方法名
-                    hashMap.put("method_name",split1);
-                    break;
-                case "afferent":// 使用参数名称
-                    hashMap.put("afferent",split1);
-                    break;
-                case "regain":// 返回参数名称
-                    hashMap.put("regain",split1);
-                    break;
-                case "end_index":// 下一命令ID
-                    hashMap.put("end_index",split1);
-                    break;
-            }
-        }
-
-        //如果 常规检验 的话 下一ID  应是 下一命令ID
-        //下一分析ID  应是  0
-        /*如果为常规校验的话，resultCheckId = 1；则分析数据的下一条ID为下一命令ID。则nextIndex属性值 应赋值给 实体类endIndex字段。*/
-        if (hashMap.get("resultCheckId").equals("1")){
-            hashMap.put("endIndex",hashMap.get("nextIndex"));
-            hashMap.put("nextIndex","0");
-        }
-
-        /** 主键索引 */
-        methodTable.setId(hashMap.get("onlyIndex"));
-        /** 方法名 */
-        methodTable.setMethodName(hashMap.get("method_name"));
-        /** 使用参数名称 */
-        methodTable.setAfferent(hashMap.get("afferent"));
-        /** 返回参数名称 */
-        methodTable.setRegain(hashMap.get("regain"));
-        /** 下一命令ID */
-        methodTable.setEndIndex(hashMap.get("endIndex"));
-        return methodTable;
-    }
 
     /**
      * @method: 字符串解析 CommandLogic 实体类 并返回
@@ -419,6 +362,7 @@ public class DefinitionProblemController extends BaseController {
         hashMap.put("pageIndex",null);
         hashMap.put("endIndex","0");
         hashMap.put("para",null);
+        hashMap.put("objective",null);
             /*遍历属性数组，以“：”分割为[“属性名”，“属性值”]的数组
                 ，使用 属性名 匹配 hashmap中的key值，给key值赋值*/
         for (String pojo:jsonPojo_split){
@@ -431,6 +375,9 @@ public class DefinitionProblemController extends BaseController {
                     break;
                 case "resultCheckId":// 常规校验1 自定义校验0
                     hashMap.put("resultCheckId",split1);
+                    break;
+                case "objective":// 命令目的
+                    hashMap.put("objective",split1);
                     break;
                 case "command":// 命令
                     hashMap.put("command",split1);
@@ -466,6 +413,7 @@ public class DefinitionProblemController extends BaseController {
         }
 
         commandLogic.setCommand(hashMap.get("command"));
+        commandLogic.setObjective(hashMap.get("objective"));
         /** 返回结果验证id */
         commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
         /** 返回分析id */
@@ -1525,6 +1473,7 @@ public class DefinitionProblemController extends BaseController {
 
         commandLogicVO.setOnlyIndex(onlyIndex);
         commandLogicVO.setTrueFalse(trueFalse);
+        commandLogicVO.setObjective(commandLogic.getObjective());
         commandLogicVO.setCommand(command);
         commandLogicVO.setPara(para);
         commandLogicVO.setResultCheckId(resultCheckId);
@@ -1535,6 +1484,7 @@ public class DefinitionProblemController extends BaseController {
                 +"\"onlyIndex\"" +"="+ "\""+ commandLogicVO.getOnlyIndex() +"\","
                 +"\"trueFalse\"" +"="+ "\""+ commandLogicVO.getTrueFalse() +"\","
                 +"\"pageIndex\"" +"="+ "\""+ commandLogicVO.getPageIndex() +"\","
+                +"\"objective\"" +"="+ "\""+ commandLogicVO.getObjective() +"\","
                 +"\"command\"" +"="+ "\""+ commandLogicVO.getCommand() +"\","
                 +"\"para\"" +"="+ "\""+ commandLogicVO.getPara() +"\","
                 +"\"resultCheckId\"" +"="+ "\""+ commandLogicVO.getResultCheckId() +"\","

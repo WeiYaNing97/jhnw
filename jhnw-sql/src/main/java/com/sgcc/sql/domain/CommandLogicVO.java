@@ -24,9 +24,14 @@ public class CommandLogicVO extends BaseEntity
     @Excel(name = "命令行号")
     private String pageIndex;
 
+    /** 命令目的 */
+    @Excel(name = "命令目的")
+    private String objective;
+
     /** 命令 */
     @Excel(name = "命令")
     private String command;
+
 
     /** 参数名 */
     @Excel(name = "参数名")
@@ -100,12 +105,21 @@ public class CommandLogicVO extends BaseEntity
         this.nextIndex = nextIndex;
     }
 
+    public String getObjective() {
+        return objective;
+    }
+
+    public void setObjective(String objective) {
+        this.objective = objective;
+    }
+
     @Override
     public String toString() {
         return "CommandLogicVO{" +
                 "onlyIndex='" + onlyIndex + '\'' +
                 ", trueFalse='" + trueFalse + '\'' +
                 ", pageIndex='" + pageIndex + '\'' +
+                ", objective='" + objective + '\'' +
                 ", command='" + command + '\'' +
                 ", para='" + para + '\'' +
                 ", resultCheckId='" + resultCheckId + '\'' +
