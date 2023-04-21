@@ -413,7 +413,6 @@ public class DefinitionProblemController extends BaseController {
         }
 
         commandLogic.setCommand(hashMap.get("command"));
-        commandLogic.setObjective(hashMap.get("objective"));
         /** 返回结果验证id */
         commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
         /** 返回分析id */
@@ -1473,7 +1472,6 @@ public class DefinitionProblemController extends BaseController {
 
         commandLogicVO.setOnlyIndex(onlyIndex);
         commandLogicVO.setTrueFalse(trueFalse);
-        commandLogicVO.setObjective(commandLogic.getObjective());
         commandLogicVO.setCommand(command);
         commandLogicVO.setPara(para);
         commandLogicVO.setResultCheckId(resultCheckId);
@@ -1484,7 +1482,6 @@ public class DefinitionProblemController extends BaseController {
                 +"\"onlyIndex\"" +"="+ "\""+ commandLogicVO.getOnlyIndex() +"\","
                 +"\"trueFalse\"" +"="+ "\""+ commandLogicVO.getTrueFalse() +"\","
                 +"\"pageIndex\"" +"="+ "\""+ commandLogicVO.getPageIndex() +"\","
-                +"\"objective\"" +"="+ "\""+ commandLogicVO.getObjective() +"\","
                 +"\"command\"" +"="+ "\""+ commandLogicVO.getCommand() +"\","
                 +"\"para\"" +"="+ "\""+ commandLogicVO.getPara() +"\","
                 +"\"resultCheckId\"" +"="+ "\""+ commandLogicVO.getResultCheckId() +"\","

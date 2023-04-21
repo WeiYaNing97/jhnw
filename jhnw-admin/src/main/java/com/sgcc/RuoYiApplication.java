@@ -1,6 +1,7 @@
 package com.sgcc;
 import com.sgcc.sql.controller.Configuration;
 import com.sgcc.sql.controller.MemoryCPU;
+import com.sgcc.sql.util.CustomConfigurationUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;

@@ -11,36 +11,32 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
-public class CustomConfigurationController {
+public class CustomConfigurationUtil {
 
     private static Yaml yaml = new Yaml();
 
-    public static String obtainConfigurationFileParameterValues(String key) {
+    /*获取具有配置参数*/
+    public String obtainConfigurationFileParameterValues(String key) {
         String value = null;
-        try {
-            InputStream inputStream = new FileInputStream(new File(getRelativePath("customconfiguration.yml")));
-            Map<String, Object> map = yaml.load(inputStream);
-            Object objectValue = getValue(key, map);
-            if (objectValue instanceof String){
-                value = (String) objectValue;
-            }
-        } catch (FileNotFoundException | URISyntaxException e) {
-            e.printStackTrace();
+        //InputStream inputStream = new FileInputStream(new File(getRelativePath("customconfiguration.yml")));
+        String path3 = "/customconfiguration.yml";
+        InputStream inputStream = this.getClass().getResourceAsStream(path3);
+        Map<String, Object> map = yaml.load(inputStream);
+        Object objectValue = getValue(key, map);
+        if (objectValue instanceof String){
+            value = (String) objectValue;
         }
         System.err.println(value);
         return value;
     }
-
-
-    public static Object obtainConfigurationFileParameter(String key) {
+    /*获取具有配置参数 或者 配置参数集合*/
+    public Object obtainConfigurationFileParameter(String key) {
         Object object = new Object();
-        try {
-            InputStream inputStream = new FileInputStream(new File(getRelativePath("customconfiguration.yml")));
-            Map<String, Object> map = yaml.load(inputStream);
-            object = getValue(key, map);
-        } catch (FileNotFoundException | URISyntaxException e) {
-            e.printStackTrace();
-        }
+        //InputStream inputStream = new FileInputStream(new File(getRelativePath("customconfiguration.yml")));
+        String path3 = "/customconfiguration.yml";
+        InputStream inputStream = this.getClass().getResourceAsStream(path3);
+        Map<String, Object> map = yaml.load(inputStream);
+        object = getValue(key, map);
         return object;
     }
 

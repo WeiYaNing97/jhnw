@@ -2,16 +2,11 @@ package com.sgcc.sql.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.connect.method.SshMethod;
-import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
-import com.sgcc.connect.util.SshConnect;
-import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.*;
-import com.sgcc.sql.util.CustomConfigurationController;
+import com.sgcc.sql.util.CustomConfigurationUtil;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
@@ -21,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class GetBasicInformationController {
 
@@ -51,7 +45,8 @@ public class GetBasicInformationController {
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
 
         /*H3C*/
-        String[] commandsplit = ( (String) CustomConfigurationController.obtainConfigurationFileParameter("BasicInformation.getBrandCommand")).split(";");
+        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
+        String[] commandsplit = ( (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.getBrandCommand")).split(";");
         String commandString =""; //预设交换机返回结果
         String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)
 
@@ -258,7 +253,6 @@ public class GetBasicInformationController {
             if (hashMap.get("pinpai")!=null
                     && hashMap.get("xinghao")!=null
                     && hashMap.get("banben")!=null
-                    && hashMap.get("zibanben")!=null
                     && hashMap.get("routerFlag")!=null){
 
                 hashMap.put("pinpai",removeSpecialSymbols(hashMap.get("pinpai")));
@@ -391,7 +385,8 @@ public class GetBasicInformationController {
                 }
             }
         }
-        String routerFlag = (String) CustomConfigurationController.obtainConfigurationFileParameter("BasicInformation.routerFlag");
+        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
+        String routerFlag = (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.routerFlag");
         String[] flagSplit = routerFlag.toUpperCase().split(";");
         for (int number = 0 ; number < return_word.length; number++){
             for (String flag:flagSplit){
@@ -405,7 +400,7 @@ public class GetBasicInformationController {
         }
 
         /** 设备版本 */
-        String deviceVersion = (String) CustomConfigurationController.obtainConfigurationFileParameter("BasicInformation.deviceVersion");
+        String deviceVersion = (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.deviceVersion");
         String[] deviceVersionSplit =deviceVersion.split(";");
         for (String version:deviceVersionSplit){
             String[] versionSplit = version.split(" ");
@@ -437,7 +432,7 @@ public class GetBasicInformationController {
 
 
         /** 设备子版本 */
-        String deviceSubversion = (String) CustomConfigurationController.obtainConfigurationFileParameter("BasicInformation.deviceSubversion");
+        String deviceSubversion = (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.deviceSubversion");
         String[] deviceSubversionSplit =deviceSubversion.split(";");
         for (String version:deviceSubversionSplit){
             String[] versionSplit = version.split(" ");

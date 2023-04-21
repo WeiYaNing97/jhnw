@@ -1,6 +1,6 @@
 package com.sgcc.sql.domain;
 
-import com.sgcc.sql.util.CustomConfigurationController;
+import com.sgcc.sql.util.CustomConfigurationUtil;
 
 import java.util.Map;
 
@@ -23,8 +23,8 @@ public class OspfEnum {
 
 
     public static void assignment() {
-
-        Object escape = CustomConfigurationController.obtainConfigurationFileParameter("OSPF");
+        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
+        Object escape = customConfigurationUtil.obtainConfigurationFileParameter("OSPF");
         Map<String,Object> escapeMap = (Map<String,Object>) escape;
 
         /** 邻居ID */

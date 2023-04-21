@@ -1,28 +1,17 @@
 package com.sgcc.sql.senior;
 
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.connect.method.SshMethod;
-import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
-import com.sgcc.connect.util.SshConnect;
-import com.sgcc.connect.util.TelnetComponent;
-import com.sgcc.sql.controller.Configuration;
-import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.SwitchParameters;
-import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IReturnRecordService;
-import com.sgcc.sql.service.ITotalQuestionTableService;
-import com.sgcc.sql.util.CustomConfigurationController;
+import com.sgcc.sql.util.CustomConfigurationUtil;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,7 +33,8 @@ public class OSPFFeatures {
     private static IReturnRecordService returnRecordService;
 
     public static void getOSPFValues(SwitchParameters switchParameters) {
-        Object objectMap  = CustomConfigurationController.obtainConfigurationFileParameter("OSPF.command");
+        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
+        Object objectMap  = customConfigurationUtil.obtainConfigurationFileParameter("OSPF.command");
         if (objectMap == null){
             return;
         }
@@ -80,6 +70,15 @@ public class OSPFFeatures {
         }
 
         String commandReturn = executeScanCommandByCommand(switchParameters,command);
+
+        if (commandReturn == null){
+            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"ospf:命令错误,请重新定义" +"\r\n");
+            try {
+                PathHelper.writeDataToFileByName(switchParameters.getIp()+":ospf:命令错误,请重新定义\r\n","ospf");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         AjaxResult ospfListByString = getOspfListByString(commandReturn);
         if(ospfListByString.get("msg").equals("操作成功")){
@@ -194,8 +193,8 @@ public class OSPFFeatures {
 
     /*去除属性值中间空格*/
     public static List<String> removOspfSpaceCharacter(List<String> strings) {
-
-        String command = CustomConfigurationController.obtainConfigurationFileParameterValues("OSPF.ospfSpaceCharacter");
+        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
+        String command = customConfigurationUtil.obtainConfigurationFileParameterValues("OSPF.ospfSpaceCharacter");
         String[] ospfSpaceCharacterSplit = command.split(";");
         for (String SpaceCharacter:ospfSpaceCharacterSplit){
             for (int num = 0 ; num <strings.size();num++){
@@ -426,14 +425,13 @@ public class OSPFFeatures {
                 if (!MyUtils.judgmentError( switchParameters,string_split)){
                     System.err.println("\r\n"+switchParameters.getIp() +":" +command+ "错误:"+command_string+"\r\n");
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()  +"命令:" +command +":"+command_string+"\r\n");
-
                     try {
                         PathHelper.writeDataToFile("风险:"+switchParameters.getIp() + ":" +command +":"+command_string+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    return command_string;
+                    return null;
                 }
             }
 

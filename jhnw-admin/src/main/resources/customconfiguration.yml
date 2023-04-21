@@ -5,27 +5,29 @@ BasicInformation:
   # 设备版本 两个型号之间以;分阁
   deviceVersion: Version
   # 设备子版本 两个型号之间以;分阁
-  deviceSubversion: Release;Build;RELEASE SOFTWARE
+  deviceSubversion: Release1;Build1;RELEASE SOFTWARE1
   # 路由器标志
   routerFlag: NE
 
 #OSPF
 OSPF:
-  #全部命令和参数支持精确匹配和模糊匹配，系统会优先执行精确匹配，然后执行模糊匹配。
-  #格式为：品牌>型号>版本>子版本;如果为模糊匹配，请省略后续输入。例如：
-        #输入为："H3C>s2152>5.20.99>1106："为精确匹配，如果输入为"H3C："即为模糊匹配
   # 命令
   command:
-
+    #全部命令和参数支持精确匹配和模糊匹配，系统会优先执行精确匹配，然后执行模糊匹配。
+    #格式为：品牌>型号>版本>子版本;如果为模糊匹配，请省略后续输入。例如：
+    #输入为："H3C>s2152>5.20.99>1106："为精确匹配，如果输入为"H3C："即为模糊匹配
+    #匹配精确度包含： "品牌>型号>版本>子版本"、"品牌>型号>版本"、"品牌>型号"、"品牌"、"品牌>*>版本"（）
     H3C: display ospf peer
     H3C>S2152: display ospf peer
     H3C>S2152>5.20.99: display ospf peer
     H3C>*>5.20.99: display ospf peer
     H3C>S2152>5.20.99>1106: display ospf peer
-
     HuaWei: display ospf peer brief
     Cisco: show ip ospf neighbor
     RuiJie: show ip ospf neighbor
+
+  # neighborID、pri、state、deadTime、address、portNumber、BFDState
+  # 这些属性是为了区分OSPF命令返回信息中的参数值
   # 邻居ID
   neighborID: Neighbor ID;Router ID
   # pri暂未使用，为占位列

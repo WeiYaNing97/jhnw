@@ -451,7 +451,6 @@ public class SwitchInteraction {
     /**
      * 连接交换机 获取交换机基本信息
      * @param switchParameters
-     * @param totalQuestionTables
      * @return
      */
     public static AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters) {
@@ -529,10 +528,6 @@ public class SwitchInteraction {
 
 
     /**
-     *
-     * a
-     *
-     *
      *
     * @method: 扫描方法 logInToGetBasicInformation
     * @Param: [threadName, mode, ip, name, password, port] 传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，
