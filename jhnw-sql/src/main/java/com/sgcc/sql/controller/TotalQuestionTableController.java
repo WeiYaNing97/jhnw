@@ -13,6 +13,7 @@ import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.*;
+import com.sgcc.sql.service.IInformationService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
@@ -21,6 +22,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +52,9 @@ public class TotalQuestionTableController extends BaseController
 
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private IInformationService informationService;
 
     /**
      * 导出问题及命令列表
@@ -107,7 +112,25 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("查询交换机问题列表")
     public List<TotalQuestionTable> selectPojoList(TotalQuestionTable totalQuestionTable)
     {
+        System.err.println(totalQuestionTable.getBrand());
+        System.err.println(totalQuestionTable.getType());
+        System.err.println(totalQuestionTable.getFirewareVersion());
+        System.err.println(totalQuestionTable.getSubVersion());
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
+        Information information = new Information();
+        information.setDeviceBrand(totalQuestionTable.getBrand());
+        information.setDeviceModel(totalQuestionTable.getType());
+        List<Information> informationlist = informationService.selectInformationList(information);
+        if (informationlist.size()!=0){
+            for (Information pojo:informationlist){
+                TotalQuestionTable totalQuestionTablePjo = new TotalQuestionTable();
+                totalQuestionTablePjo.setBrand(pojo.getDeviceBrand());
+                totalQuestionTablePjo.setType(pojo.getDeviceModel());
+                list.add(totalQuestionTablePjo);
+            }
+        }
+
         return list;
     }
 
@@ -293,6 +316,19 @@ public class TotalQuestionTableController extends BaseController
         if (insert <= 0){
             return AjaxResult.error();
         }
+        Information information = new Information();
+        information.setDeviceBrand(totalQuestionTable.getBrand());
+        information.setDeviceModel(totalQuestionTable.getType());
+        List<Information> informationlist = informationService.selectInformationList(information);
+        if (informationlist.size() == 0){
+            int i = informationService.insertInformation(information);
+            if (i>0){
+
+            }else {
+                AjaxResult.error("交换机信息表同步失败");
+            }
+        }
+
         return AjaxResult.success(totalQuestionTable.getId()+"");
     }
 

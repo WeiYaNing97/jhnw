@@ -1059,4 +1059,68 @@ public class MyUtils {
         return TotalQuestionTablePojoList;
     }
 
+
+    /**
+     * 去除字符串尾部非字符串部分
+     * @param str
+     * @return
+     */
+    public static String removeNonNumericSuffix(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        int index = str.length() - 1;
+        while (index >= 0 && !Character.isDigit(str.charAt(index))) {
+            index--;
+        }
+        return str.substring(0, index + 1);
+    }
+
+
+    /**
+     * 字符串 转化为  Double
+     * @param str
+     * @return
+     */
+    public static double stringToDouble(String str) throws NumberFormatException {
+        return Double.parseDouble(str);
+    }
+
+    /**
+     * 判断 double值 是否在阈值内
+     * @param value
+     * @param min
+     * @param max
+     * @return
+     */
+    public static boolean isInRange(double value, double min, double max) {
+        return value >= min && value <= max;
+    }
+
+
+    /**
+     * 字符串截取double值
+     * @param input
+     * @return
+     */
+    public static List<Double> StringTruncationDoubleValue(String input) {
+        List<Double> doubleList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            double value = Double.parseDouble(matcher.group());
+            doubleList.add(value);
+        }
+        return doubleList;
+    }
+
+    /**
+     * 判断集合是否为空， 为空返回true
+     * 集合判空
+     * @param collection
+     * @return
+     */
+    public static boolean isCollectionEmpty(Collection<?> collection) {
+        return collection == null || collection.isEmpty() || collection.size() == 0;
+    }
 }

@@ -1018,7 +1018,7 @@ public class SolveProblemController {
                     }
 
                     String subVersion = switchProblemVO.getSubVersion();
-                    if (!(subVersion .equals("*"))){
+                    if (subVersion !=null && !(subVersion .equals("*"))){
                         zibanben = subVersion;
                     }
 

@@ -1,9 +1,14 @@
 package com.sgcc.sql.controller;
 
 import java.util.*;
+
+import cn.hutool.core.date.DateTime;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.domain.*;
+import com.sgcc.sql.parametric.SwitchParameters;
+import com.sgcc.sql.service.IReturnRecordService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,5 +121,49 @@ public class SwitchScanResultController extends BaseController
     {
         return toAjax(switchScanResultService.deleteSwitchScanResultByIds(ids));
     }
+
+    /**
+     * @method: 高级功能扫描结果插入数据库
+     * @Param:
+     * @return: void
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    public void insertSwitchScanResult (SwitchParameters switchParameters, HashMap<String,String> hashMap){
+
+        SwitchScanResult switchScanResult = new SwitchScanResult();
+
+        //插入问题数据
+        switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
+
+        switchScanResult.setBrand(switchParameters.getDeviceBrand());
+        switchScanResult.setSwitchType(switchParameters.getDeviceModel());
+        switchScanResult.setFirewareVersion(switchParameters.getFirmwareVersion());
+        switchScanResult.setSubVersion(switchParameters.getSubversionNumber());
+
+        switchScanResult.setSwitchName(switchParameters.getName()); //name
+        switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
+        switchScanResult.setConfigureCiphers(switchParameters.getConfigureCiphers());
+
+        switchScanResult.setLoginMethod(switchParameters.getMode());
+        switchScanResult.setPortNumber(switchParameters.getPort());
+
+        switchScanResult.setTypeProblem("高级功能");
+        switchScanResult.setTemProName(hashMap.get("ProblemName"));
+        switchScanResult.setProblemName(hashMap.get("ProblemName"));
+        switchScanResult.setDynamicInformation(hashMap.get("parameterString"));
+        switchScanResult.setIfQuestion(hashMap.get("IfQuestion")); //是否有问题
+
+
+        switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
+        switchScanResult.setPhonenumber(switchParameters.getLoginUser().getUser().getPhonenumber()); //登录手机号
+        //插入 扫描时间
+        DateTime dateTime = new DateTime(switchParameters.getScanningTime(), "yyyy-MM-dd HH:mm:ss");
+        switchScanResult.setCreateTime(dateTime);
+
+        //插入问题
+        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+        switchScanResultService.insertSwitchScanResult(switchScanResult);
+    };
 
 }

@@ -386,6 +386,7 @@ public class GetBasicInformationController {
             }
         }
         CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
+
         String routerFlag = (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.routerFlag");
         String[] flagSplit = routerFlag.toUpperCase().split(";");
         for (int number = 0 ; number < return_word.length; number++){

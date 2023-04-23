@@ -46,7 +46,8 @@ public class AdvancedThread extends Thread {
                     OSPFFeatures.getOSPFValues(switchParameters);
                     break;
                 case "光衰":
-                    LuminousAttenuation.obtainLightDecay(switchParameters);
+                    LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
+                    luminousAttenuation.obtainLightDecay(switchParameters);
                     break;
             }
         }
@@ -57,4 +58,5 @@ public class AdvancedThread extends Thread {
         threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
     }
+
 }

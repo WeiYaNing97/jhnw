@@ -1,18 +1,16 @@
 package com.sgcc.sql.senior;
-
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.sql.controller.SwitchScanResultController;
 import com.sgcc.sql.parametric.SwitchParameters;
-import com.sgcc.sql.service.IReturnRecordService;
 import com.sgcc.sql.util.CustomConfigurationUtil;
+import com.sgcc.sql.util.FunctionalMethods;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,16 +24,18 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class LuminousAttenuation {
 
-    @Autowired
-    private static IReturnRecordService returnRecordService;
-
-
-    public static AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
+    /**
+     * 光衰功能接口
+     * @param switchParameters
+     * @return
+     */
+    public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
+        /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
         CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
-
         String command = customConfigurationUtil.obtainConfigurationFileParameterValues("光衰." + switchParameters.getDeviceBrand()+".获取端口号命令");
-
+        /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (command == null){
+            // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
                 PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令","光衰");
                 return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
@@ -43,10 +43,11 @@ public class LuminousAttenuation {
                 e.printStackTrace();
             }
         }
-
-        String returnString = OSPFFeatures.executeScanCommandByCommand(switchParameters, command);
-
+        /*3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+        /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
+            // todo 关于交换机返回错误信息 的错误代码库
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n");
             try {
                 PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n","ospf");
@@ -54,9 +55,20 @@ public class LuminousAttenuation {
                 e.printStackTrace();
             }
         }
-
+        /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续获取获取光衰端口号*/
         List<String> port = luminousAttenuationgetPort(returnString);
-
+        /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
+        if (MyUtils.isCollectionEmpty(port)){
+            // todo 关于没有端口号为UP状态 的错误代码库
+            try {
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号","光衰");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
+        }
+        /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
+        GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         Object escape = customConfigurationUtil.obtainConfigurationFileParameter("光衰." + switchParameters.getDeviceBrand() + ".转译");
         if (escape != null){
             Map<String,String> escapeMap = (Map<String,String>) escape;
@@ -66,17 +78,10 @@ public class LuminousAttenuation {
             }
         }
 
-        if (port.size() == 0){
-            /*没有端口号为开启状态*/
-            try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号","光衰");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
-        }
-
-        HashMap<String, String> getparameter = getparameter(port, switchParameters);
+        /**
+         * 获取光衰端口号参数
+         */
+        HashMap<String, Double> getparameter = getparameter(port, switchParameters);
         if (getparameter == null){
             /*未获取到光衰参数*/
             try {
@@ -86,14 +91,29 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
         }
-        StringBuffer stringBuffer = new StringBuffer();
-        for (String str:port){
-            stringBuffer.append("IP地址:"+switchParameters.getIp()+"端口号:"+str+"TX:"+getparameter.get(str+"TX")+"RX:"+getparameter.get(str+"RX")+"\r\n");
-        }
 
         try {
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"光衰:\r\n"+ stringBuffer.toString()+"\r\n");
-            PathHelper.writeDataToFileByName(stringBuffer.toString(),"光衰");
+            for (String str:port){
+                String lightAttenuationInformation = "IP地址:"+switchParameters.getIp()+
+                        "端口号:"+str+"TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
+                                      "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]";
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"光衰:"+ lightAttenuationInformation+"\r\n");
+                PathHelper.writeDataToFileByName(lightAttenuationInformation+"\r\n","光衰");
+                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+                HashMap<String,String> hashMap = new HashMap<>();
+                hashMap.put("ProblemName","光衰");
+                // todo  根据光衰参数阈值  判断是否与问题
+                if (MyUtils.isInRange(getparameter.get(str+"RX"),getparameter.get(str+"RXLOW"),getparameter.get(str+"RXHIGH"))){
+                    hashMap.put("IfQuestion","无问题");
+                }else {
+                    hashMap.put("IfQuestion","有问题");
+                }
+
+                hashMap.put("parameterString","端口号=:=是=:="+str+"=:=光衰参数=:=是=:=" +
+                        "TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
+                        "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]");
+                switchScanResultController.insertSwitchScanResult(switchParameters,hashMap);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -146,15 +166,15 @@ public class LuminousAttenuation {
 
     /* 根据端口号 和 数据库中部定义的 获取光衰信息命令
     * */
-    public static HashMap<String,String> getparameter(List<String> portNumber,SwitchParameters switchParameters) {
+    public static HashMap<String,Double> getparameter(List<String> portNumber,SwitchParameters switchParameters) {
         CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
         String command = customConfigurationUtil.obtainConfigurationFileParameterValues("光衰." + switchParameters.getDeviceBrand()+".获取光衰参数命令");
 
-        HashMap<String,String> hashMap = new HashMap<>();
+        HashMap<String,Double> hashMap = new HashMap<>();
         for (String port:portNumber){
             String com = command.replaceAll("端口号",port);
             System.err.println("获取光衰参数命令:"+com);
-            String returnResults = OSPFFeatures.executeScanCommandByCommand(switchParameters, com);
+            String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, com);
 
             if (returnResults == null){
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n");
@@ -165,22 +185,30 @@ public class LuminousAttenuation {
                 }
             }
 
-            HashMap<String, String> values = getDecayValues(returnResults);
+            HashMap<String, Double> values = getDecayValues(returnResults);
             hashMap.put(port+"TX",values.get("TX"));
             hashMap.put(port+"RX",values.get("RX"));
+            hashMap.put(port+"TXHIGH",values.get("TXHIGH"));
+            hashMap.put(port+"RXHIGH",values.get("RXHIGH"));
+            hashMap.put(port+"TXLOW",values.get("TXLOW"));
+            hashMap.put(port+"RXLOW",values.get("RXLOW"));
         }
         return hashMap;
     }
 
 
     /*get 光衰 参数*/
-    public static HashMap<String,String> getDecayValues(String string) {
+    public static HashMap<String,Double> getDecayValues(String string) {
 
         string = MyUtils.trimString(string);
         String[] Line_split = string.split("\r\n");
 
-        String txpower = null;
-        String rxpower = null;
+        double txpower = 100;
+        double rxpower = 100;
+        double txpowerhigh = -20;
+        double txpowerlow = -23;
+        double rxpowerhigh = -20;
+        double rxpowerlow = -23;
 
         List<String> keyValueList = new ArrayList<>();
         for (int number = 0 ;number<Line_split.length;number++) {
@@ -195,7 +223,7 @@ public class LuminousAttenuation {
                 }else if (tx < rx){
                     num = -1;
                 }
-                keyValueList.add(Line_split[number]);
+                //keyValueList.add(Line_split[number]);
             }else if (tx ==-1 && rx ==-1){
                 /* 都不包含*/
                 continue;
@@ -209,27 +237,27 @@ public class LuminousAttenuation {
             }else {
                 /*两个都包含 则 两个参数值在一行*/
                 String nextrow = Line_split[number+1];
-                String[] values = nextrow.split(" ");
+                List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
                 int j = 1;
-                for (int i = 0 ;i < values.length;i++){
+                for (int i = 0 ;i < values.size();i++){
                     if (num == 1){
                         /*RX   TX*/
-                        if (values[i].indexOf("-")!=-1 && j==1){
-                            rxpower = values[i];
+                        if (values.get(i)<0 && j==1){
+                            rxpower = values.get(i);
                             j=2;
-                        }else if (values[i].indexOf("-")!=-1 && j==2){
-                            txpower = values[i];
+                        }else if (values.get(i)<0  && j==2){
+                            txpower = values.get(i);
                         }
                     }else if (num == -1){
                         /*TX  RX*/
-                        if (values[i].indexOf("-")!=-1 && j==1){
-                            txpower = values[i];
+                        if (values.get(i)<0  && j==1){
+                            txpower = values.get(i);
                             j=2;
-                        }else if (values[i].indexOf("-")!=-1 && j==2){
-                            rxpower = values[i];
+                        }else if (values.get(i)<0  && j==2){
+                            rxpower = values.get(i);
                         }
                     }
-                    if (txpower != null && rxpower != null){
+                    if (txpower != 100 && rxpower != 100){
                         break;
                     }
                 }
@@ -242,9 +270,15 @@ public class LuminousAttenuation {
 
             if (keyValueList.size() > 2){
                 List<String> keylist = new ArrayList<>();
-                for (String key:keyValueList){//Current
-                    if (key.toUpperCase().indexOf("CURRENT")!=-1){
-                        keylist.add(key);
+                for (int num = 0 ; num<keyValueList.size();num++){//Current
+                    if (keyValueList.get(num).toUpperCase().indexOf("CURRENT")!=-1){
+                        keylist.add(keyValueList.get(num));
+                        if (keyValueList.get(num+1).toUpperCase().indexOf("HIGH")!=-1 || keyValueList.get(num+1).toUpperCase().indexOf("LOW")!=-1 ){
+                            keylist.add(keyValueList.get(num+1));
+                        }
+                        if (keyValueList.get(num+2).toUpperCase().indexOf("HIGH")!=-1 || keyValueList.get(num+2).toUpperCase().indexOf("LOW")!=-1){
+                            keylist.add(keyValueList.get(num+2));
+                        }
                     }
                 }
 
@@ -257,37 +291,60 @@ public class LuminousAttenuation {
             /*只有两行 则 直接取值*/
             if (keyValueList.size() >1){
                 for (String keyvalue:keyValueList){
-                    if (keyvalue.toUpperCase().indexOf("RX POWER") != -1){
-                        keyvalue = keyvalue.replaceAll(":"," : ");
-                        keyvalue = MyUtils.repaceWhiteSapce(keyvalue);
-                        String[] split = keyvalue.split(":");
-                        if (split.length >1){
-                            rxpower = split[1].indexOf("-") !=-1 ?split[1]:null;
+                    if (keyvalue.toUpperCase().indexOf("RX") != -1){
+                        if (keyvalue.toUpperCase().indexOf("RX POWER") != -1){
+                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                            if (doubleList.size()==1){
+                                rxpower = doubleList.get(0);
+                            }else if (doubleList.size()==3){
+                                rxpower = doubleList.get(0);
+                                rxpowerlow = doubleList.get(1);
+                                rxpowerhigh = doubleList.get(2);
+                            }
+                        }else if (keyvalue.toUpperCase().indexOf("HIGH")!=-1){
+                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                            if (doubleList.size()==1){
+                                rxpower = doubleList.get(0);
+                            }
+                        }else if (keyvalue.toUpperCase().indexOf("LOW")!=-1){
+                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                            if (doubleList.size()==1){
+                                rxpower = doubleList.get(0);
+                            }
                         }
                     }
-                    if (keyvalue.toUpperCase().indexOf("TX POWER") != -1){
-                        keyvalue = keyvalue.replaceAll(":"," : ");
-                        keyvalue = MyUtils.repaceWhiteSapce(keyvalue);
-                        String[] split = keyvalue.split(":");
-                        if (split.length >1){
-                            txpower = split[1].indexOf("-") !=-1 ?split[1]:null;
+                    if (keyvalue.toUpperCase().indexOf("TX") != -1){
+                        if (keyvalue.toUpperCase().indexOf("TX POWER") != -1){
+                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                            if (doubleList.size()==1){
+                                txpower = doubleList.get(0);
+                            }else if (doubleList.size()==3){
+                                txpower = doubleList.get(0);
+                                txpowerlow = doubleList.get(1);
+                                txpowerhigh = doubleList.get(2);
+                            }
+                        }else if (keyvalue.toUpperCase().indexOf("HIGH")!=-1){
+                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                            if (doubleList.size()==1){
+                                txpower = doubleList.get(0);
+                            }
+                        }else if (keyvalue.toUpperCase().indexOf("LOW")!=-1){
+                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                            if (doubleList.size()==1){
+                                txpower = doubleList.get(0);
+                            }
                         }
-                    }
-                    if (txpower != null && rxpower != null){
-                        String[] txpowersplit = txpower.split(", Warning");
-                        String[] rxpowersplit = rxpower.split(", Warning");
-                        txpower = txpowersplit[0];
-                        rxpower = rxpowersplit[0];
-                        break;
                     }
                 }
             }
         }
-        HashMap<String,String> hashMap = new HashMap<>();
-        if (txpower != null && rxpower != null){
-            hashMap.put("TX",txpower);
-            hashMap.put("RX",rxpower);
-        }
+        HashMap<String,Double> hashMap = new HashMap<>();
+        hashMap.put("TX",txpower);
+        hashMap.put("RX",rxpower);
+        hashMap.put("TXHIGH",txpowerhigh);
+        hashMap.put("RXHIGH",rxpowerhigh);
+        hashMap.put("TXLOW",txpowerlow);
+        hashMap.put("RXLOW",rxpowerlow);
         return hashMap;
     }
 }

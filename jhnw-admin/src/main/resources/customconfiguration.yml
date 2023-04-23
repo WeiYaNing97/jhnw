@@ -5,7 +5,7 @@ BasicInformation:
   # 设备版本 两个型号之间以;分阁
   deviceVersion: Version
   # 设备子版本 两个型号之间以;分阁
-  deviceSubversion: Release1;Build1;RELEASE SOFTWARE1
+  deviceSubversion: Release;Build;RELEASE SOFTWARE
   # 路由器标志
   routerFlag: NE
 
@@ -51,15 +51,18 @@ OSPF:
   H3C:
     获取端口号命令: display interface brief
     获取光衰参数命令: display transceiver diagnosis interface 端口号
+    阈值: [-23,-20]
     转译:
       GE: GigabitEthernet
   RuiJie:
     获取端口号命令: show interface status
     获取光衰参数命令: show interface 端口号 transceiver diagnosis
+    阈值: [-23,-20]
     转译:
       GE: GigabitEthernet
   HuaWei:
     获取端口号命令: display interface brief
     获取光衰参数命令: display transceiver interface 端口号 verbose
+    阈值: [-23,-20]
     转译:
       GE: GigabitEthernet

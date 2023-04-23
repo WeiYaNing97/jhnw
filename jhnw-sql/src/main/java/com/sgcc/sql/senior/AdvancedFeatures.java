@@ -1,10 +1,13 @@
 package com.sgcc.sql.senior;
 
+import cn.hutool.core.date.DateTime;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.sql.domain.SwitchScanResult;
 import com.sgcc.sql.parametric.ParameterSet;
 import com.sgcc.sql.parametric.SwitchParameters;
+import com.sgcc.sql.service.ISwitchScanResultService;
 import com.sgcc.sql.thread.AdvancedThreadPool;
 import com.sgcc.sql.thread.ScanFixedThreadPool;
 import com.sgcc.sql.util.PathHelper;
@@ -12,6 +15,7 @@ import com.sgcc.sql.util.RSAUtils;
 import com.sgcc.sql.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -111,4 +115,5 @@ public class AdvancedFeatures {
         }
         return "扫描结束";
     }
+
 }

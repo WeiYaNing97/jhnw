@@ -50,34 +50,24 @@ public class SwitchInteraction {
 
     @Autowired
     private static ICommandLogicService commandLogicService;
-
     @Autowired
     private static IReturnRecordService returnRecordService;
-
     @Autowired
     private static IProblemScanLogicService problemScanLogicService;
-
     @Autowired
     private static IValueInformationService valueInformationService;
-
     @Autowired
     private static ISwitchProblemService switchProblemService;
-
     @Autowired
     private static ITotalQuestionTableService totalQuestionTableService;
-
     @Autowired
     private static IBasicInformationService basicInformationService;
-
     @Autowired
     private static ISwitchScanResultService switchScanResultService;
-
     @Autowired
     private static IInformationService informationService;
-
     @Autowired
     private static IFormworkService formworkService;
-
     /**
      * 测试获取交换机基本信息逻辑执行结果
      * @param ip
@@ -548,7 +538,9 @@ public class SwitchInteraction {
             switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
 
             OSPFFeatures.getOSPFValues(switchParameters);
-            LuminousAttenuation.obtainLightDecay(switchParameters);
+
+            LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
+            luminousAttenuation.obtainLightDecay(switchParameters);
 
 
             //5.获取交换机可扫描的问题并执行分析操作
@@ -2273,7 +2265,7 @@ public class SwitchInteraction {
                         banben = firewareVersion;
                     }
                     String subVersion = switchProblemVO.getSubVersion();
-                    if (!(subVersion .equals("*"))){
+                    if (subVersion != null && !(subVersion .equals("*"))){
                         zibanben = subVersion;
                     }
 
