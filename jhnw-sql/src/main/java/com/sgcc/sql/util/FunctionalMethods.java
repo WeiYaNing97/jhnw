@@ -24,23 +24,26 @@ public class FunctionalMethods {
      * @return
      */
     public static String executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
-
-        //执行命令
-        //命令返回信息
-        String command_string = null;
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
 
-        int insert_id = 0;
+        /*程序登录用户*/
         returnRecord.setUserName(switchParameters.getLoginUser().getUsername());
+        /*交换机IP、品牌、型号、版本、子版本*/
         returnRecord.setSwitchIp(switchParameters.getIp());
         returnRecord.setBrand(switchParameters.getDeviceBrand());
         returnRecord.setType(switchParameters.getDeviceModel());
         returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
         returnRecord.setSubVersion(switchParameters.getSubversionNumber());
+        /*交换机执行的命令*/
         returnRecord.setCurrentCommLog(command);
-        boolean deviceBrand = true;
 
+        //命令返回信息
+        String command_string = null;
+        /*交换机返回信息 插入数据库状态 为-1时错误 否则为交换机返回信息 在数据库中的ID*/
+        int insert_id = 0;
+        /**/
+        boolean deviceBrand = true;
         do {
             deviceBrand = true;
 

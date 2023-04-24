@@ -3,6 +3,7 @@ package com.sgcc.sql.controller;
 import cn.hutool.core.util.StrUtil;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.sql.domain.Constant;
 import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.*;
@@ -45,8 +46,7 @@ public class GetBasicInformationController {
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
 
         /*H3C*/
-        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
-        String[] commandsplit = ( (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.getBrandCommand")).split(";");
+        String[] commandsplit = ( (String) CustomConfigurationUtil.getValue("BasicInformation.getBrandCommand", Constant.getProfileInformation())).split(";");
         String commandString =""; //预设交换机返回结果
         String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)
 
@@ -385,9 +385,8 @@ public class GetBasicInformationController {
                 }
             }
         }
-        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
 
-        String routerFlag = (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.routerFlag");
+        String routerFlag = (String) CustomConfigurationUtil.getValue("BasicInformation.routerFlag",Constant.getProfileInformation());
         String[] flagSplit = routerFlag.toUpperCase().split(";");
         for (int number = 0 ; number < return_word.length; number++){
             for (String flag:flagSplit){
@@ -401,7 +400,7 @@ public class GetBasicInformationController {
         }
 
         /** 设备版本 */
-        String deviceVersion = (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.deviceVersion");
+        String deviceVersion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceVersion",Constant.getProfileInformation());
         String[] deviceVersionSplit =deviceVersion.split(";");
         for (String version:deviceVersionSplit){
             String[] versionSplit = version.split(" ");
@@ -433,7 +432,7 @@ public class GetBasicInformationController {
 
 
         /** 设备子版本 */
-        String deviceSubversion = (String) customConfigurationUtil.obtainConfigurationFileParameter("BasicInformation.deviceSubversion");
+        String deviceSubversion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceSubversion",Constant.getProfileInformation());
         String[] deviceSubversionSplit =deviceSubversion.split(";");
         for (String version:deviceSubversionSplit){
             String[] versionSplit = version.split(" ");

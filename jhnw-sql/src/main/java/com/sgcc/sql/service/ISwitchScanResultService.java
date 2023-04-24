@@ -62,7 +62,7 @@ public interface ISwitchScanResultService
      */
     public int deleteSwitchScanResultById(Long id);
 
-    List<SwitchProblemVO> selectSwitchProblemVOListByName(String userName);
+    List<SwitchProblemVO> selectSwitchProblemVOListByIds(Long[] ids);
 
     List<SwitchProblemVO> selectSwitchScanResultListByIds(Long[] id);
 
@@ -74,4 +74,9 @@ public interface ISwitchScanResultService
 
     /*删除数据表所有数据*/
     int deleteSwitchScanResult();
+
+    /*获取交换机问题扫描结果不同时间条数*/
+    int selectCountByName(String username);
+
+    List<SwitchScanResult> selectSwitchScanResultListPages(String userName,int number);
 }

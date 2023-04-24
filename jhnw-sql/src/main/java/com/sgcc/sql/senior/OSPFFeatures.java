@@ -35,8 +35,7 @@ public class OSPFFeatures {
      * @param switchParameters
      */
     public static void getOSPFValues(SwitchParameters switchParameters) {
-        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
-        Object objectMap  = customConfigurationUtil.obtainConfigurationFileParameter("OSPF.command");
+        Object objectMap  = CustomConfigurationUtil.getValue("OSPF.command",Constant.getProfileInformation());
         if (objectMap == null){
             return;
         }
@@ -224,8 +223,7 @@ public class OSPFFeatures {
 
     /*去除属性值中间空格*/
     public static List<String> removOspfSpaceCharacter(List<String> strings) {
-        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
-        String command = customConfigurationUtil.obtainConfigurationFileParameterValues("OSPF.ospfSpaceCharacter");
+        String command = (String) CustomConfigurationUtil.getValue("OSPF.ospfSpaceCharacter",Constant.getProfileInformation());
         String[] ospfSpaceCharacterSplit = command.split(";");
         for (String SpaceCharacter:ospfSpaceCharacterSplit){
             for (int num = 0 ; num <strings.size();num++){

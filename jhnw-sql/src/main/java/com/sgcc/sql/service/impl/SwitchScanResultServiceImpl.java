@@ -94,8 +94,8 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     }
 
     @Override
-    public List<SwitchProblemVO> selectSwitchProblemVOListByName(String userName) {
-        return switchScanResultMapper.selectSwitchProblemVOListByName(userName);
+    public List<SwitchProblemVO> selectSwitchProblemVOListByIds(Long[] ids) {
+        return switchScanResultMapper.selectSwitchProblemVOListByIds(ids);
     }
 
     @Override
@@ -122,5 +122,16 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     @Override
     public int deleteSwitchScanResult() {
         return switchScanResultMapper.deleteSwitchScanResult();
+    }
+
+    /*获取交换机问题扫描结果不同时间条数*/
+    @Override
+    public int selectCountByName(String username) {
+        return switchScanResultMapper.selectCountByName(username);
+    }
+
+    @Override
+    public List<SwitchScanResult> selectSwitchScanResultListPages(String userName,int number) {
+        return switchScanResultMapper.selectSwitchScanResultListPages(userName,number);
     }
 }

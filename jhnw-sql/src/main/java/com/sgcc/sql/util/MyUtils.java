@@ -1060,6 +1060,7 @@ public class MyUtils {
     }
 
 
+    /*String*/
     /**
      * 去除字符串尾部非字符串部分
      * @param str
@@ -1075,8 +1076,21 @@ public class MyUtils {
         }
         return str.substring(0, index + 1);
     }
+    /**
+     * 根据字符串 根据字符串（忽略大小写）分割为字符串数组
+     *
+     * "(?i)"表示忽略大小写
+     *
+     * @param string  被分割字符串
+     * @param str   分割关键词
+     * @return
+     */
+    public static String[] splitIgnoreCase(String string,String str){
+        String[] result = string.split("(?i)"+str);
+        return result;
+    }
 
-
+    /*Double*/
     /**
      * 字符串 转化为  Double
      * @param str
@@ -1085,19 +1099,6 @@ public class MyUtils {
     public static double stringToDouble(String str) throws NumberFormatException {
         return Double.parseDouble(str);
     }
-
-    /**
-     * 判断 double值 是否在阈值内
-     * @param value
-     * @param min
-     * @param max
-     * @return
-     */
-    public static boolean isInRange(double value, double min, double max) {
-        return value >= min && value <= max;
-    }
-
-
     /**
      * 字符串截取double值
      * @param input
@@ -1113,7 +1114,18 @@ public class MyUtils {
         }
         return doubleList;
     }
+    /**
+     * 判断 double值 是否在阈值内
+     * @param value
+     * @param min
+     * @param max
+     * @return
+     */
+    public static boolean isInRange(double value, double min, double max) {
+        return value >= min && value <= max;
+    }
 
+    /*判空*/
     /**
      * 判断集合是否为空， 为空返回true
      * 集合判空
@@ -1123,4 +1135,15 @@ public class MyUtils {
     public static boolean isCollectionEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty() || collection.size() == 0;
     }
+    /**
+     * 判断Map集合是否为空， 为空返回true
+     * @param map
+     * @return
+     */
+    public static boolean isMapEmpty(Map<?, ?> map) {
+        return map == null || map.isEmpty() || map.size() == 0;
+    }
+
+
+
 }

@@ -1,6 +1,8 @@
 package com.sgcc;
 import com.sgcc.sql.controller.Configuration;
 import com.sgcc.sql.controller.MemoryCPU;
+import com.sgcc.sql.controller.SwitchScanResultController;
+import com.sgcc.sql.domain.Constant;
 import com.sgcc.sql.util.CustomConfigurationUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,17 +21,9 @@ public class RuoYiApplication
         // System.setProperty("spring.devtools.restart.enabled", "false");
         SpringApplication.run(RuoYiApplication.class, args);
         System.out.println("(♥◠‿◠)ﾉﾞ  若依启动成功   ლ(´ڡ`ლ)ﾞ  \n" );
-                /*" .-------.       ____     __        \n" +
-                " |  _ _   \\      \\   \\   /  /    \n" +
-                " | ( ' )  |       \\  _. /  '       \n" +
-                " |(_ o _) /        _( )_ .'         \n" +
-                " | (_,_).' __  ___(_ o _)'          \n" +
-                " |  |\\ \\  |  ||   |(_,_)'         \n" +
-                " |  | \\ `'   /|   `-'  /           \n" +
-                " |  |  \\    /  \\      /           \n" +
-                " ''-'   `'-'    `-..-'              ");*/
-
         try {
+            Constant character = new Constant();
+            character.ObtainAllConfigurationFileParameters();
             Configuration.getConfiguration();
             MemoryCPU.initSystemInfo();
         } catch (Exception e) {

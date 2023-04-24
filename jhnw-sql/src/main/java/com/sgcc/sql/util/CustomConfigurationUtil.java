@@ -41,7 +41,6 @@ public class CustomConfigurationUtil {
     }
 
 
-
     public static Object getValue(String key, Map<String, Object> map) {
         String[] keys = key.split("\\.");
         if (keys.length == 1) {

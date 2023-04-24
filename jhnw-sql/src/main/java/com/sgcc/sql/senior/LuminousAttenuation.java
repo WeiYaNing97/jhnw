@@ -1,6 +1,7 @@
 package com.sgcc.sql.senior;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.sql.controller.SwitchScanResultController;
+import com.sgcc.sql.domain.Constant;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.util.CustomConfigurationUtil;
 import com.sgcc.sql.util.FunctionalMethods;
@@ -31,8 +32,7 @@ public class LuminousAttenuation {
      */
     public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
         /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
-        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
-        String command = customConfigurationUtil.obtainConfigurationFileParameterValues("光衰." + switchParameters.getDeviceBrand()+".获取端口号命令");
+        String command = (String) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".获取端口号命令", Constant.getProfileInformation());
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (command == null){
             // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
@@ -55,7 +55,7 @@ public class LuminousAttenuation {
                 e.printStackTrace();
             }
         }
-        /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续获取获取光衰端口号*/
+        /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取获取光衰端口号*/
         List<String> port = luminousAttenuationgetPort(returnString);
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
@@ -69,7 +69,7 @@ public class LuminousAttenuation {
         }
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
-        Object escape = customConfigurationUtil.obtainConfigurationFileParameter("光衰." + switchParameters.getDeviceBrand() + ".转译");
+        Object escape = CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand() + ".转译",Constant.getProfileInformation());
         if (escape != null){
             Map<String,String> escapeMap = (Map<String,String>) escape;
             Set<String> mapKey = escapeMap.keySet();
@@ -78,12 +78,11 @@ public class LuminousAttenuation {
             }
         }
 
-        /**
-         * 获取光衰端口号参数
-         */
+        /*8：根据 up状态端口号 及交换机信息 获取光衰参数 */
         HashMap<String, Double> getparameter = getparameter(port, switchParameters);
-        if (getparameter == null){
-            /*未获取到光衰参数*/
+        /*9：获取光衰参数为空*/
+        if (MyUtils.isMapEmpty(getparameter)){
+            // todo 关于未获取到光衰参数 的错误代码库
             try {
                 PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未获取到光衰参数","光衰");
             } catch (IOException e) {
@@ -92,8 +91,10 @@ public class LuminousAttenuation {
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
         }
 
+        /*10:获取光衰参数不为空*/
         try {
             for (String str:port){
+                // todo  根据光衰参数阈值  的代码库 回显和日志
                 String lightAttenuationInformation = "IP地址:"+switchParameters.getIp()+
                         "端口号:"+str+"TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
                                       "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]";
@@ -102,7 +103,6 @@ public class LuminousAttenuation {
                 SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                 HashMap<String,String> hashMap = new HashMap<>();
                 hashMap.put("ProblemName","光衰");
-                // todo  根据光衰参数阈值  判断是否与问题
                 if (MyUtils.isInRange(getparameter.get(str+"RX"),getparameter.get(str+"RXLOW"),getparameter.get(str+"RXHIGH"))){
                     hashMap.put("IfQuestion","无问题");
                 }else {
@@ -121,19 +121,30 @@ public class LuminousAttenuation {
         return AjaxResult.success();
     }
 
-    /*获取端口号*/
+    /**
+     * 根据交换机返回信息获取获取光衰端口号
+     * @param returnString
+     * @return
+     */
     public static List<String> luminousAttenuationgetPort(String returnString) {
-        returnString = MyUtils.trimString(returnString);
         String[] returnStringSplit = returnString.split("\r\n");
         List<String> strings = new ArrayList<>();
         for (String string:returnStringSplit){
-            if ((string.toUpperCase().indexOf(" UP ")!=-1) && (string.toUpperCase().indexOf("COPPER") == -1) && string.indexOf("/")!=-1){
+            /*包含 交换机返回行信息转化为大写 UP状态  不能为COPPER铜缆的  并且该行带有“/”的 存放入端口待取集合*/
+            if ((string.toUpperCase().indexOf(" UP ")!=-1) && string.indexOf("/")!=-1 && (string.toUpperCase().indexOf("COPPER") == -1)){
                 strings.add(string.trim());
             }
         }
+        /*判断端口待取集合是否为空*/
+        if (MyUtils.isCollectionEmpty(strings)){
+            return null;
+        }
+
         List<String> port = new ArrayList<>();
-        for (String string:strings){
-            String terminalSlogan = getTerminalSlogan(string);
+        /*遍历端口待取集合 执行取值方法 获取端口号*/
+        for (String information:strings){
+            /*根据 UP 截取端口号*/
+            String terminalSlogan = getTerminalSlogan(information);
             if (terminalSlogan != null){
                 port.add(terminalSlogan);
             }
@@ -141,11 +152,21 @@ public class LuminousAttenuation {
         return port;
     }
 
-    /* 根据 UP 截取端口号   */
+
+    /**
+     * 根据 UP 截取端口号
+     * @param information
+     * @return
+     */
     public static String getTerminalSlogan(String information){
-        String[] informationSplit = information.toUpperCase().split(" UP ");
+        /*GigabitEthernet 9/1 up routed Full 1000M fiber*/
+        /*根据UP分割字符串*/
+        /*交换机信息 根据 up(忽略大小写) 分割*/
+        String[] informationSplit = MyUtils.splitIgnoreCase(information," UP ");
+
         information = null;
         for (String string:informationSplit){
+
             if (string.indexOf("/")!=-1){
                 String[] string_split = string.split(" ");
                 for (int num = 0;num < string_split.length;num++){
@@ -161,14 +182,14 @@ public class LuminousAttenuation {
                 }
             }
         }
-        return information.replaceAll("GE","GigabitEthernet");
+        return information;
     }
 
     /* 根据端口号 和 数据库中部定义的 获取光衰信息命令
     * */
     public static HashMap<String,Double> getparameter(List<String> portNumber,SwitchParameters switchParameters) {
-        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
-        String command = customConfigurationUtil.obtainConfigurationFileParameterValues("光衰." + switchParameters.getDeviceBrand()+".获取光衰参数命令");
+
+        String command = (String) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".获取光衰参数命令",Constant.getProfileInformation());
 
         HashMap<String,Double> hashMap = new HashMap<>();
         for (String port:portNumber){

@@ -120,7 +120,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="ifQuestion != null  and ifQuestion != ''"> and if_question = #{ifQuestion}</if>
             <if test="comId != null  and comId != ''"> and com_id = #{comId}</if>
             <if test="dynamicInformation != null  and dynamicInformation != ''"> and dynamic_information = #{dynamicInformation}</if>
-            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName} </if>
             <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
         </where>
 
@@ -238,9 +238,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
 
-    <select id="selectSwitchProblemVOListByName" resultMap="SwitchProblemVO">
+    <select id="selectSwitchProblemVOListByIds" resultMap="SwitchProblemVO">
         <include refid="pojoVo"/>
-        where ssrt.user_name = #{userName}
+        where ssrt.id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <select id="selectSwitchScanResultListByIds" resultMap="SwitchProblemVO">
@@ -265,5 +268,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
             <if test="currentTime != null  and currentTime != ''"> and create_time = #{currentTime}</if>
         </where>
+    </select>
+    <select id="selectCountByName" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT create_time) FROM switch_scan_result WHERE user_name = #{username};
+    </select>
+    <select id="selectSwitchScanResultListPages" resultType="com.sgcc.sql.domain.SwitchScanResult">
+        SELECT
+        switch_scan_result.id,
+        switch_scan_result.switch_ip,
+        switch_scan_result.brand,
+        switch_scan_result.switch_type,
+        switch_scan_result.fireware_version,
+        switch_scan_result.sub_version,
+        switch_scan_result.switch_name,
+        switch_scan_result.switch_password,
+        switch_scan_result.configureCiphers,
+        switch_scan_result.login_method,
+        switch_scan_result.port_number,
+        switch_scan_result.problem_id,
+        switch_scan_result.type_problem,
+        switch_scan_result.tem_pro_name,
+        switch_scan_result.problem_name,
+        switch_scan_result.remarks,
+        switch_scan_result.problem_describe_id,
+        switch_scan_result.if_question,
+        switch_scan_result.com_id,
+        switch_scan_result.dynamic_information,
+        switch_scan_result.create_time,
+        switch_scan_result.user_name,
+        switch_scan_result.phonenumber
+        FROM
+        ( SELECT create_time, user_name FROM switch_scan_result WHERE user_name = #{userName} GROUP BY create_time ORDER BY create_time DESC LIMIT 10 OFFSET #{number} ) AS factor,
+        switch_scan_result
+        WHERE
+        switch_scan_result.create_time = factor.create_time
+        AND switch_scan_result.user_name = factor.user_name
+        ORDER BY
+        switch_scan_result.create_time DESC
     </select>
 </mapper>

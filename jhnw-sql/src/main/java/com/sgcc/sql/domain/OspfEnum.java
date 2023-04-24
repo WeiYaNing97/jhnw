@@ -23,8 +23,7 @@ public class OspfEnum {
 
 
     public static void assignment() {
-        CustomConfigurationUtil customConfigurationUtil = new CustomConfigurationUtil();
-        Object escape = customConfigurationUtil.obtainConfigurationFileParameter("OSPF");
+        Object escape = CustomConfigurationUtil.getValue("OSPF",Constant.getProfileInformation());
         Map<String,Object> escapeMap = (Map<String,Object>) escape;
 
         /** 邻居ID */
