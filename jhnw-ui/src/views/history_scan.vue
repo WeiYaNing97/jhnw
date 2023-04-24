@@ -3,6 +3,10 @@
 <!--    <el-button type="primary" size="small" style="margin-bottom: 10px" @click="lishi">历史扫描</el-button>-->
 <!--    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>-->
 <!--    <el-button type="primary" size="small" @click="printDel">打印报告</el-button>-->
+    <el-button-group>
+      <el-button type="primary" @click="backPage" icon="el-icon-arrow-left">上一页</el-button>
+      <el-button type="primary" @click="nextPage">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+    </el-button-group>
     <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"
@@ -92,8 +96,10 @@
         },
         data(){
             return{
-                //
-
+                //总页数
+                allPage:0,
+                //当前页数
+                pageNumber:1,
                 nowTime:'',
                 printShow:false,
                 printTxt:{
@@ -126,11 +132,50 @@
         mounted:function(){
           this.lishi()
           this.getCook()
+            this.allPageNums()
         },
         created(){
             // this.expandChange()
         },
         methods:{
+            //上一页
+            backPage(){
+                if (this.pageNumber == 1){
+                    this.$message({
+                        message: '当前已是第一页',
+                        type: 'warning'
+                    })
+                }else {
+                    this.pageNumber--
+                    this.lishi()
+                }
+                console.log('上一页')
+                console.log(this.pageNumber)
+            },
+            //下一页
+            nextPage(){
+                if (this.pageNumber == this.allPage){
+                    this.$message({
+                        message: '当前已是最后一页',
+                        type: 'warning'
+                    })
+                }else {
+                    this.pageNumber++
+                    this.lishi()
+                }
+                console.log('下一页')
+                console.log(this.pageNumber)
+            },
+            //获取总页数
+            allPageNums(){
+                return request({
+                    url:'/sql/switch_scan_result/getPages',
+                    method:'get',
+                }).then(response=>{
+                    console.log(response)
+                    this.allPage  = response
+                })
+            },
             noShow(){
                 this.printShow = false
             },
@@ -152,7 +197,6 @@
             //导出
             exportDocx(){
                 downloadPDF(this.$refs.pdf)
-
 
                 // console.log('导出');
                 // this.docxData.tableData = this.lishiData
@@ -362,7 +406,7 @@
                 this.chuci = false
                 this.huisao = true
                 return request({
-                    url:'/sql/SolveProblemController/getUnresolvedProblemInformationByUserName',
+                    url:'/sql/switch_scan_result/getUnresolvedProblemInformationByUserName/' + this.pageNumber,
                     method:'get'
                 }).then(response=>{
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {

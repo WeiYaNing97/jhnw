@@ -6,28 +6,28 @@
           <el-form-item label="设备基本信息:"></el-form-item>
           <el-form-item label="品牌" prop="brand">
             <el-select v-model="queryParams.brand" placeholder="品牌"
-                       name="brand" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
+                       name="brand" clearable allow-create @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.brand" :value="item.brand"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="型号" prop="type">
             <el-select v-model="queryParams.type" placeholder="型号"
-                       name="type" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
+                       name="type" clearable allow-create  @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.type" :value="item.type"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="固件版本" prop="firewareVersion">
             <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                       name="firewareVersion" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
+                       name="firewareVersion" clearable allow-create  @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="子版本" prop="subVersion">
             <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                       name="subVersion" @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
+                       name="subVersion" clearable allow-create  @change="xuanChange" @focus="generalOne($event)" style="width: 150px">
               <el-option v-for="(item,index) in genList"
                          :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
             </el-select>
@@ -36,14 +36,14 @@
           <el-form-item label="问题概要:"></el-form-item>
           <el-form-item label="问题类型" prop="typeProblem">
             <el-select v-model="queryParams.typeProblem" placeholder="问题类型"
-                       name="typeProblem" @change="xuanChange" @focus="generalOne($event)">
+                       name="typeProblem" clearable allow-create  @change="xuanChange" @focus="generalOne($event)">
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.typeProblem" :value="item.typeProblem"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="范式名称">
             <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                       name="temProName" @change="xuanChange" @focus="generalOne($event)">
+                       name="temProName" clearable allow-create  @change="xuanChange" @focus="generalOne($event)">
               <el-option v-for="(item,index) in genList" :key="index"
                          :label="item.temProName" :value="item.temProName"></el-option>
             </el-select>
@@ -537,16 +537,15 @@ export default {
           for (var key in this.queryParams){
               newPar[key] = this.queryParams[key]
           }
-          for (let i in newPar){
-              if (newPar[i] === 'null'){
-                  newPar[i] = ''
-              }
-          }
+          // for (let i in newPar){
+          //     if (newPar[i] === 'null'){
+          //         newPar[i] = ''
+          //     }
+          // }
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
-              // data:newPar
               params: newPar
           }).then(response=>{
               console.log(response)
@@ -575,6 +574,7 @@ export default {
               }
           })
       },
+
       //新下拉列表
       generalOne(e){
           this.who = e.target.getAttribute('name')
@@ -582,24 +582,19 @@ export default {
           for (var key in this.queryParams){
               newPar[key] = this.queryParams[key]
           }
-          for (let i in newPar){
-              if (newPar[i] === 'null'){
-                  newPar[i] = ''
+          for (var key in newPar){
+              if (this.who == key){
+                  newPar[key] = ''
               }
           }
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
-              // data:newPar
               params:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
-              let kong = {
-                  [this.who] : 'null'
-              }
-              this.genList.push(kong)
               console.log(this.genList)
           })
       },

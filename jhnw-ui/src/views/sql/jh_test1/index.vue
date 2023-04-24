@@ -2,11 +2,11 @@
   <div>
     <div class="app-container" @contextmenu.prevent="showMenu($event)">
       <!--  <div class="app-container">-->
-      <el-form :model="queryParams" ref="queryForm" :inline="true">
+      <el-form :model="queryParams" ref="queryForm" :inline="true" :rules="rules">
         <el-form-item label="设备信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
-                     filterable allow-create @blur="brandShu" @focus="general($event)"
+                     filterable clearable allow-create @blur="brandShu" @focus="general($event)"
                      name="brand" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.brand" :value="item.brand"></el-option>
@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="型号" prop="type">
           <el-select v-model="queryParams.type" placeholder="型号"
-                     filterable allow-create @blur="typeShu"
+                     filterable clearable allow-create @blur="typeShu"
                      @focus="general($event)" name="type" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.type" :value="item.type"></el-option>
@@ -22,7 +22,7 @@
         </el-form-item>
         <el-form-item label="固件版本" prop="firewareVersion">
           <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                     filterable allow-create @blur="fireShu" @focus="general($event)"
+                     filterable clearable allow-create @blur="fireShu" @focus="general($event)"
                      name="firewareVersion" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
@@ -30,7 +30,7 @@
         </el-form-item>
         <el-form-item label="子版本" prop="subVersion">
           <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                     filterable allow-create @blur="subShu"
+                     filterable clearable allow-create @blur="subShu"
                      @focus="general($event)" name="subVersion" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
@@ -52,14 +52,14 @@
         <el-form-item label="风险分类:"></el-form-item>
         <el-form-item label="范式分类" prop="typeProblem">
           <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
-                     filterable allow-create @focus="generalA($event)" @blur="typeProShu">
+                     filterable clearable allow-create @focus="generalA($event)" @blur="typeProShu">
             <el-option v-for="(item,index) in genListA" :key="index"
                        :label="item.typeProblem" :value="item.typeProblem"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="范式名称">
           <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                     filterable allow-create @focus="generalB($event)" name="temProName" @blur="temProShu">
+                     filterable clearable allow-create @focus="generalB($event)" name="temProName" @blur="temProShu">
             <el-option v-for="(item,index) in genListB" :key="index"
                        :label="item.temProName" :value="item.temProName"></el-option>
           </el-select>
@@ -70,7 +70,7 @@
           <!--          <el-option v-for="(item,index) in genList" :key="index"-->
           <!--                     :label="item.problemName" :value="item.problemName"></el-option>-->
           <!--        </el-select>-->
-          <el-input v-model="queryParams.problemName" name="problemName" placeholder="请输入问题名称"></el-input>
+          <el-input v-model="queryParams.problemName" clearable name="problemName" placeholder="请输入问题名称"></el-input>
         </el-form-item>
         <br/>
         <el-form-item label="其它:"></el-form-item>
@@ -85,9 +85,9 @@
                     clearable
                     @focus="biaoshi($event)" name="biaoshi"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-button @click.native="testOne" icon="el-icon-delete" size="small" plain>测试按钮</el-button>
-        </el-form-item>
+<!--        <el-form-item>-->
+<!--          <el-button @click.native="testOne" icon="el-icon-delete" size="small" plain>测试按钮</el-button>-->
+<!--        </el-form-item>-->
         <!--      仔仔-->
         <!--      <el-form-item>-->
         <!--        <el-button type="primary" @click="tiwenti">提交问题</el-button>-->
@@ -505,6 +505,12 @@ export default {
           requiredItems:false,
           remarks:''
       },
+        // 表单校验
+        rules: {
+            brand:[
+                { required: true, message: '请输入品牌', trigger: 'change'}
+            ]
+        },
       // 表单参数
         form:{},
         forms: {
@@ -516,9 +522,6 @@ export default {
           ],
       },
         flagchange:0,
-      // 表单校验
-      rules: {
-      }
     };
   },
     mounted(){
@@ -551,7 +554,7 @@ export default {
           this.help_show = true
           this.dialogVisibleHelp = true
       },
-      //
+      //右键帮助
       handleDeleteOne(){
           this.dialogVisibleHelp = true
           this.whelp = `#${this.who}`
@@ -567,6 +570,7 @@ export default {
           },0)
           this.visibleItem = false;
       },
+      //复制功能
       handleDownloadFile(){
           let copyInput = document.createElement('input')
           var text = ''
@@ -584,6 +588,7 @@ export default {
           copyInput.remove();
           console.log(text)
       },
+      //粘贴功能
       handlePreviewFile(e){
           console.log(this.who)
           navigator.clipboard.readText().then(text=>{
@@ -679,10 +684,10 @@ export default {
           }).then(response=>{
               console.log(response)
               this.genListA = this.quchong(response,this.who)
-              let kong = {
-                  [this.who] : 'null'
-              }
-              this.genListA.push(kong)
+              // let kong = {
+              //     [this.who] : 'null'
+              // }
+              // this.genListA.push(kong)
           })
       },
       //范式名称
@@ -698,18 +703,51 @@ export default {
               return request({
                   url:'/sql/total_question_table/selectPojoList',
                   method:'get',
-                  data:newPar
+                  params:newPar
               }).then(response=>{
                   console.log(response)
                   //范式
                   this.genListB = this.quchong(response,this.who)
-                  let kong = {
-                      [this.who] : 'null'
-                  }
-                  this.genListB.push(kong)
+                  // let kong = {
+                  //     [this.who] : 'null'
+                  // }
+                  // this.genListB.push(kong)
               })
           }
       },
+
+      //下拉列表通用事件
+      generals(e){
+          this.who = e.target.getAttribute('name')
+          let newPar = {}
+          for (var key in this.queryParams){
+              newPar[key] = this.queryParams[key]
+          }
+          for (let i in newPar){
+              if (newPar[i] === 'null'){
+                  newPar[i] = ''
+              }
+          }
+          for (var key in newPar){
+              if (this.who == key){
+                  newPar[key] = ''
+              }
+          }
+          console.log(newPar)
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'get',
+              data:newPar
+          }).then(response=>{
+              console.log(response)
+              this.genList = this.quchong(response,this.who)
+              let kong = {
+                  [this.who] : 'null'
+              }
+              this.genList.push(kong)
+          })
+      },
+
       //下拉列表通用
       general(e){
           this.who = e.target.getAttribute('name')
@@ -726,23 +764,23 @@ export default {
                   newPar[key] = ''
               }
           }
-          for (let i in newPar){
-              if (newPar[i] === '空'){
-                  newPar[i] = ''
-              }
-          }
+          // for (let i in newPar){
+          //     if (newPar[i] === '空'){
+          //         newPar[i] = ''
+          //     }
+          // }
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
-              data:newPar
+              params:newPar
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
-              let kong = {
-                  [this.who] : '空'
-              }
-              this.genList.push(kong)
+              // let kong = {
+              //     [this.who] : '空'
+              // }
+              // this.genList.push(kong)
           })
       },
       //获取名字
@@ -1408,14 +1446,16 @@ export default {
           if (type == 'analyse'){
               this.forms.dynamicItem.forEach(e=>{
                   if (e.targetType === 'takeword'){
-                      this.biList.push(e.wordName)
-                      let newbiList = []
-                      for(let i = 0;i<this.biList.length;i++){
-                          if (newbiList.indexOf(this.biList[i])==-1){
-                              newbiList.push(this.biList[i])
+                      if (e.hasOwnProperty('wordName') && e.wordName != ''){
+                          this.biList.push(e.wordName)
+                          let newbiList = []
+                          for(let i = 0;i<this.biList.length;i++){
+                              if (newbiList.indexOf(this.biList[i])==-1){
+                                  newbiList.push(this.biList[i])
+                              }
                           }
+                          this.biList = newbiList
                       }
-                      this.biList = newbiList
                   }
               })
               this.$set(item1,'action','比较')
