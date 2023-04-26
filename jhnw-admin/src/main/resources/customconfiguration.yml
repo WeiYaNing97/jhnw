@@ -51,18 +51,19 @@ OSPF:
   H3C:
     获取端口号命令: display interface brief
     获取光衰参数命令: display transceiver diagnosis interface 端口号
-    阈值: [-23,-20]
+    # 未使用
+    阈值: [-23,-5]
     转译:
       GE: GigabitEthernet
   RuiJie:
     获取端口号命令: show interface status
     获取光衰参数命令: show interface 端口号 transceiver diagnosis
-    阈值: [-23,-20]
+    阈值: [-23,-5]
     转译:
       GE: GigabitEthernet
   HuaWei:
     获取端口号命令: display interface brief
     获取光衰参数命令: display transceiver interface 端口号 verbose
-    阈值: [-23,-20]
+    阈值: [-23,-5]
     转译:
       GE: GigabitEthernet

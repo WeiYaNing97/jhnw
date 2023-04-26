@@ -19,10 +19,7 @@ import com.sgcc.sql.senior.OSPFFeatures;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.thread.DirectionalScanThreadPool;
 import com.sgcc.sql.thread.ScanFixedThreadPool;
-import com.sgcc.sql.util.EncryptUtil;
-import com.sgcc.sql.util.MyUtils;
-import com.sgcc.sql.util.PathHelper;
-import com.sgcc.sql.util.RSAUtils;
+import com.sgcc.sql.util.*;
 import com.sgcc.sql.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -95,6 +92,7 @@ public class SwitchInteraction {
         */
         String scanningTime = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
 
+        /*交换机信息类  为了减少方法调用间传的参数*/
         SwitchParameters switchParameters = new SwitchParameters();
         switchParameters.setMode(mode);
         switchParameters.setIp(ip);
@@ -774,7 +772,7 @@ public class SwitchInteraction {
                 returnRecord.setCurrentReturnLog(commandString);
                 //粗略查看是否存在 故障
                 // 存在故障返回 false 不存在故障返回 true
-                boolean switchfailure = MyUtils.switchfailure(switchParameters, commandString);
+                boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
 
                 // 存在故障返回 false
                 if (!switchfailure){
@@ -784,7 +782,7 @@ public class SwitchInteraction {
                     for (String returnString:commandStringSplit){
                         // 查看是否存在 故障
                         // 存在故障返回 false 不存在故障返回 true
-                        deviceBrand = MyUtils.switchfailure(switchParameters, returnString);
+                        deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
                         // 存在故障返回 false
                         if (!deviceBrand){
 
@@ -830,7 +828,7 @@ public class SwitchInteraction {
             returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_Int).longValue());
 
             //去除其他 交换机登录信息
-            commandString = MyUtils.removeLoginInformation(commandString);
+            commandString = FunctionalMethods.removeLoginInformation(commandString);
 
             //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
             commandString = MyUtils.trimString(commandString);
@@ -892,12 +890,12 @@ public class SwitchInteraction {
             int update = returnRecordService.updateReturnRecord(returnRecord);
 
             //判断命令是否错误 错误为false 正确为true
-            if (!MyUtils.judgmentError( switchParameters,commandString)){
+            if (!FunctionalMethods.judgmentError( switchParameters,commandString)){
                 //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
 
                 String[] returnString_split = commandString.split("\r\n");
                 for (String string_split:returnString_split){
-                    if (!MyUtils.judgmentError( switchParameters,string_split)){
+                    if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
 
                         System.err.println("\r\n"+switchParameters.getIp()+ ":" +command+ "错误:"+string_split+"\r\n");
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
@@ -1090,7 +1088,7 @@ public class SwitchInteraction {
 
                     //粗略查看是否存在 故障
                     // 存在故障返回 false 不存在故障返回 true
-                    boolean switchfailure = MyUtils.switchfailure(switchParameters, commandString);
+                    boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
                     // 存在故障返回 false
                     if (!switchfailure){
                         // 交换机返回结果 按行 分割成 交换机返回信息数组
@@ -1099,7 +1097,7 @@ public class SwitchInteraction {
                         for (String returnString:commandStringSplit){
                             // 查看是否存在 故障
                             // 存在故障返回 false 不存在故障返回 true
-                            deviceBrand = MyUtils.switchfailure(switchParameters, returnString);
+                            deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
                             // 存在故障返回 false
                             if (!deviceBrand){
                                 loop = true;
@@ -1146,7 +1144,7 @@ public class SwitchInteraction {
                 returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_Int).longValue());
 
                 //去除其他 交换机登录信息
-                commandString = MyUtils.removeLoginInformation(commandString);
+                commandString = FunctionalMethods.removeLoginInformation(commandString);
 
                 //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
                 commandString = MyUtils.trimString(commandString);
@@ -1216,12 +1214,12 @@ public class SwitchInteraction {
                 int update = returnRecordService.updateReturnRecord(returnRecord);
 
                 //判断命令是否错误 错误为false 正确为true
-                if (!MyUtils.judgmentError( switchParameters,commandString)){
+                if (!FunctionalMethods.judgmentError( switchParameters,commandString)){
                     //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
 
                     String[] returnString_split = commandString.split("\r\n");
                     for (String string_split:returnString_split){
-                        if (!MyUtils.judgmentError( switchParameters,string_split)){
+                        if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
                             loop = true;
                             System.err.println("\r\n"+switchParameters.getIp()+ ":" +command+ "错误:"+string_split+"\r\n");
                             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
@@ -1698,7 +1696,7 @@ public class SwitchInteraction {
 
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
-                boolean matchAnalysis_true_false = MyUtils.matchAnalysis(matched, information_line_n, matchContent);
+                boolean matchAnalysis_true_false = FunctionalMethods.matchAnalysis(matched, information_line_n, matchContent);
 
                 if (matchAnalysis_true_false){
                     //  自定义   问题
@@ -1776,7 +1774,7 @@ public class SwitchInteraction {
                     wordSelection_string = switchParameters.getSubversionNumber();
                 }else {
                     //取词操作
-                    wordSelection_string = MyUtils.wordSelection(
+                    wordSelection_string = FunctionalMethods.wordSelection(
                             return_information_array[num],matchContent, //返回信息的一行 提取关键字
                             relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
 
@@ -1815,7 +1813,7 @@ public class SwitchInteraction {
                 }
 
                 /*判断 字符串 最后一位 是否为 . 或者 ,  去掉*/
-                wordSelection_string = MyUtils.judgeResultWordSelection(wordSelection_string);
+                wordSelection_string = FunctionalMethods.judgeResultWordSelection(wordSelection_string);
 
 
                 //problemScanLogic.getWordName() 取词名称
@@ -1838,7 +1836,7 @@ public class SwitchInteraction {
             if (compare!=null){
 
                 //比较
-                boolean compare_boolean = MyUtils.compareVersion(switchParameters,compare,current_Round_Extraction_String);
+                boolean compare_boolean = FunctionalMethods.compareVersion(switchParameters,compare,current_Round_Extraction_String);
 
 
                 if (compare_boolean){
@@ -2071,18 +2069,18 @@ public class SwitchInteraction {
         }
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
-            switchProblemVO.hproblemId =  Long.valueOf(MyUtils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            switchProblemVO.hproblemId =  Long.valueOf(FunctionalMethods.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
                 List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
                 for (ValueInformationVO valueInformationVO:valueInformationVOList){
                     Date date2 = new Date();
-                    valueInformationVO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                    valueInformationVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
                 }
 
                 Date date3 = new Date();
-                switchProblemCO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
@@ -2099,7 +2097,7 @@ public class SwitchInteraction {
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
             Date date4 = new Date();
-            scanResultsVO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
 
@@ -2184,7 +2182,7 @@ public class SwitchInteraction {
 
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 /*赋值随机数 前端需要*/
-                switchProblemCO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 /*定义 参数集合 */
                 List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
                 /*根据 结构数据中的 交换机扫描结果ID 在交换机扫描结果数据 hashmap中 取出 *//*
@@ -2216,7 +2214,7 @@ public class SwitchInteraction {
                             }
                             --number;
                             valueInformationVO.setDynamicVname(dynamicInformationsplit[number]);//动态信息名称
-                            valueInformationVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                            valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                             valueInformationVOList.add(valueInformationVO);
                         }
                     }
@@ -2237,7 +2235,7 @@ public class SwitchInteraction {
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
             Date date4 = new Date();
-            scanResultsVO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
 
@@ -2279,13 +2277,13 @@ public class SwitchInteraction {
         }
 
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
-            scanResultsVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             String switchIp = scanResultsVO.getSwitchIp();
             String[] split = switchIp.split(":");
             scanResultsVO.setSwitchIp(split[0]);
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
             for (SwitchProblemVO switchProblemVO:switchProblemVOList){
-                switchProblemVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 switchProblemVO.setSwitchIp(null);
             }
         }
@@ -2384,13 +2382,13 @@ public class SwitchInteraction {
             returnRecord.setCurrentReturnLog(command_string);
 
             //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
-            boolean switchfailure = MyUtils.switchfailure(switchParameters, command_string);
+            boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, command_string);
 
             // 存在故障返回 false
             if (!switchfailure) {
                 String[] commandStringSplit = command_string.split("\r\n");
                 for (String returnString : commandStringSplit) {
-                    deviceBrand = MyUtils.switchfailure(switchParameters, returnString);
+                    deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
                     if (!deviceBrand) {
                         System.err.println("\r\n"+switchParameters.getIp() + "故障:"+returnString+"\r\n");
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"故障:"+switchParameters.getIp()+":"+returnString+"\r\n");
@@ -2426,7 +2424,7 @@ public class SwitchInteraction {
         returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
 
         //去除其他 交换机登录信息
-        command_string = MyUtils.removeLoginInformation(command_string);
+        command_string = FunctionalMethods.removeLoginInformation(command_string);
         //修整返回信息
         command_string = MyUtils.trimString(command_string);
         //去除 ---- More ----
@@ -2491,13 +2489,13 @@ public class SwitchInteraction {
         int update = returnRecordService.updateReturnRecord(returnRecord);
 
         //判断命令是否错误 错误为false 正确为true
-        if (!(MyUtils.judgmentError( switchParameters,command_string))){
+        if (!(FunctionalMethods.judgmentError( switchParameters,command_string))){
             //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
 
             String[] returnString_split = command_string.split("\r\n");
 
             for (String string_split:returnString_split){
-                if (!MyUtils.judgmentError( switchParameters,string_split)){
+                if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
                     System.err.println("\r\n"+switchParameters.getIp()+": 问题 ："+totalQuestionTable.getProblemName() +":" +command+ "错误:"+command_string+"\r\n");
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() + "问题:"+totalQuestionTable.getProblemName() +"命令:" +command +":"+command_string+"\r\n");
 
@@ -2615,7 +2613,7 @@ public class SwitchInteraction {
         }
 
 
-        List<TotalQuestionTable> TotalQuestionTablePojoList = MyUtils.ObtainPreciseEntityClasses(totalQuestionTableList);
+        List<TotalQuestionTable> TotalQuestionTablePojoList = FunctionalMethods.ObtainPreciseEntityClasses(totalQuestionTableList);
 
         // todo 连续几个命令然后再执行 分析 可以做吗？
         for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){

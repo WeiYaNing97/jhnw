@@ -45,6 +45,7 @@ public class LuminousAttenuation {
         }
         /*3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
             // todo 关于交换机返回错误信息 的错误代码库
@@ -98,7 +99,8 @@ public class LuminousAttenuation {
                 String lightAttenuationInformation = "IP地址:"+switchParameters.getIp()+
                         "端口号:"+str+"TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
                                       "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]";
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"光衰:"+ lightAttenuationInformation+"\r\n");
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),
+                        "系统信息:"+switchParameters.getIp()+":"+"光衰:"+ lightAttenuationInformation+"\r\n");
                 PathHelper.writeDataToFileByName(lightAttenuationInformation+"\r\n","光衰");
                 SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                 HashMap<String,String> hashMap = new HashMap<>();
@@ -139,7 +141,6 @@ public class LuminousAttenuation {
         if (MyUtils.isCollectionEmpty(strings)){
             return null;
         }
-
         List<String> port = new ArrayList<>();
         /*遍历端口待取集合 执行取值方法 获取端口号*/
         for (String information:strings){
@@ -163,18 +164,21 @@ public class LuminousAttenuation {
         /*根据UP分割字符串*/
         /*交换机信息 根据 up(忽略大小写) 分割*/
         String[] informationSplit = MyUtils.splitIgnoreCase(information," UP ");
-
-        information = null;
+        /*遍历数组包含/的为端口号 但不能确定端口号是否完全
+        * 此时需要判断提取到的端口号是否包含字母
+        * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
         for (String string:informationSplit){
-
             if (string.indexOf("/")!=-1){
                 String[] string_split = string.split(" ");
                 for (int num = 0;num < string_split.length;num++){
                     if (string_split[num].indexOf("/")!=-1){
+                        /*判断提取到的端口号是否包含字母*/
                         if (MyUtils.judgeContainsStr(string_split[num])){
+                            /*包含则为完全端口号 否则为不完全端口号*/
                             return string_split[num];
                         }else {
                             /*例如：  GigabitEthernet 2/1 */
+                            /*否则为不完全端口号，需要加前面的GigabitEthernet*/
                             information =string_split[num];
                             return string_split[--num] +" "+ information ;
                         }
@@ -182,22 +186,29 @@ public class LuminousAttenuation {
                 }
             }
         }
-        return information;
+        return null;
     }
 
-    /* 根据端口号 和 数据库中部定义的 获取光衰信息命令
-    * */
+    /**
+     * 根据 up状态端口号 及交换机信息 获取光衰参数
+     * @param portNumber 端口号
+     * @param switchParameters 交换机信息类
+     * @return
+     */
     public static HashMap<String,Double> getparameter(List<String> portNumber,SwitchParameters switchParameters) {
-
+        /*获取配置信息中 符合品牌的 获取基本信息的 获取光衰参数的 命令*/
         String command = (String) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".获取光衰参数命令",Constant.getProfileInformation());
-
+        /*创建 返回对象 HashMap*/
         HashMap<String,Double> hashMap = new HashMap<>();
+        /*端口号集合 需要检测各端口号的光衰参数*/
         for (String port:portNumber){
-            String com = command.replaceAll("端口号",port);
-            System.err.println("获取光衰参数命令:"+com);
-            String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, com);
+            /*替换端口号 得到完整的 获取端口号光衰参数命令 */
+            String FullCommand = command.replaceAll("端口号",port);
+            /*交换机执行命令 并返回结果*/
+            String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
             if (returnResults == null){
+                // todo 获取光衰参数命令错误代码库
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n");
                 try {
                     PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n","ospf");
@@ -205,8 +216,8 @@ public class LuminousAttenuation {
                     e.printStackTrace();
                 }
             }
-
-            HashMap<String, Double> values = getDecayValues(returnResults);
+            /*提取光衰参数*/
+            HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
             hashMap.put(port+"TX",values.get("TX"));
             hashMap.put(port+"RX",values.get("RX"));
             hashMap.put(port+"TXHIGH",values.get("TXHIGH"));
@@ -218,35 +229,41 @@ public class LuminousAttenuation {
     }
 
 
-    /*get 光衰 参数*/
-    public static HashMap<String,Double> getDecayValues(String string) {
-
-        string = MyUtils.trimString(string);
+    /**
+     * 提取光衰参数
+     * @param string
+     * @return
+     */
+    public static HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
+        /*切割成行信息*/
         String[] Line_split = string.split("\r\n");
-
-        double txpower = 100;
-        double rxpower = 100;
-        double txpowerhigh = -20;
-        double txpowerlow = -23;
-        double rxpowerhigh = -20;
-        double rxpowerlow = -23;
+        List<Integer> threshold = (List<Integer>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".阈值", Constant.getProfileInformation());
+        /*自定义 光衰参数默认给个 100*/
+        double txpower = 1;
+        double rxpower = 1;
+        double txpowerhigh = Double.valueOf(threshold.get(1)+"").doubleValue();
+        double txpowerlow = Double.valueOf(threshold.get(0)+"").doubleValue();
+        double rxpowerhigh = Double.valueOf(threshold.get(1)+"").doubleValue();
+        double rxpowerlow = Double.valueOf(threshold.get(0)+"").doubleValue();
 
         List<String> keyValueList = new ArrayList<>();
         for (int number = 0 ;number<Line_split.length;number++) {
+            /* 获取 TX POWER 和 RX POWER 的位置
+            * 当其中一个值不为 -1时 则为key：value格式
+            * 如果全不为 -1时 则是 两个光衰参数在同一行 的格式*/
             int tx = Line_split[number].toUpperCase().indexOf("TX POWER");
             int rx = Line_split[number].toUpperCase().indexOf("RX POWER");
-
+            /* 设置 光衰参数的格式 预设为0key：value格式   为1是RX、TX  为-1时TX、RX*/
             int num = 0 ;
             if (tx!=-1 && rx!=-1){
-                /*都包含*/
+                /*如果全不为 -1时 则是 两个光衰参数在同一行 的格式*/
                 if (tx > rx){
                     num = 1;
                 }else if (tx < rx){
                     num = -1;
                 }
-                //keyValueList.add(Line_split[number]);
             }else if (tx ==-1 && rx ==-1){
-                /* 都不包含*/
+                /* RX、TX 都不包含 则进入下一循环*/
                 continue;
             }
 
@@ -254,33 +271,24 @@ public class LuminousAttenuation {
                 /* 包含 TX 或者 RX */
                 /*key : value*/
                 keyValueList.add(Line_split[number]);
-
             }else {
                 /*两个都包含 则 两个参数值在一行*/
                 String nextrow = Line_split[number+1];
+                /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
-                int j = 1;
-                for (int i = 0 ;i < values.size();i++){
-                    if (num == 1){
-                        /*RX   TX*/
-                        if (values.get(i)<0 && j==1){
-                            rxpower = values.get(i);
-                            j=2;
-                        }else if (values.get(i)<0  && j==2){
-                            txpower = values.get(i);
-                        }
-                    }else if (num == -1){
-                        /*TX  RX*/
-                        if (values.get(i)<0  && j==1){
-                            txpower = values.get(i);
-                            j=2;
-                        }else if (values.get(i)<0  && j==2){
-                            rxpower = values.get(i);
-                        }
-                    }
-                    if (txpower != 100 && rxpower != 100){
-                        break;
-                    }
+                if (values.size()!=2){
+                    /*光衰参数行有多余2个负数 无法去除*/
+                    // todo 光衰参数取值失败 光衰参数行有多余2个负数 错误代码
+                    return null;
+                }
+                if (num == 1){
+                    /*RX   TX*/
+                    rxpower = values.get(0);
+                    txpower = values.get(1);
+                }else if (num == -1){
+                    /*TX  RX*/
+                    txpower = values.get(0);
+                    rxpower = values.get(1);
                 }
                 break;
             }
@@ -288,76 +296,94 @@ public class LuminousAttenuation {
 
         /*key ： value 格式*/
         if (keyValueList.size()!=0){
-
+            /*当包含 TX POWER 或 RX POWER 的数多余2条是 要再次筛选  光衰参数信息 或是阈值信息*/
             if (keyValueList.size() > 2){
+                /*存储再次筛选后的 行信息*/
                 List<String> keylist = new ArrayList<>();
-                for (int num = 0 ; num<keyValueList.size();num++){//Current
-                    if (keyValueList.get(num).toUpperCase().indexOf("CURRENT")!=-1){
+                for (int num = 0 ; num<keyValueList.size();num++){
+
+                    /*Current Rx Power(dBM)                 :-11.87
+                      Default Rx Power High Threshold(dBM)  :-2.00
+                      Default Rx Power Low  Threshold(dBM)  :-23.98
+                      Current Tx Power(dBM)                 :-2.80
+                      Default Tx Power High Threshold(dBM)  :1.00
+                      Default Tx Power Low  Threshold(dBM)  :-6.00*/
+                    /*遇到包含 CURRENT 是则存储行信息集合
+                    * 下面两行是否包含HIGH 和 LOW */
+                    if (MyUtils.containIgnoreCase(keyValueList.get(num),"CURRENT")){
                         keylist.add(keyValueList.get(num));
-                        if (keyValueList.get(num+1).toUpperCase().indexOf("HIGH")!=-1 || keyValueList.get(num+1).toUpperCase().indexOf("LOW")!=-1 ){
+                        if (MyUtils.containIgnoreCase(keyValueList.get(num+1),"HIGH") || MyUtils.containIgnoreCase(keyValueList.get(num+1),"LOW")){
                             keylist.add(keyValueList.get(num+1));
                         }
-                        if (keyValueList.get(num+2).toUpperCase().indexOf("HIGH")!=-1 || keyValueList.get(num+2).toUpperCase().indexOf("LOW")!=-1){
+                        if (MyUtils.containIgnoreCase(keyValueList.get(num+2),"HIGH") || MyUtils.containIgnoreCase(keyValueList.get(num+2),"LOW")){
                             keylist.add(keyValueList.get(num+2));
                         }
                     }
                 }
-
                 if (keylist.size() > 1){
                     keyValueList = keylist;
                 }
             }
 
 
-            /*只有两行 则 直接取值*/
-            if (keyValueList.size() >1){
-                for (String keyvalue:keyValueList){
-                    if (keyvalue.toUpperCase().indexOf("RX") != -1){
-                        if (keyvalue.toUpperCase().indexOf("RX POWER") != -1){
-                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                            if (doubleList.size()==1){
-                                rxpower = doubleList.get(0);
-                            }else if (doubleList.size()==3){
-                                rxpower = doubleList.get(0);
-                                rxpowerlow = doubleList.get(1);
-                                rxpowerhigh = doubleList.get(2);
-                            }
-                        }else if (keyvalue.toUpperCase().indexOf("HIGH")!=-1){
-                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                            if (doubleList.size()==1){
-                                rxpower = doubleList.get(0);
-                            }
-                        }else if (keyvalue.toUpperCase().indexOf("LOW")!=-1){
-                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                            if (doubleList.size()==1){
-                                rxpower = doubleList.get(0);
-                            }
+            /*遍历 行信息集合*/
+            for (String keyvalue:keyValueList){
+                /*当 行信息包含 RX 说明是 RX数据*/
+                if (MyUtils.containIgnoreCase(keyvalue,"RX")){
+                    if (MyUtils.containIgnoreCase(keyvalue,"RX POWER")){
+                        /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
+                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                        if (doubleList.size()==1){
+                            rxpower = doubleList.get(0);
+                        }else if (doubleList.size()==3){
+                            rxpower = doubleList.get(0);
+                            rxpowerlow = doubleList.get(1);
+                            rxpowerhigh = doubleList.get(2);
+                        }else {
+                            // todo 光衰参数取值失败 光衰参数行负数数量不正确 错误代码
+                            return null;
+                        }
+                    }else if (MyUtils.containIgnoreCase(keyvalue,"HIGH")){
+                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                        if (doubleList.size()==1){
+                            rxpower = doubleList.get(0);
+                        }
+                    }else if (MyUtils.containIgnoreCase(keyvalue,"LOW")){
+                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                        if (doubleList.size()==1){
+                            rxpower = doubleList.get(0);
                         }
                     }
-                    if (keyvalue.toUpperCase().indexOf("TX") != -1){
-                        if (keyvalue.toUpperCase().indexOf("TX POWER") != -1){
-                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                            if (doubleList.size()==1){
-                                txpower = doubleList.get(0);
-                            }else if (doubleList.size()==3){
-                                txpower = doubleList.get(0);
-                                txpowerlow = doubleList.get(1);
-                                txpowerhigh = doubleList.get(2);
-                            }
-                        }else if (keyvalue.toUpperCase().indexOf("HIGH")!=-1){
-                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                            if (doubleList.size()==1){
-                                txpower = doubleList.get(0);
-                            }
-                        }else if (keyvalue.toUpperCase().indexOf("LOW")!=-1){
-                            List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                            if (doubleList.size()==1){
-                                txpower = doubleList.get(0);
-                            }
+                }
+                /*当 行信息包含 TX 说明是 TX数据*/
+                if (MyUtils.containIgnoreCase(keyvalue,"TX")){
+                    if (MyUtils.containIgnoreCase(keyvalue,"TX POWER")){
+                        /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
+                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                        if (doubleList.size()==1){
+                            txpower = doubleList.get(0);
+                        }else if (doubleList.size()==3){
+                            txpower = doubleList.get(0);
+                            txpowerlow = doubleList.get(1);
+                            txpowerhigh = doubleList.get(2);
+                        }else {
+                            // todo 光衰参数取值失败 光衰参数行负数数量不正确 错误代码
+                            return null;
+                        }
+                    }else if (MyUtils.containIgnoreCase(keyvalue,"HIGH")){
+                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                        if (doubleList.size()==1){
+                            txpower = doubleList.get(0);
+                        }
+                    }else if (MyUtils.containIgnoreCase(keyvalue,"LOW")){
+                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                        if (doubleList.size()==1){
+                            txpower = doubleList.get(0);
                         }
                     }
                 }
             }
+
         }
         HashMap<String,Double> hashMap = new HashMap<>();
         hashMap.put("TX",txpower);

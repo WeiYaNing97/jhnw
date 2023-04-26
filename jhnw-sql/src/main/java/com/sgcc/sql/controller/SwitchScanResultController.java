@@ -13,6 +13,7 @@ import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.IReturnRecordService;
 import com.sgcc.sql.util.EncryptUtil;
+import com.sgcc.sql.util.FunctionalMethods;
 import com.sgcc.sql.util.MyUtils;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -207,7 +208,7 @@ public class SwitchScanResultController extends BaseController
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-                switchProblemCO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());
                 //提取信息 如果不为空 则有参数
@@ -236,7 +237,7 @@ public class SwitchScanResultController extends BaseController
                             }
                             --number;
                             valueInformationVO.setDynamicVname(dynamicInformationsplit[number]);//动态信息名称
-                            valueInformationVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                            valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                             valueInformationVOList.add(valueInformationVO);
                         }
                     }
@@ -352,17 +353,17 @@ public class SwitchScanResultController extends BaseController
         }
 
         for (ScanResultsCO scanResultsCO:scanResultsCOList){
-            scanResultsCO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            scanResultsCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             List<ScanResultsVO> scanResultsVOList = scanResultsCO.getScanResultsVOList();
             for (ScanResultsVO scanResultsVO:scanResultsVOList){
                 scanResultsVO.setCreateTime(null);
                 String switchIp = scanResultsVO.getSwitchIp();
                 String[] split = switchIp.split(":");
                 scanResultsVO.setSwitchIp(split[0]);
-                scanResultsVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                 for (SwitchProblemVO switchProblemVO:switchProblemVOList){
-                    switchProblemVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                    switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                     switchProblemVO.setSwitchIp(null);
                     switchProblemVO.setCreateTime(null);
                 }

@@ -8,6 +8,7 @@ import com.sgcc.sql.domain.ReturnRecord;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.util.CustomConfigurationUtil;
+import com.sgcc.sql.util.FunctionalMethods;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
@@ -94,7 +95,7 @@ public class GetBasicInformationController {
                 returnRecord.setCurrentReturnLog(commandString);
                 //粗略查看是否存在 故障
                 // 存在故障返回 false 不存在故障返回 true
-                boolean switchfailure = MyUtils.switchfailure(switchParameters, commandString);
+                boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
                 // 存在故障返回 false
                 if (!switchfailure){
                     // 交换机返回结果 按行 分割成 交换机返回信息数组
@@ -103,7 +104,7 @@ public class GetBasicInformationController {
                     for (String returnString:commandStringSplit){
                         // 查看是否存在 故障
                         // 存在故障返回 false 不存在故障返回 true
-                        deviceBrand = MyUtils.switchfailure(switchParameters, returnString);
+                        deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
                         // 存在故障返回 false
                         if (!deviceBrand){
 
@@ -149,7 +150,7 @@ public class GetBasicInformationController {
             returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_Int).longValue());
 
             //去除其他 交换机登录信息
-            commandString = MyUtils.removeLoginInformation(commandString);
+            commandString = FunctionalMethods.removeLoginInformation(commandString);
 
             //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
             commandString = MyUtils.trimString(commandString);
@@ -211,12 +212,12 @@ public class GetBasicInformationController {
             int update = returnRecordService.updateReturnRecord(returnRecord);
 
             //判断命令是否错误 错误为false 正确为true
-            if (!MyUtils.judgmentError( switchParameters,commandString)){
+            if (!FunctionalMethods.judgmentError( switchParameters,commandString)){
                 //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
 
                 String[] returnString_split = commandString.split("\r\n");
                 for (String string_split:returnString_split){
-                    if (!MyUtils.judgmentError( switchParameters,string_split)){
+                    if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
 
                         System.err.println("\r\n"+switchParameters.getIp()+ ":" +command+ "错误:"+string_split+"\r\n");
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");

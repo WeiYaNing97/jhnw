@@ -15,6 +15,7 @@ import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.thread.RepairFixedThreadPool;
 import com.sgcc.sql.util.EncryptUtil;
+import com.sgcc.sql.util.FunctionalMethods;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
@@ -580,14 +581,14 @@ public class SolveProblemController {
                 returnRecord.setCurrentReturnLog(commandString);
 
                 //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
-                boolean switchfailure = MyUtils.switchfailure(switchParameters, commandString);
+                boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
                 // 存在故障返回 false
                 if (!switchfailure) {
 
                     String[] commandStringSplit = commandString.split("\r\n");
 
                     for (String returnString : commandStringSplit) {
-                        deviceBrand = MyUtils.switchfailure(switchParameters, returnString);
+                        deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
                         if (!deviceBrand) {
 
                             System.err.println("\r\n"+switchParameters.getIp() + "故障:"+returnString+"\r\n");
@@ -623,7 +624,7 @@ public class SolveProblemController {
             returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
 
             //去除其他 交换机登录信息
-            commandString = MyUtils.removeLoginInformation(commandString);
+            commandString = FunctionalMethods.removeLoginInformation(commandString);
 
             //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
             commandString = MyUtils.trimString(commandString);
@@ -694,12 +695,12 @@ public class SolveProblemController {
             int update = returnRecordService.updateReturnRecord(returnRecord);
 
             //判断命令是否错误 错误为false 正确为true
-            if (!(MyUtils.judgmentError( switchParameters,commandString))){
+            if (!(FunctionalMethods.judgmentError( switchParameters,commandString))){
                 //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
 
                 String[] returnString_split = commandString.split("\r\n");
                 for (String string_split:returnString_split){
-                    if (!MyUtils.judgmentError( switchParameters,string_split)){
+                    if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
 
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+switchParameters.getIp() +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
 
@@ -748,17 +749,17 @@ public class SolveProblemController {
             String time = format.format(switchProblemVO.getCreateTime());
             hashSet.add(switchProblemVO.getSwitchIp()+"=:="+time);
             Date date1 = new Date();
-            switchProblemVO.hproblemId =  Long.valueOf(MyUtils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            switchProblemVO.hproblemId =  Long.valueOf(FunctionalMethods.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
                 List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
                 for (ValueInformationVO valueInformationVO:valueInformationVOList){
                     Date date2 = new Date();
-                    valueInformationVO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                    valueInformationVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
                 }
                 Date date3 = new Date();
-                switchProblemCO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
@@ -862,14 +863,14 @@ public class SolveProblemController {
         }
 
         for (ScanResultsCO scanResultsCO:scanResultsCOList){
-            scanResultsCO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            scanResultsCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             List<ScanResultsVO> scanResultsVOList = scanResultsCO.getScanResultsVOList();
             for (ScanResultsVO scanResultsVO:scanResultsVOList){
                 scanResultsVO.setCreateTime(null);
-                scanResultsVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                 for (SwitchProblemVO switchProblemVO:switchProblemVOList){
-                    switchProblemVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                    switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                     switchProblemVO.setSwitchIp(null);
                     switchProblemVO.setCreateTime(null);
                 }
@@ -901,17 +902,17 @@ public class SolveProblemController {
         }
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
-            switchProblemVO.hproblemId =  Long.valueOf(MyUtils.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
+            switchProblemVO.hproblemId =  Long.valueOf(FunctionalMethods.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
                 List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
                 for (ValueInformationVO valueInformationVO:valueInformationVOList){
                     Date date2 = new Date();
-                    valueInformationVO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
+                    valueInformationVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
                 }
                 Date date3 = new Date();
-                switchProblemCO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
+                switchProblemCO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
@@ -928,7 +929,7 @@ public class SolveProblemController {
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
             Date date4 = new Date();
-            scanResultsVO.hproblemId = Long.valueOf(MyUtils.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
 
@@ -1012,7 +1013,7 @@ public class SolveProblemController {
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-                switchProblemCO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());
                 //提取信息 如果不为空 则有参数
@@ -1041,7 +1042,7 @@ public class SolveProblemController {
                             }
                             --number;
                             valueInformationVO.setDynamicVname(dynamicInformationsplit[number]);//动态信息名称
-                            valueInformationVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                            valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                             valueInformationVOList.add(valueInformationVO);
                         }
                     }
@@ -1061,7 +1062,7 @@ public class SolveProblemController {
         for (String ip_string:ip_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
-            scanResultsVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             scanResultsVOList.add(scanResultsVO);
         }
 
@@ -1102,11 +1103,11 @@ public class SolveProblemController {
         }
 
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
-            scanResultsVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
             for (SwitchProblemVO switchProblemVO:switchProblemVOList){
                 switchProblemVO.setSwitchIp(null);
-                switchProblemVO.setHproblemId(Long.valueOf(MyUtils.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             }
         }
 

@@ -42,7 +42,11 @@ public class OspfEnum {
         BFDState = ((String) escapeMap.get("BFDState")).split(";");
     }
 
-
+    /**
+     * 字符串 匹配配置文件中配置的 标题名称
+     * @param str
+     * @return
+     */
     public static String enumeratorValues(String str) {
         for (String neighborID:neighborID){
             if (str.equalsIgnoreCase(neighborID)){
