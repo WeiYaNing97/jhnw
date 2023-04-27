@@ -49,207 +49,17 @@ public class GetBasicInformationController {
         /*H3C*/
         String[] commandsplit = ( (String) CustomConfigurationUtil.getValue("BasicInformation.getBrandCommand", Constant.getProfileInformation())).split(";");
         String commandString =""; //预设交换机返回结果
-        String return_sum = ""; //当前命令字符串总和 返回命令总和("\r\n"分隔)
 
         //遍历数据表命令 分割得到的 命令数组
         for (String command:commandsplit){
-            //创建 存储交换机返回数据 实体类
-            ReturnRecord returnRecord = new ReturnRecord();
-            int insert_Int = 0; //交换机返回结果插入数据库ID
-            returnRecord.setUserName(switchParameters.getLoginUser().getUsername());
-            returnRecord.setSwitchIp(switchParameters.getIp());
-            returnRecord.setBrand(switchParameters.getDeviceBrand());
-            returnRecord.setType(switchParameters.getDeviceModel());
-            returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
-            returnRecord.setSubVersion(switchParameters.getSubversionNumber());
-            // 执行命令赋值
-            String commandtrim = command.trim();
-            returnRecord.setCurrentCommLog(commandtrim);
-            //根据 连接方法 判断 实际连接方式
-            //并发送命令 接受返回结果
-            boolean deviceBrand = true;
-            do {
-                deviceBrand = true;
-                if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                    //  WebSocket 传输 命令
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command+"\r\n");
-                    try {
-                        PathHelper.writeDataToFile(switchParameters.getIp()+"发送:"+command+"\r\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,null);
-                }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                    //  WebSocket 传输 命令
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command);
-                    try {
-                        PathHelper.writeDataToFile(switchParameters.getIp()+"发送:"+command+"\r\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,null);
-
-                }
-
-                //  WebSocket 传输 交换机返回结果
-                returnRecord.setCurrentReturnLog(commandString);
-                //粗略查看是否存在 故障
-                // 存在故障返回 false 不存在故障返回 true
-                boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
-                // 存在故障返回 false
-                if (!switchfailure){
-                    // 交换机返回结果 按行 分割成 交换机返回信息数组
-                    String[] commandStringSplit = commandString.split("\r\n");
-                    // 遍历交换机返回信息数组
-                    for (String returnString:commandStringSplit){
-                        // 查看是否存在 故障
-                        // 存在故障返回 false 不存在故障返回 true
-                        deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
-                        // 存在故障返回 false
-                        if (!deviceBrand){
-
-                            System.err.println("\r\n"+switchParameters.getIp() + "\r\n故障:"+returnString+"\r\n");
-
-                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
-
-                            try {
-                                PathHelper.writeDataToFile("故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
-
-                            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                                switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",null);
-                            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                                switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",null);
-                            }
-                        }
-                    }
-                }
-
-                returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
-                insert_Int = returnRecordService.insertReturnRecord(returnRecord);
-
-                if (insert_Int <= 0){
-                    //传输登陆人姓名 及问题简述
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"交换机返回信息插入失败\r\n");
-                    try {
-                        //插入问题简述及问题路径
-                        PathHelper.writeDataToFile("错误："+"交换机返回信息插入失败\r\n"
-                                +"方法com.sgcc.web.controller.sql.SwitchInteraction.getBasicInformationList");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }while (!deviceBrand);
-
-            returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
-            returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_Int).longValue());
-
-            //去除其他 交换机登录信息
-            commandString = FunctionalMethods.removeLoginInformation(commandString);
-
-            //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
-            commandString = MyUtils.trimString(commandString);
-
-            //交换机返回信息 按行分割为 字符串数组
-            String[] commandString_split = commandString.split("\r\n");
-
-            // 返回日志内容
-            String current_return_log = "";
-            if (commandString_split.length !=1 ){
-
-                current_return_log = commandString.substring(0, commandString.length() - commandString_split[commandString_split.length - 1].length() - 2).trim();
-                returnRecord.setCurrentReturnLog(current_return_log);
-
-                //返回日志前后都有\r\n 可以改为 current_return_log.endsWith("\r\n");
-
-                String current_return_log_substring_end = current_return_log.substring(current_return_log.length() - 2, current_return_log.length());
-                if (!current_return_log_substring_end.equals("\r\n")){
-                    current_return_log = current_return_log+"\r\n";
-                }
-
-                String current_return_log_substring_start = current_return_log.substring(0, 2);
-                if (!current_return_log_substring_start.equals("\r\n")){
-                    current_return_log = "\r\n"+current_return_log;
-                }
-
-            }
-
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
-
-            try {
-                PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //当前标识符 如：<H3C> [H3C]
-            String current_identifier = commandString_split[commandString_split.length - 1].trim();
-            returnRecord.setCurrentIdentifier(current_identifier);
-            //当前标识符前后都没有\r\n
-            String current_identifier_substring_end = current_identifier.substring(current_identifier.length() - 2, current_identifier.length());
-            if (current_identifier_substring_end.equals("\r\n")){
-                current_identifier = current_identifier.substring(0,current_identifier.length()-2);
-            }
-            String current_identifier_substring_start = current_identifier.substring(0, 2);
-            if (current_identifier_substring_start.equals("\r\n")){
-                current_identifier = current_identifier.substring(2,current_identifier.length());
-            }
-
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
-            try {
-                PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            //存储交换机返回数据 插入数据库
-            returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
-            int update = returnRecordService.updateReturnRecord(returnRecord);
-
-            //判断命令是否错误 错误为false 正确为true
-            if (!FunctionalMethods.judgmentError( switchParameters,commandString)){
-                //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
-
-                String[] returnString_split = commandString.split("\r\n");
-                for (String string_split:returnString_split){
-                    if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
-
-                        System.err.println("\r\n"+switchParameters.getIp()+ ":" +command+ "错误:"+string_split+"\r\n");
-                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
-                        try {
-                            PathHelper.writeDataToFile("风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }finally {
-                            continue;
-                        }
-
-                    }
-                }
-
+            /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+            * 返回结果*/
+            commandString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+            if (commandString == null){
                 continue;
             }
-
-            //当前命令字符串 返回命令总和("\r\n"分隔)
-            return_sum =  commandString+"\r\n";
-
-
-
-
-            HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(return_sum);
-
-            System.err.println("==================================================================");
-            System.err.println("品牌"+hashMap.get("pinpai"));
-            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao"));
-            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben"));
-            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben")+"子版本"+hashMap.get("zibanben"));
-            System.err.println("品牌"+hashMap.get("pinpai")+"型号"+hashMap.get("xinghao")+"版本"+hashMap.get("banben")+"子版本"+hashMap.get("zibanben")+"设备"+hashMap.get("routerFlag"));
-            System.err.println("==================================================================");
+            /*根据交换机返回结果 获取 交换机基本信息*/
+            HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(commandString);
 
             if (hashMap.get("pinpai")!=null
                     && hashMap.get("xinghao")!=null
@@ -336,61 +146,63 @@ public class GetBasicInformationController {
 
     /**
      * 通过 配置文件 获取取交换机基本信息规则
-     * @param returns
+     * 根据交换机返回结果 获取 交换机基本信息
      * @return  返回  交换机基本信息
      */
-    public static HashMap<String,String> analyzeStringToGetBasicInformation(String returns) {
+    public static HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
 
-        String returns_String = MyUtils.trimString(returns);
         returns_String = returns_String.replaceAll("\r\n"," ");
-        /*String equipmentBrand = Configuration.equipmentBrand;
-        String equipmentModel = Configuration.equipmentModel;
-        String[] equipmentBrandsplit = equipmentBrand.split(";");
-        String[] equipmentModelsplit = equipmentModel.split(";");*/
+
         informationService = SpringBeanUtil.getBean(IInformationService.class);
         List<String> brandList = informationService.selectDeviceBrandList();
-
-        String brand = "";
-        String model = "";
-        String firmwareVersion = "";
-        String subversionNo = "";
+        String brand = null;
+        String model = null;
+        String firmwareVersion = null;
+        String subversionNo = null;
         String router = "交换机";
 
+        /* 创建返回对象 */
         HashMap<String,String> map = new HashMap<>();
-        map.put("pinpai",null);
-        map.put("xinghao",null);
-        map.put("banben",null);
-        map.put("zibanben",null);
-        map.put("routerFlag",null);
-
-        String[] return_word = returns_String.trim().toUpperCase().split(" ");
-
+        String[] return_word = returns_String.split(" ");
+        /*遍历匹配 品牌  H3C*/
         for (String brandString:brandList){
-            for (int number = 0 ; number < return_word.length; number++){
+            /*for (int number = 0 ; number < return_word.length; number++){
                 if (brandString.equalsIgnoreCase(return_word[number])){
                     brand = brandString;
                     break;
                 }
+            }*/
+            /*判断是否包含品牌*/
+            if (MyUtils.containIgnoreCase(returns_String," "+brandString+" ")){
+                brand = brandString;
+                break;
             }
         }
-
-        if (!(brand.equals(""))){
-            List<String> modelList = informationService.selectDeviceModelList(brand);
-            for (String modelString:modelList){
-                for (int number = 0 ; number < return_word.length; number++){
-
-                    if (modelString.equalsIgnoreCase(return_word[number])){
-                        model = modelString;
-                        break;
-                    }
+        if (brand == null){
+            return map;
+        }
+        /*匹配 型号 */
+        List<String> modelList = informationService.selectDeviceModelList(brand);
+        for (String modelString:modelList){
+            /*原方法*/
+            /*for (int number = 0 ; number < return_word.length; number++){
+                if (modelString.equalsIgnoreCase(return_word[number])){
+                    model = modelString;
+                    break;
                 }
+            }*/
+            /*判断是否包含型号*/
+            if (MyUtils.containIgnoreCase(returns_String," "+modelString+" ")){
+                model = modelString;
+                break;
             }
         }
-
+        /* 获取 设备是 路由器的标志*/
         String routerFlag = (String) CustomConfigurationUtil.getValue("BasicInformation.routerFlag",Constant.getProfileInformation());
         String[] flagSplit = routerFlag.toUpperCase().split(";");
         for (int number = 0 ; number < return_word.length; number++){
             for (String flag:flagSplit){
+                /* 以 配置文件 属性值并且包含数字*/
                 if (return_word[number].startsWith(flag)){
                     if (MyUtils.isNumeric(return_word[number])){
                         router = return_word[number];
@@ -401,12 +213,26 @@ public class GetBasicInformationController {
         }
 
         /** 设备版本 */
+        /*yml 配置文件中 多个值之间用;隔开*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceVersion",Constant.getProfileInformation());
         String[] deviceVersionSplit =deviceVersion.split(";");
+        /*遍历配置文件中的 属性值*/
         for (String version:deviceVersionSplit){
+
+            /*判断是否包含配置文件中的 属性值
+            * 如果不包含 则 下一循环*/
+            if (!MyUtils.containIgnoreCase(returns_String," "+version+" ")){
+                continue;
+            }
+
+            /*属性值可能是多个单词*/
             String[] versionSplit = version.split(" ");
             int versionNumber = versionSplit.length;
             for (int number = 0 ; number < return_word.length; number++){
+                /*遍历 交换机返回信息的 单词数组
+                * 如果匹配到 则判断配置文件中 信息的单词数
+                * 如果是一个单词 则直接取下一个
+                * 如果是多个单词 则比较多个单词 是否匹配  匹配 则直接取下一个*/
                 if (return_word[number].equalsIgnoreCase(versionSplit[0])){
                     if (versionSplit.length == 1){
                         if (MyUtils.containDigit(return_word[number+1])){
@@ -436,6 +262,13 @@ public class GetBasicInformationController {
         String deviceSubversion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceSubversion",Constant.getProfileInformation());
         String[] deviceSubversionSplit =deviceSubversion.split(";");
         for (String version:deviceSubversionSplit){
+
+            /*判断是否包含配置文件中的 属性值
+             * 如果不包含 则 下一循环*/
+            if (!MyUtils.containIgnoreCase(returns_String," "+version+" ")){
+                continue;
+            }
+
             String[] versionSplit = version.split(" ");
             int versionNumber = versionSplit.length;
             for (int number = 0 ; number < return_word.length; number++){
@@ -465,13 +298,19 @@ public class GetBasicInformationController {
 
         }
 
-        map.put("pinpai",(brand.equals(""))?null:brand);
-        map.put("xinghao",(model.equals(""))?null:model);
-        map.put("banben",(firmwareVersion.equals(""))?null:firmwareVersion);
-        map.put("zibanben",(subversionNo.equals(""))?null:subversionNo);
-        map.put("routerFlag",(router.equals(""))?null:router);
+        map.put("pinpai",brand);
+        map.put("xinghao",model);
+        map.put("banben",firmwareVersion);
+        map.put("zibanben",subversionNo);
+        map.put("routerFlag",router);
 
-        if (model.equals("")){
+        System.err.println(brand);
+        System.err.println(model);
+        System.err.println(firmwareVersion);
+        System.err.println(subversionNo);
+        System.err.println(router);
+
+        if (model == null){
 
         }
 

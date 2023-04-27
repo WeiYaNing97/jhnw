@@ -23,8 +23,6 @@ public class RuoYiApplication
         SpringApplication.run(RuoYiApplication.class, args);
         System.out.println("(♥◠‿◠)ﾉﾞ  若依启动成功   ლ(´ڡ`ლ)ﾞ  \n" );
         try {
-
-
             Constant character = new Constant();
             character.ObtainAllConfigurationFileParameters();
             OspfEnum.assignment();

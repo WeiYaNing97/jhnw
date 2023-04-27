@@ -10,7 +10,6 @@ public class ParameterSet {
     private List<SwitchParameters> switchParameters; //交换机信息
     private LoginUser loginUser;//登陆人信息
     private Integer threadCount;//线程数
-    private List<TotalQuestionTable> TotalQuestionTablePojoList;//交换机问题
 
     public void setSwitchParameters(List<SwitchParameters> switchParameters) {
         this.switchParameters = switchParameters;
@@ -24,9 +23,6 @@ public class ParameterSet {
         this.threadCount = threadCount;
     }
 
-    public void setTotalQuestionTablePojoList(List<TotalQuestionTable> totalQuestionTablePojoList) {
-        TotalQuestionTablePojoList = totalQuestionTablePojoList;
-    }
 
     public List<SwitchParameters> getSwitchParameters() {
         return switchParameters;
@@ -41,9 +37,6 @@ public class ParameterSet {
         return threadCount;
     }
 
-    public List<TotalQuestionTable> getTotalQuestionTablePojoList() {
-        return TotalQuestionTablePojoList;
-    }
 
     @Override
     public String toString() {
@@ -51,7 +44,6 @@ public class ParameterSet {
                 "switchParameters=" + switchParameters +
                 ", loginUser=" + loginUser +
                 ", threadCount=" + threadCount +
-                ", TotalQuestionTablePojoList=" + TotalQuestionTablePojoList +
                 '}';
     }
 }

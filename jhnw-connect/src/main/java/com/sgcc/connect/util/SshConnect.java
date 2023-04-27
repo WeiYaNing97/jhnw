@@ -137,19 +137,16 @@ public class SshConnect implements Runnable {
         SshInformation sshInformation = stringSshInformationHashMap.get(ip);
         sshInformation.setIp(ip);
         sshInformation.setPort(port);
-
         if (endEcho != null) {
             sshInformation.setEndEcho(endEcho);
         }
         if (moreEcho != null) {
             sshInformation.setMoreEcho(moreEcho);
         }
-
         sshInformation.setTotalEcho(new StringBuffer());
         sshInformation.setCurrEcho(new StringBuffer());
         switchInformation.put(ip,sshInformation);
     }
-
     public void close() {
         if (session != null) {
             session.disconnect();
@@ -168,7 +165,6 @@ public class SshConnect implements Runnable {
     */
     public List<Object> login(String ip, String[] cmds) {
         List<Object> objects = new ArrayList<>();
-
         SshInformation sshInformation = switchInformation.get(ip);
         //用户名 密码
         String user = cmds[0];
@@ -178,26 +174,10 @@ public class SshConnect implements Runnable {
         try {
             //@method: jsch 获取会话
             //@Param: [user 用户名, this.ip IP地址, this.port 端口号]
-
-
             session = sshInformation.getJsch().getSession(user, sshInformation.getIp(), sshInformation.getPort());
-
-
-            /*Properties config = new Properties();
-            config.put("StrictHostKeyChecking", "no");
-            config.put("cipher.s2c", "aes128-cbc,aes192-cbc,aes256-cbc");
-            config.put("cipher.c2s", "aes128-cbc,aes192-cbc,aes256-cbc");
-            config.put("mac.s2c", "hmac-sha2-256,hmac-sha2-512,hmac-sha1");
-            config.put("mac.c2s", "hmac-sha2-256,hmac-sha2-512,hmac-sha1");
-            config.put("kex", "diffie-hellman-group-exchange-sha256,diffie-hellman-group-exchange-sha1");
-            session.setConfig(config);*/
-
-
             sshInformation.setSession(session);
-
             //输入密码
             sshInformation.getSession().setPassword(passWord);
-
             UserInfo ui = new SSHUserInfo() {
                 public void showMessage(String message) {
                 }
@@ -207,7 +187,6 @@ public class SshConnect implements Runnable {
             };
             sshInformation.getSession().setUserInfo(ui);
             sshInformation.getSession().connect(30000);
-
             if (session.isConnected()) {
                 if ("SSH-2.0-JSCH-0.1.54".equals(session.getServerVersion())) {
                     System.err.println(sshInformation.getIp() + "SSH2");
@@ -215,26 +194,18 @@ public class SshConnect implements Runnable {
                     System.err.println(sshInformation.getIp() + "SSH1");
                 }
             }
-
-
             channel = sshInformation.getSession().openChannel("shell");
             sshInformation.setChannel(channel);
             //jscn 连接 linux 解决高亮显示乱码问题
             ((ChannelShell) sshInformation.getChannel()).setPtyType("dumb");
             //((ChannelShell) channel).setPty(false);
             sshInformation.getChannel().connect(3000);
-
-
             switchInformation.put(ip,sshInformation);
-
-
-
             new Thread(this).start();
             try {
                 Thread.sleep(sshInformation.getSleepTime());
             } catch (Exception e) {
             }
-
             objects.add(true);
             return objects;
         } catch (JSchException e) {
@@ -248,7 +219,6 @@ public class SshConnect implements Runnable {
                 System.out.println("Connection failed: " + e.getMessage());
                 objects.add(e.getMessage());
             }
-
             switchInformation.put(ip,sshInformation);
             return objects;
         }
@@ -264,7 +234,6 @@ public class SshConnect implements Runnable {
     protected String sendCommand(String ip,String command, boolean sendEnter) {
         SshInformation sshInformation = switchInformation.get(ip);
         try {
-
             OutputStream os = sshInformation.getChannel().getOutputStream();
             os.write(command.getBytes());
             os.flush();
@@ -285,21 +254,17 @@ public class SshConnect implements Runnable {
         switchInformation.put(ip,sshInformation);
         return sshInformation.getCurrEcho().toString();
     }
-
     //测试此字符串是否以指定的后缀结尾
     protected boolean containsEchoEnd(String ip,String echo) {
         SshInformation sshInformation = switchInformation.get(ip);
         boolean contains = false;
-
         //如果 结尾标识符 为空 返回 错误
         //endEcho = "#,?,>,:";
         if (sshInformation.getEndEcho() == null || sshInformation.getEndEcho().trim().equals("")) {
             return contains;
         }
-
         //结尾标识符数组
         String[] eds = sshInformation.getEndEcho().split(",");
-
         //遍历结尾标识符数组
         for (String ed : eds) {
             //测试此字符串是否以指定的后缀结尾。
@@ -308,7 +273,6 @@ public class SshConnect implements Runnable {
                 break;
             }
         }
-
         return contains;
     }
 
@@ -321,15 +285,12 @@ public class SshConnect implements Runnable {
     */
     private String runCommand(String ip ,String command,String notFinished,boolean ifEnter) {
         SshInformation sshInformation = switchInformation.get(ip);
-
         if (notFinished!=null && notFinished!=""){
             sshInformation.setMoreEcho(notFinished);
         }
-
         sshInformation.setCurrEcho(new StringBuffer());
         //向服务器发送命令
         String str = sendCommand(ip,command, ifEnter);
-
         if (str =="遗失对主机的连接。"){
             return str;
         }
@@ -363,11 +324,8 @@ public class SshConnect implements Runnable {
                 if (time >= sshInformation.getTimeout()) {
                     break;
                 }
-
                 //接收交换机返回信息 转换为字符串数组
                 String[] lineStrs = sshInformation.getCurrEcho().toString().split("\\n");
-
-
                 //接收交换机返回信息不为空
                 if (lineStrs != null && lineStrs.length > 0) {
                     //private String moreEcho = "---- More ----";
@@ -402,9 +360,7 @@ public class SshConnect implements Runnable {
     */
     public String batchCommand(String ip,String[] cmds,String notFinished, int[] othernEenterCmds,boolean quit) {
         SshInformation sshInformation = switchInformation.get(ip);
-
         sshInformation.setQuit(quit);
-
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < cmds.length; i++) {
             String cmd = cmds[i];
@@ -421,7 +377,6 @@ public class SshConnect implements Runnable {
                     }
                 }
             }
-
             // 命令结尾加上 "\n"
             cmd += (char) 10;
             //执行单个命令

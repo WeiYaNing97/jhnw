@@ -1,11 +1,13 @@
 package com.sgcc.sql.controller;
 
 import cn.hutool.core.date.DateTime;
+import com.alibaba.fastjson.JSON;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.connect.method.SshMethod;
 import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
@@ -66,7 +68,7 @@ public class SwitchInteraction {
     @Autowired
     private static IFormworkService formworkService;
     /**
-     * 测试获取交换机基本信息逻辑执行结果
+     * todo  测试获取交换机基本信息逻辑执行结果
      * @param ip
      * @param name
      * @param password
@@ -83,8 +85,6 @@ public class SwitchInteraction {
     public String testToObtainBasicInformation(@PathVariable String ip,@PathVariable String name,@PathVariable String password,@PathVariable String port,@PathVariable String mode,
                                                @PathVariable String configureCiphers, @PathVariable String[] command,@RequestBody List<String> pojoList) {
 
-        /*登录用户信息  loginUser*/
-        LoginUser loginUser = SecurityUtils.getLoginUser();
         /*用户扫描时间
             Java时间设为二十四小时制和十二小时制的区别：
             1) 二十四小时制： “yyyy-MM-dd HH:mm:ss”
@@ -101,39 +101,61 @@ public class SwitchInteraction {
         switchParameters.setConfigureCiphers(configureCiphers);
         switchParameters.setPort(Integer.valueOf(port).intValue());
         switchParameters.setScanningTime(scanningTime);
-
-        Map<String,Object> user_Object = new HashMap<>();
-        //ssh连接方法
-        SshMethod connectMethod = null;
-        user_Object.put("connectMethod",connectMethod);
-        //telnet连接方法
-        TelnetSwitchMethod telnetSwitchMethod = null;
-        user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
-        //系统登录人信息
-        user_Object.put("loginUser",loginUser);
+        /*登录用户信息  loginUser*/
+        switchParameters.setLoginUser(SecurityUtils.getLoginUser());
 
         /*连接交换机   返回交换机信息 */
-        AjaxResult requestConnect_ajaxResult = requestConnect(switchParameters);
-        Map<String,Object> objectMap = (Map<String,Object>) requestConnect_ajaxResult.get("data");
 
-        if (objectMap == null){
-            //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+ip+"交换机连接失败\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+ip+"交换机连接失败\r\n"
-                        +"方法com.sgcc.web.controller.sql.SwitchInteraction.testToObtainBasicInformation");
-            } catch (IOException e) {
-                e.printStackTrace();
+        //连接交换机  requestConnect：
+        //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
+        //                          connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
+        //返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
+        //                         connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）
+        //                         SshConnect ssh连接工具 或者 TelnetComponent telnet连接工具（其中一个，为空者不存在）]
+
+        AjaxResult requestConnect_ajaxResult = null;
+        for (int number = 0; number <4 ; number++){
+            requestConnect_ajaxResult = requestConnect(switchParameters);
+            if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
+                break;
             }
         }
 
+        //如果返回为 交换机连接失败 则连接交换机失败
+        if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
+
+            List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
+
+            if (loginError != null){
+                for (int number = 1;number<loginError.size();number++){
+                    String loginErrorString = loginError.get(number);
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
+                    try {
+                        PathHelper.writeDataToFileByName(switchParameters.getIp()+"风险:"+loginErrorString+"\r\n","交换机连接");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            try {
+                PathHelper.writeDataToFileByName("风险:"+ switchParameters.getIp() + "交换机连接失败\r\n","交换机连接");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return "交换机连接失败";
+        }
+
+        //解析返回参数 data
+
+        switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
+
 
         //是否连接成功 返回信息集合的 第一项 为 是否连接成功
-        boolean requestConnect_boolean = requestConnect_ajaxResult.get("msg").equals("操作成功");
-
         //如果连接成功
-        if(requestConnect_boolean){
+        if(requestConnect_ajaxResult.get("msg").equals("操作成功")){
             //密码 MD5 加密
             String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getPassword());
             switchParameters.setPassword(passwordDensificationAndSalt);//用户密码
@@ -141,36 +163,11 @@ public class SwitchInteraction {
             String configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
             switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
 
-            //返回信息集合的 第二项 为 连接方式：ssh 或 telnet
-            String requestConnect_way = (String) objectMap.get("way");
-            //SSH 连接工具
-            SshConnect sshConnect = null;
-            //SSH 连接工具
-            TelnetComponent telnetComponent = null;
-
-            user_Object.put("connectMethod",connectMethod);
-            user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
-            user_Object.put("sshConnect",sshConnect);
-            user_Object.put("telnetComponent",telnetComponent);
-
-            //如果连接方式为ssh则 连接方法返回集合参数为 connectMethod参数
-            //如果连接方式为telnet则 连接方法返回集合参数为 telnetSwitchMethod参数
-            if (requestConnect_way.equalsIgnoreCase("ssh")){
-                connectMethod = (SshMethod)objectMap.get("connectMethod");
-                sshConnect = (SshConnect)objectMap.get("sshConnect");
-
-                user_Object.put("connectMethod",connectMethod);
-                user_Object.put("sshConnect",sshConnect);
-            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                telnetSwitchMethod = (TelnetSwitchMethod)objectMap.get("telnetSwitchMethod");
-                telnetComponent = (TelnetComponent)objectMap.get("telnetComponent");
-
-                user_Object.put("telnetSwitchMethod",telnetSwitchMethod);
-                user_Object.put("telnetComponent",telnetComponent);
-            }
+            /**
+             * 因为没有走数据库 所以要 处理前端传入数据 组成集合
+             */
 
             List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
-
             /*遍历分析逻辑字符串集合：List<String> pojoList
             通过 调用 analysisProblemScanLogic 方法 将字符串 转化为 分析逻辑实体类，
             并放入 分析逻辑实体类集合 List<ProblemScanLogic> problemScanLogicList。*/
@@ -190,10 +187,10 @@ public class SwitchInteraction {
             switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
 
             /*关闭连接交换机*/
-            if (requestConnect_way.equalsIgnoreCase("ssh")){
-                connectMethod.closeConnect(sshConnect);
-            }else if (requestConnect_way.equalsIgnoreCase("telnet")){
-                telnetSwitchMethod.closeSession(telnetComponent);
+            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
+            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
             }
 
             System.err.println("测试获取基本信息"+"设备品牌："+switchParameters.getDeviceBrand()+" 设备型号："+switchParameters.getDeviceModel()
@@ -208,7 +205,7 @@ public class SwitchInteraction {
             if (loginError != null){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
-                    WebSocketService.sendMessage(loginUser.getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
                     try {
                         PathHelper.writeDataToFileByName(switchParameters.getIp()+"风险:"+loginErrorString+"\r\n","交换机连接");
                     } catch (IOException e) {
@@ -255,55 +252,18 @@ public class SwitchInteraction {
     @MyLog(title = "专项扫描问题", businessType = BusinessType.OTHER)
     public static String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
-        List<Object[]> objectsList = new ArrayList<>();
-
+        /*交换机信息集合*/
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         for (String information:switchInformation){
-            // information  : {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
-            // 去除花括号得到： "ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"
-            information = information.replace("{","");
-            information = information.replace("}","");
-            /*以逗号分割 获取到 集合 集合为：
-                information_split.get(0)  "ip":"192.168.1.100"
-                information_split.get(1)  "name":"admin"
-                information_split.get(2)  "password":"admin"
-                information_split.get(3)  "mode":"ssh"
-                information_split.get(4)  "port":"22"
-            */
-            String[] information_split = information.split(",");
+
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
+
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
             switchParameters.setScanningTime(simpleDateFormat);
-            for (String string:information_split){
-                // string  参数为  ip:192.168.1.100  或  name:admin 或 password:admin 或 mode:ssh 或 port:22
-                string = string.replace("\"","");
-                // 以 ： 分割 得到
-                /*
-                string_split[0] ip           string_split[1] 192.168.1.100
-                string_split[0] name         string_split[1] admin
-                string_split[0] password     string_split[1] admin
-                string_split[0] mode         string_split[1] ssh
-                string_split[0] port         string_split[1] 22
-                */
-                String[] string_split = string.split(":");
-                switch (string_split[0]){
-                    case "ip" :  switchParameters.setIp(string_split[1]);
-                        break;
-                    case "name" :  switchParameters.setName(string_split[1]);
-                        break;
-                    case "password" :
-                        switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(string_split[1]));
-                        break;
-                    case "configureCiphers" :
-                        switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(string_split[1]));
-                        break;
-                    case "mode" :  switchParameters.setMode(string_split[1]);
-                        break;
-                    case "port" :  switchParameters.setPort(Integer.valueOf(string_split[1]).intValue());
-                        break;
-                }
-            }
+            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
+
             switchParametersList.add(switchParameters);
         }
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
@@ -353,79 +313,41 @@ public class SwitchInteraction {
     @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
     public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {//待测
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        ParameterSet parameterSet = new ParameterSet();
+        /*程序登陆人*/
+        parameterSet.setLoginUser(SecurityUtils.getLoginUser());
+        /*线程数*/
+        parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
+
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         for (String information:switchInformation){
-            // information  : {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
-            // 去除花括号得到： "ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"
-            information = information.replace("{","");
-            information = information.replace("}","");
-            /*以逗号分割 获取到 集合 集合为：
-                information_split.get(0)  "ip":"192.168.1.100"
-                information_split.get(1)  "name":"admin"
-                information_split.get(2)  "password":"admin"
-                information_split.get(3)  "mode":"ssh"
-                information_split.get(4)  "port":"22"
-            */
-            String[] information_split = information.split(",");
+            /*交换机登录信息 转化为 实体类*/
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
+
             // 四个参数 设默认值
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
             switchParameters.setScanningTime(simpleDateFormat);
+            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
 
-            for (String string:information_split){
-                // string  参数为  ip:192.168.1.100  或  name:admin 或 password:admin 或 mode:ssh 或 port:22
-                string = string.replace("\"","");
-                // 以 ： 分割 得到
-                /*
-                string_split[0] ip           string_split[1] 192.168.1.100
-                string_split[0] name         string_split[1] admin
-                string_split[0] password     string_split[1] admin
-                string_split[0] mode         string_split[1] ssh
-                string_split[0] port         string_split[1] 22
-                */
-                String[] string_split = string.split(":");
-                switch (string_split[0]){
-                    case "ip" :  switchParameters.setIp(string_split[1]);
-                        break;
-                    case "name" :  switchParameters.setName(string_split[1]);
-                        break;
-                    case "password" :
-                        String ciphertext = string_split[1];
-                        String ciphertextString = RSAUtils.decryptFrontEndCiphertext(ciphertext);
-                        switchParameters.setPassword(ciphertextString);
-                        break;
-                    case "configureCiphers" :
-                        String configureCiphersciphertext = string_split[1];
-                        String configureCiphersciphertextString = RSAUtils.decryptFrontEndCiphertext(configureCiphersciphertext);
-                        switchParameters.setConfigureCiphers(configureCiphersciphertextString);
-                        break;
-
-                    case "mode" :  switchParameters.setMode(string_split[1]);
-                        break;
-                    case "port" :  switchParameters.setPort(Integer.valueOf(string_split[1]).intValue());
-                        break;
-                }
-            }
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
         }
-        //WebSocketService.sendMessage("admin","");
-        //ScanThread.switchLoginInformations(objectsList,ScanningTime,login);
-        //线程池
-
-        ParameterSet parameterSet = new ParameterSet();
+        /*交换机登录信息*/
         parameterSet.setSwitchParameters(switchParametersList);
-        parameterSet.setLoginUser(SecurityUtils.getLoginUser());
-        parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
 
+        /*线程池*/
         try {
+            /*扫描全部问题线程池*/
             ScanFixedThreadPool.switchLoginInformations(parameterSet);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        // todo 扫描结束 提示前端信息
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
@@ -442,28 +364,21 @@ public class SwitchInteraction {
      * @return
      */
     public static AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters) {
-
         //连接交换机  requestConnect：
-        //传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
-        //                          connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
-        //返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
-        //                         connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）
-        //                         SshConnect ssh连接工具 或者 TelnetComponent telnet连接工具（其中一个，为空者不存在）]
-
         AjaxResult requestConnect_ajaxResult = null;
         for (int number = 0; number <4 ; number++){
+            switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
+            switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
             requestConnect_ajaxResult = requestConnect(switchParameters);
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
                 break;
             }
         }
 
-
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
-
+            // todo 交换机连接失败 错误代码
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-
             if (loginError != null){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
@@ -475,27 +390,13 @@ public class SwitchInteraction {
                     }
                 }
             }
-
-            try {
-                PathHelper.writeDataToFileByName("风险:"+ switchParameters.getIp() + "交换机连接失败\r\n","交换机连接");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             return AjaxResult.error("交换机连接失败");
         }
 
         //解析返回参数 data
-
         switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
-
-        //是否连接成功 返回信息集合的 第一项 为 是否连接成功
-        // todo
-        boolean requestConnect_boolean = requestConnect_ajaxResult.get("msg").equals("操作成功");//(boolean) objectMap.get("TrueAndFalse");
-
         //如果连接成功
-        if(requestConnect_boolean){
+        if(requestConnect_ajaxResult.get("msg").equals("操作成功")){
             //密码 MD5 加密
             String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getPassword());
             switchParameters.setPassword(passwordDensificationAndSalt);//用户密码
@@ -504,9 +405,6 @@ public class SwitchInteraction {
             switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
 
             //获取交换机基本信息
-            //getBasicInformationList 通过 特定方式 获取 基本信息
-            //getBasicInformationList 通过扫描方式 获取 基本信息
-
             AjaxResult basicInformationList_ajaxResult = GetBasicInformationController.getBasicInformationCurrency(switchParameters);
 
             return basicInformationList_ajaxResult;
@@ -527,20 +425,16 @@ public class SwitchInteraction {
     */
     @GetMapping("logInToGetBasicInformation")
     public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables) {
-
+        /*连接交换机 获取交换机基本信息*/
         AjaxResult basicInformationList_ajaxResult = connectSwitchObtainBasicInformation(switchParameters);
-
+        if (basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
+            return basicInformationList_ajaxResult;
         //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
         if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))){
-
             switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
             OSPFFeatures.getOSPFValues(switchParameters);
-
             LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
             luminousAttenuation.obtainLightDecay(switchParameters);
-
-
             //5.获取交换机可扫描的问题并执行分析操作
             AjaxResult ajaxResult = scanProblem(switchParameters,totalQuestionTables);
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
@@ -570,51 +464,34 @@ public class SwitchInteraction {
 
     /**
      * 连接交换机方法
-     * @method: 连接交换机
-     * @Param: [mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,]
-     * @Param: [connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
-     * @E-mail: WeiYaNing97@163.com
-     *
-     * 通过参数参数 [mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,] 连接交换机，
-     * 如果是ssh连接 则connectMethod 属性值存在，用于通过ssh连接 ，telnetSwitchMethod为空
-     * 如果是telnet连接 则telnetSwitchMethod 属性值存在，用于通过ssh连接 ，connectMethod为空
-     *返回信息为 是否连接成功 + 全部传入参数 ，此时 connectMethod(telnetSwitchMethod) 已经连接交换机
      */
     @GetMapping("requestConnect")
     public static AjaxResult requestConnect(SwitchParameters switchParameters) {
 
         //设定连接结果 预设连接失败为 false
         boolean is_the_connection_successful =false;
-        //ssh 和 telnet 连接方法 预设为null
-        SshConnect sshConnect = null;
-        TelnetComponent telnetComponent = null;
-        //连接方法
-        SshMethod connectMethod = null;
-        TelnetSwitchMethod telnetSwitchMethod = null;
-
         List<Object> objects = null;
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             //创建ssh连接方法
-            connectMethod = new SshMethod();
+            SshMethod connectMethod = new SshMethod();
             //连接ssh 成功为 true  失败为  false
             objects = connectMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword());
 
             boolean loginBoolean = (boolean) objects.get(0);
 
             if (loginBoolean == true){
-                sshConnect =  (SshConnect)objects.get(1);
+                SshConnect sshConnect =  (SshConnect)objects.get(1);
                 switchParameters.setSshConnect(sshConnect);
                 switchParameters.setConnectMethod(connectMethod);
-            }
-
-            if (sshConnect!=null){
-                is_the_connection_successful = true;
+                if (sshConnect!=null){
+                    is_the_connection_successful = true;
+                }
             }
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
             //创建telnet连接方法
-            telnetSwitchMethod = new TelnetSwitchMethod();
+            TelnetSwitchMethod telnetSwitchMethod = new TelnetSwitchMethod();
             //连接telnet 成功为 true  失败为  false
-            telnetComponent = telnetSwitchMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword(), null);
+            TelnetComponent telnetComponent = telnetSwitchMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword(), null);
             if (telnetComponent!=null){
                 switchParameters.setTelnetComponent(telnetComponent);
                 switchParameters.setTelnetSwitchMethod(telnetSwitchMethod);
@@ -623,24 +500,22 @@ public class SwitchInteraction {
 
         }
 
-        /* 返回信息 ： [是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
-                connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）]*/
+        /* is_the_connection_successful 交换机连接成功*/
         if(is_the_connection_successful){
-            //enable
+            //enable 配置  返回 交换机连接失败  或   交换机连接成功
+
             String enable = enable(switchParameters);
             if (enable.equals("交换机连接成功")){
                 return AjaxResult.success(switchParameters);
             }else {
-
                 AjaxResult ajaxResult = new AjaxResult();
-                ajaxResult.put("loginError",objects);
+                ajaxResult.put("loginError",objects); // 交换机连接的返回信息
                 ajaxResult.put("msg","交换机连接失败");
                 return ajaxResult;
-
             }
         }else {
             AjaxResult ajaxResult = new AjaxResult();
-            ajaxResult.put("loginError",objects);
+            ajaxResult.put("loginError",objects); // 交换机连接的返回信息
             ajaxResult.put("msg","交换机连接失败");
             return ajaxResult;
         }
@@ -652,8 +527,9 @@ public class SwitchInteraction {
      * @return
      */
     public static String enable(SwitchParameters switchParameters) {
-
+        /*交换机返回结果*/
         String returnString = null;
+        /* 执行 回车命令 获取交换机及返回结果*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
@@ -663,23 +539,26 @@ public class SwitchInteraction {
             return "交换机连接失败";
         }
         String trim = returnString.trim();
-        if (trim.substring(trim.length()-1,trim.length()).equals(">")){
+        /*判断 交换机返回结果给标识符 是否 以> 结尾*/
+        /*思科交换机返回信息是 #  不需要发送 enable*/
+        if (trim.endsWith(">")){
+            /*发送 enable 命令 查看返回结果 */
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"enable",null);
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
             }
-
+            /*判断交换机返回结果是否为空*/
             if (returnString == null){
                 return "交换机连接失败";
             }else {
-                returnString = returnString.trim();
                 String substring = returnString.substring(returnString.length() - 1, returnString.length());
                 if (returnString.indexOf("command")!=-1 && returnString.indexOf("%")!=-1 ){
                     return "交换机连接成功";
                 }else if (substring.equalsIgnoreCase("#")){
                     return "交换机连接成功";
                 }else if (returnString.indexOf(":")!=-1){
+                    /* 输入 配置密码*/
                     if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                         SshMethod connectMethod = switchParameters.getConnectMethod();
                         SshConnect sshConnect = switchParameters.getSshConnect();
@@ -694,7 +573,6 @@ public class SwitchInteraction {
         }else if (trim.substring(trim.length()-1,trim.length()).equals("#")){
             return "交换机连接成功";
         }
-
         return "交换机连接失败";
     }
 

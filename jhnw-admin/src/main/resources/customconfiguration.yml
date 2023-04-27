@@ -2,11 +2,11 @@
 BasicInformation:
   # 能够获取品牌的命令
   getBrandCommand: show version;display version
-  # 设备版本 两个型号之间以;分阁
+  # 设备版本 两个型号之间以;分隔
   deviceVersion: Version
-  # 设备子版本 两个型号之间以;分阁
+  # 设备子版本 两个型号之间以;分隔     默认下一位为要取的参数
   deviceSubversion: Release;Build;RELEASE SOFTWARE
-  # 路由器标志
+  # 路由器标志  属性值开头并且包含数字
   routerFlag: NE
 
 #OSPF
@@ -51,7 +51,6 @@ OSPF:
   H3C:
     获取端口号命令: display interface brief
     获取光衰参数命令: display transceiver diagnosis interface 端口号
-    # 未使用
     阈值: [-23,-5]
     转译:
       GE: GigabitEthernet

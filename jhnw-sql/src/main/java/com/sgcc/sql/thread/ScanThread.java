@@ -11,6 +11,9 @@ import com.sgcc.sql.webSocket.WebSocketService;
 import java.io.IOException;
 import java.util.concurrent.*;
 
+/**
+ * 全部问题多线程
+ */
 public class ScanThread extends Thread  {
 
     SwitchParameters switchParameters = null;
@@ -37,14 +40,10 @@ public class ScanThread extends Thread  {
 
             SwitchInteraction switchInteraction = new SwitchInteraction();
             //扫描方法 logInToGetBasicInformation
-            //传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，loginUser 登录人信息，time 扫描时间
-            // List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
-            // 扫描一台交换机 的 所以问题
 
             AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters,null);
 
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp());
-
             if (ajaxResult.get("msg").equals("交换机连接失败")){
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() +"问题:交换机连接失败\r\n");
                 try {
@@ -60,7 +59,6 @@ public class ScanThread extends Thread  {
                     e.printStackTrace();
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
