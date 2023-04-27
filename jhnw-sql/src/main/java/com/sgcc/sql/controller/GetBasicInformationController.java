@@ -45,11 +45,9 @@ public class GetBasicInformationController {
 
         //目前获取基本信息命令是多个命令是由,号分割的，
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
-
         /*H3C*/
         String[] commandsplit = ( (String) CustomConfigurationUtil.getValue("BasicInformation.getBrandCommand", Constant.getProfileInformation())).split(";");
         String commandString =""; //预设交换机返回结果
-
         //遍历数据表命令 分割得到的 命令数组
         for (String command:commandsplit){
             /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
@@ -66,21 +64,22 @@ public class GetBasicInformationController {
                     && hashMap.get("banben")!=null
                     && hashMap.get("routerFlag")!=null){
 
-                hashMap.put("pinpai",removeSpecialSymbols(hashMap.get("pinpai")));
-                hashMap.put("xinghao",removeSpecialSymbols(hashMap.get("xinghao")));
+                hashMap.put("pinpai",hashMap.get("pinpai"));
+                hashMap.put("xinghao",hashMap.get("xinghao"));
                 hashMap.put("banben",removeSpecialSymbols(hashMap.get("banben")));
                 hashMap.put("zibanben",removeSpecialSymbols(hashMap.get("zibanben")));
-                hashMap.put("routerFlag",removeSpecialSymbols(hashMap.get("routerFlag")));
-
-
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
-                        "设备品牌："+hashMap.get("pinpai")+
-                        "设备型号："+hashMap.get("xinghao")+
-                        "内部固件版本："+hashMap.get("banben")+
-                        "子版本号："+hashMap.get("zibanben")+
-                        "设备："+hashMap.get("routerFlag")+"\r\n");
+                hashMap.put("routerFlag",hashMap.get("routerFlag"));
+                System.err.println("品牌:"+hashMap.get("pinpai")+"型号:"+hashMap.get("xinghao")+
+                        "版本:"+hashMap.get("banben")+"子版本:"+hashMap.get("zibanben")+
+                        "设备:"+hashMap.get("routerFlag"));
 
                 try {
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
+                            "设备品牌："+hashMap.get("pinpai")+
+                            "设备型号："+hashMap.get("xinghao")+
+                            "内部固件版本："+hashMap.get("banben")+
+                            "子版本号："+hashMap.get("zibanben")+
+                            "设备："+hashMap.get("routerFlag")+"\r\n");
                     PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"成功基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
@@ -99,7 +98,6 @@ public class GetBasicInformationController {
                 switchParameters.setRouterFlag(hashMap.get("routerFlag"));
                 return AjaxResult.success(switchParameters);
             }else {
-
                 try {
                     PathHelper.writeDataToFileByName("系统信息:"+ switchParameters.getIp() +"失败基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
@@ -107,19 +105,12 @@ public class GetBasicInformationController {
                             "内部固件版本："+hashMap.get("banben")+
                             "子版本号："+hashMap.get("zibanben")+
                             "设备："+hashMap.get("routerFlag")+"\r\n","基本信息");
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
-
-
         }
-
-
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
-
     }
 
 
@@ -150,9 +141,7 @@ public class GetBasicInformationController {
      * @return  返回  交换机基本信息
      */
     public static HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
-
         returns_String = returns_String.replaceAll("\r\n"," ");
-
         informationService = SpringBeanUtil.getBean(IInformationService.class);
         List<String> brandList = informationService.selectDeviceBrandList();
         String brand = null;
@@ -160,7 +149,6 @@ public class GetBasicInformationController {
         String firmwareVersion = null;
         String subversionNo = null;
         String router = "交换机";
-
         /* 创建返回对象 */
         HashMap<String,String> map = new HashMap<>();
         String[] return_word = returns_String.split(" ");
@@ -218,13 +206,11 @@ public class GetBasicInformationController {
         String[] deviceVersionSplit =deviceVersion.split(";");
         /*遍历配置文件中的 属性值*/
         for (String version:deviceVersionSplit){
-
             /*判断是否包含配置文件中的 属性值
             * 如果不包含 则 下一循环*/
             if (!MyUtils.containIgnoreCase(returns_String," "+version+" ")){
                 continue;
             }
-
             /*属性值可能是多个单词*/
             String[] versionSplit = version.split(" ");
             int versionNumber = versionSplit.length;
@@ -262,13 +248,11 @@ public class GetBasicInformationController {
         String deviceSubversion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceSubversion",Constant.getProfileInformation());
         String[] deviceSubversionSplit =deviceSubversion.split(";");
         for (String version:deviceSubversionSplit){
-
             /*判断是否包含配置文件中的 属性值
              * 如果不包含 则 下一循环*/
             if (!MyUtils.containIgnoreCase(returns_String," "+version+" ")){
                 continue;
             }
-
             String[] versionSplit = version.split(" ");
             int versionNumber = versionSplit.length;
             for (int number = 0 ; number < return_word.length; number++){
@@ -278,7 +262,6 @@ public class GetBasicInformationController {
                             subversionNo = return_word[number+1];
                             break;
                         }
-
                     }else {
                         String device = "";
                         for (int num = 0 ; num < versionNumber ; num++){
@@ -290,30 +273,19 @@ public class GetBasicInformationController {
                                 subversionNo =  return_word[number + (versionNumber-1) + 1];
                                 break;
                             }
-
                         }
                     }
                 }
             }
-
         }
-
         map.put("pinpai",brand);
         map.put("xinghao",model);
         map.put("banben",firmwareVersion);
         map.put("zibanben",subversionNo);
         map.put("routerFlag",router);
-
-        System.err.println(brand);
-        System.err.println(model);
-        System.err.println(firmwareVersion);
-        System.err.println(subversionNo);
-        System.err.println(router);
-
         if (model == null){
 
         }
-
         return map;
     }
 

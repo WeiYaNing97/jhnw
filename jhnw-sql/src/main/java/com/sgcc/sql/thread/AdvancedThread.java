@@ -43,7 +43,8 @@ public class AdvancedThread extends Thread {
         for (String function:functionName){
             switch (function){
                 case "OSPF":
-                    OSPFFeatures.getOSPFValues(switchParameters);
+                    OSPFFeatures ospfFeatures = new OSPFFeatures();
+                    ospfFeatures.getOSPFValues(switchParameters);
                     break;
                 case "光衰":
                     LuminousAttenuation luminousAttenuation = new LuminousAttenuation();

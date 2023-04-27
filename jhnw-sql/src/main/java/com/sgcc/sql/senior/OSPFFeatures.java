@@ -1,6 +1,7 @@
 package com.sgcc.sql.senior;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.controller.SwitchScanResultController;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.SwitchParameters;
@@ -30,7 +31,7 @@ public class OSPFFeatures {
      * ospf 功能接口
      * @param switchParameters
      */
-    public static void getOSPFValues(SwitchParameters switchParameters) {
+    public void getOSPFValues(SwitchParameters switchParameters) {
         /*查询OSPF 命令集合*/
         Object objectMap  = CustomConfigurationUtil.getValue("OSPF.command",Constant.getProfileInformation());
         if (objectMap == null){
@@ -128,7 +129,7 @@ public class OSPFFeatures {
                     // =:= 是自定义分割符
                     hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber());
                     switchScanResultController.insertSwitchScanResult(switchParameters,hashMap);
-
+                    SwitchInteraction.getSwitchScanResultListByData(switchParameters);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

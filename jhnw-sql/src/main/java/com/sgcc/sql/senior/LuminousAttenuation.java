@@ -1,5 +1,6 @@
 package com.sgcc.sql.senior;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.controller.SwitchScanResultController;
 import com.sgcc.sql.domain.Constant;
 import com.sgcc.sql.parametric.SwitchParameters;
@@ -85,7 +86,7 @@ public class LuminousAttenuation {
         if (MyUtils.isMapEmpty(getparameter)){
             // todo 关于未获取到光衰参数 的错误代码库
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未获取到光衰参数","光衰");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未获取到光衰参数\r\n","光衰");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -115,6 +116,7 @@ public class LuminousAttenuation {
                         "TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
                         "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]");
                 switchScanResultController.insertSwitchScanResult(switchParameters,hashMap);
+                SwitchInteraction.getSwitchScanResultListByData(switchParameters);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -218,6 +220,8 @@ public class LuminousAttenuation {
             }
             /*提取光衰参数*/
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
+            if (values == null)
+                return null;
             hashMap.put(port+"TX",values.get("TX"));
             hashMap.put(port+"RX",values.get("RX"));
             hashMap.put(port+"TXHIGH",values.get("TXHIGH"));
@@ -385,9 +389,11 @@ public class LuminousAttenuation {
             }
 
         }
+        if (Double.valueOf(txpower).doubleValue() == 1 || Double.valueOf(rxpower).doubleValue() == 1)
+            return null;
         HashMap<String,Double> hashMap = new HashMap<>();
-        hashMap.put("TX",txpower);
-        hashMap.put("RX",rxpower);
+        hashMap.put("TX",Double.valueOf(txpower).doubleValue() == 1?null:txpower);
+        hashMap.put("RX",Double.valueOf(rxpower).doubleValue() == 1?null:rxpower);
         hashMap.put("TXHIGH",txpowerhigh);
         hashMap.put("RXHIGH",rxpowerhigh);
         hashMap.put("TXLOW",txpowerlow);
