@@ -37,12 +37,9 @@ public class ScanThread extends Thread  {
             //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
             int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
             System.err.println("活跃线程数："+threadCount);
-
             SwitchInteraction switchInteraction = new SwitchInteraction();
             //扫描方法 logInToGetBasicInformation
-
             AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters,null);
-
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp());
             if (ajaxResult.get("msg").equals("交换机连接失败")){
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() +"问题:交换机连接失败\r\n");

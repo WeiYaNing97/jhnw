@@ -647,13 +647,15 @@ public class TotalQuestionTableController extends BaseController
     {
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
         if (totalQuestionTable.getProblemSolvingId() != null){
-            boolean command = CommandLogicController.deleteProblemSolvingCommand(id);
+            CommandLogicController commandLogicController = new CommandLogicController();
+            boolean command = commandLogicController.deleteProblemSolvingCommand(id);
             if (!command){
                 return AjaxResult.error();
             }
         }
         if (totalQuestionTable.getCommandId() != null){
-            boolean scan = DefinitionProblemController.deleteScanningLogic(id);
+            DefinitionProblemController definitionProblemController = new DefinitionProblemController();
+            boolean scan = definitionProblemController.deleteScanningLogic(id);
             if (!scan){
                 return AjaxResult.error();
             }

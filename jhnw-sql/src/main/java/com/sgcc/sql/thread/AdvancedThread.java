@@ -34,7 +34,8 @@ public class AdvancedThread extends Thread {
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
 
-        AjaxResult basicInformationList_ajaxResult = SwitchInteraction.connectSwitchObtainBasicInformation(switchParameters);
+        SwitchInteraction switchInteraction = new SwitchInteraction();
+        AjaxResult basicInformationList_ajaxResult = switchInteraction.connectSwitchObtainBasicInformation(switchParameters);
         //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
         if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))) {
             this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");

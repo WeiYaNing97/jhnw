@@ -100,7 +100,8 @@ public class SolveProblemController {
 
         List<String> commandLogicStringList = new ArrayList<>();
         for (CommandLogic commandLogic:commandLogicList){
-            String string = DefinitionProblemController.commandLogicString(commandLogic);
+            DefinitionProblemController definitionProblemController = new DefinitionProblemController();
+            String string = definitionProblemController.commandLogicString(commandLogic);
             String[] split = string.split("=:=");
             System.err.println("\r\n"+split[1]+"\r\n");
             commandLogicStringList.add(split[1]);
@@ -253,8 +254,8 @@ public class SolveProblemController {
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
-
-        AjaxResult requestConnect_ajaxResult = SwitchInteraction.requestConnect( switchParameters );
+        SwitchInteraction switchInteraction = new SwitchInteraction();
+        AjaxResult requestConnect_ajaxResult = switchInteraction.requestConnect( switchParameters );
 
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
@@ -295,7 +296,8 @@ public class SolveProblemController {
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
-            AjaxResult basicInformationList_ajaxResult = GetBasicInformationController.getBasicInformationCurrency(switchParameters);
+            GetBasicInformationController getBasicInformationController = new GetBasicInformationController();
+            AjaxResult basicInformationList_ajaxResult = getBasicInformationController.getBasicInformationCurrency(switchParameters);
 
             if (basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                 return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
@@ -450,7 +452,7 @@ public class SolveProblemController {
      * @param dynamicInformation
      * @return  key : value   ->  用户名 : admin
      */
-    public static HashMap<String,String> separationParameters(String dynamicInformation) {
+    public HashMap<String,String> separationParameters(String dynamicInformation) {
         HashMap<String,String> valueHashMap = new HashMap<>();
         //几个参数中间的 参数是 以  "=:=" 来分割的
         //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
@@ -483,7 +485,7 @@ public class SolveProblemController {
      */
     @GetMapping("queryCommandSet")
     @ApiOperation("查询修复命令集合")
-    public static List<CommandLogic> queryCommandSet(String commandId){
+    public List<CommandLogic> queryCommandSet(String commandId){
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);

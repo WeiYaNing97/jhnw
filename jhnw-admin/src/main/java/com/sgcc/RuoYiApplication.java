@@ -27,9 +27,10 @@ public class RuoYiApplication
             character.ObtainAllConfigurationFileParameters();
             OspfEnum.assignment();
 
-
-            Configuration.getConfiguration();
-            MemoryCPU.initSystemInfo();
+            Configuration configuration = new Configuration();
+            configuration.getConfiguration();
+            MemoryCPU memoryCPU = new MemoryCPU();
+            memoryCPU.initSystemInfo();
         } catch (Exception e) {
             e.printStackTrace();
         }

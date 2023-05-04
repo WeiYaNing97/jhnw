@@ -152,7 +152,8 @@ public class CommandLogicController extends BaseController
         List<CommandLogic> commandLogics = new ArrayList<>();
         for (int number=0;number<commandLogicList.size();number++){
             //CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
-            CommandLogic commandLogic = DefinitionProblemController.analysisCommandLogic(commandLogicList.get(number));
+            DefinitionProblemController definitionProblemController = new DefinitionProblemController();
+            CommandLogic commandLogic = definitionProblemController.analysisCommandLogic(commandLogicList.get(number));
 
             commandLogics.add(commandLogic);
         }
@@ -304,7 +305,7 @@ public class CommandLogicController extends BaseController
     @ApiOperation("删除修复问题命令")
     @DeleteMapping("deleteProblemSolvingCommand")
     @MyLog(title = "删除修复问题命令", businessType = BusinessType.UPDATE)
-    public static boolean deleteProblemSolvingCommand(@RequestBody Long totalQuestionTableId){
+    public boolean deleteProblemSolvingCommand(@RequestBody Long totalQuestionTableId){
         //根据 问题表 问题ID 查询 问题数据
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);

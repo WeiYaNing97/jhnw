@@ -121,6 +121,7 @@ public class FunctionalMethods {
             * 标识符为 最后一个元素  注意要删除 \r\n  所以-2*/
             String current_return_log = command_string.substring(0,command_string.length()-LineInformation[LineInformation.length-1].length()-2);
             returnRecord.setCurrentReturnLog(current_return_log);
+
             // todo  交换机返回日志的前端回显
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
             try {

@@ -49,7 +49,7 @@ public class MemoryCPU {
     }
 
     /*系统自带参数*/
-    private static void systemParamsNameAndValue() {
+    private void systemParamsNameAndValue() {
         Properties properties = System.getProperties();
         Set<Map.Entry<Object, Object>> params = properties.entrySet();
         for (Iterator<Map.Entry<Object, Object>> iterator = params.iterator(); iterator.hasNext();) {
@@ -69,7 +69,7 @@ public class MemoryCPU {
      * @param
      * @return void
      */
-    public static void initSystemInfo() {
+    public void initSystemInfo() {
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 SystemInfo systemInfo = new SystemInfo();
@@ -169,7 +169,7 @@ public class MemoryCPU {
      *
      * @param systemInfo
      */
-    private static void printlnCpuInfo(SystemInfo systemInfo) throws InterruptedException {
+    private void printlnCpuInfo(SystemInfo systemInfo) throws InterruptedException {
         CentralProcessor processor = systemInfo.getHardware().getProcessor();
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         // 睡眠1s

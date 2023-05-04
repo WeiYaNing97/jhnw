@@ -69,6 +69,8 @@ public interface ISwitchScanResultService
     List<SwitchScanResult> selectSwitchScanResultByIds(Long[] id);
 
     List<SwitchProblemVO> selectSwitchScanResultListByDataAndUserName(String loginTime, String loginName);
+    List<SwitchProblemVO> selectSwitchScanResultListById(Long longId);
+
 
     List<SwitchScanResult> selectSwitchScanResultByDataAndUserName(String loginTime, String loginName);
 

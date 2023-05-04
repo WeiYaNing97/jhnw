@@ -59,6 +59,9 @@ public class LuminousAttenuation {
         }
         /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取获取光衰端口号*/
         List<String> port = luminousAttenuationgetPort(returnString);
+        for (String str:port){
+            System.err.println("提取到的端口号"+str);
+        }
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
             // todo 关于没有端口号为UP状态 的错误代码库
@@ -115,8 +118,9 @@ public class LuminousAttenuation {
                 hashMap.put("parameterString","端口号=:=是=:="+str+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
                         "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]");
-                switchScanResultController.insertSwitchScanResult(switchParameters,hashMap);
-                SwitchInteraction.getSwitchScanResultListByData(switchParameters);
+                Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+                SwitchInteraction switchInteraction = new SwitchInteraction();
+                switchInteraction.getSwitchScanResultListByData(switchParameters,insertId);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -206,6 +210,7 @@ public class LuminousAttenuation {
         for (String port:portNumber){
             /*替换端口号 得到完整的 获取端口号光衰参数命令 */
             String FullCommand = command.replaceAll("端口号",port);
+            System.err.println("端口号"+FullCommand);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
@@ -220,8 +225,10 @@ public class LuminousAttenuation {
             }
             /*提取光衰参数*/
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
-            if (values == null)
-                return null;
+            if (values == null){
+                // todo 为提取到光衰参数
+                continue;
+            }
             hashMap.put(port+"TX",values.get("TX"));
             hashMap.put(port+"RX",values.get("RX"));
             hashMap.put(port+"TXHIGH",values.get("TXHIGH"));

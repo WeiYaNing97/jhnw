@@ -44,7 +44,7 @@ public class DatabaseDeletionControler {
      */
     @ApiOperation("删除数据表所有数据")
     @DeleteMapping("deleteAllTable")
-    public static void deleteAllTable() {
+    public void deleteAllTable() {
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);

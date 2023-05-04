@@ -114,6 +114,11 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     }
 
     @Override
+    public List<SwitchProblemVO> selectSwitchScanResultListById(Long longId) {
+        return switchScanResultMapper.selectSwitchScanResultListById(longId);
+    }
+
+    @Override
     public List<SwitchScanResult> selectSwitchScanResultByDataAndUserName(String loginTime, String loginName) {
         return switchScanResultMapper.selectSwitchScanResultByDataAndUserName(loginTime,loginName);
     }

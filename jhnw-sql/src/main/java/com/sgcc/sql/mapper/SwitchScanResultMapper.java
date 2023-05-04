@@ -69,6 +69,8 @@ public interface SwitchScanResultMapper
     List<SwitchScanResult> selectSwitchScanResultByIds(Long[] ids);
 
     List<SwitchProblemVO> selectSwitchScanResultListByDataAndUserName(@Param("currentTime") String loginTime,@Param("userName") String loginName);
+    List<SwitchProblemVO> selectSwitchScanResultListById(@Param("id") Long longId);
+
 
     List<SwitchScanResult> selectSwitchScanResultByDataAndUserName(@Param("currentTime") String loginTime,@Param("userName") String loginName);
 

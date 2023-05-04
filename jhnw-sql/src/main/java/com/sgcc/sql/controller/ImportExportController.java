@@ -53,7 +53,7 @@ public class ImportExportController {
      */
     @ApiOperation("数据库导出")
     @GetMapping("/scanningSQL")
-    public static AjaxResult scanningSQL() {
+    public AjaxResult scanningSQL() {
         Long totalQuestionTableId = null;
         Long[] totalQuestionTableIds = new Long[1];
         totalQuestionTableIds[0] = totalQuestionTableId;
@@ -79,8 +79,10 @@ public class ImportExportController {
         }else {
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(null);
         }
+
+        DefinitionProblemController definitionProblemController = new DefinitionProblemController();
         for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
-            HashMap<String, Object> scanLogicalEntityClass = DefinitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
+            HashMap<String, Object> scanLogicalEntityClass = definitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
             if (scanLogicalEntityClass != null){
                 /*命令数据*/
                 List<CommandLogic> commandLogics = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
@@ -98,7 +100,8 @@ public class ImportExportController {
                 }
             }
             if(totalQuestionTable.getProblemSolvingId() != null){
-                List<CommandLogic> commandPojoList = SolveProblemController.queryCommandSet(totalQuestionTable.getProblemSolvingId());
+                SolveProblemController solveProblemController = new SolveProblemController();
+                List<CommandLogic> commandPojoList = solveProblemController.queryCommandSet(totalQuestionTable.getProblemSolvingId());
                 if (commandPojoList != null){
                     for (CommandLogic pojo:commandPojoList){
                         repaircommandLogicList.add(pojo);
@@ -106,7 +109,7 @@ public class ImportExportController {
                 }
             }
         }
-        List<ProblemScanLogic> pojoList = DefinitionProblemController.definitionProblem(problemScanLogicList);
+        List<ProblemScanLogic> pojoList = definitionProblemController.definitionProblem(problemScanLogicList);
 
         List<String> exportText = new ArrayList<>();
         exportText.add("交换机问题表");
@@ -229,7 +232,7 @@ public class ImportExportController {
      * @param totalQuestionTable
      * @return
      */
-    public static TotalQuestionTable importConversionTotalQuestionTable(String totalQuestionTable) {
+    public TotalQuestionTable importConversionTotalQuestionTable(String totalQuestionTable) {
         totalQuestionTable = totalQuestionTable.substring(0,totalQuestionTable.length()-1);
         String[] totalQuestionTableSplit = totalQuestionTable.split("\",");
 
@@ -293,7 +296,7 @@ public class ImportExportController {
      * @param commandLogic
      * @return
      */
-    public static CommandLogic importConversionCommandLogic(String commandLogic) {
+    public CommandLogic importConversionCommandLogic(String commandLogic) {
         commandLogic = commandLogic.substring(0,commandLogic.length()-1);
         String[] commandLogicSplit = commandLogic.split("\",");
 
@@ -337,7 +340,7 @@ public class ImportExportController {
      * @param problemScanLogic
      * @return
      */
-    public static ProblemScanLogic importConversionProblemScanLogic(String problemScanLogic) {
+    public ProblemScanLogic importConversionProblemScanLogic(String problemScanLogic) {
         problemScanLogic = problemScanLogic.substring(0, problemScanLogic.length() - 1);
         String[] problemScanLogicSplit = problemScanLogic.split("\",");
 

@@ -347,7 +347,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
+    public CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
         /*第一步：去掉“{”“}”，然后以“，”分割（扫描逻辑中命令是否有带“，”的，会有影响）*/
         CommandLogic commandLogic = new CommandLogic();
         jsonPojo = jsonPojo.replace("{","");
@@ -433,7 +433,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static ProblemScanLogic analysisProblemScanLogic(@RequestBody String jsonPojo,String ifCommand){
+    public ProblemScanLogic analysisProblemScanLogic(@RequestBody String jsonPojo,String ifCommand){
         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
         HashMap<String,String> hashMap = new HashMap<>();
         /*去掉“{”“}”*/
@@ -788,7 +788,7 @@ public class DefinitionProblemController extends BaseController {
      * @param ProblemScanLogicList
      * @return
      */
-    public static List<ProblemScanLogic> splitSuccessFailureLogic(List<ProblemScanLogic> ProblemScanLogicList) {
+    public  List<ProblemScanLogic> splitSuccessFailureLogic(List<ProblemScanLogic> ProblemScanLogicList) {
         /*遍历 分析集合
          * 当错误行号不为空时 则 错误信息取出 放入 一个新的实体类 然后放入 需要返回的实体类集合 并把原实体类错误信息清空
          * 原实体类 放入 需要返回的实体类集合
@@ -833,7 +833,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static List<ProblemScanLogic> definitionProblem(List<ProblemScanLogic> pojoList){
+    public  List<ProblemScanLogic> definitionProblem(List<ProblemScanLogic> pojoList){
         //根据 set 特性 获取分析ID、不重复
         HashSet<String> hashSet = new HashSet<>();
         for (ProblemScanLogic problemScanLogic:pojoList){
@@ -977,7 +977,7 @@ public class DefinitionProblemController extends BaseController {
     @ApiOperation("查询定义分析问题数据")
     @GetMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
-    public static AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
+    public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
 
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -1015,7 +1015,7 @@ public class DefinitionProblemController extends BaseController {
 
 
     //@RequestMapping("getAnalysisList")
-    public static List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser){
+    public  List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser){
 
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
         if (scanLogicalEntityClass == null){
@@ -1052,7 +1052,7 @@ public class DefinitionProblemController extends BaseController {
      * @param loginUser
      * @return  返回命令集合 和 分析集合的  map集合
      */
-    public static HashMap<String,Object> getScanLogicalEntityClass(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser) {
+    public  HashMap<String,Object> getScanLogicalEntityClass(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser) {
 
         if (totalQuestionTable.getCommandId() == null){
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -1238,7 +1238,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @DeleteMapping("deleteScanningLogic")
     @ApiOperation("删除扫描逻辑数据")
-    public static boolean deleteScanningLogic(@RequestBody Long id) {
+    public boolean deleteScanningLogic(@RequestBody Long id) {
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
 
@@ -1337,7 +1337,7 @@ public class DefinitionProblemController extends BaseController {
      * @E-mail: WeiYaNing97@163.com
      */
     //@RequestMapping("problemScanLogicList")
-    public static List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID,LoginUser loginUser){
+    public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID,LoginUser loginUser){
 
         /*预设跳出循环条件 为 false*/
         boolean contain = false;
@@ -1446,7 +1446,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static String commandLogicString(CommandLogic commandLogic){
+    public String commandLogicString(CommandLogic commandLogic){
         String onlyIndex = commandLogic.getId();
         String trueFalse = "";
         String command = commandLogic.getCommand();
@@ -1498,7 +1498,7 @@ public class DefinitionProblemController extends BaseController {
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public static String problemScanLogicSting(ProblemScanLogic problemScanLogic,String id){
+    public String problemScanLogicSting(ProblemScanLogic problemScanLogic,String id){
         //定义一个 符合 前端字符串的 实体类
         ProblemScanLogicVO problemScanLogicVO = new ProblemScanLogicVO();
         //成功 && 失败
@@ -1929,7 +1929,8 @@ public class DefinitionProblemController extends BaseController {
         //loginUser 登陆人信息
         //problemId 分析ID
         /*根据分析ID 获取 分析实体类集合 不用拆分 true false*/
-        List<ProblemScanLogic> problemScanLogicList = DefinitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
+        DefinitionProblemController definitionProblemController = new DefinitionProblemController();
+        List<ProblemScanLogic> problemScanLogicList = definitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
 
         if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
             //传输登陆人姓名 及问题简述

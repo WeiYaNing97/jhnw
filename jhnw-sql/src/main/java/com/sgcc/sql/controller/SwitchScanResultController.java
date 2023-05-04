@@ -135,7 +135,7 @@ public class SwitchScanResultController extends BaseController
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
-    public void insertSwitchScanResult (SwitchParameters switchParameters, HashMap<String,String> hashMap){
+    public Long insertSwitchScanResult (SwitchParameters switchParameters, HashMap<String,String> hashMap){
 
         SwitchScanResult switchScanResult = new SwitchScanResult();
 
@@ -169,7 +169,8 @@ public class SwitchScanResultController extends BaseController
 
         //插入问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-        switchScanResultService.insertSwitchScanResult(switchScanResult);
+        int i = switchScanResultService.insertSwitchScanResult(switchScanResult);
+        return switchScanResult.getId();
     };
 
     @ApiOperation("获取交换机问题扫描结果页数")

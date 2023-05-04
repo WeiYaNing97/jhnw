@@ -22,8 +22,6 @@ import java.util.List;
 public class GetBasicInformationController {
 
     @Autowired
-    private static IReturnRecordService returnRecordService;
-    @Autowired
     private static IInformationService informationService;
 
     /**
@@ -41,7 +39,7 @@ public class GetBasicInformationController {
      *
      */
     @ApiOperation("通用获取交换机基本信息")
-    public static AjaxResult getBasicInformationCurrency(SwitchParameters switchParameters) {
+    public AjaxResult getBasicInformationCurrency(SwitchParameters switchParameters) {
 
         //目前获取基本信息命令是多个命令是由,号分割的，
         // 所以需要根据, 来分割。例如：display device manuinfo,display ver
@@ -140,7 +138,7 @@ public class GetBasicInformationController {
      * 根据交换机返回结果 获取 交换机基本信息
      * @return  返回  交换机基本信息
      */
-    public static HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
+    public HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
         returns_String = returns_String.replaceAll("\r\n"," ");
         informationService = SpringBeanUtil.getBean(IInformationService.class);
         List<String> brandList = informationService.selectDeviceBrandList();

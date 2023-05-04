@@ -28,7 +28,7 @@ public class Configuration {
     public static String logPath;
 
 
-    public static void getConfiguration() {
+    public void getConfiguration() {
         Configuration configuration = new Configuration();
 
         Map<String, String> ymlMap = configuration.readMapFromyml();

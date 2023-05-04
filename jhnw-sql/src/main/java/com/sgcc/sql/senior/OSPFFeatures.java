@@ -128,8 +128,9 @@ public class OSPFFeatures {
                     }
                     // =:= 是自定义分割符
                     hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber());
-                    switchScanResultController.insertSwitchScanResult(switchParameters,hashMap);
-                    SwitchInteraction.getSwitchScanResultListByData(switchParameters);
+                    Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+                    SwitchInteraction switchInteraction = new SwitchInteraction();
+                    switchInteraction.getSwitchScanResultListByData(switchParameters,insertId);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
