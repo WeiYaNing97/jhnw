@@ -114,7 +114,7 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     }
 
     @Override
-    public List<SwitchProblemVO> selectSwitchScanResultListById(Long longId) {
+    public SwitchProblemVO selectSwitchScanResultListById(Long longId) {
         return switchScanResultMapper.selectSwitchScanResultListById(longId);
     }
 

@@ -120,7 +120,7 @@ public class LuminousAttenuation {
                         "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]");
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchInteraction switchInteraction = new SwitchInteraction();
-                switchInteraction.getSwitchScanResultListByData(switchParameters,insertId);
+                switchInteraction.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
             }
         } catch (IOException e) {
             e.printStackTrace();

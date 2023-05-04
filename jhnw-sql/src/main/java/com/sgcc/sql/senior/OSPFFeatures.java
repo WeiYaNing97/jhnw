@@ -130,7 +130,7 @@ public class OSPFFeatures {
                     hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber());
                     Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                     SwitchInteraction switchInteraction = new SwitchInteraction();
-                    switchInteraction.getSwitchScanResultListByData(switchParameters,insertId);
+                    switchInteraction.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

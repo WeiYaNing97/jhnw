@@ -2,6 +2,7 @@ package com.sgcc.sql.controller;
 
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
+import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -1398,7 +1399,7 @@ public class SwitchInteraction {
                 /*单词提取数据清空*/
                 current_Round_Extraction_String = "";
                 //根据 用户信息 和 扫描时间 获取扫描出问题数据列表  集合 并放入 websocket
-                getSwitchScanResultListByData(switchParameters,insertId);
+                getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
 
                 /*如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
                 则tNextId赋值给当前分析ID 调用本方法，继续分析流程。*/
@@ -2015,9 +2016,6 @@ public class SwitchInteraction {
     }
 
     /**
-     *
-     * a
-     *
      * @method: 查询扫描出的问题表 放入 websocket
      * @Param: []
      * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
@@ -2026,11 +2024,87 @@ public class SwitchInteraction {
      */
     @GetMapping("getSwitchScanResultListByData")
     @ApiOperation("查询当前扫描出的问题表放入websocket")
-    public List<ScanResultsVO> getSwitchScanResultListByData(SwitchParameters switchParameters,Long longId){
+    public void getSwitchScanResultListByData(String username,Long longId){
+        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+        SwitchProblemVO switchProblemVO = switchScanResultService.selectSwitchScanResultListById(longId);
+
+        if (switchProblemVO == null){
+            return;
+        }
+
+        List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
+        for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+            /*赋值随机数 前端需要*/
+            switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            /*定义 参数集合 */
+            List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
+            /*根据 结构数据中的 交换机扫描结果ID 在交换机扫描结果数据 hashmap中 取出 *//*
+                SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());*/
+            //提取信息 如果不为空 则有参数
+            if (switchProblemCO.getDynamicInformation()!=null && !switchProblemCO.getDynamicInformation().equals("")){//switchScanResult.getDynamicInformation()!=null && !switchScanResult.getDynamicInformation().equals("")
+                //String dynamicInformation = switchScanResult.getDynamicInformation();
+                String dynamicInformation = switchProblemCO.getDynamicInformation();
+                //几个参数中间的 参数是 以  "=:=" 来分割的
+                //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
+                String[] dynamicInformationsplit = dynamicInformation.split("=:=");
+                //判断提取参数 是否为空
+                if (dynamicInformationsplit.length>0){
+                    //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
+                    //所以 参数组 要倒序插入
+                    for (int number=dynamicInformationsplit.length-1;number>0;number--){
+                        //创建 参数 实体类
+                        ValueInformationVO valueInformationVO = new ValueInformationVO();
+                        //插入参数
+                        //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
+                        String setDynamicInformation=dynamicInformationsplit[number];
+                        valueInformationVO.setDynamicInformation(setDynamicInformation);
+                        --number;
+                        String setExhibit=dynamicInformationsplit[number];
+                        valueInformationVO.setExhibit(setExhibit);//是否显示
+                        if (setExhibit.equals("否")){
+                            String setDynamicInformationMD5 = EncryptUtil.densificationAndSalt(setDynamicInformation);
+                            valueInformationVO.setDynamicInformation(setDynamicInformationMD5);//动态信息
+                        }
+                        --number;
+                        valueInformationVO.setDynamicVname(dynamicInformationsplit[number]);//动态信息名称
+                        valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+                        valueInformationVOList.add(valueInformationVO);
+                    }
+                }
+            }
+            switchProblemCO.setValueInformationVOList(valueInformationVOList);
+        }
+
+        ScanResultsVO scanResultsVO = new ScanResultsVO();
+        scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue();
+        scanResultsVO.setId(longId);
+        scanResultsVO.setSwitchIp(switchProblemVO.getSwitchIp().split(":")[0]);
+        scanResultsVO.setShowBasicInfo(switchProblemVO.getBrand() + switchProblemVO.getSwitchType() + switchProblemVO.getFirewareVersion() + switchProblemVO.getSubVersion());
+        scanResultsVO.setCreateTime(MyUtils.getDatetoString(switchProblemVO.getCreateTime()));
+
+        List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
+        switchProblemVOList.add(switchProblemVO);
+        scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
+
+        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
+        scanResultsVOList.add(scanResultsVO);
+
+        WebSocketService.sendMessage("loophole"+username,scanResultsVOList);
+    }
+
+    /**
+     * @method: 查询扫描出的问题表 放入 websocket
+     * @Param: []
+     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @GetMapping("getSwitchScanResultListBySwitchParameters")
+    @ApiOperation("查询当前扫描出的问题表放入websocket")
+    public List<ScanResultsVO> getSwitchScanResultListBySwitchParameters(SwitchParameters switchParameters){
 
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-        List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListById(longId);
-        //switchProblemList = switchScanResultService.selectSwitchScanResultListByDataAndUserName(switchParameters.getScanningTime(),switchParameters.getLoginUser().getUsername());
+        List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListByDataAndUserName(switchParameters.getScanningTime(),switchParameters.getLoginUser().getUsername());
 
         if (switchProblemList.size() == 0){
             return null;
@@ -2101,8 +2175,7 @@ public class SwitchInteraction {
         for (String ip_string:ip_hashSet){
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(ip_string);
-            Date date4 = new Date();
-            scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
+            scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
 

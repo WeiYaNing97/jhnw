@@ -261,7 +261,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="currentTime != null  and currentTime != ''"> and ssrt.create_time = #{currentTime}</if>
         </where>
     </select>
-    <select id="selectSwitchScanResultListById" resultMap="SwitchProblemVO">
+    <select id="selectSwitchScanResultListById" parameterType="Long" resultMap="SwitchProblemVO">
         <include refid="pojoVo"/>
         where ssrt.id = #{id}
     </select>

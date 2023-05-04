@@ -169,6 +169,10 @@ public class MyUtils {
         return time;
     }
 
+    public static String getDatetoString(Date dateTime){
+        String time = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(dateTime);
+        return time;
+    }
 
 
     public static Date getStringtoData(String time){
