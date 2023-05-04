@@ -1400,6 +1400,7 @@ public class SwitchInteraction {
                 current_Round_Extraction_String = "";
                 //根据 用户信息 和 扫描时间 获取扫描出问题数据列表  集合 并放入 websocket
                 getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+                //getSwitchScanResultListBySwitchParameters(switchParameters);
 
                 /*如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
                 则tNextId赋值给当前分析ID 调用本方法，继续分析流程。*/
@@ -2026,13 +2027,13 @@ public class SwitchInteraction {
     @ApiOperation("查询当前扫描出的问题表放入websocket")
     public void getSwitchScanResultListByData(String username,Long longId){
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-        SwitchProblemVO switchProblemVO = switchScanResultService.selectSwitchScanResultListById(longId);
+        SwitchProblemVO pojpVO = switchScanResultService.selectSwitchScanResultListById(longId);
 
-        if (switchProblemVO == null){
+        if (pojpVO == null){
             return;
         }
 
-        List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
+        List<SwitchProblemCO> switchProblemCOList = pojpVO.getSwitchProblemCOList();
         for (SwitchProblemCO switchProblemCO:switchProblemCOList){
             /*赋值随机数 前端需要*/
             switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
@@ -2075,20 +2076,29 @@ public class SwitchInteraction {
             switchProblemCO.setValueInformationVOList(valueInformationVOList);
         }
 
+        //将ip存入回显实体类
+        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         ScanResultsVO scanResultsVO = new ScanResultsVO();
+        scanResultsVO.setSwitchIp(pojpVO.getSwitchIp());
         scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue();
-        scanResultsVO.setId(longId);
-        scanResultsVO.setSwitchIp(switchProblemVO.getSwitchIp().split(":")[0]);
-        scanResultsVO.setShowBasicInfo(switchProblemVO.getBrand() + switchProblemVO.getSwitchType() + switchProblemVO.getFirewareVersion() + switchProblemVO.getSubVersion());
-        scanResultsVO.setCreateTime(MyUtils.getDatetoString(switchProblemVO.getCreateTime()));
+
+        scanResultsVO.setShowBasicInfo("("+pojpVO.getBrand()+" "+pojpVO.getSwitchType()+" "
+                +pojpVO.getFirewareVersion()+" "+pojpVO.getSubVersion()+")");
 
         List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
-        switchProblemVOList.add(switchProblemVO);
+        switchProblemVOList.add(pojpVO);
         scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
 
-        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
+        scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+        String switchIp = scanResultsVO.getSwitchIp();
+        String[] split = switchIp.split(":");
+        scanResultsVO.setSwitchIp(split[0]);
+        List<SwitchProblemVO> pojoVOlist = scanResultsVO.getSwitchProblemVOList();
+        for (SwitchProblemVO switchProblemVO:pojoVOlist){
+            switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+            switchProblemVO.setSwitchIp(null);
+        }
         scanResultsVOList.add(scanResultsVO);
-
         WebSocketService.sendMessage("loophole"+username,scanResultsVOList);
     }
 
