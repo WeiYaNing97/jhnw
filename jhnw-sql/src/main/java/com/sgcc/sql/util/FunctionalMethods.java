@@ -215,14 +215,11 @@ public class FunctionalMethods {
     }
 
     /**
-     * todo 待检查
-     *
-     * @method: 比较
-     * @Param: [remove_content, compare, content] //交换机版本号  比较
-     * 如果 交换机版本号  比较方法   数据库版本号 则返回 true
-     * @return: boolean
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
+     * 比较
+     * @param switchParameters
+     * @param compare
+     * @param current_Round_Extraction_String
+     * @return
      */
     @RequestMapping("compareVersion")
     public static boolean compareVersion(SwitchParameters switchParameters, String compare,String current_Round_Extraction_String){
@@ -231,6 +228,7 @@ public class FunctionalMethods {
         Map<String,String> value_String = new HashMap<>();
         if(!(current_Round_Extraction_String.equals(""))){
             for (int number = 0 ; number<current_Round_Extraction_split.length ; number = number +3){
+                /*1:参数名 2:是否显示 3:参数值*/
                 value_String.put(current_Round_Extraction_split[number],current_Round_Extraction_split[number+2]);
             }
         }
@@ -426,45 +424,36 @@ public class FunctionalMethods {
     }
 
     /**
-     * TODO 取词逻辑
-     *
-     *
-     * a
-     *
-     * @method: 取词 按位置取词
-     * //取词方法
-     * @Param: [     action提取方法 ：取词 取版本, returnString 返回信息的一行, matchContent 提取关键字, integer 位置, length 长度WLs]
-     * 提取方法 ：取词 取版本  返回信息的一行 提取关键字 位置 长度WLs
-     * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
+     * 取词 按位置取词
+     * @param returnString  交换机返回信息行信息
+     * @param matchContent 关键词
+     * @param relativePosition_line
+     * @param integer 位置
+     * @param length 取词数量及取词类型
+     * @return
      */
     public static String wordSelection(String returnString,String matchContent,String relativePosition_line,int integer,String length){
-        // 获取 W、L、S
+        // 获取 W单词、L字母、S字符串
         String substring = length.substring(length.length() - 1, length.length());//取词类型
         //获取取值长度
         int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();//取词长度
         //预设返回值
         String return_string = "";
-        returnString = MyUtils.repaceWhiteSapce(returnString); // 连续空格改为 1 个空格
+        /*交换机返回结果 获取到的时候 就已经修改了*/
+        //returnString = MyUtils.repaceWhiteSapce(returnString); // 连续空格改为 1 个空格
         switch (substring){
             // 取词和取字符串
-            case "w":
-            case "W":
-            case "s":
-            case "S":
+            case "w"://单词
+            case "W"://单词
+            case "s"://字符串
+            case "S"://字符串
                 //以matchContent 为参照  获取位置 因为后期转化为数组，关键词为 [0]
                 String get_word = "";
-                get_word = "";
-
                 String returnString_trim = returnString.trim(); //交换机返回 信息 去除 前后空格
-
                 String[] split_String = returnString_trim.split(" ");
-
                 if (!(relativePosition_line.equals("0"))){
                     matchContent = "";
                 }
-
                 if (!(matchContent.equals(""))){
                     int num = 0;
                     for ( ; num <split_String.length ; num++){
@@ -472,26 +461,21 @@ public class FunctionalMethods {
                             break;
                         }
                     }
-
                     integer = integer + num;
                 }else if (matchContent.equals("")){
                     integer = integer - 1 ;
                 }
-
                 //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度  6
                 if ((split_String.length - word_length)  <  integer || integer < 0){
                     return null;
                 }
-
                 //取词位置
                 int number = integer;
-
                 for (int num = 0;num<word_length;num++){
                     get_word = split_String[number]+" ";
                     number++;
                     return_string += get_word;
                 }
-                System.err.println("W："+return_string);
                 if (return_string.length()>0){
                     return return_string.trim();
                 }else {
@@ -508,14 +492,13 @@ public class FunctionalMethods {
                     return null;
                 }
                 return_string = returnString.substring(start, start+word_length);
-                System.err.println("L："+return_string);
-
+                if (return_string.length()>0){
+                    return return_string.trim();
+                }else {
+                    return null;
+                }
         }
-        if (return_string.length()>0){
-            return return_string.trim();
-        }else {
-            return null;
-        }
+        return null;
     }
 
     /**
@@ -595,9 +578,6 @@ public class FunctionalMethods {
     }
 
     /**
-     * todo 匹配方法
-     *
-     *
      * @method: 匹配方法
      * matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
      * @Param: [matchType  精确匹配  模糊匹配  不存在

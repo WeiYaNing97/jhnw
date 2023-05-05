@@ -150,11 +150,11 @@ public class MyUtils {
         // 读取文章并按行存入数组
         String[] lines = article.split("\\r?\\n|\\r"); // 使用正则表达式按照任意一种换行符进行分割
         /*repaceWhiteSapce*/
-        for (int num=0;num<lines.length;num++){
+        /*for (int num=0;num<lines.length;num++){
             lines[num] = repaceWhiteSapce(lines[num]);
-        }
+        }*/
         /*字符串数组以\r\n拼接成字符串*/
-        return String.join("\r\n", lines);
+        return repaceWhiteSapce(String.join("\r\n", lines));
     }
 
     /*

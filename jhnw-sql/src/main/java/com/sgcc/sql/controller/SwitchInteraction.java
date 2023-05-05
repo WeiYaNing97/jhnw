@@ -1496,13 +1496,17 @@ public class SwitchInteraction {
         /*匹配逻辑 */
         if (matched != null && matching_logic!=""){
            /*
-                全文按行  &   relative
-            * full&full
-            * full&present
-            * present&present
-            * present&full
-            * full&N
-            * present&N
+                full全文按行  &   presentrelative
+
+            * full&full       记录位置 回到第一行 开始全文扫描
+            * full&present    不记录位置 从当前行 开始全文扫描
+            * present&present 不记录位置 只在当前行
+            * present&full    不记录位置 只在全文进行当前行匹配  无意义
+            * full&N          记录位置 到第N行 开始全文扫描  N 是全文
+            * present&N       不记录位置 只在当前行进行匹配  N 是相对前光标
+
+            todo 注意  缺少 从之前光标相对位置进行全文匹配
+
             */
            /*光标位置*/
             switch(matching_logic){
@@ -1512,16 +1516,16 @@ public class SwitchInteraction {
                     break;
                 case "full&present":     //从当前行 全文扫描
                 case "present&present":  //只匹配当前行
-                    frontMarker = line_n;
                     break;
                 case "present&full":     //全文匹配 当前行 无意义
                     break;
                 default:
                     String[] matching_logic_split = matching_logic.split("&");
                     if (matching_logic_split.length == 2){
+                        /* N 转化为 int类型 */
                         int line_num = Integer.valueOf(matching_logic_split[1]).intValue();
                         if (matching_logic.indexOf("full&") == -1) {
-                            if (matching_logic.indexOf("present&")!=-1){// 匹配 第N行
+                            if (matching_logic.indexOf("present&")!=-1){//不记录位置 只在当前行进行匹配
                                 frontMarker = line_n;
                                 line_n = line_n + line_num;
                             }
@@ -1537,24 +1541,22 @@ public class SwitchInteraction {
             }
         }
 
-
         //从line_n=0 开始检索集合 一直到最后一位
         for (int num = line_n; num<return_information_array.length; num++){
 
             //光标位置
             line_n = num;
-            //返回信息的数组元素 第num 条
+            //返回信息的数组元素 第 num 条
             String information_line_n = return_information_array[num];
-
             //匹配逻辑 有成功失败之分
             if (matched != null){
-
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 //matched : 精确匹配  information_line_n：交换机返回信息行  problemScanLogic.getMatchContent().trim()：数据库 关键词
                 boolean matchAnalysis_true_false = FunctionalMethods.matchAnalysis(matched, information_line_n, problemScanLogic.getMatchContent().trim());
-
+                //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
-                    //  自定义   问题
+
+                    // todo 匹配成功 提示前端 及写入日志
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp() +  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
                             ":"+matched+problemScanLogic.getMatchContent()+"成功\r\n");
                     try {
@@ -1563,32 +1565,23 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }
 
-
-                //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
-                if (matchAnalysis_true_false){
-
-                    /*成功逻辑*/
+                    /* 进行 成功逻辑*/
                     String trueLogic = trueLogic(switchParameters, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
                             insertsInteger, loop, numberOfCycles, problemScanLogic);
-
                     return trueLogic;
-
                     //匹配失败
                 }else {
-
-                    //relativePosition.equals("null") 全文检索
-                    // 如果不是最后一条信息 并且 全文检索的话  则返回到循环 返回信息数组 的下一条
+                    //relativePosition.equals("null") 全文检索 数据表修改之前历史遗留问题
+                    // 如果不是最后一条信息 并且 全文检索(full&)的话  则返回到循环 返回信息数组 的下一条
                     if ((matching_logic.indexOf("full&")!=-1
                             || problemScanLogic.getRelativePosition().indexOf("null") != -1 )
                             && num<return_information_array.length-1){
                         continue;
                     }
-
-                    //  自定义   问题
+                    // todo 匹配失败 提示前端 及写入日志
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp()+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
                             ":"+matched+problemScanLogic.getMatchContent()+"失败\r\n");
                     try {
@@ -1597,19 +1590,14 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
                     /*失败逻辑*/
                     String falseLogic = falseLogic(switchParameters, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
                             insertsInteger, loop, numberOfCycles, problemScanLogic);
-
                     /*匹配失败 光标返回 回到0行之前位置 */
                     line_n  =  frontMarker;
-
                     return falseLogic;
-
                 }
             }
 
@@ -1618,7 +1606,6 @@ public class SwitchInteraction {
             if (action!=null && !action.equals("null")){
                 //取词数
                 String wordSelection_string = null;
-
                 if (action.equals("品牌")){
                     wordSelection_string = switchParameters.getDeviceBrand();
                 }else if (action.equals("型号")){
@@ -1630,21 +1617,16 @@ public class SwitchInteraction {
                 }else {
                     //取词操作
                     wordSelection_string = FunctionalMethods.wordSelection(
-                            return_information_array[num],problemScanLogic.getMatchContent().trim(), //返回信息的一行     problemScanLogic.getMatchContent().trim() 提取关键字
+                            information_line_n,problemScanLogic.getMatchContent().trim(), //返回信息的一行     problemScanLogic.getMatchContent().trim() 提取关键字
                             relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
-
-                    System.err.println( "\r\n取词操作 取出词汇：" + wordSelection_string + "\r\n");
                 }
-
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
                 if (wordSelection_string == null){
-
                     if (action.indexOf("full") != -1){
                         /*取词逻辑失败 光标返回 回到0行之前位置 */
                         line_n  =  frontMarker;
                     }
-
-                    //  自定义   问题
+                    // todo 取词失败 提示前端 及写入日志
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp()+  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
                             ":取词"+problemScanLogic.getWordName()+"失败\r\n");
                     try {
@@ -1653,11 +1635,9 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-                    return "取词失败！";
+                    return "取词失败!";
                 }
-
-                //  自定义   问题
+                // todo 取词成功 提示前端 及写入日志
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp() +  (totalQuestionTable==null ? "：获取交换机基本信息" : ("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
                         ":取词"+problemScanLogic.getWordName()+"成功\r\n");
                 try {
@@ -1666,36 +1646,26 @@ public class SwitchInteraction {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 /*判断 字符串 最后一位 是否为 . 或者 ,  去掉*/
                 wordSelection_string = FunctionalMethods.judgeResultWordSelection(wordSelection_string);
-
-
                 //problemScanLogic.getWordName() 取词名称
                 //problemScanLogic.getExhibit() 是否可以显示
                 //wordSelection_string 取词内容
                 extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
                 current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
-
                 /*成功逻辑*/
                 String trueLogic = trueLogic(switchParameters, totalQuestionTable,
                         return_information_array, current_Round_Extraction_String, extractInformation_string,
                         line_n, firstID, problemScanLogicList, currentID,
                         insertsInteger, loop, numberOfCycles, problemScanLogic);
-
                 return trueLogic;
-
             }
-
             //比较
             if (compare!=null){
-
                 //比较
                 boolean compare_boolean = FunctionalMethods.compareVersion(switchParameters,compare,current_Round_Extraction_String);
-
-
                 if (compare_boolean){
-                    //  自定义   问题
+                    // todo 比较成功 提示前端 及写入日志
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp()+ (totalQuestionTable!=null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
                             ":比较"+problemScanLogic.getCompare()+"成功\r\n");
                     try {
@@ -1705,7 +1675,7 @@ public class SwitchInteraction {
                         e.printStackTrace();
                     }
                 }else {
-                    //  自定义   问题
+                    // todo 比较失败 提示前端 及写入日志
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp()+ (totalQuestionTable!=null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
                             ":比较"+problemScanLogic.getCompare()+"失败\r\n");
                     try {
@@ -1715,27 +1685,20 @@ public class SwitchInteraction {
                         e.printStackTrace();
                     }
                 }
-
-
-
                 if (compare_boolean){
                     /*成功逻辑*/
                     String trueLogic = trueLogic(switchParameters, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
                             insertsInteger, loop, numberOfCycles, problemScanLogic);
-
                     return trueLogic;
-
                 }else {
                     /*失败逻辑*/
                     String falseLogic = falseLogic(switchParameters, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
                             insertsInteger, loop, numberOfCycles, problemScanLogic);
-
                     return falseLogic;
-
                 }
             }
         }
@@ -1743,39 +1706,44 @@ public class SwitchInteraction {
     }
 
 
-    /*true逻辑*/
+    /**
+     * true逻辑
+     * @param switchParameters
+     * @param totalQuestionTable
+     * @param return_information_array
+     * @param current_Round_Extraction_String
+     * @param extractInformation_string
+     * @param line_n
+     * @param firstID
+     * @param problemScanLogicList
+     * @param currentID
+     * @param insertsInteger
+     * @param loop
+     * @param numberOfCycles
+     * @param problemScanLogic
+     * @return
+     */
     public String trueLogic(SwitchParameters switchParameters,TotalQuestionTable totalQuestionTable,
                                    String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                                    int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
                                    Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
-
+        /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
         if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
-
-            /*if (executeScanCommandByCommandId_object.size() == 1){
-                AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                    return ajaxResult.get("msg")+"";
-                }
-            }*/
             if ((executeScanCommandByCommandId_object.get(0) instanceof String)
                     && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
                 /*交换机返回错误信息处理*/
                 return null;
             }
-
             String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
                     executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
-
             return analysisReturnResults_String;
         }
-
-        //下一条true分析ID
+        /* 判断 下一条分析ID 是否为空 不为空 则继续进行分析*/
         if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
-            String tNextId = problemScanLogic.gettNextId();
             String ProblemScanLogic_returnstring = selectProblemScanLogicById(switchParameters,totalQuestionTable,
                     return_information_array,current_Round_Extraction_String,extractInformation_string,
-                    line_n,firstID,problemScanLogicList,tNextId,insertsInteger, loop, numberOfCycles);
+                    line_n,firstID,problemScanLogicList,problemScanLogic.gettNextId(),insertsInteger, loop, numberOfCycles);
             //如果返回信息为null
             if (ProblemScanLogic_returnstring!=null){
                 //内分析传到上一层
@@ -1789,32 +1757,40 @@ public class SwitchInteraction {
     }
 
 
-    /*false 逻辑*/
+    /**
+     * false逻辑
+     * @param switchParameters
+     * @param totalQuestionTable
+     * @param return_information_array
+     * @param current_Round_Extraction_String
+     * @param extractInformation_string
+     * @param line_n
+     * @param firstID
+     * @param problemScanLogicList
+     * @param currentID
+     * @param insertsInteger
+     * @param loop
+     * @param numberOfCycles
+     * @param problemScanLogic
+     * @return
+     */
     public String falseLogic(SwitchParameters switchParameters, TotalQuestionTable totalQuestionTable,
                                     String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                                     int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
                                     Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
-
+        /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
         if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.getfComId());
-
-            /*if (executeScanCommandByCommandId_object.size() == 1){
-                AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                    return ajaxResult.get("msg")+"";
-                }
-            }*/
             if ((executeScanCommandByCommandId_object.get(0) instanceof String)
                     && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
                 /*交换机返回错误信息处理*/
                 return null;
             }
-
             String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
                     executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
             return analysisReturnResults_String;
         }
-
+        /* 判断 下一条分析ID 是否为空 不为空 则继续进行分析*/
         if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
             //下一条frue分析ID
             String fNextId = problemScanLogic.getfNextId();
@@ -2290,6 +2266,7 @@ public class SwitchInteraction {
             //分析第一条ID
             first_problem_scanLogic_Id = commandLogic.getProblemId();
         }else {
+            /*接下来还是命令 不进行分析*/
             List<Object> objectList = executeScanCommandByCommandId(switchParameters,totalQuestionTable,commandLogic.getEndIndex());
             return objectList;
         }
