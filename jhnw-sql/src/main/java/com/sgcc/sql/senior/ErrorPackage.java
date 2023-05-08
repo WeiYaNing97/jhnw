@@ -1,25 +1,19 @@
 package com.sgcc.sql.senior;
-
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.controller.SwitchScanResultController;
 import com.sgcc.sql.domain.Constant;
-import com.sgcc.sql.domain.SwitchScanResult;
 import com.sgcc.sql.parametric.SwitchParameters;
-import com.sgcc.sql.service.ISwitchScanResultService;
 import com.sgcc.sql.util.CustomConfigurationUtil;
 import com.sgcc.sql.util.FunctionalMethods;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
 public class ErrorPackage {
 
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
@@ -106,7 +100,7 @@ public class ErrorPackage {
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-            returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
+            /*returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
                     " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
                     " Description: To_ShuJuWangHuLian_G1/0/18\n" +
                     " Loopback is not set\n" +
@@ -147,7 +141,7 @@ public class ErrorPackage {
                     "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
                     "         0 lost carrier, - no carrier";
             //修整返回信息
-            returnResults = MyUtils.trimString(returnResults);
+            returnResults = MyUtils.trimString(returnResults);*/
 
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库

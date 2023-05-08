@@ -1,9 +1,12 @@
 package com.sgcc.sql.senior;
 
 import cn.hutool.core.date.DateTime;
+import com.alibaba.fastjson.JSON;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.common.utils.bean.BeanUtils;
+import com.sgcc.sql.domain.SwitchLoginInformation;
 import com.sgcc.sql.domain.SwitchScanResult;
 import com.sgcc.sql.parametric.ParameterSet;
 import com.sgcc.sql.parametric.SwitchParameters;
@@ -39,57 +42,12 @@ public class AdvancedFeatures {
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         for (String information:switchInformation){
-            // information  : {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
-            // 去除花括号得到： "ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"
-            information = information.replace("{","");
-            information = information.replace("}","");
-            /*以逗号分割 获取到 集合 集合为：
-                information_split.get(0)  "ip":"192.168.1.100"
-                information_split.get(1)  "name":"admin"
-                information_split.get(2)  "password":"admin"
-                information_split.get(3)  "mode":"ssh"
-                information_split.get(4)  "port":"22"
-            */
-            String[] information_split = information.split(",");
-            // 四个参数 设默认值
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
             switchParameters.setScanningTime(simpleDateFormat);
-
-            for (String string:information_split){
-                // string  参数为  ip:192.168.1.100  或  name:admin 或 password:admin 或 mode:ssh 或 port:22
-                string = string.replace("\"","");
-                // 以 ： 分割 得到
-                /*
-                string_split[0] ip           string_split[1] 192.168.1.100
-                string_split[0] name         string_split[1] admin
-                string_split[0] password     string_split[1] admin
-                string_split[0] mode         string_split[1] ssh
-                string_split[0] port         string_split[1] 22
-                */
-                String[] string_split = string.split(":");
-                switch (string_split[0]){
-                    case "ip" :  switchParameters.setIp(string_split[1]);
-                        break;
-                    case "name" :  switchParameters.setName(string_split[1]);
-                        break;
-                    case "password" :
-                        String ciphertext = string_split[1];
-                        String ciphertextString = RSAUtils.decryptFrontEndCiphertext(ciphertext);
-                        switchParameters.setPassword(ciphertextString);
-                        break;
-                    case "configureCiphers" :
-                        String configureCiphersciphertext = string_split[1];
-                        String configureCiphersciphertextString = RSAUtils.decryptFrontEndCiphertext(configureCiphersciphertext);
-                        switchParameters.setConfigureCiphers(configureCiphersciphertextString);
-                        break;
-
-                    case "mode" :  switchParameters.setMode(string_split[1]);
-                        break;
-                    case "port" :  switchParameters.setPort(Integer.valueOf(string_split[1]).intValue());
-                        break;
-                }
-            }
+            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
@@ -106,7 +64,6 @@ public class AdvancedFeatures {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");

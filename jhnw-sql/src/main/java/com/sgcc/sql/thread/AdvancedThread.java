@@ -59,11 +59,11 @@ public class AdvancedThread extends Thread {
             }
         }
 
-
+        ScanFixedThreadPool.removeThread(this.getName());
+        countDownLatch.countDown();
 
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
     }
-
 }
