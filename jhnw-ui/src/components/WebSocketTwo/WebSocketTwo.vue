@@ -162,6 +162,10 @@
                 wsTimer: null,
                 //当前扫描最终数据
                 nowData: [],
+                //整合数据
+                newData:[],
+                //是否执行if外语句
+                ifOut:true,
                 lishiData: [],
                 loading: false,
                 formLabelWidth: '50px',
@@ -197,6 +201,8 @@
             },
             endIp() {
                 this.endIpCopy = this.endIp
+                console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+                console.log(this.endIpCopy)
                 // const shu11 = this.nowData
                 for (let i = 0; i < this.nowData.length; i++) {
                     if (this.endIp == this.nowData[i].switchIp) {
@@ -675,15 +681,6 @@
                     console.log('成功')
                 })
             },
-
-
-            sendDataToServer() {
-                if (this.webSocket.readyState === 1) {
-                    this.webSocket.send('ping')
-                } else {
-                    throw Error('服务未连接')
-                }
-            },
             /**
              * 初始化ws
              */
@@ -726,29 +723,59 @@
             wsOpenHanler(event) {
                 console.log('ws建立连接成功')
             },
-
+            //修改key->children
+            changeTreeDate(arrayJsonObj, oldKey, newKey){
+                let strtest = JSON.stringify(arrayJsonObj);
+                let reg = new RegExp(oldKey, 'g');
+                let newStr = strtest.replace(reg, newKey);
+                return JSON.parse(newStr);
+            },
             // ws服务端给客户端推送消息
             wsMessageHanler(e) {
                 if (e.data === 'pong'){
                     console.log('22222'+e.data)
                 }else {
-                    console.log(e)
-                    function changeTreeDate(arrayJsonObj, oldKey, newKey) {
-                        let strtest = JSON.stringify(arrayJsonObj);
-                        let reg = new RegExp(oldKey, 'g');
-                        let newStr = strtest.replace(reg, newKey);
-                        return JSON.parse(newStr);
+                    console.log(JSON.parse(e.data))
+                    let newJson = this.changeTreeDate(JSON.parse(e.data), 'switchProblemVOList', 'children')
+                    let newJson1 = this.changeTreeDate(newJson, 'switchProblemCOList', 'children')
+                    console.log(newJson1)
+                    //改变结构后
+                    if (this.newData.length == 0){
+                        this.newData = newJson1
+                    }else {
+                        for (let i = 0; i < this.newData.length; i++) {
+                            if (this.newData[i].switchIp == newJson1[0].switchIp){
+                                for (let j = 0; j < this.newData[i].children.length; j++) {
+                                    if (this.newData[i].children[j].typeProblem == newJson1[0].children[0].typeProblem
+                                        && newJson1[0].children[0].children[0].ifQuestion == '安全'){
+                                            this.newData[i].children[j].children.push(newJson1[0].children[0].children[0])
+                                            this.ifOut = false
+                                            break
+                                    }else if (this.newData[i].children[j].typeProblem == newJson1[0].children[0].typeProblem
+                                        && newJson1[0].children[0].children[0].ifQuestion == '异常'){
+                                        this.newData[i].children[j].children.unshift(newJson1[0].children[0].children[0])
+                                        this.ifOut = false
+                                        break
+                                    }
+                                    this.ifOut = true
+                                }
+                                if (this.ifOut){
+                                    this.newData[i].children.push(newJson1[0].children[0])
+                                }
+                            }else {
+                                this.newData.push(newJson1[0])
+                            }
+                        }
                     }
-                    let newJson = changeTreeDate(JSON.parse(e.data), 'switchProblemVOList', 'children')
-                    let newJson1 = changeTreeDate(newJson, 'switchProblemCOList', 'children')
-                    this.nowData = newJson1
+                    this.nowData = JSON.parse(JSON.stringify(this.newData))
+
                     const shu = this.nowData
                     //给ip添加loading
                     for (let i = 0; i < shu.length; i++) {
                         this.$set(shu[i], 'loading', true)
                         console.log(shu[i])
                     }
-                    //合并信息
+                    //合并IP、四条基本信息
                     for (let i = 0; i < shu.length; i++) {
                         var hebingInfo = '　' + shu[i].switchIp + ' ' + shu[i].showBasicInfo
                         // var hebingInfo = shu[i].switchIp + ' ' + shu[i].showBasicInfo

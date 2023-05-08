@@ -3,10 +3,12 @@
 <!--    <el-button type="primary" size="small" style="margin-bottom: 10px" @click="lishi">历史扫描</el-button>-->
 <!--    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>-->
 <!--    <el-button type="primary" size="small" @click="printDel">打印报告</el-button>-->
-    <el-button-group>
-      <el-button type="primary" @click="backPage" icon="el-icon-arrow-left">上一页</el-button>
-      <el-button type="primary" @click="nextPage">下一页<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-    </el-button-group>
+    <div class="block">
+      <el-pagination
+        layout="prev, pager, next"
+        :total="allPage" @current-change="goPage">
+      </el-pagination>
+    </div>
     <!--    历史扫描-->
     <el-table v-loading="loading"
               :data="lishiData"
@@ -138,33 +140,11 @@
             // this.expandChange()
         },
         methods:{
-            //上一页
-            backPage(){
-                if (this.pageNumber == 1){
-                    this.$message({
-                        message: '当前已是第一页',
-                        type: 'warning'
-                    })
-                }else {
-                    this.pageNumber--
-                    this.lishi()
-                }
-                console.log('上一页')
+            //跳转到第几页
+            goPage(e){
+                this.pageNumber = e
                 console.log(this.pageNumber)
-            },
-            //下一页
-            nextPage(){
-                if (this.pageNumber == this.allPage){
-                    this.$message({
-                        message: '当前已是最后一页',
-                        type: 'warning'
-                    })
-                }else {
-                    this.pageNumber++
-                    this.lishi()
-                }
-                console.log('下一页')
-                console.log(this.pageNumber)
+                this.lishi()
             },
             //获取总页数
             allPageNums(){
@@ -173,7 +153,7 @@
                     method:'get',
                 }).then(response=>{
                     console.log(response)
-                    this.allPage  = response
+                    this.allPage  = response*10
                 })
             },
             noShow(){

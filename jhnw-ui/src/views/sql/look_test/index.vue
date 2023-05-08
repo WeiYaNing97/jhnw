@@ -660,15 +660,19 @@ export default {
               this.lookLists = []
               //转化为树结构
               for (let i = 0;i<response.length;i++){
-                  let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
-                  let loser = {
-                      label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
-                      children: [{
-                          label:response[i].problemName,
-                          id:response[i].id
-                      }]
+                  if (response[i].firewareVersion != null
+                      && response[i].subVersion != null
+                      && response[i].typeProblem != null && response[i].typeProblem != null){
+                      let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
+                      let loser = {
+                          label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
+                          children: [{
+                              label:response[i].problemName,
+                              id:response[i].id
+                          }]
+                      }
+                      this.lookLists.push(loser)
                   }
-                  this.lookLists.push(loser)
               }
           })
       },

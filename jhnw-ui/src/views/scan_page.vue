@@ -17,7 +17,7 @@
                    :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>
 
         <el-button type="success" @click="modelScan" v-if="this.scanShow == true"
-                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>模板扫描</el-button>
+                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>下发模板</el-button>
 
         <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
                    @click="rStart" size="small">返  回</el-button>
@@ -545,7 +545,7 @@
                 console.log(data)
                 this.saowanend = data
             },
-            //
+            //接收扫描完成ip
             getendIp(data){
                 this.endIp = data
                 console.log(this.endIp)
@@ -660,18 +660,18 @@
             //新增设备
             xinzeng(){
                 this.tableData.push({
-                    // ip: '192.168.1.100',
-                    // name: 'admin',
-                    // password:'admin',
+                    ip: '192.168.1.100',
+                    name: 'admin',
+                    password:'admin',
                     // passmi:'********',
                     // mode:'ssh',
                     // port:22,
                     // isEdit:true,
                     // conCip:'********',
                     // configureCiphers:''
-                    ip: '',
-                    name: '',
-                    password:'',
+                    // ip: '',
+                    // name: '',
+                    // password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',

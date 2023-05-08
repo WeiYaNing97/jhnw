@@ -80,10 +80,18 @@
         <el-form-item label="备注">
           <el-input v-model="queryParams.remarks" @focus="beizhu($event)" name="beizhu"></el-input>
         </el-form-item>
-        <el-form-item label="标识符">
-          <el-input v-model="queryParams.notFinished"
-                    clearable
-                    @focus="biaoshi($event)" name="biaoshi"></el-input>
+        <el-form-item label="分页符">
+<!--          <el-input v-model="queryParams.notFinished"-->
+<!--                    clearable-->
+<!--                    @focus="biaoshi($event)" name="biaoshi"></el-input>-->
+
+          <el-select v-model="queryParams.notFinished" placeholder="分页符"
+                     filterable clearable allow-create @blur="brandShu" @focus="general($event)"
+                     name="notFinished" style="width: 150px">
+            <el-option v-for="(item,index) in genList"
+                       :key="index" :label="item.notFinished" :value="item.notFinished"></el-option>
+          </el-select>
+
         </el-form-item>
 <!--        <el-form-item>-->
 <!--          <el-button @click.native="testOne" icon="el-icon-delete" size="small" plain>测试按钮</el-button>-->
@@ -385,8 +393,44 @@
       <el-button @click="partsub" type="primary" v-show="partShow" style="margin-top:20px">提交详情</el-button>
       <el-button @click="partclose" type="primary" v-show="partShow" style="margin-top:20px">关闭详情</el-button>
 
-      <el-dialog
+<!--      <el-dialog-->
+<!--        title="提示"-->
+<!--        :visible.sync="dialogVisibleHelp"-->
+<!--        style="padding: 10px"-->
+<!--        width="40%">-->
+<!--        <div id="fatherq" class="qqqqq">-->
+<!--          <h3 style="font-weight: bolder" id="brand" ref="brand">品牌</h3>-->
+<!--          &lt;!&ndash;          <p>{{ this.baseConfig.brand }}</p>&ndash;&gt;-->
+<!--          &lt;!&ndash;          <p>请输入版本:</p>&ndash;&gt;-->
+<!--          <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>-->
+<!--          <p>请输入型号:</p>-->
+<!--          <h3 style="font-weight: bolder" id="firewareVersion" ref="firewareVersion">固件版本</h3>-->
+<!--          <p>请输入固件版本:</p>-->
+<!--          <h3 style="font-weight: bolder" id="subVersion" ref="subVersion">子版本</h3>-->
+<!--          <p>请输入子版本:</p>-->
+<!--          <h3 style="font-weight: bolder" id="typeProblem" ref="typeProblem">范式分类</h3>-->
+<!--          <p>请输入范式类型:</p>-->
+<!--          <h3 style="font-weight: bolder" id="temProName" ref="temProName">范式名称</h3>-->
+<!--          <p>请输入范式名称:</p>-->
+<!--          <h3 style="font-weight: bolder" id="problemName" ref="problemName">自定义名称</h3>-->
+<!--          <p>请输入自定义名称:</p>-->
+<!--          <h3 style="font-weight: bolder" id="beizhu" ref="beizhu">备注</h3>-->
+<!--          <p>请输入备注:</p>-->
+<!--          <h3 style="font-weight: bolder" id="biaoshi" ref="biaoshi">标识符</h3>-->
+<!--          <p>请输入标识符:</p>-->
+<!--          <h3 style="font-weight: bolder" id="comone" ref="comone">命令</h3>-->
+<!--          <p>请输入命令:</p>-->
+<!--          <a :href="whelp" style="display: none" ref="bang"><span>阿斯顿撒大</span></a>-->
+<!--        </div>-->
+<!--        <span slot="footer" class="dialog-footer">-->
+<!--    <el-button @click="dialogVisibleHelp = false">取 消</el-button>-->
+<!--    <el-button type="primary" @click="dialogVisibleHelp = false">确 定</el-button>-->
+<!--  </span>-->
+<!--      </el-dialog>-->
+
+        <el-dialog
         title="提示"
+        v-dialog-drag
         :visible.sync="dialogVisibleHelp"
         style="padding: 10px"
         width="40%">
@@ -396,7 +440,7 @@
 <!--          <p>请输入版本:</p>-->
           <h3 style="font-weight: bolder" id="type" ref="type">型号</h3>
           <p>请输入型号:</p>
-          <h3 style="font-weight: bolder" id="firewareVersion" ref="firewareVersion">固件版本</h3>
+          <h3 id="firewareVersion" ref="firewareVersion">固件版本</h3>
           <p>请输入固件版本:</p>
           <h3 style="font-weight: bolder" id="subVersion" ref="subVersion">子版本</h3>
           <p>请输入子版本:</p>
@@ -499,6 +543,7 @@ export default {
           // commandId:'1',
           problemName:'',
           notFinished:'---- More ----',
+          // notFinished:'',
           typeProblem:'',
           temProName:'',
           //是否必扫,先注释保留
@@ -1701,8 +1746,11 @@ export default {
   }
   .contextmenu li {
     margin: 0;
-    padding: 7px 16px;
+    /*padding: 7px 16px;*/
     cursor: pointer;
+  }
+  .contextmenu li button{
+    padding: 15px;
   }
   .contextmenu li:hover {
     background: #eee;
