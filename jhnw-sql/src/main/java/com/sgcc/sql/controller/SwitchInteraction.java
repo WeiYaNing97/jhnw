@@ -17,6 +17,7 @@ import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.ParameterSet;
 import com.sgcc.sql.parametric.SwitchParameters;
+import com.sgcc.sql.senior.ErrorPackage;
 import com.sgcc.sql.senior.LuminousAttenuation;
 import com.sgcc.sql.senior.OSPFFeatures;
 import com.sgcc.sql.service.*;
@@ -442,6 +443,10 @@ public class SwitchInteraction {
         ospfFeatures.getOSPFValues(switchParameters);
         LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
         luminousAttenuation.obtainLightDecay(switchParameters);
+        ErrorPackage errorPackage = new ErrorPackage();
+        errorPackage.getErrorPackage(switchParameters);
+
+
         //5.获取交换机可扫描的问题并执行分析操作
         /*当 totalQuestionTables 不为空时，为专项扫描*/
         AjaxResult ajaxResult = scanProblem(switchParameters,totalQuestionTables);

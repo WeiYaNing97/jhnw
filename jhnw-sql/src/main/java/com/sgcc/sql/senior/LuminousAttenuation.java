@@ -61,13 +61,13 @@ public class LuminousAttenuation {
             // todo 关于交换机返回错误信息 的错误代码库
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n");
             try {
-                PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n","ospf");
+                PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n","光衰");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取获取光衰端口号*/
-        List<String> port = luminousAttenuationgetPort(returnString);
+        List<String> port = ObtainUPStatusPortNumber(returnString);
         for (String str:port){
             System.err.println("提取到的端口号"+str);
         }
@@ -169,11 +169,11 @@ public class LuminousAttenuation {
     }
 
     /**
-     * 根据交换机返回信息获取获取光衰端口号
+     * 根据交换机返回信息获取获取UP状态端口号
      * @param returnString
      * @return
      */
-    public static List<String> luminousAttenuationgetPort(String returnString) {
+    public static List<String> ObtainUPStatusPortNumber(String returnString) {
         String[] returnStringSplit = returnString.split("\r\n");
         List<String> strings = new ArrayList<>();
         for (String string:returnStringSplit){
@@ -249,14 +249,8 @@ public class LuminousAttenuation {
         for (String port:portNumber){
             /*替换端口号 得到完整的 获取端口号光衰参数命令 */
             String FullCommand = command.replaceAll("端口号",port);
-            System.err.println("端口号"+FullCommand);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-
-            returnResults = "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\n" +
-                    "37(OK)          3.36(OK)        15.91(OK)           -6.96(OK)[AP]       -6.14(OK)";
-            returnResults = MyUtils.trimString(returnResults);
-
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n");

@@ -2,6 +2,7 @@ package com.sgcc.sql.thread;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.parametric.SwitchParameters;
+import com.sgcc.sql.senior.ErrorPackage;
 import com.sgcc.sql.senior.LuminousAttenuation;
 import com.sgcc.sql.senior.OSPFFeatures;
 import java.util.List;
@@ -50,6 +51,10 @@ public class AdvancedThread extends Thread {
                 case "光衰":
                     LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
                     luminousAttenuation.obtainLightDecay(switchParameters);
+                    break;
+                case "错误包":
+                    ErrorPackage errorPackage = new ErrorPackage();
+                    errorPackage.getErrorPackage(switchParameters);
                     break;
             }
         }
