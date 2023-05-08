@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.LightAttenuationComparisonMapper">
+    
+    <resultMap type="LightAttenuationComparison" id="LightAttenuationComparisonResult">
+        <result property="id"    column="id"    />
+        <result property="switchIp"    column="switch_ip"    />
+        <result property="brand"    column="brand"    />
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+        <result property="numberParameters"    column="number_parameters"    />
+        <result property="port"    column="port"    />
+        <result property="txAverageValue"    column="tx_average_value"    />
+        <result property="txLatestNumber"    column="tx_latest_number"    />
+        <result property="rxAverageValue"    column="rx_average_value"    />
+        <result property="rxLatestNumber"    column="rx_latest_number"    />
+        <result property="txStartValue"    column="tx_start_value"    />
+        <result property="rxStartValue"    column="rx_start_value"    />
+        <result property="ratedDeviation"    column="rated_deviation"    />
+        <result property="valueOne"    column="value_one"    />
+        <result property="valueTwo"    column="value_two"    />
+    </resultMap>
+
+    <sql id="selectLightAttenuationComparisonVo">
+        select id, switch_ip, brand, switch_type, fireware_version, sub_version, number_parameters, port, tx_average_value, tx_latest_number, rx_average_value, rx_latest_number, tx_start_value, rx_start_value, rated_deviation, value_one, value_two from light_attenuation_comparison
+    </sql>
+
+    <select id="selectLightAttenuationComparisonList" parameterType="LightAttenuationComparison" resultMap="LightAttenuationComparisonResult">
+        <include refid="selectLightAttenuationComparisonVo"/>
+        <where>  
+            <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="numberParameters != null "> and number_parameters = #{numberParameters}</if>
+            <if test="port != null  and port != ''"> and port = #{port}</if>
+            <if test="txAverageValue != null  and txAverageValue != ''"> and tx_average_value = #{txAverageValue}</if>
+            <if test="txLatestNumber != null  and txLatestNumber != ''"> and tx_latest_number = #{txLatestNumber}</if>
+            <if test="rxAverageValue != null  and rxAverageValue != ''"> and rx_average_value = #{rxAverageValue}</if>
+            <if test="rxLatestNumber != null  and rxLatestNumber != ''"> and rx_latest_number = #{rxLatestNumber}</if>
+            <if test="txStartValue != null  and txStartValue != ''"> and tx_start_value = #{txStartValue}</if>
+            <if test="rxStartValue != null  and rxStartValue != ''"> and rx_start_value = #{rxStartValue}</if>
+            <if test="ratedDeviation != null  and ratedDeviation != ''"> and rated_deviation = #{ratedDeviation}</if>
+            <if test="valueOne != null  and valueOne != ''"> and value_one = #{valueOne}</if>
+            <if test="valueTwo != null  and valueTwo != ''"> and value_two = #{valueTwo}</if>
+        </where>
+    </select>
+    
+    <select id="selectLightAttenuationComparisonById" parameterType="Long" resultMap="LightAttenuationComparisonResult">
+        <include refid="selectLightAttenuationComparisonVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertLightAttenuationComparison" parameterType="LightAttenuationComparison" useGeneratedKeys="true" keyProperty="id">
+        insert into light_attenuation_comparison
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip,</if>
+            <if test="brand != null and brand != ''">brand,</if>
+            <if test="switchType != null and switchType != ''">switch_type,</if>
+            <if test="firewareVersion != null and firewareVersion != ''">fireware_version,</if>
+            <if test="subVersion != null">sub_version,</if>
+            <if test="numberParameters != null">number_parameters,</if>
+            <if test="port != null and port != ''">port,</if>
+            <if test="txAverageValue != null and txAverageValue != ''">tx_average_value,</if>
+            <if test="txLatestNumber != null and txLatestNumber != ''">tx_latest_number,</if>
+            <if test="rxAverageValue != null and rxAverageValue != ''">rx_average_value,</if>
+            <if test="rxLatestNumber != null and rxLatestNumber != ''">rx_latest_number,</if>
+            <if test="txStartValue != null and txStartValue != ''">tx_start_value,</if>
+            <if test="rxStartValue != null and rxStartValue != ''">rx_start_value,</if>
+            <if test="ratedDeviation != null">rated_deviation,</if>
+            <if test="valueOne != null">value_one,</if>
+            <if test="valueTwo != null">value_two,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
+            <if test="brand != null and brand != ''">#{brand},</if>
+            <if test="switchType != null and switchType != ''">#{switchType},</if>
+            <if test="firewareVersion != null and firewareVersion != ''">#{firewareVersion},</if>
+            <if test="subVersion != null">#{subVersion},</if>
+            <if test="numberParameters != null">#{numberParameters},</if>
+            <if test="port != null and port != ''">#{port},</if>
+            <if test="txAverageValue != null and txAverageValue != ''">#{txAverageValue},</if>
+            <if test="txLatestNumber != null and txLatestNumber != ''">#{txLatestNumber},</if>
+            <if test="rxAverageValue != null and rxAverageValue != ''">#{rxAverageValue},</if>
+            <if test="rxLatestNumber != null and rxLatestNumber != ''">#{rxLatestNumber},</if>
+            <if test="txStartValue != null and txStartValue != ''">#{txStartValue},</if>
+            <if test="rxStartValue != null and rxStartValue != ''">#{rxStartValue},</if>
+            <if test="ratedDeviation != null">#{ratedDeviation},</if>
+            <if test="valueOne != null">#{valueOne},</if>
+            <if test="valueTwo != null">#{valueTwo},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLightAttenuationComparison" parameterType="LightAttenuationComparison">
+        update light_attenuation_comparison
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
+            <if test="brand != null and brand != ''">brand = #{brand},</if>
+            <if test="switchType != null and switchType != ''">switch_type = #{switchType},</if>
+            <if test="firewareVersion != null and firewareVersion != ''">fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null">sub_version = #{subVersion},</if>
+            <if test="numberParameters != null">number_parameters = #{numberParameters},</if>
+            <if test="port != null and port != ''">port = #{port},</if>
+            <if test="txAverageValue != null and txAverageValue != ''">tx_average_value = #{txAverageValue},</if>
+            <if test="txLatestNumber != null and txLatestNumber != ''">tx_latest_number = #{txLatestNumber},</if>
+            <if test="rxAverageValue != null and rxAverageValue != ''">rx_average_value = #{rxAverageValue},</if>
+            <if test="rxLatestNumber != null and rxLatestNumber != ''">rx_latest_number = #{rxLatestNumber},</if>
+            <if test="txStartValue != null and txStartValue != ''">tx_start_value = #{txStartValue},</if>
+            <if test="rxStartValue != null and rxStartValue != ''">rx_start_value = #{rxStartValue},</if>
+            <if test="ratedDeviation != null">rated_deviation = #{ratedDeviation},</if>
+            <if test="valueOne != null">value_one = #{valueOne},</if>
+            <if test="valueTwo != null">value_two = #{valueTwo},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLightAttenuationComparisonById" parameterType="Long">
+        delete from light_attenuation_comparison where id = #{id}
+    </delete>
+
+    <delete id="deleteLightAttenuationComparisonByIds" parameterType="String">
+        delete from light_attenuation_comparison where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

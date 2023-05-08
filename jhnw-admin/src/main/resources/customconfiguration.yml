@@ -66,3 +66,11 @@ OSPF:
     阈值: [-23,-5]
     转译:
       GE: GigabitEthernet
+
+#查看交换机错误包数量
+错误包:
+  H3C: display interface 端口号
+  RuiJie: show interface 端口号
+  HuaWei路由器: display interface 端口号
+  MaiP: show interface 端口号 statistics
+  Cisco: show interfaces 端口号
