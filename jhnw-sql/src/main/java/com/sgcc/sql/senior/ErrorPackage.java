@@ -1,14 +1,22 @@
 package com.sgcc.sql.senior;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.controller.SwitchScanResultController;
 import com.sgcc.sql.domain.Constant;
+import com.sgcc.sql.domain.ErrorRate;
+import com.sgcc.sql.domain.SwitchInformation;
 import com.sgcc.sql.parametric.SwitchParameters;
+import com.sgcc.sql.service.IErrorRateService;
+import com.sgcc.sql.service.IReturnRecordService;
+import com.sgcc.sql.service.ISwitchInformationService;
 import com.sgcc.sql.util.CustomConfigurationUtil;
 import com.sgcc.sql.util.FunctionalMethods;
 import com.sgcc.sql.util.MyUtils;
 import com.sgcc.sql.util.PathHelper;
 import com.sgcc.sql.webSocket.WebSocketService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,76 +24,132 @@ import java.util.List;
 import java.util.Set;
 public class ErrorPackage {
 
+    @Autowired
+    private ISwitchInformationService switchInformationService;
+    @Autowired
+    private IErrorRateService errorRateService;
+
+
+
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
-        /*1：获取配置文件关于 错误包问题的 符合交换机品牌的命令的 配置信息*/
-        String portNumberCommand = (String) CustomConfigurationUtil.getValue("错误包." + switchParameters.getDeviceBrand()+".获取端口号命令", Constant.getProfileInformation());
-        /*2：当 配置文件错误包问题的命令 为空时 进行 日志写入*/
+        /*1：获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
+        String portNumberCommand = (String) CustomConfigurationUtil.getValue("误码率." + switchParameters.getDeviceBrand()+".获取端口号命令", Constant.getProfileInformation());
+        /*2：当 配置文件误码率问题的命令 为空时 进行 日志写入*/
         if (portNumberCommand == null){
             // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令","错误包");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令","误码率");
                 return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        /*3：配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
             // todo 关于交换机返回错误信息 的错误代码库
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n");
             try {
-                PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n","错误包");
+                PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n","误码率");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取错误包端口号*/
+        /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取误码率端口号*/
         List<String> portList = ObtainUPStatusPortNumber(returnString);
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(portList)){
             // todo 关于没有端口号为UP状态 的错误代码库
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号","错误包");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号","误码率");
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
         }
-        /*7：获取配置文件关于 错误包问题的 符合交换机品牌的命令的 配置信息*/
-        String errorPackageCommand = (String) CustomConfigurationUtil.getValue("错误包." + switchParameters.getDeviceBrand()+".获取错误包参数命令", Constant.getProfileInformation());
+        /*7：获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
+        String errorPackageCommand = (String) CustomConfigurationUtil.getValue("误码率." + switchParameters.getDeviceBrand()+".获取误码率参数命令", Constant.getProfileInformation());
 
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
+        if (errorPackageParameters == null){
+            return AjaxResult.error("未获取到误码率参数");
+        }
+
+        /*获取交换机四项基本信息ID*/
+        Long switchID = 0l;
+        switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
+
+
+        errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
         Set<String> strings = errorPackageParameters.keySet();
         for (String port:strings){
-            List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
 
-            String errorPackageValueString="";
-            for (int num = 0 ; num<errorPackageValue.size();num++){
-                errorPackageValueString = errorPackageValueString + errorPackageValue.get(num)+" ";
+            ErrorRate errorRate = new ErrorRate();
+            errorRate.setSwitchId(switchID);
+            errorRate.setPort(port);
+
+            List<ErrorRate> list = errorRateService.selectErrorRateList(errorRate);
+            ErrorRate primaryErrorRate = new ErrorRate();
+            if (!(MyUtils.isCollectionEmpty(list))){
+                primaryErrorRate = list.get(0);
             }
-            if (errorPackageValueString.equals("")){
-                continue;
-            }else {
-                errorPackageValueString = errorPackageValueString.substring(0,errorPackageValueString.length()-1);
+
+            List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
+            for (String error:errorPackageValue){
+                if (MyUtils.containIgnoreCase(error,"input") || MyUtils.containIgnoreCase(error,"Rx") ){
+                    errorRate.setInputErrors(MyUtils.StringTruncationDoubleValue(error).get(0)+"");
+                }
+                if (MyUtils.containIgnoreCase(error,"output") || MyUtils.containIgnoreCase(error,"Tx") ){
+                    errorRate.setOutputErrors(MyUtils.StringTruncationDoubleValue(error).get(0)+"");
+                }
+                if (MyUtils.containIgnoreCase(error,"crc")){
+                    errorRate.setCrc(MyUtils.StringTruncationDoubleValue(error).get(0)+"");
+                }
             }
 
             HashMap<String,String> hashMap = new HashMap<>();
+            hashMap.put("ProblemName","误码率");
 
-            hashMap.put("ProblemName","错误包");
-
-            hashMap.put("IfQuestion","有问题");
+            if (primaryErrorRate.getId() == null){
+                int i = errorRateService.insertErrorRate(errorRate);
+                hashMap.put("IfQuestion","无问题");
+            }else {
+                int num = 0;
+                if (primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null &&
+                        (!primaryErrorRate.getInputErrors().equals(errorRate.getInputErrors()))){
+                    num++;
+                }
+                if (primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() !=null &&
+                        (!primaryErrorRate.getOutputErrors().equals(errorRate.getOutputErrors()))){
+                    num++;
+                }
+                if (primaryErrorRate.getCrc() !=null && errorRate.getCrc() !=null &&
+                        (!primaryErrorRate.getCrc().equals(errorRate.getCrc()))){
+                    num++;
+                }
+                if (num>0){
+                    errorRate.setId(primaryErrorRate.getId());
+                    int i = errorRateService.updateErrorRate(errorRate);
+                    hashMap.put("IfQuestion","有问题");
+                }else if (num == 0){
+                    hashMap.put("IfQuestion","无问题");
+                }
+            }
 
             // =:= 是自定义分割符
-            hashMap.put("parameterString","错误包参数=:=是=:="+errorPackageValueString);
+            String parameterString = (errorRate.getInputErrors()!=null?"input=:=是=:="+errorRate.getInputErrors()+"=:=":"")
+                    +(errorRate.getOutputErrors()!=null?"output=:=是=:="+errorRate.getOutputErrors()+"=:=":"")
+                    +(errorRate.getCrc()!=null?"crc=:=是=:="+errorRate.getCrc():"");
+            if (parameterString.endsWith("=:=")){
+                parameterString = parameterString.substring(0,parameterString.length()-3);
+            }
+            hashMap.put("parameterString",parameterString);
 
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
             Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
-
             SwitchInteraction switchInteraction = new SwitchInteraction();
             switchInteraction.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-
         }
         return null;
     }
@@ -93,10 +157,10 @@ public class ErrorPackage {
     public HashMap<String,Object> getErrorPackageParameters(SwitchParameters switchParameters,List<String> portNumber,String errorPackageCommand) {
         /*创建 返回对象 List<String>*/
         HashMap<String,Object> hashMap = new HashMap<>();
-        /*端口号集合 需要检测各端口号的错误包参数*/
+        /*端口号集合 需要检测各端口号的误码率参数*/
         for (String port:portNumber){
             List<String> valueList = new ArrayList<>();
-            /*替换端口号 得到完整的 获取端口号错误包参数命令 */
+            /*替换端口号 得到完整的 获取端口号误码率参数命令 */
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
@@ -145,9 +209,9 @@ public class ErrorPackage {
 
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取错误包参数命令错误,请重新定义\r\n");
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取误码率参数命令错误,请重新定义\r\n");
                 try {
-                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n","错误包");
+                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n","误码率");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -155,10 +219,10 @@ public class ErrorPackage {
 
             String[] returnResultssplit = returnResults.split("\r\n");
             for (String information:returnResultssplit){
-                /*提取错误包参数*/
+                /*提取误码率参数*/
                 List<String> value = getParameters(information);
                 if (MyUtils.isCollectionEmpty(value)){
-                    // todo 为提取到错误包参数
+                    // todo 为提取到误码率参数
                     continue;
                 }else {
                     valueList.addAll(value);
@@ -206,7 +270,7 @@ public class ErrorPackage {
     }
 
     /**
-     * 查看交换机错误包数量
+     * 查看交换机误码率数量
      * @param information
      * @return
      */

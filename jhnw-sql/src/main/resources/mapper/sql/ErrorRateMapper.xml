@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.ErrorRateMapper">
+    
+    <resultMap type="ErrorRate" id="ErrorRateResult">
+        <result property="id"    column="id"    />
+        <result property="switchId"    column="switch_id"    />
+        <result property="port"    column="port"    />
+        <result property="inputErrors"    column="input_errors"    />
+        <result property="outputErrors"    column="output_errors"    />
+        <result property="crc"    column="crc"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectErrorRateVo">
+        select id, switch_id, port, input_errors, output_errors, crc, create_time, update_time from error_rate
+    </sql>
+
+    <select id="selectErrorRateList" parameterType="ErrorRate" resultMap="ErrorRateResult">
+        <include refid="selectErrorRateVo"/>
+        <where>  
+            <if test="switchId != null "> and switch_id = #{switchId}</if>
+            <if test="port != null  and port != ''"> and port = #{port}</if>
+            <if test="inputErrors != null "> and input_errors = #{inputErrors}</if>
+            <if test="outputErrors != null "> and output_errors = #{outputErrors}</if>
+            <if test="crc != null "> and crc = #{crc}</if>
+        </where>
+    </select>
+    
+    <select id="selectErrorRateById" parameterType="Long" resultMap="ErrorRateResult">
+        <include refid="selectErrorRateVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertErrorRate" parameterType="ErrorRate">
+        insert into error_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="switchId != null">switch_id,</if>
+            <if test="port != null and port != ''">port,</if>
+            <if test="inputErrors != null">input_errors,</if>
+            <if test="outputErrors != null">output_errors,</if>
+            <if test="crc != null">crc,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="switchId != null">#{switchId},</if>
+            <if test="port != null and port != ''">#{port},</if>
+            <if test="inputErrors != null">#{inputErrors},</if>
+            <if test="outputErrors != null">#{outputErrors},</if>
+            <if test="crc != null">#{crc},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateErrorRate" parameterType="ErrorRate">
+        update error_rate
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="switchId != null">switch_id = #{switchId},</if>
+            <if test="port != null and port != ''">port = #{port},</if>
+            <if test="inputErrors != null">input_errors = #{inputErrors},</if>
+            <if test="outputErrors != null">output_errors = #{outputErrors},</if>
+            <if test="crc != null">crc = #{crc},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteErrorRateById" parameterType="Long">
+        delete from error_rate where id = #{id}
+    </delete>
+
+    <delete id="deleteErrorRateByIds" parameterType="String">
+        delete from error_rate where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

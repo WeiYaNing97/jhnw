@@ -3,12 +3,10 @@ package com.sgcc.sql.util;
 import com.sgcc.connect.util.SpringBeanUtil;
 import com.sgcc.sql.controller.SwitchErrorController;
 import com.sgcc.sql.controller.SwitchFailureController;
-import com.sgcc.sql.domain.ReturnRecord;
-import com.sgcc.sql.domain.SwitchError;
-import com.sgcc.sql.domain.SwitchFailure;
-import com.sgcc.sql.domain.TotalQuestionTable;
+import com.sgcc.sql.domain.*;
 import com.sgcc.sql.parametric.SwitchParameters;
 import com.sgcc.sql.service.IReturnRecordService;
+import com.sgcc.sql.service.ISwitchInformationService;
 import com.sgcc.sql.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +22,26 @@ public class FunctionalMethods {
     @Autowired
     private static IReturnRecordService returnRecordService;
 
+    @Autowired
+    private static ISwitchInformationService switchInformationService;
+
+
+    /*获取交换机基本信息 有返回ID 没有插入并返回ID*/
+    public static Long getSwitchParametersId(SwitchParameters switchParameters) {
+        SwitchInformation switchInformation = new SwitchInformation();
+        switchInformation.setBrand(switchParameters.getDeviceBrand());
+        switchInformation.setSwitchType(switchParameters.getDeviceModel());
+        switchInformation.setFirewareVersion(switchParameters.getFirmwareVersion());
+        switchInformation.setSubVersion(switchParameters.getSubversionNumber());
+        switchInformationService = SpringBeanUtil.getBean(ISwitchInformationService.class);//解决 多线程 service 为null问题
+        List<SwitchInformation> switchInformationList = switchInformationService.selectSwitchInformationList(switchInformation);
+        if (MyUtils.isCollectionEmpty(switchInformationList)){
+            int i = switchInformationService.insertSwitchInformation(switchInformation);
+            return switchInformation.getId();
+        }else {
+            return switchInformationList.get(0).getId();
+        }
+    }
     /**
      * 根据交换机信息类 与 具体命令，执行并返回交换机返回信息
      * @param switchParameters

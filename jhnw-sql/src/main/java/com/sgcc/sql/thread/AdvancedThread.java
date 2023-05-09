@@ -52,7 +52,7 @@ public class AdvancedThread extends Thread {
                     LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
                     luminousAttenuation.obtainLightDecay(switchParameters);
                     break;
-                case "错误包":
+                case "误码率":
                     ErrorPackage errorPackage = new ErrorPackage();
                     errorPackage.getErrorPackage(switchParameters);
                     break;

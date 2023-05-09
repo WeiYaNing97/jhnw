@@ -68,16 +68,16 @@ OSPF:
       GE: GigabitEthernet
 
 #查看交换机错误包数量
-错误包:
+误码率:
   H3C:
     获取端口号命令: display interface brief
-    获取错误包参数命令: display interface 端口号
+    获取误码率参数命令: display interface 端口号
   RuiJie:
     获取端口号命令: show interface status
-    获取错误包参数命令: show interface 端口号
+    获取误码率参数命令: show interface 端口号
   HuaWei:
     获取端口号命令: display interface brief
-    获取错误包参数命令: display interface 端口号
+    获取误码率参数命令: display interface 端口号
 
   HuaWei路由器: display interface 端口号
   MaiP: show interface 端口号 statistics

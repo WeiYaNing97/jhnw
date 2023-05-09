@@ -7,10 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="LightAttenuationComparison" id="LightAttenuationComparisonResult">
         <result property="id"    column="id"    />
         <result property="switchIp"    column="switch_ip"    />
-        <result property="brand"    column="brand"    />
-        <result property="switchType"    column="switch_type"    />
-        <result property="firewareVersion"    column="fireware_version"    />
-        <result property="subVersion"    column="sub_version"    />
+        <result property="switchId"    column="switch_id"    />
         <result property="numberParameters"    column="number_parameters"    />
         <result property="port"    column="port"    />
         <result property="txAverageValue"    column="tx_average_value"    />
@@ -25,17 +22,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectLightAttenuationComparisonVo">
-        select id, switch_ip, brand, switch_type, fireware_version, sub_version, number_parameters, port, tx_average_value, tx_latest_number, rx_average_value, rx_latest_number, tx_start_value, rx_start_value, rated_deviation, value_one, value_two from light_attenuation_comparison
+        select id, switch_ip, switch_id, number_parameters, port, tx_average_value, tx_latest_number, rx_average_value, rx_latest_number, tx_start_value, rx_start_value, rated_deviation, value_one, value_two from light_attenuation_comparison
     </sql>
 
     <select id="selectLightAttenuationComparisonList" parameterType="LightAttenuationComparison" resultMap="LightAttenuationComparisonResult">
         <include refid="selectLightAttenuationComparisonVo"/>
         <where>  
             <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
-            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
-            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="switchId != null  and switchId != ''"> and switch_id = #{switchId}</if>
             <if test="numberParameters != null "> and number_parameters = #{numberParameters}</if>
             <if test="port != null  and port != ''"> and port = #{port}</if>
             <if test="txAverageValue != null  and txAverageValue != ''"> and tx_average_value = #{txAverageValue}</if>
@@ -59,10 +53,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into light_attenuation_comparison
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="switchIp != null and switchIp != ''">switch_ip,</if>
-            <if test="brand != null and brand != ''">brand,</if>
-            <if test="switchType != null and switchType != ''">switch_type,</if>
-            <if test="firewareVersion != null and firewareVersion != ''">fireware_version,</if>
-            <if test="subVersion != null">sub_version,</if>
+            <if test="switchId != null and switchId != ''">switch_id,</if>
             <if test="numberParameters != null">number_parameters,</if>
             <if test="port != null and port != ''">port,</if>
             <if test="txAverageValue != null and txAverageValue != ''">tx_average_value,</if>
@@ -77,10 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
-            <if test="brand != null and brand != ''">#{brand},</if>
-            <if test="switchType != null and switchType != ''">#{switchType},</if>
-            <if test="firewareVersion != null and firewareVersion != ''">#{firewareVersion},</if>
-            <if test="subVersion != null">#{subVersion},</if>
+            <if test="switchId != null and switchId != ''">#{switchId},</if>
             <if test="numberParameters != null">#{numberParameters},</if>
             <if test="port != null and port != ''">#{port},</if>
             <if test="txAverageValue != null and txAverageValue != ''">#{txAverageValue},</if>
@@ -99,10 +87,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update light_attenuation_comparison
         <trim prefix="SET" suffixOverrides=",">
             <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
-            <if test="brand != null and brand != ''">brand = #{brand},</if>
-            <if test="switchType != null and switchType != ''">switch_type = #{switchType},</if>
-            <if test="firewareVersion != null and firewareVersion != ''">fireware_version = #{firewareVersion},</if>
-            <if test="subVersion != null">sub_version = #{subVersion},</if>
+            <if test="switchId != null and switchId != ''">switch_id = #{switchId},</if>
             <if test="numberParameters != null">number_parameters = #{numberParameters},</if>
             <if test="port != null and port != ''">port = #{port},</if>
             <if test="txAverageValue != null and txAverageValue != ''">tx_average_value = #{txAverageValue},</if>

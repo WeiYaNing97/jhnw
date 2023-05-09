@@ -22,21 +22,9 @@ public class LightAttenuationComparison extends BaseEntity
     @Excel(name = "交换机ip")
     private String switchIp;
 
-    /** 品牌 */
-    @Excel(name = "品牌")
-    private String brand;
-
-    /** 型号 */
-    @Excel(name = "型号")
-    private String switchType;
-
-    /** 内部固件版本 */
-    @Excel(name = "内部固件版本")
-    private String firewareVersion;
-
-    /** 子版本号 */
-    @Excel(name = "子版本号")
-    private String subVersion;
+    /** 交换机四项基本信息表ID索引 */
+    @Excel(name = "交换机四项基本信息表ID索引")
+    private Long switchId;
 
     /** 参数数量 */
     @Excel(name = "参数数量")
@@ -100,42 +88,7 @@ public class LightAttenuationComparison extends BaseEntity
     {
         return switchIp;
     }
-    public void setBrand(String brand) 
-    {
-        this.brand = brand;
-    }
 
-    public String getBrand() 
-    {
-        return brand;
-    }
-    public void setSwitchType(String switchType) 
-    {
-        this.switchType = switchType;
-    }
-
-    public String getSwitchType() 
-    {
-        return switchType;
-    }
-    public void setFirewareVersion(String firewareVersion) 
-    {
-        this.firewareVersion = firewareVersion;
-    }
-
-    public String getFirewareVersion() 
-    {
-        return firewareVersion;
-    }
-    public void setSubVersion(String subVersion) 
-    {
-        this.subVersion = subVersion;
-    }
-
-    public String getSubVersion() 
-    {
-        return subVersion;
-    }
     public void setNumberParameters(Integer numberParameters) 
     {
         this.numberParameters = numberParameters;
@@ -236,26 +189,35 @@ public class LightAttenuationComparison extends BaseEntity
         return valueTwo;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public Long getSwitchId() {
+        return switchId;
+    }
+
+    public void setSwitchId(Long switchId) {
+        this.switchId = switchId;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("switchIp", getSwitchIp())
-            .append("brand", getBrand())
-            .append("switchType", getSwitchType())
-            .append("firewareVersion", getFirewareVersion())
-            .append("subVersion", getSubVersion())
-            .append("numberParameters", getNumberParameters())
-            .append("port", getPort())
-            .append("txAverageValue", getTxAverageValue())
-            .append("txLatestNumber", getTxLatestNumber())
-            .append("rxAverageValue", getRxAverageValue())
-            .append("rxLatestNumber", getRxLatestNumber())
-            .append("txStartValue", getTxStartValue())
-            .append("rxStartValue", getRxStartValue())
-            .append("ratedDeviation", getRatedDeviation())
-            .append("valueOne", getValueOne())
-            .append("valueTwo", getValueTwo())
-            .toString();
+        return "LightAttenuationComparison{" +
+                "id=" + id +
+                ", switchIp='" + switchIp + '\'' +
+                ", switchId=" + switchId +
+                ", numberParameters=" + numberParameters +
+                ", port='" + port + '\'' +
+                ", txAverageValue='" + txAverageValue + '\'' +
+                ", txLatestNumber='" + txLatestNumber + '\'' +
+                ", rxAverageValue='" + rxAverageValue + '\'' +
+                ", rxLatestNumber='" + rxLatestNumber + '\'' +
+                ", txStartValue='" + txStartValue + '\'' +
+                ", rxStartValue='" + rxStartValue + '\'' +
+                ", ratedDeviation='" + ratedDeviation + '\'' +
+                ", valueOne='" + valueOne + '\'' +
+                ", valueTwo='" + valueTwo + '\'' +
+                '}';
     }
 }
