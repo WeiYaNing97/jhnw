@@ -2075,7 +2075,7 @@ public class SwitchInteraction {
         scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
         String switchIp = scanResultsVO.getSwitchIp();
         String[] split = switchIp.split(":");
-        scanResultsVO.setSwitchIp(split[0]);
+        scanResultsVO.setSwitchIp(switchIp);
         List<SwitchProblemVO> pojoVOlist = scanResultsVO.getSwitchProblemVOList();
         for (SwitchProblemVO switchProblemVO:pojoVOlist){
             switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());

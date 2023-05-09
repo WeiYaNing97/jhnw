@@ -358,7 +358,7 @@ public class SwitchScanResultController extends BaseController
                 scanResultsVO.setCreateTime(null);
                 String switchIp = scanResultsVO.getSwitchIp();
                 String[] split = switchIp.split(":");
-                scanResultsVO.setSwitchIp(split[0]);
+                scanResultsVO.setSwitchIp(switchIp);
                 scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
                 for (SwitchProblemVO switchProblemVO:switchProblemVOList){
