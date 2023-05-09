@@ -55,6 +55,8 @@ public class SolveProblemController {
     private static ISwitchProblemService switchProblemService;
     @Autowired
     private static ISwitchScanResultService switchScanResultService;
+    @Autowired
+    private ISwitchInformationService switchInformationService;
 
     /**
      * @method: 根据问题ID 查询 解决问题ID命令 返回List<String>
@@ -307,11 +309,13 @@ public class SolveProblemController {
 
             for (SwitchScanResult switchScanResult:switchScanResultList){
                 //交换机基本信息
+                switchInformationService = SpringBeanUtil.getBean(ISwitchInformationService.class);
+                SwitchInformation switchInformation = switchInformationService.selectSwitchInformationById(switchScanResult.getSwitchId());
                 if (switchParameters.getIp().equals(switchScanResult.getSwitchIp())
-                        && switchParameters.getDeviceBrand().equals(switchScanResult.getBrand())
-                        && switchParameters.getDeviceModel().equals(switchScanResult.getSwitchType())
-                        && switchParameters.getFirmwareVersion().equals(switchScanResult.getFirewareVersion())
-                        && switchParameters.getSubversionNumber().equals(switchScanResult.getSubVersion())){
+                        && switchParameters.getDeviceBrand().equals(switchInformation.getBrand())
+                        && switchParameters.getDeviceModel().equals(switchInformation.getSwitchType())
+                        && switchParameters.getFirmwareVersion().equals(switchInformation.getFirewareVersion())
+                        && switchParameters.getSubversionNumber().equals(switchInformation.getSubVersion())){
                     switchScanResultLists.add(switchScanResult);
                 }else {
 

@@ -438,13 +438,15 @@ public class SwitchInteraction {
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
         switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
+
+
         /* 默认先添加 高级功能*/
-        OSPFFeatures ospfFeatures = new OSPFFeatures();
+        /*OSPFFeatures ospfFeatures = new OSPFFeatures();
         ospfFeatures.getOSPFValues(switchParameters);
         LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
         luminousAttenuation.obtainLightDecay(switchParameters);
         ErrorPackage errorPackage = new ErrorPackage();
-        errorPackage.getErrorPackage(switchParameters);
+        errorPackage.getErrorPackage(switchParameters);*/
 
 
         //5.获取交换机可扫描的问题并执行分析操作
@@ -1840,10 +1842,10 @@ public class SwitchInteraction {
         //插入问题数据
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
 
-        switchScanResult.setBrand(totalQuestionTable.getBrand());
-        switchScanResult.setSwitchType(totalQuestionTable.getType());
-        switchScanResult.setFirewareVersion(totalQuestionTable.getFirewareVersion());
-        switchScanResult.setSubVersion(totalQuestionTable.getSubVersion());
+
+
+        /*获取交换机四项基本信息ID*/
+        switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
 
         switchScanResult.setSwitchName(switchParameters.getName()); //name
         switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password

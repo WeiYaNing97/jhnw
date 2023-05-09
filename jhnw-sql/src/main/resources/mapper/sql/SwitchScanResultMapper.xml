@@ -36,10 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="SwitchScanResult" id="SwitchScanResultResult">
         <result property="id"    column="id"    />
         <result property="switchIp"    column="switch_ip"    />
-        <result property="brand"    column="brand"    />
-        <result property="switchType"    column="switch_type"    />
-        <result property="firewareVersion"    column="fireware_version"    />
-        <result property="subVersion"    column="sub_version"    />
+        <result property="switchId"    column="switch_id"    />
         <result property="switchName"    column="switch_name"    />
         <result property="switchPassword"    column="switch_password"    />
         <result property="configureCiphers"    column="configureCiphers"    />
@@ -60,41 +57,46 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSwitchScanResultVo">
-        select id, switch_ip, brand, switch_type, fireware_version, sub_version, switch_name, switch_password,configureCiphers, login_method, port_number, problem_id, type_problem, tem_pro_name, problem_name, remarks, problem_describe_id, if_question, com_id,  dynamic_information,  create_time, user_name, phonenumber from switch_scan_result
+        select id, switch_ip, switch_id, switch_name, switch_password,configureCiphers, login_method, port_number, problem_id, type_problem, tem_pro_name, problem_name, remarks, problem_describe_id, if_question, com_id,  dynamic_information,  create_time, user_name, phonenumber from switch_scan_result
     </sql>
     <sql id="pojoVo">
-        select
-        ssrt.id question_id,
-        ssrt.dynamic_information dynamic_information,
-        ssrt.switch_ip switch_ip,
-        ssrt.brand brand,
-        ssrt.switch_type switch_type,
-        ssrt.fireware_version fireware_version,
-        ssrt.sub_version sub_version,
-        ssrt.switch_name switch_name,
-        ssrt.switch_password switch_password,
-        ssrt.configureCiphers configureCiphers,
-        ssrt.login_method login_method,
-        ssrt.port_number port_number,
-        ssrt.type_problem type_problem,
-        ssrt.create_time create_timeTwo,
-
-        ssrt.problem_id problem_id,
-
-        CASE ssrt.if_question
-                WHEN '有问题' THEN '异常'
-                WHEN '无问题' THEN '安全'
-                WHEN '完成' THEN '完成'
-                WHEN '已解决' THEN '已解决'
-				ELSE ssrt.if_question
+        SELECT
+            ssrt.id question_id,
+            ssrt.dynamic_information dynamic_information,
+            ssrt.switch_ip switch_ip,
+            information.brand brand,
+            information.switch_type switch_type,
+            information.fireware_version fireware_version,
+            information.sub_version sub_version,
+            ssrt.switch_name switch_name,
+            ssrt.switch_password switch_password,
+            ssrt.configureCiphers configureCiphers,
+            ssrt.login_method login_method,
+            ssrt.port_number port_number,
+            ssrt.type_problem type_problem,
+            ssrt.create_time create_timeTwo,
+            ssrt.problem_id problem_id,
+            CASE
+                    ssrt.if_question
+                    WHEN '有问题' THEN
+                    '异常'
+                    WHEN '无问题' THEN
+                    '安全'
+                    WHEN '完成' THEN
+                    '完成'
+                    WHEN '已解决' THEN
+                    '已解决' ELSE ssrt.if_question
                 END if_question,
-
-        ssrt.com_id com_id,
-        ssrt.dynamic_information,
-        ssrt.problem_name problem_name,
-        ssrt.problem_describe_id problem_describe_id,
-        ssrt.create_time create_time
-        from switch_scan_result ssrt
+                ssrt.com_id com_id,
+                ssrt.dynamic_information,
+                ssrt.problem_name problem_name,
+                ssrt.problem_describe_id problem_describe_id,
+                ssrt.create_time create_time
+        FROM
+            switch_scan_result ssrt,
+            switch_information information
+        WHERE
+            ssrt.switch_id = information.id
 
     </sql>
 
@@ -102,10 +104,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSwitchScanResultVo"/>
         <where>  
             <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
-            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
-            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="switchId != null  and switchId != ''"> and switch_id = #{switchId}</if>
             <if test="switchName != null  and switchName != ''"> and switch_name like concat('%', #{switchName}, '%')</if>
             <if test="switchPassword != null  and switchPassword != ''"> and switch_password = #{switchPassword}</if>
             <if test="configureCiphers != null  and configureCiphers != ''"> and configureCiphers = #{configureCiphers}</if>
@@ -138,10 +137,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into switch_scan_result
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="switchIp != null and switchIp != ''">switch_ip,</if>
-            <if test="brand != null and brand != ''">brand,</if>
-            <if test="switchType != null and switchType != ''">switch_type,</if>
-            <if test="firewareVersion != null and firewareVersion != ''">fireware_version,</if>
-            <if test="subVersion != null and subVersion != ''">sub_version,</if>
+            <if test="switchId != null and switchId != ''">switch_id,</if>
             <if test="switchName != null and switchName != ''">switch_name,</if>
             <if test="switchPassword != null and switchPassword != ''">switch_password,</if>
             <if test="configureCiphers != null and configureCiphers != ''">configureCiphers,</if>
@@ -162,10 +158,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
-            <if test="brand != null and brand != ''">#{brand},</if>
-            <if test="switchType != null and switchType != ''">#{switchType},</if>
-            <if test="firewareVersion != null and firewareVersion != ''">#{firewareVersion},</if>
-            <if test="subVersion != null and subVersion != ''">#{subVersion},</if>
+            <if test="switchId != null and switchId != ''">#{switchId},</if>
             <if test="switchName != null and switchName != ''">#{switchName},</if>
             <if test="switchPassword != null and switchPassword != ''">#{switchPassword},</if>
             <if test="configureCiphers != null and configureCiphers != ''">#{configureCiphers},</if>
@@ -190,10 +183,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update switch_scan_result
         <trim prefix="SET" suffixOverrides=",">
             <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
-            <if test="brand != null and brand != ''">brand = #{brand},</if>
-            <if test="switchType != null and switchType != ''">switch_type = #{switchType},</if>
-            <if test="firewareVersion != null and firewareVersion != ''">fireware_version = #{firewareVersion},</if>
-            <if test="subVersion != null and subVersion != ''">sub_version = #{subVersion},</if>
+            <if test="switchId != null and switchId != ''">switch_id = #{switchId},</if>
             <if test="switchName != null and switchName != ''">switch_name = #{switchName},</if>
             <if test="switchPassword != null and switchPassword != ''">switch_password = #{switchPassword},</if>
             <if test="configureCiphers != null and configureCiphers != ''">configureCiphers = #{configureCiphers},</if>
@@ -232,7 +222,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSwitchScanResultByIds" parameterType="Long" resultMap="SwitchScanResultResult">
         <include refid="selectSwitchScanResultVo"/>
-        where id in
+        and id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -240,7 +230,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSwitchProblemVOListByIds" resultMap="SwitchProblemVO">
         <include refid="pojoVo"/>
-        where ssrt.id in
+        and ssrt.id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -248,7 +238,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSwitchScanResultListByIds" resultMap="SwitchProblemVO">
         <include refid="pojoVo"/>
-        where ssrt.id in
+        and ssrt.id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
@@ -256,22 +246,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSwitchScanResultListByDataAndUserName" resultMap="SwitchProblemVO">
         <include refid="pojoVo"/>
-        <where>
-            <if test="userName != null  and userName != ''"> and ssrt.user_name = #{userName}</if>
-            <if test="currentTime != null  and currentTime != ''"> and ssrt.create_time = #{currentTime}</if>
-        </where>
+        and ssrt.user_name = #{userName}
+        and ssrt.create_time = #{currentTime}
+
     </select>
     <select id="selectSwitchScanResultListById" parameterType="Long" resultMap="SwitchProblemVO">
         <include refid="pojoVo"/>
-        where ssrt.id = #{id}
+        AND ssrt.id = #{id}
     </select>
 
     <select id="selectSwitchScanResultByDataAndUserName" resultMap="SwitchScanResultResult">
         <include refid="selectSwitchScanResultVo"/>
-        <where>
-            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
-            <if test="currentTime != null  and currentTime != ''"> and create_time = #{currentTime}</if>
-        </where>
+        and user_name = #{userName}
+        and create_time = #{currentTime}
     </select>
     <select id="selectCountByName" resultType="java.lang.Integer">
         SELECT COUNT(DISTINCT create_time) FROM switch_scan_result WHERE user_name = #{username};
@@ -280,10 +267,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT
         switch_scan_result.id,
         switch_scan_result.switch_ip,
-        switch_scan_result.brand,
-        switch_scan_result.switch_type,
-        switch_scan_result.fireware_version,
-        switch_scan_result.sub_version,
+        switch_scan_result.switch_id,
         switch_scan_result.switch_name,
         switch_scan_result.switch_password,
         switch_scan_result.configureCiphers,

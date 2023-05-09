@@ -22,21 +22,9 @@ public class SwitchScanResult extends BaseEntity
     @Excel(name = "交换机ip")
     private String switchIp;
 
-    /** 品牌 */
-    @Excel(name = "品牌")
-    private String brand;
-
-    /** 型号 */
-    @Excel(name = "型号")
-    private String switchType;
-
-    /** 内部固件版本 */
-    @Excel(name = "内部固件版本")
-    private String firewareVersion;
-
-    /** 子版本号 */
-    @Excel(name = "子版本号")
-    private String subVersion;
+    /** 交换机四项基本信息表ID索引 */
+    @Excel(name = "交换机四项基本信息表ID索引")
+    private Long switchId;
 
     /** 交换机姓名 */
     @Excel(name = "交换机姓名")
@@ -122,38 +110,6 @@ public class SwitchScanResult extends BaseEntity
 
     public void setSwitchIp(String switchIp) {
         this.switchIp = switchIp;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public String getSwitchType() {
-        return switchType;
-    }
-
-    public void setSwitchType(String switchType) {
-        this.switchType = switchType;
-    }
-
-    public String getFirewareVersion() {
-        return firewareVersion;
-    }
-
-    public void setFirewareVersion(String firewareVersion) {
-        this.firewareVersion = firewareVersion;
-    }
-
-    public String getSubVersion() {
-        return subVersion;
-    }
-
-    public void setSubVersion(String subVersion) {
-        this.subVersion = subVersion;
     }
 
     public String getSwitchName() {
@@ -285,15 +241,20 @@ public class SwitchScanResult extends BaseEntity
         this.configureCiphers = configureCiphers;
     }
 
+    public Long getSwitchId() {
+        return switchId;
+    }
+
+    public void setSwitchId(Long switchId) {
+        this.switchId = switchId;
+    }
+
     @Override
     public String toString() {
         return "SwitchScanResult{" +
                 "id=" + id +
                 ", switchIp='" + switchIp + '\'' +
-                ", brand='" + brand + '\'' +
-                ", switchType='" + switchType + '\'' +
-                ", firewareVersion='" + firewareVersion + '\'' +
-                ", subVersion='" + subVersion + '\'' +
+                ", switchId=" + switchId +
                 ", switchName='" + switchName + '\'' +
                 ", switchPassword='" + switchPassword + '\'' +
                 ", configureCiphers='" + configureCiphers + '\'' +

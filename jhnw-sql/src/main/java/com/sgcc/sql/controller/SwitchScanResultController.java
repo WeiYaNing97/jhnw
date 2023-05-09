@@ -142,10 +142,8 @@ public class SwitchScanResultController extends BaseController
         //插入问题数据
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
 
-        switchScanResult.setBrand(switchParameters.getDeviceBrand());
-        switchScanResult.setSwitchType(switchParameters.getDeviceModel());
-        switchScanResult.setFirewareVersion(switchParameters.getFirmwareVersion());
-        switchScanResult.setSubVersion(switchParameters.getSubversionNumber());
+        /*获取交换机四项基本信息ID*/
+        switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
 
         switchScanResult.setSwitchName(switchParameters.getName()); //name
         switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
