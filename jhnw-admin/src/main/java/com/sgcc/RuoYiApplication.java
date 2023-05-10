@@ -1,10 +1,8 @@
 package com.sgcc;
-import com.sgcc.sql.controller.Configuration;
-import com.sgcc.sql.controller.MemoryCPU;
-import com.sgcc.sql.controller.SwitchScanResultController;
-import com.sgcc.sql.domain.Constant;
+import com.sgcc.share.controller.Configuration;
+import com.sgcc.share.util.MemoryCPU;
+import com.sgcc.share.domain.Constant;
 import com.sgcc.sql.domain.OspfEnum;
-import com.sgcc.sql.util.CustomConfigurationUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;

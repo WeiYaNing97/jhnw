@@ -228,8 +228,15 @@
         <module>jhnw-quartz</module>
         <module>jhnw-generator</module>
         <module>jhnw-common</module>
-        <module>jhnw-sql</module>
+
+        <!--巡检-->
+        <module>jhnw-inspection</module>
+        <!--连接交换机-->
         <module>jhnw-connect</module>
+        <!--高级功能-->
+        <module>jhnw-advanced</module>
+        <!--共用部分-->
+        <module>jhnw-share</module>
     </modules>
     <packaging>pom</packaging>
 

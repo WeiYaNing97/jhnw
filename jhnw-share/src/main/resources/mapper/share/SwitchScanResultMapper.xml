@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.share.mapper.SwitchScanResultMapper">
+
+    <!--mothod one -->
+    <resultMap id="SwitchProblemVO" type="com.sgcc.share.domain.SwitchProblemVO">
+        <result property="switchIp"    column="switch_ip"    />
+        <result property="brand"    column="brand"    />
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+        <result property="switchName"    column="switch_name"    />
+        <result property="switchPassword"    column="switch_password"    />
+        <result property="configureCiphers"    column="configureCiphers"    />
+        <result property="loginMethod"    column="login_method"    />
+        <result property="portNumber"    column="port_number"    />
+        <result property="typeProblem"    column="type_problem"    />
+        <result property="createTime"    column="create_timeTwo"    />
+        <collection property="switchProblemCOList"  ofType="com.sgcc.share.domain.SwitchProblemCO"
+                    javaType="java.util.ArrayList">
+            <result property="questionId"    column="question_id"    />
+            <result property="dynamicInformation"    column="dynamic_information"    />
+            <result property="problemId"    column="problem_id"    />
+            <result property="ifQuestion"    column="if_question"    />
+            <result property="comId"    column="com_id"    />
+            <result property="valueId"    column="value_id"    />
+            <result property="resolved"    column="resolved"    />
+            <result property="problemName"    column="problem_name"    />
+            <result property="problemDescribeId"    column="problem_describe_id"    />
+            <result property="createTime"    column="create_time"    />
+        </collection>
+    </resultMap>
+
+    <resultMap type="SwitchScanResult" id="SwitchScanResultResult">
+        <result property="id"    column="id"    />
+        <result property="switchIp"    column="switch_ip"    />
+        <result property="switchId"    column="switch_id"    />
+        <result property="switchName"    column="switch_name"    />
+        <result property="switchPassword"    column="switch_password"    />
+        <result property="configureCiphers"    column="configureCiphers"    />
+        <result property="loginMethod"    column="login_method"    />
+        <result property="portNumber"    column="port_number"    />
+        <result property="problemId"    column="problem_id"    />
+        <result property="typeProblem"    column="type_problem"    />
+        <result property="temProName"    column="tem_pro_name"    />
+        <result property="problemName"    column="problem_name"    />
+        <result property="remarks"    column="remarks"    />
+        <result property="problemDescribeId"    column="problem_describe_id"    />
+        <result property="ifQuestion"    column="if_question"    />
+        <result property="comId"    column="com_id"    />
+        <result property="dynamicInformation"    column="dynamic_information"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="userName"    column="user_name"    />
+        <result property="phonenumber"    column="phonenumber"    />
+    </resultMap>
+
+    <sql id="selectSwitchScanResultVo">
+        select id, switch_ip, switch_id, switch_name, switch_password,configureCiphers, login_method, port_number, problem_id, type_problem, tem_pro_name, problem_name, remarks, problem_describe_id, if_question, com_id,  dynamic_information,  create_time, user_name, phonenumber from switch_scan_result
+    </sql>
+    <sql id="pojoVo">
+        SELECT
+            ssrt.id question_id,
+            ssrt.dynamic_information dynamic_information,
+            ssrt.switch_ip switch_ip,
+            information.brand brand,
+            information.switch_type switch_type,
+            information.fireware_version fireware_version,
+            information.sub_version sub_version,
+            ssrt.switch_name switch_name,
+            ssrt.switch_password switch_password,
+            ssrt.configureCiphers configureCiphers,
+            ssrt.login_method login_method,
+            ssrt.port_number port_number,
+            ssrt.type_problem type_problem,
+            ssrt.create_time create_timeTwo,
+            ssrt.problem_id problem_id,
+            CASE
+                    ssrt.if_question
+                    WHEN '有问题' THEN
+                    '异常'
+                    WHEN '无问题' THEN
+                    '安全'
+                    WHEN '完成' THEN
+                    '完成'
+                    WHEN '已解决' THEN
+                    '已解决' ELSE ssrt.if_question
+                END if_question,
+                ssrt.com_id com_id,
+                ssrt.dynamic_information,
+                ssrt.problem_name problem_name,
+                ssrt.problem_describe_id problem_describe_id,
+                ssrt.create_time create_time
+        FROM
+            switch_scan_result ssrt,
+            switch_information information
+        WHERE
+            ssrt.switch_id = information.id
+
+    </sql>
+
+    <select id="selectSwitchScanResultList" parameterType="SwitchScanResult" resultMap="SwitchScanResultResult">
+        <include refid="selectSwitchScanResultVo"/>
+        <where>  
+            <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
+            <if test="switchId != null  and switchId != ''"> and switch_id = #{switchId}</if>
+            <if test="switchName != null  and switchName != ''"> and switch_name like concat('%', #{switchName}, '%')</if>
+            <if test="switchPassword != null  and switchPassword != ''"> and switch_password = #{switchPassword}</if>
+            <if test="configureCiphers != null  and configureCiphers != ''"> and configureCiphers = #{configureCiphers}</if>
+            <if test="loginMethod != null  and loginMethod != ''"> and login_method = #{loginMethod}</if>
+            <if test="portNumber != null "> and port_number = #{portNumber}</if>
+            <if test="problemId != null  and problemId != ''"> and problem_id = #{problemId}</if>
+            <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
+            <if test="remarks != null  and remarks != ''"> and remarks = #{remarks}</if>
+            <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
+            <if test="ifQuestion != null  and ifQuestion != ''"> and if_question = #{ifQuestion}</if>
+            <if test="comId != null  and comId != ''"> and com_id = #{comId}</if>
+            <if test="dynamicInformation != null  and dynamicInformation != ''"> and dynamic_information = #{dynamicInformation}</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName} </if>
+            <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+        </where>
+
+        ORDER BY
+        create_time DESC
+
+    </select>
+    
+    <select id="selectSwitchScanResultById" parameterType="Long" resultMap="SwitchScanResultResult">
+        <include refid="selectSwitchScanResultVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSwitchScanResult" parameterType="SwitchScanResult" useGeneratedKeys="true" keyProperty="id">
+        insert into switch_scan_result
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip,</if>
+            <if test="switchId != null and switchId != ''">switch_id,</if>
+            <if test="switchName != null and switchName != ''">switch_name,</if>
+            <if test="switchPassword != null and switchPassword != ''">switch_password,</if>
+            <if test="configureCiphers != null and configureCiphers != ''">configureCiphers,</if>
+            <if test="loginMethod != null and loginMethod != ''">login_method,</if>
+            <if test="portNumber != null">port_number,</if>
+            <if test="problemId != null">problem_id,</if>
+            <if test="typeProblem != null">type_problem,</if>
+            <if test="temProName != null">tem_pro_name,</if>
+            <if test="problemName != null">problem_name,</if>
+            <if test="remarks != null">remarks,</if>
+            <if test="problemDescribeId != null">problem_describe_id,</if>
+            <if test="ifQuestion != null">if_question,</if>
+            <if test="comId != null">com_id,</if>
+            <if test="dynamicInformation != null">dynamic_information,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="phonenumber != null">phonenumber,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
+            <if test="switchId != null and switchId != ''">#{switchId},</if>
+            <if test="switchName != null and switchName != ''">#{switchName},</if>
+            <if test="switchPassword != null and switchPassword != ''">#{switchPassword},</if>
+            <if test="configureCiphers != null and configureCiphers != ''">#{configureCiphers},</if>
+            <if test="loginMethod != null and loginMethod != ''">#{loginMethod},</if>
+            <if test="portNumber != null">#{portNumber},</if>
+            <if test="problemId != null">#{problemId},</if>
+            <if test="typeProblem != null">#{typeProblem},</if>
+            <if test="temProName != null">#{temProName},</if>
+            <if test="problemName != null">#{problemName},</if>
+            <if test="remarks != null">#{remarks},</if>
+            <if test="problemDescribeId != null">#{problemDescribeId},</if>
+            <if test="ifQuestion != null">#{ifQuestion},</if>
+            <if test="comId != null">#{comId},</if>
+            <if test="dynamicInformation != null">#{dynamicInformation},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="phonenumber != null">#{phonenumber},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSwitchScanResult" parameterType="SwitchScanResult">
+        update switch_scan_result
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
+            <if test="switchId != null and switchId != ''">switch_id = #{switchId},</if>
+            <if test="switchName != null and switchName != ''">switch_name = #{switchName},</if>
+            <if test="switchPassword != null and switchPassword != ''">switch_password = #{switchPassword},</if>
+            <if test="configureCiphers != null and configureCiphers != ''">configureCiphers = #{configureCiphers},</if>
+            <if test="loginMethod != null and loginMethod != ''">login_method = #{loginMethod},</if>
+            <if test="portNumber != null">port_number = #{portNumber},</if>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="typeProblem != null">type_problem = #{typeProblem},</if>
+            <if test="temProName != null">tem_pro_name = #{temProName},</if>
+            <if test="problemName != null">problem_name = #{problemName},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
+            <if test="problemDescribeId != null">problem_describe_id = #{problemDescribeId},</if>
+            <if test="ifQuestion != null">if_question = #{ifQuestion},</if>
+            <if test="comId != null">com_id = #{comId},</if>
+            <if test="dynamicInformation != null">dynamic_information = #{dynamicInformation},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="phonenumber != null">phonenumber = #{phonenumber},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSwitchScanResultById" parameterType="Long">
+        delete from switch_scan_result where id = #{id}
+    </delete>
+    <!--删除数据表所有数据-->
+    <delete id="deleteSwitchScanResult" parameterType="Long">
+        delete from switch_scan_result
+    </delete>
+
+    <delete id="deleteSwitchScanResultByIds" parameterType="String">
+        delete from switch_scan_result where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectSwitchScanResultByIds" parameterType="Long" resultMap="SwitchScanResultResult">
+        <include refid="selectSwitchScanResultVo"/>
+        and id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectSwitchProblemVOListByIds" resultMap="SwitchProblemVO">
+        <include refid="pojoVo"/>
+        and ssrt.id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectSwitchScanResultListByIds" resultMap="SwitchProblemVO">
+        <include refid="pojoVo"/>
+        and ssrt.id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectSwitchScanResultListByDataAndUserName" resultMap="SwitchProblemVO">
+        <include refid="pojoVo"/>
+        and ssrt.user_name = #{userName}
+        and ssrt.create_time = #{currentTime}
+
+    </select>
+    <select id="selectSwitchScanResultListById" parameterType="Long" resultMap="SwitchProblemVO">
+        <include refid="pojoVo"/>
+        AND ssrt.id = #{id}
+    </select>
+
+    <select id="selectSwitchScanResultByDataAndUserName" resultMap="SwitchScanResultResult">
+        <include refid="selectSwitchScanResultVo"/>
+        and user_name = #{userName}
+        and create_time = #{currentTime}
+    </select>
+    <select id="selectCountByName" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT create_time) FROM switch_scan_result WHERE user_name = #{username};
+    </select>
+    <select id="selectSwitchScanResultListPages" resultType="com.sgcc.share.domain.SwitchScanResult">
+        SELECT
+        switch_scan_result.id,
+        switch_scan_result.switch_ip,
+        switch_scan_result.switch_id,
+        switch_scan_result.switch_name,
+        switch_scan_result.switch_password,
+        switch_scan_result.configureCiphers,
+        switch_scan_result.login_method,
+        switch_scan_result.port_number,
+        switch_scan_result.problem_id,
+        switch_scan_result.type_problem,
+        switch_scan_result.tem_pro_name,
+        switch_scan_result.problem_name,
+        switch_scan_result.remarks,
+        switch_scan_result.problem_describe_id,
+        switch_scan_result.if_question,
+        switch_scan_result.com_id,
+        switch_scan_result.dynamic_information,
+        switch_scan_result.create_time,
+        switch_scan_result.user_name,
+        switch_scan_result.phonenumber
+        FROM
+        ( SELECT create_time, user_name FROM switch_scan_result WHERE user_name = #{userName} GROUP BY create_time ORDER BY create_time DESC LIMIT 10 OFFSET #{number} ) AS factor,
+        switch_scan_result
+        WHERE
+        switch_scan_result.create_time = factor.create_time
+        AND switch_scan_result.user_name = factor.user_name
+        ORDER BY
+        switch_scan_result.create_time DESC
+    </select>
+</mapper>

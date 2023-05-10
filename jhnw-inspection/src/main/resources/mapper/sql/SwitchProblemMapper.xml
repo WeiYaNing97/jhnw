@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.sql.mapper.SwitchProblemMapper">
+    
+    <resultMap type="com.sgcc.sql.domain.SwitchProblem" id="SwitchProblemResult">
+        <result property="id"    column="id"    />
+        <result property="switchIp"    column="switch_ip"    />
+        <result property="brand"    column="brand"    />
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+        <result property="switchName"    column="switch_name"    />
+        <result property="switchPassword"    column="switch_password"    />
+        <result property="loginMethod"    column="login_method"    />
+        <result property="portNumber"    column="port_number"    />
+        <result property="problemId"    column="problem_id"    />
+        <result property="ifQuestion"    column="if_question"    />
+        <result property="comId"    column="com_id"    />
+        <result property="valueId"    column="value_id"    />
+        <result property="resolved"    column="resolved"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="userName"    column="user_name"    />
+        <result property="phonenumber"    column="phonenumber"    />
+    </resultMap>
+
+    <!--mothod one -->
+    <resultMap id="SwitchProblemVO" type="com.sgcc.share.domain.SwitchProblemVO">
+        <result property="switchIp"    column="switch_ip"    />
+
+        <result property="brand"    column="brand"    />
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+
+        <result property="switchName"    column="switch_name"    />
+        <result property="switchPassword"    column="switch_password"    />
+        <result property="loginMethod"    column="login_method"    />
+        <result property="portNumber"    column="port_number"    />
+        <result property="typeProblem"    column="type_problem"    />
+        <result property="createTime"    column="createTime"    />
+        <collection property="switchProblemCOList"  ofType="com.sgcc.share.domain.SwitchProblemCO"
+                    javaType="java.util.ArrayList">
+            <result property="questionId"    column="question_id"    />
+            <result property="problemId"    column="problem_id"    />
+            <result property="ifQuestion"    column="if_question"    />
+            <result property="comId"    column="com_id"    />
+            <result property="valueId"    column="value_id"    />
+            <result property="resolved"    column="resolved"    />
+            <result property="problemName"    column="problem_name"    />
+            <result property="problemDescribeId"    column="problem_describe_id"    />
+            <result property="createTime"    column="create_time"    />
+        </collection>
+    </resultMap>
+
+    <select id="selectUnresolvedProblemInformationByDataAndUserName" resultMap="SwitchProblemVO">
+        SELECT
+        problem.switch_ip switch_ip,
+
+        problem.brand brand,
+        problem.switch_type switch_type,
+        problem.fireware_version fireware_version,
+        problem.sub_version sub_version,
+
+        problem.switch_name switch_name,
+        problem.switch_password switch_password,
+        problem.login_method login_method,
+        problem.port_number port_number,
+        problem.problem_id problem_id,
+        CASE problem.if_question
+        WHEN '有问题' THEN '异常'
+        WHEN '无问题' THEN '安全'
+        WHEN '完成' THEN '完成'
+        END if_question,
+        problem.value_id value_id,
+        problem.resolved resolved,
+        problem.create_time create_time,
+        problem.create_time createTime,
+        problem.id question_id,
+
+        question.problem_name problem_name,
+        question.type_problem type_problem,
+        question.problem_solving_id com_id,
+        question.problem_describe_id problem_describe_id
+        FROM
+        ( SELECT id, switch_ip,brand, switch_type, fireware_version,sub_version, switch_name, switch_password ,login_method,port_number, problem_id,
+        if_question, com_id, value_id, resolved, create_time
+        FROM switch_problem
+
+        <where>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+            <if test="currentTime != null  and currentTime != ''"> and create_time = #{currentTime}</if>
+        </where>
+
+        ) problem , (SELECT id,problem_name,type_problem,problem_describe_id,problem_solving_id FROM total_question_table) question WHERE
+        problem.problem_id = question.id
+        ORDER BY problem.switch_ip DESC , problem.create_time DESC, problem.if_question DESC
+    </select>
+
+    <select id="selectUnresolvedProblemInformationByIds" resultMap="SwitchProblemVO">
+        SELECT
+        problem.switch_ip switch_ip,
+
+        problem.brand brand,
+        problem.switch_type switch_type,
+        problem.fireware_version fireware_version,
+        problem.sub_version sub_version,
+
+        problem.switch_name switch_name,
+        problem.switch_password switch_password,
+        problem.login_method login_method,
+        problem.port_number port_number,
+        problem.problem_id problem_id,
+        CASE problem.if_question
+        WHEN '有问题' THEN '异常'
+        WHEN '无问题' THEN '安全'
+        WHEN '完成' THEN '完成'
+        END if_question,
+        problem.value_id value_id,
+        problem.resolved resolved,
+        problem.create_time create_time,
+        problem.create_time createTime,
+        problem.id question_id,
+
+        question.problem_name problem_name,
+        question.type_problem type_problem,
+        question.problem_solving_id com_id
+        FROM
+        ( SELECT id, switch_ip,brand, switch_type, fireware_version,sub_version, switch_name, switch_password,login_method,port_number, problem_id,
+        if_question, com_id, value_id, resolved, create_time
+        FROM switch_problem
+        ${ids}
+        ) problem , (SELECT id,problem_name,type_problem,problem_solving_id FROM total_question_table) question WHERE
+        problem.problem_id = question.id
+        ORDER BY problem.switch_ip DESC , problem.create_time DESC, problem.if_question DESC
+    </select>
+
+    <select id="selectSwitchProblemByValueId"  parameterType="com.sgcc.sql.domain.SwitchProblem" resultMap="SwitchProblemResult" >
+        <include refid="selectSwitchProblemVo"/>
+        where value_id = #{valueId}
+    </select>
+
+    <sql id="selectSwitchProblemVo">
+        select id, switch_ip,brand, switch_type, fireware_version,sub_version, switch_name, switch_password,login_method,port_number, problem_id, if_question,com_id, value_id, resolved, create_time,user_name,phonenumber from switch_problem
+    </sql>
+
+    <select id="selectSwitchProblemList" parameterType="com.sgcc.sql.domain.SwitchProblem" resultMap="SwitchProblemResult">
+        <include refid="selectSwitchProblemVo"/>
+        <where>  
+            <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
+
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+
+            <if test="switchName != null  and switchName != ''"> and switch_name like concat('%', #{switchName}, '%')</if>
+            <if test="switchPassword != null  and switchPassword != ''"> and switch_password = #{switchPassword}</if>
+            <if test="loginMethod != null  and loginMethod != ''"> and login_method = #{loginMethod}</if>
+            <if test="portNumber != null  and portNumber != ''"> and port_number = #{portNumber}</if>
+            <if test="problemId != null  and problemId != ''"> and problem_id = #{problemId}</if>
+            <if test="ifQuestion != null  and ifQuestion != ''"> and if_question = #{ifQuestion}</if>
+            <if test="comId != null  and comId != ''"> and com_id = #{comId}</if>
+            <if test="valueId != null  and valueId != ''"> and value_id = #{valueId}</if>
+            <if test="resolved != null  and resolved != ''"> and resolved = #{resolved}</if>
+            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+            <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+        </where>
+    </select>
+    
+    <select id="selectSwitchProblemById" parameterType="Long" resultMap="SwitchProblemResult">
+        <include refid="selectSwitchProblemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectSwitchProblemByDate" parameterType="Long" resultMap="SwitchProblemResult">
+        <include refid="selectSwitchProblemVo"/>
+        where ${sqlString}
+    </select>
+
+    <insert id="insertSwitchProblem" parameterType="com.sgcc.sql.domain.SwitchProblem" useGeneratedKeys="true" keyProperty="id">
+        insert into switch_problem
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip,</if>
+
+            <if test="brand != null">brand,</if>
+            <if test="switchType != null">switch_type,</if>
+            <if test="firewareVersion != null">fireware_version,</if>
+            <if test="subVersion != null">sub_version,</if>
+
+            <if test="switchName != null and switchName != ''">switch_name,</if>
+            <if test="switchPassword != null and switchPassword != ''">switch_password,</if>
+            <if test="loginMethod != null">login_method,</if>
+            <if test="portNumber != null">port_number,</if>
+            <if test="problemId != null">problem_id,</if>
+            <if test="ifQuestion != null">if_question,</if>
+            <if test="comId != null">com_id,</if>
+            <if test="valueId != null">value_id,</if>
+            <if test="resolved != null">resolved,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="phonenumber != null">phonenumber,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
+
+            <if test="brand != null">#{brand},</if>
+            <if test="switchType != null">#{switchType},</if>
+            <if test="firewareVersion != null">#{firewareVersion},</if>
+            <if test="subVersion != null">#{subVersion},</if>
+
+            <if test="switchName != null and switchName != ''">#{switchName},</if>
+            <if test="switchPassword != null and switchPassword != ''">#{switchPassword},</if>
+            <if test="loginMethod != null">#{loginMethod},</if>
+            <if test="portNumber != null">#{portNumber},</if>
+            <if test="problemId != null">#{problemId},</if>
+            <if test="ifQuestion != null">#{ifQuestion},</if>
+            <if test="comId != null">#{comId},</if>
+            <if test="valueId != null">#{valueId},</if>
+            <if test="resolved != null">#{resolved},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="phonenumber != null">#{phonenumber},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSwitchProblem" parameterType="com.sgcc.sql.domain.SwitchProblem">
+        update switch_problem
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip = #{switchIp},</if>
+
+            <if test="brand != null  and brand != ''">  brand = #{brand},</if>
+            <if test="switchType != null  and switchType != ''">  switch_type = #{switchType},</if>
+            <if test="firewareVersion != null  and firewareVersion != ''">  fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null  and subVersion != ''">  sub_version = #{subVersion},</if>
+
+            <if test="switchName != null and switchName != ''">switch_name = #{switchName},</if>
+            <if test="switchPassword != null and switchPassword != ''">switch_password = #{switchPassword},</if>
+            <if test="loginMethod != null">login_method = #{loginMethod},</if>
+            <if test="portNumber != null">port_number = #{portNumber},</if>
+            <if test="problemId != null">problem_id = #{problemId},</if>
+            <if test="ifQuestion != null">if_question = #{ifQuestion},</if>
+            <if test="comId != null">com_id = #{comId},</if>
+            <if test="valueId != null">value_id = #{valueId},</if>
+            <if test="resolved != null">resolved = #{resolved},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="phonenumber != null">phonenumber = #{phonenumber},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSwitchProblemById" parameterType="Long">
+        delete from switch_problem where id = #{id}
+    </delete>
+
+    <delete id="deleteSwitchProblemByIds" parameterType="String">
+        delete from switch_problem where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectPojoByIds"  parameterType="com.sgcc.sql.domain.SwitchProblem" resultMap="SwitchProblemResult" >
+        <include refid="selectSwitchProblemVo"/>
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>
