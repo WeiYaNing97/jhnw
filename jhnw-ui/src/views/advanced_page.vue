@@ -559,7 +559,7 @@
                 if (!value) return true;
                 return data.label.indexOf(value) !== -1;
             },
-            //专项扫描
+            //高级扫描查看项
             specialSearch(){
                 this.dialogVisibleSpecial = true
                 this.showxiang = true
@@ -875,7 +875,7 @@
                     this.dialogVisibleSpecial = false
                     console.log('高级扫描')
                     return request({
-                        url:'/sql/AdvancedFeatures/advancedFunction/'+scanNum+'/'+functionName,
+                        url:'/advanced/AdvancedFeatures/advancedFunction/'+scanNum+'/'+functionName,
                         method:'post',
                         data:zuihouall
                     }).then(response=>{

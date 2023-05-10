@@ -804,11 +804,6 @@ export default {
                   newPar[key] = ''
               }
           }
-          // for (let i in newPar){
-          //     if (newPar[i] === '空'){
-          //         newPar[i] = ''
-          //     }
-          // }
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
@@ -817,10 +812,6 @@ export default {
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
-              // let kong = {
-              //     [this.who] : '空'
-              // }
-              // this.genList.push(kong)
           })
       },
       //获取名字
