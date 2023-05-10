@@ -6,7 +6,7 @@
         <el-form-item label="设备信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
-                     filterable clearable allow-create @blur="brandShu" @focus="general($event)"
+                     filterable clearable allow-create @blur="customInput" @focus="general($event)"
                      name="brand" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.brand" :value="item.brand"></el-option>
@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="型号" prop="type">
           <el-select v-model="queryParams.type" placeholder="型号"
-                     filterable clearable allow-create @blur="typeShu"
+                     filterable clearable allow-create @blur="customInput"
                      @focus="general($event)" name="type" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.type" :value="item.type"></el-option>
@@ -22,7 +22,7 @@
         </el-form-item>
         <el-form-item label="固件版本" prop="firewareVersion">
           <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                     filterable clearable allow-create @blur="fireShu" @focus="general($event)"
+                     filterable clearable allow-create @blur="customInput" @focus="general($event)"
                      name="firewareVersion" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
@@ -30,7 +30,7 @@
         </el-form-item>
         <el-form-item label="子版本" prop="subVersion">
           <el-select v-model="queryParams.subVersion" placeholder="子版本"
-                     filterable clearable allow-create @blur="subShu"
+                     filterable clearable allow-create @blur="customInput"
                      @focus="general($event)" name="subVersion" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.subVersion" :value="item.subVersion"></el-option>
@@ -52,24 +52,19 @@
         <el-form-item label="风险分类:"></el-form-item>
         <el-form-item label="范式分类" prop="typeProblem">
           <el-select v-model="queryParams.typeProblem" placeholder="范式分类" name="typeProblem"
-                     filterable clearable allow-create @focus="generalA($event)" @blur="typeProShu">
+                     filterable clearable allow-create @focus="generalA($event)" @blur="customInput">
             <el-option v-for="(item,index) in genListA" :key="index"
                        :label="item.typeProblem" :value="item.typeProblem"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="范式名称">
           <el-select v-model="queryParams.temProName" placeholder="请选择范式名称"
-                     filterable clearable allow-create @focus="generalB($event)" name="temProName" @blur="temProShu">
+                     filterable clearable allow-create @focus="generalB($event)" name="temProName" @blur="customInput">
             <el-option v-for="(item,index) in genListB" :key="index"
                        :label="item.temProName" :value="item.temProName"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="自定义名称">
-          <!--        <el-select v-model="queryParams.problemName" placeholder="请输入问题名称"-->
-          <!--                   filterable allow-create @focus="general($event)" name="problemName" @blur="proSelect">-->
-          <!--          <el-option v-for="(item,index) in genList" :key="index"-->
-          <!--                     :label="item.problemName" :value="item.problemName"></el-option>-->
-          <!--        </el-select>-->
           <el-input v-model="queryParams.problemName" clearable name="problemName" placeholder="请输入问题名称"></el-input>
         </el-form-item>
         <br/>
@@ -86,7 +81,7 @@
 <!--                    @focus="biaoshi($event)" name="biaoshi"></el-input>-->
 
           <el-select v-model="queryParams.notFinished" placeholder="分页符"
-                     filterable clearable allow-create @blur="brandShu" @focus="general($event)"
+                     filterable clearable allow-create @blur="customInput" @focus="general($event)"
                      name="notFinished" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.notFinished" :value="item.notFinished"></el-option>
@@ -106,9 +101,9 @@
         <!--      <el-form-item>-->
         <!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
         <!--      </el-form-item>-->
-        <!--      <el-form-item>-->
-        <!--        <el-button type="primary" @click="xiangqing">定义问题详情</el-button>-->
-        <!--      </el-form-item>-->
+<!--              <el-form-item>-->
+<!--                <el-button type="primary" @click="xiangqing">定义问题详情</el-button>-->
+<!--              </el-form-item>-->
         <!--      <el-form-item>-->
         <!--        <el-button type="primary" @click="subProblem">合并按钮</el-button>-->
         <!--      </el-form-item>-->
@@ -994,21 +989,18 @@ export default {
           //    item.tNextId = value
           // }
       },
-      //下拉列表输入
-      //自定义行
-      lineFreedom(e){
+      //自定义下拉框输入通用方法
+      customInput(e){
+          this.who = e.target.getAttribute('name')
           let value = e.target.value
-      },
-      subShu(e){
-          let value = e.target.value
-          if(value){
-              this.queryParams.subVersion = value
-          }
-      },
-      brandShu(e){
-          let value = e.target.value
-          if(value){
-              this.queryParams.brand = value
+          for (let key in this.queryParams){
+              if (this.queryParams.hasOwnProperty(key)){
+                  if (key == this.who){
+                      if (value){
+                          this.queryParams[key] = value
+                      }
+                  }
+              }
           }
       },
       biShu(e){
@@ -1016,36 +1008,6 @@ export default {
           if(value){
               // this.forms.compareThree = value
               this.forms.dynamicItem.compareThree = value
-          }
-      },
-      fireShu(e){
-          let value = e.target.value
-          if(value){
-              this.queryParams.firewareVersion = value
-          }
-      },
-      typeShu(e){
-          let value = e.target.value
-          if(value){
-              this.queryParams.type = value
-          }
-      },
-      typeProShu(e){
-          let value = e.target.value
-          if(value){
-              this.queryParams.typeProblem = value
-          }
-      },
-      temProShu(e){
-          let value = e.target.value
-          if(value){
-              this.queryParams.temProName = value
-          }
-      },
-      proSelect(e){
-          let value = e.target.value
-          if(value){
-              this.queryParams.problemName = value
           }
       },
       //1.31
@@ -1258,6 +1220,9 @@ export default {
       },
       //定义问题详情
       xiangqing(){
+
+          this.partShow = true
+
           let form = new FormData();
           for (var key in this.queryParams){
               // if (key != 'notFinished'&&key != 'requiredItems'&&key != 'commandId'&&key != 'remarks'){
@@ -1266,20 +1231,20 @@ export default {
               }
           }
           console.log(form)
-          return request({
-              url:'/sql/total_question_table/totalQuestionTableId',
-              method:'post',
-              data:form
-          }).then(response=>{
-              console.log(response)
-              if (typeof(response) === 'number'){
-                  this.particular = ''
-                  this.partShow = true
-                  this.proId = response
-              }else {
-                  this.$message.error('没有定义该问题,请先定义问题！')
-              }
-          })
+          // return request({
+          //     url:'/sql/total_question_table/totalQuestionTableId',
+          //     method:'get',
+          //     data:form
+          // }).then(response=>{
+          //     console.log(response)
+          //     if (typeof(response) === 'number'){
+          //         this.particular = ''
+          //         this.partShow = true
+          //         this.proId = response
+          //     }else {
+          //         this.$message.error('没有定义该问题,请先定义问题！')
+          //     }
+          // })
       },
       //富文本提交问题详情
       look(){

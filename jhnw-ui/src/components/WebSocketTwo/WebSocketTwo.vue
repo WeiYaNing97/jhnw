@@ -120,7 +120,7 @@
             xiufuend: false,
             queryParams: '',
             num: '',
-            endIp: ''
+            endIp:''
         },
         data() {
             return {
@@ -166,6 +166,8 @@
                 newData:[],
                 //是否执行if外语句
                 ifOut:true,
+                //
+                ifOutFather:true,
                 lishiData: [],
                 loading: false,
                 formLabelWidth: '50px',
@@ -175,7 +177,8 @@
                 depss: []
             }
         },
-        async mounted() {
+        // 初始化时将父组件传递的值赋值给子组件的数据属性
+        mounted() {
             this.wsIsRun = true
             this.wsInit()
             window.onbeforeunload = function () {
@@ -197,13 +200,12 @@
                             }
                         }
                     }
-                }
-            },
-            endIp() {
-                this.endIpCopy = this.endIp
-                console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+                },
+            //监听扫描完成IP变化
+            endIp(newVal){
+                this.endIpCopy = newVal
+                console.log('eeeeeeeeeeeeeeeeeeeeeeeeeee')
                 console.log(this.endIpCopy)
-                // const shu11 = this.nowData
                 for (let i = 0; i < this.nowData.length; i++) {
                     if (this.endIp == this.nowData[i].switchIp) {
                         this.$set(this.nowData[i], 'loading', false)
@@ -211,8 +213,9 @@
                 }
             },
             noPro(){
-              this.postNoPro()
-            },
+                this.postNoPro()
+            }
+        },
         created() {
             // const usname = Cookies.get('usName')
             let timeXun = setInterval(() => {
@@ -691,8 +694,8 @@
                 // createWebSocket(wsUrl)
 
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
-                const wsuri = `wss://${location.host}/dev-api/websocket/loophole${Cookies.get('usName')}`
-                // const wsuri = `ws://${location.host}/prod-api/websocket/loophole${Cookies.get('usName')}`
+                // const wsuri = `wss://${location.host}/dev-api/websocket/loophole${Cookies.get('usName')}`
+                const wsuri = `ws://${location.host}/prod-api/websocket/loophole${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws
@@ -739,12 +742,23 @@
                     let newJson = this.changeTreeDate(JSON.parse(e.data), 'switchProblemVOList', 'children')
                     let newJson1 = this.changeTreeDate(newJson, 'switchProblemCOList', 'children')
                     console.log(newJson1)
+                    //备份完整线程IP
+                    const copyIpThred = newJson1[0].switchIp
+                    console.log('线程ip' + copyIpThred)
+                    //截取IP
+                    const splitIp = newJson1[0].switchIp.split(':')[0]
+                    console.log('截取' + splitIp)
+                    newJson1[0].copyIpThred = copyIpThred
+                    newJson1[0].switchIp = splitIp
+                    console.log('==============================')
+                    console.log(newJson1)
                     //改变结构后
                     if (this.newData.length == 0){
                         this.newData = newJson1
                     }else {
                         for (let i = 0; i < this.newData.length; i++) {
-                            if (this.newData[i].switchIp == newJson1[0].switchIp){
+                            if (this.newData[i].copyIpThred == newJson1[0].copyIpThred){
+                                this.ifOutFather = true
                                 for (let j = 0; j < this.newData[i].children.length; j++) {
                                     if (this.newData[i].children[j].typeProblem == newJson1[0].children[0].typeProblem
                                         && newJson1[0].children[0].children[0].ifQuestion == '安全'){
@@ -763,9 +777,13 @@
                                     this.newData[i].children.push(newJson1[0].children[0])
                                 }
                             }else {
-                                this.newData.push(newJson1[0])
+                                this.ifOutFather = false
                             }
                         }
+                        if (!this.ifOutFather){
+                            this.newData.push(newJson1[0])
+                        }
+                        // this.newData.push(newJson1[0])
                     }
                     this.nowData = JSON.parse(JSON.stringify(this.newData))
 

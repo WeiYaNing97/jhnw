@@ -660,18 +660,18 @@
             //新增设备
             xinzeng(){
                 this.tableData.push({
-                    ip: '192.168.1.100',
-                    name: 'admin',
-                    password:'admin',
+                    // ip: '192.168.1.100',
+                    // name: 'admin',
+                    // password:'admin',
                     // passmi:'********',
                     // mode:'ssh',
                     // port:22,
                     // isEdit:true,
                     // conCip:'********',
                     // configureCiphers:''
-                    // ip: '',
-                    // name: '',
-                    // password:'',
+                    ip: '',
+                    name: '',
+                    password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
