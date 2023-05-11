@@ -28,7 +28,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @date 2022-07-26
  */
 @RestController
-@RequestMapping("/sql/switch_failure")
+@RequestMapping("/share/switch_failure")
 public class SwitchFailureController extends BaseController
 {
     @Autowired

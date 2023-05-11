@@ -28,7 +28,7 @@ import java.util.List;
  * @date 2023-05-06
  */
 @RestController
-@RequestMapping("/sql/comparison")
+@RequestMapping("/advanced/comparison")
 public class LightAttenuationComparisonController extends BaseController
 {
     @Autowired
@@ -37,7 +37,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 查询光衰平均值比较列表
      */
-    @PreAuthorize("@ss.hasPermi('sql:comparison:list')")
+    @PreAuthorize("@ss.hasPermi('advanced:comparison:list')")
     @GetMapping("/list")
     public TableDataInfo list(LightAttenuationComparison lightAttenuationComparison)
     {
@@ -49,7 +49,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 导出光衰平均值比较列表
      */
-    @PreAuthorize("@ss.hasPermi('sql:comparison:export')")
+    @PreAuthorize("@ss.hasPermi('advanced:comparison:export')")
     @Log(title = "光衰平均值比较", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(LightAttenuationComparison lightAttenuationComparison)
@@ -62,7 +62,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 获取光衰平均值比较详细信息
      */
-    @PreAuthorize("@ss.hasPermi('sql:comparison:query')")
+    @PreAuthorize("@ss.hasPermi('advanced:comparison:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -72,7 +72,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 新增光衰平均值比较
      */
-    @PreAuthorize("@ss.hasPermi('sql:comparison:add')")
+    @PreAuthorize("@ss.hasPermi('advanced:comparison:add')")
     @Log(title = "光衰平均值比较", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody LightAttenuationComparison lightAttenuationComparison)
@@ -83,7 +83,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 修改光衰平均值比较
      */
-    @PreAuthorize("@ss.hasPermi('sql:comparison:edit')")
+    @PreAuthorize("@ss.hasPermi('advanced:comparison:edit')")
     @Log(title = "光衰平均值比较", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody LightAttenuationComparison lightAttenuationComparison)
@@ -94,7 +94,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 删除光衰平均值比较
      */
-    @PreAuthorize("@ss.hasPermi('sql:comparison:remove')")
+    @PreAuthorize("@ss.hasPermi('advanced:comparison:remove')")
     @Log(title = "光衰平均值比较", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)

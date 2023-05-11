@@ -8,17 +8,17 @@ import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.bean.BeanUtils;
-import com.sgcc.connect.method.SshMethod;
-import com.sgcc.connect.method.TelnetSwitchMethod;
 import com.sgcc.connect.util.SpringBeanUtil;
-import com.sgcc.connect.util.SshConnect;
-import com.sgcc.connect.util.TelnetComponent;
 import com.sgcc.share.controller.Configuration;
+import com.sgcc.share.controller.SwitchLoginInformation;
 import com.sgcc.share.domain.*;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.service.IInformationService;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchScanResultService;
+import com.sgcc.share.switchboard.ConnectToObtainInformation;
+import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.*;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
@@ -118,7 +118,8 @@ public class SwitchInteraction {
 
         AjaxResult requestConnect_ajaxResult = null;
         for (int number = 0; number <4 ; number++){
-            requestConnect_ajaxResult = requestConnect(switchParameters);
+            ConnectToObtainInformation connectToObtainInformation = new  ConnectToObtainInformation();
+            requestConnect_ajaxResult = connectToObtainInformation.requestConnect(switchParameters);
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
                 break;
             }
@@ -360,57 +361,6 @@ public class SwitchInteraction {
     }
 
 
-    /**
-     * 连接交换机 获取交换机基本信息
-     * @param switchParameters
-     * @return
-     */
-    public AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters) {
-        //连接交换机  requestConnect：
-        AjaxResult requestConnect_ajaxResult = null;
-        for (int number = 0; number <4 ; number++){
-            switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
-            switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
-            requestConnect_ajaxResult = requestConnect(switchParameters);
-            if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
-                break;
-            }
-        }
-        //如果返回为 交换机连接失败 则连接交换机失败
-        if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
-            // todo 交换机连接失败 错误代码
-            List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-            if (loginError != null){
-                for (int number = 1;number<loginError.size();number++){
-                    String loginErrorString = loginError.get(number);
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
-                    try {
-                        PathHelper.writeDataToFileByName(switchParameters.getIp()+"风险:"+loginErrorString+"\r\n","交换机连接");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return AjaxResult.error("交换机连接失败");
-        }
-        //解析返回参数 data
-        switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
-        //如果连接成功
-        if(requestConnect_ajaxResult.get("msg").equals("操作成功")){
-            //密码 MD5 加密
-            String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getPassword());
-            switchParameters.setPassword(passwordDensificationAndSalt);//用户密码
-            //密码 MD5 加密
-            String configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
-            switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
-            //获取交换机基本信息
-            GetBasicInformationController getBasicInformationController = new GetBasicInformationController();
-            AjaxResult basicInformationList_ajaxResult = getBasicInformationController.getBasicInformationCurrency(switchParameters);
-            return basicInformationList_ajaxResult;
-        }
-        return AjaxResult.error("交换机连接失败");
-    }
-
 
     /**
      *
@@ -425,7 +375,8 @@ public class SwitchInteraction {
     @GetMapping("logInToGetBasicInformation")
     public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables) {
         /*连接交换机 获取交换机基本信息*/
-        AjaxResult basicInformationList_ajaxResult = connectSwitchObtainBasicInformation(switchParameters);
+        ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
+        AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters);
         if (basicInformationList_ajaxResult.get("msg").equals("交换机连接失败")){
             return basicInformationList_ajaxResult;
         }
@@ -467,123 +418,6 @@ public class SwitchInteraction {
         }
         return basicInformationList_ajaxResult;
     }
-
-
-    /**
-     * 连接交换机方法
-     */
-    @GetMapping("requestConnect")
-    public AjaxResult requestConnect(SwitchParameters switchParameters) {
-
-        //设定连接结果 预设连接失败为 false
-        boolean is_the_connection_successful =false;
-        List<Object> objects = null;
-        if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-            //创建ssh连接方法
-            SshMethod connectMethod = new SshMethod();
-            //连接ssh 成功为 true  失败为  false
-            objects = connectMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword());
-
-            boolean loginBoolean = (boolean) objects.get(0);
-
-            if (loginBoolean == true){
-                SshConnect sshConnect =  (SshConnect)objects.get(1);
-                switchParameters.setSshConnect(sshConnect);
-                switchParameters.setConnectMethod(connectMethod);
-                if (sshConnect!=null){
-                    is_the_connection_successful = true;
-                }
-            }
-        }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-            //创建telnet连接方法
-            TelnetSwitchMethod telnetSwitchMethod = new TelnetSwitchMethod();
-            //连接telnet 成功为 true  失败为  false
-            TelnetComponent telnetComponent = telnetSwitchMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword(), null);
-            if (telnetComponent!=null){
-                switchParameters.setTelnetComponent(telnetComponent);
-                switchParameters.setTelnetSwitchMethod(telnetSwitchMethod);
-                is_the_connection_successful = true;
-            }
-
-        }
-
-        /* is_the_connection_successful 交换机连接成功*/
-        if(is_the_connection_successful){
-            //enable 配置  返回 交换机连接失败  或   交换机连接成功
-
-            String enable = enable(switchParameters);
-            if (enable.equals("交换机连接成功")){
-                return AjaxResult.success(switchParameters);
-            }else {
-                AjaxResult ajaxResult = new AjaxResult();
-                ajaxResult.put("loginError",objects); // 交换机连接的返回信息
-                ajaxResult.put("msg","交换机连接失败");
-                return ajaxResult;
-            }
-        }else {
-            AjaxResult ajaxResult = new AjaxResult();
-            ajaxResult.put("loginError",objects); // 交换机连接的返回信息
-            ajaxResult.put("msg","交换机连接失败");
-            return ajaxResult;
-        }
-    }
-
-    /**
-     * 配置密码  enable 方法
-     * @param
-     * @return
-     */
-    public String enable(SwitchParameters switchParameters) {
-        /*交换机返回结果*/
-        String returnString = null;
-        /* 执行 回车命令 获取交换机及返回结果*/
-        if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-            returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
-        }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-            returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
-        }
-        if (returnString==null){
-            return "交换机连接失败";
-        }
-        String trim = returnString.trim();
-        /*判断 交换机返回结果给标识符 是否 以> 结尾*/
-        /*思科交换机返回信息是 #  不需要发送 enable*/
-        if (trim.endsWith(">")){
-            /*发送 enable 命令 查看返回结果 */
-            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"enable",null);
-            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
-            }
-            /*判断交换机返回结果是否为空*/
-            if (returnString == null){
-                return "交换机连接失败";
-            }else {
-                String substring = returnString.substring(returnString.length() - 1, returnString.length());
-                if (returnString.indexOf("command")!=-1 && returnString.indexOf("%")!=-1 ){
-                    return "交换机连接成功";
-                }else if (substring.equalsIgnoreCase("#")){
-                    return "交换机连接成功";
-                }else if (returnString.indexOf(":")!=-1){
-                    /* 输入 配置密码*/
-                    if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                        SshMethod connectMethod = switchParameters.getConnectMethod();
-                        SshConnect sshConnect = switchParameters.getSshConnect();
-                        returnString = connectMethod.sendCommand(switchParameters.getIp(),sshConnect,switchParameters.getConfigureCiphers(),null);
-                    }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                        returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
-                    }
-                    return "交换机连接成功";
-                }
-            }
-            /*思科交换机返回信息是 #  不需要发送 enable*/
-        }else if (trim.substring(trim.length()-1,trim.length()).equals("#")){
-            return "交换机连接成功";
-        }
-        return "交换机连接失败";
-    }
-
-
 
 
     /**
@@ -1406,7 +1240,8 @@ public class SwitchInteraction {
                 /*单词提取数据清空*/
                 current_Round_Extraction_String = "";
                 //根据 用户信息 和 扫描时间 获取扫描出问题数据列表  集合 并放入 websocket
-                getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+                SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+                switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
                 //getSwitchScanResultListBySwitchParameters(switchParameters);
 
                 /*如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
@@ -1997,92 +1832,6 @@ public class SwitchInteraction {
         WebSocketService.sendMessage("loophole"+loginName,scanResultsVOList);
 
         return scanResultsVOList;
-    }
-
-    /**
-     * @method: 查询扫描出的问题表 放入 websocket
-     * @Param: []
-     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    @GetMapping("getSwitchScanResultListByData")
-    @ApiOperation("查询当前扫描出的问题表放入websocket")
-    public void getSwitchScanResultListByData(String username,Long longId){
-        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-        SwitchProblemVO pojpVO = switchScanResultService.selectSwitchScanResultListById(longId);
-
-        if (pojpVO == null){
-            return;
-        }
-
-        List<SwitchProblemCO> switchProblemCOList = pojpVO.getSwitchProblemCOList();
-        for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-            /*赋值随机数 前端需要*/
-            switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-            /*定义 参数集合 */
-            List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
-            /*根据 结构数据中的 交换机扫描结果ID 在交换机扫描结果数据 hashmap中 取出 *//*
-                SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());*/
-            //提取信息 如果不为空 则有参数
-            if (switchProblemCO.getDynamicInformation()!=null && !switchProblemCO.getDynamicInformation().equals("")){//switchScanResult.getDynamicInformation()!=null && !switchScanResult.getDynamicInformation().equals("")
-                //String dynamicInformation = switchScanResult.getDynamicInformation();
-                String dynamicInformation = switchProblemCO.getDynamicInformation();
-                //几个参数中间的 参数是 以  "=:=" 来分割的
-                //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-                String[] dynamicInformationsplit = dynamicInformation.split("=:=");
-                //判断提取参数 是否为空
-                if (dynamicInformationsplit.length>0){
-                    //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
-                    //所以 参数组 要倒序插入
-                    for (int number=dynamicInformationsplit.length-1;number>0;number--){
-                        //创建 参数 实体类
-                        ValueInformationVO valueInformationVO = new ValueInformationVO();
-                        //插入参数
-                        //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
-                        String setDynamicInformation=dynamicInformationsplit[number];
-                        valueInformationVO.setDynamicInformation(setDynamicInformation);
-                        --number;
-                        String setExhibit=dynamicInformationsplit[number];
-                        valueInformationVO.setExhibit(setExhibit);//是否显示
-                        if (setExhibit.equals("否")){
-                            String setDynamicInformationMD5 = EncryptUtil.densificationAndSalt(setDynamicInformation);
-                            valueInformationVO.setDynamicInformation(setDynamicInformationMD5);//动态信息
-                        }
-                        --number;
-                        valueInformationVO.setDynamicVname(dynamicInformationsplit[number]);//动态信息名称
-                        valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-                        valueInformationVOList.add(valueInformationVO);
-                    }
-                }
-            }
-            switchProblemCO.setValueInformationVOList(valueInformationVOList);
-        }
-
-        //将ip存入回显实体类
-        List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
-        ScanResultsVO scanResultsVO = new ScanResultsVO();
-        scanResultsVO.setSwitchIp(pojpVO.getSwitchIp());
-        scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue();
-
-        scanResultsVO.setShowBasicInfo("("+pojpVO.getBrand()+" "+pojpVO.getSwitchType()+" "
-                +pojpVO.getFirewareVersion()+" "+pojpVO.getSubVersion()+")");
-
-        List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
-        switchProblemVOList.add(pojpVO);
-        scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
-
-        scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-        String switchIp = scanResultsVO.getSwitchIp();
-        String[] split = switchIp.split(":");
-        scanResultsVO.setSwitchIp(switchIp);
-        List<SwitchProblemVO> pojoVOlist = scanResultsVO.getSwitchProblemVOList();
-        for (SwitchProblemVO switchProblemVO:pojoVOlist){
-            switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-            switchProblemVO.setSwitchIp(null);
-        }
-        scanResultsVOList.add(scanResultsVO);
-        WebSocketService.sendMessage("loophole"+username,scanResultsVOList);
     }
 
     /**

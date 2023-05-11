@@ -28,7 +28,7 @@ import java.util.List;
  * @date 2022-08-16
  */
 @RestController
-@RequestMapping("/sql/switch_error")
+@RequestMapping("/share/switch_error")
 public class SwitchErrorController extends BaseController
 {
     @Autowired

@@ -9,6 +9,7 @@ import com.sgcc.share.domain.*;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchInformationService;
 import com.sgcc.share.service.ISwitchScanResultService;
+import com.sgcc.share.switchboard.ConnectToObtainInformation;
 import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.sql.domain.*;
 import com.sgcc.share.parametric.ParameterSet;
@@ -255,8 +256,8 @@ public class SolveProblemController {
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
-        SwitchInteraction switchInteraction = new SwitchInteraction();
-        AjaxResult requestConnect_ajaxResult = switchInteraction.requestConnect( switchParameters );
+        ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
+        AjaxResult requestConnect_ajaxResult = connectToObtainInformation.requestConnect( switchParameters );
 
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
@@ -297,8 +298,7 @@ public class SolveProblemController {
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
-            GetBasicInformationController getBasicInformationController = new GetBasicInformationController();
-            AjaxResult basicInformationList_ajaxResult = getBasicInformationController.getBasicInformationCurrency(switchParameters);
+            AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.getBasicInformationCurrency(switchParameters);
 
             if (basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                 return AjaxResult.error("未定义该交换机获取基本信息命令及分析");

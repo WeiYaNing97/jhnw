@@ -23,12 +23,11 @@ import java.util.List;
 
 /**
  * 误码率Controller
- * 
  * @author ruoyi
  * @date 2023-05-09
  */
 @RestController
-@RequestMapping("/sql/rate")
+@RequestMapping("/advanced/rate")
 public class ErrorRateController extends BaseController
 {
     @Autowired
@@ -37,7 +36,7 @@ public class ErrorRateController extends BaseController
     /**
      * 查询误码率列表
      */
-    @PreAuthorize("@ss.hasPermi('sql:rate:list')")
+    @PreAuthorize("@ss.hasPermi('advanced:rate:list')")
     @GetMapping("/list")
     public TableDataInfo list(ErrorRate errorRate)
     {
@@ -49,7 +48,7 @@ public class ErrorRateController extends BaseController
     /**
      * 导出误码率列表
      */
-    @PreAuthorize("@ss.hasPermi('sql:rate:export')")
+    @PreAuthorize("@ss.hasPermi('advanced:rate:export')")
     @Log(title = "误码率", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ErrorRate errorRate)
@@ -62,7 +61,7 @@ public class ErrorRateController extends BaseController
     /**
      * 获取误码率详细信息
      */
-    @PreAuthorize("@ss.hasPermi('sql:rate:query')")
+    @PreAuthorize("@ss.hasPermi('advanced:rate:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -72,7 +71,7 @@ public class ErrorRateController extends BaseController
     /**
      * 新增误码率
      */
-    @PreAuthorize("@ss.hasPermi('sql:rate:add')")
+    @PreAuthorize("@ss.hasPermi('advanced:rate:add')")
     @Log(title = "误码率", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ErrorRate errorRate)
@@ -83,7 +82,7 @@ public class ErrorRateController extends BaseController
     /**
      * 修改误码率
      */
-    @PreAuthorize("@ss.hasPermi('sql:rate:edit')")
+    @PreAuthorize("@ss.hasPermi('advanced:rate:edit')")
     @Log(title = "误码率", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ErrorRate errorRate)
@@ -94,7 +93,7 @@ public class ErrorRateController extends BaseController
     /**
      * 删除误码率
      */
-    @PreAuthorize("@ss.hasPermi('sql:rate:remove')")
+    @PreAuthorize("@ss.hasPermi('advanced:rate:remove')")
     @Log(title = "误码率", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)

@@ -27,7 +27,7 @@ import java.util.List;
  * @date 2023-05-09
  */
 @RestController
-@RequestMapping("/sql/switchInformation")
+@RequestMapping("/share/switchinformation")
 public class SwitchInformationController extends BaseController
 {
     @Autowired

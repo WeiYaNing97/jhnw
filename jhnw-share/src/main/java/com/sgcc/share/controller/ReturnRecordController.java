@@ -25,7 +25,7 @@ import java.util.List;
  * @date 2021-12-22
  */
 @RestController
-@RequestMapping("/sql/return_record")
+@RequestMapping("/share/return_record")
 //事务
 @Transactional(rollbackFor = Exception.class)
 @Api("返回信息")

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.sgcc.sql.mapper.LightAttenuationComparisonMapper">
+<mapper namespace="com.sgcc.advanced.mapper.LightAttenuationComparisonMapper">
     
     <resultMap type="LightAttenuationComparison" id="LightAttenuationComparisonResult">
         <result property="id"    column="id"    />

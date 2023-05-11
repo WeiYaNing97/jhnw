@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.sgcc.connect.util.SpringBeanUtil;
-import com.sgcc.sql.service.IBasicInformationService;
-import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;

@@ -41,7 +41,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @date 2022-08-26
  */
 @RestController
-@RequestMapping("/sql/switch_scan_result")
+@RequestMapping("/share/switch_scan_result")
 //事务
 @Transactional(rollbackFor = Exception.class)
 public class SwitchScanResultController extends BaseController
