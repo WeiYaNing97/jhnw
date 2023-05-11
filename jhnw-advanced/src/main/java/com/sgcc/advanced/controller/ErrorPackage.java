@@ -97,13 +97,13 @@ public class ErrorPackage {
             List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
             for (String error:errorPackageValue){
                 if (MyUtils.containIgnoreCase(error,"input") || MyUtils.containIgnoreCase(error,"Rx") ){
-                    errorRate.setInputErrors(MyUtils.StringTruncationDoubleValue(error).get(0)+"");
+                    errorRate.setInputErrors(MyUtils.StringTruncationMatcherValue(error));
                 }
                 if (MyUtils.containIgnoreCase(error,"output") || MyUtils.containIgnoreCase(error,"Tx") ){
-                    errorRate.setOutputErrors(MyUtils.StringTruncationDoubleValue(error).get(0)+"");
+                    errorRate.setOutputErrors(MyUtils.StringTruncationMatcherValue(error));
                 }
                 if (MyUtils.containIgnoreCase(error,"crc")){
-                    errorRate.setCrc(MyUtils.StringTruncationDoubleValue(error).get(0)+"");
+                    errorRate.setCrc(MyUtils.StringTruncationMatcherValue(error));
                 }
             }
 

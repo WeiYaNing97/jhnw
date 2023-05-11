@@ -348,6 +348,20 @@ public class MyUtils {
         }
         return doubleList;
     }
+
+    /**
+     * 字符串截取数字字符串
+     * @return
+     */
+    public static String StringTruncationMatcherValue(String args) {
+        Pattern pattern = Pattern.compile("[0-9]");
+        Matcher matcher = pattern.matcher(args);
+        String str = "";
+        while (matcher.find()) {
+            str += matcher.group();
+        }
+        return str;
+    }
     /**
      * 判断 double值 是否在阈值内
      * @param value
