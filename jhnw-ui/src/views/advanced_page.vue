@@ -563,46 +563,61 @@
             specialSearch(){
                 this.dialogVisibleSpecial = true
                 this.showxiang = true
-                var ce = {}
-                return request({
-                    url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
-                    method:'get',
-                    data:ce
-                }).then(response=>{
-                    console.log(response)
-
-                    function changeTreeDate(arrayJsonObj,oldKey,newKey) {
-                        let strtest = JSON.stringify(arrayJsonObj);
-                        let reg = new RegExp(oldKey,'g');
-                        let newStr = strtest.replace(reg,newKey);
-                        return JSON.parse(newStr);
+                // var ce = {}
+                this.fenxiang = [
+                    {
+                        label:"高级功能",
+                        children: [
+                            {
+                                label:"OSPF"
+                            },
+                            {
+                                label:"光衰"
+                            },
+                            {
+                                label:"误码率"
+                            }
+                        ]
                     }
-                    response = changeTreeDate(response,'totalQuestionTableVOList','children')
-                    // response = changeTreeDate(response,'totalQuestionTableList','children')
-                    for (let i = 0;i<response.length;i++){
-                        for (let g = 0;g<response[i].children.length;g++){
-                            this.$delete(response[i].children[g],'typeProblem')
-                            // for (let m = 0;m<response[i].children[g].children.length;m++){
-                            //     this.$delete(response[i].children[g].children[m],'typeProblem')
-                            //     this.$delete(response[i].children[g].children[m],'temProName')
-                            //     // let pinjie = response[i].children[g].children[m].problemName+' '+'('+
-                            //     //     response[i].children[g].children[m].brand+' '+
-                            //     //     response[i].children[g].children[m].type+' '+
-                            //     //     response[i].children[g].children[m].firewareVersion+' '+
-                            //     //     response[i].children[g].children[m].subVersion+')'
-                            //     // this.$set(response[i].children[g].children[m],'problemName',pinjie)
-                            // }
-                        }
-                    }
-                    response = changeTreeDate(response,'typeProblem','label')
-                    response = changeTreeDate(response,'temProName','label')
-                    // response = changeTreeDate(response,'problemName','label')
-                    //只留下高级功能这一项
-                    this.fenxiang = response.filter(item => {
-                        return item.label == '高级功能'
-                    })
-                    console.log(this.fenxiang)
-                })
+                ]
+                // return request({
+                //     url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
+                //     method:'get',
+                //     data:ce
+                // }).then(response=>{
+                //     console.log(response)
+                //     function changeTreeDate(arrayJsonObj,oldKey,newKey) {
+                //         let strtest = JSON.stringify(arrayJsonObj);
+                //         let reg = new RegExp(oldKey,'g');
+                //         let newStr = strtest.replace(reg,newKey);
+                //         return JSON.parse(newStr);
+                //     }
+                //     response = changeTreeDate(response,'totalQuestionTableVOList','children')
+                //     // response = changeTreeDate(response,'totalQuestionTableList','children')
+                //     for (let i = 0;i<response.length;i++){
+                //         for (let g = 0;g<response[i].children.length;g++){
+                //             this.$delete(response[i].children[g],'typeProblem')
+                //             // for (let m = 0;m<response[i].children[g].children.length;m++){
+                //             //     this.$delete(response[i].children[g].children[m],'typeProblem')
+                //             //     this.$delete(response[i].children[g].children[m],'temProName')
+                //             //     // let pinjie = response[i].children[g].children[m].problemName+' '+'('+
+                //             //     //     response[i].children[g].children[m].brand+' '+
+                //             //     //     response[i].children[g].children[m].type+' '+
+                //             //     //     response[i].children[g].children[m].firewareVersion+' '+
+                //             //     //     response[i].children[g].children[m].subVersion+')'
+                //             //     // this.$set(response[i].children[g].children[m],'problemName',pinjie)
+                //             // }
+                //         }
+                //     }
+                //     response = changeTreeDate(response,'typeProblem','label')
+                //     response = changeTreeDate(response,'temProName','label')
+                //     // response = changeTreeDate(response,'problemName','label')
+                //     //只留下高级功能这一项
+                //     this.fenxiang = response.filter(item => {
+                //         return item.label == '高级功能'
+                //     })
+                //     console.log(this.fenxiang)
+                // })
             },
             //专项所有
             zhuanall(){

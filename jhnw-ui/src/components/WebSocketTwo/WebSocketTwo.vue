@@ -132,8 +132,10 @@
                     year:'',
                     month:''
                 },
-                //
+                //扫描结束IP备份
                 endIpCopy: '',
+                //扫描结束IP数组
+                endIpS:[],
                 //
                 lishifu: false,
                 //详情显示
@@ -204,10 +206,12 @@
             //监听扫描完成IP变化
             endIp(newVal){
                 this.endIpCopy = newVal
+                this.endIpS.push(newVal)
                 console.log('eeeeeeeeeeeeeeeeeeeeeeeeeee')
                 console.log(this.endIpCopy)
+                console.log(this.endIpS)
                 for (let i = 0; i < this.nowData.length; i++) {
-                    if (this.endIpCopy == this.nowData[i].switchIp) {
+                    if (this.endIpCopy == this.nowData[i].copyIpThred) {
                         this.$set(this.nowData[i], 'loading', false)
                     }
                 }
@@ -244,12 +248,10 @@
             },
             //给icon添加class、样式
             lookDom({row, column, rowIndex, columnIndex}) {
-                // console.log('==============='+row.copyIpThred)
-                // console.log('==============='+this.endIpCopy)
                 // if (this.endIpCopy == row.copyIpThred) {
                 //     return 'table-oneStyle'
                 // }
-                if (this.endIpCopy == row.switchIp) {
+                if (this.endIpS.indexOf(row.copyIpThred) != -1){
                     return 'table-oneStyle'
                 }
             },
@@ -795,12 +797,19 @@
                     const shu = this.nowData
                     //给ip添加loading
                     for (let i = 0; i < shu.length; i++) {
-                        this.$set(shu[i], 'loading', true)
-                        console.log(shu[i])
+                        if (this.endIpS.indexOf(shu[i].copyIpThred) == -1){
+                            this.$set(shu[i], 'loading', true)
+                            console.log(shu[i])
+                        }
                     }
                     //合并IP、四条基本信息
                     for (let i = 0; i < shu.length; i++) {
-                        var hebingInfo = '　' + shu[i].switchIp + ' ' + shu[i].showBasicInfo
+                        if (this.endIpS.indexOf(shu[i].copyIpThred) == -1){
+                            var hebingInfo = '　' + shu[i].switchIp + ' ' + shu[i].showBasicInfo
+                        }else {
+                            var hebingInfo = shu[i].switchIp + ' ' + shu[i].showBasicInfo
+                        }
+
                         // var hebingInfo = shu[i].switchIp + ' ' + shu[i].showBasicInfo
                         this.$set(shu[i], 'hebing', hebingInfo)
                     }
