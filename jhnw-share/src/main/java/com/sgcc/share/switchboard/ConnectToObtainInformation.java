@@ -33,7 +33,7 @@ public class ConnectToObtainInformation {
     public AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters) {
         //连接交换机  requestConnect：
         AjaxResult requestConnect_ajaxResult = null;
-        for (int number = 0; number <4 ; number++){
+        for (int number = 0; number <1 ; number++){
             switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
             switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
             requestConnect_ajaxResult = requestConnect(switchParameters);

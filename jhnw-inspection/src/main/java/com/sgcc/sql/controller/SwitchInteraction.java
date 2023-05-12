@@ -2,6 +2,8 @@ package com.sgcc.sql.controller;
 
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
+import com.sgcc.advanced.controller.LuminousAttenuation;
+import com.sgcc.advanced.controller.OSPFFeatures;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -117,7 +119,7 @@ public class SwitchInteraction {
         //                         SshConnect ssh连接工具 或者 TelnetComponent telnet连接工具（其中一个，为空者不存在）]
 
         AjaxResult requestConnect_ajaxResult = null;
-        for (int number = 0; number <4 ; number++){
+        for (int number = 0; number <1 ; number++){
             ConnectToObtainInformation connectToObtainInformation = new  ConnectToObtainInformation();
             requestConnect_ajaxResult = connectToObtainInformation.requestConnect(switchParameters);
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){

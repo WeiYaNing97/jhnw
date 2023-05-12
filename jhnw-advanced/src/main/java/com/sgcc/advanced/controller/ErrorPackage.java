@@ -137,18 +137,20 @@ public class ErrorPackage {
             }
 
             // =:= 是自定义分割符
-            String parameterString = (errorRate.getInputErrors()!=null?"input=:=是=:="+errorRate.getInputErrors()+"=:=":"")
-                    +(errorRate.getOutputErrors()!=null?"output=:=是=:="+errorRate.getOutputErrors()+"=:=":"")
-                    +(errorRate.getCrc()!=null?"crc=:=是=:="+errorRate.getCrc():"");
+            String parameterString = (errorRate.getInputErrors()!=null?"input=:=是=:=input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+"=:=":"")
+                    +(errorRate.getOutputErrors()!=null?"output=:=是=:=output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+"=:=":"")
+                    +(errorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc():"");
             if (parameterString.endsWith("=:=")){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
             }
             hashMap.put("parameterString",parameterString);
 
-            SwitchScanResultController switchScanResultController = new SwitchScanResultController();
-            Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
-            SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
-            switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+            if (hashMap.get("IfQuestion").equals("有问题")){
+                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+                Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+                SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+                switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+            }
         }
         return null;
     }

@@ -249,11 +249,11 @@ public class LuminousAttenuation {
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            /*returnResults = "HengShui_RuiJie_2#show interface gigabitEthernet 9/17 transceiver diagnosis \n" +
+            returnResults = "HengShui_RuiJie_2#show interface gigabitEthernet 9/17 transceiver diagnosis \n" +
                     "Current diagnostic parameters[AP:Average Power]:\n" +
                     "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\n" +
                     "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
-            returnResults = MyUtils.trimString(returnResults);*/
+            returnResults = MyUtils.trimString(returnResults);
 
 
             if (returnResults == null){
