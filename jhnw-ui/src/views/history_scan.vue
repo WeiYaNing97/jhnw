@@ -149,7 +149,7 @@
             //获取总页数
             allPageNums(){
                 return request({
-                    url:'/sql/switch_scan_result/getPages',
+                    url:'/share/switch_scan_result/getPages',
                     method:'get',
                 }).then(response=>{
                     console.log(response)
@@ -386,7 +386,7 @@
                 this.chuci = false
                 this.huisao = true
                 return request({
-                    url:'/sql/switch_scan_result/getUnresolvedProblemInformationByUserName/' + this.pageNumber,
+                    url:'/share/switch_scan_result/getUnresolvedProblemInformationByUserName/' + this.pageNumber,
                     method:'get'
                 }).then(response=>{
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {

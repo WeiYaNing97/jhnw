@@ -111,9 +111,6 @@
         <!--        <el-button type="primary" @click="oneone">测</el-button>-->
         <!--      </el-form-item>-->
         <!--      <el-form-item>-->
-        <!--        <el-button type="primary" @click="shuaxin">刷新</el-button>-->
-        <!--      </el-form-item>-->
-        <!--      <el-form-item>-->
         <!--        <el-button type="primary" @click="kanuser">看用户</el-button>-->
         <!--      </el-form-item>-->
         <!--      <el-form-item>-->
@@ -508,15 +505,7 @@ export default {
         genList:[],
         genListA:[],
         genListB:[],
-        //范式分类
-        normalType:[],
-        proNameList:[],
-        typeProList:[],
-        temProNameList:[],
-        brandList:[],
-        fireList:[],
-        typeList:[],
-        subList:[],
+
         biList:['品牌','型号','固件版本','子版本'],
         checkedQ:false,
         // checked:false,
@@ -563,12 +552,6 @@ export default {
       },
         flagchange:0,
     };
-  },
-    mounted(){
-
-    },
-  created() {
-      // this.getList();
   },
     // 自动触发事件
     directives:{
@@ -643,16 +626,6 @@ export default {
       reloadv(){
 
       },
-      //测试按钮
-      shuaxin(){
-          console.log(this.$options.data.call(this))
-          this.keys++
-          console.log(this.$data)
-          // console.log(this.$options.data())
-          // console.log(document.getElementById('helpshow').style.display)
-          Object.assign(this.$data,this.$options.data.call(this))
-          // Object.assign(this.$data,this.$options.data())
-      },
       //下载
       kanuser(){
           var ip = window.location.host
@@ -724,10 +697,6 @@ export default {
           }).then(response=>{
               console.log(response)
               this.genListA = this.quchong(response,this.who)
-              // let kong = {
-              //     [this.who] : 'null'
-              // }
-              // this.genListA.push(kong)
           })
       },
       //范式名称
@@ -748,50 +717,27 @@ export default {
                   console.log(response)
                   //范式
                   this.genListB = this.quchong(response,this.who)
-                  // let kong = {
-                  //     [this.who] : 'null'
-                  // }
-                  // this.genListB.push(kong)
               })
           }
       },
-
-      //下拉列表通用事件
-      generals(e){
+      //自定义下拉框输入通用
+      customInput(e){
           this.who = e.target.getAttribute('name')
-          let newPar = {}
-          for (var key in this.queryParams){
-              newPar[key] = this.queryParams[key]
-          }
-          for (let i in newPar){
-              if (newPar[i] === 'null'){
-                  newPar[i] = ''
+          let value = e.target.value
+          for (let key in this.queryParams){
+              if (this.queryParams.hasOwnProperty(key)){
+                  if (key == this.who){
+                      if (value){
+                          this.queryParams[key] = value
+                      }
+                  }
               }
           }
-          for (var key in newPar){
-              if (this.who == key){
-                  newPar[key] = ''
-              }
-          }
-          console.log(newPar)
-          return request({
-              url:'/sql/total_question_table/selectPojoList',
-              method:'get',
-              data:newPar
-          }).then(response=>{
-              console.log(response)
-              this.genList = this.quchong(response,this.who)
-              let kong = {
-                  [this.who] : 'null'
-              }
-              this.genList.push(kong)
-          })
       },
-
-      //下拉列表通用
+      //下拉框获取数据通用
       general(e){
           this.who = e.target.getAttribute('name')
-          console.log(this.who)
+          console.log('当前点击输入框' + this.who)
           //查询对象
           let newPar = {
               brand:this.queryParams.brand,
@@ -804,152 +750,19 @@ export default {
                   newPar[key] = ''
               }
           }
-          console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',
               method:'get',
               params:newPar
           }).then(response=>{
-              console.log(response)
               this.genList = this.quchong(response,this.who)
+              console.log(this.genList)
           })
       },
       //获取名字
       getName(e){
           this.who = e.target.getAttribute('name')
           console.log(this.who)
-      },
-      //下拉列表
-      //品牌
-      brandLi(e){
-          // this.who = e.target.getAttribute('name')
-          // return request({
-          //     url:'/sql/total_question_table/brandlist',
-          //     method:'get'
-          // }).then(response=>{
-          //     response.forEach(e=>{
-          //         if (e === '*'){
-          //             this.$delete(response,response.indexOf(e))
-          //         }
-          //     })
-          //     console.log(response)
-          //     this.brandList = response
-          //     this.brandList.push('{空}')
-          // })
-      },
-      //型号
-      typeLi(e){
-          this.who = e.target.getAttribute('name')
-          const typeOne = {}
-          const brandO = this.queryParams.brand
-          this.$set(typeOne,'brand',brandO)
-          return request({
-              url:'/sql/total_question_table/typelist',
-              method:'post',
-              data:JSON.stringify(typeOne)
-          }).then(response=>{
-              response.forEach(e=>{
-                  if (e === '*'){
-                      this.$delete(response,response.indexOf(e))
-                  }
-              })
-              this.typeList = response
-          })
-      },
-      //版本
-      fireLi(e){
-          this.who = e.target.getAttribute('name')
-          const fireOne = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          this.$set(fireOne,'brand',brandO)
-          this.$set(fireOne,'type',typeO)
-          // alert(JSON.stringify(fireOne))
-          return request({
-              url:'/sql/total_question_table/firewareVersionlist',
-              method:'post',
-              data:JSON.stringify(fireOne)
-          }).then(response=>{
-              response.forEach(e=>{
-                  if (e === '*'){
-                      this.$delete(response,response.indexOf(e))
-                  }
-              })
-              this.fireList = response
-          })
-      },
-      //子版本
-      subLi(e){
-          this.who = e.target.getAttribute('name')
-          const subOne = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          const fireO = this.queryParams.firewareVersion
-          this.$set(subOne,'brand',brandO)
-          this.$set(subOne,'type',typeO)
-          this.$set(subOne,'firewareVersion',fireO)
-          return request({
-              url:'/sql/total_question_table/subVersionlist',
-              method:'post',
-              data:JSON.stringify(subOne)
-          }).then(response=>{
-              response.forEach(e=>{
-                  if (e === '*'){
-                      this.$delete(response,response.indexOf(e))
-                  }
-              })
-              this.subList = response
-          })
-      },
-      //范式分类
-      proType(e){
-          return request({
-              url:'/sql/total_question_table/typeProblemlist',
-              method:'post',
-          }).then(response=>{
-              console.log(response)
-              this.typeProList = response
-          })
-      },
-      //范式问题名称
-      temPro(e){
-          var type0 = this.queryParams.typeProblem
-          if(type0 != ''){
-              return request({
-                  url:'/sql/total_question_table/temProNamelist',
-                  method:'post',
-                  data:type0
-              }).then(response=>{
-                  console.log(response)
-                  this.temProNameList = response
-              })
-          }else {
-              this.$message.warning('问题类型未选择')
-          }
-      },
-      //自定义名称
-      chawenti(e){
-          const wentilist = {}
-          const brandO = this.queryParams.brand
-          const typeO = this.queryParams.type
-          const firO = this.queryParams.firewareVersion
-          const subO = this.queryParams.subVersion
-          const protypeO = this.queryParams.typeProblem
-          const pronameO = this.queryParams.temProName
-          this.$set(wentilist,'brand',brandO)
-          this.$set(wentilist,'type',typeO)
-          this.$set(wentilist,'firewareVersion',firO)
-          this.$set(wentilist,'subVersion',subO)
-          this.$set(wentilist,'typeProblem',protypeO)
-          this.$set(wentilist,'temProName',pronameO)
-          return request({
-              url:'/sql/total_question_table/problemNameList',
-              method:'post',
-              data:JSON.stringify(wentilist)
-          }).then(response=>{
-              console.log(response)
-              this.proNameList = response
-          })
       },
       //比较选中触发
       bibi(){
@@ -979,20 +792,6 @@ export default {
           // if(value){
           //    item.tNextId = value
           // }
-      },
-      //自定义下拉框输入通用方法
-      customInput(e){
-          this.who = e.target.getAttribute('name')
-          let value = e.target.value
-          for (let key in this.queryParams){
-              if (this.queryParams.hasOwnProperty(key)){
-                  if (key == this.who){
-                      if (value){
-                          this.queryParams[key] = value
-                      }
-                  }
-              }
-          }
       },
       biShu(e){
           let value = e.target.value

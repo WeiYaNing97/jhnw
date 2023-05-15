@@ -207,9 +207,6 @@
             endIp(newVal){
                 this.endIpCopy = newVal
                 this.endIpS.push(newVal)
-                console.log('eeeeeeeeeeeeeeeeeeeeeeeeeee')
-                console.log(this.endIpCopy)
-                console.log(this.endIpS)
                 for (let i = 0; i < this.nowData.length; i++) {
                     if (this.endIpCopy == this.nowData[i].copyIpThred) {
                         this.$set(this.nowData[i], 'loading', false)
@@ -695,11 +692,7 @@
              * 初始化ws
              */
             wsInit() {
-                // var lockReconnect = false
                 // var ws = null
-                // var wsUrl = serverConfig.socketUrl
-                // createWebSocket(wsUrl)
-
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
                 const wsuri = `wss://${location.host}/dev-api/websocket/loophole${Cookies.get('usName')}`
                 // const wsuri = `ws://${location.host}/prod-api/websocket/loophole${Cookies.get('usName')}`
@@ -748,16 +741,12 @@
                     console.log(JSON.parse(e.data))
                     let newJson = this.changeTreeDate(JSON.parse(e.data), 'switchProblemVOList', 'children')
                     let newJson1 = this.changeTreeDate(newJson, 'switchProblemCOList', 'children')
-                    console.log(newJson1)
                     //备份完整线程IP
                     const copyIpThred = newJson1[0].switchIp
-                    console.log('线程ip' + copyIpThred)
                     //截取IP
                     const splitIp = newJson1[0].switchIp.split(':')[0]
-                    console.log('截取' + splitIp)
                     newJson1[0].copyIpThred = copyIpThred
                     newJson1[0].switchIp = splitIp
-                    console.log('==============================')
                     console.log(newJson1)
                     //改变结构后
                     if (this.newData.length == 0){
@@ -790,10 +779,8 @@
                         if (!this.ifOutFather){
                             this.newData.push(newJson1[0])
                         }
-                        // this.newData.push(newJson1[0])
                     }
                     this.nowData = JSON.parse(JSON.stringify(this.newData))
-
                     const shu = this.nowData
                     //给ip添加loading
                     for (let i = 0; i < shu.length; i++) {
@@ -809,8 +796,6 @@
                         }else {
                             var hebingInfo = shu[i].switchIp + ' ' + shu[i].showBasicInfo
                         }
-
-                        // var hebingInfo = shu[i].switchIp + ' ' + shu[i].showBasicInfo
                         this.$set(shu[i], 'hebing', hebingInfo)
                     }
                     //参数+问题名 拼接展示

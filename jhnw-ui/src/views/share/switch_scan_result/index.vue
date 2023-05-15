@@ -220,8 +220,8 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="主键" align="center" prop="id" />
       <el-table-column label="交换机ip" align="center" prop="switchIp" />
-      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />
-      <el-table-column label="交换机姓名" align="center" prop="switchName" />
+<!--      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />-->
+      <el-table-column label="交换机用户名" align="center" prop="switchName" />
       <el-table-column label="交换机密码" align="center" prop="switchPassword" />
       <el-table-column label="配置密码" align="center" prop="configureciphers" />
       <el-table-column label="登录方式" align="center" prop="loginMethod" />
@@ -231,12 +231,12 @@
       <el-table-column label="范本问题名称" align="center" prop="temProName" />
       <el-table-column label="问题名称" align="center" prop="problemName" />
       <el-table-column label="备注" align="center" prop="remarks" />
-      <el-table-column label="问题详细说明和指导索引" align="center" prop="problemDescribeId" />
+<!--      <el-table-column label="问题详细说明和指导索引" align="center" prop="problemDescribeId" />-->
       <el-table-column label="是否有问题" align="center" prop="ifQuestion" />
-      <el-table-column label="命令索引" align="center" prop="comId" />
-      <el-table-column label="动态信息" align="center" prop="dynamicInformation" />
-      <el-table-column label="登录名称" align="center" prop="userName" />
-      <el-table-column label="登录手机号" align="center" prop="phonenumber" />
+<!--      <el-table-column label="命令索引" align="center" prop="comId" />-->
+<!--      <el-table-column label="动态信息" align="center" prop="dynamicInformation" />-->
+<!--      <el-table-column label="登录名称" align="center" prop="userName" />-->
+<!--      <el-table-column label="登录手机号" align="center" prop="phonenumber" />-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -256,7 +256,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

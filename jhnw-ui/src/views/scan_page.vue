@@ -11,8 +11,6 @@
                    v-if="this.scanShow == true" :disabled="this.scanUse == false" round>全面扫描</el-button>
         <el-button type="warning" size="small" @click="cancelScan"
                    v-if="this.cancelShow == true" icon="el-icon-circle-close" round>取消扫描</el-button>
-<!--        <el-button type="primary" @click="zhuanall" icon="el-icon-search" size="small">专项扫描</el-button>-->
-
         <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"
                    :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>
 
@@ -321,9 +319,28 @@
                 xuanzhong:[
 
                 ],
+                //专项扫描
                 fenxiang: [
 
                 ],
+                //高级扫描
+                advancedScan:{
+                    label:"高级功能",
+                    children: [
+                        {
+                            label:"OSPF",
+                            id:'OSPF'
+                        },
+                        {
+                            label:"光衰",
+                            id:'光衰'
+                        },
+                        {
+                            label:"误码率",
+                            id:'误码率'
+                        }
+                    ]
+                },
                 defaultProps: {
                     children: 'children',
                     label: 'label'
@@ -559,11 +576,9 @@
             specialSearch(){
                 this.dialogVisibleSpecial = true
                 this.showxiang = true
-                var ce = {}
                 return request({
                     url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
-                    method:'get',
-                    data:ce
+                    method:'get'
                 }).then(response=>{
                     console.log(response)
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {
@@ -593,49 +608,12 @@
                     response = changeTreeDate(response,'temProName','label')
                     response = changeTreeDate(response,'problemName','label')
                     //删除高级功能
-                    this.fenxiang = response.filter(item => {
-                        return item.label != '高级功能'
-                    })
-                    console.log(this.fenxiang)
-                })
-            },
-            //专项所有
-            zhuanall(){
-                this.showxiang = true
-                var ce = {}
-                return request({
-                    url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
-                    method:'post',
-                    data:ce
-                }).then(response=>{
-                    console.log(response)
-                    function changeTreeDate(arrayJsonObj,oldKey,newKey) {
-                        let strtest = JSON.stringify(arrayJsonObj);
-                        let reg = new RegExp(oldKey,'g');
-                        let newStr = strtest.replace(reg,newKey);
-                        return JSON.parse(newStr);
+                    if (response.length > 0){
+                        this.fenxiang = response.filter(item => {
+                            return item.label != '高级功能'
+                        })
                     }
-                    response = changeTreeDate(response,'totalQuestionTableVOList','children')
-                    response = changeTreeDate(response,'totalQuestionTableList','children')
-                    for (let i = 0;i<response.length;i++){
-                        for (let g = 0;g<response[i].children.length;g++){
-                            this.$delete(response[i].children[g],'typeProblem')
-                            for (let m = 0;m<response[i].children[g].children.length;m++){
-                                this.$delete(response[i].children[g].children[m],'typeProblem')
-                                this.$delete(response[i].children[g].children[m],'temProName')
-                                let pinjie = response[i].children[g].children[m].problemName+' '+'('+
-                                    response[i].children[g].children[m].brand+' '+
-                                    response[i].children[g].children[m].type+' '+
-                                    response[i].children[g].children[m].firewareVersion+' '+
-                                    response[i].children[g].children[m].subVersion+')'
-                                this.$set(response[i].children[g].children[m],'problemName',pinjie)
-                            }
-                        }
-                    }
-                    response = changeTreeDate(response,'typeProblem','label')
-                    response = changeTreeDate(response,'temProName','label')
-                    response = changeTreeDate(response,'problemName','label')
-                    this.fenxiang = response
+                    this.fenxiang.push(this.advancedScan)
                     console.log(this.fenxiang)
                 })
             },
@@ -837,10 +815,10 @@
                     this.$delete(zuihou[i],'isEdit')
                     this.$delete(zuihou[i],'passmi')
                     this.$delete(zuihou[i],'conCip')
-                    //给用户密码加密
+                    //密码加密
                     var pass = encrypt.encrypt(zuihou[i].password)
                     this.$set(zuihou[i],'password',pass)
-
+                    //配置密码加密
                     var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
                     this.$set(zuihou[i],'configureCiphers',passPei)
                 }
@@ -855,27 +833,14 @@
                     }
                 }
                 console.log(totalQuestionTableId)
+
                 let zuihouall = zuihou.map(x=>JSON.stringify(x))
                 console.log(zuihouall)
                 if(totalQuestionTableId.length == 0){
-                    this.$alert('专项扫描没有选择要扫描的项,如果想要扫描特定项请重新选择!', '专项扫描', {
+                    this.$alert('没有选择要扫描的项,请重新选择!', '专项扫描', {
                         confirmButtonText: '确定',
                         type:'warning'
-                        // callback: action => {
-                        //     this.$message({
-                        //         type: 'info',
-                        //         message: `action: ${ action }`
-                        //     });
-                        // }
-                    });
-                    // this.$message.success('扫描请求以提交!')
-                    // return request({
-                    //     url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
-                    //     method:'post',
-                    //     data:zuihouall
-                    // }).then(response=>{
-                    //     console.log('日志')
-                    // })
+                    })
                 }else {
                     this.dialogVisibleSpecial = false
                     console.log('专项扫描')

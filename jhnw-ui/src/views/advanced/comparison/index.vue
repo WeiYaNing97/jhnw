@@ -10,183 +10,183 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">
-        <el-input
-          v-model="queryParams.switchId"
-          placeholder="请输入交换机四项基本信息表ID索引"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="参数数量" prop="numberParameters">
-        <el-input
-          v-model="queryParams.numberParameters"
-          placeholder="请输入参数数量"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="端口号" prop="port">
-        <el-input
-          v-model="queryParams.port"
-          placeholder="请输入端口号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="TX平均值" prop="txAverageValue">
-        <el-input
-          v-model="queryParams.txAverageValue"
-          placeholder="请输入TX平均值"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="TX最新参数" prop="txLatestNumber">
-        <el-input
-          v-model="queryParams.txLatestNumber"
-          placeholder="请输入TX最新参数"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="RX平均值" prop="rxAverageValue">
-        <el-input
-          v-model="queryParams.rxAverageValue"
-          placeholder="请输入RX平均值"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="RX最新参数" prop="rxLatestNumber">
-        <el-input
-          v-model="queryParams.rxLatestNumber"
-          placeholder="请输入RX最新参数"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="TX起始值(基准)" prop="txStartValue">
-        <el-input
-          v-model="queryParams.txStartValue"
-          placeholder="请输入TX起始值(基准)"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="RX起始值(基准)" prop="rxStartValue">
-        <el-input
-          v-model="queryParams.rxStartValue"
-          placeholder="请输入RX起始值(基准)"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="额定偏差" prop="ratedDeviation">
-        <el-input
-          v-model="queryParams.ratedDeviation"
-          placeholder="请输入额定偏差"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="保留字段一" prop="valueOne">
-        <el-input
-          v-model="queryParams.valueOne"
-          placeholder="请输入保留字段一"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="保留字段二" prop="valueTwo">
-        <el-input
-          v-model="queryParams.valueTwo"
-          placeholder="请输入保留字段二"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.switchId"-->
+<!--          placeholder="请输入交换机四项基本信息表ID索引"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="参数数量" prop="numberParameters">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.numberParameters"-->
+<!--          placeholder="请输入参数数量"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="端口号" prop="port">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.port"-->
+<!--          placeholder="请输入端口号"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="TX平均值" prop="txAverageValue">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.txAverageValue"-->
+<!--          placeholder="请输入TX平均值"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="TX最新参数" prop="txLatestNumber">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.txLatestNumber"-->
+<!--          placeholder="请输入TX最新参数"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="RX平均值" prop="rxAverageValue">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.rxAverageValue"-->
+<!--          placeholder="请输入RX平均值"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="RX最新参数" prop="rxLatestNumber">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.rxLatestNumber"-->
+<!--          placeholder="请输入RX最新参数"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="TX起始值(基准)" prop="txStartValue">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.txStartValue"-->
+<!--          placeholder="请输入TX起始值(基准)"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="RX起始值(基准)" prop="rxStartValue">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.rxStartValue"-->
+<!--          placeholder="请输入RX起始值(基准)"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="额定偏差" prop="ratedDeviation">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.ratedDeviation"-->
+<!--          placeholder="请输入额定偏差"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="保留字段一" prop="valueOne">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.valueOne"-->
+<!--          placeholder="请输入保留字段一"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="保留字段二" prop="valueTwo">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.valueTwo"-->
+<!--          placeholder="请输入保留字段二"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['advanced:comparison:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['advanced:comparison:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['advanced:comparison:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          :loading="exportLoading"
-          @click="handleExport"
-          v-hasPermi="['advanced:comparison:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+<!--    <el-row :gutter="10" class="mb8">-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="primary"-->
+<!--          plain-->
+<!--          icon="el-icon-plus"-->
+<!--          size="mini"-->
+<!--          @click="handleAdd"-->
+<!--          v-hasPermi="['advanced:comparison:add']"-->
+<!--        >新增</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="success"-->
+<!--          plain-->
+<!--          icon="el-icon-edit"-->
+<!--          size="mini"-->
+<!--          :disabled="single"-->
+<!--          @click="handleUpdate"-->
+<!--          v-hasPermi="['advanced:comparison:edit']"-->
+<!--        >修改</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="danger"-->
+<!--          plain-->
+<!--          icon="el-icon-delete"-->
+<!--          size="mini"-->
+<!--          :disabled="multiple"-->
+<!--          @click="handleDelete"-->
+<!--          v-hasPermi="['advanced:comparison:remove']"-->
+<!--        >删除</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="warning"-->
+<!--          plain-->
+<!--          icon="el-icon-download"-->
+<!--          size="mini"-->
+<!--          :loading="exportLoading"-->
+<!--          @click="handleExport"-->
+<!--          v-hasPermi="['advanced:comparison:export']"-->
+<!--        >导出</el-button>-->
+<!--      </el-col>-->
+<!--      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>-->
+<!--    </el-row>-->
 
     <el-table v-loading="loading" :data="comparisonList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
+<!--      <el-table-column label="主键" align="center" prop="id" />-->
       <el-table-column label="交换机ip" align="center" prop="switchIp" />
-      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />
-      <el-table-column label="参数数量" align="center" prop="numberParameters" />
       <el-table-column label="端口号" align="center" prop="port" />
-      <el-table-column label="TX平均值" align="center" prop="txAverageValue" />
-      <el-table-column label="TX最新参数" align="center" prop="txLatestNumber" />
-      <el-table-column label="RX平均值" align="center" prop="rxAverageValue" />
-      <el-table-column label="RX最新参数" align="center" prop="rxLatestNumber" />
-      <el-table-column label="TX起始值(基准)" align="center" prop="txStartValue" />
-      <el-table-column label="RX起始值(基准)" align="center" prop="rxStartValue" />
-      <el-table-column label="额定偏差" align="center" prop="ratedDeviation" />
-      <el-table-column label="保留字段一" align="center" prop="valueOne" />
-      <el-table-column label="保留字段二" align="center" prop="valueTwo" />
+      <el-table-column label="TX基准功率" align="center" prop="txStartValue" />
+      <el-table-column label="RX基准功率" align="center" prop="rxStartValue" />
+      <el-table-column label="额定衰耗偏差" align="center" prop="ratedDeviation" />
+<!--      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />-->
+<!--      <el-table-column label="参数数量" align="center" prop="numberParameters" />-->
+      <el-table-column label="TX平均功率" align="center" prop="txAverageValue" />
+      <el-table-column label="RX平均功率" align="center" prop="rxAverageValue" />
+      <el-table-column label="TX当前功率" align="center" prop="txLatestNumber" />
+      <el-table-column label="RX当前功率" align="center" prop="rxLatestNumber" />
+<!--      <el-table-column label="保留字段一" align="center" prop="valueOne" />-->
+<!--      <el-table-column label="保留字段二" align="center" prop="valueTwo" />-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -206,7 +206,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -218,45 +218,45 @@
     <!-- 添加或修改光衰平均值比较对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="交换机ip" prop="switchIp">
-          <el-input v-model="form.switchIp" placeholder="请输入交换机ip" />
-        </el-form-item>
-        <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">
-          <el-input v-model="form.switchId" placeholder="请输入交换机四项基本信息表ID索引" />
-        </el-form-item>
-        <el-form-item label="参数数量" prop="numberParameters">
-          <el-input v-model="form.numberParameters" placeholder="请输入参数数量" />
-        </el-form-item>
-        <el-form-item label="端口号" prop="port">
-          <el-input v-model="form.port" placeholder="请输入端口号" />
-        </el-form-item>
-        <el-form-item label="TX平均值" prop="txAverageValue">
-          <el-input v-model="form.txAverageValue" placeholder="请输入TX平均值" />
-        </el-form-item>
-        <el-form-item label="TX最新参数" prop="txLatestNumber">
-          <el-input v-model="form.txLatestNumber" placeholder="请输入TX最新参数" />
-        </el-form-item>
-        <el-form-item label="RX平均值" prop="rxAverageValue">
-          <el-input v-model="form.rxAverageValue" placeholder="请输入RX平均值" />
-        </el-form-item>
-        <el-form-item label="RX最新参数" prop="rxLatestNumber">
-          <el-input v-model="form.rxLatestNumber" placeholder="请输入RX最新参数" />
-        </el-form-item>
-        <el-form-item label="TX起始值(基准)" prop="txStartValue">
+<!--        <el-form-item label="交换机ip" prop="switchIp">-->
+<!--          <el-input v-model="form.switchIp" placeholder="请输入交换机ip" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">-->
+<!--          <el-input v-model="form.switchId" placeholder="请输入交换机四项基本信息表ID索引" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="参数数量" prop="numberParameters">-->
+<!--          <el-input v-model="form.numberParameters" placeholder="请输入参数数量" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="端口号" prop="port">-->
+<!--          <el-input v-model="form.port" placeholder="请输入端口号" />-->
+<!--        </el-form-item>-->
+        <el-form-item label="TX基准功率" prop="txStartValue">
           <el-input v-model="form.txStartValue" placeholder="请输入TX起始值(基准)" />
         </el-form-item>
-        <el-form-item label="RX起始值(基准)" prop="rxStartValue">
+        <el-form-item label="RX基准功率" prop="rxStartValue">
           <el-input v-model="form.rxStartValue" placeholder="请输入RX起始值(基准)" />
         </el-form-item>
-        <el-form-item label="额定偏差" prop="ratedDeviation">
+        <el-form-item label="TX平均功率" prop="txAverageValue">
+          <el-input v-model="form.txAverageValue" placeholder="请输入TX平均值" />
+        </el-form-item>
+        <el-form-item label="RX平均功率" prop="rxAverageValue">
+          <el-input v-model="form.rxAverageValue" placeholder="请输入RX平均值" />
+        </el-form-item>
+        <el-form-item label="TX当前功率" prop="txLatestNumber">
+          <el-input v-model="form.txLatestNumber" placeholder="请输入TX最新参数" />
+        </el-form-item>
+        <el-form-item label="RX当前功率" prop="rxLatestNumber">
+          <el-input v-model="form.rxLatestNumber" placeholder="请输入RX最新参数" />
+        </el-form-item>
+        <el-form-item label="额定衰耗偏差" prop="ratedDeviation">
           <el-input v-model="form.ratedDeviation" placeholder="请输入额定偏差" />
         </el-form-item>
-        <el-form-item label="保留字段一" prop="valueOne">
-          <el-input v-model="form.valueOne" placeholder="请输入保留字段一" />
-        </el-form-item>
-        <el-form-item label="保留字段二" prop="valueTwo">
-          <el-input v-model="form.valueTwo" placeholder="请输入保留字段二" />
-        </el-form-item>
+<!--        <el-form-item label="保留字段一" prop="valueOne">-->
+<!--          <el-input v-model="form.valueOne" placeholder="请输入保留字段一" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="保留字段二" prop="valueTwo">-->
+<!--          <el-input v-model="form.valueTwo" placeholder="请输入保留字段二" />-->
+<!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>

@@ -151,6 +151,7 @@ import request from '@/utils/request'
 
 export default {
   name: "Look_solve",
+  inject:["reload"],
   data() {
     return {
         deptName:undefined,

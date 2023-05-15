@@ -497,9 +497,6 @@ export default {
       }
     },
   methods: {
-      showMenu(){
-
-      },
       copy(){
           document.execCommand('Copy')
           console.log(document.execCommand('Copy'))
@@ -619,6 +616,7 @@ export default {
                   data:this.proId
               }).then(response=>{
                   console.log('删除成功')
+                  this.reload()
                   this.$message.success('删除成功!')
               })
           }).catch(ee=>{
@@ -676,7 +674,6 @@ export default {
               }
           })
       },
-
       //下拉列表通用事件
       generalOne(e){
           this.who = e.target.getAttribute('name')
@@ -856,6 +853,9 @@ export default {
                       params:response.data
                   }).then(response => {
                       console.log(response)
+                      if (response.data == null){
+                          this.$message.warning('未定义问题逻辑!')
+                      }
                       if (response.msg === '操作成功'){
                           this.cdy = true
                       }
@@ -935,22 +935,6 @@ export default {
                       this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
                   })
               })
-          }
-      },
-      //下拉框获取后台数据
-      temPro(e){
-          var type0 = this.queryParams.typeProblem
-          if(type0 != ''){
-              return request({
-                  url:'/sql/total_question_table/temProNamelist',
-                  method:'post',
-                  data:type0
-              }).then(response=>{
-                  this.temProNameList = response
-                  console.log(response)
-              })
-          }else {
-              this.$message.warning('问题类型未选择')
           }
       },
       //获取问题ID

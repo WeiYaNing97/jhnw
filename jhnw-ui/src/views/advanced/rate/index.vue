@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">
-        <el-input
-          v-model="queryParams.switchId"
-          placeholder="请输入交换机四项基本信息表ID索引"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.switchId"-->
+<!--          placeholder="请输入交换机四项基本信息表ID索引"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item label="端口号" prop="port">
         <el-input
           v-model="queryParams.port"
@@ -19,90 +19,90 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="input errors" prop="inputErrors">
-        <el-input
-          v-model="queryParams.inputErrors"
-          placeholder="请输入input errors"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="output errors" prop="outputErrors">
-        <el-input
-          v-model="queryParams.outputErrors"
-          placeholder="请输入output errors"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="crc" prop="crc">
-        <el-input
-          v-model="queryParams.crc"
-          placeholder="请输入crc"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="input errors" prop="inputErrors">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.inputErrors"-->
+<!--          placeholder="请输入input errors"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="output errors" prop="outputErrors">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.outputErrors"-->
+<!--          placeholder="请输入output errors"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="crc" prop="crc">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.crc"-->
+<!--          placeholder="请输入crc"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['advanced:rate:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['advanced:rate:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['advanced:rate:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          :loading="exportLoading"
-          @click="handleExport"
-          v-hasPermi="['advanced:rate:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+<!--    <el-row :gutter="10" class="mb8">-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="primary"-->
+<!--          plain-->
+<!--          icon="el-icon-plus"-->
+<!--          size="mini"-->
+<!--          @click="handleAdd"-->
+<!--          v-hasPermi="['advanced:rate:add']"-->
+<!--        >新增</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="success"-->
+<!--          plain-->
+<!--          icon="el-icon-edit"-->
+<!--          size="mini"-->
+<!--          :disabled="single"-->
+<!--          @click="handleUpdate"-->
+<!--          v-hasPermi="['advanced:rate:edit']"-->
+<!--        >修改</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="danger"-->
+<!--          plain-->
+<!--          icon="el-icon-delete"-->
+<!--          size="mini"-->
+<!--          :disabled="multiple"-->
+<!--          @click="handleDelete"-->
+<!--          v-hasPermi="['advanced:rate:remove']"-->
+<!--        >删除</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="warning"-->
+<!--          plain-->
+<!--          icon="el-icon-download"-->
+<!--          size="mini"-->
+<!--          :loading="exportLoading"-->
+<!--          @click="handleExport"-->
+<!--          v-hasPermi="['advanced:rate:export']"-->
+<!--        >导出</el-button>-->
+<!--      </el-col>-->
+<!--      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>-->
+<!--    </el-row>-->
 
     <el-table v-loading="loading" :data="rateList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="误码率主键" align="center" prop="id" />
-      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />
+<!--      <el-table-column label="误码率主键" align="center" prop="id" />-->
+<!--      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />-->
       <el-table-column label="端口号" align="center" prop="port" />
       <el-table-column label="input errors" align="center" prop="inputErrors" />
       <el-table-column label="output errors" align="center" prop="outputErrors" />
@@ -126,7 +126,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -138,12 +138,12 @@
     <!-- 添加或修改误码率对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">
-          <el-input v-model="form.switchId" placeholder="请输入交换机四项基本信息表ID索引" />
-        </el-form-item>
-        <el-form-item label="端口号" prop="port">
-          <el-input v-model="form.port" placeholder="请输入端口号" />
-        </el-form-item>
+<!--        <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">-->
+<!--          <el-input v-model="form.switchId" placeholder="请输入交换机四项基本信息表ID索引" />-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="端口号" prop="port">-->
+<!--          <el-input v-model="form.port" placeholder="请输入端口号" />-->
+<!--        </el-form-item>-->
         <el-form-item label="input errors" prop="inputErrors">
           <el-input v-model="form.inputErrors" placeholder="请输入input errors" />
         </el-form-item>

@@ -680,18 +680,18 @@
             //新增设备
             xinzeng(){
                 this.tableData.push({
-                    // ip: '192.168.1.100',
-                    // name: 'admin',
-                    // password:'admin',
+                    ip: '192.168.1.100',
+                    name: 'admin',
+                    password:'admin',
                     // passmi:'********',
                     // mode:'ssh',
                     // port:22,
                     // isEdit:true,
                     // conCip:'********',
                     // configureCiphers:''
-                    ip: '',
-                    name: '',
-                    password:'',
+                    // ip: '',
+                    // name: '',
+                    // password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
@@ -882,7 +882,7 @@
                 console.log(zuihouall)
 
                 if(functionNameT.length == 0){
-                    this.$alert('高级扫描没有选择要扫描的项,请重新选择!', '专项扫描', {
+                    this.$alert('没有选择要扫描的项,请重新选择!', '高级扫描', {
                         confirmButtonText: '确定',
                         type:'warning'
                     });

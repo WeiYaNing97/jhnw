@@ -15,7 +15,7 @@
           <el-option label="请选择字典生成" value="" />
         </el-select>
       </el-form-item>
-      <el-form-item label="内部固件版本" prop="firewareVersion">
+      <el-form-item label="固件版本" prop="firewareVersion">
         <el-input
           v-model="queryParams.firewareVersion"
           placeholder="请输入内部固件版本"
@@ -112,7 +112,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"

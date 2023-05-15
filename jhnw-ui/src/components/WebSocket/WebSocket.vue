@@ -181,15 +181,11 @@
                     }
                     //截取字符串
                     function getCaption(obj){
-                        // const index = obj.lastIndexOf(":")
-                        // const res = obj.substring(index+1,obj.length)
-                        // return res
                         const result1 = obj.split(':')[1]
                         const result2 = obj.split(':')[2]
                         return result1+':'+result2
                     }
                     this.ipEnd = getCaption(this.saoendip)
-                    console.log(this.ipEnd)
                     // this.textarea = this.textarea + e.data;
                     this.$nextTick(()=>{
                         // const textarea = document.getElementById('webt')

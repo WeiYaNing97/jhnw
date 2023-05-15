@@ -13,10 +13,8 @@
       </el-form-item>
       <el-form-item style="display:inline-block;margin-left: 10px">
 <!--        <el-button @click="specialSearch">查看列表</el-button>-->
-<!--        <el-button @click="test_All">测试按钮</el-button>-->
         <el-button @click="submit_Form" type="primary" plain round>提  交</el-button>
         <el-button @click="del_modelInfo" type="danger" plain round>删  除</el-button>
-        <el-button @click="ospfTest" type="danger" plain round>测  试</el-button>
 <!--        <el-button @click="scanModel" type="primary" round>扫描模板</el-button>-->
       </el-form-item>
       <div>
@@ -121,20 +119,10 @@
             scanModel(){
                 // this.dialogFormVisible = true
             },
-            //ospf测试
-            ospfTest(){
-                return request({
-                    url:'/sql/formwork/testospf',
-                    method: 'get'
-                }).then(response=>{
-                    this.$message.success('成功!')
-                    this.reload()
-                })
-            },
             //删除
             del_modelInfo(){
                 if (this.formworkId != ''){
-                    this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                    this.$confirm('是否删除该选中模块?', '提示', {
                         confirmButtonText: '确定',
                         cancelButtonText: '取消',
                         type: 'warning'
@@ -172,7 +160,6 @@
                     if(this.choose_modelId.length>0){
                         if (this.formworkId != ''){
                             //修改
-                            console.log('进来修改了')
                             console.log(JSON.stringify(formwork))
                             return request({
                                 url:'/sql/formwork',
@@ -241,20 +228,6 @@
                         this.genList = response
                     })
             },
-            //测试所有
-            test_All(){
-                // console.log(this.form.model_name)
-                // console.log(this.fenxiang)
-                // var zhuanid = this.$refs.treeone.getCheckedKeys()
-                // console.log(zhuanid)
-                // const totalQuestionTableId = []
-                // for(let i = 0;i<=zhuanid.length;i++){
-                //     if (typeof(zhuanid[i])!='undefined'){
-                //         totalQuestionTableId.push(zhuanid[i])
-                //     }
-                // }
-                // console.log(totalQuestionTableId)
-            },
             // 筛选节点
             filterNode(value, data) {
                 if (!value) return true;
@@ -264,7 +237,7 @@
             handleNodeClick(fenxiang) {
 
             },
-            //专项扫描
+            //展示列表
             specialSearch(){
                 var ce = {}
                 return request({
