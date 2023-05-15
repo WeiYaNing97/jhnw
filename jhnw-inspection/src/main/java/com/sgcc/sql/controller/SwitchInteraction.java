@@ -2,6 +2,7 @@ package com.sgcc.sql.controller;
 
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
+import com.sgcc.advanced.controller.ErrorPackage;
 import com.sgcc.advanced.controller.LuminousAttenuation;
 import com.sgcc.advanced.controller.OSPFFeatures;
 import com.sgcc.common.annotation.MyLog;
@@ -241,7 +242,7 @@ public class SwitchInteraction {
         formworkService = SpringBeanUtil.getBean(IFormworkService.class);
         Formwork formwork = formworkService.selectFormworkById(formworkId);
         String[] formworkSplit = formwork.getFormworkIndex().split(",");
-        List<Long> totalQuestionTableId = Arrays.stream(formworkSplit).map(t -> Long.valueOf(t).longValue()).collect(Collectors.toList());
+        List<String> totalQuestionTableId = Arrays.stream(formworkSplit).collect(Collectors.toList());
         String formworkScann = directionalScann(switchInformation, totalQuestionTableId, scanNum);
         return formworkScann;
     }
@@ -257,7 +258,7 @@ public class SwitchInteraction {
     @ApiOperation("专项扫描问题")
     @PostMapping("/directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项扫描问题", businessType = BusinessType.OTHER)
-    public  String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
+    public  String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<String> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         /*交换机信息集合*/
         List<SwitchParameters> switchParametersList = new ArrayList<>();
@@ -273,8 +274,20 @@ public class SwitchInteraction {
 
             switchParametersList.add(switchParameters);
         }
+
+        List<Long> idScan = new ArrayList<>();
+        List<String> advancedName = new ArrayList<>();
+        for (String id:totalQuestionTableId){
+            if (MyUtils.allIsNumeric(id)){
+                idScan.add(Long.valueOf(id).longValue());
+            }else {
+                advancedName.add(id);
+            }
+        }
+
+        Long[] ids = idScan.toArray(new Long[idScan.size()]);
+
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-        Long[] ids = totalQuestionTableId.toArray(new Long[totalQuestionTableId.size()]);
         if (ids.length != 0){
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
@@ -288,7 +301,7 @@ public class SwitchInteraction {
         parameterSet.setSwitchParameters(switchParametersList);
 
         try {
-            DirectionalScanThreadPool.switchLoginInformations(parameterSet,totalQuestionTables);
+            DirectionalScanThreadPool.switchLoginInformations(parameterSet,totalQuestionTables,advancedName);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -375,7 +388,7 @@ public class SwitchInteraction {
     * @E-mail: WeiYaNing97@163.com
     */
     @GetMapping("logInToGetBasicInformation")
-    public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables) {
+    public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName) {
         /*连接交换机 获取交换机基本信息*/
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters);
@@ -392,15 +405,24 @@ public class SwitchInteraction {
         }
         switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
 
+        /*高级功能*/
 
-        /* 默认先添加 高级功能*/
-        /*OSPFFeatures ospfFeatures = new OSPFFeatures();
-        ospfFeatures.getOSPFValues(switchParameters);
-        LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
-        luminousAttenuation.obtainLightDecay(switchParameters);
-        ErrorPackage errorPackage = new ErrorPackage();
-        errorPackage.getErrorPackage(switchParameters);*/
-
+        for (String function:advancedName){
+            switch (function){
+                case "OSPF":
+                    OSPFFeatures ospfFeatures = new OSPFFeatures();
+                    ospfFeatures.getOSPFValues(switchParameters);
+                    break;
+                case "光衰":
+                    LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
+                    luminousAttenuation.obtainLightDecay(switchParameters);
+                    break;
+                case "误码率":
+                    ErrorPackage errorPackage = new ErrorPackage();
+                    errorPackage.getErrorPackage(switchParameters);
+                    break;
+            }
+        }
 
         //5.获取交换机可扫描的问题并执行分析操作
         /*当 totalQuestionTables 不为空时，为专项扫描*/

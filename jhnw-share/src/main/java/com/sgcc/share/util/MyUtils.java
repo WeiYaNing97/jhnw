@@ -67,6 +67,12 @@ public class MyUtils {
         return pattern.matcher(str).matches();
     }
 
+    /*判断字符串是否为全数字*/
+    public static boolean allIsNumeric(String str){
+        //使用正则表达式判断字符串是否全由数字组成
+        return str.matches("\\d+");
+    }
+
     /**
      * 实体类转化为 字符串
      * @param object

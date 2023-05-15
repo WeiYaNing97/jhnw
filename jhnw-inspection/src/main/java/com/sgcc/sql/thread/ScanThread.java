@@ -37,7 +37,7 @@ public class ScanThread extends Thread  {
             System.err.println("活跃线程数："+threadCount);
             SwitchInteraction switchInteraction = new SwitchInteraction();
             //扫描方法 logInToGetBasicInformation
-            AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters,null);
+            AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters,null,null);
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
             if (ajaxResult.get("msg").equals("交换机连接失败")){
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() +"问题:交换机连接失败\r\n");
