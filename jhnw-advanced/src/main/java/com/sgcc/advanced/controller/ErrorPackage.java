@@ -133,6 +133,7 @@ public class ErrorPackage {
                     hashMap.put("IfQuestion","有问题");
                 }else if (num == 0){
                     hashMap.put("IfQuestion","无问题");
+                    continue;
                 }
             }
 
@@ -145,12 +146,10 @@ public class ErrorPackage {
             }
             hashMap.put("parameterString",parameterString);
 
-            if (hashMap.get("IfQuestion").equals("有问题")){
-                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
-                Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
-                SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
-                switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-            }
+            SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+            Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+            SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+            switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
         }
         return null;
     }
@@ -195,7 +194,7 @@ public class ErrorPackage {
                     "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
                     " Input (normal):  56148368 packets, - bytes\n" +
                     "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
+                    " Input:  1 input errors, 0 runts, 0 giants, 0 throttles\n" +
                     "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
                     "         - ignored, - parity errors\n" +
                     " Output (total): 46229751 packets, 4553563599 bytes\n" +

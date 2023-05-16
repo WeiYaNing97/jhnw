@@ -77,14 +77,11 @@ public class ConnectToObtainInformation {
         return AjaxResult.error("交换机连接失败");
     }
 
-
-
     /**
      * 连接交换机方法
      */
     @GetMapping("requestConnect")
     public AjaxResult requestConnect(SwitchParameters switchParameters) {
-
         //设定连接结果 预设连接失败为 false
         boolean is_the_connection_successful =false;
         List<Object> objects = null;
@@ -93,9 +90,7 @@ public class ConnectToObtainInformation {
             SshMethod connectMethod = new SshMethod();
             //连接ssh 成功为 true  失败为  false
             objects = connectMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword());
-
             boolean loginBoolean = (boolean) objects.get(0);
-
             if (loginBoolean == true){
                 SshConnect sshConnect =  (SshConnect)objects.get(1);
                 switchParameters.setSshConnect(sshConnect);
@@ -120,7 +115,6 @@ public class ConnectToObtainInformation {
         /* is_the_connection_successful 交换机连接成功*/
         if(is_the_connection_successful){
             //enable 配置  返回 交换机连接失败  或   交换机连接成功
-
             String enable = enable(switchParameters);
             if (enable.equals("交换机连接成功")){
                 return AjaxResult.success(switchParameters);
@@ -264,6 +258,7 @@ public class ConnectToObtainInformation {
                 switchParameters.setDeviceModel(hashMap.get("xinghao"));
                 switchParameters.setFirmwareVersion(hashMap.get("banben"));
                 switchParameters.setSubversionNumber(hashMap.get("zibanben"));
+                switchParameters.setSubversionNumber(null);
                 switchParameters.setRouterFlag(hashMap.get("routerFlag"));
                 return AjaxResult.success(switchParameters);
             }else {

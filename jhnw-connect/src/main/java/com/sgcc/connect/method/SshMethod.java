@@ -28,9 +28,7 @@ public class SshMethod {
     */
     @RequestMapping("requestConnect")
     public List<Object> requestConnect(String ip, int port, String name, String password){
-
         List<Object> objects = new ArrayList<>();
-
         //this.ReturnInformation = "";
         //创建连接 ip 端口号：22
         SshConnect sshConnect = new SshConnect(ip, port, null, null);
@@ -44,7 +42,6 @@ public class SshMethod {
             objects.add(sshConnect);
             return objects;
         }
-
         return login;
     }
 
@@ -60,19 +57,14 @@ public class SshMethod {
         //ssh发送命令
         //将命令放到数组中，满足方法的参数要求
         String[] cmds = {command};
-
         /*if (this.ReturnInformation.endsWith(EndIdentifier) && command.equalsIgnoreCase("quit")) {
             quit = true;
         }*/
-
         //发送命令 quit:涉及是否断开交换机连接
-
         String string = sshConnect.batchCommand(ip,cmds, notFinished,null,false);
-
         if (string.equals("")){
             return "";
         }
-
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }
@@ -83,11 +75,9 @@ public class SshMethod {
         //高亮首乱码
         String substring = string.substring(0, 1);
         String strStar = substring+"[";
-
         String[] split = string.split("\n");
         int length = split[0].length();
         string = string.substring(length,string.length());
-
         //如果返回字符串包含 高亮首乱码,是windows返回字符串
         if(string.contains(strStar)){
             //创建一个新的字符串来存储返回信息
@@ -112,7 +102,6 @@ public class SshMethod {
             notFinished = "---- More ----";
         }
         string = string.replace(notFinished,"");
-
        // this.ReturnInformation = string;
         return string;
     }
@@ -145,7 +134,6 @@ public class SshMethod {
         }else if(newStr.indexOf(indexStr) < (newStr.length() - indexStr.length())){
             newStr =  new StringBuilder(newStr.substring(0,newStr.indexOf(indexStr))
                     +newStr.substring(newStr.indexOf(indexStr)+indexStr.length(),newStr.length()));
-
         }
         return newStr.toString();
     }

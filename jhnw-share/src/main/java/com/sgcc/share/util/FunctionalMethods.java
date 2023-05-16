@@ -35,7 +35,7 @@ public class FunctionalMethods {
         switchInformation.setBrand(switchParameters.getDeviceBrand());
         switchInformation.setSwitchType(switchParameters.getDeviceModel());
         switchInformation.setFirewareVersion(switchParameters.getFirmwareVersion());
-        switchInformation.setSubVersion(switchParameters.getSubversionNumber() == null?"":switchParameters.getSubversionNumber());
+        switchInformation.setSubVersion(switchParameters.getSubversionNumber() == null?"null":switchParameters.getSubversionNumber());
         switchInformationService = SpringBeanUtil.getBean(ISwitchInformationService.class);//解决 多线程 service 为null问题
         List<SwitchInformation> switchInformationList = switchInformationService.selectSwitchInformationList(switchInformation);
         if (MyUtils.isCollectionEmpty(switchInformationList)){

@@ -41,6 +41,9 @@ public class SwitchInformationController extends BaseController
     public TableDataInfo list(SwitchInformation switchInformation)
     {
         startPage();
+        if (switchInformation.getSubVersion()==null){
+            switchInformation.setSubVersion("null");
+        }
         List<SwitchInformation> list = switchInformationService.selectSwitchInformationList(switchInformation);
         return getDataTable(list);
     }
@@ -53,6 +56,9 @@ public class SwitchInformationController extends BaseController
     @GetMapping("/export")
     public AjaxResult export(SwitchInformation switchInformation)
     {
+        if (switchInformation.getSubVersion()==null){
+            switchInformation.setSubVersion("null");
+        }
         List<SwitchInformation> list = switchInformationService.selectSwitchInformationList(switchInformation);
         ExcelUtil<SwitchInformation> util = new ExcelUtil<SwitchInformation>(SwitchInformation.class);
         return util.exportExcel(list, "交换机四项基本信息数据");

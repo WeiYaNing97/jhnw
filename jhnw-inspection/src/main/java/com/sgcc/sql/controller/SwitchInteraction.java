@@ -1,5 +1,4 @@
 package com.sgcc.sql.controller;
-
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
 import com.sgcc.advanced.controller.ErrorPackage;
@@ -156,10 +155,7 @@ public class SwitchInteraction {
         }
 
         //解析返回参数 data
-
         switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
-
-
         //是否连接成功 返回信息集合的 第一项 为 是否连接成功
         //如果连接成功
         if(requestConnect_ajaxResult.get("msg").equals("操作成功")){
@@ -169,11 +165,9 @@ public class SwitchInteraction {
             //密码 MD5 加密
             String configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
             switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
-
             /**
              * 因为没有走数据库 所以要 处理前端传入数据 组成集合
              */
-
             List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
             /*遍历分析逻辑字符串集合：List<String> pojoList
             通过 调用 analysisProblemScanLogic 方法 将字符串 转化为 分析逻辑实体类，
@@ -184,32 +178,26 @@ public class SwitchInteraction {
                 ProblemScanLogic problemScanLogic = definitionProblemController.analysisProblemScanLogic(pojo, "分析");
                 problemScanLogicList.add(problemScanLogic);
             }
-
             //将相同ID  时间戳 的 实体类 放到一个实体
             List<ProblemScanLogic> problemScanLogics = definitionProblemController.definitionProblem(problemScanLogicList);
-
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
             AjaxResult basicInformationList_ajaxResult = getBasicInformationTest(switchParameters,command,problemScanLogics);   //getBasicInformationList
             switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
             /*关闭连接交换机*/
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
             }
-
             System.err.println("测试获取基本信息"+"设备品牌："+switchParameters.getDeviceBrand()+" 设备型号："+switchParameters.getDeviceModel()
                     +" 内部固件版本："+switchParameters.getFirmwareVersion()+" 子版本号："+switchParameters.getSubversionNumber());
 
             return "设备品牌："+switchParameters.getDeviceBrand()+" 设备型号："+switchParameters.getDeviceModel()
                     +" 内部固件版本："+switchParameters.getFirmwareVersion()+" 子版本号："+switchParameters.getSubversionNumber();
         }else {
-
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-
             if (loginError != null){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
@@ -285,27 +273,27 @@ public class SwitchInteraction {
             }
         }
 
-        Long[] ids = idScan.toArray(new Long[idScan.size()]);
+        ParameterSet parameterSet = new ParameterSet();
+        parameterSet.setLoginUser(SecurityUtils.getLoginUser());
 
+
+        Long[] ids = idScan.toArray(new Long[idScan.size()]);
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-        if (ids.length != 0){
+        if (ids.length != 0 && advancedName.size() != 0){
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
         }else {
+            WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
             return "扫描结束";
         }
 
-        ParameterSet parameterSet = new ParameterSet();
-        parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
         parameterSet.setSwitchParameters(switchParametersList);
-
         try {
             DirectionalScanThreadPool.switchLoginInformations(parameterSet,totalQuestionTables,advancedName);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
@@ -404,25 +392,34 @@ public class SwitchInteraction {
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
         switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
         /*高级功能*/
 
-        for (String function:advancedName){
-            switch (function){
-                case "OSPF":
-                    OSPFFeatures ospfFeatures = new OSPFFeatures();
-                    ospfFeatures.getOSPFValues(switchParameters);
-                    break;
-                case "光衰":
-                    LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
-                    luminousAttenuation.obtainLightDecay(switchParameters);
-                    break;
-                case "误码率":
-                    ErrorPackage errorPackage = new ErrorPackage();
-                    errorPackage.getErrorPackage(switchParameters);
-                    break;
+        if (advancedName != null){
+            for (String function:advancedName){
+                switch (function){
+                    case "OSPF":
+                        OSPFFeatures ospfFeatures = new OSPFFeatures();
+                        ospfFeatures.getOSPFValues(switchParameters);
+                        break;
+                    case "光衰":
+                        LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
+                        luminousAttenuation.obtainLightDecay(switchParameters);
+                        break;
+                    case "误码率":
+                        ErrorPackage errorPackage = new ErrorPackage();
+                        errorPackage.getErrorPackage(switchParameters);
+                        break;
+                }
             }
         }
+
+        /* 高级功能 */
+        /*OSPFFeatures ospfFeatures = new OSPFFeatures();
+        ospfFeatures.getOSPFValues(switchParameters);
+        LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
+        luminousAttenuation.obtainLightDecay(switchParameters);
+        ErrorPackage errorPackage = new ErrorPackage();
+        errorPackage.getErrorPackage(switchParameters);*/
 
         //5.获取交换机可扫描的问题并执行分析操作
         /*当 totalQuestionTables 不为空时，为专项扫描*/
@@ -1317,6 +1314,13 @@ public class SwitchInteraction {
         String relativePosition_line ="";
         //相对位置列
         String relativePosition_row ="";
+
+        //分析数据 的 关键字
+        String matchContent = "";
+        if (problemScanLogic.getMatchContent()!=null){
+            matchContent = problemScanLogic.getMatchContent().trim();
+        }
+
         if (problemScanLogic.getRelativePosition()!=null && !(problemScanLogic.getRelativePosition().equals("null"))){
             /* present,0 */  /*present 当前行*/
             String[] relativePosition_split = problemScanLogic.getRelativePosition().split(",");
@@ -1417,17 +1421,17 @@ public class SwitchInteraction {
             //匹配逻辑 有成功失败之分
             if (matched != null){
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
-                //matched : 精确匹配  information_line_n：交换机返回信息行  problemScanLogic.getMatchContent().trim()：数据库 关键词
-                boolean matchAnalysis_true_false = FunctionalMethods.matchAnalysis(matched, information_line_n, problemScanLogic.getMatchContent().trim());
+                //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
+                boolean matchAnalysis_true_false = FunctionalMethods.matchAnalysis(matched, information_line_n, matchContent.trim());
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
 
                     // todo 匹配成功 提示前端 及写入日志
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp() +  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                            ":"+matched+problemScanLogic.getMatchContent()+"成功\r\n");
+                            ":"+matched+matchContent+"成功\r\n");
                     try {
                         PathHelper.writeDataToFile("TrueAndFalse:"+switchParameters.getIp()+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                                ":"+matched+problemScanLogic.getMatchContent()+"成功\r\n");
+                                ":"+matched+matchContent+"成功\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -1449,10 +1453,10 @@ public class SwitchInteraction {
                     }
                     // todo 匹配失败 提示前端 及写入日志
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:"+switchParameters.getIp()+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                            ":"+matched+problemScanLogic.getMatchContent()+"失败\r\n");
+                            ":"+matched+matchContent+"失败\r\n");
                     try {
                         PathHelper.writeDataToFile("TrueAndFalse:"+switchParameters.getIp()+  (totalQuestionTable==null?"：获取交换机基本信息":("：问题类型"+totalQuestionTable.getTypeProblem()+ "问题名称"+totalQuestionTable.getTemProName()))+
-                                ":"+matched+problemScanLogic.getMatchContent()+"失败\r\n");
+                                ":"+matched+matchContent+"失败\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -1483,7 +1487,7 @@ public class SwitchInteraction {
                 }else {
                     //取词操作
                     wordSelection_string = FunctionalMethods.wordSelection(
-                            information_line_n,problemScanLogic.getMatchContent().trim(), //返回信息的一行     problemScanLogic.getMatchContent().trim() 提取关键字
+                            information_line_n,matchContent, //返回信息的一行     matchContent.trim() 提取关键字
                             relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
                 }
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
