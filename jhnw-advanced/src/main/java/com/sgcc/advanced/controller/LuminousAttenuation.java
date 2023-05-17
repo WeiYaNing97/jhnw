@@ -130,8 +130,10 @@ public class LuminousAttenuation {
                 lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
                 List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
 
+                /*光衰参数存入 光衰比较表*/
+                average(switchParameters,getparameter,portstr);
+
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
-                    average(switchParameters,getparameter,portstr);
                     continue;
                 }
 

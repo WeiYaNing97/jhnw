@@ -164,7 +164,7 @@ public class ErrorPackage {
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-            /*returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
+            returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
                     " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
                     " Description: To_ShuJuWangHuLian_G1/0/18\n" +
                     " Loopback is not set\n" +
@@ -205,7 +205,7 @@ public class ErrorPackage {
                     "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
                     "         0 lost carrier, - no carrier";
             //修整返回信息
-            returnResults = MyUtils.trimString(returnResults);*/
+            returnResults = MyUtils.trimString(returnResults);
 
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库

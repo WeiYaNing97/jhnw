@@ -258,7 +258,6 @@ public class ConnectToObtainInformation {
                 switchParameters.setDeviceModel(hashMap.get("xinghao"));
                 switchParameters.setFirmwareVersion(hashMap.get("banben"));
                 switchParameters.setSubversionNumber(hashMap.get("zibanben"));
-                switchParameters.setSubversionNumber(null);
                 switchParameters.setRouterFlag(hashMap.get("routerFlag"));
                 return AjaxResult.success(switchParameters);
             }else {
