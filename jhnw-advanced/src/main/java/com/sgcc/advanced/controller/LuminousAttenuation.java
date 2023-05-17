@@ -24,6 +24,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.sgcc.share.util.FunctionalMethods.judgmentError;
+
 /**
  * 光衰功能
  */
@@ -130,15 +132,16 @@ public class LuminousAttenuation {
                 lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
                 List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
 
-                /*光衰参数存入 光衰比较表*/
-                average(switchParameters,getparameter,portstr);
-
+                /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
+                if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
+                    average(switchParameters,getparameter,portstr);
+                }else {
+                    continue;
+                }
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
                     continue;
                 }
-
                 lightAttenuationComparison = lightAttenuationComparisons.get(0);
-
 
                 if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
                     hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
@@ -161,7 +164,6 @@ public class LuminousAttenuation {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return AjaxResult.success();
     }
 
@@ -266,28 +268,24 @@ public class LuminousAttenuation {
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            returnResults = "HengShui_RuiJie_2#show interface gigabitEthernet 9/17 transceiver diagnosis \n" +
-                    "Current diagnostic parameters[AP:Average Power]:\n" +
-                    "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\n" +
-                    "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
-            returnResults = MyUtils.trimString(returnResults);
-
-
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n");
                 try {
-                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n","ospf");
+                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n","光衰");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                continue;
             }
+
             /*提取光衰参数*/
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
             if (values == null){
                 // todo 为提取到光衰参数
                 continue;
             }
+
             hashMap.put(port+"TX",values.get("TX"));
             hashMap.put(port+"RX",values.get("RX"));
             hashMap.put(port+"TXHIGH",values.get("TXHIGH"));

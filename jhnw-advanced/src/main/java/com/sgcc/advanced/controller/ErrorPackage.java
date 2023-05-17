@@ -19,10 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Api("误码率功能")
 @RestController
 @RequestMapping("/advanced/ErrorPackage")
@@ -45,6 +44,66 @@ public class ErrorPackage {
         }
         /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
+
+        returnString = "The brief information of interface(s) under route mode:\n" +
+                "Link: ADM - administratively down; Stby - standby\n" +
+                "Protocol: (s) - spoofing\n" +
+                "Interface Link Protocol Main IP Description\n" +
+                "Loop114 UP UP(s) 10.122.114.208\n" +
+                "M-E0/0/0 DOWN DOWN --\n" +
+                "NULL0 UP UP(s) --\n" +
+                "Vlan3 UP UP 10.98.138.147\n" +
+                "Vlan4 UP UP 10.98.139.239\n" +
+                "Vlan6 UP UP 10.98.138.2\n" +
+                "Vlan7 UP UP 10.98.136.13\n" +
+                "Vlan50 UP UP 100.1.2.252\n" +
+                "Vlan200 UP UP 10.98.137.71\n" +
+                "Vlan2000 UP UP 10.98.138.195 to-shiju\n" +
+                "Vlan2001 UP UP 10.122.119.161\n" +
+                "\n" +
+                "The brief information of interface(s) under bridge mode:\n" +
+                "Link: ADM - administratively down; Stby - standby\n" +
+                "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
+                "Type: A - access; T - trunk; H - hybrid\n" +
+                "Interface Link Speed Duplex Type PVID Description\n" +
+                "BAGG1 UP 2G(a) F(a) T 1 To_HX_S7506E\n" +
+                "GE0/0/1 UP 1G(a) F(a) T 1\n" +
+                "GE0/0/2 ADM auto A T 1\n" +
+                "GE0/0/3 UP 1G(a) F(a) T 1\n" +
+                "GE0/0/4 ADM auto A T 1\n" +
+                "GE0/0/5 UP 1G(a) F(a) T 1\n" +
+                "GE0/0/6 ADM auto A T 1\n" +
+                "GE0/0/7 UP 1G(a) F(a) T 1 To_AnBeiSuo_S5720_G0/0/49\n" +
+                "GE0/0/8 ADM auto A A 1\n" +
+                "GE0/0/9 ADM auto A A 1\n" +
+                "GE0/0/10 ADM auto A A 1\n" +
+                "GE0/0/11 DOWN 1G F T 1 To_ZhuLouJiFang2_XG0/0/3\n" +
+                "GE0/0/12 UP 1G(a) F(a) T 1 To_HX_S7506E\n" +
+                "GE0/0/13 ADM auto A A 1\n" +
+                "GE0/0/14 ADM auto A A 1\n" +
+                "GE0/0/15 ADM auto A A 1\n" +
+                "GE0/0/16 DOWN 1G F T 1 to_fajianbu_S3448\n" +
+                "GE0/0/17 ADM auto A A 1\n" +
+                "GE0/0/18 ADM auto A A 1\n" +
+                "GE0/0/19 ADM auto A A 1\n" +
+                "GE0/0/20 ADM auto A A 1\n" +
+                "GE0/0/21 ADM auto A A 1\n" +
+                "GE0/0/22 ADM auto A A 1\n" +
+                "GE0/0/23 ADM auto A A 1\n" +
+                "GE0/0/24 ADM auto A T 1 to_fajianbu_S3448\n" +
+                "GE0/0/25 DOWN auto A T 1\n" +
+                "GE0/0/26 DOWN auto A T 1\n" +
+                "GE0/0/27 DOWN auto A T 1\n" +
+                "GE0/0/28 DOWN auto A T 1\n" +
+                "GE0/0/29 DOWN auto A T 1\n" +
+                "GE0/0/30 UP 1G(a) F(a) T 1 To_HX_S7506E\n" +
+                "GE0/0/31 UP 1G(a) F(a) A 2001 To_ShiJu\n" +
+                "GE0/0/32 ADM auto A A 200 To_HX_S7506E";
+
+        //修整返回信息
+        returnString = MyUtils.trimString(returnString);
+
+
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
             // todo 关于交换机返回错误信息 的错误代码库
@@ -54,6 +113,7 @@ public class ErrorPackage {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"获取端口号命令错误,请重新定义");
         }
         /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取误码率端口号*/
         List<String> portList = ObtainUPStatusPortNumber(returnString);
@@ -67,7 +127,19 @@ public class ErrorPackage {
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
         }
-        /*7：获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
+
+        /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
+        GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
+        Object escape = CustomConfigurationUtil.getValue("误码率." + switchParameters.getDeviceBrand() + ".转译",Constant.getProfileInformation());
+        if (escape != null){
+            Map<String,String> escapeMap = (Map<String,String>) escape;
+            Set<String> mapKey = escapeMap.keySet();
+            for (String key:mapKey){
+                portList = portList.stream().map(m -> m.replace(key , escapeMap.get(key))).collect(Collectors.toList());
+            }
+        }
+
+        /*获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
         String errorPackageCommand = (String) CustomConfigurationUtil.getValue("误码率." + switchParameters.getDeviceBrand()+".获取误码率参数命令", Constant.getProfileInformation());
 
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
@@ -115,15 +187,15 @@ public class ErrorPackage {
                 hashMap.put("IfQuestion","无问题");
             }else {
                 int num = 0;
-                if (primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null &&
+                if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null) &&
                         (!primaryErrorRate.getInputErrors().equals(errorRate.getInputErrors()))){
                     num++;
                 }
-                if (primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() !=null &&
+                if ((primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() !=null) &&
                         (!primaryErrorRate.getOutputErrors().equals(errorRate.getOutputErrors()))){
                     num++;
                 }
-                if (primaryErrorRate.getCrc() !=null && errorRate.getCrc() !=null &&
+                if ((primaryErrorRate.getCrc() !=null && errorRate.getCrc() !=null) &&
                         (!primaryErrorRate.getCrc().equals(errorRate.getCrc()))){
                     num++;
                 }
@@ -132,6 +204,8 @@ public class ErrorPackage {
                     int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","有问题");
                 }else if (num == 0){
+                    errorRate.setId(primaryErrorRate.getId());
+                    int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","无问题");
                     /*continue;*/
                 }
@@ -195,7 +269,7 @@ public class ErrorPackage {
                     " Input (normal):  56148368 packets, - bytes\n" +
                     "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
                     " Input:  1 input errors, 0 runts, 0 giants, 0 throttles\n" +
-                    "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
+                    "0 CRC, 0 frame, - overruns, 0 aborts\n"+
                     "         - ignored, - parity errors\n" +
                     " Output (total): 46229751 packets, 4553563599 bytes\n" +
                     "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +

@@ -52,7 +52,6 @@ OSPF:
   rxRatedDeviation: 0.5
   # TX默认额定偏差
   txRatedDeviation: 1
-
   #针对具体品牌
   H3C:
     获取端口号命令: display interface brief
@@ -78,13 +77,18 @@ OSPF:
   H3C:
     获取端口号命令: display interface brief
     获取误码率参数命令: display interface 端口号
+    转译:
+      GE: GigabitEthernet
   RuiJie:
     获取端口号命令: show interface status
     获取误码率参数命令: show interface 端口号
+    转译:
+      GE: GigabitEthernet
   HuaWei:
     获取端口号命令: display interface brief
     获取误码率参数命令: display interface 端口号
-
+    转译:
+      GE: GigabitEthernet
   HuaWei路由器: display interface 端口号
   MaiP: show interface 端口号 statistics
   Cisco: show interfaces 端口号

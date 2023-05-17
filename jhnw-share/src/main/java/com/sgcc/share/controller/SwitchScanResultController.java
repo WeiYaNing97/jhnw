@@ -194,6 +194,10 @@ public class SwitchScanResultController extends BaseController
         int page = 10 * (Integer.valueOf(pageNumber).intValue()-1);
 
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultListPages(userName,page);
+        if (MyUtils.isCollectionEmpty(list)){
+            return null;
+        }
+
         Long[] ids = new Long[list.size()];
         HashMap<Long,SwitchScanResult> hashMap = new HashMap<>();
         for (int num = 0;num <list.size();num++){
