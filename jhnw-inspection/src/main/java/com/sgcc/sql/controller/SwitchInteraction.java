@@ -279,10 +279,10 @@ public class SwitchInteraction {
 
         Long[] ids = idScan.toArray(new Long[idScan.size()]);
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-        if (ids.length != 0 && advancedName.size() != 0){
+        if (ids.length != 0 ){
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
-        }else {
+        }else if (ids.length == 0 && advancedName.size() == 0){
             WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
             return "扫描结束";
         }
@@ -411,6 +411,10 @@ public class SwitchInteraction {
                         break;
                 }
             }
+        }
+
+        if (MyUtils.isCollectionEmpty(totalQuestionTables)){
+            return basicInformationList_ajaxResult;
         }
 
         /* 高级功能 */

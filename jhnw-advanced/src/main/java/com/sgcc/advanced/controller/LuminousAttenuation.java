@@ -107,11 +107,11 @@ public class LuminousAttenuation {
 
         /*10:获取光衰参数不为空*/
         try {
-            for (String str:port){
+            for (String portstr:port){
                 // todo  根据光衰参数阈值  的代码库 回显和日志
                 String lightAttenuationInformation = "IP地址:"+switchParameters.getIp()+
-                        "端口号:"+str+"TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
-                                      "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]";
+                        "端口号:"+portstr+"TX:"+getparameter.get(portstr+"TX")+"阈值["+getparameter.get(portstr+"TXLOW")+","+getparameter.get(portstr+"TXHIGH")+"]"+
+                                      "RX:"+getparameter.get(portstr+"RX")+"阈值["+getparameter.get(portstr+"RXLOW")+","+getparameter.get(portstr+"RXHIGH")+"]";
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),
                         "系统信息:"+switchParameters.getIp()+":"+"光衰:"+ lightAttenuationInformation+"\r\n");
                 PathHelper.writeDataToFileByName(lightAttenuationInformation+"\r\n","光衰");
@@ -126,22 +126,32 @@ public class LuminousAttenuation {
                 lightAttenuationComparison.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
 
 
-                lightAttenuationComparison.setPort(str);
+                lightAttenuationComparison.setPort(portstr);
                 lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
                 List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
+
+                if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
+                    average(switchParameters,getparameter,portstr);
+                    continue;
+                }
+
                 lightAttenuationComparison = lightAttenuationComparisons.get(0);
-                if (lightAttenuationComparison.getRatedDeviation()!=null){
+
+
+                if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
                     hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
                 }
-                if (MyUtils.isInRange(getparameter.get(str+"RX"),getparameter.get(str+"RXLOW"),getparameter.get(str+"RXHIGH"))){
+                if (MyUtils.isInRange(getparameter.get(portstr+"RX"),getparameter.get(portstr+"RXLOW"),getparameter.get(portstr+"RXHIGH"))){
                     hashMap.put("IfQuestion","无问题");
                     continue;
                 }else {
                     hashMap.put("IfQuestion","有问题");
                 }
-                hashMap.put("parameterString","端口号=:=是=:="+str+"=:=光衰参数=:=是=:=" +
-                        "TX:"+getparameter.get(str+"TX")+"阈值["+getparameter.get(str+"TXLOW")+","+getparameter.get(str+"TXHIGH")+"]"+
-                        "RX:"+getparameter.get(str+"RX")+"阈值["+getparameter.get(str+"RXLOW")+","+getparameter.get(str+"RXHIGH")+"]");
+
+
+                hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
+                        "TX:"+getparameter.get(portstr+"TX")+"阈值["+getparameter.get(portstr+"TXLOW")+","+getparameter.get(portstr+"TXHIGH")+"]"+
+                        "RX:"+getparameter.get(portstr+"RX")+"阈值["+getparameter.get(portstr+"RXLOW")+","+getparameter.get(portstr+"RXHIGH")+"]");
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
@@ -155,12 +165,16 @@ public class LuminousAttenuation {
 
 
     public static String meanJudgmentProblem(LightAttenuationComparison lightAttenuationComparison) {
-        Double fiberLatestAttenuation = MyUtils.stringToDouble(lightAttenuationComparison.getRxLatestNumber()) - MyUtils.stringToDouble(lightAttenuationComparison.getTxLatestNumber());
-        Double fiberStartAttenuation = MyUtils.stringToDouble(lightAttenuationComparison.getRxStartValue()) - MyUtils.stringToDouble(lightAttenuationComparison.getTxStartValue());
+        double rxLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getRxLatestNumber());
+        double txLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getTxLatestNumber());
+        double rxStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxStartValue());
+        double txStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxStartValue());
         DecimalFormat df = new DecimalFormat("#.0000");
-        Double fiberAttenuation = Math.abs(fiberLatestAttenuation - fiberStartAttenuation);
-        fiberAttenuation = MyUtils.stringToDouble(df.format(fiberAttenuation));
-        if (Math.abs(fiberAttenuation) > Math.abs(MyUtils.stringToDouble(lightAttenuationComparison.getRatedDeviation()))){
+        Double rxfiberAttenuation = Math.abs(rxLatestNumber - rxStartValue);
+        Double txfiberAttenuation = Math.abs(txLatestNumber - txStartValue);
+        rxfiberAttenuation = MyUtils.stringToDouble(df.format(rxfiberAttenuation));
+        txfiberAttenuation = MyUtils.stringToDouble(df.format(txfiberAttenuation));
+        if (rxfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getRxRatedDeviation()) || txfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
             return "有问题";
         }
         return "无问题";
@@ -250,11 +264,11 @@ public class LuminousAttenuation {
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            /*returnResults = "HengShui_RuiJie_2#show interface gigabitEthernet 9/17 transceiver diagnosis \n" +
+            returnResults = "HengShui_RuiJie_2#show interface gigabitEthernet 9/17 transceiver diagnosis \n" +
                     "Current diagnostic parameters[AP:Average Power]:\n" +
                     "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\n" +
                     "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
-            returnResults = MyUtils.trimString(returnResults);*/
+            returnResults = MyUtils.trimString(returnResults);
 
 
             if (returnResults == null){
@@ -278,7 +292,6 @@ public class LuminousAttenuation {
             hashMap.put(port+"RXHIGH",values.get("RXHIGH"));
             hashMap.put(port+"TXLOW",values.get("TXLOW"));
             hashMap.put(port+"RXLOW",values.get("RXLOW"));
-            average(switchParameters,values,port);
         }
         return hashMap;
     }
@@ -471,8 +484,8 @@ public class LuminousAttenuation {
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
         List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
 
-        String rx = hashMap.get("RX") + "";
-        String tx = hashMap.get("TX") + "";
+        String rx = hashMap.get(port+"RX") + "";
+        String tx = hashMap.get(port+"TX") + "";
         if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
             /*需要新插入信息*/
             lightAttenuationComparison = new LightAttenuationComparison();
@@ -487,6 +500,10 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxLatestNumber(tx);
             lightAttenuationComparison.setTxAverageValue(tx);
             lightAttenuationComparison.setTxStartValue(tx);
+
+            lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
+            lightAttenuationComparison.setTxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
+
             lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison);
         }else {
             lightAttenuationComparison = lightAttenuationComparisons.get(0);

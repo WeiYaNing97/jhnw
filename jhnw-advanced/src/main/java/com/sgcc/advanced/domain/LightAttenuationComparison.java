@@ -58,9 +58,13 @@ public class LightAttenuationComparison extends BaseEntity
     @Excel(name = "RX起始值(基准)")
     private String rxStartValue;
 
-    /** 额定偏差 */
-    @Excel(name = "额定偏差")
-    private String ratedDeviation;
+    /** rx额定偏差 */
+    @Excel(name = "rx额定偏差")
+    private String rxRatedDeviation;
+
+    /** tx额定偏差 */
+    @Excel(name = "tx额定偏差")
+    private String txRatedDeviation;
 
     /** 保留字段一 */
     @Excel(name = "保留字段一")
@@ -161,15 +165,7 @@ public class LightAttenuationComparison extends BaseEntity
     {
         return rxStartValue;
     }
-    public void setRatedDeviation(String ratedDeviation) 
-    {
-        this.ratedDeviation = ratedDeviation;
-    }
 
-    public String getRatedDeviation() 
-    {
-        return ratedDeviation;
-    }
     public void setValueOne(String valueOne) 
     {
         this.valueOne = valueOne;
@@ -201,6 +197,23 @@ public class LightAttenuationComparison extends BaseEntity
         this.switchId = switchId;
     }
 
+    public String getRxRatedDeviation() {
+        return rxRatedDeviation;
+    }
+
+    public void setRxRatedDeviation(String rxRatedDeviation) {
+        this.rxRatedDeviation = rxRatedDeviation;
+    }
+
+    public String getTxRatedDeviation() {
+        return txRatedDeviation;
+    }
+
+    public void setTxRatedDeviation(String txRatedDeviation) {
+        this.txRatedDeviation = txRatedDeviation;
+    }
+
+
     @Override
     public String toString() {
         return "LightAttenuationComparison{" +
@@ -215,7 +228,8 @@ public class LightAttenuationComparison extends BaseEntity
                 ", rxLatestNumber='" + rxLatestNumber + '\'' +
                 ", txStartValue='" + txStartValue + '\'' +
                 ", rxStartValue='" + rxStartValue + '\'' +
-                ", ratedDeviation='" + ratedDeviation + '\'' +
+                ", rxRatedDeviation='" + rxRatedDeviation + '\'' +
+                ", txRatedDeviation='" + txRatedDeviation + '\'' +
                 ", valueOne='" + valueOne + '\'' +
                 ", valueTwo='" + valueTwo + '\'' +
                 '}';

@@ -16,13 +16,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="rxLatestNumber"    column="rx_latest_number"    />
         <result property="txStartValue"    column="tx_start_value"    />
         <result property="rxStartValue"    column="rx_start_value"    />
-        <result property="ratedDeviation"    column="rated_deviation"    />
+        <result property="rxRatedDeviation"    column="rx_rated_deviation"    />
+        <result property="txRatedDeviation"    column="tx_rated_deviation"    />
         <result property="valueOne"    column="value_one"    />
         <result property="valueTwo"    column="value_two"    />
     </resultMap>
 
     <sql id="selectLightAttenuationComparisonVo">
-        select id, switch_ip, switch_id, number_parameters, port, tx_average_value, tx_latest_number, rx_average_value, rx_latest_number, tx_start_value, rx_start_value, rated_deviation, value_one, value_two from light_attenuation_comparison
+        select id, switch_ip, switch_id, number_parameters, port,
+        tx_average_value, tx_latest_number,
+        rx_average_value, rx_latest_number,
+        tx_start_value, rx_start_value,
+        rx_rated_deviation, tx_rated_deviation,
+        value_one, value_two from light_attenuation_comparison
     </sql>
 
     <select id="selectLightAttenuationComparisonList" parameterType="LightAttenuationComparison" resultMap="LightAttenuationComparisonResult">
@@ -38,7 +44,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxLatestNumber != null  and rxLatestNumber != ''"> and rx_latest_number = #{rxLatestNumber}</if>
             <if test="txStartValue != null  and txStartValue != ''"> and tx_start_value = #{txStartValue}</if>
             <if test="rxStartValue != null  and rxStartValue != ''"> and rx_start_value = #{rxStartValue}</if>
-            <if test="ratedDeviation != null  and ratedDeviation != ''"> and rated_deviation = #{ratedDeviation}</if>
+            <if test="rxRatedDeviation != null  and rxRatedDeviation != ''"> and rx_rated_deviation = #{rxRatedDeviation}</if>
+            <if test="txRatedDeviation != null  and txRatedDeviation != ''"> and tx_rated_deviation = #{txRatedDeviation}</if>
             <if test="valueOne != null  and valueOne != ''"> and value_one = #{valueOne}</if>
             <if test="valueTwo != null  and valueTwo != ''"> and value_two = #{valueTwo}</if>
         </where>
@@ -62,7 +69,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxLatestNumber != null and rxLatestNumber != ''">rx_latest_number,</if>
             <if test="txStartValue != null and txStartValue != ''">tx_start_value,</if>
             <if test="rxStartValue != null and rxStartValue != ''">rx_start_value,</if>
-            <if test="ratedDeviation != null">rated_deviation,</if>
+            <if test="rxRatedDeviation != null">rx_rated_deviation,</if>
+            <if test="txRatedDeviation != null">tx_rated_deviation,</if>
             <if test="valueOne != null">value_one,</if>
             <if test="valueTwo != null">value_two,</if>
          </trim>
@@ -77,7 +85,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxLatestNumber != null and rxLatestNumber != ''">#{rxLatestNumber},</if>
             <if test="txStartValue != null and txStartValue != ''">#{txStartValue},</if>
             <if test="rxStartValue != null and rxStartValue != ''">#{rxStartValue},</if>
-            <if test="ratedDeviation != null">#{ratedDeviation},</if>
+            <if test="rxRatedDeviation != null">#{rxRatedDeviation},</if>
+            <if test="txRatedDeviation != null">#{txRatedDeviation},</if>
             <if test="valueOne != null">#{valueOne},</if>
             <if test="valueTwo != null">#{valueTwo},</if>
          </trim>
@@ -96,7 +105,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxLatestNumber != null and rxLatestNumber != ''">rx_latest_number = #{rxLatestNumber},</if>
             <if test="txStartValue != null and txStartValue != ''">tx_start_value = #{txStartValue},</if>
             <if test="rxStartValue != null and rxStartValue != ''">rx_start_value = #{rxStartValue},</if>
-            <if test="ratedDeviation != null">rated_deviation = #{ratedDeviation},</if>
+            <if test="rxRatedDeviation != null">rx_rated_deviation = #{rxRatedDeviation},</if>
+            <if test="txRatedDeviation != null">tx_rated_deviation = #{txRatedDeviation},</if>
             <if test="valueOne != null">value_one = #{valueOne},</if>
             <if test="valueTwo != null">value_two = #{valueTwo},</if>
         </trim>
