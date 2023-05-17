@@ -133,7 +133,7 @@ public class ErrorPackage {
                     hashMap.put("IfQuestion","有问题");
                 }else if (num == 0){
                     hashMap.put("IfQuestion","无问题");
-                    continue;
+                    /*continue;*/
                 }
             }
 

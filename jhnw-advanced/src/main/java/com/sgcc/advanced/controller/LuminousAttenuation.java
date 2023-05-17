@@ -145,7 +145,7 @@ public class LuminousAttenuation {
                 }
                 if (MyUtils.isInRange(getparameter.get(portstr+"RX"),getparameter.get(portstr+"RXLOW"),getparameter.get(portstr+"RXHIGH"))){
                     hashMap.put("IfQuestion","无问题");
-                    continue;
+                    /*continue;*/
                 }else {
                     hashMap.put("IfQuestion","有问题");
                 }
