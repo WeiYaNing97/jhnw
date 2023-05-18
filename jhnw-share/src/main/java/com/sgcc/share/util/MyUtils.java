@@ -1,9 +1,12 @@
 package com.sgcc.share.util;
 
 
+import ch.qos.logback.core.util.FileUtil;
 import com.sgcc.common.config.RuoYiConfig;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -406,6 +409,20 @@ public class MyUtils {
      */
     public static boolean containIgnoreCase(String primary,String keywords) {
         return primary.toUpperCase().indexOf(keywords.toUpperCase())!=-1;
+    }
+
+
+    /**
+     * 获取相对路径
+     * @param filePath  文件名称
+     * @return
+     * @throws URISyntaxException
+     */
+    public static String getRelativePath(String filePath) throws URISyntaxException {
+        ClassLoader classLoader = FileUtil.class.getClassLoader();
+        URL url = classLoader.getResource("");
+        File file = new File(url.toURI());
+        return file.getAbsolutePath() + "/" + filePath;
     }
 
 }

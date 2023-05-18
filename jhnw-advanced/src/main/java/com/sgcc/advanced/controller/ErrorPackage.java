@@ -36,7 +36,7 @@ public class ErrorPackage {
         if (portNumberCommand == null){
             // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令","误码率");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令\r\n","误码率");
                 return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -44,65 +44,6 @@ public class ErrorPackage {
         }
         /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
-
-        returnString = "The brief information of interface(s) under route mode:\n" +
-                "Link: ADM - administratively down; Stby - standby\n" +
-                "Protocol: (s) - spoofing\n" +
-                "Interface Link Protocol Main IP Description\n" +
-                "Loop114 UP UP(s) 10.122.114.208\n" +
-                "M-E0/0/0 DOWN DOWN --\n" +
-                "NULL0 UP UP(s) --\n" +
-                "Vlan3 UP UP 10.98.138.147\n" +
-                "Vlan4 UP UP 10.98.139.239\n" +
-                "Vlan6 UP UP 10.98.138.2\n" +
-                "Vlan7 UP UP 10.98.136.13\n" +
-                "Vlan50 UP UP 100.1.2.252\n" +
-                "Vlan200 UP UP 10.98.137.71\n" +
-                "Vlan2000 UP UP 10.98.138.195 to-shiju\n" +
-                "Vlan2001 UP UP 10.122.119.161\n" +
-                "\n" +
-                "The brief information of interface(s) under bridge mode:\n" +
-                "Link: ADM - administratively down; Stby - standby\n" +
-                "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
-                "Type: A - access; T - trunk; H - hybrid\n" +
-                "Interface Link Speed Duplex Type PVID Description\n" +
-                "BAGG1 UP 2G(a) F(a) T 1 To_HX_S7506E\n" +
-                "GE0/0/1 UP 1G(a) F(a) T 1\n" +
-                "GE0/0/2 ADM auto A T 1\n" +
-                "GE0/0/3 UP 1G(a) F(a) T 1\n" +
-                "GE0/0/4 ADM auto A T 1\n" +
-                "GE0/0/5 UP 1G(a) F(a) T 1\n" +
-                "GE0/0/6 ADM auto A T 1\n" +
-                "GE0/0/7 UP 1G(a) F(a) T 1 To_AnBeiSuo_S5720_G0/0/49\n" +
-                "GE0/0/8 ADM auto A A 1\n" +
-                "GE0/0/9 ADM auto A A 1\n" +
-                "GE0/0/10 ADM auto A A 1\n" +
-                "GE0/0/11 DOWN 1G F T 1 To_ZhuLouJiFang2_XG0/0/3\n" +
-                "GE0/0/12 UP 1G(a) F(a) T 1 To_HX_S7506E\n" +
-                "GE0/0/13 ADM auto A A 1\n" +
-                "GE0/0/14 ADM auto A A 1\n" +
-                "GE0/0/15 ADM auto A A 1\n" +
-                "GE0/0/16 DOWN 1G F T 1 to_fajianbu_S3448\n" +
-                "GE0/0/17 ADM auto A A 1\n" +
-                "GE0/0/18 ADM auto A A 1\n" +
-                "GE0/0/19 ADM auto A A 1\n" +
-                "GE0/0/20 ADM auto A A 1\n" +
-                "GE0/0/21 ADM auto A A 1\n" +
-                "GE0/0/22 ADM auto A A 1\n" +
-                "GE0/0/23 ADM auto A A 1\n" +
-                "GE0/0/24 ADM auto A T 1 to_fajianbu_S3448\n" +
-                "GE0/0/25 DOWN auto A T 1\n" +
-                "GE0/0/26 DOWN auto A T 1\n" +
-                "GE0/0/27 DOWN auto A T 1\n" +
-                "GE0/0/28 DOWN auto A T 1\n" +
-                "GE0/0/29 DOWN auto A T 1\n" +
-                "GE0/0/30 UP 1G(a) F(a) T 1 To_HX_S7506E\n" +
-                "GE0/0/31 UP 1G(a) F(a) A 2001 To_ShiJu\n" +
-                "GE0/0/32 ADM auto A A 200 To_HX_S7506E";
-
-        //修整返回信息
-        returnString = MyUtils.trimString(returnString);
-
 
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
@@ -121,7 +62,7 @@ public class ErrorPackage {
         if (MyUtils.isCollectionEmpty(portList)){
             // todo 关于没有端口号为UP状态 的错误代码库
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号","误码率");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号\r\n","误码率");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -151,12 +92,12 @@ public class ErrorPackage {
         Long switchID = 0l;
         switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
 
-
         errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
         Set<String> strings = errorPackageParameters.keySet();
         for (String port:strings){
 
             ErrorRate errorRate = new ErrorRate();
+            errorRate.setSwitchIp(switchParameters.getIp());
             errorRate.setSwitchId(switchID);
             errorRate.setPort(port);
 
@@ -238,6 +179,7 @@ public class ErrorPackage {
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
+
             returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
                     " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
                     " Description: To_ShuJuWangHuLian_G1/0/18\n" +
@@ -268,8 +210,8 @@ public class ErrorPackage {
                     "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
                     " Input (normal):  56148368 packets, - bytes\n" +
                     "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input:  1 input errors, 0 runts, 0 giants, 0 throttles\n" +
-                    "0 CRC, 0 frame, - overruns, 0 aborts\n"+
+                    " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
+                    "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
                     "         - ignored, - parity errors\n" +
                     " Output (total): 46229751 packets, 4553563599 bytes\n" +
                     "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
@@ -278,7 +220,6 @@ public class ErrorPackage {
                     " Output: 0 output errors, - underruns, - buffer failures\n" +
                     "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
                     "         0 lost carrier, - no carrier";
-            //修整返回信息
             returnResults = MyUtils.trimString(returnResults);
 
             if (returnResults == null){
@@ -289,6 +230,7 @@ public class ErrorPackage {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                continue;
             }
 
             String[] returnResultssplit = returnResults.split("\r\n");

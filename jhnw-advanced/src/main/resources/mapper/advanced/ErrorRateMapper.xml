@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="ErrorRate" id="ErrorRateResult">
         <result property="id"    column="id"    />
+        <result property="switchIp"    column="switch_ip"    />
         <result property="switchId"    column="switch_id"    />
         <result property="port"    column="port"    />
         <result property="inputErrors"    column="input_errors"    />
@@ -16,12 +17,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectErrorRateVo">
-        select id, switch_id, port, input_errors, output_errors, crc, create_time, update_time from error_rate
+        select id, switch_ip,switch_id, port, input_errors, output_errors, crc, create_time, update_time from error_rate
     </sql>
 
     <select id="selectErrorRateList" parameterType="ErrorRate" resultMap="ErrorRateResult">
         <include refid="selectErrorRateVo"/>
-        <where>  
+        <where>
+            <if test="switchIp != null "> and switch_ip = #{switchIp}</if>
             <if test="switchId != null "> and switch_id = #{switchId}</if>
             <if test="port != null  and port != ''"> and port = #{port}</if>
             <if test="inputErrors != null "> and input_errors = #{inputErrors}</if>
@@ -39,6 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into error_rate
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
+            <if test="switchIp != null">switch_ip,</if>
             <if test="switchId != null">switch_id,</if>
             <if test="port != null and port != ''">port,</if>
             <if test="inputErrors != null">input_errors,</if>
@@ -49,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
+            <if test="switchIp != null">#{switchIp},</if>
             <if test="switchId != null">#{switchId},</if>
             <if test="port != null and port != ''">#{port},</if>
             <if test="inputErrors != null">#{inputErrors},</if>
@@ -62,6 +66,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateErrorRate" parameterType="ErrorRate">
         update error_rate
         <trim prefix="SET" suffixOverrides=",">
+            <if test="switchIp != null">switch_ip = #{switchIp},</if>
             <if test="switchId != null">switch_id = #{switchId},</if>
             <if test="port != null and port != ''">port = #{port},</if>
             <if test="inputErrors != null">input_errors = #{inputErrors},</if>

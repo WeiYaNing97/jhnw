@@ -1,5 +1,4 @@
 package com.sgcc.advanced.controller;
-
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -18,13 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.sgcc.share.util.FunctionalMethods.judgmentError;
 
 /**
  * 光衰功能
@@ -50,7 +46,7 @@ public class LuminousAttenuation {
         if (command == null){
             // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令","光衰");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令\r\n","光衰");
                 return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -68,6 +64,7 @@ public class LuminousAttenuation {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"获取端口号命令错误,请重新定义");
         }
         /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取获取光衰端口号*/
         List<String> port = ObtainUPStatusPortNumber(returnString);
@@ -78,7 +75,7 @@ public class LuminousAttenuation {
         if (MyUtils.isCollectionEmpty(port)){
             // todo 关于没有端口号为UP状态 的错误代码库
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号","光衰");
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号\r\n","光衰");
             } catch (IOException e) {
                 e.printStackTrace();
             }

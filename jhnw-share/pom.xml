@@ -13,6 +13,7 @@
         共用
     </description>
     <dependencies>
+        
         <!--通用工具-->
         <dependency>
             <groupId>com.sgcc</groupId>

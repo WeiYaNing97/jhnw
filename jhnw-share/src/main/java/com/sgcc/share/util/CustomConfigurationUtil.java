@@ -5,45 +5,33 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.yaml.snakeyaml.Yaml;
-import java.io.File;
-import java.io.InputStream;
+
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 @Api("配置文件相关")
 public class CustomConfigurationUtil {
-    private static Yaml yaml = new Yaml();
-    /*获取具有配置参数*/
-    public String obtainConfigurationFileParameterValues(String key) {
-        String value = null;
-        //InputStream inputStream = new FileInputStream(new File(getRelativePath("customconfiguration.yml")));
-        String path3 = "/customconfiguration.yml";
-        InputStream inputStream = this.getClass().getResourceAsStream(path3);
-        Map<String, Object> map = yaml.load(inputStream);
-        Object objectValue = getValue(key, map);
-        if (objectValue instanceof String){
-            value = (String) objectValue;
-        }
-        System.err.println(value);
-        return value;
-    }
-    /*获取具有配置参数 或者 配置参数集合*/
-    public Object obtainConfigurationFileParameter(String key) {
-        Object object = new Object();
-        //InputStream inputStream = new FileInputStream(new File(getRelativePath("customconfiguration.yml")));
-        String path3 = "/customconfiguration.yml";
-        InputStream inputStream = this.getClass().getResourceAsStream(path3);
-        Map<String, Object> map = yaml.load(inputStream);
-        object = getValue(key, map);
-        return object;
-    }
     @ApiOperation("读取配置文件内容到常量类")
     @PostMapping("/ObtainAllConfigurationFileParameters")
     public void ObtainAllConfigurationFileParameters() {
-        String path3 = "/customconfiguration.yml";
-        InputStream inputStream = this.getClass().getResourceAsStream(path3);
+
+        String projectPath = System.getProperty("user.dir");
+        String path3 = projectPath+"/customconfiguration.yml";
+        //InputStream inputStream = this.getClass().getResourceAsStream(path3);
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(new File(path3));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         Yaml yaml = new Yaml();
         Constant.setProfileInformation(yaml.load(inputStream));
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -60,18 +48,5 @@ public class CustomConfigurationUtil {
                 return null;
             }
         }
-    }
-
-    /**
-     * 获取相对路径
-     * @param filePath  文件名称
-     * @return
-     * @throws URISyntaxException
-     */
-    public static String getRelativePath(String filePath) throws URISyntaxException {
-        ClassLoader classLoader = FileUtil.class.getClassLoader();
-        URL url = classLoader.getResource("");
-        File file = new File(url.toURI());
-        return file.getAbsolutePath() + "/" + filePath;
     }
 }

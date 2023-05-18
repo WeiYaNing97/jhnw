@@ -18,6 +18,13 @@ public class ErrorRate extends BaseEntity
     /** 误码率主键 */
     private Long id;
 
+
+    /** 交换机ip */
+    @Excel(name = "交换机ip")
+    private String switchIp;
+
+
+
     /** 交换机四项基本信息表ID索引 */
     @Excel(name = "交换机四项基本信息表ID索引")
     private Long switchId;
@@ -93,17 +100,28 @@ public class ErrorRate extends BaseEntity
         return crc;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getSwitchIp() {
+        return switchIp;
+    }
+
+    public void setSwitchIp(String switchIp) {
+        this.switchIp = switchIp;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("switchId", getSwitchId())
-            .append("port", getPort())
-            .append("inputErrors", getInputErrors())
-            .append("outputErrors", getOutputErrors())
-            .append("crc", getCrc())
-            .append("createTime", getCreateTime())
-            .append("updateTime", getUpdateTime())
-            .toString();
+        return "ErrorRate{" +
+                "id=" + id +
+                ", switchIp='" + switchIp + '\'' +
+                ", switchId=" + switchId +
+                ", port='" + port + '\'' +
+                ", inputErrors='" + inputErrors + '\'' +
+                ", outputErrors='" + outputErrors + '\'' +
+                ", crc='" + crc + '\'' +
+                '}';
     }
 }

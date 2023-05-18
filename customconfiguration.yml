@@ -1,12 +1,12 @@
-#获取交换机基本信息关键词
+#获取交换机基本信息
 BasicInformation:
-  # 能够获取品牌的命令
+  # 获取交换机品牌的命令
   getBrandCommand: show version;display version
-  # 设备版本 两个型号之间以;分隔
+  # 获取交换机设备版本的关键字,默认关键字的下一位为要取的参数
   deviceVersion: Version
-  # 设备子版本 两个型号之间以;分隔     默认下一位为要取的参数
+  # 获取交换机设备子版本的关键字,默认关键字的下一位为要取的参数,两个关键字之间以;分隔
   deviceSubversion: Release;Build;RELEASE SOFTWARE
-  # 路由器标志  属性值开头并且包含数字
+  # 区分交换机还是路由器的标志  属性值开头并且包含数字
   routerFlag: NE
 
 #OSPF
@@ -22,6 +22,7 @@ OSPF:
     H3C>S2152>5.20.99: display ospf peer
     H3C>*>5.20.99: display ospf peer
     H3C>S2152>5.20.99>1106: display ospf peer
+
     HuaWei: display ospf peer brief
     Cisco: show ip ospf neighbor
     RuiJie: show ip ospf neighbor
@@ -49,14 +50,17 @@ OSPF:
 #光衰
 光衰:
   # RX默认额定偏差
-  rxRatedDeviation: 0.5
+  rxRatedDeviation: 1
   # TX默认额定偏差
-  txRatedDeviation: 1
+  txRatedDeviation: 0.5
   #针对具体品牌
   H3C:
     获取端口号命令: display interface brief
+    # 端口号用汉字：端口号替代，程序中会用真实获取到的端口号名替换汉字端口号
     获取光衰参数命令: display transceiver diagnosis interface 端口号
+    # 这种判断光衰问题的方法已经放弃，但程序仍然保留
     阈值: [-23,-5]
+    # 转译是命令要求用GigabitEthernet,但程序中获取到的是GE，需要将GE替换成GigabitEthernet
     转译:
       GE: GigabitEthernet
   RuiJie:
@@ -75,8 +79,10 @@ OSPF:
 #查看交换机错误包数量
 误码率:
   H3C:
+    # 端口号用汉字：端口号替代，程序中会用真实获取到的端口号名替换汉字端口号
     获取端口号命令: display interface brief
     获取误码率参数命令: display interface 端口号
+    # 转译是命令要求用GigabitEthernet,但程序中获取到的是GE，需要将GE替换成GigabitEthernet
     转译:
       GE: GigabitEthernet
   RuiJie:
