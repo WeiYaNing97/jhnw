@@ -1,0 +1,44 @@
+#获取交换机基本信息
+BasicInformation:
+  # 获取交换机品牌的命令
+  getBrandCommand: show version;display version
+  # 获取交换机设备版本的关键字,默认关键字的下一位为要取的参数
+  deviceVersion: Version
+  # 获取交换机设备子版本的关键字,默认关键字的下一位为要取的参数,两个关键字之间以;分隔
+  deviceSubversion: Release;Build;RELEASE SOFTWARE
+  # 区分交换机还是路由器的标志  属性值开头并且包含数字
+  routerFlag: NE
+
+#OSPF
+OSPF:
+  # neighborID、pri、state、deadTime、address、portNumber、BFDState
+  # 这些属性是为了区分OSPF命令返回信息中的参数值
+  # 邻居ID
+  neighborID: Neighbor ID;Router ID
+  # pri暂未使用，为占位列
+  pri: Pri;
+  # 状态
+  state: State;
+  # 停滞时间
+  deadTime: Dead Time;Dead-Time;DeadTime
+  # 地址
+  address: Address;Area Id;Neighbor Ad
+  # 端口号
+  portNumber: Interface
+  # BFD状态
+  BFDState: BFD State
+  # 间隔字符   例(端口号:GigabitEthernet 9/2中间存在空格)
+  ospfSpaceCharacter: GigabitEthernet
+
+
+转译:
+  # 转译是命令要求用GigabitEthernet,但程序中获取到的是GE，需要将GE替换成GigabitEthernet
+  端口号:
+    GE: GigabitEthernet
+
+#光衰
+光衰:
+  # RX默认额定偏差
+  rxRatedDeviation: 1
+  # TX默认额定偏差
+  txRatedDeviation: 0.5

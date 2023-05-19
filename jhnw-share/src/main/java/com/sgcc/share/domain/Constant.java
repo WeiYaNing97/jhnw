@@ -13,15 +13,8 @@ public class Constant {
     /*配置文件信息*/
     private static Map<String, Object> ProfileInformation;
     public void ObtainAllConfigurationFileParameters() {
-        String projectPath = System.getProperty("user.dir");
-        String path3 = projectPath+"/customconfiguration.yml";
-        //InputStream inputStream = this.getClass().getResourceAsStream(path3);
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(new File(path3));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        String path3 = "/customconfiguration.yml";
+        InputStream inputStream = this.getClass().getResourceAsStream(path3);
         Yaml yaml = new Yaml();
         ProfileInformation = yaml.load(inputStream);
         return;

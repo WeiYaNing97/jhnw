@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.advanced.mapper.LightAttenuationCommandMapper">
+    
+    <resultMap type="LightAttenuationCommand" id="LightAttenuationCommandResult">
+        <result property="id"    column="id"    />
+        <result property="brand"    column="brand"    />
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+        <result property="getPortCommand"    column="get_port_command"    />
+        <result property="getParameterCommand"    column="get_parameter_command"    />
+    </resultMap>
+
+    <sql id="selectLightAttenuationCommandVo">
+        select id, brand, switch_type, fireware_version, sub_version, get_port_command, get_parameter_command from light_attenuation_command
+    </sql>
+
+    <select id="selectLightAttenuationCommandList" parameterType="LightAttenuationCommand" resultMap="LightAttenuationCommandResult">
+        <include refid="selectLightAttenuationCommandVo"/>
+        <where>  
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="switchType != null  and switchType != ''"> and (switch_type = #{switchType} or switch_type = '*')</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and (fireware_version = #{firewareVersion} or fireware_version = '*')</if>
+            <if test="subVersion != null  and subVersion != ''"> and (sub_version = #{subVersion} or sub_version = '*')</if>
+            <if test="getPortCommand != null  and getPortCommand != ''"> and get_port_command = #{getPortCommand}</if>
+            <if test="getParameterCommand != null  and getParameterCommand != ''"> and get_parameter_command = #{getParameterCommand}</if>
+        </where>
+    </select>
+    
+    <select id="selectLightAttenuationCommandById" parameterType="Long" resultMap="LightAttenuationCommandResult">
+        <include refid="selectLightAttenuationCommandVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertLightAttenuationCommand" parameterType="LightAttenuationCommand" useGeneratedKeys="true" keyProperty="id">
+        insert into light_attenuation_command
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="brand != null and brand != ''">brand,</if>
+            <if test="switchType != null">switch_type,</if>
+            <if test="firewareVersion != null">fireware_version,</if>
+            <if test="subVersion != null">sub_version,</if>
+            <if test="getPortCommand != null">get_port_command,</if>
+            <if test="getParameterCommand != null">get_parameter_command,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="brand != null and brand != ''">#{brand},</if>
+            <if test="switchType != null">#{switchType},</if>
+            <if test="firewareVersion != null">#{firewareVersion},</if>
+            <if test="subVersion != null">#{subVersion},</if>
+            <if test="getPortCommand != null">#{getPortCommand},</if>
+            <if test="getParameterCommand != null">#{getParameterCommand},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLightAttenuationCommand" parameterType="LightAttenuationCommand">
+        update light_attenuation_command
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="brand != null and brand != ''">brand = #{brand},</if>
+            <if test="switchType != null">switch_type = #{switchType},</if>
+            <if test="firewareVersion != null">fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null">sub_version = #{subVersion},</if>
+            <if test="getPortCommand != null">get_port_command = #{getPortCommand},</if>
+            <if test="getParameterCommand != null">get_parameter_command = #{getParameterCommand},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLightAttenuationCommandById" parameterType="Long">
+        delete from light_attenuation_command where id = #{id}
+    </delete>
+
+    <delete id="deleteLightAttenuationCommandByIds" parameterType="String">
+        delete from light_attenuation_command where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

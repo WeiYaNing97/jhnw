@@ -15,16 +15,10 @@ public class CustomConfigurationUtil {
     @ApiOperation("读取配置文件内容到常量类")
     @PostMapping("/ObtainAllConfigurationFileParameters")
     public void ObtainAllConfigurationFileParameters() {
+        String path3 = "/customconfiguration.yml";
 
-        String projectPath = System.getProperty("user.dir");
-        String path3 = projectPath+"/customconfiguration.yml";
-        //InputStream inputStream = this.getClass().getResourceAsStream(path3);
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(new File(path3));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        InputStream inputStream = this.getClass().getResourceAsStream(path3);
+
         Yaml yaml = new Yaml();
         Constant.setProfileInformation(yaml.load(inputStream));
         try {

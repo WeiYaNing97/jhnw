@@ -1,5 +1,7 @@
 package com.sgcc.advanced.controller;
 import com.sgcc.advanced.domain.ErrorRate;
+import com.sgcc.advanced.domain.ErrorRateCommand;
+import com.sgcc.advanced.service.IErrorRateCommandService;
 import com.sgcc.advanced.service.IErrorRateService;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -29,11 +31,21 @@ import java.util.stream.Collectors;
 public class ErrorPackage {
     @Autowired
     private IErrorRateService errorRateService;
+    @Autowired
+    private IErrorRateCommandService errorRateCommandService;
+
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
         /*1：获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
-        String portNumberCommand = (String) CustomConfigurationUtil.getValue("误码率." + switchParameters.getDeviceBrand()+".获取端口号命令", Constant.getProfileInformation());
+        ErrorRateCommand errorRateCommand = new ErrorRateCommand();
+        errorRateCommand.setBrand(switchParameters.getDeviceBrand());
+        errorRateCommand.setSwitchType(switchParameters.getDeviceModel());
+        errorRateCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
+        errorRateCommand.setSubVersion(switchParameters.getSubversionNumber());
+        errorRateCommandService = SpringBeanUtil.getBean(IErrorRateCommandService.class);
+        List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandList(errorRateCommand);
+
         /*2：当 配置文件误码率问题的命令 为空时 进行 日志写入*/
-        if (portNumberCommand == null){
+        if (MyUtils.isCollectionEmpty(errorRateCommandList)){
             // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
                 PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令\r\n","误码率");
@@ -42,6 +54,10 @@ public class ErrorPackage {
                 e.printStackTrace();
             }
         }
+
+        errorRateCommand =getpojo(errorRateCommandList);
+        String portNumberCommand = errorRateCommand.getGetPortCommand();
+
         /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
 
@@ -71,7 +87,7 @@ public class ErrorPackage {
 
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
-        Object escape = CustomConfigurationUtil.getValue("误码率." + switchParameters.getDeviceBrand() + ".转译",Constant.getProfileInformation());
+        Object escape = CustomConfigurationUtil.getValue("转译.端口号",Constant.getProfileInformation());
         if (escape != null){
             Map<String,String> escapeMap = (Map<String,String>) escape;
             Set<String> mapKey = escapeMap.keySet();
@@ -81,7 +97,7 @@ public class ErrorPackage {
         }
 
         /*获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
-        String errorPackageCommand = (String) CustomConfigurationUtil.getValue("误码率." + switchParameters.getDeviceBrand()+".获取误码率参数命令", Constant.getProfileInformation());
+        String errorPackageCommand = errorRateCommand.getGetParameterCommand();
 
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
         if (errorPackageParameters == null){
@@ -322,4 +338,32 @@ public class ErrorPackage {
         }
         return returnList;
     }
+
+    public static ErrorRateCommand getpojo(List<ErrorRateCommand> pojoList) {
+        ErrorRateCommand errorRateCommand = new ErrorRateCommand();
+        int sum = 0;
+        for (ErrorRateCommand pojo:pojoList){
+            int num = 0 ;
+            if (!(pojo.getBrand().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getSwitchType().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getFirewareVersion().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getSubVersion().equals("*"))){
+                ++num;
+            }
+            if (sum<num){
+                sum = num;
+                errorRateCommand = pojo;
+            }else if (sum == num && (pojo.getSwitchType().equals("*")) && (pojo.getSubVersion().equals("*"))){
+                errorRateCommand = pojo;
+            }
+        }
+        return errorRateCommand;
+    }
+
 }

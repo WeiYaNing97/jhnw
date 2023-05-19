@@ -1,7 +1,12 @@
 package com.sgcc.advanced.controller;
+
+import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.domain.Ospf;
+import com.sgcc.advanced.domain.OspfCommand;
 import com.sgcc.advanced.domain.OspfEnum;
+import com.sgcc.advanced.service.IOspfCommandService;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
@@ -12,15 +17,14 @@ import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * OSPF 功能
@@ -31,69 +35,30 @@ import java.util.Map;
 @Transactional(rollbackFor = Exception.class)
 public class OSPFFeatures {
 
+    @Autowired
+    private IOspfCommandService ospfCommandService;
+
     /**
      * ospf 功能接口
      * @param switchParameters
      */
     public void getOSPFValues(SwitchParameters switchParameters) {
         /*查询OSPF 命令集合*/
-        Object objectMap  = CustomConfigurationUtil.getValue("OSPF.command",Constant.getProfileInformation());
-        if (objectMap == null){
+        OspfCommand ospfCommand = new OspfCommand();
+        ospfCommand.setBrand(switchParameters.getDeviceBrand());
+        ospfCommand.setSwitchType(switchParameters.getDeviceModel());
+        ospfCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
+        ospfCommand.setSubVersion(switchParameters.getSubversionNumber());
+        ospfCommandService = SpringBeanUtil.getBean(IOspfCommandService.class);
+        List<OspfCommand> ospfCommandList = ospfCommandService.selectOspfCommandList(ospfCommand);
+
+        if (MyUtils.isCollectionEmpty(ospfCommandList)){
             return;
         }
-        /*预设交换机命令 为 null*/
-        String command = null;
-        if (objectMap instanceof Map){
-            Map<String,Object> commandMap = (Map<String,Object>)objectMap;
-            /*定义 交换机基本信息组合集合*/
-            List<String> attributeList = new ArrayList<>();
-            /*交换机基本信息组合*/
-            String attribute = null;
-            /*品牌>型号>版本>子版本*/
-            if (switchParameters.getSubversionNumber() != null){
-                attribute = (switchParameters.getDeviceBrand()+">"+switchParameters.getDeviceModel()+">"+
-                        switchParameters.getFirmwareVersion() )+ ">"+switchParameters.getSubversionNumber();
-                attributeList.add(attribute);
-            }
-            /*品牌>型号>版本*/
-            attribute = switchParameters.getDeviceBrand()+">"+switchParameters.getDeviceModel()+">"+
-                    switchParameters.getFirmwareVersion();
-            attributeList.add(attribute);
-            /*品牌>型号*/
-            attribute = switchParameters.getDeviceBrand()+">"+switchParameters.getDeviceModel();
-            attributeList.add(attribute);
-            /*品牌*/
-            attribute = switchParameters.getDeviceBrand();
-            attributeList.add(attribute);
-            /*品牌>*>版本*/
-            attribute = switchParameters.getDeviceBrand()+">*>"+switchParameters.getFirmwareVersion();
-            attributeList.add(attribute);
 
-            /*遍历交换机基本信息组合 集合 查询map中是否有此key*/
-            for (int i = 0;i < attributeList.size();i++){
-                /*查询结果不为null 则是 有key 则赋值给 null*/
-                command = (String) commandMap.get(attributeList.get(i));
-                /*当 i == attributeList.size()-2 则只有品牌
-                * 当 此时command才不为null 时  要匹配 品牌>*>版本*/
-                if (command!=null && i == attributeList.size()-2){
-                    String mohu = (String) commandMap.get(attributeList.get(++i));
-                    if (mohu !=null){
-                        command = mohu;
-                        break;
-                    }
-                }
-                /*当 交换机基本信息组合为
-                * 品牌>型号>版本>子版本
-                * 品牌>型号>版本
-                * 品牌>型号
-                * 时  如果命令不为空 则会停止遍历 执行命令*/
-                if (command != null){
-                    break;
-                }
-            }
-        }else if (objectMap instanceof String){
-            command = (String)objectMap;
-        }
+        ospfCommand = getpojo(ospfCommandList);
+        String command = ospfCommand.getGetParameterCommand();
+
         /*如果命令为null 则结束*/
         if (command == null){
             // todo 没有获取ospf的命令 错误代码
@@ -102,6 +67,22 @@ public class OSPFFeatures {
 
         /*根据交换机信息类  执行交换命令*/
         String commandReturn = FunctionalMethods.executeScanCommandByCommand(switchParameters,command);
+
+        commandReturn = "\n" +
+                "                  OSPF Process 100 with Router ID 10.122.114.208\n" +
+                "                        Neighbor Brief Information\n" +
+                "\n" +
+                " Area: 0.0.0.0\n" +
+                " Router ID       Address         Pri Dead-Time Interface       State\n" +
+                " 10.122.114.196  10.98.138.149   1   37        Vlan3           Full/BDR\n" +
+                " 10.122.114.196  10.98.139.246   1   38        Vlan4           Full/BDR\n" +
+                " 10.122.114.196  10.98.138.3     1   39        Vlan6           Full/BDR\n" +
+                " 10.122.114.196  10.98.136.14    1   35        Vlan7           Full/BDR\n" +
+                " 10.122.114.196  10.98.137.72    1   35        Vlan200         Full/BDR\n" +
+                " 10.122.114.196  10.98.138.196   1   35        Vlan2000        Full/BDR\n" +
+                " 10.122.114.220  10.122.119.166  1   35        Vlan2001        Full/BDR\n" +
+                " 10.122.114.196  100.1.2.253     1   35        Vlan50          Full/BDR";
+        commandReturn = MyUtils.trimString(commandReturn);
 
         /*执行命令返回结果为null 则是命令执行错误*/
         if (commandReturn == null){
@@ -354,4 +335,33 @@ public class OSPFFeatures {
         }
         return null;
     }
+
+
+    public static OspfCommand getpojo(List<OspfCommand> pojoList) {
+        OspfCommand ospfCommand = new OspfCommand();
+        int sum = 0;
+        for (OspfCommand pojo:pojoList){
+            int num = 0 ;
+            if (!(pojo.getBrand().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getSwitchType().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getFirewareVersion().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getSubVersion().equals("*"))){
+                ++num;
+            }
+            if (sum<num){
+                sum = num;
+                ospfCommand = pojo;
+            }else if (sum == num && (pojo.getSwitchType().equals("*")) && (pojo.getSubVersion().equals("*"))){
+                ospfCommand = pojo;
+            }
+        }
+        return ospfCommand;
+    }
+
 }

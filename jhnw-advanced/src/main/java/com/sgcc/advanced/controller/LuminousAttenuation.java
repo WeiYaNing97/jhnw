@@ -1,6 +1,11 @@
 package com.sgcc.advanced.controller;
+import com.sgcc.advanced.domain.ErrorRateCommand;
+import com.sgcc.advanced.domain.LightAttenuationCommand;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
+import com.sgcc.advanced.domain.OspfCommand;
+import com.sgcc.advanced.service.ILightAttenuationCommandService;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
+import com.sgcc.advanced.service.IOspfCommandService;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
@@ -33,6 +38,8 @@ public class LuminousAttenuation {
 
     @Autowired
     private ILightAttenuationComparisonService lightAttenuationComparisonService;
+    @Autowired
+    private ILightAttenuationCommandService lightAttenuationCommandService;
 
     /**
      * 光衰功能接口
@@ -41,9 +48,16 @@ public class LuminousAttenuation {
      */
     public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
         /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
-        String command = (String) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".获取端口号命令", Constant.getProfileInformation());
+        LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
+        lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
+        lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
+        lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
+        lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
+        lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
+        List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandList(lightAttenuationCommand);
+
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
-        if (command == null){
+        if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
             // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
                 PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令\r\n","光衰");
@@ -52,6 +66,10 @@ public class LuminousAttenuation {
                 e.printStackTrace();
             }
         }
+
+        lightAttenuationCommand = getpojo(lightAttenuationCommandList);
+        String command = lightAttenuationCommand.getGetPortCommand();
+
         /*3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
 
@@ -83,7 +101,7 @@ public class LuminousAttenuation {
         }
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
-        Object escape = CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand() + ".转译",Constant.getProfileInformation());
+        Object escape = CustomConfigurationUtil.getValue("转译.端口号",Constant.getProfileInformation());
         if (escape != null){
             Map<String,String> escapeMap = (Map<String,String>) escape;
             Set<String> mapKey = escapeMap.keySet();
@@ -91,8 +109,8 @@ public class LuminousAttenuation {
                 port = port.stream().map(m -> m.replace(key , escapeMap.get(key))).collect(Collectors.toList());
             }
         }
-        /*8：根据 up状态端口号 及交换机信息 获取光衰参数 */
-        HashMap<String, Double> getparameter = getparameter(port, switchParameters);
+        /*8：根据 up状态端口号 及交换机信息 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()*/
+        HashMap<String, Double> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
         /*9：获取光衰参数为空*/
         if (MyUtils.isMapEmpty(getparameter)){
             // todo 关于未获取到光衰参数 的错误代码库
@@ -253,9 +271,10 @@ public class LuminousAttenuation {
      * @param switchParameters 交换机信息类
      * @return
      */
-    public HashMap<String,Double> getparameter(List<String> portNumber,SwitchParameters switchParameters) {
+    public HashMap<String,Double> getparameter(List<String> portNumber,SwitchParameters switchParameters,String command) {
         /*获取配置信息中 符合品牌的 获取基本信息的 获取光衰参数的 命令*/
-        String command = (String) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".获取光衰参数命令",Constant.getProfileInformation());
+
+
         /*创建 返回对象 HashMap*/
         HashMap<String,Double> hashMap = new HashMap<>();
         /*端口号集合 需要检测各端口号的光衰参数*/
@@ -264,7 +283,10 @@ public class LuminousAttenuation {
             String FullCommand = command.replaceAll("端口号",port);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-
+            returnResults = "Current diagnostic parameters[AP:Average Power]:\n" +
+                    "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\n" +
+                    "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
+            returnResults = MyUtils.trimString(returnResults);
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n");
@@ -302,14 +324,11 @@ public class LuminousAttenuation {
     public static HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
         /*切割成行信息*/
         String[] Line_split = string.split("\r\n");
-        List<Integer> threshold = (List<Integer>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".阈值", Constant.getProfileInformation());
+
+
         /*自定义 光衰参数默认给个 100*/
         double txpower = 1;
         double rxpower = 1;
-        double txpowerhigh = Double.valueOf(threshold.get(1)+"").doubleValue();
-        double txpowerlow = Double.valueOf(threshold.get(0)+"").doubleValue();
-        double rxpowerhigh = Double.valueOf(threshold.get(1)+"").doubleValue();
-        double rxpowerlow = Double.valueOf(threshold.get(0)+"").doubleValue();
 
         List<String> keyValueList = new ArrayList<>();
         for (int number = 0 ;number<Line_split.length;number++) {
@@ -405,8 +424,6 @@ public class LuminousAttenuation {
                             rxpower = doubleList.get(0);
                         }else if (doubleList.size()==3){
                             rxpower = doubleList.get(0);
-                            rxpowerlow = doubleList.get(1);
-                            rxpowerhigh = doubleList.get(2);
                         }else {
                             // todo 光衰参数取值失败 光衰参数行负数数量不正确 错误代码
                             return null;
@@ -432,8 +449,6 @@ public class LuminousAttenuation {
                             txpower = doubleList.get(0);
                         }else if (doubleList.size()==3){
                             txpower = doubleList.get(0);
-                            txpowerlow = doubleList.get(1);
-                            txpowerhigh = doubleList.get(2);
                         }else {
                             // todo 光衰参数取值失败 光衰参数行负数数量不正确 错误代码
                             return null;
@@ -458,10 +473,6 @@ public class LuminousAttenuation {
         HashMap<String,Double> hashMap = new HashMap<>();
         hashMap.put("TX",Double.valueOf(txpower).doubleValue() == 1?null:txpower);
         hashMap.put("RX",Double.valueOf(rxpower).doubleValue() == 1?null:rxpower);
-        hashMap.put("TXHIGH",txpowerhigh);
-        hashMap.put("RXHIGH",rxpowerhigh);
-        hashMap.put("TXLOW",txpowerlow);
-        hashMap.put("RXLOW",rxpowerlow);
         return hashMap;
     }
 
@@ -499,7 +510,7 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxStartValue(tx);
 
             lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
-            lightAttenuationComparison.setTxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
+            lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
 
             lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison);
         }else {
@@ -530,4 +541,30 @@ public class LuminousAttenuation {
         return MyUtils.stringToDouble(result);
     }
 
+    public static LightAttenuationCommand getpojo(List<LightAttenuationCommand> pojoList) {
+        LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
+        int sum = 0;
+        for (LightAttenuationCommand pojo:pojoList){
+            int num = 0 ;
+            if (!(pojo.getBrand().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getSwitchType().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getFirewareVersion().equals("*"))){
+                ++num;
+            }
+            if (!(pojo.getSubVersion().equals("*"))){
+                ++num;
+            }
+            if (sum<num){
+                sum = num;
+                lightAttenuationCommand = pojo;
+            }else if (sum == num && (pojo.getSwitchType().equals("*")) && (pojo.getSubVersion().equals("*"))){
+                lightAttenuationCommand = pojo;
+            }
+        }
+        return lightAttenuationCommand;
+    }
 }
