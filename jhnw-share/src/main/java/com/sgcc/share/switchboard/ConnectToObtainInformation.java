@@ -70,8 +70,12 @@ public class ConnectToObtainInformation {
             //密码 MD5 加密
             String configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
             switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
-            //获取交换机基本信息
+
+            /**
+             * 获取交换机基本信息
+             */
             AjaxResult basicInformationList_ajaxResult = getBasicInformationCurrency(switchParameters);
+
             return basicInformationList_ajaxResult;
         }
         return AjaxResult.error("交换机连接失败");

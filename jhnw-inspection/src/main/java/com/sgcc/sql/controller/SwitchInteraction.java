@@ -413,9 +413,9 @@ public class SwitchInteraction {
             }
         }
 
-        if (MyUtils.isCollectionEmpty(totalQuestionTables)){
+        /*if (MyUtils.isCollectionEmpty(totalQuestionTables)){
             return basicInformationList_ajaxResult;
-        }
+        }*/
 
         /* 高级功能 */
         /*OSPFFeatures ospfFeatures = new OSPFFeatures();

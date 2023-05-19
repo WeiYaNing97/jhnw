@@ -211,20 +211,18 @@ public class SshConnect implements Runnable {
                 System.out.println("Connection failed: " + e.getMessage());
                 objects.add(e.getMessage());
             }
-            if (session.isConnected()) {
+            /*if (session.isConnected()) {
                 if ("SSH-2.0-JSCH-0.1.54".equals(session.getServerVersion())) {
                     objects.add(sshInformation.getIp() + session.getServerVersion());
                 } else {
                     objects.add(sshInformation.getIp() + session.getServerVersion());
                 }
-            }
-
+            }*/
             if ("SSH-2.0-JSCH-0.1.54".equals(session.getServerVersion())) {
                 objects.add(sshInformation.getIp() + "SSH协议："+session.getServerVersion());
             } else {
                 objects.add(sshInformation.getIp() + "SSH协议："+session.getServerVersion());
             }
-
             switchInformation.put(ip,sshInformation);
             return objects;
         }
