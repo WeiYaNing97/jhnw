@@ -1,4 +1,4 @@
-package com.sgcc.connect.translate;
+package com.sgcc.share.translate;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

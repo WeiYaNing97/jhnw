@@ -1,4 +1,4 @@
-package com.sgcc.connect.translate;
+package com.sgcc.share.translate;
 
 /**
  * @author 天幕顽主

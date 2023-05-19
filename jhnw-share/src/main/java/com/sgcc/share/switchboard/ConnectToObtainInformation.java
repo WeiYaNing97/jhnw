@@ -2,12 +2,12 @@ package com.sgcc.share.switchboard;
 
 import cn.hutool.core.util.StrUtil;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.connect.method.SshMethod;
-import com.sgcc.connect.method.TelnetSwitchMethod;
-import com.sgcc.connect.util.SpringBeanUtil;
-import com.sgcc.connect.util.SshConnect;
-import com.sgcc.connect.util.TelnetComponent;
+import com.sgcc.share.connectutil.SpringBeanUtil;
+import com.sgcc.share.connectutil.SshConnect;
+import com.sgcc.share.connectutil.TelnetComponent;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.method.SshMethod;
+import com.sgcc.share.method.TelnetSwitchMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IInformationService;
 import com.sgcc.share.util.*;
@@ -97,6 +97,18 @@ public class ConnectToObtainInformation {
                 switchParameters.setConnectMethod(connectMethod);
                 if (sshConnect!=null){
                     is_the_connection_successful = true;
+                }
+            }else {
+                if (objects.get(objects.size()-1) instanceof String){
+                    String sshVersion = (String) objects.get(objects.size()-1);
+                    if (sshVersion.indexOf(switchParameters.getIp())!=-1){
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ sshVersion+"\r\n");
+                        try {
+                            PathHelper.writeDataToFile("风险:"+"ip:"+ sshVersion+"\r\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){

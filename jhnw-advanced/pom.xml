@@ -12,12 +12,7 @@
     <artifactId>jhnw-advanced</artifactId>
 
     <dependencies>
-        <!--SQL生成-->
-        <!--<dependency>
-            <groupId>com.sgcc</groupId>
-            <artifactId>jhnw-inspection</artifactId>
-            <version>3.7.0</version>
-        </dependency>-->
+
         <dependency>
             <groupId>com.sgcc</groupId>
             <artifactId>jhnw-share</artifactId>
@@ -49,11 +44,7 @@
             <artifactId>sigar</artifactId>
             <version>1.6.4</version>
         </dependency>
-        <!--连接交换机-->
-        <dependency>
-            <groupId>com.sgcc</groupId>
-            <artifactId>jhnw-connect</artifactId>
-        </dependency>
+
         <!--hutool-->
         <dependency>
             <groupId>cn.hutool</groupId>

@@ -1,6 +1,6 @@
-package com.sgcc.connect.method;
+package com.sgcc.share.method;
 
-import com.sgcc.connect.util.SshConnect;
+import com.sgcc.share.connectutil.SshConnect;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;

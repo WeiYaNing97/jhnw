@@ -9,7 +9,7 @@ import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.TotalQuestionTable;

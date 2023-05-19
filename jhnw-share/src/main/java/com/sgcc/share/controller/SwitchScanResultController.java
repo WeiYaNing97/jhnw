@@ -8,7 +8,7 @@ import java.util.*;
 import cn.hutool.core.date.DateTime;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.*;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.ISwitchScanResultService;

@@ -1,6 +1,6 @@
 package com.sgcc.share.switchboard;
 
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.ScanResultsVO;
 import com.sgcc.share.domain.SwitchProblemCO;
 import com.sgcc.share.domain.SwitchProblemVO;

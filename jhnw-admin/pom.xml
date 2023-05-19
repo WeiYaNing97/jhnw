@@ -74,11 +74,7 @@
             <artifactId>jhnw-inspection</artifactId>
             <version>3.7.0</version>
         </dependency>
-        <!--连接交换机-->
-        <dependency>
-            <groupId>com.sgcc</groupId>
-            <artifactId>jhnw-connect</artifactId>
-        </dependency>
+
         <!-- 高级功能-->
         <dependency>
             <groupId>com.sgcc</groupId>

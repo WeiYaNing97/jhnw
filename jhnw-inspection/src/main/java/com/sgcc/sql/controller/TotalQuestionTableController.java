@@ -1,6 +1,5 @@
 package com.sgcc.sql.controller;
 
-import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;

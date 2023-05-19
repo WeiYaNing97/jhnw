@@ -1,6 +1,6 @@
 package com.sgcc.share.util;
 
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchErrorController;
 import com.sgcc.share.controller.SwitchFailureController;
 import com.sgcc.share.domain.ReturnRecord;

@@ -2,7 +2,7 @@ package com.sgcc.share.controller;
 
 import java.util.List;
 
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchFailure;
 import com.sgcc.share.service.ISwitchFailureService;
 import org.springframework.security.access.prepost.PreAuthorize;

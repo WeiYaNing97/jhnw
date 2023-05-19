@@ -10,7 +10,7 @@ import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.bean.BeanUtils;
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.Configuration;
 import com.sgcc.share.controller.SwitchLoginInformation;
 import com.sgcc.share.domain.*;

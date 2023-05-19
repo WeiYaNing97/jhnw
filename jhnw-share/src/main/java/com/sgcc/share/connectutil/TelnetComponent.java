@@ -1,10 +1,8 @@
-package com.sgcc.connect.util;
+package com.sgcc.share.connectutil;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.xmlbeans.impl.xb.xsdschema.Public;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.util.HashMap;
-import java.util.stream.Stream;
 
 /**
  * Copyright (C), 2015-2019

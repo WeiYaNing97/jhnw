@@ -1,10 +1,10 @@
 package com.sgcc.share.parametric;
 
 import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.connect.method.SshMethod;
-import com.sgcc.connect.method.TelnetSwitchMethod;
-import com.sgcc.connect.util.SshConnect;
-import com.sgcc.connect.util.TelnetComponent;
+import com.sgcc.share.connectutil.SshConnect;
+import com.sgcc.share.connectutil.TelnetComponent;
+import com.sgcc.share.method.SshMethod;
+import com.sgcc.share.method.TelnetSwitchMethod;
 
 public class SwitchParameters {
     private LoginUser loginUser;//登陆人信息

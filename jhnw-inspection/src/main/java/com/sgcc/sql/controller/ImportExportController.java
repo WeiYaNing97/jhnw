@@ -3,7 +3,7 @@ package com.sgcc.sql.controller;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.ProblemScanLogic;

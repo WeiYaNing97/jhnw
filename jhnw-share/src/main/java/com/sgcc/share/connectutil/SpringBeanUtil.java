@@ -1,4 +1,4 @@
-package com.sgcc.connect.util;
+package com.sgcc.share.connectutil;
 
 /**
  * @author 天幕顽主

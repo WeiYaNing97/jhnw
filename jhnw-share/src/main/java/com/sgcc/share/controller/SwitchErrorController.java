@@ -1,6 +1,6 @@
 package com.sgcc.share.controller;
 import com.sgcc.common.utils.poi.ExcelUtil;
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchError;
 import com.sgcc.share.service.ISwitchErrorService;
 import org.springframework.security.access.prepost.PreAuthorize;

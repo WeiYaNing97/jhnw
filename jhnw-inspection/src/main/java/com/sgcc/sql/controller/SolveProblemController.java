@@ -4,7 +4,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.*;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchInformationService;

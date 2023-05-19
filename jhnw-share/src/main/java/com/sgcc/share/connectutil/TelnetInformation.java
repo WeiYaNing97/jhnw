@@ -1,4 +1,4 @@
-package com.sgcc.connect.util;
+package com.sgcc.share.connectutil;
 
 import org.apache.commons.net.telnet.TelnetClient;
 

@@ -1,9 +1,8 @@
-package com.sgcc.connect.util;
+package com.sgcc.share.connectutil;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;

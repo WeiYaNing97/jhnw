@@ -2,7 +2,7 @@ package com.sgcc.advanced.controller;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;

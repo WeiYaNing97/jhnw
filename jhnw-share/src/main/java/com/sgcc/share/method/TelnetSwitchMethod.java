@@ -1,6 +1,5 @@
-package com.sgcc.connect.method;
-
-import com.sgcc.connect.util.TelnetComponent;
+package com.sgcc.share.method;
+import com.sgcc.share.connectutil.TelnetComponent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +30,7 @@ public class TelnetSwitchMethod {
      * @return com.alibaba.fastjson.JSONObject
      **/
     @GetMapping("requestConnect")
-    public TelnetComponent requestConnect(String ip,Integer port,String name,String password,String end){
+    public TelnetComponent requestConnect(String ip, Integer port, String name, String password, String end){
 
         TelnetComponent open = open(ip, port);
 

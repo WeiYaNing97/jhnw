@@ -1,7 +1,6 @@
-package com.sgcc.connect.util;
+package com.sgcc.share.connectutil;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
 
 /**

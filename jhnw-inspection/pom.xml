@@ -78,11 +78,7 @@
             <artifactId>fastjson</artifactId>
         </dependency>
 
-        <!--连接交换机-->
-        <dependency>
-            <groupId>com.sgcc</groupId>
-            <artifactId>jhnw-connect</artifactId>
-        </dependency>
+
         <!--公用-->
         <dependency>
             <groupId>com.sgcc</groupId>

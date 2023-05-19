@@ -1,6 +1,6 @@
 package com.sgcc.sql.controller;
 
-import com.sgcc.connect.util.SpringBeanUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchErrorService;
 import com.sgcc.share.service.ISwitchFailureService;
