@@ -5,7 +5,9 @@ import com.sgcc.share.parametric.SwitchParameters;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.*;
+import java.util.stream.IntStream;
 
 /**
  * 扫描全部问题多线程池
@@ -44,7 +46,9 @@ public class ScanFixedThreadPool {
 
 
     public static String getThreadName(int i) {
-        return "threadname"+i;
+        Random random = new Random();
+        String name = System.currentTimeMillis() + random.nextInt(100) +" ";
+        return "threadname" + name;
     }
 
 

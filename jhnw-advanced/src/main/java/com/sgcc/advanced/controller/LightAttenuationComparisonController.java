@@ -108,7 +108,7 @@ public class LightAttenuationComparisonController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('advanced:comparison:edit')")
     @Log(title = "光衰平均值比较", businessType = BusinessType.UPDATE)
-    @PutMapping
+    @PutMapping("/reset")
     public AjaxResult reset(@RequestBody LightAttenuationComparison lightAttenuationComparison)
     {
         /*根据实体类ID 查询数据库中的实体类*/

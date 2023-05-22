@@ -32,7 +32,6 @@ public class LightAttenuationCommandController extends BaseController
 {
     @Autowired
     private ILightAttenuationCommandService lightAttenuationCommandService;
-
     /**
      * 查询光衰命令列表
      */
@@ -44,7 +43,6 @@ public class LightAttenuationCommandController extends BaseController
         List<LightAttenuationCommand> list = lightAttenuationCommandService.selectLightAttenuationCommandList(lightAttenuationCommand);
         return getDataTable(list);
     }
-
     /**
      * 导出光衰命令列表
      */

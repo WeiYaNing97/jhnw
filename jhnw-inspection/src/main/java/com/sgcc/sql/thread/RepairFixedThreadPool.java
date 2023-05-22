@@ -3,10 +3,7 @@ import com.sgcc.share.domain.SwitchScanResult;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,7 +57,9 @@ public class RepairFixedThreadPool {
         System.out.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
     }
     public static String getThreadName(int i) {
-        return "threadname"+i;
+        Random random = new Random();
+        String name = System.currentTimeMillis() + random.nextInt(100) +" ";
+        return "threadname" + name;
     }
 
 }

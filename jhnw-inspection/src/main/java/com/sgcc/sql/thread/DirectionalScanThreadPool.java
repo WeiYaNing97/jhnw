@@ -7,6 +7,7 @@ import com.sgcc.sql.domain.TotalQuestionTable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.*;
 
 /**
@@ -46,7 +47,9 @@ public class DirectionalScanThreadPool {
         System.out.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
     }
     public static String getThreadName(int i) {
-        return "threadname"+i;
+        Random random = new Random();
+        String name = System.currentTimeMillis() + random.nextInt(100) +" ";
+        return "threadname" + name;
     }
 
 }

@@ -34,6 +34,7 @@ public class AdvancedFeatures {
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
+        /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
         for (String information:switchInformation){
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
             SwitchParameters switchParameters = new SwitchParameters();
@@ -51,12 +52,13 @@ public class AdvancedFeatures {
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
-
         try {
+            /*高级功能线程池*/
             AdvancedThreadPool.switchLoginInformations(parameterSet,functionName);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
