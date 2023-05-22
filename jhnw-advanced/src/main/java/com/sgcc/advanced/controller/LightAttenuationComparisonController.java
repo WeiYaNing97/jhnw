@@ -3,6 +3,7 @@ package com.sgcc.advanced.controller;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
 import com.sgcc.common.utils.poi.ExcelUtil;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -100,5 +101,34 @@ public class LightAttenuationComparisonController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(lightAttenuationComparisonService.deleteLightAttenuationComparisonByIds(ids));
+    }
+
+    /**
+     * 修改光衰平均值比较
+     */
+    @PreAuthorize("@ss.hasPermi('advanced:comparison:edit')")
+    @Log(title = "光衰平均值比较", businessType = BusinessType.UPDATE)
+    @PutMapping
+    public AjaxResult reset(@RequestBody LightAttenuationComparison lightAttenuationComparison)
+    {
+        /*根据实体类ID 查询数据库中的实体类*/
+        lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
+        LightAttenuationComparison pojo = lightAttenuationComparisonService.selectLightAttenuationComparisonById(lightAttenuationComparison.getId());
+        /*查看前端传入数据是否有修改
+        * 如果没有修改，则默认 当前参数设置为 基准和平均值*/
+        if (lightAttenuationComparison.equals(pojo)){
+            /* 数量设置为 1 */
+            lightAttenuationComparison.setNumberParameters(1);
+            /* 基准 */
+            lightAttenuationComparison.setTxStartValue(lightAttenuationComparison.getTxLatestNumber());
+            lightAttenuationComparison.setRxStartValue(lightAttenuationComparison.getRxLatestNumber());
+            /* 平均值 */
+            lightAttenuationComparison.setTxAverageValue(lightAttenuationComparison.getTxLatestNumber());
+            lightAttenuationComparison.setRxAverageValue(lightAttenuationComparison.getRxLatestNumber());
+            return toAjax(lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison));
+        }
+        /* 数量设置为 1 */
+        lightAttenuationComparison.setNumberParameters(1);
+        return toAjax(lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison));
     }
 }
