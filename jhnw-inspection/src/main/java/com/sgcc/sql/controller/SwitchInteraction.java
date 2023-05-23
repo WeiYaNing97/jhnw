@@ -413,18 +413,6 @@ public class SwitchInteraction {
             }
         }
 
-        /*if (MyUtils.isCollectionEmpty(totalQuestionTables)){
-            return basicInformationList_ajaxResult;
-        }*/
-
-        /* 高级功能 */
-        /*OSPFFeatures ospfFeatures = new OSPFFeatures();
-        ospfFeatures.getOSPFValues(switchParameters);
-        LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
-        luminousAttenuation.obtainLightDecay(switchParameters);
-        ErrorPackage errorPackage = new ErrorPackage();
-        errorPackage.getErrorPackage(switchParameters);*/
-
         //5.获取交换机可扫描的问题并执行分析操作
         /*当 totalQuestionTables 不为空时，为专项扫描*/
         AjaxResult ajaxResult = scanProblem(switchParameters,totalQuestionTables);
@@ -2148,14 +2136,11 @@ public class SwitchInteraction {
                 //返回  交换机返回信息 和  第一条分析ID
                 List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,totalQuestionTable.getCommandId().replace("命令",""));
 
-                /*if (executeScanCommandByCommandId_object.size() == 1){
-                    AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                    if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                        *//*进行下一分析*//*
-                        *//*此处不需要错误日志 executeScanCommandByCommandId 方法写全*//*
-                        continue;
-                    }
-                }*/
+                if (MyUtils.isCollectionEmpty(executeScanCommandByCommandId_object)){
+                    continue;
+                }
+
+
                 if ((executeScanCommandByCommandId_object.get(0) instanceof String)
                         && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
                     /*交换机返回错误信息处理

@@ -49,26 +49,24 @@ public class OSPFFeatures {
         ospfCommand.setSwitchType(switchParameters.getDeviceModel());
         ospfCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         ospfCommand.setSubVersion(switchParameters.getSubversionNumber());
+        /*查询 符合交换机基本信息的 OSPF命令集合*/
         ospfCommandService = SpringBeanUtil.getBean(IOspfCommandService.class);
         List<OspfCommand> ospfCommandList = ospfCommandService.selectOspfCommandList(ospfCommand);
-
+        /*OSPF命令集合为空  则中止OSPF高级共功能*/
         if (MyUtils.isCollectionEmpty(ospfCommandList)){
+            // todo 中止OSPF高级共功能  显示前端写入日志
             return;
         }
 
+        /*通过四项基本欸的精确度 筛选最精确的OSPF命令*/
         ospfCommand = getpojo(ospfCommandList);
         String command = ospfCommand.getGetParameterCommand();
-
-        /*如果命令为null 则结束*/
-        if (command == null){
-            // todo 没有获取ospf的命令 错误代码
-            return;
-        }
 
         /*根据交换机信息类  执行交换命令*/
         String commandReturn = FunctionalMethods.executeScanCommandByCommand(switchParameters,command);
 
-        commandReturn = "\n" +
+        /* 测试数据 */
+        /*commandReturn = "\n" +
                 "                  OSPF Process 100 with Router ID 10.122.114.208\n" +
                 "                        Neighbor Brief Information\n" +
                 "\n" +
@@ -82,7 +80,7 @@ public class OSPFFeatures {
                 " 10.122.114.196  10.98.138.196   1   35        Vlan2000        Full/BDR\n" +
                 " 10.122.114.220  10.122.119.166  1   35        Vlan2001        Full/BDR\n" +
                 " 10.122.114.196  100.1.2.253     1   35        Vlan50          Full/BDR";
-        commandReturn = MyUtils.trimString(commandReturn);
+        commandReturn = MyUtils.trimString(commandReturn);*/
 
         /*执行命令返回结果为null 则是命令执行错误*/
         if (commandReturn == null){
@@ -95,10 +93,14 @@ public class OSPFFeatures {
             }
             return;
         }
-        /*根据交换机返回信息 提取 OSPF数据*/
+
+        /*根据交换机返回信息提取OSPF数据*/
         AjaxResult ospfListByString = getOspfListByString(commandReturn);
+
         if(ospfListByString.get("msg").equals("操作成功")){
+
             List<Ospf> ospfList = (List<Ospf>) ospfListByString.get("data");
+
             for (Ospf ospf:ospfList){
                 try {
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"ospf:地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n");
@@ -108,12 +110,14 @@ public class OSPFFeatures {
                     hashMap.put("ProblemName","OSPF");
                     if (ospf.toString().toUpperCase().indexOf("FULL")!=-1){
                         hashMap.put("IfQuestion","无问题");
+                        /*continue;*/
                     }else {
                         hashMap.put("IfQuestion","有问题");
                     }
                     // =:= 是自定义分割符
                     hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber());
                     Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+
                     SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                     switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
                 } catch (IOException e) {
@@ -229,21 +233,6 @@ public class OSPFFeatures {
         return ospfList;
     }
 
-    /**
-     * 去除属性值中间空格  通过读取配置文件
-     * @param strings
-     * @return
-     */
-    public static List<String> removOspfSpaceCharacterByconfiguration(List<String> strings) {
-        String command = (String) CustomConfigurationUtil.getValue("OSPF.ospfSpaceCharacter",Constant.getProfileInformation());
-        String[] ospfSpaceCharacterSplit = command.split(";");
-        for (String SpaceCharacter:ospfSpaceCharacterSplit){
-            for (int num = 0 ; num <strings.size();num++){
-                strings.set(num,strings.get(num).replaceAll(SpaceCharacter+" ",SpaceCharacter));
-            }
-        }
-        return strings;
-    }
 
     /**
      * 去除属性值中间空格  通过代码逻辑
@@ -337,6 +326,11 @@ public class OSPFFeatures {
     }
 
 
+    /**
+     * 获取 四项基本信息更加匹配的命令实体类
+     * @param pojoList
+     * @return
+     */
     public static OspfCommand getpojo(List<OspfCommand> pojoList) {
         OspfCommand ospfCommand = new OspfCommand();
         int sum = 0;
