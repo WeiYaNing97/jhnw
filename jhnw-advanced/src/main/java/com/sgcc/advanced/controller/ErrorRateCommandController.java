@@ -76,6 +76,9 @@ public class ErrorRateCommandController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody ErrorRateCommand errorRateCommand)
     {
+        if (errorRateCommand.getConversion()==null){
+            errorRateCommand.setConversion("GE:GigabitEthernet");
+        }
         return toAjax(errorRateCommandService.insertErrorRateCommand(errorRateCommand));
     }
 

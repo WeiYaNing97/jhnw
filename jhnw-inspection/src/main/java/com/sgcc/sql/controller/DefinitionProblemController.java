@@ -1,5 +1,4 @@
 package com.sgcc.sql.controller;
-
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -7,7 +6,8 @@ import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
-import com.sgcc.share.controller.Configuration;
+import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.*;
@@ -18,11 +18,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-
 /**
  * @author 天幕顽主
  * @E-mail: WeiYaNing97@163.com
@@ -986,7 +984,8 @@ public class DefinitionProblemController extends BaseController {
         });
         executor.execute(future);
         try {
-            List<String> result = (List<String>) future.get(Configuration.maximumTimeout, TimeUnit.MILLISECONDS);
+            String maximumTimeoutString = (String) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
+            List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
             System.out.println(result);
         } catch (InterruptedException e) {
             e.printStackTrace();

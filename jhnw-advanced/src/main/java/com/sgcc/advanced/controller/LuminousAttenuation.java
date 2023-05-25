@@ -99,16 +99,23 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
         }
+
+
+
+
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
-        Object escape = CustomConfigurationUtil.getValue("转译.端口号",Constant.getProfileInformation());
-        if (escape != null){
-            Map<String,String> escapeMap = (Map<String,String>) escape;
-            Set<String> mapKey = escapeMap.keySet();
-            for (String key:mapKey){
-                port = port.stream().map(m -> m.replace(key , escapeMap.get(key))).collect(Collectors.toList());
-            }
+        String conversion = lightAttenuationCommand.getConversion();
+        String[] conversionSplit = conversion.split(";");
+        for (String convers:conversionSplit){
+            String[] conversSplit = convers.split(":");
+            port = port.stream().map(m -> m.replace(conversSplit[0] , conversSplit[1])).collect(Collectors.toList());
         }
+
+
+
+
+
         /*8：根据 up状态端口号 及交换机信息 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()*/
         HashMap<String, Double> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
         /*9：获取光衰参数为空*/

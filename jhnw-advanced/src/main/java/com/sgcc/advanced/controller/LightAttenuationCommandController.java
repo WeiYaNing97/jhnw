@@ -74,6 +74,9 @@ public class LightAttenuationCommandController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody LightAttenuationCommand lightAttenuationCommand)
     {
+        if (lightAttenuationCommand.getConversion()==null){
+            lightAttenuationCommand.setConversion("GE:GigabitEthernet");
+        }
         return toAjax(lightAttenuationCommandService.insertLightAttenuationCommand(lightAttenuationCommand));
     }
 

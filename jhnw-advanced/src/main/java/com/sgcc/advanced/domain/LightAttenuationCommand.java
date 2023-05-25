@@ -42,6 +42,11 @@ public class LightAttenuationCommand extends BaseEntity
     @Excel(name = "获取光衰参数命令")
     private String getParameterCommand;
 
+    /** 转译 */
+    @Excel(name = "转译")
+    private String conversion;
+
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -106,16 +111,29 @@ public class LightAttenuationCommand extends BaseEntity
         return getParameterCommand;
     }
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getConversion() {
+        return conversion;
+    }
+
+    public void setConversion(String conversion) {
+        this.conversion = conversion;
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("brand", getBrand())
-            .append("switchType", getSwitchType())
-            .append("firewareVersion", getFirewareVersion())
-            .append("subVersion", getSubVersion())
-            .append("getPortCommand", getGetPortCommand())
-            .append("getParameterCommand", getGetParameterCommand())
-            .toString();
+        return "LightAttenuationCommand{" +
+                "id=" + id +
+                ", brand='" + brand + '\'' +
+                ", switchType='" + switchType + '\'' +
+                ", firewareVersion='" + firewareVersion + '\'' +
+                ", subVersion='" + subVersion + '\'' +
+                ", getPortCommand='" + getPortCommand + '\'' +
+                ", getParameterCommand='" + getParameterCommand + '\'' +
+                ", conversion='" + conversion + '\'' +
+                '}';
     }
 }

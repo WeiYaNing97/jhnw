@@ -85,16 +85,22 @@ public class ErrorPackage {
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
         }
 
+
+
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
-        Object escape = CustomConfigurationUtil.getValue("转译.端口号",Constant.getProfileInformation());
-        if (escape != null){
-            Map<String,String> escapeMap = (Map<String,String>) escape;
-            Set<String> mapKey = escapeMap.keySet();
-            for (String key:mapKey){
-                portList = portList.stream().map(m -> m.replace(key , escapeMap.get(key))).collect(Collectors.toList());
-            }
+        String conversion = errorRateCommand.getConversion();
+        String[] conversionSplit = conversion.split(";");
+        Map<String,String> escapeMap = new HashMap<>();
+        for (String convers:conversionSplit){
+            escapeMap.put(convers.split(":")[0],convers.split(":")[1]);
         }
+        Set<String> mapKey = escapeMap.keySet();
+        for (String key:mapKey){
+            portList = portList.stream().map(m -> m.replace(key , escapeMap.get(key))).collect(Collectors.toList());
+        }
+
+
 
         /*获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
         String errorPackageCommand = errorRateCommand.getGetParameterCommand();

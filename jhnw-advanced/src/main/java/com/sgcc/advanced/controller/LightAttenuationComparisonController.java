@@ -37,7 +37,7 @@ public class LightAttenuationComparisonController extends BaseController
     private ILightAttenuationComparisonService lightAttenuationComparisonService;
 
     /**
-     * 查询光衰平均值比较列表
+     * 查询 光衰平均值 比较列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:comparison:list')")
     @GetMapping("/list")

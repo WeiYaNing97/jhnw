@@ -1,6 +1,5 @@
 package com.sgcc.share.util;
-
-import com.sgcc.share.controller.Configuration;
+import com.sgcc.share.domain.Constant;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,8 +23,11 @@ public class PathHelper {
         BufferedWriter bw;
         boolean append = true;  //  是否追加
         String path = "";
-        if (Configuration.logPath != null && !Configuration.logPath.equals("")){
-            path = Configuration.logPath + "\\" +logTime +"log.txt";
+        /* 获取 设备是 路由器的标志*/
+        String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
+
+        if (logPath != null && !logPath.equals("")){
+            path = logPath + "\\" +logTime +"log.txt";
         }else {
             path = logPath + "\\" +logTime +"log.txt";
         }
@@ -67,8 +69,9 @@ public class PathHelper {
         BufferedWriter bw;
         boolean append = true;  //  是否追加
         String path = "";
-        if (Configuration.logPath != null && !Configuration.logPath.equals("")){
-            path = Configuration.logPath + "\\" +logTime +"log"+name+".txt";
+        String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
+        if (logPath != null && !logPath.equals("")){
+            path = logPath + "\\" +logTime +"log"+name+".txt";
         }else {
             path = logPath + "\\" +logTime +"log"+name+".txt";
         }

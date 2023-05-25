@@ -12,10 +12,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="subVersion"    column="sub_version"    />
         <result property="getPortCommand"    column="get_port_command"    />
         <result property="getParameterCommand"    column="get_parameter_command"    />
+        <result property="conversion"    column="conversion"    />
     </resultMap>
 
     <sql id="selectErrorRateCommandVo">
-        select id, brand, switch_type, fireware_version, sub_version, get_port_command, get_parameter_command from error_rate_command
+        select id, brand, switch_type, fireware_version, sub_version, get_port_command, get_parameter_command,conversion from error_rate_command
     </sql>
 
     <select id="selectErrorRateCommandList" parameterType="ErrorRateCommand" resultMap="ErrorRateCommandResult">
@@ -27,6 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="subVersion != null  and subVersion != ''"> and (sub_version = #{subVersion} or sub_version =  '*')</if>
             <if test="getPortCommand != null  and getPortCommand != ''"> and get_port_command = #{getPortCommand}</if>
             <if test="getParameterCommand != null  and getParameterCommand != ''"> and get_parameter_command = #{getParameterCommand}</if>
+            <if test="conversion != null  and conversion != ''"> and conversion = #{conversion}</if>
         </where>
     </select>
     
@@ -44,6 +46,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="subVersion != null">sub_version,</if>
             <if test="getPortCommand != null">get_port_command,</if>
             <if test="getParameterCommand != null">get_parameter_command,</if>
+            <if test="conversion != null">conversion,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="brand != null and brand != ''">#{brand},</if>
@@ -52,6 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="subVersion != null">#{subVersion},</if>
             <if test="getPortCommand != null">#{getPortCommand},</if>
             <if test="getParameterCommand != null">#{getParameterCommand},</if>
+            <if test="conversion != null">#{conversion},</if>
          </trim>
     </insert>
 
@@ -64,6 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="subVersion != null">sub_version = #{subVersion},</if>
             <if test="getPortCommand != null">get_port_command = #{getPortCommand},</if>
             <if test="getParameterCommand != null">get_parameter_command = #{getParameterCommand},</if>
+            <if test="conversion != null">conversion = #{conversion},</if>
         </trim>
         where id = #{id}
     </update>

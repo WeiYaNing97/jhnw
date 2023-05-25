@@ -1,7 +1,5 @@
 package com.sgcc;
-import com.sgcc.advanced.controller.PathTest;
 import com.sgcc.advanced.domain.OspfEnum;
-import com.sgcc.share.controller.Configuration;
 import com.sgcc.share.util.MemoryCPU;
 import com.sgcc.share.domain.Constant;
 import org.springframework.boot.SpringApplication;
@@ -25,9 +23,6 @@ public class RuoYiApplication
             Constant character = new Constant();
             character.ObtainAllConfigurationFileParameters();
             OspfEnum.assignment();
-
-            Configuration configuration = new Configuration();
-            configuration.getConfiguration();
             MemoryCPU memoryCPU = new MemoryCPU();
             memoryCPU.initSystemInfo();
         } catch (Exception e) {
