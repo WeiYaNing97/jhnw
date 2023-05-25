@@ -687,7 +687,6 @@ export default {
                   newPar[key] = ''
               }
           }
-          console.log("下拉列表表单")
           console.log(newPar)
           return request({
               url:'/sql/total_question_table/selectPojoList',

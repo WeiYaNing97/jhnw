@@ -165,7 +165,7 @@
             },
             wsMessageHanler(e) {
                 if (e.data === 'pong'){
-                    console.log('00000'+e.data)
+                    // console.log('00000'+e.data)
                 }else {
                     console.log(e)
                     if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){
@@ -177,6 +177,7 @@
                     }else if (e.data.indexOf('scanThread') != -1){
                         this.textareaEnd = this.textareaEnd + e.data
                         this.saoendip = e.data
+                        console.log('后端传输的扫描完成IP:')
                         console.log(this.saoendip)
                     }
                     //截取字符串

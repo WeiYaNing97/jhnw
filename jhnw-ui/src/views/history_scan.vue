@@ -382,8 +382,6 @@
             },
             //历史扫描
             lishi(){
-                this.lishifu = true
-                this.chuci = false
                 this.huisao = true
                 return request({
                     url:'/share/switch_scan_result/getUnresolvedProblemInformationByUserName/' + this.pageNumber,
@@ -407,7 +405,7 @@
                             // var beforeJieData = jiaid[i].children[g].switchIp
                             // var plcaeJie =  beforeJieData.indexOf(':')
                             // var afterJie = beforeJieData.substring(0,plcaeJie)
-                            var hebingInfo = jiaid[i].children[g].switchIp + ' ' + jiaid[i].children[g].showBasicInfo
+                            var hebingInfo = jiaid[i].children[g].switchIp.split(':')[0] + ' ' + jiaid[i].children[g].showBasicInfo
                             this.$set(jiaid[i].children[g],'hebing',hebingInfo)
                         }
                     }

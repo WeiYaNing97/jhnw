@@ -28,15 +28,15 @@
 <!--          @keyup.enter.native="handleQuery"-->
 <!--        />-->
 <!--      </el-form-item>-->
-<!--      <el-form-item label="端口号" prop="port">-->
-<!--        <el-input-->
-<!--          v-model="queryParams.port"-->
-<!--          placeholder="请输入端口号"-->
-<!--          clearable-->
-<!--          size="small"-->
-<!--          @keyup.enter.native="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
+      <el-form-item label="端口号" prop="port">
+        <el-input
+          v-model="queryParams.port"
+          placeholder="请输入端口号"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
 <!--      <el-form-item label="TX平均值" prop="txAverageValue">-->
 <!--        <el-input-->
 <!--          v-model="queryParams.txAverageValue"-->
@@ -178,7 +178,8 @@
       <el-table-column label="端口号" align="center" prop="port" />
       <el-table-column label="TX基准功率" align="center" prop="txStartValue" />
       <el-table-column label="RX基准功率" align="center" prop="rxStartValue" />
-      <el-table-column label="额定衰耗偏差" align="center" prop="ratedDeviation" />
+      <el-table-column label="TX额定偏差" align="center" prop="txRatedDeviation" />
+      <el-table-column label="RX额定偏差" align="center" prop="rxRatedDeviation" />
 <!--      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />-->
 <!--      <el-table-column label="参数数量" align="center" prop="numberParameters" />-->
       <el-table-column label="TX平均功率" align="center" prop="txAverageValue" />
@@ -423,6 +424,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
+              console.log(this.form)
             updateComparison(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;

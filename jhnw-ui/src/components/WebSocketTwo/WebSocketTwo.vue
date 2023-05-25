@@ -2,8 +2,8 @@
   <div>
 <!--    lishiData  nowData  tableDataqq-->
 <!--    <el-button type="success" size="small" @click="allxiu" v-show="chuci">一键修复</el-button>-->
-
 <!--    <el-button type="success" size="small" @click="testOne">测试</el-button>-->
+<!--    <el-button @click="closeWebSocket">关闭WebSocket</el-button>-->
 <!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <p>我是：{{ endIp }}</p>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
@@ -36,7 +36,7 @@
         <template slot-scope="scope">
           <el-button size="mini"
                      type="text"
-                     icon="el-icon-edit"
+                     icon="el-icon-first-aid-kit"
                      v-show="scope.row.ifQuestion==='异常'"
                      @click="xiufu(scope.row)">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
@@ -45,6 +45,9 @@
           <el-button size="mini" type="text" icon="el-icon-view"
                      v-show="scope.row.hasOwnProperty('problemDescribeId')"
                      @click="xiangqing(scope.row)">详情</el-button>
+          <el-button size="mini" type="text" icon="el-icon-edit"
+                     v-if="scope.row.dynamicInformation && scope.row.dynamicInformation.includes('光衰')"
+                     @click="editPara(scope.row)">重设</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -100,6 +103,80 @@
     <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
       </span>
     </el-dialog>
+
+<!--    修改高级功能参数-->
+<!--    <el-dialog-->
+<!--      title="修改参数"-->
+<!--      :visible.sync="dialogVisibleAdvanced"-->
+<!--      width="30%"-->
+<!--      :before-close="handleCloseAdvanced">-->
+<!--      <div>-->
+
+<!--      </div>-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--    <el-button @click="dialogVisible = false">取 消</el-button>-->
+<!--    <el-button type="primary" @click="dialogVisible = false">确 定</el-button>-->
+<!--  </span>-->
+<!--    </el-dialog>-->
+
+    <!-- 添加或修改光衰平均值比较对话框 -->
+    <el-dialog title="修改参数" :visible.sync="dialogVisibleAdvanced" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" :inline="true" label-width="100px">
+        <el-form-item label="交换机ip" prop="switchIp">
+          <el-input v-model="form.switchIp" :disabled="true" placeholder="请输入交换机ip" />
+        </el-form-item>
+        <!--        <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">-->
+        <!--          <el-input v-model="form.switchId" placeholder="请输入交换机四项基本信息表ID索引" />-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="参数数量" prop="numberParameters">-->
+        <!--          <el-input v-model="form.numberParameters" placeholder="请输入参数数量" />-->
+        <!--        </el-form-item>-->
+        <el-form-item label="端口号" prop="port">
+          <el-input v-model="form.port" :disabled="true" placeholder="请输入端口号" />
+        </el-form-item>
+        <el-form-item label="TX基准功率" prop="txStartValue">
+          <el-input v-model="form.txStartValue" placeholder="请输入TX起始值(基准)" />
+        </el-form-item>
+        <el-form-item label="RX基准功率" prop="rxStartValue">
+          <el-input v-model="form.rxStartValue" placeholder="请输入RX起始值(基准)" />
+        </el-form-item>
+
+        <el-form-item label="TX额定偏差" prop="txRatedDeviation">
+          <el-input v-model="form.txRatedDeviation" placeholder="请输入TX额定偏差" />
+        </el-form-item>
+        <el-form-item label="RX额定偏差" prop="rxRatedDeviation">
+          <el-input v-model="form.rxRatedDeviation" placeholder="请输入RX额定偏差" />
+        </el-form-item>
+        <el-form-item label="TX平均功率" prop="txAverageValue">
+          <el-input v-model="form.txAverageValue" placeholder="请输入TX平均值" />
+        </el-form-item>
+        <el-form-item label="RX平均功率" prop="rxAverageValue">
+          <el-input v-model="form.rxAverageValue" placeholder="请输入RX平均值" />
+        </el-form-item>
+        <el-form-item label="TX当前功率" prop="txLatestNumber">
+          <el-input v-model="form.txLatestNumber" placeholder="请输入TX最新参数" />
+        </el-form-item>
+        <el-form-item label="RX当前功率" prop="rxLatestNumber">
+          <el-input v-model="form.rxLatestNumber" placeholder="请输入RX最新参数" />
+        </el-form-item>
+<!--        <el-form-item label="额定衰耗偏差" prop="ratedDeviation">-->
+<!--          <el-input v-model="form.ratedDeviation" placeholder="请输入额定偏差" />-->
+<!--        </el-form-item>-->
+        <!--        <el-form-item label="保留字段一" prop="valueOne">-->
+        <!--          <el-input v-model="form.valueOne" placeholder="请输入保留字段一" />-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="保留字段二" prop="valueTwo">-->
+        <!--          <el-input v-model="form.valueTwo" placeholder="请输入保留字段二" />-->
+        <!--        </el-form-item>-->
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">提 交</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
+
+
   </div>
 </template>
 
@@ -147,6 +224,52 @@
                 },
                 //
                 wenbenben: '',
+                //高级修改
+                dialogVisibleAdvanced:false,
+                //光衰查询IP、port参数
+                advancedPort:'',
+                advancedIp:'',
+                // 表单参数
+                form: {},
+                // 表单校验
+                rules: {
+                    switchIp: [
+                        { required: true, message: "交换机ip不能为空", trigger: "blur" }
+                    ],
+                    switchId: [
+                        { required: true, message: "交换机四项基本信息表ID索引不能为空", trigger: "blur" }
+                    ],
+                    numberParameters: [
+                        { required: true, message: "参数数量不能为空", trigger: "blur" }
+                    ],
+                    port: [
+                        { required: true, message: "端口号不能为空", trigger: "blur" }
+                    ],
+                    rxRatedDeviation: [
+                        { required: true, message: "RX额定偏差不能为空", trigger: "blur" }
+                    ],
+                    txRatedDeviation: [
+                        { required: true, message: "TX额定偏差不能为空", trigger: "blur" }
+                    ],
+                    txAverageValue: [
+                        { required: true, message: "TX平均值不能为空", trigger: "blur" }
+                    ],
+                    txLatestNumber: [
+                        { required: true, message: "TX最新参数不能为空", trigger: "blur" }
+                    ],
+                    rxAverageValue: [
+                        { required: true, message: "RX平均值不能为空", trigger: "blur" }
+                    ],
+                    rxLatestNumber: [
+                        { required: true, message: "RX最新参数不能为空", trigger: "blur" }
+                    ],
+                    txStartValue: [
+                        { required: true, message: "TX起始值(基准)不能为空", trigger: "blur" }
+                    ],
+                    rxStartValue: [
+                        { required: true, message: "RX起始值(基准)不能为空", trigger: "blur" }
+                    ],
+                },
                 dialogVisible: false,
                 //后台回显所有交换机信息
                 newArr: [],
@@ -226,7 +349,6 @@
                     throw Error('服务未连接')
                 }
             },30000)
-
         },
         methods: {
             //全部正常
@@ -318,8 +440,51 @@
                     // this.$refs.abc.geizi()
                 })
             },
+            //编辑高级功能参数
+            editPara(row){
+                console.log(row)
+                this.advancedIp = row.noUseIp
+                for (let i = 0; i < row.valueInformationVOList.length; i++) {
+                    if (row.valueInformationVOList[i].dynamicInformation.includes('/')){
+                        this.advancedPort = row.valueInformationVOList[i].dynamicInformation
+                    }
+                }
+                const advancedParams = {
+                    pageNum: 1,
+                    pageSize: 10,
+                    switchIp: this.advancedIp,
+                    port: this.advancedPort
+                }
+                return request({
+                    url: '/advanced/comparison/reset',
+                    method: 'get',
+                    params:advancedParams
+                }).then(response => {
+                    console.log(response)
+                    this.form = response.rows[0]
+                    this.dialogVisibleAdvanced = true
+                })
+
+
+            },
             handleClose(done) {
                 this.dialogVisible = false
+            },
+            handleCloseAdvanced(done){
+                this.dialogVisibleAdvanced = false
+            },
+            //提交
+            submitForm(){
+                return request({
+                    url: '/advanced/comparison',
+                    method: 'put',
+                    data: this.form
+                }).then(response => {
+                    this.dialogVisibleAdvanced = false
+                })
+            },
+            cancel(){
+                this.dialogVisibleAdvanced = false
             },
             //历史扫描
             lishi() {
@@ -715,6 +880,7 @@
                 clearInterval(this.wsTimer)
                 this.wsTimer = setInterval(() => {
                     if (this.webSocket.readyState === 1) {
+                        console.log('连接中')
                         clearInterval(this.wsTimer)
                     } else {
                         console.log('ws建立连接失败')
@@ -736,8 +902,9 @@
             // ws服务端给客户端推送消息
             wsMessageHanler(e) {
                 if (e.data === 'pong'){
-                    console.log('22222'+e.data)
+                    // console.log('22222'+e.data)
                 }else {
+                    console.log('传输的单条问题数据：')
                     console.log(JSON.parse(e.data))
                     let newJson = this.changeTreeDate(JSON.parse(e.data), 'switchProblemVOList', 'children')
                     let newJson1 = this.changeTreeDate(newJson, 'switchProblemCOList', 'children')
@@ -747,6 +914,7 @@
                     const splitIp = newJson1[0].switchIp.split(':')[0]
                     newJson1[0].copyIpThred = copyIpThred
                     newJson1[0].switchIp = splitIp
+                    console.log('一次处理后的数据：')
                     console.log(newJson1)
                     //改变结构后
                     if (this.newData.length == 0){
@@ -802,6 +970,10 @@
                     for (let i = 0; i < shu.length; i++) {
                         for (let g = 0; g < shu[i].children.length; g++) {
                             for (let m = 0; m < shu[i].children[g].children.length; m++) {
+                                //给第三层数据添加IP
+                                const noUseIp = shu[i].switchIp
+                                this.$set(shu[i].children[g].children[m],'noUseIp',noUseIp)
+                                //参数+问题名 拼接展示
                                 if (shu[i].children[g].children[m].valueInformationVOList.length > 0) {
                                     let mi1 = ''
                                     let mi2 = ''
@@ -809,7 +981,7 @@
                                         if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit === '是') {
                                             mi1 = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation
                                             mi2 = mi2 + ' ' + mi1
-                                            console.log(mi2)
+                                            // console.log(mi2)
                                         }
                                     }
                                     const wenti = shu[i].children[g].children[m].problemName
@@ -835,12 +1007,12 @@
                         }
                     }
                     this.alljiao.allInfo = nowxinxi
+                    console.log('后端交换机IP数据:')
                     console.log(this.alljiao.allInfo)
+                    console.log('展示的问题数据:')
                     console.log(this.nowData)
                 }
             },
-
-
             /**
              * ws通信发生错误
              */
@@ -856,6 +1028,10 @@
                 console.log('正常的' + "+" + event.code + "+" + event.reason + "+" + event.wasClean)
                 console.log(event, 'ws关闭')
                 this.wsInit()
+            },
+            /////////////
+            closeWebSocket(event){
+                this.wsCloseHanler(event)
             },
             /**
              * 销毁ws

@@ -10,59 +10,59 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="型号" prop="switchType">
-        <el-input
-          v-model="queryParams.switchType"
-          placeholder="请输入型号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="内部固件版本" prop="firewareVersion">
-        <el-input
-          v-model="queryParams.firewareVersion"
-          placeholder="请输入内部固件版本"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="子版本号" prop="subVersion">
-        <el-input
-          v-model="queryParams.subVersion"
-          placeholder="请输入子版本号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="获取up端口号命令" prop="getPortCommand">
-        <el-input
-          v-model="queryParams.getPortCommand"
-          placeholder="请输入获取up端口号命令"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="获取光衰参数命令" prop="getParameterCommand">
-        <el-input
-          v-model="queryParams.getParameterCommand"
-          placeholder="请输入获取光衰参数命令"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="型号" prop="switchType">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.switchType"-->
+<!--          placeholder="请输入型号"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="内部固件版本" prop="firewareVersion">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.firewareVersion"-->
+<!--          placeholder="请输入内部固件版本"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="子版本号" prop="subVersion">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.subVersion"-->
+<!--          placeholder="请输入子版本号"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="获取up端口号命令" prop="getPortCommand">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.getPortCommand"-->
+<!--          placeholder="请输入获取up端口号命令"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="获取光衰参数命令" prop="getParameterCommand">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.getParameterCommand"-->
+<!--          placeholder="请输入获取光衰参数命令"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+<!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
+<!--    <el-row :gutter="10" class="mb8">-->
+<!--      <el-col :span="1.5">-->
         <el-button
           type="primary"
           plain
@@ -71,54 +71,62 @@
           @click="handleAdd"
           v-hasPermi="['advanced:error_rate_command:add']"
         >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['advanced:error_rate_command:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['advanced:error_rate_command:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          :loading="exportLoading"
-          @click="handleExport"
-          v-hasPermi="['advanced:error_rate_command:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="success"-->
+<!--          plain-->
+<!--          icon="el-icon-edit"-->
+<!--          size="mini"-->
+<!--          :disabled="single"-->
+<!--          @click="handleUpdate"-->
+<!--          v-hasPermi="['advanced:error_rate_command:edit']"-->
+<!--        >修改</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="danger"-->
+<!--          plain-->
+<!--          icon="el-icon-delete"-->
+<!--          size="mini"-->
+<!--          :disabled="multiple"-->
+<!--          @click="handleDelete"-->
+<!--          v-hasPermi="['advanced:error_rate_command:remove']"-->
+<!--        >删除</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="warning"-->
+<!--          plain-->
+<!--          icon="el-icon-download"-->
+<!--          size="mini"-->
+<!--          :loading="exportLoading"-->
+<!--          @click="handleExport"-->
+<!--          v-hasPermi="['advanced:error_rate_command:export']"-->
+<!--        >导出</el-button>-->
+<!--      </el-col>-->
+<!--      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>-->
+<!--    </el-row>-->
 
     <el-table v-loading="loading" :data="error_rate_commandList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="品牌" align="center" prop="brand" />
-      <el-table-column label="型号" align="center" prop="switchType" />
-      <el-table-column label="内部固件版本" align="center" prop="firewareVersion" />
-      <el-table-column label="子版本号" align="center" prop="subVersion" />
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+<!--      <el-table-column label="主键" align="center" prop="id" />-->
+      <el-table-column label="品牌" align="center" prop="brand" width="120px" />
+      <el-table-column label="型号" align="center" prop="switchType" width="120px" />
+      <el-table-column label="内部固件版本" align="center" prop="firewareVersion" width="120px" />
+      <el-table-column label="子版本号" align="center" prop="subVersion" width="120px" />
       <el-table-column label="获取up端口号命令" align="center" prop="getPortCommand" />
       <el-table-column label="获取光衰参数命令" align="center" prop="getParameterCommand" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="转译字符" align="center" prop="conversion" />
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width"  width="180px">
         <template slot-scope="scope">
+          <el-button
+            type="text"
+            icon="el-icon-plus"
+            size="mini"
+            @click="handleAdd"
+            v-hasPermi="['advanced:error_rate_command:add']"
+          >新增</el-button>
           <el-button
             size="mini"
             type="text"
@@ -136,7 +144,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -165,6 +173,9 @@
         </el-form-item>
         <el-form-item label="获取光衰参数命令" prop="getParameterCommand">
           <el-input v-model="form.getParameterCommand" placeholder="请输入获取光衰参数命令" />
+        </el-form-item>
+        <el-form-item label="转译字符" prop="conversion">
+          <el-input v-model="form.conversion" placeholder="请输入转译字符" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -211,7 +222,8 @@ export default {
         firewareVersion: null,
         subVersion: null,
         getPortCommand: null,
-        getParameterCommand: null
+        getParameterCommand: null,
+        conversion : null
       },
       // 表单参数
       form: {},
@@ -220,6 +232,12 @@ export default {
         brand: [
           { required: true, message: "品牌不能为空", trigger: "blur" }
         ],
+          getPortCommand: [
+              { required: true, message: "获取up端口号命令不能为空", trigger: "blur" }
+          ],
+          getParameterCommand: [
+              { required: true, message: "获取光衰参数命令不能为空", trigger: "blur" }
+          ]
       }
     };
   },
@@ -250,7 +268,8 @@ export default {
         firewareVersion: null,
         subVersion: null,
         getPortCommand: null,
-        getParameterCommand: null
+        getParameterCommand: null,
+        conversion : 'GE:GigabitEthernet'
       };
       this.resetForm("form");
     },

@@ -101,9 +101,9 @@
         <!--      <el-form-item>-->
         <!--        <el-button type="primary" @click="huoquid">定义问题命令</el-button>-->
         <!--      </el-form-item>-->
-<!--              <el-form-item>-->
-<!--                <el-button type="primary" @click="xiangqing">定义问题详情</el-button>-->
-<!--              </el-form-item>-->
+              <el-form-item>
+                <el-button type="primary" @click="xiangqing">定义问题详情</el-button>
+              </el-form-item>
         <!--      <el-form-item>-->
         <!--        <el-button type="primary" @click="subProblem">合并按钮</el-button>-->
         <!--      </el-form-item>-->

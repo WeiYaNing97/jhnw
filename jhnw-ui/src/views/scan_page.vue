@@ -50,6 +50,13 @@
           </span>
         </el-dialog>
         <div style="display: inline-block;float: right;margin-right: 100px">
+          <el-select v-model="advcancedChoose" clearable placeholder="高级功能定义"
+                     @focus="advacedNull" @change="openAdvanced" style="padding-right: 10px">
+            <el-option label="OSPF" value="OSPF"></el-option>
+            <el-option label="光纤衰耗" value="光纤衰耗"></el-option>
+            <el-option label="误码率" value="误码率"></el-option>
+          </el-select>
+          <el-button @click="avTest">高级功能</el-button>
           <p style="display: inline-block;margin: 0">扫描线程数:</p>
           <el-input-number size="small" style="width:75px" v-model="num" controls-position="right"
                            @change="handleChange" :min="1" :max="5"></el-input-number>
@@ -277,6 +284,8 @@
         inject:["reload"],
         data() {
             return {
+                //
+                advcancedChoose:'',
                 //模板扫描
                 formScan:{
                     model_name:''
@@ -470,6 +479,25 @@
             // this.getList();
         },
         methods: {
+            //
+            avTest(){
+              console.log(this.advcancedChoose)
+            },
+            //
+            advacedNull(){
+                console.log('点击了')
+                this.advcancedChoose = ''
+            },
+            //
+            openAdvanced(){
+                if (this.advcancedChoose == 'OSPF'){
+                    console.log('ospf')
+                }else if(this.advcancedChoose == '误码率'){
+                    console.log('误码率')
+                }else if (this.advcancedChoose == '光纤衰耗'){
+                    console.log('光纤衰耗')
+                }
+            },
             //模板扫描模块
             general(e){
                 this.who = e.target.getAttribute('name')
@@ -580,6 +608,7 @@
                     url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
                     method:'get'
                 }).then(response=>{
+                    console.log('专项扫描分类修改前:')
                     console.log(response)
                     function changeTreeDate(arrayJsonObj,oldKey,newKey) {
                         let strtest = JSON.stringify(arrayJsonObj);
@@ -614,6 +643,7 @@
                         })
                     }
                     this.fenxiang.push(this.advancedScan)
+                    console.log('专项扫描分类修改后:')
                     console.log(this.fenxiang)
                 })
             },
@@ -832,9 +862,11 @@
                         totalQuestionTableId.push(zhuanid[i])
                     }
                 }
+                console.log('专项扫描所有问题ID:')
                 console.log(totalQuestionTableId)
 
                 let zuihouall = zuihou.map(x=>JSON.stringify(x))
+                console.log('专项扫描IP:')
                 console.log(zuihouall)
                 if(totalQuestionTableId.length == 0){
                     this.$alert('没有选择要扫描的项,请重新选择!', '专项扫描', {
@@ -843,7 +875,6 @@
                     })
                 }else {
                     this.dialogVisibleSpecial = false
-                    console.log('专项扫描')
                     return request({
                         url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
                         method:'post',

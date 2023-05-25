@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <h2>OSPF功能定义:</h2>
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="品牌" prop="brand">
         <el-input
@@ -10,110 +11,117 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="型号" prop="switchType">
-        <el-input
-          v-model="queryParams.switchType"
-          placeholder="请输入型号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="内部固件版本" prop="firewareVersion">
-        <el-input
-          v-model="queryParams.firewareVersion"
-          placeholder="请输入内部固件版本"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="子版本号" prop="subVersion">
-        <el-input
-          v-model="queryParams.subVersion"
-          placeholder="请输入子版本号"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="获取光衰参数命令" prop="getParameterCommand">
-        <el-input
-          v-model="queryParams.getParameterCommand"
-          placeholder="请输入获取光衰参数命令"
-          clearable
-          size="small"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
+<!--      <el-form-item label="型号" prop="switchType">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.switchType"-->
+<!--          placeholder="请输入型号"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="内部固件版本" prop="firewareVersion">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.firewareVersion"-->
+<!--          placeholder="请输入内部固件版本"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="子版本号" prop="subVersion">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.subVersion"-->
+<!--          placeholder="请输入子版本号"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="获取光衰参数命令" prop="getParameterCommand">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.getParameterCommand"-->
+<!--          placeholder="请输入获取光衰参数命令"-->
+<!--          clearable-->
+<!--          size="small"-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+<!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['advanced:ospf_command:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['advanced:ospf_command:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['advanced:ospf_command:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-download"
-          size="mini"
-          :loading="exportLoading"
-          @click="handleExport"
-          v-hasPermi="['advanced:ospf_command:export']"
-        >导出</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
+<!--    <el-row :gutter="10" class="mb8">-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="primary"-->
+<!--          plain-->
+<!--          icon="el-icon-plus"-->
+<!--          size="mini"-->
+<!--          @click="handleAdd"-->
+<!--          v-hasPermi="['advanced:ospf_command:add']"-->
+<!--        >新增</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="success"-->
+<!--          plain-->
+<!--          icon="el-icon-edit"-->
+<!--          size="mini"-->
+<!--          :disabled="single"-->
+<!--          @click="handleUpdate"-->
+<!--          v-hasPermi="['advanced:ospf_command:edit']"-->
+<!--        >修改</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="danger"-->
+<!--          plain-->
+<!--          icon="el-icon-delete"-->
+<!--          size="mini"-->
+<!--          :disabled="multiple"-->
+<!--          @click="handleDelete"-->
+<!--          v-hasPermi="['advanced:ospf_command:remove']"-->
+<!--        >删除</el-button>-->
+<!--      </el-col>-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="warning"-->
+<!--          plain-->
+<!--          icon="el-icon-download"-->
+<!--          size="mini"-->
+<!--          :loading="exportLoading"-->
+<!--          @click="handleExport"-->
+<!--          v-hasPermi="['advanced:ospf_command:export']"-->
+<!--        >导出</el-button>-->
+<!--      </el-col>-->
+<!--      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>-->
+<!--    </el-row>-->
 
     <el-table v-loading="loading" :data="ospf_commandList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="主键" align="center" prop="id" />
-      <el-table-column label="品牌" align="center" prop="brand" />
-      <el-table-column label="型号" align="center" prop="switchType" />
-      <el-table-column label="内部固件版本" align="center" prop="firewareVersion" />
-      <el-table-column label="子版本号" align="center" prop="subVersion" />
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+<!--      <el-table-column label="主键" align="center" prop="id" />-->
+      <el-table-column label="品牌" align="center" prop="brand" width="120px" />
+      <el-table-column label="型号" align="center" prop="switchType" width="120px" />
+      <el-table-column label="内部固件版本" align="center" prop="firewareVersion" width="120px" />
+      <el-table-column label="子版本号" align="center" prop="subVersion" width="120px" />
       <el-table-column label="获取光衰参数命令" align="center" prop="getParameterCommand" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width"  width="180px">
         <template slot-scope="scope">
+          <el-button
+            type="text"
+            icon="el-icon-plus"
+            size="mini"
+            @click="handleAdd"
+            v-hasPermi="['advanced:ospf_command:add']"
+          >新增</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
+            @click="handleUpdateOSPF(scope.row)"
             v-hasPermi="['advanced:ospf_command:edit']"
           >修改</el-button>
           <el-button
@@ -126,7 +134,6 @@
         </template>
       </el-table-column>
     </el-table>
-    
     <pagination
       v-show="total>0"
       :total="total"
@@ -134,6 +141,16 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
+
+    <br/>
+    <h2>光纤衰耗功能定义:</h2>
+    <Optical></Optical>
+
+    <br/>
+    <h2>误码率功能定义:</h2>
+    <errorRate></errorRate>
+
+
 
     <!-- 添加或修改OSPF命令对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
@@ -164,9 +181,15 @@
 
 <script>
 import { listOspf_command, getOspf_command, delOspf_command, addOspf_command, updateOspf_command, exportOspf_command } from "@/api/advanced/ospf_command";
+import Optical from '@/views/advanced/light_attenuation_command'
+import errorRate from '@/views/advanced/error_rate_command'
 
 export default {
   name: "Ospf_command",
+    components:{
+        Optical,
+        errorRate
+    },
   data() {
     return {
       // 遮罩层
@@ -262,7 +285,7 @@ export default {
       this.title = "添加OSPF命令";
     },
     /** 修改按钮操作 */
-    handleUpdate(row) {
+    handleUpdateOSPF(row) {
       this.reset();
       const id = row.id || this.ids
       getOspf_command(id).then(response => {
