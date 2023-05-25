@@ -60,7 +60,6 @@ public class ErrorPackage {
 
         /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
-
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
             // todo 关于交换机返回错误信息 的错误代码库
@@ -201,48 +200,6 @@ public class ErrorPackage {
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-
-            returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
-                    " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
-                    " Description: To_ShuJuWangHuLian_G1/0/18\n" +
-                    " Loopback is not set\n" +
-                    " Media type is twisted pair\n" +
-                    " Port hardware type is  1000_BASE_T\n" +
-                    " 1000Mbps-speed mode, full-duplex mode\n" +
-                    " Link speed type is autonegotiation, link duplex type is autonegotiation\n" +
-                    " Flow-control is not enabled\n" +
-                    " The Maximum Frame Length is 10000\n" +
-                    " Broadcast MAX-ratio: 100%\n" +
-                    " Unicast MAX-ratio: 100%\n" +
-                    " Multicast MAX-ratio: 100%\n" +
-                    " Allow jumbo frame to pass\n" +
-                    " PVID: 1\n" +
-                    " Mdi type: auto\n" +
-                    " Port link-type: trunk\n" +
-                    "  VLAN passing  : 118, 602\n" +
-                    "  VLAN permitted: 118, 602\n" +
-                    "  Trunk port encapsulation: IEEE 802.1q\n" +
-                    " Port priority: 0\n" +
-                    " Last clearing of counters:  Never\n" +
-                    " Peak value of input: 207721 bytes/sec, at 2022-11-08 06:26:00\n" +
-                    " Peak value of output: 33198 bytes/sec, at 2023-03-27 10:50:33\n" +
-                    " Last 300 seconds input:  2 packets/sec 282 bytes/sec 0%\n" +
-                    " Last 300 seconds output:  2 packets/sec 290 bytes/sec 0%\n" +
-                    " Input (total):  56148368 packets, 6611001881 bytes\n" +
-                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input (normal):  56148368 packets, - bytes\n" +
-                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
-                    "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
-                    "         - ignored, - parity errors\n" +
-                    " Output (total): 46229751 packets, 4553563599 bytes\n" +
-                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-                    " Output (normal): 46229751 packets, - bytes\n" +
-                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-                    " Output: 0 output errors, - underruns, - buffer failures\n" +
-                    "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
-                    "         0 lost carrier, - no carrier";
-            returnResults = MyUtils.trimString(returnResults);
 
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库

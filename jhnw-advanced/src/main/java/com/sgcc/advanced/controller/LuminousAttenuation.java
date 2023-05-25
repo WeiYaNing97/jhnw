@@ -112,10 +112,6 @@ public class LuminousAttenuation {
             port = port.stream().map(m -> m.replace(conversSplit[0] , conversSplit[1])).collect(Collectors.toList());
         }
 
-
-
-
-
         /*8：根据 up状态端口号 及交换机信息 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()*/
         HashMap<String, Double> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
         /*9：获取光衰参数为空*/
@@ -288,12 +284,13 @@ public class LuminousAttenuation {
         for (String port:portNumber){
             /*替换端口号 得到完整的 获取端口号光衰参数命令 */
             String FullCommand = command.replaceAll("端口号",port);
+
+
             /*交换机执行命令 并返回结果*/
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-            returnResults = "Current diagnostic parameters[AP:Average Power]:\n" +
-                    "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\n" +
-                    "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
-            returnResults = MyUtils.trimString(returnResults);
+
+
+
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n");
