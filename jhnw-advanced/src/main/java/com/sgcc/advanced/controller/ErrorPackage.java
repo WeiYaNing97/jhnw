@@ -58,8 +58,15 @@ public class ErrorPackage {
         errorRateCommand =getpojo(errorRateCommandList);
         String portNumberCommand = errorRateCommand.getGetPortCommand();
 
-        /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        /**
+         * 3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息
+         */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
+
+
+
+
+
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
             // todo 关于交换机返回错误信息 的错误代码库
@@ -90,13 +97,13 @@ public class ErrorPackage {
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = errorRateCommand.getConversion();
         String[] conversionSplit = conversion.split(";");
-        Map<String,String> escapeMap = new HashMap<>();
         for (String convers:conversionSplit){
-            escapeMap.put(convers.split(":")[0],convers.split(":")[1]);
-        }
-        Set<String> mapKey = escapeMap.keySet();
-        for (String key:mapKey){
-            portList = portList.stream().map(m -> m.replace(key , escapeMap.get(key))).collect(Collectors.toList());
+            String[] conversSplit = convers.split(":");
+            for (int num=0;num<portList.size();num++){
+                if (MyUtils.getFirstLetters(portList.get(num)).trim().equals(conversSplit[0])){
+                    portList.set(num,portList.get(num).replace(conversSplit[0],conversSplit[1]));
+                }
+            }
         }
 
 
@@ -198,7 +205,9 @@ public class ErrorPackage {
             List<String> valueList = new ArrayList<>();
             /*替换端口号 得到完整的 获取端口号误码率参数命令 */
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
-            /*交换机执行命令 并返回结果*/
+            /**
+             * 交换机执行命令 并返回结果
+             */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
             if (returnResults == null){

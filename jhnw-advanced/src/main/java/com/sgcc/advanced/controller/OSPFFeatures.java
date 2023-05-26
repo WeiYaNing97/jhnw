@@ -1,6 +1,5 @@
 package com.sgcc.advanced.controller;
 
-import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.domain.Ospf;
 import com.sgcc.advanced.domain.OspfCommand;
 import com.sgcc.advanced.domain.OspfEnum;
@@ -10,11 +9,9 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
-import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
-import com.sgcc.share.domain.Constant;
 import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,25 +59,14 @@ public class OSPFFeatures {
         ospfCommand = getpojo(ospfCommandList);
         String command = ospfCommand.getGetParameterCommand();
 
-        /*根据交换机信息类  执行交换命令*/
+        /**
+         * 根据交换机信息类  执行交换命令
+         */
         String commandReturn = FunctionalMethods.executeScanCommandByCommand(switchParameters,command);
 
-        /* 测试数据 */
-        /*commandReturn = "\n" +
-                "                  OSPF Process 100 with Router ID 10.122.114.208\n" +
-                "                        Neighbor Brief Information\n" +
-                "\n" +
-                " Area: 0.0.0.0\n" +
-                " Router ID       Address         Pri Dead-Time Interface       State\n" +
-                " 10.122.114.196  10.98.138.149   1   37        Vlan3           Full/BDR\n" +
-                " 10.122.114.196  10.98.139.246   1   38        Vlan4           Full/BDR\n" +
-                " 10.122.114.196  10.98.138.3     1   39        Vlan6           Full/BDR\n" +
-                " 10.122.114.196  10.98.136.14    1   35        Vlan7           Full/BDR\n" +
-                " 10.122.114.196  10.98.137.72    1   35        Vlan200         Full/BDR\n" +
-                " 10.122.114.196  10.98.138.196   1   35        Vlan2000        Full/BDR\n" +
-                " 10.122.114.220  10.122.119.166  1   35        Vlan2001        Full/BDR\n" +
-                " 10.122.114.196  100.1.2.253     1   35        Vlan50          Full/BDR";
-        commandReturn = MyUtils.trimString(commandReturn);*/
+
+
+
 
         /*执行命令返回结果为null 则是命令执行错误*/
         if (commandReturn == null){

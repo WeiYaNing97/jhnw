@@ -70,8 +70,15 @@ public class LuminousAttenuation {
         lightAttenuationCommand = getpojo(lightAttenuationCommandList);
         String command = lightAttenuationCommand.getGetPortCommand();
 
-        /*3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        /**
+         * 3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
+         */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+
+
+
+
+
 
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
@@ -109,7 +116,11 @@ public class LuminousAttenuation {
         String[] conversionSplit = conversion.split(";");
         for (String convers:conversionSplit){
             String[] conversSplit = convers.split(":");
-            port = port.stream().map(m -> m.replace(conversSplit[0] , conversSplit[1])).collect(Collectors.toList());
+            for (int num=0;num<port.size();num++){
+                if (MyUtils.getFirstLetters(port.get(num)).trim().equals(conversSplit[0])){
+                    port.set(num,port.get(num).replace(conversSplit[0],conversSplit[1]));
+                }
+            }
         }
 
         /*8：根据 up状态端口号 及交换机信息 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()*/
@@ -284,9 +295,9 @@ public class LuminousAttenuation {
         for (String port:portNumber){
             /*替换端口号 得到完整的 获取端口号光衰参数命令 */
             String FullCommand = command.replaceAll("端口号",port);
-
-
-            /*交换机执行命令 并返回结果*/
+            /**
+             * 交换机执行命令 并返回结果
+             */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
 
