@@ -236,11 +236,11 @@ public class ErrorPackage {
 
             // =:= 是自定义分割符
             String InputErrors = primaryErrorRate.getInputErrors()!=null?"input=:=是=:=input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+"=:="
-                    :"input:"+errorRate.getInputErrors()+"=:=";
+                    :"input=:=是=:="+errorRate.getInputErrors()+"=:=";
             String OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output=:=是=:=output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+"=:="
-                    :"output:"+errorRate.getOutputErrors()+"=:=";
+                    :"output=:=是=:="+errorRate.getOutputErrors()+"=:=";
             String Crc = primaryErrorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
-                    :"crc:"+errorRate.getCrc();
+                    :"crc=:=是=:="+errorRate.getCrc();
             String parameterString = InputErrors + OutputErrors + Crc;
             if (parameterString.endsWith("=:=")){
                 parameterString = parameterString.substring(0,parameterString.length()-3);

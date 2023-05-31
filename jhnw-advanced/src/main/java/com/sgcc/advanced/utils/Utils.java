@@ -1,8 +1,8 @@
 package com.sgcc.advanced.utils;
+
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 
 public class Utils {
-
     public static boolean LightAttenuationComparisonEquals(LightAttenuationComparison lightAttenuationComparison,LightAttenuationComparison pojo) {
         /*TX平均值*/
         if (!(lightAttenuationComparison.getTxAverageValue().equals(pojo.getTxAverageValue()))){ return false; }

@@ -63,15 +63,13 @@ public class OSPFFeatures {
          * 根据交换机信息类  执行交换命令
          */
         String commandReturn = FunctionalMethods.executeScanCommandByCommand(switchParameters,command);
+
         /*commandReturn = "OSPF process 100, 3 Neighbors, 3 is Full:\n" +
                 "Neighbor ID     Pri   State                BFD State  Dead Time   Address         Interface\n" +
                 "10.122.114.89     1   Full/BDR             -          00:00:39    10.122.114.89   GigabitEthernet 9/2\n" +
                 "10.122.119.18     1   Full/DR              -          00:00:34    10.122.114.94   GigabitEthernet 9/1\n" +
                 "10.122.114.226    1   Full/DR              -          00:00:34    10.122.114.134  GigabitEthernet 9/14";
         commandReturn = MyUtils.trimString(commandReturn);*/
-
-
-
 
         /*执行命令返回结果为null 则是命令执行错误*/
         if (commandReturn == null){
@@ -94,8 +92,10 @@ public class OSPFFeatures {
 
             for (Ospf ospf:ospfList){
                 try {
+                    // todo 前端回显OSPF信息
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"ospf:地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n");
                     PathHelper.writeDataToFileByName(switchParameters.getIp()+":地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n","ospf");
+
                     SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                     HashMap<String,String> hashMap = new HashMap<>();
                     hashMap.put("ProblemName","OSPF");

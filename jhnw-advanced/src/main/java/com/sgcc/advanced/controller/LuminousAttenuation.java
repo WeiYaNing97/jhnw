@@ -153,6 +153,7 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"获取端口号命令错误,请重新定义");
         }
+
         /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取获取光衰端口号*/
         List<String> port = ObtainUPStatusPortNumber(returnString);
         for (String str:port){
@@ -240,7 +241,7 @@ public class LuminousAttenuation {
 
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(portstr+"TX")+
-                        "RX:"+getparameter.get(portstr+"RX"));
+                        "  RX:"+getparameter.get(portstr+"RX"));
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
@@ -291,7 +292,7 @@ public class LuminousAttenuation {
         for (String information:strings){
             /*根据 UP 截取端口号*/
             String terminalSlogan = getTerminalSlogan(information);
-            if (terminalSlogan != null){
+            if (terminalSlogan != null && !(MyUtils.getFirstLetters(terminalSlogan).equalsIgnoreCase("Eth"))){
                 port.add(terminalSlogan);
             }
         }

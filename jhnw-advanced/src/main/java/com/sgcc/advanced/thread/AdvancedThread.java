@@ -33,14 +33,18 @@ public class AdvancedThread extends Thread {
 
     @Override
     public void run() {
+
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters);
+
         //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
         if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))) {
+
             this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
+
             for (String function:functionName){
                 switch (function){
                     case "OSPF":
@@ -57,8 +61,11 @@ public class AdvancedThread extends Thread {
                         break;
                 }
             }
+
         }else {
+
             try {
+
                 // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
                         "未定义该交换机获取基本信息命令及分析\r\n");
@@ -69,6 +76,7 @@ public class AdvancedThread extends Thread {
                 e.printStackTrace();
             }
         }
+
         AdvancedThreadPool.removeThread(this.getName());
         countDownLatch.countDown();
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数

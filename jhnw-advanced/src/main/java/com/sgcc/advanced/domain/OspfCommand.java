@@ -34,8 +34,8 @@ public class OspfCommand extends BaseEntity
     @Excel(name = "子版本号")
     private String subVersion;
 
-    /** 获取光衰参数命令 */
-    @Excel(name = "获取光衰参数命令")
+    /** 获取OSPF参数命令 */
+    @Excel(name = "获取OSPF参数命令")
     private String getParameterCommand;
 
     public void setId(Long id) 
