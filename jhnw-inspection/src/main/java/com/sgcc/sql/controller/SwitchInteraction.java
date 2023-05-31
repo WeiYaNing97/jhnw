@@ -1102,8 +1102,7 @@ public class SwitchInteraction {
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
          */
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
-        String numberOfCyclesString = (String) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
-        Integer numberOfCycles = Integer.valueOf(numberOfCyclesString).intValue();
+        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
         String strings = selectProblemScanLogicById(switchParameters, totalQuestionTable,
                 resultString.split("\r\n"), //交换机返回结果 按行分割 交换机返回信息字符串
                 "", "",
@@ -1723,7 +1722,8 @@ public class SwitchInteraction {
         if (totalQuestionTable.getProblemSolvingId() != null){
             switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());//命令索引
         }else {
-            //传输登陆人姓名 及问题简述
+
+            /*//传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+totalQuestionTable.getId()
                     +totalQuestionTable.getTypeProblem()+totalQuestionTable.getTemProName()+totalQuestionTable.getProblemName()
                     +"未定义解决问题\r\n");
@@ -1734,7 +1734,7 @@ public class SwitchInteraction {
                         +"未定义解决问题\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
 
         switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
@@ -2068,8 +2068,7 @@ public class SwitchInteraction {
     public String analysisReturnResults(SwitchParameters switchParameters,
                                         TotalQuestionTable totalQuestionTable,
                                         List<Object> executeScanCommandByCommandId_object,String current_Round_Extraction_String,String extractInformation_string){
-        String numberOfCyclesString = (String) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
-        Integer numberOfCycles = Integer.valueOf(numberOfCyclesString).intValue();//配置文件中 获取 最大循环次数  循环 为定义问题的循环 例如 获取多用户
+        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());//配置文件中 获取 最大循环次数  循环 为定义问题的循环 例如 获取多用户
         //根据ID去分析
         // executeScanCommandByCommandId_object.get(1)+""  分析第一条ID
         //executeScanCommandByCommandId_object.get(0).toString() 交换机返回信息
@@ -2129,6 +2128,27 @@ public class SwitchInteraction {
 
         // todo 连续几个命令然后再执行 分析 可以做吗？
         for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){
+
+            if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
+
+                //传输登陆人姓名 及问题简述
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+totalQuestionTable.getId()
+                        +totalQuestionTable.getTypeProblem()+totalQuestionTable.getTemProName()+totalQuestionTable.getProblemName()
+                        +"未定义解决问题\r\n");
+                try {
+                    //插入问题简述及问题路径
+                    PathHelper.writeDataToFile("风险："+totalQuestionTable.getId()
+                            +totalQuestionTable.getTypeProblem()+totalQuestionTable.getTemProName()+totalQuestionTable.getProblemName()
+                            +"未定义解决问题\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+
+
+
             if (totalQuestionTable.getCommandId().indexOf("命令") != -1){
                 // ---- More ----
                 switchParameters.setNotFinished(totalQuestionTable.getNotFinished());

@@ -62,7 +62,61 @@ public class ErrorPackage {
          * 3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息
          */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
-
+        /*returnString = "The brief information of interface(s) under route mode:\n" +
+                "Link: ADM - administratively down; Stby - standby\n" +
+                "Protocol: (s) - spoofing\n" +
+                "Interface            Link Protocol Main IP         Description\n" +
+                "Loop114              UP   UP(s)    10.122.114.208\n" +
+                "M-E0/0/0             DOWN DOWN     --\n" +
+                "NULL0                UP   UP(s)    --\n" +
+                "Vlan3                UP   UP       10.98.138.147\n" +
+                "Vlan4                UP   UP       10.98.139.239\n" +
+                "Vlan6                UP   UP       10.98.138.2\n" +
+                "Vlan7                UP   UP       10.98.136.13\n" +
+                "Vlan50               UP   UP       100.1.2.252\n" +
+                "Vlan200              UP   UP       10.98.137.71\n" +
+                "Vlan2000             UP   UP       10.98.138.195   to-shiju\n" +
+                "Vlan2001             UP   UP       10.122.119.161\n" +
+                "\n" +
+                "The brief information of interface(s) under bridge mode:\n" +
+                "Link: ADM - administratively down; Stby - standby\n" +
+                "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
+                "Type: A - access; T - trunk; H - hybrid\n" +
+                "Interface            Link Speed   Duplex Type PVID Description\n" +
+                "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
+                "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
+                "GE0/0/2              ADM  auto    A      T    1\n" +
+                "GE0/0/3              UP   1G(a)   F(a)   T    1\n" +
+                "GE0/0/4              ADM  auto    A      T    1\n" +
+                "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
+                "GE0/0/6              ADM  auto    A      T    1\n" +
+                "GE0/0/7              UP   1G(a)   F(a)   T    1    To_AnBeiSuo_S5720_G0/0/49\n" +
+                "GE0/0/8              ADM  auto    A      A    1\n" +
+                "GE0/0/9              ADM  auto    A      A    1\n" +
+                "GE0/0/10             ADM  auto    A      A    1\n" +
+                "GE0/0/11             DOWN 1G      F      T    1    To_ZhuLouJiFang2_XG0/0/3\n" +
+                "GE0/0/12             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+                "GE0/0/13             ADM  auto    A      A    1\n" +
+                "GE0/0/14             ADM  auto    A      A    1\n" +
+                "GE0/0/15             ADM  auto    A      A    1\n" +
+                "GE0/0/16             DOWN 1G      F      T    1    to_fajianbu_S3448\n" +
+                "GE0/0/17             ADM  auto    A      A    1\n" +
+                "GE0/0/18             ADM  auto    A      A    1\n" +
+                "GE0/0/19             ADM  auto    A      A    1\n" +
+                "GE0/0/20             ADM  auto    A      A    1\n" +
+                "GE0/0/21             ADM  auto    A      A    1\n" +
+                "GE0/0/22             ADM  auto    A      A    1\n" +
+                "GE0/0/23             ADM  auto    A      A    1\n" +
+                "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
+                "GE0/0/25             DOWN auto    A      T    1\n" +
+                "GE0/0/26             DOWN auto    A      T    1\n" +
+                "GE0/0/27             DOWN auto    A      T    1\n" +
+                "GE0/0/28             DOWN auto    A      T    1\n" +
+                "GE0/0/29             DOWN auto    A      T    1\n" +
+                "GE0/0/30             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+                "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
+                "GE0/0/32             ADM  auto    A      A    200  To_HX_S7506E";
+        returnString = MyUtils.trimString(returnString);*/
 
 
 
@@ -181,9 +235,13 @@ public class ErrorPackage {
             }
 
             // =:= 是自定义分割符
-            String parameterString = (errorRate.getInputErrors()!=null?"input=:=是=:=input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+"=:=":"")
-                    +(errorRate.getOutputErrors()!=null?"output=:=是=:=output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+"=:=":"")
-                    +(errorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc():"");
+            String InputErrors = primaryErrorRate.getInputErrors()!=null?"input=:=是=:=input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+"=:="
+                    :"input:"+errorRate.getInputErrors()+"=:=";
+            String OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output=:=是=:=output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+"=:="
+                    :"output:"+errorRate.getOutputErrors()+"=:=";
+            String Crc = primaryErrorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
+                    :"crc:"+errorRate.getCrc();
+            String parameterString = InputErrors + OutputErrors + Crc;
             if (parameterString.endsWith("=:=")){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
             }
@@ -209,6 +267,48 @@ public class ErrorPackage {
              * 交换机执行命令 并返回结果
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
+            /*returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
+                    " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
+                    " Description: To_ShuJuWangHuLian_G1/0/18\n" +
+                    " Loopback is not set\n" +
+                    " Media type is twisted pair\n" +
+                    " Port hardware type is  1000_BASE_T\n" +
+                    " 1000Mbps-speed mode, full-duplex mode\n" +
+                    " Link speed type is autonegotiation, link duplex type is autonegotiation\n" +
+                    " Flow-control is not enabled\n" +
+                    " The Maximum Frame Length is 10000\n" +
+                    " Broadcast MAX-ratio: 100%\n" +
+                    " Unicast MAX-ratio: 100%\n" +
+                    " Multicast MAX-ratio: 100%\n" +
+                    " Allow jumbo frame to pass\n" +
+                    " PVID: 1\n" +
+                    " Mdi type: auto\n" +
+                    " Port link-type: trunk\n" +
+                    "  VLAN passing  : 118, 602\n" +
+                    "  VLAN permitted: 118, 602\n" +
+                    "  Trunk port encapsulation: IEEE 802.1q\n" +
+                    " Port priority: 0\n" +
+                    " Last clearing of counters:  Never\n" +
+                    " Peak value of input: 207721 bytes/sec, at 2022-11-08 06:26:00\n" +
+                    " Peak value of output: 33198 bytes/sec, at 2023-03-27 10:50:33\n" +
+                    " Last 300 seconds input:  2 packets/sec 282 bytes/sec 0%\n" +
+                    " Last 300 seconds output:  2 packets/sec 290 bytes/sec 0%\n" +
+                    " Input (total):  56148368 packets, 6611001881 bytes\n" +
+                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
+                    " Input (normal):  56148368 packets, - bytes\n" +
+                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
+                    " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
+                    "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
+                    "         - ignored, - parity errors\n" +
+                    " Output (total): 46229751 packets, 4553563599 bytes\n" +
+                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
+                    " Output (normal): 46229751 packets, - bytes\n" +
+                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
+                    " Output: 0 output errors, - underruns, - buffer failures\n" +
+                    "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
+                    "         0 lost carrier, - no carrier\n";
+            returnResults = MyUtils.trimString(returnResults);*/
+
 
             if (returnResults == null){
                 // todo 获取光衰参数命令错误代码库

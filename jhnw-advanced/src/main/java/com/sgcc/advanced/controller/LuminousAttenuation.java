@@ -1,11 +1,8 @@
 package com.sgcc.advanced.controller;
-import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.domain.LightAttenuationCommand;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
-import com.sgcc.advanced.domain.OspfCommand;
 import com.sgcc.advanced.service.ILightAttenuationCommandService;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
-import com.sgcc.advanced.service.IOspfCommandService;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
@@ -49,7 +46,17 @@ public class LuminousAttenuation {
     public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
         /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
         LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
-        lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
+
+        /**
+         * 如果是 路由器 则在品牌后面添加路由器
+         */
+        if (switchParameters.getRouterFlag().equals("交换机")){
+            lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
+        }else {
+            lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand()+"路由器");
+        }
+
+
         lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
         lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
@@ -75,6 +82,61 @@ public class LuminousAttenuation {
          */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
 
+        /*returnString = "The brief information of interface(s) under route mode:\n" +
+                "Link: ADM - administratively down; Stby - standby\n" +
+                "Protocol: (s) - spoofing\n" +
+                "Interface            Link Protocol Main IP         Description\n" +
+                "Loop114              UP   UP(s)    10.122.114.208\n" +
+                "M-E0/0/0             DOWN DOWN     --\n" +
+                "NULL0                UP   UP(s)    --\n" +
+                "Vlan3                UP   UP       10.98.138.147\n" +
+                "Vlan4                UP   UP       10.98.139.239\n" +
+                "Vlan6                UP   UP       10.98.138.2\n" +
+                "Vlan7                UP   UP       10.98.136.13\n" +
+                "Vlan50               UP   UP       100.1.2.252\n" +
+                "Vlan200              UP   UP       10.98.137.71\n" +
+                "Vlan2000             UP   UP       10.98.138.195   to-shiju\n" +
+                "Vlan2001             UP   UP       10.122.119.161\n" +
+                "\n" +
+                "The brief information of interface(s) under bridge mode:\n" +
+                "Link: ADM - administratively down; Stby - standby\n" +
+                "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
+                "Type: A - access; T - trunk; H - hybrid\n" +
+                "Interface            Link Speed   Duplex Type PVID Description\n" +
+                "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
+                "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
+                "GE0/0/2              ADM  auto    A      T    1\n" +
+                "GE0/0/3              UP   1G(a)   F(a)   T    1\n" +
+                "GE0/0/4              ADM  auto    A      T    1\n" +
+                "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
+                "GE0/0/6              ADM  auto    A      T    1\n" +
+                "GE0/0/7              UP   1G(a)   F(a)   T    1    To_AnBeiSuo_S5720_G0/0/49\n" +
+                "GE0/0/8              ADM  auto    A      A    1\n" +
+                "GE0/0/9              ADM  auto    A      A    1\n" +
+                "GE0/0/10             ADM  auto    A      A    1\n" +
+                "GE0/0/11             DOWN 1G      F      T    1    To_ZhuLouJiFang2_XG0/0/3\n" +
+                "GE0/0/12             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+                "GE0/0/13             ADM  auto    A      A    1\n" +
+                "GE0/0/14             ADM  auto    A      A    1\n" +
+                "GE0/0/15             ADM  auto    A      A    1\n" +
+                "GE0/0/16             DOWN 1G      F      T    1    to_fajianbu_S3448\n" +
+                "GE0/0/17             ADM  auto    A      A    1\n" +
+                "GE0/0/18             ADM  auto    A      A    1\n" +
+                "GE0/0/19             ADM  auto    A      A    1\n" +
+                "GE0/0/20             ADM  auto    A      A    1\n" +
+                "GE0/0/21             ADM  auto    A      A    1\n" +
+                "GE0/0/22             ADM  auto    A      A    1\n" +
+                "GE0/0/23             ADM  auto    A      A    1\n" +
+                "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
+                "GE0/0/25             DOWN auto    A      T    1\n" +
+                "GE0/0/26             DOWN auto    A      T    1\n" +
+                "GE0/0/27             DOWN auto    A      T    1\n" +
+                "GE0/0/28             DOWN auto    A      T    1\n" +
+                "GE0/0/29             DOWN auto    A      T    1\n" +
+                "GE0/0/30             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+                "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
+                "GE0/0/32             ADM  auto    A      A    200  To_HX_S7506E";
+        returnString = MyUtils.trimString(returnString);*/
 
 
 
@@ -141,8 +203,8 @@ public class LuminousAttenuation {
             for (String portstr:port){
                 // todo  根据光衰参数阈值  的代码库 回显和日志
                 String lightAttenuationInformation = "IP地址:"+switchParameters.getIp()+
-                        "端口号:"+portstr+"TX:"+getparameter.get(portstr+"TX")+"阈值["+getparameter.get(portstr+"TXLOW")+","+getparameter.get(portstr+"TXHIGH")+"]"+
-                                      "RX:"+getparameter.get(portstr+"RX")+"阈值["+getparameter.get(portstr+"RXLOW")+","+getparameter.get(portstr+"RXHIGH")+"]";
+                        "端口号:"+portstr+"TX:"+getparameter.get(portstr+"TX")+
+                                      "RX:"+getparameter.get(portstr+"RX");
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),
                         "系统信息:"+switchParameters.getIp()+":"+"光衰:"+ lightAttenuationInformation+"\r\n");
                 PathHelper.writeDataToFileByName(lightAttenuationInformation+"\r\n","光衰");
@@ -168,24 +230,17 @@ public class LuminousAttenuation {
                     continue;
                 }
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
-                    continue;
-                }
-                lightAttenuationComparison = lightAttenuationComparisons.get(0);
-
-                if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
-                    hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
-                }
-                if (MyUtils.isInRange(getparameter.get(portstr+"RX"),getparameter.get(portstr+"RXLOW"),getparameter.get(portstr+"RXHIGH"))){
                     hashMap.put("IfQuestion","无问题");
-                    /*continue;*/
                 }else {
-                    hashMap.put("IfQuestion","有问题");
+                    lightAttenuationComparison = lightAttenuationComparisons.get(0);
+                    if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
+                        hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
+                    }
                 }
-
 
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
-                        "TX:"+getparameter.get(portstr+"TX")+"阈值["+getparameter.get(portstr+"TXLOW")+","+getparameter.get(portstr+"TXHIGH")+"]"+
-                        "RX:"+getparameter.get(portstr+"RX")+"阈值["+getparameter.get(portstr+"RXLOW")+","+getparameter.get(portstr+"RXHIGH")+"]");
+                        "TX:"+getparameter.get(portstr+"TX")+
+                        "RX:"+getparameter.get(portstr+"RX"));
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
@@ -299,7 +354,13 @@ public class LuminousAttenuation {
              * 交换机执行命令 并返回结果
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-
+            /*returnResults = "GigabitEthernet0/0/12 transceiver diagnostic information:\n" +
+                    "  Current diagnostic parameters:\n" +
+                    "    Temp(¡ãC)  Voltage(V)  Bias(mA)  RX power(dBm)  TX power(dBm)\n" +
+                    "    39        3.31        8.92      -6.88          -6.18\n" +
+                    "\n" +
+                    "<AnPingJu_H3C_7503E>";
+            returnResults = MyUtils.trimString(returnResults);*/
 
 
             if (returnResults == null){
@@ -315,6 +376,7 @@ public class LuminousAttenuation {
 
             /*提取光衰参数*/
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
+
             if (values == null){
                 // todo 为提取到光衰参数
                 continue;
@@ -322,10 +384,6 @@ public class LuminousAttenuation {
 
             hashMap.put(port+"TX",values.get("TX"));
             hashMap.put(port+"RX",values.get("RX"));
-            hashMap.put(port+"TXHIGH",values.get("TXHIGH"));
-            hashMap.put(port+"RXHIGH",values.get("RXHIGH"));
-            hashMap.put(port+"TXLOW",values.get("TXLOW"));
-            hashMap.put(port+"RXLOW",values.get("RXLOW"));
         }
         return hashMap;
     }
@@ -380,7 +438,7 @@ public class LuminousAttenuation {
                         .collect(Collectors.toList());
                 if (values.size()!=2){
                     /*光衰参数行有多余2个负数 无法去除*/
-                    // todo 光衰参数取值失败 光衰参数行有多余2个负数 错误代码
+                    // todo 光衰参数取值失败 光衰参数行有多于2个负数 错误代码
                     return null;
                 }
                 if (num == 1){

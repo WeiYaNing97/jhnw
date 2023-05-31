@@ -222,7 +222,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectSwitchScanResultByIds" parameterType="Long" resultMap="SwitchScanResultResult">
         <include refid="selectSwitchScanResultVo"/>
-        and id in
+        where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

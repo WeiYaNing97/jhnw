@@ -984,7 +984,7 @@ public class DefinitionProblemController extends BaseController {
         });
         executor.execute(future);
         try {
-            String maximumTimeoutString = (String) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
+            Integer maximumTimeoutString = (Integer) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
             List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
             System.out.println(result);
         } catch (InterruptedException e) {

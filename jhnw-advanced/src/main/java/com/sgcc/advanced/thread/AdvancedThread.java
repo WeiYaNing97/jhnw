@@ -5,7 +5,10 @@ import com.sgcc.advanced.controller.OSPFFeatures;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.ConnectToObtainInformation;
+import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.webSocket.WebSocketService;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -21,13 +24,11 @@ public class AdvancedThread extends Thread {
     public AdvancedThread(String threadName,
                           SwitchParameters switchParameters, List<String> functionName,
                       CountDownLatch countDownLatch, ExecutorService fixedThreadPool) {
-
         super(threadName);
         this.functionName = functionName;
         this.countDownLatch = countDownLatch;
         this.fixedThreadPool = fixedThreadPool;
         this.switchParameters = switchParameters;
-
     }
 
     @Override
@@ -35,34 +36,41 @@ public class AdvancedThread extends Thread {
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
-
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters);
         //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
         if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))) {
             this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-        }
+            for (String function:functionName){
+                switch (function){
+                    case "OSPF":
+                        OSPFFeatures ospfFeatures = new OSPFFeatures();
+                        ospfFeatures.getOSPFValues(switchParameters);
+                        break;
+                    case "光衰":
+                        LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
+                        luminousAttenuation.obtainLightDecay(switchParameters);
+                        break;
+                    case "误码率":
+                        ErrorPackage errorPackage = new ErrorPackage();
+                        errorPackage.getErrorPackage(switchParameters);
+                        break;
+                }
+            }
+        }else {
+            try {
+                // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
+                        "未定义该交换机获取基本信息命令及分析\r\n");
+                PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"成功基本信息："+
+                        "未定义该交换机获取基本信息命令及分析\r\n","基本信息");
 
-        for (String function:functionName){
-            switch (function){
-                case "OSPF":
-                    OSPFFeatures ospfFeatures = new OSPFFeatures();
-                    ospfFeatures.getOSPFValues(switchParameters);
-                    break;
-                case "光衰":
-                    LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
-                    luminousAttenuation.obtainLightDecay(switchParameters);
-                    break;
-                case "误码率":
-                    ErrorPackage errorPackage = new ErrorPackage();
-                    errorPackage.getErrorPackage(switchParameters);
-                    break;
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-
         AdvancedThreadPool.removeThread(this.getName());
         countDownLatch.countDown();
-
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);

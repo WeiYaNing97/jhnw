@@ -63,7 +63,12 @@ public class OSPFFeatures {
          * 根据交换机信息类  执行交换命令
          */
         String commandReturn = FunctionalMethods.executeScanCommandByCommand(switchParameters,command);
-
+        /*commandReturn = "OSPF process 100, 3 Neighbors, 3 is Full:\n" +
+                "Neighbor ID     Pri   State                BFD State  Dead Time   Address         Interface\n" +
+                "10.122.114.89     1   Full/BDR             -          00:00:39    10.122.114.89   GigabitEthernet 9/2\n" +
+                "10.122.119.18     1   Full/DR              -          00:00:34    10.122.114.94   GigabitEthernet 9/1\n" +
+                "10.122.114.226    1   Full/DR              -          00:00:34    10.122.114.134  GigabitEthernet 9/14";
+        commandReturn = MyUtils.trimString(commandReturn);*/
 
 
 

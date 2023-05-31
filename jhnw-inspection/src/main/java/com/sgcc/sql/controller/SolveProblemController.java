@@ -310,7 +310,7 @@ public class SolveProblemController {
                 //交换机基本信息
                 switchInformationService = SpringBeanUtil.getBean(ISwitchInformationService.class);
                 SwitchInformation switchInformation = switchInformationService.selectSwitchInformationById(switchScanResult.getSwitchId());
-                if (switchParameters.getIp().equals(switchScanResult.getSwitchIp())
+                if (switchScanResult.getSwitchIp().startsWith(switchParameters.getIp())
                         && switchParameters.getDeviceBrand().equals(switchInformation.getBrand())
                         && switchParameters.getDeviceModel().equals(switchInformation.getSwitchType())
                         && switchParameters.getFirmwareVersion().equals(switchInformation.getFirewareVersion())
@@ -347,28 +347,20 @@ public class SolveProblemController {
             /*遍历 需要修复的 交换机问题*/
             for (SwitchScanResult switchScanResult:switchScanResultLists){
 
-                if(switchScanResult.getComId() == null || switchScanResult.getComId().equals("null")){
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
-
-                    try {
-                        PathHelper.writeDataToFile("风险："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    continue;
-                }
-
                 /*如果交换机扫描结果中 未定义 修复问题 则 去交换机问题表中查询 并赋值*/
-                if (switchScanResult.getComId() == null){
+                if (switchScanResult.getComId() == null || switchScanResult.getComId().equals("null")){
                     totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
                     TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Long.valueOf(switchScanResult.getProblemId()).longValue());
                     if (totalQuestionTable.getProblemSolvingId() != null){
-
                         switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());
-
                     }else {
-                        return AjaxResult.error("未定义修复命令");
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                        try {
+                            PathHelper.writeDataToFile("风险："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        continue;
                     }
                 }
 
