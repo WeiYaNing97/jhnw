@@ -59,6 +59,7 @@ public class AdvancedFeatures {
             e.printStackTrace();
         }
 
+        System.out.println("扫描结束");
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");

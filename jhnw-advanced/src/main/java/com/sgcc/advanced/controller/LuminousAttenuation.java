@@ -355,6 +355,8 @@ public class LuminousAttenuation {
              * 交换机执行命令 并返回结果
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
+
+
             /*returnResults = "GigabitEthernet0/0/12 transceiver diagnostic information:\n" +
                     "  Current diagnostic parameters:\n" +
                     "    Temp(¡ãC)  Voltage(V)  Bias(mA)  RX power(dBm)  TX power(dBm)\n" +

@@ -62,6 +62,7 @@ public class ErrorPackage {
          * 3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息
          */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
+
         /*returnString = "The brief information of interface(s) under route mode:\n" +
                 "Link: ADM - administratively down; Stby - standby\n" +
                 "Protocol: (s) - spoofing\n" +
@@ -267,6 +268,7 @@ public class ErrorPackage {
              * 交换机执行命令 并返回结果
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
+
             /*returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
                     " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
                     " Description: To_ShuJuWangHuLian_G1/0/18\n" +
