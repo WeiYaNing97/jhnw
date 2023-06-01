@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="品牌" prop="brand">
         <el-input
@@ -57,12 +57,6 @@
 <!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-<!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
-      </el-form-item>
-    </el-form>
-
-<!--    <el-row :gutter="10" class="mb8">-->
-<!--      <el-col :span="1.5">-->
         <el-button
           type="primary"
           plain
@@ -71,6 +65,20 @@
           @click="handleAdd"
           v-hasPermi="['advanced:error_rate_command:add']"
         >新增</el-button>
+<!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
+      </el-form-item>
+    </el-form>
+
+<!--    <el-row :gutter="10" class="mb8">-->
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="primary"-->
+<!--          plain-->
+<!--          icon="el-icon-plus"-->
+<!--          size="mini"-->
+<!--          @click="handleAdd"-->
+<!--          v-hasPermi="['advanced:error_rate_command:add']"-->
+<!--        >新增</el-button>-->
 <!--      </el-col>-->
 <!--      <el-col :span="1.5">-->
 <!--        <el-button-->
@@ -116,7 +124,7 @@
       <el-table-column label="内部固件版本" align="center" prop="firewareVersion" width="120px" />
       <el-table-column label="子版本号" align="center" prop="subVersion" width="120px" />
       <el-table-column label="获取up端口号命令" align="center" prop="getPortCommand" />
-      <el-table-column label="获取光衰参数命令" align="center" prop="getParameterCommand" />
+      <el-table-column label="获取误码率命令" align="center" prop="getParameterCommand" />
       <el-table-column label="转译字符" align="center" prop="conversion" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width"  width="180px">
         <template slot-scope="scope">
@@ -171,8 +179,8 @@
         <el-form-item label="获取up端口号命令" prop="getPortCommand">
           <el-input v-model="form.getPortCommand" placeholder="请输入获取up端口号命令" />
         </el-form-item>
-        <el-form-item label="获取光衰参数命令" prop="getParameterCommand">
-          <el-input v-model="form.getParameterCommand" placeholder="请输入获取光衰参数命令" />
+        <el-form-item label="获取误码率命令" prop="getParameterCommand">
+          <el-input v-model="form.getParameterCommand" placeholder="请输入获取误码率命令" />
         </el-form-item>
         <el-form-item label="转译字符" prop="conversion">
           <el-input v-model="form.conversion" placeholder="请输入转译字符" />
