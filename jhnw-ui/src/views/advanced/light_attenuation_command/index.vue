@@ -58,6 +58,14 @@
 <!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-button
+          type="primary"
+          plain
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+          v-hasPermi="['advanced:light_attenuation_command:add']"
+        >新增</el-button>
 <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
       </el-form-item>
     </el-form>
@@ -227,14 +235,18 @@ export default {
         conversion:null
       },
       // 表单参数
-      form: {
-          conversion : 'GE:GigabitEthernet'
-      },
+      form: {},
       // 表单校验
       rules: {
         brand: [
           { required: true, message: "品牌不能为空", trigger: "blur" }
         ],
+          getPortCommand: [
+              { required: true, message: "获取up端口号命令不能为空", trigger: "blur" }
+          ],
+          getParameterCommand: [
+              { required: true, message: "获取光衰参数命令不能为空", trigger: "blur" }
+          ]
       }
     };
   },
@@ -267,7 +279,8 @@ export default {
         firewareVersion: null,
         subVersion: null,
         getPortCommand: null,
-        getParameterCommand: null
+        getParameterCommand: null,
+        conversion : 'GE:GigabitEthernet'
       };
       this.resetForm("form");
     },

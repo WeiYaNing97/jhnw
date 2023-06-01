@@ -17,6 +17,9 @@
         <el-button type="success" @click="modelScan" v-if="this.scanShow == true"
                    :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>下发模板</el-button>
 
+        <el-button type="success" @click="specialSearchAdv" v-if="this.scanShow == true"
+                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>高级功能</el-button>
+
         <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
                    @click="rStart" size="small">返  回</el-button>
 
@@ -50,13 +53,13 @@
           </span>
         </el-dialog>
         <div style="display: inline-block;float: right;margin-right: 100px">
-          <el-select v-model="advcancedChoose" clearable placeholder="高级功能定义"
-                     @focus="advacedNull" @change="openAdvanced" style="padding-right: 10px">
-            <el-option label="OSPF" value="OSPF"></el-option>
-            <el-option label="光纤衰耗" value="光纤衰耗"></el-option>
-            <el-option label="误码率" value="误码率"></el-option>
-          </el-select>
-          <el-button @click="avTest">高级功能</el-button>
+<!--          <el-select v-model="advcancedChoose" clearable placeholder="高级功能定义"-->
+<!--                     @focus="advacedNull" @change="openAdvanced" style="padding-right: 10px">-->
+<!--            <el-option label="OSPF" value="OSPF"></el-option>-->
+<!--            <el-option label="光纤衰耗" value="光纤衰耗"></el-option>-->
+<!--            <el-option label="误码率" value="误码率"></el-option>-->
+<!--          </el-select>-->
+          <el-button @click="avTest" type="primary" style="margin-right: 10px">高级配置</el-button>
           <p style="display: inline-block;margin: 0">扫描线程数:</p>
           <el-input-number size="small" style="width:75px" v-model="num" controls-position="right"
                            @change="handleChange" :min="1" :max="5"></el-input-number>
@@ -86,7 +89,8 @@
 <!--          </el-scrollbar>-->
         </div>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="specialSearchStart">开始扫描</el-button>
+          <el-button type="primary" @click="specialSearchStart" v-show="!showButton">开始扫描专项</el-button>
+          <el-button type="primary" @click="specialSearchStartAdv" v-show="showButton">开始扫描高级</el-button>
           <el-button @click="dialogVisibleSpecial = false">取 消</el-button>
 <!--          <el-button type="primary" @click="dialogVisibleSpecial = false">确 定</el-button>-->
         </span>
@@ -221,7 +225,7 @@
             @pagination="getList"-->
     <!--    />-->
 
-    <!-- 添加或修改嘉豪测试对话框 -->
+    <!-- 添加或修改测试对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="ip" prop="ip">
@@ -248,6 +252,7 @@
       </div>
     </el-dialog>
 
+<!--    模板扫描-->
     <el-dialog title="模板选择" class="modelDia" :visible.sync="dialogFormVisibleOne">
       <el-form :model="formScan">
         <el-form-item label="选择模板" label-width="80px">
@@ -272,6 +277,7 @@
     import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo"
     import  {MessageBox} from "element-ui"
     import * as XLSX from 'xlsx'
+    import router from '@/router/index'
     import request from '@/utils/request'
     import { JSEncrypt } from 'jsencrypt'
     export default {
@@ -375,6 +381,8 @@
                 multiple: true,
                 // 显示搜索条件
                 showSearch: true,
+                //专项还是高级功能
+                showButton:true,
                 //一键扫描是否可用
                 scanUse:false,
                 //一键扫描显示
@@ -481,7 +489,10 @@
         methods: {
             //
             avTest(){
-              console.log(this.advcancedChoose)
+              // console.log(this.advcancedChoose)
+                router.push({
+                    path:'/advanced/ospf_command'
+                })
             },
             //
             advacedNull(){
@@ -600,8 +611,35 @@
                 if (!value) return true;
                 return data.label.indexOf(value) !== -1;
             },
+            //高级功能
+            specialSearchAdv(){
+                this.showButton = true
+                this.dialogVisibleSpecial = true
+                this.showxiang = true
+                // var ce = {}
+                this.fenxiang = [
+                    {
+                        label:"高级功能",
+                        children: [
+                            {
+                                label:"OSPF",
+                                id:'OSPF'
+                            },
+                            {
+                                label:"光衰",
+                                id:'光衰'
+                            },
+                            {
+                                label:"误码率",
+                                id:'误码率'
+                            }
+                        ]
+                    }
+                ]
+            },
             //专项扫描
             specialSearch(){
+                this.showButton = false
                 this.dialogVisibleSpecial = true
                 this.showxiang = true
                 return request({
@@ -646,6 +684,121 @@
                     console.log('专项扫描分类修改后:')
                     console.log(this.fenxiang)
                 })
+            },
+            //高级功能开始扫描
+            specialSearchStartAdv(){
+                this.scanShow = false
+                this.cancelShow = true
+                //最终扫描设备
+                let zuihou = []
+                if (this.xuanzhong.length>0){
+                    zuihou = this.xuanzhong
+                }else {
+                    zuihou = JSON.parse(JSON.stringify(this.tableData))
+                }
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<zuihou.length;i++){
+                    this.$delete(zuihou[i],'isEdit')
+                    this.$delete(zuihou[i],'passmi')
+                    this.$delete(zuihou[i],'conCip')
+                    //给用户密码加密
+                    var pass = encrypt.encrypt(zuihou[i].password)
+                    this.$set(zuihou[i],'password',pass)
+
+                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
+                    this.$set(zuihou[i],'configureCiphers',passPei)
+                }
+                //传输几个线程
+                const scanNum = this.num
+                //专项扫描的所有id
+                var zhuanid = this.$refs.treeone.getCheckedKeys()
+                console.log(zhuanid)
+                const functionNameT = []
+                for(let i = 0;i<=zhuanid.length;i++){
+                    if (typeof(zhuanid[i])!='undefined'){
+                        functionNameT.push(zhuanid[i])
+                    }
+                }
+                const functionName = functionNameT.filter(item=>{
+                    return item != '高级功能'
+                })
+                console.log(functionName)
+                let zuihouall = zuihou.map(x=>JSON.stringify(x))
+                console.log(zuihouall)
+
+                if(functionNameT.length == 0){
+                    this.$alert('没有选择要扫描的项,请重新选择!', '高级扫描', {
+                        confirmButtonText: '确定',
+                        type:'warning'
+                    });
+                }else {
+                    this.dialogVisibleSpecial = false
+                    console.log('高级扫描')
+                    return request({
+                        url:'/advanced/AdvancedFeatures/advancedFunction/'+scanNum+'/'+functionName,
+                        method:'post',
+                        data:zuihouall
+                    }).then(response=>{
+                        // this.$message.success('扫描请求以提交!')
+                    })
+                }
+            },
+            //专项开始扫描
+            specialSearchStart(){
+                this.scanShow = false
+                this.cancelShow = true
+                //最终扫描设备
+                let zuihou = []
+                if (this.xuanzhong.length>0){
+                    zuihou = this.xuanzhong
+                }else {
+                    zuihou = JSON.parse(JSON.stringify(this.tableData))
+                }
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<zuihou.length;i++){
+                    this.$delete(zuihou[i],'isEdit')
+                    this.$delete(zuihou[i],'passmi')
+                    this.$delete(zuihou[i],'conCip')
+                    //密码加密
+                    var pass = encrypt.encrypt(zuihou[i].password)
+                    this.$set(zuihou[i],'password',pass)
+                    //配置密码加密
+                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
+                    this.$set(zuihou[i],'configureCiphers',passPei)
+                }
+                //传输几个线程
+                const scanNum = this.num
+                //专项扫描的所有id
+                var zhuanid = this.$refs.treeone.getCheckedKeys()
+                const totalQuestionTableId = []
+                for(let i = 0;i<=zhuanid.length;i++){
+                    if (typeof(zhuanid[i])!='undefined'){
+                        totalQuestionTableId.push(zhuanid[i])
+                    }
+                }
+                console.log('专项扫描所有问题ID:')
+                console.log(totalQuestionTableId)
+
+                let zuihouall = zuihou.map(x=>JSON.stringify(x))
+                console.log('专项扫描IP:')
+                console.log(zuihouall)
+                if(totalQuestionTableId.length == 0){
+                    this.$alert('没有选择要扫描的项,请重新选择!', '专项扫描', {
+                        confirmButtonText: '确定',
+                        type:'warning'
+                    })
+                }else {
+                    this.dialogVisibleSpecial = false
+                    return request({
+                        url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
+                        method:'post',
+                        data:zuihouall
+                    }).then(response=>{
+                        // this.$message.success('扫描请求以提交!')
+                    })
+                }
             },
             //选择设备
             xuanze(row){
@@ -828,62 +981,7 @@
                     this.$message.warning('已取消扫描!')
                 })
             },
-            //专项开始扫描
-            specialSearchStart(){
-                this.scanShow = false
-                this.cancelShow = true
-                //最终扫描设备
-                let zuihou = []
-                if (this.xuanzhong.length>0){
-                    zuihou = this.xuanzhong
-                }else {
-                    zuihou = JSON.parse(JSON.stringify(this.tableData))
-                }
-                var encrypt = new JSEncrypt();
-                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-                for (let i = 0;i<zuihou.length;i++){
-                    this.$delete(zuihou[i],'isEdit')
-                    this.$delete(zuihou[i],'passmi')
-                    this.$delete(zuihou[i],'conCip')
-                    //密码加密
-                    var pass = encrypt.encrypt(zuihou[i].password)
-                    this.$set(zuihou[i],'password',pass)
-                    //配置密码加密
-                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
-                    this.$set(zuihou[i],'configureCiphers',passPei)
-                }
-                //传输几个线程
-                const scanNum = this.num
-                //专项扫描的所有id
-                var zhuanid = this.$refs.treeone.getCheckedKeys()
-                const totalQuestionTableId = []
-                for(let i = 0;i<=zhuanid.length;i++){
-                    if (typeof(zhuanid[i])!='undefined'){
-                        totalQuestionTableId.push(zhuanid[i])
-                    }
-                }
-                console.log('专项扫描所有问题ID:')
-                console.log(totalQuestionTableId)
 
-                let zuihouall = zuihou.map(x=>JSON.stringify(x))
-                console.log('专项扫描IP:')
-                console.log(zuihouall)
-                if(totalQuestionTableId.length == 0){
-                    this.$alert('没有选择要扫描的项,请重新选择!', '专项扫描', {
-                        confirmButtonText: '确定',
-                        type:'warning'
-                    })
-                }else {
-                    this.dialogVisibleSpecial = false
-                    return request({
-                        url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
-                        method:'post',
-                        data:zuihouall
-                    }).then(response=>{
-                        // this.$message.success('扫描请求以提交!')
-                    })
-                }
-            },
             //全面扫描new
             fullScan(){
                 this.scanUse = false

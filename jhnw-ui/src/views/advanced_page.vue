@@ -619,6 +619,65 @@
                 //     console.log(this.fenxiang)
                 // })
             },
+            //高级功能开始扫描
+            specialSearchStart(){
+                this.scanShow = false
+                this.cancelShow = true
+                //最终扫描设备
+                let zuihou = []
+                if (this.xuanzhong.length>0){
+                    zuihou = this.xuanzhong
+                }else {
+                    zuihou = JSON.parse(JSON.stringify(this.tableData))
+                }
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<zuihou.length;i++){
+                    this.$delete(zuihou[i],'isEdit')
+                    this.$delete(zuihou[i],'passmi')
+                    this.$delete(zuihou[i],'conCip')
+                    //给用户密码加密
+                    var pass = encrypt.encrypt(zuihou[i].password)
+                    this.$set(zuihou[i],'password',pass)
+
+                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
+                    this.$set(zuihou[i],'configureCiphers',passPei)
+                }
+                //传输几个线程
+                const scanNum = this.num
+                //专项扫描的所有id
+                var zhuanid = this.$refs.treeone.getCheckedKeys()
+                console.log(zhuanid)
+                const functionNameT = []
+                for(let i = 0;i<=zhuanid.length;i++){
+                    if (typeof(zhuanid[i])!='undefined'){
+                        functionNameT.push(zhuanid[i])
+                    }
+                }
+                const functionName = functionNameT.filter(item=>{
+                    return item != '高级功能'
+                })
+                console.log(functionName)
+                let zuihouall = zuihou.map(x=>JSON.stringify(x))
+                console.log(zuihouall)
+
+                if(functionNameT.length == 0){
+                    this.$alert('没有选择要扫描的项,请重新选择!', '高级扫描', {
+                        confirmButtonText: '确定',
+                        type:'warning'
+                    });
+                }else {
+                    this.dialogVisibleSpecial = false
+                    console.log('高级扫描')
+                    return request({
+                        url:'/advanced/AdvancedFeatures/advancedFunction/'+scanNum+'/'+functionName,
+                        method:'post',
+                        data:zuihouall
+                    }).then(response=>{
+                        // this.$message.success('扫描请求以提交!')
+                    })
+                }
+            },
             //专项所有
             zhuanall(){
                 this.showxiang = true
@@ -680,18 +739,18 @@
             //新增设备
             xinzeng(){
                 this.tableData.push({
-                    // ip: '192.168.1.100',
-                    // name: 'admin',
-                    // password:'admin',
+                    ip: '192.168.1.100',
+                    name: 'admin',
+                    password:'admin',
                     // passmi:'********',
                     // mode:'ssh',
                     // port:22,
                     // isEdit:true,
                     // conCip:'********',
                     // configureCiphers:''
-                    ip: '',
-                    name: '',
-                    password:'',
+                    // ip: '',
+                    // name: '',
+                    // password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
@@ -839,64 +898,6 @@
                 }).catch(ee=>{
                     this.$message.warning('已取消扫描!')
                 })
-            },
-            //高级功能开始扫描
-            specialSearchStart(){
-                this.scanShow = false
-                this.cancelShow = true
-                //最终扫描设备
-                let zuihou = []
-                if (this.xuanzhong.length>0){
-                    zuihou = this.xuanzhong
-                }else {
-                    zuihou = JSON.parse(JSON.stringify(this.tableData))
-                }
-                var encrypt = new JSEncrypt();
-                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-                for (let i = 0;i<zuihou.length;i++){
-                    this.$delete(zuihou[i],'isEdit')
-                    this.$delete(zuihou[i],'passmi')
-                    this.$delete(zuihou[i],'conCip')
-                    //给用户密码加密
-                    var pass = encrypt.encrypt(zuihou[i].password)
-                    this.$set(zuihou[i],'password',pass)
-
-                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
-                    this.$set(zuihou[i],'configureCiphers',passPei)
-                }
-                //传输几个线程
-                const scanNum = this.num
-                //专项扫描的所有id
-                var zhuanid = this.$refs.treeone.getCheckedKeys()
-                const functionNameT = []
-                for(let i = 0;i<=zhuanid.length;i++){
-                    if (typeof(zhuanid[i])!='undefined'){
-                        functionNameT.push(zhuanid[i])
-                    }
-                }
-                const functionName = functionNameT.filter(item=>{
-                    return item != '高级功能'
-                })
-                console.log(functionName)
-                let zuihouall = zuihou.map(x=>JSON.stringify(x))
-                console.log(zuihouall)
-
-                if(functionNameT.length == 0){
-                    this.$alert('没有选择要扫描的项,请重新选择!', '高级扫描', {
-                        confirmButtonText: '确定',
-                        type:'warning'
-                    });
-                }else {
-                    this.dialogVisibleSpecial = false
-                    console.log('高级扫描')
-                    return request({
-                        url:'/advanced/AdvancedFeatures/advancedFunction/'+scanNum+'/'+functionName,
-                        method:'post',
-                        data:zuihouall
-                    }).then(response=>{
-                        // this.$message.success('扫描请求以提交!')
-                    })
-                }
             },
             //全面扫描new
             fullScan(){
