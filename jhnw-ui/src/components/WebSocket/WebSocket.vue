@@ -170,6 +170,10 @@
                     console.log(e)
                     if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){
                         this.textareaOne = this.textareaOne + e.data
+                        if (e.data.indexOf('扫描结束') != -1){
+                            console.log('我接收结束了')
+                            this.webSocket.send('接收结束')
+                        }
                     }else if (e.data.indexOf('系统信息') != -1){
                         this.textareaInfo = this.textareaInfo + e.data
                     }else if (e.data.indexOf('风险') != -1){
