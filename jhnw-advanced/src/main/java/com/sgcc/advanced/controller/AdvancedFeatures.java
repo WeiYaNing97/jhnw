@@ -1,6 +1,7 @@
 package com.sgcc.advanced.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.sgcc.advanced.thread.AdvancedRunnable;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.enums.BusinessType;
@@ -52,21 +53,35 @@ public class AdvancedFeatures {
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
+
         try {
             /*高级功能线程池*/
-            AdvancedThreadPool.switchLoginInformations(parameterSet,functionName);
+            AdvancedThreadPool.switchLoginInformations(parameterSet, functionName);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        System.out.println("扫描结束");
+
+        System.err.println("扫描结束");
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "扫描结束";
-    }
 
+        Date now = new Date();
+        Date now_10 = new Date(now.getTime() + 600000); //10分钟后的时间
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
+        String nowTime_10 = dateFormat.format(now_10);
+        while (true){
+            if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
+                WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
+                return "扫描结束";
+            }
+            if (dateFormat.format(new Date(now.getTime())).compareTo(nowTime_10) >=0 ){
+                return "扫描结束";
+            }
+        }
+    }
 }

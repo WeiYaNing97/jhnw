@@ -673,6 +673,7 @@ public class FunctionalMethods {
         //交换机返回信息 按行分割为 字符串数组
         // 因为登录信息 会另起一行 登录信息 会在行首
         String[] switchInformation_array = switchInformation.split("\r\n");
+
         //循环遍历 按行分析 是否存在登录信息
         for (int number=0;number<switchInformation_array.length;number++){
 
@@ -682,6 +683,7 @@ public class FunctionalMethods {
                 switchInformation_array[number] = loginInformationAuthentication.trim();
             }
         }
+
         //因为 之前 按行分割了
         //返回字符串
         StringBuilder stringBuilder = new StringBuilder();

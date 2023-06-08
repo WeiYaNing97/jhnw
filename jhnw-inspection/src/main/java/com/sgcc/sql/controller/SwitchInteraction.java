@@ -289,7 +289,7 @@ public class SwitchInteraction {
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
         parameterSet.setSwitchParameters(switchParametersList);
         try {
-            DirectionalScanThreadPool.switchLoginInformations(parameterSet,totalQuestionTables,advancedName);
+            DirectionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedName);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -299,7 +299,23 @@ public class SwitchInteraction {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "扫描结束";
+
+        Date now = new Date();
+        Date now_10 = new Date(now.getTime() + 600000); //10分钟后的时间
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
+        String nowTime_10 = dateFormat.format(now_10);
+
+        while (true){
+            if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
+                WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
+                return "扫描结束";
+            }
+            if (dateFormat.format(new Date(now.getTime())).compareTo(nowTime_10) >=0 ){
+                return "扫描结束";
+            }
+        }
+
+
     }
 
     /**
@@ -359,7 +375,24 @@ public class SwitchInteraction {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "扫描结束";
+
+
+        Date now = new Date();
+        Date now_10 = new Date(now.getTime() + 600000); //10分钟后的时间
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
+        String nowTime_10 = dateFormat.format(now_10);
+
+        while (true){
+            if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
+                WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
+                return "扫描结束";
+            }
+            if (dateFormat.format(new Date(now.getTime())).compareTo(nowTime_10) >=0 ){
+                return "扫描结束";
+            }
+        }
+
+
     }
 
 

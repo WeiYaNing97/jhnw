@@ -203,26 +203,22 @@ public class SshConnect implements Runnable {
             return objects;
         } catch (JSchException e) {
             objects.add(false);
+
             // 连接失败，输出连接失败的原因并进行相应的处理
             if (e.getCause() != null) {
-                System.out.println("Connection failed: " + e.getCause().getMessage());
                 objects.add(e.getCause().getMessage());
             } else {
-                System.out.println("Connection failed: " + e.getMessage());
                 objects.add(e.getMessage());
             }
-            /*if (session.isConnected()) {
+
+            if (session.isConnected()) {
                 if ("SSH-2.0-JSCH-0.1.54".equals(session.getServerVersion())) {
                     objects.add(sshInformation.getIp() + session.getServerVersion());
                 } else {
                     objects.add(sshInformation.getIp() + session.getServerVersion());
                 }
-            }*/
-            if ("SSH-2.0-JSCH-0.1.54".equals(session.getServerVersion())) {
-                objects.add(sshInformation.getIp() + "SSH协议："+session.getServerVersion());
-            } else {
-                objects.add(sshInformation.getIp() + "SSH协议："+session.getServerVersion());
             }
+
             switchInformation.put(ip,sshInformation);
             return objects;
         }

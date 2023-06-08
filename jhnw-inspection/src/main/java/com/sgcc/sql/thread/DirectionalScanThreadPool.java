@@ -39,6 +39,7 @@ public class DirectionalScanThreadPool {
             fixedThreadPool.execute(new DirectionalScanThread(threadName,switchParameters,totalQuestionTables, advancedName,countDownLatch,fixedThreadPool));
         }
         countDownLatch.await();
+        fixedThreadPool.shutdown();
     }
 
 

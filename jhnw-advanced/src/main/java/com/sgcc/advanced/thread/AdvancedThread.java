@@ -9,6 +9,8 @@ import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -34,17 +36,20 @@ public class AdvancedThread extends Thread {
     @Override
     public void run() {
 
-        //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
+        try {
+            PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"开始时间：" + "\r\n","线程");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters);
-
         //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
-        if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))) {
-
+        if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))
+        && !(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))) {
             this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
             for (String function:functionName){
                 switch (function){
                     case "OSPF":
@@ -61,17 +66,13 @@ public class AdvancedThread extends Thread {
                         break;
                 }
             }
-
         }else {
-
             try {
-
                 // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
                         "未定义该交换机获取基本信息命令及分析\r\n");
                 PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"成功基本信息："+
                         "未定义该交换机获取基本信息命令及分析\r\n","基本信息");
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -79,6 +80,15 @@ public class AdvancedThread extends Thread {
 
         AdvancedThreadPool.removeThread(this.getName());
         countDownLatch.countDown();
+
+
+        try {
+            PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"结束时间：" + "\r\n","线程");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);

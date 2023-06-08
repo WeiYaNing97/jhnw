@@ -23,7 +23,6 @@ public class AdvancedThreadPool {
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
         int i = 1;
         for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){
-
             String threadName = getThreadName(i);
             switchParameters.setThreadName(threadName);
             i++;
@@ -31,6 +30,7 @@ public class AdvancedThreadPool {
             fixedThreadPool.execute(new AdvancedThread(threadName,switchParameters,functionName,countDownLatch,fixedThreadPool));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
         countDownLatch.await();
+        fixedThreadPool.shutdown();
     }
 
     public static void removeThread(String threadname) {

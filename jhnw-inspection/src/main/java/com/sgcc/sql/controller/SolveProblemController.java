@@ -177,7 +177,7 @@ public class SolveProblemController {
                 problemIdList = allProIdList;
             }
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
-            repairFixedThreadPool.Solution(parameterSet,problemIdListList,problemIdList);//scanNum
+            repairFixedThreadPool.Solution(parameterSet, problemIdListList, problemIdList);//scanNum
 
         } catch (InterruptedException e) {
             e.printStackTrace();

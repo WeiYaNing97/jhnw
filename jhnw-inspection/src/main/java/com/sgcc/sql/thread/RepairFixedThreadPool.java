@@ -18,18 +18,14 @@ public class RepairFixedThreadPool {
 
     // 用来存储线程名称的map
     public static Map threadNameMap = new HashMap();
-
     /**
      * newFixedThreadPool submit submit
      */
     public void Solution(ParameterSet parameterSet, List<List<SwitchScanResult>> problemList, List<String> problemIdStrings) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
-
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
-
         for (int i = 0 ; i<parameterSet.getSwitchParameters().size() ; i++){
-
             List<SwitchScanResult> switchScanResultList = problemList.get(i);
             List<SwitchScanResult> switchScanResults = new ArrayList<>();
             for (SwitchScanResult switchScanResult:switchScanResultList){
@@ -50,6 +46,7 @@ public class RepairFixedThreadPool {
             }
         }
         countDownLatch.await();
+        fixedThreadPool.shutdown();
     }
 
     public static void removeThread(String i) {

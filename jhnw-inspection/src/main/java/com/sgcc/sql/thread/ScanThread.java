@@ -7,6 +7,8 @@ import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.share.webSocket.WebSocketService;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.*;
 
 /**
@@ -30,6 +32,13 @@ public class ScanThread extends Thread  {
 
     @Override
     public void run() {
+
+        try {
+            PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"开始时间：" + "\r\n","线程");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
 
             //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
@@ -60,9 +69,17 @@ public class ScanThread extends Thread  {
             ScanFixedThreadPool.removeThread(this.getName());
             countDownLatch.countDown();
         }
+
+        try {
+            PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"结束时间：" + "\r\n","线程");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
+
     }
 
 }

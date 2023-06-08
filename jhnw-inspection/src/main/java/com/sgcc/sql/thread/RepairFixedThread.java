@@ -3,9 +3,13 @@ package com.sgcc.sql.thread;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.domain.SwitchScanResult;
 import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.sql.controller.SolveProblemController;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -38,8 +42,13 @@ public class RepairFixedThread extends Thread {
 
     @Override
     public void run() {
-        try {
 
+        try {
+            try {
+                PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"开始时间：" + "\r\n","线程");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
             int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
             System.err.println("活跃线程数："+threadCount);
@@ -62,6 +71,13 @@ public class RepairFixedThread extends Thread {
             RepairFixedThreadPool.removeThread(this.getName());
             countDownLatch.countDown();
         }
+
+        try {
+            PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"结束时间：" + "\r\n","线程");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);

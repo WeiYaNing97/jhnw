@@ -36,6 +36,7 @@ public class ScanFixedThreadPool {
             fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
         countDownLatch.await();
+        fixedThreadPool.shutdown();
     }
 
 

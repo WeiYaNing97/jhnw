@@ -242,6 +242,15 @@ public class LuminousAttenuation {
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(portstr+"TX")+
                         "  RX:"+getparameter.get(portstr+"RX"));
+                try {
+                    PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+
+                            "端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
+                            "TX:"+getparameter.get(portstr+"TX")+
+                            "  RX:"+getparameter.get(portstr+"RX")+"\r\n","光衰");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);

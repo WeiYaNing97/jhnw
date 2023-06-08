@@ -35,6 +35,7 @@ public class ErrorPackage {
     private IErrorRateCommandService errorRateCommandService;
 
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
+
         /*1：获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
         ErrorRateCommand errorRateCommand = new ErrorRateCommand();
         errorRateCommand.setBrand(switchParameters.getDeviceBrand());
@@ -118,7 +119,6 @@ public class ErrorPackage {
                 "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
                 "GE0/0/32             ADM  auto    A      A    200  To_HX_S7506E";
         returnString = MyUtils.trimString(returnString);*/
-
 
 
 
@@ -243,10 +243,20 @@ public class ErrorPackage {
             String Crc = primaryErrorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
                     :"crc=:=是=:="+errorRate.getCrc();
             String parameterString = InputErrors + OutputErrors + Crc;
+
             if (parameterString.endsWith("=:=")){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
             }
             hashMap.put("parameterString",parameterString);
+
+            try {
+                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+
+                        "input:"+errorRate.getInputErrors()+
+                        "output:"+errorRate.getOutputErrors()+
+                        "crc:"+errorRate.getCrc()+"\r\n","误码率");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
             Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);

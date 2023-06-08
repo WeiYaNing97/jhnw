@@ -1,28 +1,26 @@
 package com.sgcc.share.webSocket;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint(value = "/websocket/{userName}",encoders = { ServerEncoder.class })
 @Component
 public class WebSocketService {
-
+    public static Map<String,String> userMap = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
-
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
     //concurrent包的线程安全Set，用来存放每个客户端对应的WebSocketServer对象。
     private static ConcurrentHashMap<String, WebSocketClient> webSocketMap = new ConcurrentHashMap<>();
-
-
     /**与某个客户端的连接会话，需要通过它来给客户端发送数据*/
     private Session session;
     /**接收userName*/
@@ -40,14 +38,8 @@ public class WebSocketService {
         client.setSession(session);
         client.setUri(session.getRequestURI().toString());
         webSocketMap.put(userName, client);
-
         log.info("----------------------------------------------------------------------------");
         log.info("用户连接:"+userName+",当前在线人数为:" + getOnlineCount());
-       /* try {
-            sendMessage("来自后台的反馈：连接成功");
-        } catch (IOException | EncodeException e) {
-            log.error("用户:"+userName+",网络异常!!!!!!");
-        }*/
     }
 
     /**
@@ -72,13 +64,10 @@ public class WebSocketService {
      * @param message 客户端发送过来的消息*/
     @OnMessage
     public void onMessage(String message, Session session) {
-
         log.info("收到用户消息:"+userName+",报文:"+message);
-
         //可以群发消息
         //消息保存到数据库、redis
         /*if(StringUtils.isNotBlank(message)){
-
         }*/
         if (message.equals("ping")){
             try {
@@ -86,8 +75,16 @@ public class WebSocketService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else if (message.equals("接收结束")){
+
+            Map<String, List<String>> requestParameterMap = session.getRequestParameterMap();
+            List<String> stringList = requestParameterMap.get("userName");
+            userMap.put(stringList.get(0),"接收结束");
+
         }
     }
+
+
 
     /**
      *
