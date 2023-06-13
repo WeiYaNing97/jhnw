@@ -82,60 +82,45 @@ public class LuminousAttenuation {
          */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
 
-        /*returnString = "The brief information of interface(s) under route mode:\n" +
-                "Link: ADM - administratively down; Stby - standby\n" +
-                "Protocol: (s) - spoofing\n" +
-                "Interface            Link Protocol Main IP         Description\n" +
-                "Loop114              UP   UP(s)    10.122.114.208\n" +
-                "M-E0/0/0             DOWN DOWN     --\n" +
-                "NULL0                UP   UP(s)    --\n" +
-                "Vlan3                UP   UP       10.98.138.147\n" +
-                "Vlan4                UP   UP       10.98.139.239\n" +
-                "Vlan6                UP   UP       10.98.138.2\n" +
-                "Vlan7                UP   UP       10.98.136.13\n" +
-                "Vlan50               UP   UP       100.1.2.252\n" +
-                "Vlan200              UP   UP       10.98.137.71\n" +
-                "Vlan2000             UP   UP       10.98.138.195   to-shiju\n" +
-                "Vlan2001             UP   UP       10.122.119.161\n" +
-                "\n" +
-                "The brief information of interface(s) under bridge mode:\n" +
-                "Link: ADM - administratively down; Stby - standby\n" +
-                "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
-                "Type: A - access; T - trunk; H - hybrid\n" +
-                "Interface            Link Speed   Duplex Type PVID Description\n" +
-                "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
-                "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
-                "GE0/0/2              ADM  auto    A      T    1\n" +
-                "GE0/0/3              UP   1G(a)   F(a)   T    1\n" +
-                "GE0/0/4              ADM  auto    A      T    1\n" +
-                "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
-                "GE0/0/6              ADM  auto    A      T    1\n" +
-                "GE0/0/7              UP   1G(a)   F(a)   T    1    To_AnBeiSuo_S5720_G0/0/49\n" +
-                "GE0/0/8              ADM  auto    A      A    1\n" +
-                "GE0/0/9              ADM  auto    A      A    1\n" +
-                "GE0/0/10             ADM  auto    A      A    1\n" +
-                "GE0/0/11             DOWN 1G      F      T    1    To_ZhuLouJiFang2_XG0/0/3\n" +
-                "GE0/0/12             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
-                "GE0/0/13             ADM  auto    A      A    1\n" +
-                "GE0/0/14             ADM  auto    A      A    1\n" +
-                "GE0/0/15             ADM  auto    A      A    1\n" +
-                "GE0/0/16             DOWN 1G      F      T    1    to_fajianbu_S3448\n" +
-                "GE0/0/17             ADM  auto    A      A    1\n" +
-                "GE0/0/18             ADM  auto    A      A    1\n" +
-                "GE0/0/19             ADM  auto    A      A    1\n" +
-                "GE0/0/20             ADM  auto    A      A    1\n" +
-                "GE0/0/21             ADM  auto    A      A    1\n" +
-                "GE0/0/22             ADM  auto    A      A    1\n" +
-                "GE0/0/23             ADM  auto    A      A    1\n" +
-                "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
-                "GE0/0/25             DOWN auto    A      T    1\n" +
-                "GE0/0/26             DOWN auto    A      T    1\n" +
-                "GE0/0/27             DOWN auto    A      T    1\n" +
-                "GE0/0/28             DOWN auto    A      T    1\n" +
-                "GE0/0/29             DOWN auto    A      T    1\n" +
-                "GE0/0/30             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
-                "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
-                "GE0/0/32             ADM  auto    A      A    200  To_HX_S7506E";
+        /*returnString = "PHY: Physical\n" +
+                "*down: administratively down\n" +
+                "^down: standby\n" +
+                "(l): loopback\n" +
+                "(s): spoofing\n" +
+                "(b): BFD down\n" +
+                "(e): EFM down\n" +
+                "(d): Dampening Suppressed\n" +
+                "InUti/OutUti: input utility/output utility\n" +
+                "Interface PHY Protocol InUti OutUti inErrors outErrors\n" +
+                "Aux0/0/1 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet0/0/0 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/0/0 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/0/1 up up 0.01% 0.17% 0 0\n" +
+                "GigabitEthernet1/0/2 up up 0.41% 0.19% 0 0\n" +
+                "GigabitEthernet1/0/3 up up 0.01% 0.01% 0 0\n" +
+                "GigabitEthernet1/0/4 up up 0.01% 0.01% 0 0\n" +
+                "GigabitEthernet1/0/5 up up 0.01% 0.01% 0 0\n" +
+                "GigabitEthernet1/0/6 up up 0.01% 0.01% 0 0\n" +
+                "GigabitEthernet1/0/7 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/1/0 up up 0.36% 0.41% 0 0\n" +
+                "GigabitEthernet1/1/1 up up 0.01% 0.01% 0 0\n" +
+                "GigabitEthernet1/1/2 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/1/3 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/1/4 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/1/5 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/1/6 *down down 0% 0% 0 0\n" +
+                "GigabitEthernet1/1/7 *down down 0% 0% 0 0\n" +
+                "LoopBack0 up up(s) 0% 0% 0 0\n" +
+                "LoopBack1 up up(s) 0% 0% 0 0\n" +
+                "LoopBack2 up up(s) 0% 0% 0 0\n" +
+                "NULL0 up up(s) 0% 0% 0 0\n" +
+                "Vlanif609 up up -- -- 0 0\n" +
+                "Vlanif1000 up up -- -- 0 0\n" +
+                "Vlanif1200 down down -- -- 0 0\n" +
+                "Vlanif2001 up up -- -- 0 0\n" +
+                "Vlanif2003 up up -- -- 0 0\n" +
+                "Vlanif2008 down down -- -- 0 0\n" +
+                "Vlanif2010 up up -- -- 0 0";
         returnString = MyUtils.trimString(returnString);*/
 
 
@@ -366,12 +351,40 @@ public class LuminousAttenuation {
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
 
-            /*returnResults = "GigabitEthernet0/0/12 transceiver diagnostic information:\n" +
-                    "  Current diagnostic parameters:\n" +
-                    "    Temp(¡ãC)  Voltage(V)  Bias(mA)  RX power(dBm)  TX power(dBm)\n" +
-                    "    39        3.31        8.92      -6.88          -6.18\n" +
-                    "\n" +
-                    "<AnPingJu_H3C_7503E>";
+            /*returnResults = "GigabitEthernet1/1/1 current state : UP\n" +
+                    "Line protocol current state : UP\n" +
+                    "Description:TO-CuiChi_XiaGua_S5720\n" +
+                    "Switch Port,The Maximum Transmit Unit is 1500\n" +
+                    "Internet protocol processing : disabled\n" +
+                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is 0819-a6f4-aea4\n" +
+                    "The Vendor PN is LTD1302-BC+-H3C\n" +
+                    "The Vendor Name is Hisense\n" +
+                    "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\n" +
+                    "WaveLength: 1310nm, Transmission Distance: 10km\n" +
+                    "Rx Power: -8.12dBm, Tx Power: -5.31dBm\n" +
+                    "Loopback:none, full-duplex mode, negotiation: disable, Pause Flowcontrol:Receive Enable and Send Enable\n" +
+                    "Last physical up time : 2022-10-26 17:38:19\n" +
+                    "Last physical down time : 2022-10-26 17:38:16\n" +
+                    "Statistics last cleared:never\n" +
+                    "Last 300 seconds input rate: 8560 bits/sec, 5 packets/sec\n" +
+                    "Last 300 seconds output rate: 2248 bits/sec, 4 packets/sec\n" +
+                    "Input: 612671928809 bytes, 522479213 packets\n" +
+                    "Output: 15624395503 bytes, 236358941 packets\n" +
+                    "Input:\n" +
+                    "Unicast: 507067487 packets, Multicast: 11393755 packets\n" +
+                    "Broadcast: 4017971 packets, JumboOctets: 0 packets\n" +
+                    "CRC: 0 packets, Symbol: 0 packets\n" +
+                    "Overrun: 0 packets, InRangeLength: 0 packets\n" +
+                    "LongPacket: 0 packets, Jabber: 0 packets, Alignment: 0 packets\n" +
+                    "Fragment: 0 packets, Undersized Frame: 0 packets\n" +
+                    "RxPause: 0 packets\n" +
+                    "Output:\n" +
+                    "Unicast: 235689142 packets, Multicast: 650666 packets\n" +
+                    "Broadcast: 19133 packets, JumboOctets: 0 packets\n" +
+                    "Lost: 0 packets, Overflow: 0 packets, Underrun: 0 packets\n" +
+                    "System: 0 packets, Overruns: 0 packets\n" +
+                    "TxPause: 0 packets\n" +
+                    "Unknown Vlan: 0 packets";
             returnResults = MyUtils.trimString(returnResults);*/
 
 
@@ -441,8 +454,12 @@ public class LuminousAttenuation {
                 /*key : value*/
                 keyValueList.add(Line_split[number]);
             }else {
+                /*如果两个都包含 则可能是在本行，或者是下一行 需要判断:*/
+                String nextrow = Line_split[number];
                 /*两个都包含 则 两个参数值在一行*/
-                String nextrow = Line_split[number+1];
+                if (nextrow.indexOf(":") == -1){
+                    nextrow = Line_split[number+1];
+                }
                 /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
                 values = values.stream()

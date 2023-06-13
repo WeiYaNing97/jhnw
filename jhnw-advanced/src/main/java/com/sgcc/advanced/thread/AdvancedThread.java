@@ -66,6 +66,7 @@ public class AdvancedThread extends Thread {
                         break;
                 }
             }
+
         }else {
             try {
                 // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
@@ -75,6 +76,15 @@ public class AdvancedThread extends Thread {
                         "未定义该交换机获取基本信息命令及分析\r\n","基本信息");
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+        if (!(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))){
+            /*关闭连接交换机*/
+            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
+            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
             }
         }
 

@@ -232,6 +232,56 @@ public class ConnectToObtainInformation {
             /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
              * 返回结果*/
             commandString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+
+            /*commandString = "Huawei Versatile Routing Platform Software\n" +
+                    "VRP (R) software, Version 5.170 (S9700 V200R013C00SPC500)\n" +
+                    "Copyright (C) 2000-2019 HUAWEI TECH Co., Ltd.\n" +
+                    "Quidway S9703 Terabit Routing Switch uptime is 104 weeks, 0 day, 7 hours, 11 minutes\n" +
+                    "BKP 0 version information:\n" +
+                    "1. PCB Version : LE02BAKP VER.B\n" +
+                    "2. Support PoE : No\n" +
+                    "3. Board Type : EH1BS9703E00\n" +
+                    "4. MPU Slot Quantity : 2\n" +
+                    "5. LPU Slot Quantity : 3\n" +
+                    "\n" +
+                    "MPU 4(Master) : uptime is 104 weeks, 0 day, 7 hours, 10 minutes\n" +
+                    "SDRAM Memory Size : 512 M bytes\n" +
+                    "Flash Memory Size : 64 M bytes\n" +
+                    "NVRAM Memory Size : 512 K bytes\n" +
+                    "CF Card1 Memory Size : 488 M bytes\n" +
+                    "MPU version information :\n" +
+                    "1. PCB Version : LE03MCUA VER.A\n" +
+                    "2. MAB Version : 3\n" +
+                    "3. Board Type : EH1D2MCUAC00\n" +
+                    "4. CPLD0 Version : 1705.0911\n" +
+                    "5. BootROM Version : 020d.0a19\n" +
+                    "6. BootLoad Version : 020d.0a05\n" +
+                    "\n" +
+                    "MPU 5(Slave) : uptime is 104 weeks, 0 day, 7 hours, 9 minutes\n" +
+                    "SDRAM Memory Size : 512 M bytes\n" +
+                    "Flash Memory Size : 64 M bytes\n" +
+                    "NVRAM Memory Size : 512 K bytes\n" +
+                    "CF Card1 Memory Size : 488 M bytes\n" +
+                    "MPU version information :\n" +
+                    "1. PCB Version : LE03MCUA VER.A\n" +
+                    "2. MAB Version : 3\n" +
+                    "3. Board Type : EH1D2MCUAC00\n" +
+                    "4. CPLD0 Version : 1705.0911\n" +
+                    "5. BootROM Version : 020d.0a19\n" +
+                    "6. BootLoad Version : 020d.0a05\n" +
+                    "\n" +
+                    "LPU 1 : uptime is 104 weeks, 0 day, 7 hours, 2 minutes\n" +
+                    "SDRAM Memory Size : 256 M bytes\n" +
+                    "Flash Memory Size : 16 M bytes\n" +
+                    "LPU version information :\n" +
+                    "1. PCB Version : LE02G48CE VER.A\n" +
+                    "2. MAB Version : 0\n" +
+                    "3. Board Type : EH1D2T36SEA0\n" +
+                    "4. CPLD0 Version : 1102.1515\n" +
+                    "5. BootROM Version : 020d.0a19\n" +
+                    "6. BootLoad Version : 020d.0174";
+            commandString = MyUtils.trimString(commandString);*/
+
             if (commandString == null){
                 continue;
             }

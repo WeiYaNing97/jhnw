@@ -217,6 +217,8 @@ public class SshConnect implements Runnable {
                 } else {
                     objects.add(sshInformation.getIp() + session.getServerVersion());
                 }
+            }else {
+                objects.add("可能是SSH协议不支持或密码错误");
             }
 
             switchInformation.put(ip,sshInformation);
