@@ -58,4 +58,6 @@ public interface ILightAttenuationCommandService
      * @return 结果
      */
     public int deleteLightAttenuationCommandById(Long id);
+
+    List<LightAttenuationCommand> selectLightAttenuationCommandListBySQL(LightAttenuationCommand lightAttenuationCommand);
 }

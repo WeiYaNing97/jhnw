@@ -62,4 +62,6 @@ public interface InformationMapper
     List<String> selectDeviceBrandList();
 
     List<String> selectDeviceModelList(String deviceBrand);
+
+    List<Information> selectDeviceModelListByArray(String[] brands);
 }

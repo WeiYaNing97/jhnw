@@ -1,12 +1,10 @@
 package com.sgcc.share.util;
 
+import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchErrorController;
 import com.sgcc.share.controller.SwitchFailureController;
-import com.sgcc.share.domain.ReturnRecord;
-import com.sgcc.share.domain.SwitchError;
-import com.sgcc.share.domain.SwitchFailure;
-import com.sgcc.share.domain.SwitchInformation;
+import com.sgcc.share.domain.*;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchInformationService;
@@ -105,13 +103,28 @@ public class FunctionalMethods {
                     /*当行信息包含 故障时 进入错误代码库*/
                     deviceBrand = switchfailure(switchParameters, LineInformation);
                     if (!deviceBrand) {
-                        // todo 交换机故障错误代码库
-                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"故障:"+switchParameters.getIp()+":"+LineInformation+"\r\n");
                         try {
-                            PathHelper.writeDataToFile("故障:"+switchParameters.getIp()+":"+LineInformation+"\r\n");
+                            String subversionNumber = switchParameters.getSubversionNumber();
+                            if (subversionNumber!=null){
+                                subversionNumber = "、"+subversionNumber;
+                            }
+                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:返回结果异常\r\n"+
+                                    "命令:"+command+
+                                    "异常信息:"+LineInformation+"\r\n");
+                            PathHelper.writeDataToFileByName(
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:返回结果异常\r\n"+
+                                            "命令:"+command+
+                                            "异常信息:"+LineInformation+"\r\n"
+                                    , "问题日志");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
                         returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+LineInformation+"\r\n");
                         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                             switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r ",switchParameters.getNotFinished());
@@ -174,10 +187,24 @@ public class FunctionalMethods {
             for (String string_split:LineInformation){
                 /* 按行 去查找具体错误信息*/
                 if (!judgmentError( switchParameters,string_split)){
-                    // todo 交换机返回错误信息 错误代码库
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()  +"命令:" +command +":"+command_string+"\r\n");
                     try {
-                        PathHelper.writeDataToFile("风险:"+switchParameters.getIp() + ":" +command +":"+command_string+"\r\n");
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
+                        }
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:返回结果异常\r\n"+
+                                "命令:"+command+
+                                "异常信息:"+command_string+"\r\n");
+                        PathHelper.writeDataToFileByName(
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:返回结果异常\r\n"+
+                                        "命令:"+command+
+                                        "异常信息:"+command_string+"\r\n"
+                                , "问题日志");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -822,4 +849,105 @@ public class FunctionalMethods {
         }
         return wordSelectionResult;
     }
+
+
+    public static void getPath() {
+        String projectPath = System.getProperty("user.dir");
+    }
+
+
+    /**
+     *  根据四项基本信息 获取 模糊查询SQL
+     * @param brand
+     * @param model
+     * @param firmwareVersion
+     * @param subversionNo
+     * @return
+     */
+    public static String getFuzzySQL(String brand,String model,String firmwareVersion,String subversionNo) {
+
+        //and (type = #{type} or type = '*')
+        String typeSQL = "";
+        if (model != null  && model != ""){
+            String type = model;
+            typeSQL = "and (LOWER(switch_type) = LOWER(\'" + type +"\') OR switch_type = '*' OR ";
+
+            List<String> stringCollection = ServiceImplUtils.getStringCollection(type);
+            for (String typeString:stringCollection){
+                typeSQL = typeSQL + "LOWER(switch_type) = LOWER(\'" + typeString+"*\')" +" OR ";
+            }
+
+            char[] chars = typeSQL.toCharArray();
+            typeSQL = "";
+            for (int i=0 ;i<chars.length-4;i++ ){
+                typeSQL = typeSQL + chars[i];
+            }
+            typeSQL = typeSQL +")";
+        }
+        //and (fireware_version = #{firewareVersion} or fireware_version = '*')
+        String firewareVersionSQL = "";
+        if (firmwareVersion != null  && firmwareVersion != ""){
+            String firewareVersion = firmwareVersion;
+            firewareVersionSQL = "and (fireware_version = \'"+ firewareVersion +"\' OR fireware_version = '*' OR ";
+            List<String> stringCollection = ServiceImplUtils.getStringCollection(firewareVersion);
+            for (String typeString:stringCollection){
+                firewareVersionSQL = firewareVersionSQL + "fireware_version = "+"\'" + typeString+"*\'" +" OR ";
+            }
+            char[] chars = firewareVersionSQL.toCharArray();
+            firewareVersionSQL = "";
+            for (int i=0 ;i<chars.length-4;i++ ){
+                firewareVersionSQL = firewareVersionSQL + chars[i];
+            }
+            firewareVersionSQL = firewareVersionSQL +")";
+        }
+        //and (sub_version = #{subVersion} or sub_version = '*')
+        String subVersionSQL = "";
+        if (subversionNo != null  && subversionNo != ""){
+            String subVersion = subversionNo;
+            subVersionSQL = "and (sub_version = \'" + subVersion + "\' OR sub_version = '*' OR ";
+            List<String> stringCollection = ServiceImplUtils.getStringCollection(subVersion);
+            for (String typeString:stringCollection){
+                subVersionSQL = subVersionSQL + "sub_version = "+"\'" + typeString+"*\'" +" OR ";
+            }
+            char[] chars = subVersionSQL.toCharArray();
+            subVersionSQL = "";
+            for (int i=0 ;i<chars.length-4;i++ ){
+                subVersionSQL = subVersionSQL + chars[i];
+            }
+            subVersionSQL = subVersionSQL +")";
+        }
+
+
+        String sql = "where LOWER(brand) = LOWER(\'" + brand + "\')";
+        if (model != null && model != ""){
+            sql = sql + typeSQL;
+        }
+        if (firmwareVersion != null && firmwareVersion != ""){
+            sql = sql + firewareVersionSQL;
+        }
+        if (subversionNo != null && subversionNo != ""){
+            sql = sql + subVersionSQL;
+        }
+        return sql;
+    }
+
+
+    public static String getEquivalence(String brand) {
+        if (brand == null){
+            return null;
+        }
+        Map<String, Object> value = (Map<String, Object>) CustomConfigurationUtil.getValue("BasicInformation.equivalence", Constant.getProfileInformation());
+        Set<String> strings = value.keySet();
+        for (String key:strings){
+            if (brand.equalsIgnoreCase(key)){
+                return (String) value.get(key);
+            }
+            if (brand.equalsIgnoreCase((String) value.get(key))){
+                return key;
+            }
+        }
+        return null;
+    }
+
+
 }

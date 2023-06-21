@@ -19,8 +19,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectInformationList" parameterType="Information" resultMap="InformationResult">
         <include refid="selectInformationVo"/>
         <where>  
-            <if test="deviceBrand != null  and deviceBrand != ''"> and device_brand = #{deviceBrand}</if>
-            <if test="deviceModel != null  and deviceModel != ''"> and device_model = #{deviceModel}</if>
+            <if test="deviceBrand != null  and deviceBrand != ''"> and LOWER(device_brand) = LOWER(#{deviceBrand})</if>
+            <if test="deviceModel != null  and deviceModel != ''"> and LOWER(device_model) = LOWER(#{deviceModel})</if>
             <if test="reserve1 != null  and reserve1 != ''"> and reserve1 = #{reserve1}</if>
             <if test="reserve2 != null  and reserve2 != ''"> and reserve2 = #{reserve2}</if>
         </where>
@@ -36,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectDeviceModelList" resultType="String">
-        select distinct device_model  from information where device_brand = #{deviceBrand}
+        select distinct device_model  from information where LOWER(device_brand) = LOWER(#{deviceBrand})
     </select>
 
     <insert id="insertInformation" parameterType="Information" useGeneratedKeys="true" keyProperty="id">
@@ -76,4 +76,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
+
+
+    <select id="selectDeviceModelListByArray" parameterType="Information" resultMap="InformationResult">
+        <include refid="selectInformationVo"/>
+        where LOWER(device_brand) in
+        <foreach item="brands" collection="array" open="(" separator="," close=")">
+            LOWER(#{brands})
+        </foreach>
+    </select>
+
 </mapper>

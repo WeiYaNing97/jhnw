@@ -4,6 +4,7 @@ import com.sgcc.advanced.domain.Ospf;
 import com.sgcc.advanced.domain.OspfCommand;
 import com.sgcc.advanced.domain.OspfEnum;
 import com.sgcc.advanced.service.IOspfCommandService;
+import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
@@ -19,9 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * OSPF 功能
@@ -48,15 +48,33 @@ public class OSPFFeatures {
         ospfCommand.setSubVersion(switchParameters.getSubversionNumber());
         /*查询 符合交换机基本信息的 OSPF命令集合*/
         ospfCommandService = SpringBeanUtil.getBean(IOspfCommandService.class);
-        List<OspfCommand> ospfCommandList = ospfCommandService.selectOspfCommandList(ospfCommand);
+
+        List<OspfCommand> ospfCommandList = ospfCommandService.selectOspfCommandListBySQL(ospfCommand);
         /*OSPF命令集合为空  则中止OSPF高级共功能*/
         if (MyUtils.isCollectionEmpty(ospfCommandList)){
-            // todo 中止OSPF高级共功能  显示前端写入日志
+            try {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:未定义该交换机OSPF命令\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:未定义该交换机OSPF命令\r\n"
+                        , "问题日志");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             return;
         }
 
         /*通过四项基本欸的精确度 筛选最精确的OSPF命令*/
-        ospfCommand = getpojo(ospfCommandList);
+        ospfCommand = ScreeningMethod.ObtainPreciseEntityClassesOspfCommand(ospfCommandList);
         String command = ospfCommand.getGetParameterCommand();
 
         /**
@@ -64,19 +82,139 @@ public class OSPFFeatures {
          */
         String commandReturn = FunctionalMethods.executeScanCommandByCommand(switchParameters,command);
 
-        /*commandReturn = "OSPF process 100, 3 Neighbors, 3 is Full:\n" +
-                "Neighbor ID     Pri   State                BFD State  Dead Time   Address         Interface\n" +
-                "10.122.114.89     1   Full/BDR             -          00:00:39    10.122.114.89   GigabitEthernet 9/2\n" +
-                "10.122.119.18     1   Full/DR              -          00:00:34    10.122.114.94   GigabitEthernet 9/1\n" +
-                "10.122.114.226    1   Full/DR              -          00:00:34    10.122.114.134  GigabitEthernet 9/14";
+        /*commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 GigabitEthernet1/0/0 11.37.96.1 Full\n" +
+                "0.0.0.0 GigabitEthernet1/0/1 11.37.96.5 Full\n" +
+                "0.0.0.0 GigabitEthernet1/0/6 11.37.96.54 Full\n" +
+                "0.0.0.0 GigabitEthernet1/0/8 11.37.96.73 Full\n" +
+                "0.0.0.0 GigabitEthernet8/0/17 11.37.96.55 Full\n" +
+                "0.0.0.0 Eth-Trunk20.2000 11.37.96.159 Full\n" +
+                "0.0.0.0 GigabitEthernet1/0/17 11.37.96.41 Full\n" +
+                "0.0.0.0 GigabitEthernet8/0/14 11.37.96.8 Full\n" +
+                "0.0.0.2 GigabitEthernet8/0/2 11.37.96.134 Full\n" +
+                "0.0.0.2 GigabitEthernet1/0/3 11.37.96.59 Full\n" +
+                "0.0.0.2 GigabitEthernet1/0/4 11.37.96.60 Full\n" +
+                "0.0.0.2 GigabitEthernet1/0/5 11.37.96.57 Full\n" +
+                "0.0.0.2 GigabitEthernet8/0/22 11.37.96.61 Full\n" +
+                "0.0.0.2 GigabitEthernet1/0/10 11.37.96.40 Full\n" +
+                "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 15\n" +
+                "\n" +
+                "OSPF Process 11 with Router ID 30.9.98.241\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 GigabitEthernet1/0/13 30.8.1.3 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 25 with Router ID 10.122.119.49\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 GigabitEthernet8/0/19 10.122.119.18 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 310 with Router ID 28.36.127.5\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 Eth-Trunk20.2011 28.36.127.6 Init\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 311 with Router ID 29.36.191.5\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 Eth-Trunk20.2012 29.36.191.6 Init\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 312 with Router ID 30.9.127.5\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 0\n" +
+                "\n" +
+                "OSPF Process 313 with Router ID 27.36.127.5\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 0\n" +
+                "\n" +
+                "OSPF Process 314 with Router ID 6.40.0.45\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 Eth-Trunk20.2015 6.40.0.46 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 315 with Router ID 13.40.0.45\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 Eth-Trunk20.2016 13.40.0.46 Init\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 316 with Router ID 172.16.193.45\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 Eth-Trunk20.2017 172.16.193.46 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 317 with Router ID 172.16.0.45\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 Eth-Trunk20.2018 172.16.0.46 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 318 with Router ID 7.36.1.45\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 Eth-Trunk20.2019 7.36.1.46 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1\n" +
+                "\n" +
+                "OSPF Process 65534 with Router ID 128.75.212.73\n" +
+                "Peer Statistic Information\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Area Id Interface Neighbor id State\n" +
+                "0.0.0.0 DCN-Serial1/0/0:0 128.79.235.137 Full\n" +
+                "----------------------------------------------------------------------------\n" +
+                "Total Peer(s): 1";
         commandReturn = MyUtils.trimString(commandReturn);*/
 
         /*执行命令返回结果为null 则是命令执行错误*/
         if (commandReturn == null){
-            // todo ospf:命令错误,请重新定义  错误代码
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"ospf:命令错误,请重新定义" +"\r\n");
             try {
-                PathHelper.writeDataToFileByName(switchParameters.getIp()+":ospf:命令错误,请重新定义\r\n","ospf");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:ospf功能命令错误,请重新定义\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:ospf功能命令错误,请重新定义\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -84,7 +222,10 @@ public class OSPFFeatures {
         }
 
         /*根据交换机返回信息提取OSPF数据*/
-        AjaxResult ospfListByString = getOspfListByString(commandReturn);
+        /*行数据*/
+        String[] returnStringSplit = commandReturn.split("\r\n");
+        List<String> collect = Arrays.stream(returnStringSplit).collect(Collectors.toList());
+        AjaxResult ospfListByString = getOspfListByString(collect);
 
         if(ospfListByString.get("msg").equals("操作成功")){
 
@@ -92,9 +233,23 @@ public class OSPFFeatures {
 
             for (Ospf ospf:ospfList){
                 try {
-                    // todo 前端回显OSPF信息
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":"+"ospf:地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n");
-                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n","ospf");
+                    try {
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
+                        }
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:ospf功能状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n");
+                        PathHelper.writeDataToFileByName(
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:ospf功能状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n"
+                                , "ospf");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
                     SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                     HashMap<String,String> hashMap = new HashMap<>();
@@ -111,75 +266,99 @@ public class OSPFFeatures {
 
                     SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                     switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-                } catch (IOException e) {
+
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
+            }
+        }else {
+            try {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:ospf功能"+ospfListByString.get("msg")+"\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:ospf功能"+ospfListByString.get("msg")+"\r\n"
+                        , "问题日志");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
 
+
     /**
-     * 根据交换机返回信息 提取 OSPF数据
-     * @param returnString
+     * 根据交换机返回信息提取OSPF数据
      * @return
      */
-    public static AjaxResult getOspfListByString(String returnString) {
-        /*行数据*/
-        String[] returnStringSplit = returnString.split("\r\n");
-        /*标题行信息*/
-        String NameLine = null;
-        /*OSPF数组*/
-        List<String> valueList = new ArrayList<>();
-        for (int number = 0 ;number < returnStringSplit.length; number++){
-            if (NameLine != null){
-                /*将标题行下方数据 存入 OSPF数组*/
-                valueList.add(returnStringSplit[number].trim());
+    public static AjaxResult getOspfListByString(List<String> returnStringSplit) {
+
+        HashMap<Integer,String> titleMap = new HashMap<>();
+        for (int number = 0 ;number < returnStringSplit.size(); number++){
+            /*判断一个字符串是否包含另一个字符串(忽略大小写)*/
+            if (MyUtils.containIgnoreCase(returnStringSplit.get(number),"State")){
+                /*标题行信息 赋值*/
+                titleMap.put(number,returnStringSplit.get(number));
             }
+        }
+
+        List<Ospf> returnList = new ArrayList<>();
+        Set<Integer> integers = titleMap.keySet();
+
+        for (Integer integer:integers){
+            /*OSPF数组*/
+            List<String> valueList = new ArrayList<>();
+
+            String NameLine = titleMap.get(integer);
+            Ospf propertyValueSubscripts = null;
+            /*标题的 标题名数*/
+            int number = 0 ;
             if (NameLine == null){
-                /*判断一个字符串是否包含另一个字符串(忽略大小写)*/
-                if (MyUtils.containIgnoreCase(returnStringSplit[number],"State")){
-                    /*标题行信息 赋值*/
-                    NameLine = returnStringSplit[number];
+                return AjaxResult.error("获取OSPF参数失败");
+            }else {
+                /*获取属性值下标*/
+                List<Object> property = getPropertyValueSubscripts(NameLine);
+                if (property == null){
+                    return AjaxResult.error("获取OSPF参数失败");
+                }
+                propertyValueSubscripts = (Ospf) property.get(0);
+                number = (Integer) property.get(1);
+            }
+
+            for (int num = integer+1 ;num < returnStringSplit.size();num++){
+                valueList.add(returnStringSplit.get(num));
+            }
+            /*标题下第一行 为参数行*/
+            String value = valueList.get(0);
+            /*获取参数行的列*/
+            String[] value_split = value.split(" ");
+            /*如果参数行的列数量 与 标题行的标题名数一致则 可以直接根据 下标取值*/
+            int len = value_split.length;
+            if (len != number){
+                /*如果不一致 则需要去去除空格*/
+                valueList = removOspfSpaceCharacter(number,valueList);
+            }
+
+            if (MyUtils.isCollectionEmpty(valueList)){
+                continue;
+            }else {
+                /*根据参数下表提取对应参数*/
+                List<Ospf> ospfList= getPojoList(propertyValueSubscripts,valueList,number);
+                if (MyUtils.isCollectionEmpty(ospfList)){
+                    continue;
+                }else {
+                    returnList.addAll(ospfList);
                 }
             }
         }
 
-        Ospf propertyValueSubscripts = null;
-        /*标题的 标题名数*/
-        int number = 0 ;
-        List<Ospf> ospfList = null;
-        if (NameLine == null){
-            // todo 获取标题行失败
-            return AjaxResult.error("获取标题行失败");
-        }else {
-            /*获取属性值下标*/
-            List<Object> property = getPropertyValueSubscripts(NameLine);
-            if (property == null){
-                // todo 获取标题行下标失败
-                return AjaxResult.error("获取标题行下标失败");
-            }
-            propertyValueSubscripts = (Ospf) property.get(0);
-            number = (Integer) property.get(1);
-        }
-
-        /*标题下第一行 为参数行*/
-        String value = valueList.get(0);
-        /*获取参数行的列*/
-        String[] value_split = value.split(" ");
-        /*如果参数行的列数量 与 标题行的标题名数一致则 可以直接根据 下标取值*/
-        int len = value_split.length;
-        if (len != number){
-            /*如果不一致 则需要去去除空格*/
-            valueList = removOspfSpaceCharacter(number,valueList);
-        }
-
-        if (MyUtils.isCollectionEmpty(valueList)){
-            return AjaxResult.error("获取参数内容失败,未获取参数行");
-        }else {
-            /*根据参数下表提取对应参数*/
-            ospfList= getPojoList(propertyValueSubscripts,valueList,number);
-        }
-        return AjaxResult.success(ospfList);
+        return AjaxResult.success(returnList);
     }
 
     /**

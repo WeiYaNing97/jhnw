@@ -23,9 +23,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSwitchFailureList" parameterType="SwitchFailure" resultMap="SwitchFailureResult">
         <include refid="selectSwitchFailureVo"/>
         <where>  
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
 
-            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
+            <if test="switchType != null  and switchType != ''"> and LOWER(switch_type) = LOWER(#{switchType})</if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
 
@@ -37,9 +37,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectSwitchFailureListByPojo" parameterType="SwitchFailure" resultMap="SwitchFailureResult">
         <include refid="selectSwitchFailureVo"/>
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
 
-            <if test="switchType != null  and switchType != ''"> and ( switch_type = #{switchType} or switch_type = '*' )</if>
+            <if test="switchType != null  and switchType != ''"> and ( LOWER(switch_type) = LOWER(#{switchType}) or switch_type = '*' )</if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and ( fireware_version = #{firewareVersion} or fireware_version = '*' )</if>
             <if test="subVersion != null  and subVersion != ''"> and ( sub_version = #{subVersion} or sub_version = '*' )</if>
 

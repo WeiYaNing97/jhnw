@@ -50,22 +50,7 @@ public class DirectionalScanThread extends Thread  {
             //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
             AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters, totalQuestionTables,advancedName);
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
-            if (ajaxResult.get("msg").equals("交换机连接失败")){
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() + ":交换机连接失败\r\n");
-                try {
-                    PathHelper.writeDataToFile("风险:"+switchParameters.getIp() + ":交换机连接失败\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() + ":未定义该交换机获取基本信息命令及分析\r\n");
-                try {
-                    PathHelper.writeDataToFile("风险:"+switchParameters.getIp() + ":未定义该交换机获取基本信息命令及分析\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            //ip_information.put(ip+loginUser.getUsername());
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

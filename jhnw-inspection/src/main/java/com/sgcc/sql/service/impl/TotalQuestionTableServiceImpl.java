@@ -1,7 +1,9 @@
 package com.sgcc.sql.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.ServiceImplUtils;
 import com.sgcc.sql.domain.TotalQuestionTableVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,18 +34,6 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     public TotalQuestionTable selectTotalQuestionTableById(Long id)
     {
         return totalQuestionTableMapper.selectTotalQuestionTableById(id);
-    }
-
-    /**
-     * 查询问题及命令列表
-     * 
-     * @param totalQuestionTable 问题及命令
-     * @return 问题及命令
-     */
-    @Override
-    public List<TotalQuestionTable> selectTotalQuestionTableList(TotalQuestionTable totalQuestionTable)
-    {
-        return totalQuestionTableMapper.selectTotalQuestionTableList(totalQuestionTable);
     }
 
     /**
@@ -101,66 +91,6 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     }
 
     /**
-    * @method: 查询问题及命令列表
-    * @Param: [totalQuestionTable]
-    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @Override
-    public List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable) {
-        return totalQuestionTableMapper.selectTotalQuestionTabletypeProblemList(totalQuestionTable);
-    }
-
-    /**
-    * @method: 品牌列表
-    * @Param: [totalQuestionTable]
-    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @Override
-    public List<TotalQuestionTable> selectTotalQuestionTablebrandList(TotalQuestionTable totalQuestionTable) {
-        return totalQuestionTableMapper.selectTotalQuestionTablebrandList(totalQuestionTable);
-    }
-
-    /**
-    * @method: 型号列表
-    * @Param: [totalQuestionTable]
-    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @Override
-    public List<TotalQuestionTable> selectTotalQuestionTabletypelist(TotalQuestionTable totalQuestionTable) {
-        return totalQuestionTableMapper.selectTotalQuestionTabletypelist(totalQuestionTable);
-    }
-
-    /**
-    * @method: 内部固件版本
-    * @Param: [totalQuestionTable]
-    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @Override
-    public List<TotalQuestionTable> selectTotalQuestionTablefirewareVersionlist(TotalQuestionTable totalQuestionTable) {
-        return totalQuestionTableMapper.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable);
-    }
-
-    /**
-    * @method: 子版本号
-    * @Param: [totalQuestionTable]
-    * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
-    */
-    @Override
-    public List<TotalQuestionTable> selectTotalQuestionTablesubVersionlist(TotalQuestionTable totalQuestionTable) {
-        return totalQuestionTableMapper.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
-    }
-
-    /**
     * @method: 根据 问题描述表ID  查询 问题表实体类
     * @Param: [id]
     * @return: com.sgcc.sql.domain.TotalQuestionTable
@@ -172,28 +102,168 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.selectPojoByproblemDescribeId(id);
     }
 
+
+
+
+
+    /**
+     * @method: 查询问题及命令列表
+     * @Param: [totalQuestionTable]
+     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable) {
+
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTabletypeProblemList(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTabletypeProblemList(totalQuestionTable));
+        }
+
+        return pojo;
+    }
+
+    /**
+     * @method: 品牌列表
+     * @Param: [totalQuestionTable]
+     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTablebrandList(TotalQuestionTable totalQuestionTable) {
+
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTablebrandList(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTablebrandList(totalQuestionTable));
+        }
+
+
+        return pojo;
+    }
+
+    /**
+     * @method: 型号列表
+     * @Param: [totalQuestionTable]
+     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTabletypelist(TotalQuestionTable totalQuestionTable) {
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTabletypelist(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTabletypelist(totalQuestionTable));
+        }
+        return pojo;
+    }
+
+    /**
+     * @method: 内部固件版本
+     * @Param: [totalQuestionTable]
+     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTablefirewareVersionlist(TotalQuestionTable totalQuestionTable) {
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable));
+        }
+        return pojo;
+    }
+
+    /**
+     * @method: 子版本号
+     * @Param: [totalQuestionTable]
+     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
+     * @Author: 天幕顽主
+     * @E-mail: WeiYaNing97@163.com
+     */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTablesubVersionlist(TotalQuestionTable totalQuestionTable) {
+
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTablesubVersionlist(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTablesubVersionlist(totalQuestionTable));
+        }
+
+        return pojo;
+    }
     @Override
     public List<TotalQuestionTable> fuzzyTotalQuestionTableList(TotalQuestionTable totalQuestionTable) {
-        return totalQuestionTableMapper.fuzzyTotalQuestionTableList(totalQuestionTable);
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.fuzzyTotalQuestionTableList(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.fuzzyTotalQuestionTableList(totalQuestionTable));
+        }
+        return pojo;
     }
 
     /*查询可扫描问题*/
     @Override
     public List<TotalQuestionTable> queryScannableQuestionsList(TotalQuestionTable totalQuestionTable) {
-        return totalQuestionTableMapper.queryScannableQuestionsList(totalQuestionTable);
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.queryScannableQuestionsList(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.queryScannableQuestionsList(totalQuestionTable));
+        }
+        return pojo;
     }
 
     @Override
     public List<TotalQuestionTable> queryVagueScannableQuestionsList(TotalQuestionTable totalQuestionTable) {
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        totalQuestionTables.addAll(queryVagueScannableQuestionsListEquivalence(totalQuestionTable));
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            totalQuestionTables.addAll(queryVagueScannableQuestionsListEquivalence(totalQuestionTable));
+        }
+        return totalQuestionTables;
+    }
+
+
+    public List<TotalQuestionTable> queryVagueScannableQuestionsListEquivalence(TotalQuestionTable totalQuestionTable) {
         //and (type = #{type} or type = '*')
         String typeSQL = "";
         if (totalQuestionTable.getType() != null  && totalQuestionTable.getType() != ""){
             String type = totalQuestionTable.getType();
-            typeSQL = "and (type = \'" + type +"\' OR type = '*' OR ";
+            typeSQL = "and (LOWER(type) = LOWER(\'" + type +"\') OR type = '*' OR ";
+
             List<String> stringCollection = ServiceImplUtils.getStringCollection(type);
             for (String typeString:stringCollection){
-                typeSQL = typeSQL + "type = "+"\'" + typeString+"*\'" +" OR ";
+                typeSQL = typeSQL + "LOWER(type) = LOWER(\'" + typeString+"*\')" +" OR ";
             }
+
             char[] chars = typeSQL.toCharArray();
             typeSQL = "";
             for (int i=0 ;i<chars.length-4;i++ ){
@@ -234,7 +304,7 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
             subVersionSQL = subVersionSQL +")";
         }
 
-        String sql = "where brand = \'" + totalQuestionTable.getBrand() + "\' ";
+        String sql = "where LOWER(brand) = LOWER(\'" + totalQuestionTable.getBrand() + "\')";
         if (totalQuestionTable.getType() != null && totalQuestionTable.getType() != ""){
             sql = sql + typeSQL;
         }
@@ -249,8 +319,21 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTables;
     }
 
+
     @Override
     public List<TotalQuestionTable> queryAdvancedFeaturesList(TotalQuestionTable totalQuestionTable) {
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        totalQuestionTables.addAll(queryAdvancedFeaturesListEquivalence(totalQuestionTable));
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            totalQuestionTables.addAll(queryAdvancedFeaturesListEquivalence(totalQuestionTable));
+        }
+        return totalQuestionTables;
+    }
+
+
+    public List<TotalQuestionTable> queryAdvancedFeaturesListEquivalence(TotalQuestionTable totalQuestionTable) {
         //and (type = #{type} or type = '*')
         String typeSQL = "";
         if (totalQuestionTable.getType() != null  && totalQuestionTable.getType() != ""){
@@ -315,8 +398,20 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTables;
     }
 
+
     @Override
     public List<TotalQuestionTable> queryAdvancedFeaturesListBytemProName(TotalQuestionTable totalQuestionTable) {
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        totalQuestionTables.addAll(queryAdvancedFeaturesListBytemProNameEquivalence(totalQuestionTable));
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            totalQuestionTables.addAll(queryAdvancedFeaturesListBytemProNameEquivalence(totalQuestionTable));
+        }
+        return totalQuestionTables;
+    }
+
+    public List<TotalQuestionTable> queryAdvancedFeaturesListBytemProNameEquivalence(TotalQuestionTable totalQuestionTable) {
         //and (type = #{type} or type = '*')
         String typeSQL = "";
         if (totalQuestionTable.getType() != null  && totalQuestionTable.getType() != ""){
@@ -390,8 +485,16 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
 
     @Override
     public List<TotalQuestionTableVO> fuzzyQueryListBymybatis(TotalQuestionTable totalQuestionTable) {
-        List<TotalQuestionTableVO> totalQuestionTableVOS = totalQuestionTableMapper.fuzzyQueryListBymybatis(totalQuestionTable);
-        return totalQuestionTableVOS;
+
+        List<TotalQuestionTableVO> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.fuzzyQueryListBymybatis(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.fuzzyQueryListBymybatis(totalQuestionTable));
+        }
+        return pojo;
     }
 
     /*根据问题种类查询范本问题名称*/
@@ -407,14 +510,45 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     }
 
     @Override
-    public List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable pojo) {
-        return totalQuestionTableMapper.selectTotalQuestionTableListInsert(pojo);
+    public List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable totalQuestionTable) {
+
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTableListInsert(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTableListInsert(totalQuestionTable));
+        }
+
+        return pojo;
     }
 
     /*删除数据表所有数据*/
     @Override
     public int deleteTotalQuestionTable() {
         return totalQuestionTableMapper.deleteTotalQuestionTable();
+    }
+
+    /**
+     * 查询问题及命令列表
+     *
+     * @param totalQuestionTable 问题及命令
+     * @return 问题及命令
+     */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTableList(TotalQuestionTable totalQuestionTable)
+    {
+        List<TotalQuestionTable> pojo = new ArrayList<>();
+        pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTableList(totalQuestionTable));
+
+        String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        if (equivalence != null){
+            totalQuestionTable.setBrand(equivalence);
+            pojo.addAll(totalQuestionTableMapper.selectTotalQuestionTableList(totalQuestionTable));
+        }
+
+        return pojo;
     }
 
 }

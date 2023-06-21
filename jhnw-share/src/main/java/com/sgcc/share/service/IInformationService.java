@@ -65,4 +65,6 @@ public interface IInformationService
     List<String> selectDeviceBrandList();
 
     List<String> selectDeviceModelList(String brand);
+
+    List<Information> selectDeviceModelListByArray(String[] brands);
 }

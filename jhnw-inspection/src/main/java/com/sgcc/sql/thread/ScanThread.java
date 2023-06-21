@@ -48,21 +48,6 @@ public class ScanThread extends Thread  {
             //扫描方法 logInToGetBasicInformation
             AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters,null,null);
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
-            if (ajaxResult.get("msg").equals("交换机连接失败")){
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() +"问题:交换机连接失败\r\n");
-                try {
-                    PathHelper.writeDataToFile("风险:"+switchParameters.getIp() +"问题:交换机连接失败\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }else if (ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp() + "问题:未定义该交换机获取基本信息命令及分析\r\n");
-                try {
-                    PathHelper.writeDataToFile("风险:"+switchParameters.getIp() + "问题:未定义该交换机获取基本信息命令及分析\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

@@ -58,4 +58,6 @@ public interface IOspfCommandService
      * @return 结果
      */
     public int deleteOspfCommandById(Long id);
+
+    List<OspfCommand> selectOspfCommandListBySQL(OspfCommand ospfCommand);
 }

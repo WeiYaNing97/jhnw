@@ -1,6 +1,9 @@
 package com.sgcc.advanced.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.sgcc.share.util.FunctionalMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sgcc.advanced.mapper.ErrorRateCommandMapper;
@@ -40,7 +43,16 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
     @Override
     public List<ErrorRateCommand> selectErrorRateCommandList(ErrorRateCommand errorRateCommand)
     {
-        return errorRateCommandMapper.selectErrorRateCommandList(errorRateCommand);
+        List<ErrorRateCommand> pojo =new ArrayList<>();
+        pojo.addAll(errorRateCommandMapper.selectErrorRateCommandList(errorRateCommand));
+
+        String equivalence = FunctionalMethods.getEquivalence(errorRateCommand.getBrand());
+        if (equivalence!=null){
+            errorRateCommand.setBrand(equivalence);
+            pojo.addAll(errorRateCommandMapper.selectErrorRateCommandList(errorRateCommand));
+        }
+
+        return pojo;
     }
 
     /**
@@ -89,5 +101,28 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
     public int deleteErrorRateCommandById(Long id)
     {
         return errorRateCommandMapper.deleteErrorRateCommandById(id);
+    }
+
+    @Override
+    public List<ErrorRateCommand> selectErrorRateCommandListBySQL(ErrorRateCommand errorRateCommand) {
+
+        List<ErrorRateCommand> pojo = new ArrayList<>();
+        pojo.addAll(selectErrorRateCommandListByEquivalence(errorRateCommand));
+
+        String equivalence = FunctionalMethods.getEquivalence(errorRateCommand.getBrand());
+        if (equivalence!=null){
+            errorRateCommand.setBrand(equivalence);
+            pojo.addAll(selectErrorRateCommandListByEquivalence(errorRateCommand));
+        }
+
+        return pojo;
+    }
+
+    public List<ErrorRateCommand> selectErrorRateCommandListByEquivalence(ErrorRateCommand errorRateCommand) {
+
+        String fuzzySQL = FunctionalMethods.getFuzzySQL(errorRateCommand.getBrand(), errorRateCommand.getSwitchType(),
+                errorRateCommand.getFirewareVersion(), errorRateCommand.getSubVersion());
+
+        return errorRateCommandMapper.selectErrorRateCommandListBySQL(fuzzySQL);
     }
 }

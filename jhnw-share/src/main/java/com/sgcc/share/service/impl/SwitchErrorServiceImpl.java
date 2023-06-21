@@ -4,9 +4,11 @@ package com.sgcc.share.service.impl;
 import com.sgcc.share.domain.SwitchError;
 import com.sgcc.share.mapper.SwitchErrorMapper;
 import com.sgcc.share.service.ISwitchErrorService;
+import com.sgcc.share.util.FunctionalMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +44,16 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
     @Override
     public List<SwitchError> selectSwitchErrorList(SwitchError switchError)
     {
-        return switchErrorMapper.selectSwitchErrorList(switchError);
+        List<SwitchError> pojo = new ArrayList<>();
+        pojo.addAll(switchErrorMapper.selectSwitchErrorList(switchError));
+
+        String equivalence = FunctionalMethods.getEquivalence(switchError.getBrand());
+        if (equivalence!=null){
+            switchError.setBrand(equivalence);
+            pojo.addAll(switchErrorMapper.selectSwitchErrorList(switchError));
+        }
+
+        return pojo;
     }
 
     /**
@@ -96,11 +107,18 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
     /*查询交换机错误列表*/
     @Override
     public List<SwitchError> selectSwitchErrorListByPojo(SwitchError switchError) {
-        List<SwitchError> switchErrors = switchErrorMapper.selectSwitchErrorListByPojo(switchError);
-        if (switchErrors == null){
-            return null;
+
+        List<SwitchError> pojo = new ArrayList<>();
+        pojo.addAll(switchErrorMapper.selectSwitchErrorListByPojo(switchError));
+
+        String equivalence = FunctionalMethods.getEquivalence(switchError.getBrand());
+        if (equivalence!=null){
+            switchError.setBrand(equivalence);
+            pojo.addAll(switchErrorMapper.selectSwitchErrorListByPojo(switchError));
         }
-        return switchErrors;
+
+        return pojo;
+
     }
 
     /*删除数据表所有数据*/

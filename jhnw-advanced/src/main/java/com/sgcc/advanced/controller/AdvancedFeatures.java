@@ -1,13 +1,12 @@
 package com.sgcc.advanced.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.sgcc.advanced.thread.AdvancedRunnable;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.bean.BeanUtils;
-import com.sgcc.share.controller.SwitchLoginInformation;
+import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.PathHelper;

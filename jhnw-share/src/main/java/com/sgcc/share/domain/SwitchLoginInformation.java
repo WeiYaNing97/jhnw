@@ -1,4 +1,4 @@
-package com.sgcc.share.controller;
+package com.sgcc.share.domain;
 
 /**
  * 交换机登录信息 实体类

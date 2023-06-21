@@ -20,12 +20,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectOspfCommandList" parameterType="OspfCommand" resultMap="OspfCommandResult">
         <include refid="selectOspfCommandVo"/>
         <where>  
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="switchType != null  and switchType != ''"> and (switch_type = #{switchType} or switch_type = '*')</if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="switchType != null  and switchType != ''"> and (LOWER(switch_type) = LOWER(#{switchType}) or switch_type = '*')</if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and (fireware_version = #{firewareVersion} or fireware_version = '*')</if>
             <if test="subVersion != null  and subVersion != ''"> and (sub_version = #{subVersion} or sub_version = '*')</if>
             <if test="getParameterCommand != null  and getParameterCommand != ''"> and get_parameter_command = #{getParameterCommand}</if>
         </where>
+    </select>
+    <select id="selectOspfCommandListBySQL" parameterType="OspfCommand" resultMap="OspfCommandResult">
+        <include refid="selectOspfCommandVo"/>
+        ${fuzzySQL}
     </select>
     
     <select id="selectOspfCommandById" parameterType="Long" resultMap="OspfCommandResult">

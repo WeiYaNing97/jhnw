@@ -2,6 +2,7 @@ package com.sgcc.advanced.mapper;
 
 import java.util.List;
 import com.sgcc.advanced.domain.LightAttenuationCommand;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 光衰命令Mapper接口
@@ -58,4 +59,6 @@ public interface LightAttenuationCommandMapper
      * @return 结果
      */
     public int deleteLightAttenuationCommandByIds(Long[] ids);
+
+    List<LightAttenuationCommand> selectLightAttenuationCommandListBySQL(@Param("fuzzySQL") String fuzzySQL);
 }

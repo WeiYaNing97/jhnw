@@ -6,6 +6,7 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.connectutil.SshConnect;
 import com.sgcc.share.connectutil.TelnetComponent;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.domain.Information;
 import com.sgcc.share.method.SshMethod;
 import com.sgcc.share.method.TelnetSwitchMethod;
 import com.sgcc.share.parametric.SwitchParameters;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -285,36 +287,33 @@ public class ConnectToObtainInformation {
             if (commandString == null){
                 continue;
             }
-            /*根据交换机返回结果 获取 交换机基本信息*/
+            /**
+             * 根据交换机返回结果 获取 交换机基本信息
+             */
             HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(commandString);
 
             if (hashMap.get("pinpai")!=null
                     && hashMap.get("xinghao")!=null
-                    && hashMap.get("banben")!=null
-                    && hashMap.get("routerFlag")!=null){
+                    && hashMap.get("banben")!=null){
 
                 hashMap.put("pinpai",hashMap.get("pinpai"));
                 hashMap.put("xinghao",hashMap.get("xinghao"));
                 hashMap.put("banben",removeSpecialSymbols(hashMap.get("banben")));
                 hashMap.put("zibanben",removeSpecialSymbols(hashMap.get("zibanben")));
-                hashMap.put("routerFlag",hashMap.get("routerFlag"));
                 System.err.println("品牌:"+hashMap.get("pinpai")+"型号:"+hashMap.get("xinghao")+
-                        "版本:"+hashMap.get("banben")+"子版本:"+hashMap.get("zibanben")+
-                        "设备:"+hashMap.get("routerFlag"));
+                        "版本:"+hashMap.get("banben")+"子版本:"+hashMap.get("zibanben"));
 
                 try {
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+
-                            "设备："+hashMap.get("routerFlag")+"\r\n");
-                    PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"成功基本信息："+
+                            "子版本号："+hashMap.get("zibanben")+"\r\n");
+                    PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"获取基本信息成功："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+
-                            "设备："+hashMap.get("routerFlag")+"\r\n","基本信息");
+                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -324,16 +323,14 @@ public class ConnectToObtainInformation {
                 switchParameters.setDeviceModel(hashMap.get("xinghao"));
                 switchParameters.setFirmwareVersion(hashMap.get("banben"));
                 switchParameters.setSubversionNumber(hashMap.get("zibanben"));
-                switchParameters.setRouterFlag(hashMap.get("routerFlag"));
                 return AjaxResult.success(switchParameters);
             }else {
                 try {
-                    PathHelper.writeDataToFileByName("系统信息:"+ switchParameters.getIp() +"失败基本信息："+
+                    PathHelper.writeDataToFileByName("系统信息:"+ switchParameters.getIp() +"获取基本信息失败："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+
-                            "设备："+hashMap.get("routerFlag")+"\r\n","基本信息");
+                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -348,66 +345,52 @@ public class ConnectToObtainInformation {
      * 通过 配置文件 获取取交换机基本信息规则
      * 根据交换机返回结果 获取 交换机基本信息
      * @return  返回  交换机基本信息
+     *
+     * 品牌和型号应为一个单词 中间不包含空格
+     *
      */
     public HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
         returns_String = returns_String.replaceAll("\r\n"," ");
         informationService = SpringBeanUtil.getBean(IInformationService.class);
         List<String> brandList = informationService.selectDeviceBrandList();
-        String brand = null;
-        String model = null;
+
+        List<String> brands = new ArrayList<>();
+        List<Information> brand_model = new ArrayList<>();
+
         String firmwareVersion = null;
         String subversionNo = null;
-        String router = "交换机";
+
         /* 创建返回对象 */
         HashMap<String,String> map = new HashMap<>();
         String[] return_word = returns_String.split(" ");
         /*遍历匹配 品牌  H3C*/
         for (String brandString:brandList){
-            /*for (int number = 0 ; number < return_word.length; number++){
-                if (brandString.equalsIgnoreCase(return_word[number])){
-                    brand = brandString;
-                    break;
+            for (String word:return_word){
+                /*判断是否包含品牌*/
+                if (MyUtils.containIgnoreCase(word,brandString)){
+                    brands.add(word);
                 }
-            }*/
-            /*判断是否包含品牌*/
-            if (MyUtils.containIgnoreCase(returns_String," "+brandString+" ")){
-                brand = brandString;
-                break;
             }
         }
-        if (brand == null){
+        if (MyUtils.isCollectionEmpty(brands)){
             return map;
         }
+        String[] brandArray = brands.stream().toArray(String[]::new);
         /*匹配 型号 */
-        List<String> modelList = informationService.selectDeviceModelList(brand);
-        for (String modelString:modelList){
-            /*原方法*/
-            /*for (int number = 0 ; number < return_word.length; number++){
-                if (modelString.equalsIgnoreCase(return_word[number])){
-                    model = modelString;
-                    break;
-                }
-            }*/
-            /*判断是否包含型号*/
-            if (MyUtils.containIgnoreCase(returns_String," "+modelString+" ")){
-                model = modelString;
-                break;
-            }
-        }
-        /* 获取 设备是 路由器的标志*/
-        String routerFlag = (String) CustomConfigurationUtil.getValue("BasicInformation.routerFlag",Constant.getProfileInformation());
-        String[] flagSplit = routerFlag.toUpperCase().split(";");
-        for (int number = 0 ; number < return_word.length; number++){
-            for (String flag:flagSplit){
-                /* 以 配置文件 属性值并且包含数字*/
-                if (return_word[number].startsWith(flag)){
-                    if (MyUtils.isNumeric(return_word[number])){
-                        router = return_word[number];
-                        break;
-                    }
+        List<Information> informationList = informationService.selectDeviceModelListByArray(brandArray);
+        for (Information information:informationList){
+            for (String word:return_word){
+                /*判断是否包含型号*/
+                if (MyUtils.containIgnoreCase(word,information.getDeviceModel())){
+                    brand_model.add(information);
                 }
             }
         }
+
+        if (MyUtils.isCollectionEmpty(brand_model)){
+            return map;
+        }
+
 
         /** 设备版本 */
         /*yml 配置文件中 多个值之间用;隔开*/
@@ -487,14 +470,12 @@ public class ConnectToObtainInformation {
                 }
             }
         }
-        map.put("pinpai",brand);
-        map.put("xinghao",model);
+
+        map.put("pinpai",brand_model.get(0).getDeviceBrand().equalsIgnoreCase("Quidway")?"Huawei":brand_model.get(0).getDeviceBrand());
+        map.put("xinghao",brand_model.get(0).getDeviceModel());
         map.put("banben",firmwareVersion);
         map.put("zibanben",subversionNo);
-        map.put("routerFlag",router);
-        if (model == null){
 
-        }
         return map;
     }
 

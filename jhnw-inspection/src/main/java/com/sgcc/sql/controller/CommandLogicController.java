@@ -135,6 +135,7 @@ public class CommandLogicController extends BaseController
         LoginUser loginUser = SecurityUtils.getLoginUser();
         /*如果 修复命令集合为空  或者  交换机问题ID为0L 则 返回 false失败*/
         if (commandLogicList.size() == 0 || totalQuestionTableId == 0L){
+
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"定义修复交换机问题逻辑数据为空\r\n");
             try {

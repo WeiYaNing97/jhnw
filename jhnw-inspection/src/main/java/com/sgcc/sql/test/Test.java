@@ -1,14 +1,12 @@
 package com.sgcc.sql.test;
 
-import com.sgcc.share.webSocket.WebSocketService;
+import com.sgcc.share.util.FunctionalMethods;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Random;
 
 public class Test {
-    public static void main(String[] args) {}
+    public static void main(String[] args) {
+        String huawei = FunctionalMethods.getEquivalence("huawei");
+        System.err.println(huawei);
+    }
 }

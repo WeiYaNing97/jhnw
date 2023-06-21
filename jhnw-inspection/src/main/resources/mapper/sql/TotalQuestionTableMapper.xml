@@ -17,10 +17,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="typeProblem"    column="type_problem"    />
         <result property="problemDescribeId"    column="problem_describe_id"    />
         <result property="problemSolvingId"    column="problem_solving_id"    />
-
         <result property="remarks"    column="remarks"    />
         <result property="requiredItems"    column="required_items"    />
-
     </resultMap>
 
 
@@ -51,8 +49,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectTotalQuestionTableVo"/>
 
         <where>
-            <if test="brand != null  and brand != ''"> and brand like concat('%', #{brand}, '%')</if>
-            <if test="type != null  and type != ''"> and type like concat('%', #{type}, '%')</if>
+
+            <if test="brand != null  and brand != ''"> and LOWER(brand) like concat('%', LOWER(#{brand}), '%')</if>
+            <if test="type != null  and type != ''"> and LOWER(type) like concat('%', LOWER(#{type}), '%')</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version like concat('%', #{firewareVersion}, '%')</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version like concat('%', #{subVersion}, '%')</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished like concat('%', #{notFinished}, '%')</if>
@@ -78,8 +78,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
+
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -98,8 +100,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryScannableQuestionsList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and (type = #{type} or type = '*')</if>
+
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and (LOWER(type) = LOWER(#{type}) or type = '*')</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and (fireware_version = #{firewareVersion} or fireware_version = '*')</if>
             <if test="subVersion != null  and subVersion != ''"> and (sub_version = #{subVersion} or sub_version = '*')</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -114,6 +118,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
             <if test="remarks != null "> and remarks = #{remarks}</if>
             <if test="requiredItems != null "> and required_items = #{requiredItems}</if>
+
         </where>
         ORDER BY id DESC
     </select>
@@ -122,15 +127,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="queryVagueScannableQuestionsList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
         ${sql}
-
     </select>
 
     <select id="selectTotalQuestionTableListInsert" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
 
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type} </if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type}) </if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion} </if>
             <if test="subVersion != null  and subVersion != ''"> and  sub_version = #{subVersion} </if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -173,8 +177,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTotalQuestionTabletypeProblemList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         select DISTINCT type_problem from total_question_table
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -195,8 +200,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTotalQuestionTablebrandList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         select DISTINCT brand from total_question_table
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
+
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -218,8 +225,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTotalQuestionTabletypelist" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         select DISTINCT(type) from total_question_table
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
+
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -240,8 +249,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTotalQuestionTablefirewareVersionlist" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         select DISTINCT(fireware_version) from total_question_table
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
+
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -262,8 +273,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectTotalQuestionTablesubVersionlist" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         select DISTINCT(sub_version) from total_question_table
         <where>
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
+
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
@@ -285,8 +298,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectTotalQuestionTableVo"/>
 
         <where>
-            <if test="brand != null  and brand != ''"> and brand like concat('%', #{brand}, '%')</if>
-            <if test="type != null  and type != ''"> and type like concat('%', #{type}, '%')</if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) like concat('%', LOWER(#{brand}), '%')</if>
+            <if test="type != null  and type != ''"> and LOWER(type) like concat('%', LOWER(#{type}), '%')</if>
+
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version like concat('%', #{firewareVersion}, '%')</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version like concat('%', #{subVersion}, '%')</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished like concat('%', #{notFinished}, '%')</if>

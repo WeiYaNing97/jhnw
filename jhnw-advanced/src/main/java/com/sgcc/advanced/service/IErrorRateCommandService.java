@@ -58,4 +58,6 @@ public interface IErrorRateCommandService
      * @return 结果
      */
     public int deleteErrorRateCommandById(Long id);
+
+    List<ErrorRateCommand> selectErrorRateCommandListBySQL(ErrorRateCommand errorRateCommand);
 }

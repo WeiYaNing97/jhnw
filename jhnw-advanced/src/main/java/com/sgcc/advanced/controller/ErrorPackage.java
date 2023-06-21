@@ -3,6 +3,7 @@ import com.sgcc.advanced.domain.ErrorRate;
 import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.service.IErrorRateCommandService;
 import com.sgcc.advanced.service.IErrorRateService;
+import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
@@ -43,20 +44,33 @@ public class ErrorPackage {
         errorRateCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         errorRateCommand.setSubVersion(switchParameters.getSubversionNumber());
         errorRateCommandService = SpringBeanUtil.getBean(IErrorRateCommandService.class);
-        List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandList(errorRateCommand);
+        List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandListBySQL(errorRateCommand);
 
         /*2：当 配置文件误码率问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(errorRateCommandList)){
-            // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令\r\n","误码率");
-                return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:误码率功能未定义获取端口号的命令\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                         "问题为:误码率功能未定义获取端口号的命令\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能未定义获取端口号的命令\r\n");
         }
-
-        errorRateCommand =getpojo(errorRateCommandList);
+        /**
+         * 从errorRateCommandList中 获取四项基本最详细的数据
+         */
+        errorRateCommand = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(errorRateCommandList);
         String portNumberCommand = errorRateCommand.getGetPortCommand();
 
         /**
@@ -87,8 +101,8 @@ public class ErrorPackage {
                 "Interface            Link Speed   Duplex Type PVID Description\n" +
                 "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
                 "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
-                "GE0/0/2              ADM  auto    A      T    1\n" +
-                "GE0/0/3              UP   1G(a)   F(a)   T    1\n" +
+                "Ethernet0/0/0        UP  auto    A      T    1\n" +
+                "Eth-Trunk20.2000     UP   1G(a)   F(a)   T    1\n" +
                 "GE0/0/4              ADM  auto    A      T    1\n" +
                 "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
                 "GE0/0/6              ADM  auto    A      T    1\n" +
@@ -124,29 +138,55 @@ public class ErrorPackage {
 
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
-            // todo 关于交换机返回错误信息 的错误代码库
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n");
+
             try {
-                PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n","误码率");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:误码率功能获取端口号命令错误,需要重新定义\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"获取端口号命令错误,请重新定义");
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
+
         }
+
         /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取误码率端口号*/
         List<String> portList = ObtainUPStatusPortNumber(returnString);
+
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(portList)){
             // todo 关于没有端口号为UP状态 的错误代码库
+
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号\r\n","误码率");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:误码率功能无UP状态端口号,是否需要CRT检查异常\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:误码率功能无UP状态端口号,是否需要CRT检查异常\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能无UP状态端口号,是否需要CRT检查异常\r\n");
+
         }
-
-
 
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
@@ -161,21 +201,37 @@ public class ErrorPackage {
             }
         }
 
-
-
-        /*获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
+        /*获取误码率参数命令*/
         String errorPackageCommand = errorRateCommand.getGetParameterCommand();
-
+        /*获取到误码率参数 map集合*/
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
         if (errorPackageParameters == null){
-            return AjaxResult.error("未获取到误码率参数");
+
+            try {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:误码率功能所有UP状态端口皆未获取到误码率参数\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:误码率功能所有UP状态端口皆未获取到误码率参数\r\n"
+                        , "问题日志");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return AjaxResult.error("所有端口都没有获取到误码率参数");
         }
-
         /*获取交换机四项基本信息ID*/
-        Long switchID = 0l;
-        switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
-
+        Long switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
         errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
+        /*获取误码率参数集合中的Key
+        * key值为端口号*/
         Set<String> strings = errorPackageParameters.keySet();
         for (String port:strings){
 
@@ -183,13 +239,17 @@ public class ErrorPackage {
             errorRate.setSwitchIp(switchParameters.getIp());
             errorRate.setSwitchId(switchID);
             errorRate.setPort(port);
-
+            /**
+             * 查询误码率列表
+             */
             List<ErrorRate> list = errorRateService.selectErrorRateList(errorRate);
             ErrorRate primaryErrorRate = new ErrorRate();
+
             if (!(MyUtils.isCollectionEmpty(list))){
                 primaryErrorRate = list.get(0);
             }
 
+            /* 获取该端口号的 错误包参数 */
             List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
             for (String error:errorPackageValue){
                 if (MyUtils.containIgnoreCase(error,"input") || MyUtils.containIgnoreCase(error,"Rx") ){
@@ -206,9 +266,36 @@ public class ErrorPackage {
             HashMap<String,String> hashMap = new HashMap<>();
             hashMap.put("ProblemName","误码率");
 
+            try {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        " 端口号"+port+
+                        " input:"+errorRate.getInputErrors()+" "+
+                        " output:"+errorRate.getOutputErrors()+" "+
+                        " crc:"+errorRate.getCrc()+"\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                " 端口号"+port+
+                                " input:"+errorRate.getInputErrors()+" "+
+                                " output:"+errorRate.getOutputErrors()+" "+
+                                " crc:"+errorRate.getCrc()+"\r\n"
+                        , "错误包");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
             if (primaryErrorRate.getId() == null){
+                /* 数据库中没有历史数据 可以直接插入 */
                 int i = errorRateService.insertErrorRate(errorRate);
                 hashMap.put("IfQuestion","无问题");
+                continue;
             }else {
                 int num = 0;
                 if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null) &&
@@ -231,7 +318,7 @@ public class ErrorPackage {
                     errorRate.setId(primaryErrorRate.getId());
                     int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","无问题");
-                    /*continue;*/
+                    continue;
                 }
             }
 
@@ -242,21 +329,12 @@ public class ErrorPackage {
                     :"output=:=是=:="+errorRate.getOutputErrors()+"=:=";
             String Crc = primaryErrorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
                     :"crc=:=是=:="+errorRate.getCrc();
-            String parameterString = InputErrors + OutputErrors + Crc;
+            String parameterString = InputErrors+" "+OutputErrors+" "+Crc;
 
             if (parameterString.endsWith("=:=")){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
             }
             hashMap.put("parameterString",parameterString);
-
-            try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+
-                        "input:"+errorRate.getInputErrors()+
-                        "output:"+errorRate.getOutputErrors()+
-                        "crc:"+errorRate.getCrc()+"\r\n","误码率");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
             Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
@@ -266,6 +344,13 @@ public class ErrorPackage {
         return null;
     }
 
+    /**
+     * 获取到误码率参数
+     * @param switchParameters
+     * @param portNumber
+     * @param errorPackageCommand
+     * @return
+     */
     public HashMap<String,Object> getErrorPackageParameters(SwitchParameters switchParameters,List<String> portNumber,String errorPackageCommand) {
         /*创建 返回对象 List<String>*/
         HashMap<String,Object> hashMap = new HashMap<>();
@@ -279,54 +364,66 @@ public class ErrorPackage {
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            /*returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
-                    " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
-                    " Description: To_ShuJuWangHuLian_G1/0/18\n" +
-                    " Loopback is not set\n" +
-                    " Media type is twisted pair\n" +
-                    " Port hardware type is  1000_BASE_T\n" +
-                    " 1000Mbps-speed mode, full-duplex mode\n" +
-                    " Link speed type is autonegotiation, link duplex type is autonegotiation\n" +
-                    " Flow-control is not enabled\n" +
-                    " The Maximum Frame Length is 10000\n" +
-                    " Broadcast MAX-ratio: 100%\n" +
-                    " Unicast MAX-ratio: 100%\n" +
-                    " Multicast MAX-ratio: 100%\n" +
-                    " Allow jumbo frame to pass\n" +
-                    " PVID: 1\n" +
-                    " Mdi type: auto\n" +
-                    " Port link-type: trunk\n" +
-                    "  VLAN passing  : 118, 602\n" +
-                    "  VLAN permitted: 118, 602\n" +
-                    "  Trunk port encapsulation: IEEE 802.1q\n" +
-                    " Port priority: 0\n" +
-                    " Last clearing of counters:  Never\n" +
-                    " Peak value of input: 207721 bytes/sec, at 2022-11-08 06:26:00\n" +
-                    " Peak value of output: 33198 bytes/sec, at 2023-03-27 10:50:33\n" +
-                    " Last 300 seconds input:  2 packets/sec 282 bytes/sec 0%\n" +
-                    " Last 300 seconds output:  2 packets/sec 290 bytes/sec 0%\n" +
-                    " Input (total):  56148368 packets, 6611001881 bytes\n" +
-                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input (normal):  56148368 packets, - bytes\n" +
-                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
-                    "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
-                    "         - ignored, - parity errors\n" +
-                    " Output (total): 46229751 packets, 4553563599 bytes\n" +
-                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-                    " Output (normal): 46229751 packets, - bytes\n" +
-                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-                    " Output: 0 output errors, - underruns, - buffer failures\n" +
-                    "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
-                    "         0 lost carrier, - no carrier\n";
+            /*returnResults = "Eth-Trunk1 current state : UP\n" +
+                    "Line protocol current state : UP\n" +
+                    "Description:To_HX_S7506E\n" +
+                    "Switch Port, Link-type : trunk(configured),\n" +
+                    "PVID :    1, Hash arithmetic : According to SIP-XOR-DIP,Maximal BW: 2G, Current BW: 2G, The Maximum Frame Length is 9216\n" +
+                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is f853-2982-8f10\n" +
+                    "Current system time: 2023-06-20 16:43:57+08:00\n" +
+                    "Last 300 seconds input rate 3010840 bits/sec, 699 packets/sec\n" +
+                    "Last 300 seconds output rate 2708856 bits/sec, 489 packets/sec\n" +
+                    "Input:  843042623 packets, 626161438059 bytes\n" +
+                    "  Unicast:                  824884018,  Multicast:                     9101170\n" +
+                    "  Broadcast:                  9057435,  Jumbo:                       294092915\n" +
+                    "  Discard:                          0,  Pause:                               0\n" +
+                    "  Frames:                           0\n" +
+                    "\n" +
+                    "  Total Error:                      0\n" +
+                    "  CRC:                              0,  Giants:                              0\n" +
+                    "  Jabbers:                          0,  Fragments:                           0\n" +
+                    "  Runts:                            0,  DropEvents:                          0\n" +
+                    "  Alignments:                       0,  Symbols:                             0\n" +
+                    "  Ignoreds:                         0\n" +
+                    "\n" +
+                    "Output:  2997524508 packets, 539436712102 bytes\n" +
+                    "  Unicast:                  528937482,  Multicast:                  2441058483\n" +
+                    "  Broadcast:                 27528543,  Jumbo:                       121392927\n" +
+                    "  Discard:                          0,  Pause:                               0\n" +
+                    "\n" +
+                    "  Total Error:                      0\n" +
+                    "  Collisions:                       0,  ExcessiveCollisions:                 0\n" +
+                    "  Late Collisions:                  0,  Deferreds:                           0\n" +
+                    "  Buffers Purged:                   0\n" +
+                    "\n" +
+                    "    Input bandwidth utilization  : 0.15%\n" +
+                    "    Output bandwidth utilization : 0.14%\n" +
+                    "-----------------------------------------------------\n" +
+                    "PortName                      Status      Weight\n" +
+                    "-----------------------------------------------------\n" +
+                    "GigabitEthernet2/0/12         UP          1\n" +
+                    "GigabitEthernet1/0/30         UP          1\n" +
+                    "-----------------------------------------------------\n" +
+                    "The Number of Ports in Trunk : 2\n" +
+                    "The Number of UP Ports in Trunk : 2";
             returnResults = MyUtils.trimString(returnResults);*/
 
 
             if (returnResults == null){
-                // todo 获取光衰参数命令错误代码库
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取误码率参数命令错误,请重新定义\r\n");
                 try {
-                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n","误码率");
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:误码率功能"+port+"端口获取误码率参数命令错误,请重新定义\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:误码率功能"+port+"端口获取误码率参数命令错误,请重新定义\r\n"
+                            , "问题日志");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -338,14 +435,34 @@ public class ErrorPackage {
                 /*提取误码率参数*/
                 List<String> value = getParameters(information);
                 if (MyUtils.isCollectionEmpty(value)){
-                    // todo 为提取到误码率参数
+                    //information无误码率参数
                     continue;
                 }else {
                     valueList.addAll(value);
+                    continue;
                 }
             }
 
             if (MyUtils.isCollectionEmpty(valueList)){
+                /*  端口未获取到误码率 */
+                try {
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:误码率功能"+port+"端口未获取到误码率\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:误码率功能"+port+"端口未获取到误码率\r\n"
+                            , "问题日志");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 continue;
             }else {
                 hashMap.put(port,valueList);
@@ -363,12 +480,17 @@ public class ErrorPackage {
     public static List<String> ObtainUPStatusPortNumber(String returnString) {
         String[] returnStringSplit = returnString.split("\r\n");
         List<String> strings = new ArrayList<>();
+
         for (String string:returnStringSplit){
             /*包含 交换机返回行信息转化为大写 UP状态  并且该行带有“/”的 存放入端口待取集合*/
             if ((string.toUpperCase().indexOf(" UP ")!=-1) && string.indexOf("/")!=-1){
                 strings.add(string.trim());
+            }else if ((string.toUpperCase().indexOf(" UP ")!=-1)
+                    && ( string.toUpperCase().startsWith("BAGG".toUpperCase()) || string.toUpperCase().startsWith("Eth-Trunk".toUpperCase()) )){
+                strings.add(string.trim());
             }
         }
+
         /*判断端口待取集合是否为空*/
         if (MyUtils.isCollectionEmpty(strings)){
             return null;

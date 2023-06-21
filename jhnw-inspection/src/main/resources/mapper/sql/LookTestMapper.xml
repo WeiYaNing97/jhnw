@@ -17,7 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectLookTestList" parameterType="LookTest" resultMap="LookTestResult">
         <include refid="selectLookTestVo"/>
         <where>  
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
             <if test="version != null  and version != ''"> and version = #{version}</if>
         </where>
     </select>

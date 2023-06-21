@@ -2,6 +2,7 @@ package com.sgcc.advanced.mapper;
 
 import java.util.List;
 import com.sgcc.advanced.domain.OspfCommand;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * OSPF命令Mapper接口
@@ -58,4 +59,6 @@ public interface OspfCommandMapper
      * @return 结果
      */
     public int deleteOspfCommandByIds(Long[] ids);
+
+    List<OspfCommand> selectOspfCommandListBySQL(@Param("fuzzySQL") String fuzzySQL);
 }

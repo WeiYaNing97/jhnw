@@ -19,8 +19,9 @@ BasicInformation:
   deviceVersion: Version
   # 获取交换机设备子版本的关键字,默认关键字的下一位为要取的参数,两个关键字之间以;分隔
   deviceSubversion: Release;Build;RELEASE SOFTWARE
-  # 区分交换机还是路由器的标志  属性值开头并且包含数字
-  routerFlag: NE
+  # 等价
+  equivalence:
+    Huawei: Quidway
 
 #OSPF
 OSPF:

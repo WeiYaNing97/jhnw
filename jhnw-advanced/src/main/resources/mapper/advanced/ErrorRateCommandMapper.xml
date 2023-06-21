@@ -22,14 +22,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectErrorRateCommandList" parameterType="ErrorRateCommand" resultMap="ErrorRateCommandResult">
         <include refid="selectErrorRateCommandVo"/>
         <where>  
-            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
-            <if test="switchType != null  and switchType != ''"> and (switch_type = #{switchType} or switch_type = '*')</if>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="switchType != null  and switchType != ''"> and (LOWER(switch_type) = LOWER(#{switchType}) or switch_type = '*')</if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and (fireware_version = #{firewareVersion} or fireware_version =  '*')</if>
             <if test="subVersion != null  and subVersion != ''"> and (sub_version = #{subVersion} or sub_version =  '*')</if>
             <if test="getPortCommand != null  and getPortCommand != ''"> and get_port_command = #{getPortCommand}</if>
             <if test="getParameterCommand != null  and getParameterCommand != ''"> and get_parameter_command = #{getParameterCommand}</if>
             <if test="conversion != null  and conversion != ''"> and conversion = #{conversion}</if>
         </where>
+    </select>
+    <select id="selectErrorRateCommandListBySQL" parameterType="ErrorRateCommand" resultMap="ErrorRateCommandResult">
+        <include refid="selectErrorRateCommandVo"/>
+        ${fuzzySQL}
     </select>
     
     <select id="selectErrorRateCommandById" parameterType="Long" resultMap="ErrorRateCommandResult">

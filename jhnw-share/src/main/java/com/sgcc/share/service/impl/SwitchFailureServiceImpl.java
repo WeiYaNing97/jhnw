@@ -4,9 +4,11 @@ package com.sgcc.share.service.impl;
 import com.sgcc.share.domain.SwitchFailure;
 import com.sgcc.share.mapper.SwitchFailureMapper;
 import com.sgcc.share.service.ISwitchFailureService;
+import com.sgcc.share.util.FunctionalMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,16 +44,31 @@ public class SwitchFailureServiceImpl implements ISwitchFailureService
     @Override
     public List<SwitchFailure> selectSwitchFailureList(SwitchFailure switchFailure)
     {
-        return switchFailureMapper.selectSwitchFailureList(switchFailure);
+        List<SwitchFailure> pojo = new ArrayList<>();
+        pojo.addAll(switchFailureMapper.selectSwitchFailureList(switchFailure));
+
+        String equivalence = FunctionalMethods.getEquivalence(switchFailure.getBrand());
+        if (equivalence!=null){
+            switchFailure.setBrand(equivalence);
+            pojo.addAll(switchFailureMapper.selectSwitchFailureList(switchFailure));
+        }
+
+        return pojo;
     }
 
     @Override
     public List<SwitchFailure> selectSwitchFailureListByPojo(SwitchFailure switchFailure) {
-        List<SwitchFailure> switchFailures = switchFailureMapper.selectSwitchFailureListByPojo(switchFailure);
-        if (switchFailures == null){
-            return null;
+        List<SwitchFailure> pojo = new ArrayList<>();
+        pojo.addAll(switchFailureMapper.selectSwitchFailureListByPojo(switchFailure));
+
+
+        String equivalence = FunctionalMethods.getEquivalence(switchFailure.getBrand());
+        if (equivalence!=null){
+            switchFailure.setBrand(equivalence);
+            pojo.addAll(switchFailureMapper.selectSwitchFailureListByPojo(switchFailure));
         }
-        return switchFailures;
+
+        return pojo;
     }
 
     /**

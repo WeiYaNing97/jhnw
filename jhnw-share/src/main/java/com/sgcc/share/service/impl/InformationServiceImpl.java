@@ -100,4 +100,9 @@ public class InformationServiceImpl implements IInformationService
     public List<String> selectDeviceModelList(String brand) {
         return informationMapper.selectDeviceModelList(brand);
     }
+
+    @Override
+    public List<Information> selectDeviceModelListByArray(String[] brands) {
+        return informationMapper.selectDeviceModelListByArray(brands);
+    }
 }

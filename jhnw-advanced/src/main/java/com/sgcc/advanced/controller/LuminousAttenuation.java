@@ -3,6 +3,7 @@ import com.sgcc.advanced.domain.LightAttenuationCommand;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationCommandService;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
+import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
@@ -47,34 +48,39 @@ public class LuminousAttenuation {
         /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
         LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
 
-        /**
-         * 如果是 路由器 则在品牌后面添加路由器
-         */
-        if (switchParameters.getRouterFlag().equals("交换机")){
-            lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
-        }else {
-            lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand()+"路由器");
-        }
-
-
+        lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
         lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
         lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
         lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
-        List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandList(lightAttenuationCommand);
+        List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandListBySQL(lightAttenuationCommand);
 
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
-            // todo 关于交换机获取端口号命令 的错误代码库  缺少传输给前端的信息
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令\r\n","光衰");
-                return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:光衰功能未定义获取端口号命令\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能未定义获取端口号命令\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
         }
 
-        lightAttenuationCommand = getpojo(lightAttenuationCommandList);
+        /**
+         * 从lightAttenuationCommandList中 获取四项基本最详细的数据
+         */
+        lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand(lightAttenuationCommandList);
         String command = lightAttenuationCommand.getGetPortCommand();
 
         /**
@@ -123,40 +129,57 @@ public class LuminousAttenuation {
                 "Vlanif2010 up up -- -- 0 0";
         returnString = MyUtils.trimString(returnString);*/
 
-
-
-
-
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
-            // todo 关于交换机返回错误信息 的错误代码库
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n");
+
             try {
-                PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取端口号命令错误,请重新定义\r\n","光衰");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能获取端口号命令错误,需要重新定义\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"获取端口号命令错误,请重新定义");
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
         }
 
-        /*5：如果交换机返回信息不为 null说明命令执行正常, 则继续 根据交换机返回信息获取获取光衰端口号*/
+        /**
+         * 5：如果交换机返回信息不为 null说明命令执行正常,
+         * 则继续 根据交换机返回信息获取获取光衰端口号
+         */
         List<String> port = ObtainUPStatusPortNumber(returnString);
-        for (String str:port){
-            System.err.println("提取到的端口号"+str);
-        }
+
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
             // todo 关于没有端口号为UP状态 的错误代码库
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"无UP状态端口号\r\n","光衰");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:光衰功能无UP状态端口号\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能无UP状态端口号\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到UP状态端口号");
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能无UP状态端口号\r\n");
         }
-
-
-
 
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
@@ -171,13 +194,27 @@ public class LuminousAttenuation {
             }
         }
 
-        /*8：根据 up状态端口号 及交换机信息 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()*/
+        /**
+         * 8：根据 up状态端口号 及交换机信息
+         * 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()
+         */
         HashMap<String, Double> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
         /*9：获取光衰参数为空*/
         if (MyUtils.isMapEmpty(getparameter)){
-            // todo 关于未获取到光衰参数 的错误代码库
             try {
-                PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+"未获取到光衰参数\r\n","光衰");
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:光衰功能所有UP状态端口皆未获取到光衰参数\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能所有UP状态端口皆未获取到光衰参数\r\n"
+                        , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -188,12 +225,25 @@ public class LuminousAttenuation {
         try {
             for (String portstr:port){
                 // todo  根据光衰参数阈值  的代码库 回显和日志
-                String lightAttenuationInformation = "IP地址:"+switchParameters.getIp()+
-                        "端口号:"+portstr+"TX:"+getparameter.get(portstr+"TX")+
-                                      "RX:"+getparameter.get(portstr+"RX");
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),
-                        "系统信息:"+switchParameters.getIp()+":"+"光衰:"+ lightAttenuationInformation+"\r\n");
-                PathHelper.writeDataToFileByName(lightAttenuationInformation+"\r\n","光衰");
+                try {
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能端口号:"+portstr+" TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能端口号:"+portstr+" TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n"
+                            , "光衰");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
                 SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                 HashMap<String,String> hashMap = new HashMap<>();
                 hashMap.put("ProblemName","光衰");
@@ -227,20 +277,12 @@ public class LuminousAttenuation {
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(portstr+"TX")+
                         "  RX:"+getparameter.get(portstr+"RX"));
-                try {
-                    PathHelper.writeDataToFileByName("IP地址:"+switchParameters.getIp()+
-                            "端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
-                            "TX:"+getparameter.get(portstr+"TX")+
-                            "  RX:"+getparameter.get(portstr+"RX")+"\r\n","光衰");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return AjaxResult.success();
@@ -324,7 +366,10 @@ public class LuminousAttenuation {
                         }
                     }
                 }
+            }else if (( string.toUpperCase().startsWith("BAGG".toUpperCase()) || string.toUpperCase().startsWith("Eth-Trunk".toUpperCase()))){
+                return string.trim();
             }
+
         }
         return null;
     }
@@ -389,21 +434,49 @@ public class LuminousAttenuation {
 
 
             if (returnResults == null){
-                // todo 获取光衰参数命令错误代码库
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n");
                 try {
-                    PathHelper.writeDataToFileByName(switchParameters.getIp()+":获取光衰参数命令错误,请重新定义\r\n","光衰");
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能"+port+"端口获取光衰参数命令错误,请重新定义\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能"+port+"端口获取光衰参数命令错误,请重新定义\r\n"
+                            , "问题日志");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 continue;
             }
 
-            /*提取光衰参数*/
+            /**
+             * 提取光衰参数
+             */
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
 
             if (values == null){
-                // todo 为提取到光衰参数
+                try {
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能"+port+"端口号未获取到光衰参数\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能"+port+"端口号未获取到光衰参数\r\n"
+                            , "问题日志");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 continue;
             }
 
@@ -454,11 +527,15 @@ public class LuminousAttenuation {
                 /*key : value*/
                 keyValueList.add(Line_split[number]);
             }else {
+                /*错误信息预定义 用于前端显示*/
+                String parameterInformation = "";
                 /*如果两个都包含 则可能是在本行，或者是下一行 需要判断:*/
                 String nextrow = Line_split[number];
+                parameterInformation = nextrow;
                 /*两个都包含 则 两个参数值在一行*/
                 if (nextrow.indexOf(":") == -1){
                     nextrow = Line_split[number+1];
+                    parameterInformation = parameterInformation +"\r\n"+ nextrow+"\r\n";
                 }
                 /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
@@ -466,8 +543,27 @@ public class LuminousAttenuation {
                         .filter(i -> i < 0)
                         .collect(Collectors.toList());
                 if (values.size()!=2){
-                    /*光衰参数行有多余2个负数 无法去除*/
-                    // todo 光衰参数取值失败 光衰参数行有多于2个负数 错误代码
+                    /*光衰参数行有多余2个负数 无法取出*/
+                    try {
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
+                        }
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能光衰参数一行负数个数不为2,无法取出光衰参数," +
+                                "光衰参数行信息:"+"\r\n"+parameterInformation);
+                        PathHelper.writeDataToFileByName(
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:光衰功能光衰参数一行负数个数不为2,无法取出光衰参数," +
+                                        "光衰参数行信息:"+"\r\n"+parameterInformation
+                                , "问题日志");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                     return null;
                 }
                 if (num == 1){
@@ -482,6 +578,8 @@ public class LuminousAttenuation {
                 break;
             }
         }
+
+
 
         /*key ： value 格式*/
         if (keyValueList.size()!=0){
@@ -501,12 +599,6 @@ public class LuminousAttenuation {
                     * 下面两行是否包含HIGH 和 LOW */
                     if (MyUtils.containIgnoreCase(keyValueList.get(num),"CURRENT")){
                         keylist.add(keyValueList.get(num));
-                        if (MyUtils.containIgnoreCase(keyValueList.get(num+1),"HIGH") || MyUtils.containIgnoreCase(keyValueList.get(num+1),"LOW")){
-                            keylist.add(keyValueList.get(num+1));
-                        }
-                        if (MyUtils.containIgnoreCase(keyValueList.get(num+2),"HIGH") || MyUtils.containIgnoreCase(keyValueList.get(num+2),"LOW")){
-                            keylist.add(keyValueList.get(num+2));
-                        }
                     }
                 }
                 if (keylist.size() > 1){
@@ -527,21 +619,31 @@ public class LuminousAttenuation {
                         }else if (doubleList.size()==3){
                             rxpower = doubleList.get(0);
                         }else {
-                            // todo 光衰参数取值失败 光衰参数行负数数量不正确 错误代码
+                            try {
+                                String subversionNumber = switchParameters.getSubversionNumber();
+                                if (subversionNumber!=null){
+                                    subversionNumber = "、"+subversionNumber;
+                                }
+                                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                        "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                        "光衰参数行信息:"+keyvalue+"\r\n");
+                                PathHelper.writeDataToFileByName(
+                                        "IP地址为:"+switchParameters.getIp()+","+
+                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                                "光衰参数行信息:"+keyvalue+"\r\n"
+                                        , "问题日志");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
                             return null;
-                        }
-                    }else if (MyUtils.containIgnoreCase(keyvalue,"HIGH")){
-                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                        if (doubleList.size()==1){
-                            rxpower = doubleList.get(0);
-                        }
-                    }else if (MyUtils.containIgnoreCase(keyvalue,"LOW")){
-                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                        if (doubleList.size()==1){
-                            rxpower = doubleList.get(0);
                         }
                     }
                 }
+
                 /*当 行信息包含 TX 说明是 TX数据*/
                 if (MyUtils.containIgnoreCase(keyvalue,"TX")){
                     if (MyUtils.containIgnoreCase(keyvalue,"TX POWER")){
@@ -552,18 +654,26 @@ public class LuminousAttenuation {
                         }else if (doubleList.size()==3){
                             txpower = doubleList.get(0);
                         }else {
-                            // todo 光衰参数取值失败 光衰参数行负数数量不正确 错误代码
+                            try {
+                                String subversionNumber = switchParameters.getSubversionNumber();
+                                if (subversionNumber!=null){
+                                    subversionNumber = "、"+subversionNumber;
+                                }
+                                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                        "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                        "光衰参数行信息:"+keyvalue+"\r\n");
+                                PathHelper.writeDataToFileByName(
+                                        "IP地址为:"+switchParameters.getIp()+","+
+                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                                "光衰参数行信息:"+keyvalue+"\r\n"
+                                        , "问题日志");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             return null;
-                        }
-                    }else if (MyUtils.containIgnoreCase(keyvalue,"HIGH")){
-                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                        if (doubleList.size()==1){
-                            txpower = doubleList.get(0);
-                        }
-                    }else if (MyUtils.containIgnoreCase(keyvalue,"LOW")){
-                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                        if (doubleList.size()==1){
-                            txpower = doubleList.get(0);
                         }
                     }
                 }

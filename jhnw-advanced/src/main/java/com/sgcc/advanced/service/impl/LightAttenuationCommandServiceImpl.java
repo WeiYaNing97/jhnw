@@ -1,6 +1,9 @@
 package com.sgcc.advanced.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.sgcc.share.util.FunctionalMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sgcc.advanced.mapper.LightAttenuationCommandMapper;
@@ -40,7 +43,16 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
     @Override
     public List<LightAttenuationCommand> selectLightAttenuationCommandList(LightAttenuationCommand lightAttenuationCommand)
     {
-        return lightAttenuationCommandMapper.selectLightAttenuationCommandList(lightAttenuationCommand);
+        List<LightAttenuationCommand> pojo = new ArrayList<>();
+        pojo.addAll(lightAttenuationCommandMapper.selectLightAttenuationCommandList(lightAttenuationCommand));
+
+        String equivalence = FunctionalMethods.getEquivalence(lightAttenuationCommand.getBrand());
+        if (equivalence!=null){
+            lightAttenuationCommand.setBrand(equivalence);
+            pojo.addAll(lightAttenuationCommandMapper.selectLightAttenuationCommandList(lightAttenuationCommand));
+        }
+
+        return pojo;
     }
 
     /**
@@ -89,5 +101,30 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
     public int deleteLightAttenuationCommandById(Long id)
     {
         return lightAttenuationCommandMapper.deleteLightAttenuationCommandById(id);
+    }
+
+    @Override
+    public List<LightAttenuationCommand> selectLightAttenuationCommandListBySQL(LightAttenuationCommand lightAttenuationCommand) {
+
+        List<LightAttenuationCommand> pojo = new ArrayList<>();
+        pojo.addAll(selectLightAttenuationCommandListByEquivalence(lightAttenuationCommand));
+
+        String equivalence = FunctionalMethods.getEquivalence(lightAttenuationCommand.getBrand());
+        if (equivalence!=null){
+            lightAttenuationCommand.setBrand(equivalence);
+            pojo.addAll(selectLightAttenuationCommandListByEquivalence(lightAttenuationCommand));
+        }
+
+        return pojo;
+    }
+
+
+
+    public List<LightAttenuationCommand> selectLightAttenuationCommandListByEquivalence(LightAttenuationCommand lightAttenuationCommand) {
+
+        String fuzzySQL = FunctionalMethods.getFuzzySQL(lightAttenuationCommand.getBrand(), lightAttenuationCommand.getSwitchType(),
+                lightAttenuationCommand.getFirewareVersion(), lightAttenuationCommand.getSubVersion());
+
+        return lightAttenuationCommandMapper.selectLightAttenuationCommandListBySQL(fuzzySQL);
     }
 }

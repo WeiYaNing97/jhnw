@@ -1,6 +1,9 @@
 package com.sgcc.advanced.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.sgcc.share.util.FunctionalMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sgcc.advanced.mapper.OspfCommandMapper;
@@ -40,7 +43,16 @@ public class OspfCommandServiceImpl implements IOspfCommandService
     @Override
     public List<OspfCommand> selectOspfCommandList(OspfCommand ospfCommand)
     {
-        return ospfCommandMapper.selectOspfCommandList(ospfCommand);
+        List<OspfCommand> pojo = new ArrayList<>();
+        pojo.addAll(ospfCommandMapper.selectOspfCommandList(ospfCommand));
+
+        String equivalence = FunctionalMethods.getEquivalence(ospfCommand.getBrand());
+        if (equivalence!=null){
+            ospfCommand.setBrand(equivalence);
+            pojo.addAll(ospfCommandMapper.selectOspfCommandList(ospfCommand));
+        }
+
+        return pojo;
     }
 
     /**
@@ -89,5 +101,28 @@ public class OspfCommandServiceImpl implements IOspfCommandService
     public int deleteOspfCommandById(Long id)
     {
         return ospfCommandMapper.deleteOspfCommandById(id);
+    }
+
+    @Override
+    public List<OspfCommand> selectOspfCommandListBySQL(OspfCommand ospfCommand) {
+        List<OspfCommand> pojo = new ArrayList<>();
+        pojo.addAll(selectOspfCommandListByEquivalence(ospfCommand));
+
+        String equivalence = FunctionalMethods.getEquivalence(ospfCommand.getBrand());
+        if (equivalence!=null){
+            ospfCommand.setBrand(equivalence);
+            pojo.addAll(selectOspfCommandListByEquivalence(ospfCommand));
+        }
+
+        return pojo;
+    }
+
+
+
+    public List<OspfCommand> selectOspfCommandListByEquivalence(OspfCommand ospfCommand) {
+        String fuzzySQL = FunctionalMethods.getFuzzySQL(ospfCommand.getBrand(), ospfCommand.getSwitchType(),
+                ospfCommand.getFirewareVersion(), ospfCommand.getSubVersion());
+
+        return ospfCommandMapper.selectOspfCommandListBySQL(fuzzySQL);
     }
 }
