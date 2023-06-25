@@ -78,7 +78,7 @@ public class ErrorPackage {
          */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
 
-        /*returnString = "The brief information of interface(s) under route mode:\n" +
+        returnString = "The brief information of interface(s) under route mode:\n" +
                 "Link: ADM - administratively down; Stby - standby\n" +
                 "Protocol: (s) - spoofing\n" +
                 "Interface            Link Protocol Main IP         Description\n" +
@@ -132,7 +132,7 @@ public class ErrorPackage {
                 "GE0/0/30             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
                 "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
                 "GE0/0/32             ADM  auto    A      A    200  To_HX_S7506E";
-        returnString = MyUtils.trimString(returnString);*/
+        returnString = MyUtils.trimString(returnString);
 
 
 
@@ -295,7 +295,7 @@ public class ErrorPackage {
                 /* 数据库中没有历史数据 可以直接插入 */
                 int i = errorRateService.insertErrorRate(errorRate);
                 hashMap.put("IfQuestion","无问题");
-                continue;
+                //continue;
             }else {
                 int num = 0;
                 if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null) &&
@@ -318,18 +318,20 @@ public class ErrorPackage {
                     errorRate.setId(primaryErrorRate.getId());
                     int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","无问题");
-                    continue;
+                    //continue;
                 }
             }
 
             // =:= 是自定义分割符
+            String portNumber = "端口号=:=是=:="+port+"=:=";
+
             String InputErrors = primaryErrorRate.getInputErrors()!=null?"input=:=是=:=input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+"=:="
                     :"input=:=是=:="+errorRate.getInputErrors()+"=:=";
             String OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output=:=是=:=output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+"=:="
                     :"output=:=是=:="+errorRate.getOutputErrors()+"=:=";
             String Crc = primaryErrorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
                     :"crc=:=是=:="+errorRate.getCrc();
-            String parameterString = InputErrors+" "+OutputErrors+" "+Crc;
+            String parameterString = portNumber +" "+ InputErrors+" "+OutputErrors+" "+Crc;
 
             if (parameterString.endsWith("=:=")){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
@@ -364,7 +366,7 @@ public class ErrorPackage {
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            /*returnResults = "Eth-Trunk1 current state : UP\n" +
+            returnResults = "Eth-Trunk1 current state : UP\n" +
                     "Line protocol current state : UP\n" +
                     "Description:To_HX_S7506E\n" +
                     "Switch Port, Link-type : trunk(configured),\n" +
@@ -379,7 +381,7 @@ public class ErrorPackage {
                     "  Discard:                          0,  Pause:                               0\n" +
                     "  Frames:                           0\n" +
                     "\n" +
-                    "  Total Error:                      0\n" +
+                    "  Total Error:                      123\n" +
                     "  CRC:                              0,  Giants:                              0\n" +
                     "  Jabbers:                          0,  Fragments:                           0\n" +
                     "  Runts:                            0,  DropEvents:                          0\n" +
@@ -391,7 +393,7 @@ public class ErrorPackage {
                     "  Broadcast:                 27528543,  Jumbo:                       121392927\n" +
                     "  Discard:                          0,  Pause:                               0\n" +
                     "\n" +
-                    "  Total Error:                      0\n" +
+                    "  Total Error:                      456\n" +
                     "  Collisions:                       0,  ExcessiveCollisions:                 0\n" +
                     "  Late Collisions:                  0,  Deferreds:                           0\n" +
                     "  Buffers Purged:                   0\n" +
@@ -406,7 +408,7 @@ public class ErrorPackage {
                     "-----------------------------------------------------\n" +
                     "The Number of Ports in Trunk : 2\n" +
                     "The Number of UP Ports in Trunk : 2";
-            returnResults = MyUtils.trimString(returnResults);*/
+            returnResults = MyUtils.trimString(returnResults);
 
 
             if (returnResults == null){
@@ -430,18 +432,7 @@ public class ErrorPackage {
                 continue;
             }
 
-            String[] returnResultssplit = returnResults.split("\r\n");
-            for (String information:returnResultssplit){
-                /*提取误码率参数*/
-                List<String> value = getParameters(information);
-                if (MyUtils.isCollectionEmpty(value)){
-                    //information无误码率参数
-                    continue;
-                }else {
-                    valueList.addAll(value);
-                    continue;
-                }
-            }
+            valueList = getParameters(switchParameters,returnResults);
 
             if (MyUtils.isCollectionEmpty(valueList)){
                 /*  端口未获取到误码率 */
@@ -483,10 +474,7 @@ public class ErrorPackage {
 
         for (String string:returnStringSplit){
             /*包含 交换机返回行信息转化为大写 UP状态  并且该行带有“/”的 存放入端口待取集合*/
-            if ((string.toUpperCase().indexOf(" UP ")!=-1) && string.indexOf("/")!=-1){
-                strings.add(string.trim());
-            }else if ((string.toUpperCase().indexOf(" UP ")!=-1)
-                    && ( string.toUpperCase().startsWith("BAGG".toUpperCase()) || string.toUpperCase().startsWith("Eth-Trunk".toUpperCase()) )){
+            if ((string.toUpperCase().indexOf(" UP ")!=-1)){
                 strings.add(string.trim());
             }
         }
@@ -509,40 +497,102 @@ public class ErrorPackage {
 
     /**
      * 查看交换机误码率数量
-     * @param information
+     * @param
      * @return
      */
-    public List<String> getParameters(String information) {
-        String[] keyword = {"input errors","output errors","CRC,","CRC:","RxErrorPkts","TxErrorPkts"};
-        List<String> keyList = new ArrayList<>();
-        for (String key:keyword){
-            if (information.toUpperCase().indexOf(key.toUpperCase())!=-1){
-                keyList.add(key);
+    public List<String> getParameters(SwitchParameters switchParameters,String returnResults) {
+
+        String[] returnResultssplit = returnResults.split("\r\n");
+
+        Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率",Constant.getProfileInformation());
+        Set<String> keys = deviceVersion.keySet();
+
+        String brand = null;
+        for (String key:keys){
+            if (switchParameters.getDeviceBrand().equalsIgnoreCase(key)){
+                brand = key;
+                break;
             }
         }
-        List<String> returnList = new ArrayList<>();
-        for (String key:keyList){
-            switch (key){
-                case "input errors":
-                case "output errors":
-                case "CRC,":
-                    String[] inputoutputCRC = MyUtils.splitIgnoreCase(information, key);
-                    String[] inputoutputCRCsplit = inputoutputCRC[0].split(",");
-                    returnList.add(inputoutputCRCsplit[inputoutputCRCsplit.length-1]+key);
+        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand,Constant.getProfileInformation());
+        keys = deviceVersion.keySet();
+        String model = null;
+        String firmwareVersion = null;
+        String subversionNumber = null;
+        for (String key:keys){
+            if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
+                model = key;
+            }
+        }
+        if (model!=null){
+            deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model,Constant.getProfileInformation());
+            keys = deviceVersion.keySet();
+            for (String key:keys){
+                if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
+                    firmwareVersion = key;
+                }
+            }
+            if (firmwareVersion!=null){
+                deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model+"."+firmwareVersion,Constant.getProfileInformation());
+                keys = deviceVersion.keySet();
+                for (String key:keys){
+                    if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
+                        subversionNumber = key;
+                    }
+                }
+            }
+        }
+
+        String condition = (brand==null?"":"."+brand)+(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
+        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率"+condition,Constant.getProfileInformation());
+        String input = null;
+        String output = null;
+        String crc = null;
+        Set<String> strings = deviceVersion.keySet();
+        HashMap<String,String> hashMap =new HashMap<>();
+        HashMap<String, String> valueTotalError = getValueTotalError(returnResults);
+        for (String key:strings){
+            switch (key.toLowerCase()){
+                case "input":
+                    input = (String) deviceVersion.get(key);
+                    hashMap.put("Input",input);
                     break;
-                case "CRC:":
-                    String[] CRC = MyUtils.splitIgnoreCase(information, key);
-                    String[] CRCplit = CRC[1].split(",");
-                    returnList.add(key + CRCplit[0]);
+                case "output":
+                    output = (String) deviceVersion.get(key);
+                    hashMap.put("Output",output);
                     break;
-                case "RxErrorPkts":
-                case "TxErrorPkts":
-                    String[] rxtx = information.split(":");
-                    returnList.add(rxtx[0] +" : "+  rxtx[1]);
+                case "crc":
+                    crc = (String) deviceVersion.get(key);
+                    hashMap.put("CRC",crc);
                     break;
             }
         }
-        return returnList;
+        Set<String> keySet = hashMap.keySet();
+        for (String key:keySet){
+            if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
+                String value = valueTotalError.get(key);
+                String placeholdersContaining = getPlaceholdersContaining(value, hashMap.get(key));
+                if (placeholdersContaining!=null){
+                    hashMap.put(key,placeholdersContaining);
+                }
+            }else if (!(MyUtils.containIgnoreCase(hashMap.get(key),"Total Error"))){
+                for (String str:returnResultssplit){
+                    String placeholdersContaining = getPlaceholdersContaining(str, hashMap.get(key));
+                    if (placeholdersContaining!=null){
+                        hashMap.put(key,placeholdersContaining);
+                        break;
+                    }
+                }
+            }
+        }
+
+        List<String> stringList = new ArrayList<>();
+        for (String key:keySet){
+            stringList.add(key + ":" +hashMap.get(key));
+        }
+
+        return stringList;
+
     }
 
     public static ErrorRateCommand getpojo(List<ErrorRateCommand> pojoList) {
@@ -572,4 +622,116 @@ public class ErrorPackage {
         return errorRateCommand;
     }
 
+    /**
+     * 当取词关键词有 Total Error 时的取词逻辑 需要区分时Input的Total Error，还是Output的Total Error
+     *
+     * 实现逻辑：按行分割成字符串 包含 Input、Output、Total Error的都放入集合
+     * 然后遍历集合，将Total Error元素取出来，如果Total Error元素行包含Input 或 Output则放入HashMap<String,String>
+     *     如果包含Input 或 Output 则取前一个元素，看是Input 还是 Output
+     * @param information
+     * @return
+     */
+    public static HashMap<String,String> getValueTotalError(String information) {
+
+        String[] informationSplit = information.split("\r\n");
+        List<String> valueList = new ArrayList<>();
+        for (int number = 0;number<informationSplit.length;number++){
+            if (MyUtils.containIgnoreCase(informationSplit[number],"Input")
+            && !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))){
+
+                valueList.add("Input");
+            }else if (MyUtils.containIgnoreCase(informationSplit[number],"Output")
+            && !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))){
+
+                valueList.add("Output");
+            }else if (MyUtils.containIgnoreCase(informationSplit[number],"Total Error")){
+
+                valueList.add(informationSplit[number]);
+            }
+        }
+
+        HashMap<String,String> returnMap = new HashMap<>();
+
+        for (int i =0 ;i<valueList.size();i++){
+            if (MyUtils.containIgnoreCase(valueList.get(i),"Total Error")){
+                if (MyUtils.containIgnoreCase(valueList.get(i),"Input")){
+                    returnMap.put("Input",valueList.get(i));
+                }else if (MyUtils.containIgnoreCase(valueList.get(i),"Output")){
+                    returnMap.put("Output",valueList.get(i));
+                }else {
+                    returnMap.put(valueList.get(i-1),valueList.get(i));
+                }
+            }
+        }
+
+        return returnMap;
+    }
+
+
+    /**
+     * 根据配置文件的取值信息 取参数值
+     * @param str1
+     * @param str2
+     * @return
+     */
+    public static String getPlaceholdersContaining(String str1 , String str2) {
+        String str1Str = str1.replaceAll("\\d", "");
+        String str2Str = str2.trim().replace("$", "");
+
+        if (str1Str.indexOf(str2Str)!=-1){
+            //System.err.println(str1);
+        }
+
+        /* 占位符位置 */
+        Integer num = null;
+        String[] $str2 = str2.split(" ");
+        for (int number = 0; number<$str2.length; number++){
+            if ($str2[number].equalsIgnoreCase("$")){
+                num = number;
+            }
+        }
+
+        if (num == 0){
+            //开头
+            String[] str1Split = str1.split(str2Str.trim());
+            if (str1Split.length==2){
+                String[] parameterArray = str1Split[0].trim().split(" ");
+                String value = parameterArray[parameterArray.length-1].trim();
+                value = FunctionalMethods.judgeResultWordSelection(value);
+                if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
+                    return value;
+                }
+            }else {
+                return null;
+            }
+
+        }else if (num == $str2.length-1){
+            //结尾
+            String[] str1Split = str1.split(str2Str.trim());
+            if (str1Split.length==2){
+                String[] parameterArray = str1Split[1].trim().split(" ");
+                String value = parameterArray[0].trim();
+                value = FunctionalMethods.judgeResultWordSelection(value);
+                if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
+                    return value;
+                }
+            }else {
+                return null;
+            }
+        }else {
+            //中间
+            String[] str2Split = str2.trim().split(" \\$ ");
+            if (str2Split.length==2){
+                String[] split = str1.split(str2Split[0]);
+                if (split.length<3){
+                    String value = split[split.length - 1].split(str2Split[1])[0].trim();
+                    value = FunctionalMethods.judgeResultWordSelection(value);
+                    if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
+                        return value;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }

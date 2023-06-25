@@ -303,6 +303,19 @@ public class MyUtils {
         return containDigit(string);
     }
 
+    /**
+     * 判断字符串元素是否为纯数字
+     * @param str
+     * @return
+     */
+    public static boolean determineWhetherAStringIsAPureNumber(String str) {
+        if (str.matches("\\d+")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     /*String*/
     /**

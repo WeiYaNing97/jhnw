@@ -315,7 +315,7 @@ public class LuminousAttenuation {
         List<String> strings = new ArrayList<>();
         for (String string:returnStringSplit){
             /*包含 交换机返回行信息转化为大写 UP状态  不能为COPPER铜缆的  并且该行带有“/”的 存放入端口待取集合*/
-            if ((string.toUpperCase().indexOf(" UP ")!=-1) && string.indexOf("/")!=-1 && (string.toUpperCase().indexOf("COPPER") == -1)){
+            if ((string.toUpperCase().indexOf(" UP ")!=-1)  && (string.toUpperCase().indexOf("COPPER") == -1)){
                 strings.add(string.trim());
             }
         }
@@ -342,6 +342,12 @@ public class LuminousAttenuation {
      * @return
      */
     public static String getTerminalSlogan(String information){
+        /**
+         * 获取端口号
+         */
+        String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword",Constant.getProfileInformation());
+        String[] keywords = deviceVersion.trim().split(" ");
+
         /*GigabitEthernet 9/1 up routed Full 1000M fiber*/
         /*根据UP分割字符串*/
         /*交换机信息 根据 up(忽略大小写) 分割*/
@@ -350,24 +356,22 @@ public class LuminousAttenuation {
         * 此时需要判断提取到的端口号是否包含字母
         * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
         for (String string:informationSplit){
-            if (string.indexOf("/")!=-1){
-                String[] string_split = string.split(" ");
-                for (int num = 0;num < string_split.length;num++){
-                    if (string_split[num].indexOf("/")!=-1){
+
+            String[] string_split = string.split(" ");
+            for (int num = 0;num < string_split.length;num++){
+                for (String keyword:keywords){
+                    if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase().toUpperCase())){
                         /*判断提取到的端口号是否包含字母*/
                         if (MyUtils.judgeContainsStr(string_split[num])){
                             /*包含则为完全端口号 否则为不完全端口号*/
                             return string_split[num];
                         }else {
                             /*例如：  GigabitEthernet 2/1 */
-                            /*否则为不完全端口号，需要加前面的GigabitEthernet*/
-                            information =string_split[num];
-                            return string_split[--num] +" "+ information ;
+                            /*否则为不完全端口号，需要加后面的GigabitEthernet*/
+                            return string_split[num] +" "+ string_split[num++] ;
                         }
                     }
                 }
-            }else if (( string.toUpperCase().startsWith("BAGG".toUpperCase()) || string.toUpperCase().startsWith("Eth-Trunk".toUpperCase()))){
-                return string.trim();
             }
 
         }

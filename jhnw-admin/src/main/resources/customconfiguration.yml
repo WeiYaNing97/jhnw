@@ -50,3 +50,39 @@ OSPF:
   rxRatedDeviation: 1
   # TX默认额定偏差
   txRatedDeviation: 0.5
+
+# 端口号
+obtainPortNumber:
+  #获取端口号关键词
+  keyword:
+    Eth-Trunk
+    Ethernet
+    GigabitEthernet
+    GE
+    BAGG
+    Eth
+
+# 误码率
+误码率:
+  H3C1:
+    Input: $ input errors
+    Output: $ output errors
+    CRC: $ CRC,
+    S2152:
+      Input: $ input errors
+      Output: $ output errors
+      CRC: $ CRC,
+  H3C:
+    CRC: 'CRC: $'
+    Input: 'Total Error: $'
+    Output: 'Total Error: $'
+  RuiJie:
+    Input: $ input errors
+    Output: $ output errors
+    CRC: $ CRC,
+  MaiP:
+    Input: 'RxErrorPkts : $'
+    Output: 'RxErrorPkts : $'
+  Cisco:
+    Input: $ input errors
+    Output: $ output errors
