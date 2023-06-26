@@ -78,7 +78,7 @@ public class ErrorPackage {
          */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
 
-        returnString = "The brief information of interface(s) under route mode:\n" +
+        /*returnString = "The brief information of interface(s) under route mode:\n" +
                 "Link: ADM - administratively down; Stby - standby\n" +
                 "Protocol: (s) - spoofing\n" +
                 "Interface            Link Protocol Main IP         Description\n" +
@@ -132,7 +132,7 @@ public class ErrorPackage {
                 "GE0/0/30             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
                 "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
                 "GE0/0/32             ADM  auto    A      A    200  To_HX_S7506E";
-        returnString = MyUtils.trimString(returnString);
+        returnString = MyUtils.trimString(returnString);*/
 
 
 
@@ -366,7 +366,7 @@ public class ErrorPackage {
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            returnResults = "Eth-Trunk1 current state : UP\n" +
+            /*returnResults = "Eth-Trunk1 current state : UP\n" +
                     "Line protocol current state : UP\n" +
                     "Description:To_HX_S7506E\n" +
                     "Switch Port, Link-type : trunk(configured),\n" +
@@ -381,7 +381,7 @@ public class ErrorPackage {
                     "  Discard:                          0,  Pause:                               0\n" +
                     "  Frames:                           0\n" +
                     "\n" +
-                    "  Total Error:                      123\n" +
+                    "  Total Error:                      987\n" +
                     "  CRC:                              0,  Giants:                              0\n" +
                     "  Jabbers:                          0,  Fragments:                           0\n" +
                     "  Runts:                            0,  DropEvents:                          0\n" +
@@ -393,7 +393,7 @@ public class ErrorPackage {
                     "  Broadcast:                 27528543,  Jumbo:                       121392927\n" +
                     "  Discard:                          0,  Pause:                               0\n" +
                     "\n" +
-                    "  Total Error:                      456\n" +
+                    "  Total Error:                      789\n" +
                     "  Collisions:                       0,  ExcessiveCollisions:                 0\n" +
                     "  Late Collisions:                  0,  Deferreds:                           0\n" +
                     "  Buffers Purged:                   0\n" +
@@ -408,7 +408,7 @@ public class ErrorPackage {
                     "-----------------------------------------------------\n" +
                     "The Number of Ports in Trunk : 2\n" +
                     "The Number of UP Ports in Trunk : 2";
-            returnResults = MyUtils.trimString(returnResults);
+            returnResults = MyUtils.trimString(returnResults);*/
 
 
             if (returnResults == null){
@@ -670,19 +670,25 @@ public class ErrorPackage {
 
     /**
      * 根据配置文件的取值信息 取参数值
+     * 逻辑：因为取词为数字 占位符为：$ 。
+     * 1：首先将交换机返回信息数字替换为"",将配置文件中的占位符$替换为""
+     * 2：如果str1Str 不包含 str2Str 则返回null
+     * 3：将配置文件的关键词按空格转换为字符串数组，获取$ 的下标、
+     * 4：如果关键词的$位置在开头和结尾，则可以根据去掉$的关键词分割交换机返回信息。然后（$开头：第一元素的最后一位。$结尾：第二元素的第一位。）获取参数
+     * 5：关键词根据 $ 分割为数组，按照元素分割交换机返回信息。
      * @param str1
      * @param str2
      * @return
      */
     public static String getPlaceholdersContaining(String str1 , String str2) {
+        /*1*/
         String str1Str = str1.replaceAll("\\d", "");
         String str2Str = str2.trim().replace("$", "");
-
-        if (str1Str.indexOf(str2Str)!=-1){
-            //System.err.println(str1);
+        /*2*/
+        if (str1Str.indexOf(str2Str) ==-1){
+            return null;
         }
-
-        /* 占位符位置 */
+        /*3  占位符位置 */
         Integer num = null;
         String[] $str2 = str2.split(" ");
         for (int number = 0; number<$str2.length; number++){
@@ -691,43 +697,106 @@ public class ErrorPackage {
             }
         }
 
+        /*4*/
         if (num == 0){
-            //开头
+            // $在关键词的开头
             String[] str1Split = str1.split(str2Str.trim());
-            if (str1Split.length==2){
+            // 开头等于二，关键词在中间 $代表的参数会在第一个数组元素中
+            // 开头等于 一，关键词在结尾 $代表的参数在唯一一个数组元素中
+            /*关键词在中间 或者在结尾*/
+            if (str1Split.length==2 || str1Split.length==1){
                 String[] parameterArray = str1Split[0].trim().split(" ");
+                /*获取数组的最后一个元素*/
                 String value = parameterArray[parameterArray.length-1].trim();
+                /*去掉结尾的 . 或 ，*/
                 value = FunctionalMethods.judgeResultWordSelection(value);
+                /*检查元素是否为纯数字*/
                 if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                     return value;
                 }
             }else {
+                /*如果有多个 关键词，则需要遍历获取，直到获取到数字为止*/
+                for (String returnstr1:str1Split){
+                    String[] parameterArray = returnstr1.trim().split(" ");
+                    /*获取数组的最后一个元素*/
+                    String value = parameterArray[parameterArray.length-1].trim();
+                    /*去掉结尾的 . 或 ，*/
+                    value = FunctionalMethods.judgeResultWordSelection(value);
+                    /*检查元素是否为纯数字*/
+                    if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
+                        return value;
+                    }
+                }
+                /*如果未取出，则返回null*/
                 return null;
             }
 
         }else if (num == $str2.length-1){
-            //结尾
+            // $在关键词的结尾
             String[] str1Split = str1.split(str2Str.trim());
+            //结尾等于二，关键词在中间 $代表的参数会在第二个数组元素中
+            // 结尾等于 一，关键词在开头 $代表的参数在唯一一个数组元素中
             if (str1Split.length==2){
                 String[] parameterArray = str1Split[1].trim().split(" ");
+                /*获取数组的最后一个元素*/
+                String value = parameterArray[0].trim();
+                value = FunctionalMethods.judgeResultWordSelection(value);
+                if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
+                    return value;
+                }
+            }else if (str1Split.length==1){
+                String[] parameterArray = str1Split[0].trim().split(" ");
+                /*获取数组的最后一个元素*/
                 String value = parameterArray[0].trim();
                 value = FunctionalMethods.judgeResultWordSelection(value);
                 if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                     return value;
                 }
             }else {
+                /*如果有多个 关键词，则需要遍历获取，直到获取到数字为止*/
+                for (String returnstr1:str1Split){
+                    String[] parameterArray = returnstr1.trim().split(" ");
+                    /*获取数组的第一个元素*/
+                    String value = parameterArray[0].trim();
+                    /*去掉结尾的 . 或 ，*/
+                    value = FunctionalMethods.judgeResultWordSelection(value);
+                    /*检查元素是否为纯数字*/
+                    if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
+                        return value;
+                    }
+                }
+                /*如果未取出，则返回null*/
                 return null;
             }
         }else {
-            //中间
+            /* 5 */
+            // 中间
             String[] str2Split = str2.trim().split(" \\$ ");
             if (str2Split.length==2){
+
                 String[] split = str1.split(str2Split[0]);
-                if (split.length<3){
-                    String value = split[split.length - 1].split(str2Split[1])[0].trim();
+                /*第一关键词在中间位置 长度为2*/
+                /*第一关键词在开头位置 长度为1*/
+                /*此时只有 一个 匹配到第一关键词的可以直接截取第二关键词*/
+                if (split.length == 2 || split.length == 1){
+                    /*根据第二关键词分割数组*/
+                    /*因为要获取的是数字，则此时第一个元素为要获取的参数*/
+                    String[] split2 = split[split.length - 1].split(str2Split[1]);
+                    String value = split2[0].trim();
                     value = FunctionalMethods.judgeResultWordSelection(value);
                     if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                         return value;
+                    }
+                }else {
+                    /*有多个第一关键词*/
+                    /*遍历所有第一关键词 数组元素*/
+                    for (String string:str2Split){
+                        String[] split2 = string.split(str2Split[1]);
+                        String value = split2[0].trim();
+                        value = FunctionalMethods.judgeResultWordSelection(value);
+                        if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
+                            return value;
+                        }
                     }
                 }
             }
