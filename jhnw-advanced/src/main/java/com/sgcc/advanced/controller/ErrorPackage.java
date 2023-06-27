@@ -366,7 +366,7 @@ public class ErrorPackage {
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            returnResults = "GigabitEthernet1/0/1 current state : UP\n" +
+            /*returnResults = "GigabitEthernet1/0/1 current state : UP\n" +
                     "Line protocol current state : UP\n" +
                     "Last line protocol up time : 2022-10-26 17:38:19\n" +
                     "Description:TO_AnPingZhan_NE40EX8_G1/1/2\n" +
@@ -401,7 +401,7 @@ public class ErrorPackage {
                     "System: 0 packets, Overruns: 0 packets\n" +
                     "TxPause: 0 packets\n" +
                     "Unknown Vlan: 0 packets";
-            returnResults = MyUtils.trimString(returnResults);
+            returnResults = MyUtils.trimString(returnResults);*/
 
 
             if (returnResults == null){
