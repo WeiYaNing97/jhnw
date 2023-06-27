@@ -64,7 +64,7 @@ obtainPortNumber:
 
 # 误码率
 误码率:
-  H3C:
+  H3C1:
     Input: $ input errors
     Output: $ output errors
     CRC: $ CRC,
@@ -72,7 +72,7 @@ obtainPortNumber:
       Input: $ input errors
       Output: $ output errors
       CRC: $ CRC,
-  Huawei:
+  H3C:
     CRC: 'CRC: $'
     Input: 'Total Error: $'
     Output: 'Total Error: $'

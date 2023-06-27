@@ -366,49 +366,42 @@ public class ErrorPackage {
              */
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            /*returnResults = "Eth-Trunk1 current state : UP\n" +
+            returnResults = "GigabitEthernet1/0/1 current state : UP\n" +
                     "Line protocol current state : UP\n" +
-                    "Description:To_HX_S7506E\n" +
-                    "Switch Port, Link-type : trunk(configured),\n" +
-                    "PVID :    1, Hash arithmetic : According to SIP-XOR-DIP,Maximal BW: 2G, Current BW: 2G, The Maximum Frame Length is 9216\n" +
-                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is f853-2982-8f10\n" +
-                    "Current system time: 2023-06-20 16:43:57+08:00\n" +
-                    "Last 300 seconds input rate 3010840 bits/sec, 699 packets/sec\n" +
-                    "Last 300 seconds output rate 2708856 bits/sec, 489 packets/sec\n" +
-                    "Input:  843042623 packets, 626161438059 bytes\n" +
-                    "  Unicast:                  824884018,  Multicast:                     9101170\n" +
-                    "  Broadcast:                  9057435,  Jumbo:                       294092915\n" +
-                    "  Discard:                          0,  Pause:                               0\n" +
-                    "  Frames:                           0\n" +
-                    "\n" +
-                    "  Total Error:                      987\n" +
-                    "  CRC:                              0,  Giants:                              0\n" +
-                    "  Jabbers:                          0,  Fragments:                           0\n" +
-                    "  Runts:                            0,  DropEvents:                          0\n" +
-                    "  Alignments:                       0,  Symbols:                             0\n" +
-                    "  Ignoreds:                         0\n" +
-                    "\n" +
-                    "Output:  2997524508 packets, 539436712102 bytes\n" +
-                    "  Unicast:                  528937482,  Multicast:                  2441058483\n" +
-                    "  Broadcast:                 27528543,  Jumbo:                       121392927\n" +
-                    "  Discard:                          0,  Pause:                               0\n" +
-                    "\n" +
-                    "  Total Error:                      789\n" +
-                    "  Collisions:                       0,  ExcessiveCollisions:                 0\n" +
-                    "  Late Collisions:                  0,  Deferreds:                           0\n" +
-                    "  Buffers Purged:                   0\n" +
-                    "\n" +
-                    "    Input bandwidth utilization  : 0.15%\n" +
-                    "    Output bandwidth utilization : 0.14%\n" +
-                    "-----------------------------------------------------\n" +
-                    "PortName                      Status      Weight\n" +
-                    "-----------------------------------------------------\n" +
-                    "GigabitEthernet2/0/12         UP          1\n" +
-                    "GigabitEthernet1/0/30         UP          1\n" +
-                    "-----------------------------------------------------\n" +
-                    "The Number of Ports in Trunk : 2\n" +
-                    "The Number of UP Ports in Trunk : 2";
-            returnResults = MyUtils.trimString(returnResults);*/
+                    "Last line protocol up time : 2022-10-26 17:38:19\n" +
+                    "Description:TO_AnPingZhan_NE40EX8_G1/1/2\n" +
+                    "Route Port,The Maximum Transmit Unit is 1500\n" +
+                    "Internet Address is 11.36.97.9/30\n" +
+                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is 0819-a6f2-be6c\n" +
+                    "The Vendor PN is LTD1314-BC+-H3C\n" +
+                    "The Vendor Name is Hisense\n" +
+                    "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\n" +
+                    "WaveLength: 1310nm, Transmission Distance: 40km\n" +
+                    "Rx Power: -15.90dBm, Tx Power: 0.38dBm\n" +
+                    "Loopback:none, full-duplex mode, negotiation: disable, Pause Flowcontrol:Receive Enable and Send Enable\n" +
+                    "Last physical up time : 2022-10-26 17:38:19\n" +
+                    "Last physical down time : 2022-10-26 17:38:06\n" +
+                    "Statistics last cleared:never\n" +
+                    "Last 300 seconds input rate: 2728 bits/sec, 1 packets/sec\n" +
+                    "Last 300 seconds output rate: 1284152 bits/sec, 891 packets/sec\n" +
+                    "Input: 14898796154 bytes, 46662204 packets\n" +
+                    "Output: 2812600098295 bytes, 4616344671 packets\n" +
+                    "Input:\n" +
+                    "Unicast: 35727172 packets, Multicast: 10927967 packets\n" +
+                    "Broadcast: 7065 packets, JumboOctets: 41876 packets\n" +
+                    "CRC: 0 packets, Symbol: 0 packets\n" +
+                    "Overrun: 0 packets, InRangeLength: 0 packets\n" +
+                    "LongPacket: 0 packets, Jabber: 0 packets, Alignment: 0 packets\n" +
+                    "Fragment: 0 packets, Undersized Frame: 0 packets\n" +
+                    "RxPause: 0 packets\n" +
+                    "Output:\n" +
+                    "Unicast: 4606248991 packets, Multicast: 10085097 packets\n" +
+                    "Broadcast: 10583 packets, JumboOctets: 374322636 packets\n" +
+                    "Lost: 0 packets, Overflow: 0 packets, Underrun: 0 packets\n" +
+                    "System: 0 packets, Overruns: 0 packets\n" +
+                    "TxPause: 0 packets\n" +
+                    "Unknown Vlan: 0 packets";
+            returnResults = MyUtils.trimString(returnResults);
 
 
             if (returnResults == null){
@@ -570,7 +563,13 @@ public class ErrorPackage {
         Set<String> keySet = hashMap.keySet();
         for (String key:keySet){
             if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
+                if (valueTotalError.size()==0){
+                    continue;
+                }
                 String value = valueTotalError.get(key);
+                if (value == null){
+                    continue;
+                }
                 String placeholdersContaining = getPlaceholdersContaining(value, hashMap.get(key));
                 if (placeholdersContaining!=null){
                     hashMap.put(key,placeholdersContaining);

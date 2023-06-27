@@ -400,40 +400,41 @@ public class LuminousAttenuation {
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
 
-            /*returnResults = "GigabitEthernet1/1/1 current state : UP\n" +
+            /*returnResults = "GigabitEthernet2/0/3 current state : UP\n" +
                     "Line protocol current state : UP\n" +
-                    "Description:TO-CuiChi_XiaGua_S5720\n" +
-                    "Switch Port,The Maximum Transmit Unit is 1500\n" +
-                    "Internet protocol processing : disabled\n" +
-                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is 0819-a6f4-aea4\n" +
-                    "The Vendor PN is LTD1302-BC+-H3C\n" +
-                    "The Vendor Name is Hisense\n" +
+                    "Last line protocol up time : 2023-05-25 13:38:08\n" +
+                    "Description:TO_GuCheng_NE40E-X8_GE1/0/2\n" +
+                    "Route Port,The Maximum Transmit Unit is 1500\n" +
+                    "Internet Address is 11.36.97.122/30\n" +
+                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is 0819-a6f2-be66\n" +
+                    "The Vendor PN is PT7620-51-3W\n" +
+                    "The Vendor Name is NEOPHOTONICS\n" +
                     "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\n" +
-                    "WaveLength: 1310nm, Transmission Distance: 10km\n" +
-                    "Rx Power: -8.12dBm, Tx Power: -5.31dBm\n" +
+                    "WaveLength: 1550nm, Transmission Distance: 80km\n" +
+                    "Rx Power: -14.79dBm, Tx Power: 2.46dBm\n" +
                     "Loopback:none, full-duplex mode, negotiation: disable, Pause Flowcontrol:Receive Enable and Send Enable\n" +
-                    "Last physical up time : 2022-10-26 17:38:19\n" +
-                    "Last physical down time : 2022-10-26 17:38:16\n" +
+                    "Last physical up time : 2023-05-25 13:38:08\n" +
+                    "Last physical down time : 2023-05-25 13:33:09\n" +
                     "Statistics last cleared:never\n" +
-                    "Last 300 seconds input rate: 8560 bits/sec, 5 packets/sec\n" +
-                    "Last 300 seconds output rate: 2248 bits/sec, 4 packets/sec\n" +
-                    "Input: 612671928809 bytes, 522479213 packets\n" +
-                    "Output: 15624395503 bytes, 236358941 packets\n" +
+                    "Last 300 seconds input rate: 6000 bits/sec, 5 packets/sec\n" +
+                    "Last 300 seconds output rate: 60808 bits/sec, 28 packets/sec\n" +
+                    "Input: 59169256274248 bytes, 57573548284 packets\n" +
+                    "Output: 667773712175 bytes, 1890058654 packets\n" +
                     "Input:\n" +
-                    "Unicast: 507067487 packets, Multicast: 11393755 packets\n" +
-                    "Broadcast: 4017971 packets, JumboOctets: 0 packets\n" +
-                    "CRC: 0 packets, Symbol: 0 packets\n" +
+                    "Unicast: 57531373844 packets, Multicast: 42145421 packets\n" +
+                    "Broadcast: 29019 packets, JumboOctets: 14044738164 packets\n" +
+                    "CRC: 93 packets, Symbol: 0 packets\n" +
                     "Overrun: 0 packets, InRangeLength: 0 packets\n" +
                     "LongPacket: 0 packets, Jabber: 0 packets, Alignment: 0 packets\n" +
-                    "Fragment: 0 packets, Undersized Frame: 0 packets\n" +
+                    "Fragment: 0 packets, Undersized Frame: 1902 packets\n" +
                     "RxPause: 0 packets\n" +
                     "Output:\n" +
-                    "Unicast: 235689142 packets, Multicast: 650666 packets\n" +
-                    "Broadcast: 19133 packets, JumboOctets: 0 packets\n" +
+                    "Unicast: 1841427885 packets, Multicast: 48579685 packets\n" +
+                    "Broadcast: 51084 packets, JumboOctets: 84001642 packets\n" +
                     "Lost: 0 packets, Overflow: 0 packets, Underrun: 0 packets\n" +
                     "System: 0 packets, Overruns: 0 packets\n" +
                     "TxPause: 0 packets\n" +
-                    "Unknown Vlan: 0 packets";
+                    "Unknown Vlan: 0 packets\n";
             returnResults = MyUtils.trimString(returnResults);*/
 
 
@@ -543,41 +544,59 @@ public class LuminousAttenuation {
                 }
                 /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
-                values = values.stream()
+                List<Double> valueList = values.stream()
                         .filter(i -> i < 0)
                         .collect(Collectors.toList());
-                if (values.size()!=2){
-                    /*光衰参数行有多余2个负数 无法取出*/
-                    try {
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能光衰参数一行负数个数不为2,无法取出光衰参数," +
-                                "光衰参数行信息:"+"\r\n"+parameterInformation);
-                        PathHelper.writeDataToFileByName(
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:光衰功能光衰参数一行负数个数不为2,无法取出光衰参数," +
-                                        "光衰参数行信息:"+"\r\n"+parameterInformation
-                                , "问题日志");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
 
-                    return null;
+                if (valueList.size()!=2){
+                    /*光衰参数行有少于2个数值 无法取出*/
+                    if (values.size()<2){
+                        try {
+                            String subversionNumber = switchParameters.getSubversionNumber();
+                            if (subversionNumber!=null){
+                                subversionNumber = "、"+subversionNumber;
+                            }
+                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能光衰参数一行数值个数不为2,无法取出光衰参数," +
+                                    "光衰参数行信息:"+parameterInformation+"\r\n");
+                            PathHelper.writeDataToFileByName(
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:光衰功能光衰参数一行数值个数不为2,无法取出光衰参数," +
+                                            "光衰参数行信息:"+parameterInformation+"\r\n"
+                                    , "问题日志");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                    int nu =0;
+                    for (int i = 0;i<values.size();i++){
+                        if (values.get(i) < 0 ){
+                            nu = i ;
+                        }
+                    }
+                    if (num == 1){
+                        /*RX   TX*/
+                        rxpower = values.get(nu);
+                        txpower = values.get(nu+1);
+                    }else if (num == -1){
+                        /*TX  RX*/
+                        txpower = values.get(nu-1);
+                        rxpower = values.get(nu);
+                    }
+                    break;
                 }
                 if (num == 1){
                     /*RX   TX*/
-                    rxpower = values.get(0);
-                    txpower = values.get(1);
+                    rxpower = valueList.get(0);
+                    txpower = valueList.get(1);
                 }else if (num == -1){
                     /*TX  RX*/
-                    txpower = values.get(0);
-                    rxpower = values.get(1);
+                    txpower = valueList.get(0);
+                    rxpower = valueList.get(1);
                 }
                 break;
             }
@@ -631,12 +650,12 @@ public class LuminousAttenuation {
                                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                        "问题为:光衰功能光衰参数行数值数量不正确,无法取出光衰参数," +
                                         "光衰参数行信息:"+keyvalue+"\r\n");
                                 PathHelper.writeDataToFileByName(
                                         "IP地址为:"+switchParameters.getIp()+","+
                                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                                "问题为:光衰功能光衰参数行数值数量不正确,无法取出光衰参数," +
                                                 "光衰参数行信息:"+keyvalue+"\r\n"
                                         , "问题日志");
                             } catch (IOException e) {
