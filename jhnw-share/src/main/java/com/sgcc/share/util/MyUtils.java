@@ -154,7 +154,14 @@ public class MyUtils {
             lines[num] = repaceWhiteSapce(lines[num]);
         }*/
         /*字符串数组以\r\n拼接成字符串*/
-        return repaceWhiteSapce(String.join("\r\n", lines));
+        for (int num = 0 ;num<lines.length;num++){
+            if (lines[num].indexOf("^")!=-1){
+                continue;
+            }
+            lines[num] = repaceWhiteSapce(lines[num]);
+        }
+
+        return String.join("\r\n", lines);
     }
 
     /*

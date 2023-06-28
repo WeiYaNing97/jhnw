@@ -154,6 +154,12 @@ public class FunctionalMethods {
             /*获取返回日志 去除 标识符
             * 标识符为 最后一个元素  注意要删除 \r\n  所以-2*/
             String current_return_log = command_string.substring(0,command_string.length()-LineInformation[LineInformation.length-1].length()-2);
+
+            // TODO 去掉^之前的 \r\n
+            if (current_return_log.indexOf("^")!=-1){
+                current_return_log = current_return_log.substring(2,current_return_log.length());
+            }
+
             returnRecord.setCurrentReturnLog(current_return_log);
 
             // todo  交换机返回日志的前端回显
@@ -707,7 +713,12 @@ public class FunctionalMethods {
             String information = switchInformation_array[number];
             if (information!=null && !information.equals("")){
                 String loginInformationAuthentication = loginInformationAuthentication(switchInformation_array[number]);
-                switchInformation_array[number] = loginInformationAuthentication.trim();
+                if (loginInformationAuthentication.indexOf("^") !=-1 ){
+                    switchInformation_array[number] = loginInformationAuthentication;
+                }else {
+                    switchInformation_array[number] = loginInformationAuthentication.trim();
+                }
+
             }
         }
 
@@ -730,7 +741,11 @@ public class FunctionalMethods {
      */
     public static String loginInformationAuthentication(String switchInformation){
         //交换机返回信息 按行分割为 字符串数组
-        switchInformation = switchInformation.trim();
+        if (switchInformation.indexOf("^")!=-1){
+
+        }else {
+            switchInformation = switchInformation.trim();
+        }
         //因为登录信息 会另起一行 所以 登录信息 会是 % 开头
         if (switchInformation.length()<1){
             return switchInformation;

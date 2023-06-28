@@ -364,11 +364,21 @@ public class LuminousAttenuation {
                         /*判断提取到的端口号是否包含字母*/
                         if (MyUtils.judgeContainsStr(string_split[num])){
                             /*包含则为完全端口号 否则为不完全端口号*/
-                            return string_split[num];
+                            String port = string_split[num];
+                            // todo .
+                            if (port.indexOf(".")!=-1){
+                                return null;
+                            }
+                            return port;
                         }else {
                             /*例如：  GigabitEthernet 2/1 */
                             /*否则为不完全端口号，需要加后面的GigabitEthernet*/
-                            return string_split[num] +" "+ string_split[num++] ;
+                            String port = string_split[num] +" "+ string_split[num++];
+                            // todo .
+                            if (port.indexOf(".")!=-1){
+                                return null;
+                            }
+                            return port;
                         }
                     }
                 }

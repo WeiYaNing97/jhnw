@@ -98,10 +98,15 @@ public class SshMethod {
             }
             string = "\n" + string.trim();
         }
+        //  todo  --More--
         if (notFinished == null || notFinished == ""){
-            notFinished = "---- More ----";
+            //notFinished = "---- More ----;--More--";
+            string = string.replace("---- More ----","");
+            string = string.replace("--More--","");
+        }else {
+            string = string.replace(notFinished,"");
         }
-        string = string.replace(notFinished,"");
+
        // this.ReturnInformation = string;
         return string;
     }

@@ -61,7 +61,8 @@ public class SshConnect implements Runnable {
         sshInformation.setIp(this.ip);
         sshInformation.setPort(22);
         sshInformation.setEndEcho("#,?,>,:,]");
-        sshInformation.setMoreEcho("---- More ----");
+        // todo --More--
+        sshInformation.setMoreEcho("---- More ----");//"---- More ----"
         sshInformation.setMoreCmd(sshInformation.getBLANKSPACE());
         sshInformation.setJsch(null);
         sshInformation.setSession(null);
@@ -332,9 +333,28 @@ public class SshConnect implements Runnable {
                 if (lineStrs != null && lineStrs.length > 0) {
                     //private String moreEcho = "---- More ----";
                     //接收交换机返回信息的最后信息 lineStrs[lineStrs.length - 1]
-                    //接收交换机返回信息的最后信息 是否是 "---- More ----" 是 则没有返回完全
+                    //接收交换机返回信息的最后信息 是否是 MoreEcho 是 则没有返回完全
+                    // todo --More--
+                    boolean iftrue = false;
+
+                    String moreEcho = sshInformation.getMoreEcho();
+                    if (moreEcho!=null){
+                        iftrue = lineStrs[lineStrs.length - 1].contains(moreEcho);
+                    }else {
+                        String replace = lineStrs[lineStrs.length - 1].replace(" ", "");
+                        int more = replace.toLowerCase().indexOf("more");
+                        if ( (more ==-1) || more == 0 || (more+4 == replace.length())){
+                            //没有 more  或者 more开头没有-  或者 more结尾没有-
+                        }else {
+                            //存在 more
+                            if(replace.charAt(more+4)=='-' || replace.charAt(more-1)=='-'){
+                                iftrue = true;
+                            }
+                        }
+                    }
+
                     if ((sshInformation.getMoreEcho() != null && lineStrs[lineStrs.length - 1] != null
-                            && lineStrs[lineStrs.length - 1].contains(sshInformation.getMoreEcho())  || lineStrs[lineStrs.length - 1].trim().contains("#"))) {
+                            && iftrue  || lineStrs[lineStrs.length - 1].trim().contains("#"))) {
                         //private String moreCmd = BLANKSPACE;
                         //空格  private static final String BLANKSPACE = new String(new byte[] { 32 });
                         String command1 = sendCommand(ip, sshInformation.getMoreCmd(), false);

@@ -235,53 +235,19 @@ public class ConnectToObtainInformation {
              * 返回结果*/
             commandString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
 
-            /*commandString = "Huawei Versatile Routing Platform Software\n" +
-                    "VRP (R) software, Version 5.170 (S9700 V200R013C00SPC500)\n" +
-                    "Copyright (C) 2000-2019 HUAWEI TECH Co., Ltd.\n" +
-                    "Quidway S9703 Terabit Routing Switch uptime is 104 weeks, 0 day, 7 hours, 11 minutes\n" +
-                    "BKP 0 version information:\n" +
-                    "1. PCB Version : LE02BAKP VER.B\n" +
-                    "2. Support PoE : No\n" +
-                    "3. Board Type : EH1BS9703E00\n" +
-                    "4. MPU Slot Quantity : 2\n" +
-                    "5. LPU Slot Quantity : 3\n" +
+            /*commandString = "H3C Comware Platform Software\n" +
+                    "Comware Software, Version 5.20.99, Release 1106\n" +
+                    "Copyright (c) 2004-2015 Hangzhou H3C Tech. Co., Ltd. All rights reserved.\n" +
+                    "H3C S2152 uptime is 7 weeks, 0 day, 3 hours, 10 minutes\n" +
                     "\n" +
-                    "MPU 4(Master) : uptime is 104 weeks, 0 day, 7 hours, 10 minutes\n" +
-                    "SDRAM Memory Size : 512 M bytes\n" +
-                    "Flash Memory Size : 64 M bytes\n" +
-                    "NVRAM Memory Size : 512 K bytes\n" +
-                    "CF Card1 Memory Size : 488 M bytes\n" +
-                    "MPU version information :\n" +
-                    "1. PCB Version : LE03MCUA VER.A\n" +
-                    "2. MAB Version : 3\n" +
-                    "3. Board Type : EH1D2MCUAC00\n" +
-                    "4. CPLD0 Version : 1705.0911\n" +
-                    "5. BootROM Version : 020d.0a19\n" +
-                    "6. BootLoad Version : 020d.0a05\n" +
+                    "H3C S2152\n" +
+                    "128M    bytes DRAM\n" +
+                    "32M     bytes Flash Memory\n" +
+                    "Config Register points to Flash\n" +
                     "\n" +
-                    "MPU 5(Slave) : uptime is 104 weeks, 0 day, 7 hours, 9 minutes\n" +
-                    "SDRAM Memory Size : 512 M bytes\n" +
-                    "Flash Memory Size : 64 M bytes\n" +
-                    "NVRAM Memory Size : 512 K bytes\n" +
-                    "CF Card1 Memory Size : 488 M bytes\n" +
-                    "MPU version information :\n" +
-                    "1. PCB Version : LE03MCUA VER.A\n" +
-                    "2. MAB Version : 3\n" +
-                    "3. Board Type : EH1D2MCUAC00\n" +
-                    "4. CPLD0 Version : 1705.0911\n" +
-                    "5. BootROM Version : 020d.0a19\n" +
-                    "6. BootLoad Version : 020d.0a05\n" +
-                    "\n" +
-                    "LPU 1 : uptime is 104 weeks, 0 day, 7 hours, 2 minutes\n" +
-                    "SDRAM Memory Size : 256 M bytes\n" +
-                    "Flash Memory Size : 16 M bytes\n" +
-                    "LPU version information :\n" +
-                    "1. PCB Version : LE02G48CE VER.A\n" +
-                    "2. MAB Version : 0\n" +
-                    "3. Board Type : EH1D2T36SEA0\n" +
-                    "4. CPLD0 Version : 1102.1515\n" +
-                    "5. BootROM Version : 020d.0a19\n" +
-                    "6. BootLoad Version : 020d.0174";
+                    "Hardware Version is REV.A\n" +
+                    "Bootrom Version is 110\n" +
+                    "[SubSlot 0] 48FE+4GE Hardware Version is REV.A";
             commandString = MyUtils.trimString(commandString);*/
 
             if (commandString == null){
@@ -388,6 +354,14 @@ public class ConnectToObtainInformation {
         }
 
         if (MyUtils.isCollectionEmpty(brand_model)){
+            for (Information information:informationList){
+                if (returns_String.toLowerCase().indexOf(information.getDeviceModel().toLowerCase())!=-1){
+                    brand_model.add(information);
+                }
+            }
+        }
+
+        if (MyUtils.isCollectionEmpty(brand_model)){
             return map;
         }
 
@@ -403,7 +377,7 @@ public class ConnectToObtainInformation {
             if (!MyUtils.containIgnoreCase(returns_String," "+version+" ")){
                 continue;
             }
-            /*属性值可能是多个单词*/
+            /*关键词可能是多个单词*/
             String[] versionSplit = version.split(" ");
             int versionNumber = versionSplit.length;
             for (int number = 0 ; number < return_word.length; number++){
@@ -414,10 +388,18 @@ public class ConnectToObtainInformation {
                 if (return_word[number].equalsIgnoreCase(versionSplit[0])){
                     if (versionSplit.length == 1){
                         if (MyUtils.containDigit(return_word[number+1])){
-                            firmwareVersion = return_word[number+1];
+                            int num = number;
+                            firmwareVersion = "";
+                            do {
+                                firmwareVersion = firmwareVersion +" "+ return_word[++num];
+                                /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
+                            }while (firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")==-1);
+                            firmwareVersion = firmwareVersion.trim();
                             break;
                         }
                     }else {
+                        /* device 交换机返回信息里的关键词 */
+                        /* version 配置文件里的关键词 */
                         String device = "";
                         for (int num = 0 ; num < versionNumber ; num++){
                             device = device + return_word[number + num] +" ";
@@ -425,7 +407,13 @@ public class ConnectToObtainInformation {
                         device = device.trim();
                         if (version.equalsIgnoreCase(device)){
                             if (MyUtils.containDigit(return_word[number + (versionNumber-1) + 1])){
-                                firmwareVersion =  return_word[number + (versionNumber-1) + 1];
+                                int num = number + (versionNumber-1);
+                                firmwareVersion = "";
+                                do {
+                                    firmwareVersion = firmwareVersion +" "+ return_word[++num];
+                                    /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
+                                }while (firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")==-1);
+                                firmwareVersion = firmwareVersion.trim();
                                 break;
                             }
                         }
@@ -451,8 +439,16 @@ public class ConnectToObtainInformation {
                 if (return_word[number].equalsIgnoreCase(versionSplit[0])){
                     if (versionSplit.length == 1){
                         if (MyUtils.containDigit(return_word[number+1])){
-                            subversionNo = return_word[number+1];
+
+                            int num = number;
+                            subversionNo = "";
+                            do {
+                                subversionNo = subversionNo +" "+ return_word[++num];
+                                /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
+                            }while (subversionNo.indexOf("(")!=-1 && subversionNo.indexOf(")")==-1);
+                            subversionNo = subversionNo.trim();
                             break;
+
                         }
                     }else {
                         String device = "";
@@ -462,13 +458,36 @@ public class ConnectToObtainInformation {
                         device = device.trim();
                         if (version.equalsIgnoreCase(device)){
                             if (MyUtils.containDigit(return_word[number + (versionNumber-1) + 1])){
-                                subversionNo =  return_word[number + (versionNumber-1) + 1];
+
+                                int num = number + (versionNumber-1);
+                                subversionNo = "";
+                                do {
+                                    subversionNo = subversionNo +" "+ return_word[++num];
+                                    /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
+                                }while (subversionNo.indexOf("(")!=-1 && subversionNo.indexOf(")")==-1);
+                                subversionNo = subversionNo.trim();
                                 break;
+
                             }
                         }
                     }
                 }
             }
+        }
+
+        if (subversionNo == null && firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")!=-1){
+
+            int i = firmwareVersion.indexOf("(");
+            int j = firmwareVersion.indexOf(")");
+
+            subversionNo = firmwareVersion.substring(i+1, j);
+            firmwareVersion = firmwareVersion.substring(0, i);
+
+        }else if (firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")!=-1){
+
+            int i = firmwareVersion.indexOf("(");
+            firmwareVersion = firmwareVersion.substring(0, i);
+
         }
 
         map.put("pinpai",brand_model.get(0).getDeviceBrand().equalsIgnoreCase("Quidway")?"Huawei":brand_model.get(0).getDeviceBrand());
@@ -498,4 +517,5 @@ public class ConnectToObtainInformation {
         }
         return args;
     }
+
 }
