@@ -463,4 +463,26 @@ public class MyUtils {
         }
         return sb.toString();
     }
+
+    /**
+     * 数组去掉最后一个元素
+     *
+     * 要去掉Java数组的最后一个元素，可以创建一个新的数组，并将原数组中除最后一个元素之外的所有元素复制到新数组中。
+     *
+     * @param array
+     * @return
+     */
+    public static String[] RemoveLastElement(String[] array) {
+        // 原始数组 array;
+
+        // 创建一个新数组，长度为原数组长度减1
+        String[] newArray = new String[array.length - 1];
+
+        // 将原数组中除最后一个元素外的所有元素复制到新数组中
+        for (int i = 0; i < newArray.length; i++) {
+            newArray[i] = array[i];
+        }
+
+        return newArray;
+    }
 }

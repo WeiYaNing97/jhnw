@@ -52,9 +52,9 @@ public class ConnectToObtainInformation {
             if (loginError != null){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:"+switchParameters.getIp()+loginErrorString+"\r\n");
                     try {
-                        PathHelper.writeDataToFileByName(switchParameters.getIp()+"风险:"+loginErrorString+"\r\n","交换机连接");
+                        PathHelper.writeDataToFileByName(switchParameters.getIp()+"异常:"+loginErrorString+"\r\n","交换机连接");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -235,19 +235,7 @@ public class ConnectToObtainInformation {
              * 返回结果*/
             commandString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
 
-            /*commandString = "H3C Comware Platform Software\n" +
-                    "Comware Software, Version 5.20.99, Release 1106\n" +
-                    "Copyright (c) 2004-2015 Hangzhou H3C Tech. Co., Ltd. All rights reserved.\n" +
-                    "H3C S2152 uptime is 7 weeks, 0 day, 3 hours, 10 minutes\n" +
-                    "\n" +
-                    "H3C S2152\n" +
-                    "128M    bytes DRAM\n" +
-                    "32M     bytes Flash Memory\n" +
-                    "Config Register points to Flash\n" +
-                    "\n" +
-                    "Hardware Version is REV.A\n" +
-                    "Bootrom Version is 110\n" +
-                    "[SubSlot 0] 48FE+4GE Hardware Version is REV.A";
+            /*commandString = "";
             commandString = MyUtils.trimString(commandString);*/
 
             if (commandString == null){
@@ -290,8 +278,14 @@ public class ConnectToObtainInformation {
                 switchParameters.setFirmwareVersion(hashMap.get("banben"));
                 switchParameters.setSubversionNumber(hashMap.get("zibanben"));
                 return AjaxResult.success(switchParameters);
+
             }else {
                 try {
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:"+switchParameters.getIp() +"基本信息："+
+                            "设备品牌："+hashMap.get("pinpai")+
+                            "设备型号："+hashMap.get("xinghao")+
+                            "内部固件版本："+hashMap.get("banben")+
+                            "子版本号："+hashMap.get("zibanben")+"\r\n");
                     PathHelper.writeDataToFileByName("系统信息:"+ switchParameters.getIp() +"获取基本信息失败："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
@@ -301,6 +295,7 @@ public class ConnectToObtainInformation {
                     e.printStackTrace();
                 }
             }
+
         }
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
     }
@@ -316,7 +311,7 @@ public class ConnectToObtainInformation {
      *
      */
     public HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
-        returns_String = returns_String.replaceAll("\r\n"," ");
+
         informationService = SpringBeanUtil.getBean(IInformationService.class);
         List<String> brandList = informationService.selectDeviceBrandList();
 
@@ -328,7 +323,7 @@ public class ConnectToObtainInformation {
 
         /* 创建返回对象 */
         HashMap<String,String> map = new HashMap<>();
-        String[] return_word = returns_String.split(" ");
+        String[] return_word = returns_String.replaceAll("\r\n"," ").split(" ");
         /*遍历匹配 品牌  H3C*/
         for (String brandString:brandList){
             for (String word:return_word){
@@ -366,129 +361,136 @@ public class ConnectToObtainInformation {
         }
 
 
+
+
         /** 设备版本 */
         /*yml 配置文件中 多个值之间用;隔开*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceVersion",Constant.getProfileInformation());
+        /** 设备子版本 */
+        String deviceSubversion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceSubversion",Constant.getProfileInformation());
+
+        String[] rowSplit = returns_String.split("\r\n");
         String[] deviceVersionSplit =deviceVersion.split(";");
-        /*遍历配置文件中的 属性值*/
+
         for (String version:deviceVersionSplit){
-            /*判断是否包含配置文件中的 属性值
-             * 如果不包含 则 下一循环*/
-            if (!MyUtils.containIgnoreCase(returns_String," "+version+" ")){
+
+            if (!MyUtils.containIgnoreCase(returns_String,version)){
                 continue;
             }
-            /*关键词可能是多个单词*/
-            String[] versionSplit = version.split(" ");
-            int versionNumber = versionSplit.length;
-            for (int number = 0 ; number < return_word.length; number++){
-                /*遍历 交换机返回信息的 单词数组
-                 * 如果匹配到 则判断配置文件中 信息的单词数
-                 * 如果是一个单词 则直接取下一个
-                 * 如果是多个单词 则比较多个单词 是否匹配  匹配 则直接取下一个*/
-                if (return_word[number].equalsIgnoreCase(versionSplit[0])){
-                    if (versionSplit.length == 1){
-                        if (MyUtils.containDigit(return_word[number+1])){
-                            int num = number;
-                            firmwareVersion = "";
-                            do {
-                                firmwareVersion = firmwareVersion +" "+ return_word[++num];
-                                /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
-                            }while (firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")==-1);
-                            firmwareVersion = firmwareVersion.trim();
-                            break;
-                        }
-                    }else {
-                        /* device 交换机返回信息里的关键词 */
-                        /* version 配置文件里的关键词 */
-                        String device = "";
-                        for (int num = 0 ; num < versionNumber ; num++){
-                            device = device + return_word[number + num] +" ";
-                        }
-                        device = device.trim();
-                        if (version.equalsIgnoreCase(device)){
-                            if (MyUtils.containDigit(return_word[number + (versionNumber-1) + 1])){
-                                int num = number + (versionNumber-1);
-                                firmwareVersion = "";
-                                do {
-                                    firmwareVersion = firmwareVersion +" "+ return_word[++num];
-                                    /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
-                                }while (firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")==-1);
-                                firmwareVersion = firmwareVersion.trim();
-                                break;
+            /* 遍历行信息*/
+            for (int number = 0 ; number < rowSplit.length; number++){
+                /*获取版本号关键词位置*/
+                int rowposition = rowSplit[number].toUpperCase().indexOf(version.toUpperCase());
+                /*如果 rowposition 不为 -1 则说明包含 交换机返回信息的 number 行信息
+                * 包含 版本号关键词位置*/
+                if (rowposition != -1){
+                    /* 截取 版本号关键词 后面的信息*/
+                    String row = rowSplit[number].substring(rowposition + version.length(), rowSplit[number].length());
+                    /*子版本的关键词 分为 子版本号关键词数组*/
+                    String[] deviceSubversionSplit = deviceSubversion.split(";");
+                    /*遍历子版本关键词*/
+                    for (int num = 0; num<deviceSubversionSplit.length; num++){
+                        /*获取子版本关键词位置*/
+                        int columnposition = row.toUpperCase().indexOf(deviceSubversionSplit[num].toUpperCase());
+                        /*如果存在子版本关键词 则截取 版本关键词与子版本关键字中间位置信息*/
+                        if (columnposition != -1){
+                            firmwareVersion = row.substring(0,columnposition);
+                            /*截取完 版本关键词 与 子版本关键字 中间位置信息
+                            * 再判断 是否包含 , 如果包含 ， 则截取 ， 前信息*/
+                            int position = firmwareVersion.indexOf(",");
+                            if (position != -1){
+                                firmwareVersion = firmwareVersion.substring(0,position);
                             }
                         }
+                        /*如果 版本不为空 则结束循环*/
+                        if (firmwareVersion!=null){
+                            break;
+                        }
                     }
+                    /*如果 版本不为空 则结束循环*/
+                    if (firmwareVersion!=null){
+                        break;
+                    }else {
+                        /*如果 版本为空 则说明没有子版本关键词
+                        * 则值判断,因素*/
+                        int position = row.indexOf(",");
+                        if (position != -1) {
+                            firmwareVersion = row.substring(0, position);
+                        }
+                    }
+                    /*如果 版本不为空 则结束循环*/
+                    if (firmwareVersion!=null){
+                        break;
+                    }
+                    if (firmwareVersion == null && MyUtils.thereAreNumbers(row)){
+                        firmwareVersion = row.trim();
+                    }
+                }else {
+                    /*不包含版本信息*/
+                    continue;
                 }
-            }
 
+            }
+            if (firmwareVersion!=null){
+                break;
+            }
+        }
+        firmwareVersion = firmwareVersion.trim();
+        if (firmwareVersion.startsWith(":")){
+            firmwareVersion = firmwareVersion.substring(1,firmwareVersion.length()).trim();
         }
 
 
         /** 设备子版本 */
-        String deviceSubversion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceSubversion",Constant.getProfileInformation());
         String[] deviceSubversionSplit =deviceSubversion.split(";");
         for (String version:deviceSubversionSplit){
-            /*判断是否包含配置文件中的 属性值
-             * 如果不包含 则 下一循环*/
-            if (!MyUtils.containIgnoreCase(returns_String," "+version+" ")){
+
+            if (!MyUtils.containIgnoreCase(returns_String,version)){
                 continue;
             }
-            String[] versionSplit = version.split(" ");
-            int versionNumber = versionSplit.length;
-            for (int number = 0 ; number < return_word.length; number++){
-                if (return_word[number].equalsIgnoreCase(versionSplit[0])){
-                    if (versionSplit.length == 1){
-                        if (MyUtils.containDigit(return_word[number+1])){
 
-                            int num = number;
-                            subversionNo = "";
-                            do {
-                                subversionNo = subversionNo +" "+ return_word[++num];
-                                /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
-                            }while (subversionNo.indexOf("(")!=-1 && subversionNo.indexOf(")")==-1);
-                            subversionNo = subversionNo.trim();
-                            break;
-
-                        }
-                    }else {
-                        String device = "";
-                        for (int num = 0 ; num < versionNumber ; num++){
-                            device = device + return_word[number + num] +" ";
-                        }
-                        device = device.trim();
-                        if (version.equalsIgnoreCase(device)){
-                            if (MyUtils.containDigit(return_word[number + (versionNumber-1) + 1])){
-
-                                int num = number + (versionNumber-1);
-                                subversionNo = "";
-                                do {
-                                    subversionNo = subversionNo +" "+ return_word[++num];
-                                    /* 包含 “(”但是 不包含“)” 则需要继续取下一位*/
-                                }while (subversionNo.indexOf("(")!=-1 && subversionNo.indexOf(")")==-1);
-                                subversionNo = subversionNo.trim();
-                                break;
-
-                            }
-                        }
+            for (int number = 0 ; number < rowSplit.length; number++){
+                /*获取版本号位置*/
+                int rowposition = rowSplit[number].toUpperCase().indexOf(version.toUpperCase());
+                if (rowposition != -1){
+                    /*判断是是否包含, 和 子版本关键词*/
+                    subversionNo = rowSplit[number].substring(rowposition + version.length(), rowSplit[number].length());
+                    int i = subversionNo.indexOf(",");
+                    if (i != -1){
+                        subversionNo = subversionNo.substring(0,i);
+                    }
+                    subversionNo = subversionNo.trim();
+                    if (subversionNo.startsWith(":")){
+                        subversionNo = subversionNo.substring(1,subversionNo.length()).trim();
+                    }
+                    if (subversionNo.startsWith("(") && subversionNo.endsWith(")")){
+                        subversionNo = subversionNo.substring(1,subversionNo.length()-1).trim();
                     }
                 }
+                if (subversionNo!=null){
+                    break;
+                }
             }
+
+            if (subversionNo!=null){
+                break;
+            }
+
         }
 
-        if (subversionNo == null && firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")!=-1){
+
+
+
+        if (firmwareVersion != null && subversionNo == null && firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")!=-1){
 
             int i = firmwareVersion.indexOf("(");
             int j = firmwareVersion.indexOf(")");
 
             subversionNo = firmwareVersion.substring(i+1, j);
-            firmwareVersion = firmwareVersion.substring(0, i);
-
-        }else if (firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")!=-1){
-
-            int i = firmwareVersion.indexOf("(");
-            firmwareVersion = firmwareVersion.substring(0, i);
 
         }
+
+
 
         map.put("pinpai",brand_model.get(0).getDeviceBrand().equalsIgnoreCase("Quidway")?"Huawei":brand_model.get(0).getDeviceBrand());
         map.put("xinghao",brand_model.get(0).getDeviceModel());

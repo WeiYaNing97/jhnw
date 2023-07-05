@@ -79,7 +79,9 @@ public class FunctionalMethods {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
                 command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), command, null);
+
             } else if (switchParameters.getMode().equalsIgnoreCase("telnet")) {
                 // todo 交换机发送命令的前端回显
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(), switchParameters.getIp()+"发送:" + command+"\r\n");
@@ -157,7 +159,7 @@ public class FunctionalMethods {
 
             // TODO 去掉^之前的 \r\n
             if (current_return_log.indexOf("^")!=-1){
-                current_return_log = current_return_log.substring(2,current_return_log.length());
+                current_return_log = current_return_log.substring(2 + LineInformation[LineInformation.length-1].trim().length(),current_return_log.length());
             }
 
             returnRecord.setCurrentReturnLog(current_return_log);

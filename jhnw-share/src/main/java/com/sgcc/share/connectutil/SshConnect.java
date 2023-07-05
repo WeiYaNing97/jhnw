@@ -6,6 +6,7 @@ package com.sgcc.share.connectutil;
  * @date 2021年09月02日 9:54
  */
 import com.jcraft.jsch.*;
+import com.sgcc.share.util.MyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -314,6 +315,7 @@ public class SshConnect implements Runnable {
                 }
             }
         } else {
+
             //endEcho 存在 不为空
             // containsEchoEnd 测试此字符串是否以指定的后缀结尾   是 true   否 false
             while (!containsEchoEnd(ip,sshInformation.getCurrEcho().toString())) {
@@ -338,9 +340,13 @@ public class SshConnect implements Runnable {
                     boolean iftrue = false;
 
                     String moreEcho = sshInformation.getMoreEcho();
-                    if (moreEcho!=null){
-                        iftrue = lineStrs[lineStrs.length - 1].contains(moreEcho);
-                    }else {
+                    iftrue = lineStrs[lineStrs.length - 1].contains(moreEcho);
+                    if (iftrue){
+                        StringBuffer currEcho = sshInformation.getCurrEcho();
+                        StringBuffer append = currEcho.append("\r\n");
+                        sshInformation.setCurrEcho(append);
+                    }
+                    if (!iftrue){
                         String replace = lineStrs[lineStrs.length - 1].replace(" ", "");
                         int more = replace.toLowerCase().indexOf("more");
                         if ( (more ==-1) || more == 0 || (more+4 == replace.length())){
@@ -349,6 +355,9 @@ public class SshConnect implements Runnable {
                             //存在 more
                             if(replace.charAt(more+4)=='-' || replace.charAt(more-1)=='-'){
                                 iftrue = true;
+                                StringBuffer currEcho = sshInformation.getCurrEcho();
+                                StringBuffer append = currEcho.append("\r\n");
+                                sshInformation.setCurrEcho(append);
                             }
                         }
                     }

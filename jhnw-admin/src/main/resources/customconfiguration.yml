@@ -16,9 +16,9 @@ BasicInformation:
   # 获取交换机品牌的命令
   getBrandCommand: show version;display version
   # 获取交换机设备版本的关键字,默认关键字的下一位为要取的参数
-  deviceVersion: Version
+  deviceVersion: software version;Version
   # 获取交换机设备子版本的关键字,默认关键字的下一位为要取的参数,两个关键字之间以;分隔
-  deviceSubversion: Release;Build;RELEASE SOFTWARE
+  deviceSubversion: RELEASE SOFTWARE;Release;Build
   # 等价
   equivalence:
     Huawei: Quidway
@@ -64,6 +64,8 @@ obtainPortNumber:
 
 # 误码率
 误码率:
+  # 两个关键字之间以;分隔
+  描述: Description
   H3C:
     Input: $ input errors
     Output: $ output errors

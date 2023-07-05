@@ -1,6 +1,7 @@
 package com.sgcc.share.method;
 
 import com.sgcc.share.connectutil.SshConnect;
+import com.sgcc.share.util.MyUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,6 +63,7 @@ public class SshMethod {
         }*/
         //发送命令 quit:涉及是否断开交换机连接
         String string = sshConnect.batchCommand(ip,cmds, notFinished,null,false);
+
         if (string.equals("")){
             return "";
         }
@@ -100,9 +102,22 @@ public class SshMethod {
         }
         //  todo  --More--
         if (notFinished == null || notFinished == ""){
-            //notFinished = "---- More ----;--More--";
-            string = string.replace("---- More ----","");
-            string = string.replace("--More--","");
+
+            string = MyUtils.trimString(string);
+            String[] stringSplit = string.split("\r\n");
+            for (String stringStr:stringSplit){
+                int more = stringStr.toLowerCase().indexOf("more");
+                if ( (more ==-1) || more == 0 || (more+4 == stringStr.length())){
+                    //没有 more  或者 more开头没有-  或者 more结尾没有-
+                }else {
+                    //存在 more
+                    String  stringStrReplace = stringStr.replace(" ","");
+                    if(stringStrReplace.charAt(more+4)=='-' || stringStrReplace.charAt(more-1)=='-'){
+                        string = string.replace("\r\n"+stringStr,"");
+                    }
+                }
+            }
+
         }else {
             string = string.replace(notFinished,"");
         }

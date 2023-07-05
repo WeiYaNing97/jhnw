@@ -27,17 +27,24 @@ public class PathHelper {
         String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
 
         if (logPath != null && !logPath.equals("")){
-            path = logPath + "\\" +logTime +"log.txt";
+            path = logPath+  "\\" + logTime + "\\" +logTime +"log.txt";
         }else {
-            path = logPath + "\\" +logTime +"log.txt";
+            path = logPath+  "\\" + logTime + "\\" +logTime +"log.txt";
         }
 
         writefile = new File(path);
         if (writefile.exists() == false)   // 判断文件是否存在，不存在则生成
         {
             try {
+                // 获取文件所在的文件夹路径
+                String folderPath = writefile.getParent();
+                // 创建文件夹
+                File folder = new File(folderPath);
+                folder.mkdirs();
+
                 writefile.createNewFile();
                 writefile = new File(path);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -71,14 +78,20 @@ public class PathHelper {
         String path = "";
         String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
         if (logPath != null && !logPath.equals("")){
-            path = logPath + "\\" +logTime +"log"+name+".txt";
+            path = logPath+  "\\"  + logTime +  "\\" +logTime +"log"+name+".txt";
         }else {
-            path = logPath + "\\" +logTime +"log"+name+".txt";
+            path = logPath+  "\\"  + logTime +  "\\" +logTime +"log"+name+".txt";
         }
         writefile = new File(path);
         if (writefile.exists() == false)   // 判断文件是否存在，不存在则生成
         {
             try {
+                // 获取文件所在的文件夹路径
+                String folderPath = writefile.getParent();
+                // 创建文件夹
+                File folder = new File(folderPath);
+                folder.mkdirs();
+
                 writefile.createNewFile();
                 writefile = new File(path);
             } catch (IOException e) {
@@ -95,5 +108,4 @@ public class PathHelper {
             e.printStackTrace();
         }
     }
-
 }

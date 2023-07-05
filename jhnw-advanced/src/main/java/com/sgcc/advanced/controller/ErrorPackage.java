@@ -205,6 +205,7 @@ public class ErrorPackage {
         String errorPackageCommand = errorRateCommand.getGetParameterCommand();
         /*获取到误码率参数 map集合*/
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
+
         if (errorPackageParameters == null){
 
             try {
@@ -253,13 +254,16 @@ public class ErrorPackage {
             List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
             for (String error:errorPackageValue){
                 if (MyUtils.containIgnoreCase(error,"input") || MyUtils.containIgnoreCase(error,"Rx") ){
-                    errorRate.setInputErrors(MyUtils.StringTruncationMatcherValue(error));
+                    errorRate.setInputErrors(MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error));
                 }
                 if (MyUtils.containIgnoreCase(error,"output") || MyUtils.containIgnoreCase(error,"Tx") ){
-                    errorRate.setOutputErrors(MyUtils.StringTruncationMatcherValue(error));
+                    errorRate.setOutputErrors(MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error));
                 }
                 if (MyUtils.containIgnoreCase(error,"crc")){
-                    errorRate.setCrc(MyUtils.StringTruncationMatcherValue(error));
+                    errorRate.setCrc(MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error));
+                }
+                if (MyUtils.containIgnoreCase(error,"Description")){
+                    errorRate.setDescription(error);
                 }
             }
 
@@ -274,14 +278,14 @@ public class ErrorPackage {
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
                         "IP地址为:"+switchParameters.getIp()+","+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        " 端口号"+port+
+                        " 端口号"+port+ errorRate.getDescription() +
                         " input:"+errorRate.getInputErrors()+" "+
                         " output:"+errorRate.getOutputErrors()+" "+
                         " crc:"+errorRate.getCrc()+"\r\n");
                 PathHelper.writeDataToFileByName(
                         "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                " 端口号"+port+
+                                " 端口号"+port+ errorRate.getDescription() +
                                 " input:"+errorRate.getInputErrors()+" "+
                                 " output:"+errorRate.getOutputErrors()+" "+
                                 " crc:"+errorRate.getCrc()+"\r\n"
@@ -323,7 +327,7 @@ public class ErrorPackage {
             }
 
             // =:= 是自定义分割符
-            String portNumber = "端口号=:=是=:="+port+"=:=";
+            String portNumber = "端口号=:=是=:="+port+" "+ errorRate.getDescription() +"=:=";
 
             String InputErrors = primaryErrorRate.getInputErrors()!=null?"input=:=是=:=input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+"=:="
                     :"input=:=是=:="+errorRate.getInputErrors()+"=:=";
@@ -336,6 +340,7 @@ public class ErrorPackage {
             if (parameterString.endsWith("=:=")){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
             }
+
             hashMap.put("parameterString",parameterString);
 
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
@@ -426,6 +431,11 @@ public class ErrorPackage {
             }
 
             valueList = getParameters(switchParameters,returnResults);
+            String description = getDescription(returnResults);
+
+            if (description!=null){
+                valueList.add("Description:"+description);
+            }
 
             if (MyUtils.isCollectionEmpty(valueList)){
                 /*  端口未获取到误码率 */
@@ -802,4 +812,53 @@ public class ErrorPackage {
         }
         return null;
     }
+
+
+
+    /**
+     * 获取 描述：Description:
+     * 忽略大小写判断返回信息是否包含 Description:  如果不包含返回 null
+     * 如果包含，则按行分割，然后逐行判断是否包含 Description:
+     * 如果包含 则返回 Description 属性值
+     * @param information
+     * @return
+     */
+    public static String getDescription(String information) {
+
+        String descriptionValue = (String) CustomConfigurationUtil.getValue("误码率.描述", Constant.getProfileInformation());
+        String[] descriptionSplit = descriptionValue.split(";");
+        for (String description:descriptionSplit){
+
+            if (information.trim().toLowerCase().indexOf(description.toLowerCase()) == -1){
+                continue;
+            }
+
+            String[] informationSplit = information.split("\r\n");
+
+            for (String string:informationSplit){
+                if (string.trim().toLowerCase().indexOf(description.toLowerCase())!=-1){
+
+                    string = MyUtils.repaceWhiteSapce(string.replace(":"," : "));
+
+                    String[] strings = MyUtils.splitIgnoreCase(string, description+" :");
+                    if (strings.length == 0){
+                        return null;
+                    }
+                    /*第一个元素是 ""  */
+                    if (strings.length < 3){
+                        if (strings[0].equalsIgnoreCase("")){
+                            return strings[1].trim();
+                        }else {
+                            return strings[0].trim();
+                        }
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+
+
 }

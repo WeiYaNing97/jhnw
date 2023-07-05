@@ -198,7 +198,8 @@ public class LuminousAttenuation {
          * 8：根据 up状态端口号 及交换机信息
          * 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()
          */
-        HashMap<String, Double> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
+        HashMap<String, String> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
+
         /*9：获取光衰参数为空*/
         if (MyUtils.isMapEmpty(getparameter)){
             try {
@@ -233,11 +234,13 @@ public class LuminousAttenuation {
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能端口号:"+portstr+" TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n");
+                            "问题为:光衰功能端口号:"+portstr +
+                            " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n");
                     PathHelper.writeDataToFileByName(
                             "IP地址为:"+switchParameters.getIp()+","+
                                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能端口号:"+portstr+" TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n"
+                                    "问题为:光衰功能端口号:"+portstr+
+                                    " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n"
                             , "光衰");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -351,7 +354,7 @@ public class LuminousAttenuation {
         /*GigabitEthernet 9/1 up routed Full 1000M fiber*/
         /*根据UP分割字符串*/
         /*交换机信息 根据 up(忽略大小写) 分割*/
-        String[] informationSplit = MyUtils.splitIgnoreCase(information," UP ");
+        String[] informationSplit = MyUtils.splitIgnoreCase(information.trim()," UP ");
         /*遍历数组包含/的为端口号 但不能确定端口号是否完全
         * 此时需要判断提取到的端口号是否包含字母
         * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
@@ -394,12 +397,12 @@ public class LuminousAttenuation {
      * @param switchParameters 交换机信息类
      * @return
      */
-    public HashMap<String,Double> getparameter(List<String> portNumber,SwitchParameters switchParameters,String command) {
+    public HashMap<String,String> getparameter(List<String> portNumber,SwitchParameters switchParameters,String command) {
         /*获取配置信息中 符合品牌的 获取基本信息的 获取光衰参数的 命令*/
 
 
         /*创建 返回对象 HashMap*/
-        HashMap<String,Double> hashMap = new HashMap<>();
+        HashMap<String,String> hashMap = new HashMap<>();
         /*端口号集合 需要检测各端口号的光衰参数*/
         for (String port:portNumber){
             /*替换端口号 得到完整的 获取端口号光衰参数命令 */
@@ -410,41 +413,43 @@ public class LuminousAttenuation {
             String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
 
 
-            /*returnResults = "GigabitEthernet2/0/3 current state : UP\n" +
-                    "Line protocol current state : UP\n" +
-                    "Last line protocol up time : 2023-05-25 13:38:08\n" +
-                    "Description:TO_GuCheng_NE40E-X8_GE1/0/2\n" +
-                    "Route Port,The Maximum Transmit Unit is 1500\n" +
-                    "Internet Address is 11.36.97.122/30\n" +
-                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is 0819-a6f2-be66\n" +
-                    "The Vendor PN is PT7620-51-3W\n" +
-                    "The Vendor Name is NEOPHOTONICS\n" +
-                    "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\n" +
-                    "WaveLength: 1550nm, Transmission Distance: 80km\n" +
-                    "Rx Power: -14.79dBm, Tx Power: 2.46dBm\n" +
-                    "Loopback:none, full-duplex mode, negotiation: disable, Pause Flowcontrol:Receive Enable and Send Enable\n" +
-                    "Last physical up time : 2023-05-25 13:38:08\n" +
-                    "Last physical down time : 2023-05-25 13:33:09\n" +
-                    "Statistics last cleared:never\n" +
-                    "Last 300 seconds input rate: 6000 bits/sec, 5 packets/sec\n" +
-                    "Last 300 seconds output rate: 60808 bits/sec, 28 packets/sec\n" +
-                    "Input: 59169256274248 bytes, 57573548284 packets\n" +
-                    "Output: 667773712175 bytes, 1890058654 packets\n" +
-                    "Input:\n" +
-                    "Unicast: 57531373844 packets, Multicast: 42145421 packets\n" +
-                    "Broadcast: 29019 packets, JumboOctets: 14044738164 packets\n" +
-                    "CRC: 93 packets, Symbol: 0 packets\n" +
-                    "Overrun: 0 packets, InRangeLength: 0 packets\n" +
-                    "LongPacket: 0 packets, Jabber: 0 packets, Alignment: 0 packets\n" +
-                    "Fragment: 0 packets, Undersized Frame: 1902 packets\n" +
-                    "RxPause: 0 packets\n" +
-                    "Output:\n" +
-                    "Unicast: 1841427885 packets, Multicast: 48579685 packets\n" +
-                    "Broadcast: 51084 packets, JumboOctets: 84001642 packets\n" +
-                    "Lost: 0 packets, Overflow: 0 packets, Underrun: 0 packets\n" +
-                    "System: 0 packets, Overruns: 0 packets\n" +
-                    "TxPause: 0 packets\n" +
-                    "Unknown Vlan: 0 packets\n";
+            /*returnResults = "\n" +
+                    "GigabitEthernet1/0/0 transceiver information:\n" +
+                    "-------------------------------------------------------------\n" +
+                    "Common information:\n" +
+                    "Transceiver Type :1000_BASE_LX_SFP\n" +
+                    "Connector Type :LC\n" +
+                    "Wavelength(nm) :1310\n" +
+                    "Transfer Distance(m) :10000(9um),550(50um),550(62.5um)\n" +
+                    "Digital Diagnostic Monitoring :YES\n" +
+                    "Vendor Name :CISCO\n" +
+                    "Vendor Part Number :FTLF1318P3BTL-CS\n" +
+                    "Ordering Name :\n" +
+                    "-------------------------------------------------------------\n" +
+                    "Manufacture information:\n" +
+                    "Manu. Serial Number :FNS17500515\n" +
+                    "Manufacturing Date :2013-12-08\n" +
+                    "Vendor Name :CISCO\n" +
+                    "-------------------------------------------------------------\n" +
+                    "Alarm information:\n" +
+                    "-------------------------------------------------------------\n" +
+                    "Diagnostic information:\n" +
+                    "Temperature(��C) :39\n" +
+                    "Voltage(V) :3.31\n" +
+                    "Bias Current(mA) :23.70\n" +
+                    "Bias High Threshold(mA) :65.00\n" +
+                    "Bias Low Threshold(mA) :1.00\n" +
+                    "Current Rx Power(dBM) :-11.12\n" +
+                    "Default Rx Power High Threshold(dBM) :1.00\n" +
+                    "Default Rx Power Low Threshold(dBM) :-23.01\n" +
+                    "Current Tx Power(dBM) :-5.55\n" +
+                    "Default Tx Power High Threshold(dBM) :1.00\n" +
+                    "Default Tx Power Low Threshold(dBM) :-13.50\n" +
+                    "User Set Rx Power High Threshold(dBM) :1.00\n" +
+                    "User Set Rx Power Low Threshold(dBM) :-23.01\n" +
+                    "User Set Tx Power High Threshold(dBM) :1.00\n" +
+                    "User Set Tx Power Low Threshold(dBM) :-13.50\n" +
+                    "-------------------------------------------------------------";
             returnResults = MyUtils.trimString(returnResults);*/
 
 
@@ -474,6 +479,7 @@ public class LuminousAttenuation {
              */
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
 
+
             if (values == null){
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();
@@ -495,8 +501,8 @@ public class LuminousAttenuation {
                 continue;
             }
 
-            hashMap.put(port+"TX",values.get("TX"));
-            hashMap.put(port+"RX",values.get("RX"));
+            hashMap.put(port+"TX",values.get("TX")+"");
+            hashMap.put(port+"RX",values.get("RX")+"");
         }
         return hashMap;
     }
@@ -660,19 +666,17 @@ public class LuminousAttenuation {
                                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:光衰功能光衰参数行数值数量不正确,无法取出光衰参数," +
+                                        "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
                                         "光衰参数行信息:"+keyvalue+"\r\n");
                                 PathHelper.writeDataToFileByName(
                                         "IP地址为:"+switchParameters.getIp()+","+
                                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                "问题为:光衰功能光衰参数行数值数量不正确,无法取出光衰参数," +
+                                                "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
                                                 "光衰参数行信息:"+keyvalue+"\r\n"
                                         , "问题日志");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
-                            return null;
                         }
                     }
                 }
@@ -695,18 +699,17 @@ public class LuminousAttenuation {
                                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                        "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
                                         "光衰参数行信息:"+keyvalue+"\r\n");
                                 PathHelper.writeDataToFileByName(
                                         "IP地址为:"+switchParameters.getIp()+","+
                                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                "问题为:光衰功能光衰参数行负数数量不正确,无法取出光衰参数," +
+                                                "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
                                                 "光衰参数行信息:"+keyvalue+"\r\n"
                                         , "问题日志");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            return null;
                         }
                     }
                 }
@@ -728,7 +731,7 @@ public class LuminousAttenuation {
      * @param port
      * @return
      */
-    public List<LightAttenuationComparison> average(SwitchParameters switchParameters,HashMap<String,Double> hashMap,String port) {
+    public List<LightAttenuationComparison> average(SwitchParameters switchParameters,HashMap<String,String> hashMap,String port) {
         LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
         lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
         /*获取交换机四项基本信息ID*/
@@ -737,8 +740,8 @@ public class LuminousAttenuation {
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
         List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
 
-        String rx = hashMap.get(port+"RX") + "";
-        String tx = hashMap.get(port+"TX") + "";
+        String rx = hashMap.get(port+"RX");
+        String tx = hashMap.get(port+"TX");
         if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
             /*需要新插入信息*/
             lightAttenuationComparison = new LightAttenuationComparison();

@@ -33,6 +33,10 @@ public class ErrorRate extends BaseEntity
     @Excel(name = "端口号")
     private String port;
 
+    /** 描述 */
+    @Excel(name = "描述")
+    private String description;
+
     /** input errors */
     @Excel(name = "input errors")
     private String inputErrors;
@@ -112,6 +116,14 @@ public class ErrorRate extends BaseEntity
         this.switchIp = switchIp;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public String toString() {
         return "ErrorRate{" +
@@ -119,6 +131,7 @@ public class ErrorRate extends BaseEntity
                 ", switchIp='" + switchIp + '\'' +
                 ", switchId=" + switchId +
                 ", port='" + port + '\'' +
+                ", description='" + description + '\'' +
                 ", inputErrors='" + inputErrors + '\'' +
                 ", outputErrors='" + outputErrors + '\'' +
                 ", crc='" + crc + '\'' +
