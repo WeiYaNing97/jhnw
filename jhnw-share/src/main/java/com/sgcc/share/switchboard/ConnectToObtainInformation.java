@@ -235,8 +235,204 @@ public class ConnectToObtainInformation {
              * 返回结果*/
             commandString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
 
-            /*commandString = "";
-            commandString = MyUtils.trimString(commandString);*/
+            commandString = "Huawei Versatile Routing Platform Software\n" +
+                    "VRP (R) software, Version 5.70 (NE40E&80E V600R001C00SPC800)\n" +
+                    "Copyright (C) 2000-2009 Huawei Technologies Co., Ltd.\n" +
+                    "HUAWEI NE40E-X8 uptime is 1135 days, 7 hours, 12 minutes\n" +
+                    "NE40E-X8 version information:\n" +
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" +
+                    "\n" +
+                    "BKP 1 version information:\n" +
+                    "PCB Version : CR56BKP08B REV A\n" +
+                    "MPU Slot Quantity : 0\n" +
+                    "SRU Slot Quantity : 2\n" +
+                    "SFU Slot Quantity : 1\n" +
+                    "LPU Slot Quantity : 8\n" +
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" +
+                    "MPU version information:\n" +
+                    "\n" +
+                    "MPU(Master) 9 : uptime is 1135 days, 7 hours, 12 minutes\n" +
+                    "StartupTime 2020/05/26 11:50:36\n" +
+                    "SDRAM Memory Size : 2048M bytes\n" +
+                    "FLASH Memory Size : 32M bytes\n" +
+                    "NVRAM Memory Size : 4096K bytes\n" +
+                    "CFCARD Memory Size : 976M bytes\n" +
+                    "CFCARD2 Memory Size : 976M bytes\n" +
+                    "CR5D0SRUA470 version information\n" +
+                    "PCB Version : CR56RPUA REV A\n" +
+                    "EPLD Version : 104\n" +
+                    "FPGA Version : 006\n" +
+                    "BootROM Version : 1.27\n" +
+                    "BootLoad Version : 2.36\n" +
+                    "Software Version : Version 5.70 RELEASE 0089\n" +
+                    "FRA40A version information\n" +
+                    "PCB Version : CR57FRA40A REV A\n" +
+                    "FPGA Version : 100\n" +
+                    "MonitorBUS version information:\n" +
+                    "Software Version : 7.18\n" +
+                    "\n" +
+                    "MPU(Slave) 10 : uptime is 1135 days, 7 hours, 11 minutes\n" +
+                    "StartupTime 2020/05/26 11:52:05\n" +
+                    "SDRAM Memory Size : 2048M bytes\n" +
+                    "FLASH Memory Size : 32M bytes\n" +
+                    "NVRAM Memory Size : 4096K bytes\n" +
+                    "CFCARD Memory Size : 976M bytes\n" +
+                    "CFCARD2 Memory Size : 999M bytes\n" +
+                    "CR5D0SRUA470 version information\n" +
+                    "PCB Version : CR56RPUA REV A\n" +
+                    "EPLD Version : 104\n" +
+                    "FPGA Version : 006\n" +
+                    "BootROM Version : 1.27\n" +
+                    "BootLoad Version : 2.36\n" +
+                    "Software Version : Version 5.70 RELEASE 0089\n" +
+                    "FRA40A version information\n" +
+                    "PCB Version : CR57FRA40A REV A\n" +
+                    "FPGA Version : 100\n" +
+                    "MonitorBUS version information:\n" +
+                    "Software Version : 7.18\n" +
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" +
+                    "LPU version information:\n" +
+                    "\n" +
+                    "LPU 2 : uptime is 1135 days, 7 hours, 8 minutes\n" +
+                    "StartupTime 2020/05/26 11:55:13\n" +
+                    "\n" +
+                    "Host processor :\n" +
+                    "SDRAM Memory Size: 1024M bytes\n" +
+                    "Flash Memory Size: 32M bytes\n" +
+                    "Network processor :\n" +
+                    "1. RDRAM Memory Size: 96M bytes\n" +
+                    "2. SRAM Memory Size: 36M bytes(ingress)\n" +
+                    "1. RDRAM Memory Size: 192M bytes\n" +
+                    "2. SRAM Memory Size: 27M bytes(egress)\n" +
+                    "LPU version information\n" +
+                    "PCB Version : CR53LPUF REV D\n" +
+                    "EPLD Version : 102\n" +
+                    "FPGA Version : 109\n" +
+                    "NAPA Version : 401\n" +
+                    "NP Version : 048\n" +
+                    "BootROM Version : 144.0\n" +
+                    "BootLoad Version : 86.0\n" +
+                    "FSURTP Version : Version 2.1 RELEASE 0372\n" +
+                    "FSUKERNEL Version : Version 2.1 RELEASE 0372\n" +
+                    "EFURTP Version : Version 2.1 RELEASE 0372\n" +
+                    "EFUKERNEL Version : Version 2.1 RELEASE 0372\n" +
+                    "TM Version : 510\n" +
+                    "TCM version information\n" +
+                    "PCB Version : CR53TCMB REV D\n" +
+                    "PIC0: version information\n" +
+                    "PCB Version : CR53E8GF REV B\n" +
+                    "FPGA Version : 001\n" +
+                    "FPGA2 Version : 107\n" +
+                    "MonitorBUS version information:\n" +
+                    "PCB Version : CR31MBSA REV A\n" +
+                    "EPLD Version : 019\n" +
+                    "Software Version : 3.12\n" +
+                    "\n" +
+                    "LPU 7 : uptime is 1135 days, 7 hours, 8 minutes\n" +
+                    "StartupTime 2020/05/26 11:55:13\n" +
+                    "\n" +
+                    "Host processor :\n" +
+                    "SDRAM Memory Size: 1024M bytes\n" +
+                    "Flash Memory Size: 32M bytes\n" +
+                    "Network processor :\n" +
+                    "1. RDRAM Memory Size: 96M bytes\n" +
+                    "2. SRAM Memory Size: 36M bytes(ingress)\n" +
+                    "1. RDRAM Memory Size: 192M bytes\n" +
+                    "2. SRAM Memory Size: 27M bytes(egress)\n" +
+                    "LPU version information\n" +
+                    "PCB Version : CR53LPUF REV D\n" +
+                    "EPLD Version : 102\n" +
+                    "FPGA Version : 109\n" +
+                    "NAPA Version : 401\n" +
+                    "NP Version : 048\n" +
+                    "BootROM Version : 144.0\n" +
+                    "BootLoad Version : 86.0\n" +
+                    "FSURTP Version : Version 2.1 RELEASE 0372\n" +
+                    "FSUKERNEL Version : Version 2.1 RELEASE 0372\n" +
+                    "EFURTP Version : Version 2.1 RELEASE 0372\n" +
+                    "EFUKERNEL Version : Version 2.1 RELEASE 0372\n" +
+                    "TM Version : 510\n" +
+                    "TCM version information\n" +
+                    "PCB Version : CR53TCMB REV D\n" +
+                    "PIC0: version information\n" +
+                    "PCB Version : CR53E8GF REV B\n" +
+                    "FPGA Version : 001\n" +
+                    "FPGA2 Version : 107\n" +
+                    "PIC2: version information\n" +
+                    "PCB Version : CR53E8GF REV B\n" +
+                    "FPGA Version : 001\n" +
+                    "FPGA2 Version : 107\n" +
+                    "MonitorBUS version information:\n" +
+                    "PCB Version : CR31MBSA REV A\n" +
+                    "EPLD Version : 019\n" +
+                    "Software Version : 3.12\n" +
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" +
+                    "SFU version information:\n" +
+                    "\n" +
+                    "SFU 11 : uptime is 1135 days, 7 hours, 11 minutes\n" +
+                    "StartupTime 2020/05/26 11:52:21\n" +
+                    "\n" +
+                    "SDRAM Memory Size : 256M bytes\n" +
+                    "Flash Memory Size : 16M bytes\n" +
+                    "CR5DSFUI407C version information\n" +
+                    "PCB Version : CR57SFU40B REV A\n" +
+                    "EPLD Version : 102\n" +
+                    "BootROM Version : 13.0\n" +
+                    "BootLoad Version : 9.0\n" +
+                    "Software Version : Version 3.0 RELEASE 0033\n" +
+                    "MonitorBUS version information:\n" +
+                    "Software Version : 6.16\n" +
+                    "\n" +
+                    "SFU 12 : uptime is 1135 days, 7 hours, 11 minutes\n" +
+                    "StartupTime 2020/05/26 11:51:55\n" +
+                    "\n" +
+                    "SDRAM Memory Size : 256M bytes\n" +
+                    "Flash Memory Size : 16M bytes\n" +
+                    "CR5DSFUI407C version information\n" +
+                    "PCB Version : CR57SFUFRA40A REV A\n" +
+                    "EPLD Version : 102\n" +
+                    "BootROM Version : 13.0\n" +
+                    "BootLoad Version : 9.0\n" +
+                    "Software Version : Version 3.0 RELEASE 0033\n" +
+                    "MonitorBUS version information:\n" +
+                    "Software Version : 7.18\n" +
+                    "\n" +
+                    "SFU 13 : uptime is 1135 days, 7 hours, 11 minutes\n" +
+                    "StartupTime 2020/05/26 11:51:55\n" +
+                    "\n" +
+                    "SDRAM Memory Size : 256M bytes\n" +
+                    "Flash Memory Size : 16M bytes\n" +
+                    "CR5DSFUI407C version information\n" +
+                    "PCB Version : CR57SFUFRA40A REV A\n" +
+                    "EPLD Version : 102\n" +
+                    "BootROM Version : 13.0\n" +
+                    "BootLoad Version : 9.0\n" +
+                    "Software Version : Version 3.0 RELEASE 0033\n" +
+                    "MonitorBUS version information:\n" +
+                    "Software Version : 7.18\n" +
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" +
+                    "CLK version information:\n" +
+                    "\n" +
+                    "CLK 14 : uptime is 1135 days, 7 hours, 12 minutes\n" +
+                    "StartupTime 2020/05/26 11:51:08\n" +
+                    "1. FPGA Version : 009\n" +
+                    "2. DSP Version : 140\n" +
+                    "\n" +
+                    "CLK 15 : uptime is 1135 days, 7 hours, 11 minutes\n" +
+                    "StartupTime 2020/05/26 11:52:03\n" +
+                    "1. FPGA Version : 009\n" +
+                    "2. DSP Version : 140\n" +
+                    "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" +
+                    "FAN version information:\n" +
+                    "\n" +
+                    "FAN18's MonitorBUS version information:\n" +
+                    "PCB Version : CR52FCBE REV A\n" +
+                    "Software Version : 1.6\n" +
+                    "\n" +
+                    "FAN19's MonitorBUS version information:\n" +
+                    "PCB Version : CR52FCBE REV A\n" +
+                    "Software Version : 1.6";
+            commandString = MyUtils.trimString(commandString);
 
             if (commandString == null){
                 continue;
@@ -371,9 +567,7 @@ public class ConnectToObtainInformation {
 
         String[] rowSplit = returns_String.split("\r\n");
         String[] deviceVersionSplit =deviceVersion.split(";");
-
         for (String version:deviceVersionSplit){
-
             if (!MyUtils.containIgnoreCase(returns_String,version)){
                 continue;
             }
@@ -429,16 +623,22 @@ public class ConnectToObtainInformation {
                     /*不包含版本信息*/
                     continue;
                 }
-
             }
             if (firmwareVersion!=null){
                 break;
             }
         }
         firmwareVersion = firmwareVersion.trim();
-        if (firmwareVersion.startsWith(":")){
-            firmwareVersion = firmwareVersion.substring(1,firmwareVersion.length()).trim();
+        /* Software Version : Version 3.0 RELEASE 0033 */
+        while (firmwareVersion.startsWith(":") || firmwareVersion.toUpperCase().startsWith("Version".toUpperCase())){
+            if (firmwareVersion.startsWith(":")){
+                firmwareVersion = firmwareVersion.substring(1,firmwareVersion.length()).trim();
+            }
+            if (firmwareVersion.toUpperCase().startsWith("Version".toUpperCase())){
+                firmwareVersion = firmwareVersion.substring("Version".length(),firmwareVersion.length()).trim();
+            }
         }
+
 
 
         /** 设备子版本 */

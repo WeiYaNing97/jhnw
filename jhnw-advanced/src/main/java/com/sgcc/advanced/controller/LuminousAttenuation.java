@@ -88,46 +88,117 @@ public class LuminousAttenuation {
          */
         String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
 
-        /*returnString = "PHY: Physical\n" +
-                "*down: administratively down\n" +
-                "^down: standby\n" +
-                "(l): loopback\n" +
-                "(s): spoofing\n" +
-                "(b): BFD down\n" +
-                "(e): EFM down\n" +
-                "(d): Dampening Suppressed\n" +
-                "InUti/OutUti: input utility/output utility\n" +
-                "Interface PHY Protocol InUti OutUti inErrors outErrors\n" +
-                "Aux0/0/1 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet0/0/0 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/0/0 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/0/1 up up 0.01% 0.17% 0 0\n" +
-                "GigabitEthernet1/0/2 up up 0.41% 0.19% 0 0\n" +
-                "GigabitEthernet1/0/3 up up 0.01% 0.01% 0 0\n" +
-                "GigabitEthernet1/0/4 up up 0.01% 0.01% 0 0\n" +
-                "GigabitEthernet1/0/5 up up 0.01% 0.01% 0 0\n" +
-                "GigabitEthernet1/0/6 up up 0.01% 0.01% 0 0\n" +
-                "GigabitEthernet1/0/7 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/1/0 up up 0.36% 0.41% 0 0\n" +
-                "GigabitEthernet1/1/1 up up 0.01% 0.01% 0 0\n" +
-                "GigabitEthernet1/1/2 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/1/3 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/1/4 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/1/5 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/1/6 *down down 0% 0% 0 0\n" +
-                "GigabitEthernet1/1/7 *down down 0% 0% 0 0\n" +
-                "LoopBack0 up up(s) 0% 0% 0 0\n" +
-                "LoopBack1 up up(s) 0% 0% 0 0\n" +
-                "LoopBack2 up up(s) 0% 0% 0 0\n" +
-                "NULL0 up up(s) 0% 0% 0 0\n" +
-                "Vlanif609 up up -- -- 0 0\n" +
-                "Vlanif1000 up up -- -- 0 0\n" +
-                "Vlanif1200 down down -- -- 0 0\n" +
-                "Vlanif2001 up up -- -- 0 0\n" +
-                "Vlanif2003 up up -- -- 0 0\n" +
-                "Vlanif2008 down down -- -- 0 0\n" +
-                "Vlanif2010 up up -- -- 0 0";
-        returnString = MyUtils.trimString(returnString);*/
+        returnString = "Interface Status Vlan Duplex Speed Type\n" +
+                "---------------------------------------- -------- ---- ------- --------- ------\n" +
+                "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
+                "GigabitEthernet 1/2 up 1003 Full 100M copper\n" +
+                "GigabitEthernet 1/3 up 1004 Full 10M copper\n" +
+                "GigabitEthernet 1/4 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 1/5 down 1001 Unknown Unknown copper\n" +
+                "GigabitEthernet 1/6 up 5 Full 100M copper\n" +
+                "GigabitEthernet 1/7 up 2010 Full 100M copper\n" +
+                "GigabitEthernet 1/8 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 1/9 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 1/10 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 1/11 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 1/12 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 1/13 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/14 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/15 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/16 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/17 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/18 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/19 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/20 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/21 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/22 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/23 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/24 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/1 up routed Full 1000M fiber\n" +
+                "GigabitEthernet 5/2 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/3 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/4 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/5 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/6 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/7 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/8 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/9 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/10 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/11 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/12 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/13 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/14 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/15 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/16 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/17 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/18 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/19 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/20 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/21 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/22 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/23 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/24 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/25 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/26 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/27 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/28 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/29 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/30 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/31 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/32 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/33 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/34 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/35 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/36 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/37 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/38 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/39 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/40 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/41 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/42 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/43 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/44 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/45 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/46 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/47 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/48 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/1 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/2 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/3 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/4 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/5 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/6 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/7 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/8 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/9 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/10 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/11 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/12 down 1 Unknown Unknown copper\n" +
+                "GigabitEthernet 6/13 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/14 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/15 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/16 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/17 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/18 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/19 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/20 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/21 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/22 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/23 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 6/24 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 1/25 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 1/26 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 1/27 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 1/28 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 5/49 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 5/50 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 5/51 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 5/52 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 6/25 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
+                "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
+        returnString = MyUtils.trimString(returnString);
 
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
@@ -365,7 +436,7 @@ public class LuminousAttenuation {
                 for (String keyword:keywords){
                     if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase().toUpperCase())){
                         /*判断提取到的端口号是否包含字母*/
-                        if (MyUtils.judgeContainsStr(string_split[num])){
+                        if (MyUtils.isNumeric(string_split[num])){
                             /*包含则为完全端口号 否则为不完全端口号*/
                             String port = string_split[num];
                             // todo .
@@ -376,7 +447,7 @@ public class LuminousAttenuation {
                         }else {
                             /*例如：  GigabitEthernet 2/1 */
                             /*否则为不完全端口号，需要加后面的GigabitEthernet*/
-                            String port = string_split[num] +" "+ string_split[num++];
+                            String port = string_split[num] +" "+ string_split[num+1];
                             // todo .
                             if (port.indexOf(".")!=-1){
                                 return null;

@@ -31,9 +31,11 @@ public class AdvancedFeatures {
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "高级功能", businessType = BusinessType.OTHER)
     public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {//待测
+
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
+
         /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
         for (String information:switchInformation){
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
@@ -60,7 +62,6 @@ public class AdvancedFeatures {
             e.printStackTrace();
         }
 
-
         System.err.println("扫描结束");
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
@@ -73,6 +74,7 @@ public class AdvancedFeatures {
         Date now_10 = new Date(now.getTime() + 600000); //10分钟后的时间
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
         String nowTime_10 = dateFormat.format(now_10);
+
         while (true){
             if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
                 WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
@@ -82,5 +84,7 @@ public class AdvancedFeatures {
                 return "扫描结束";
             }
         }
+
     }
+
 }
