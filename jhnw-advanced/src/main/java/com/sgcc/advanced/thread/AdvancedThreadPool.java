@@ -15,14 +15,17 @@ public class AdvancedThreadPool {
     // 用来存储线程名称的map
     public static Map threadNameMap = new HashMap();
     /**
-     * newFixedThreadPool submit submit
+     * 高级功能线程池
+     *
      */
     public static void switchLoginInformations(ParameterSet parameterSet, List<String> functionName) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
+
         int i = 1;
         for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){
+            /*获取线程名*/
             String threadName = getThreadName(i);
             switchParameters.setThreadName(threadName);
             i++;

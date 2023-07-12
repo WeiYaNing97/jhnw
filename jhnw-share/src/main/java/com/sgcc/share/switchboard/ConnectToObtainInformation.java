@@ -233,9 +233,10 @@ public class ConnectToObtainInformation {
         for (String command:commandsplit){
             /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
              * 返回结果*/
-            commandString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+            ExecuteCommand executeCommand = new ExecuteCommand();
+            commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
 
-            commandString = "Huawei Versatile Routing Platform Software\n" +
+            /*commandString = "Huawei Versatile Routing Platform Software\n" +
                     "VRP (R) software, Version 5.70 (NE40E&80E V600R001C00SPC800)\n" +
                     "Copyright (C) 2000-2009 Huawei Technologies Co., Ltd.\n" +
                     "HUAWEI NE40E-X8 uptime is 1135 days, 7 hours, 12 minutes\n" +
@@ -432,7 +433,7 @@ public class ConnectToObtainInformation {
                     "FAN19's MonitorBUS version information:\n" +
                     "PCB Version : CR52FCBE REV A\n" +
                     "Software Version : 1.6";
-            commandString = MyUtils.trimString(commandString);
+            commandString = MyUtils.trimString(commandString);*/
 
             if (commandString == null){
                 continue;

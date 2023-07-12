@@ -183,34 +183,44 @@ public class SwitchScanResultController extends BaseController
     }
 
 
+    /**
+     * 分页查询历史扫描
+     * @param pageNumber
+     * @return
+     */
     @ApiOperation("根据当前登录人获取以往扫描信息")
     @GetMapping("/getUnresolvedProblemInformationByUserName/{pageNumber}")///{pageNumber}
     public List<ScanResultsCO> getSwitchScanResultListByName(@PathVariable String pageNumber) {//@PathVariable String pageNumber
-
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        String userName = loginUser.getUsername();
+        /*系统登录人姓名*/
+        String userName = SecurityUtils.getLoginUser().getUsername();
 
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         int page = 10 * (Integer.valueOf(pageNumber).intValue()-1);
-
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultListPages(userName,page);
+
+        /*如果查询结果为空 则直接返回 null*/
         if (MyUtils.isCollectionEmpty(list)){
             return null;
         }
-
+        /*交换机扫描结果主键集合*/
         Long[] ids = new Long[list.size()];
+        /* 交换机扫描结果 map集合  key为主键ID value为结果实体类*/
         HashMap<Long,SwitchScanResult> hashMap = new HashMap<>();
         for (int num = 0;num <list.size();num++){
             ids[num] = list.get(num).getId();
             hashMap.put(list.get(num).getId(),list.get(num));
         }
 
+        /*根据主键数组 查询 带有格式的实体类 集合*/
         List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchProblemVOListByIds(ids);
 
         for (SwitchProblemVO switchProblemVO:switchProblemList){
+
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
+
                 switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
+
                 List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());
                 //提取信息 如果不为空 则有参数

@@ -19,7 +19,7 @@ BasicInformation:
   deviceVersion: software version;Version
   # 获取交换机设备子版本的关键字,默认关键字的下一位为要取的参数,两个关键字之间以;分隔
   deviceSubversion: RELEASE SOFTWARE;Release;Build
-  # 等价
+  # 等价  有的交换机品牌名 叫做 Huawei 同时也叫做  Quidway
   equivalence:
     Huawei: Quidway
 

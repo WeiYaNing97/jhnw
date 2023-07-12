@@ -9,10 +9,7 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
-import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.FunctionalMethods;
-import com.sgcc.share.util.MyUtils;
-import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.util.*;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
@@ -48,12 +45,14 @@ public class LuminousAttenuation {
         /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
         LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
 
+
         lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
         lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
         lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
         lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
         List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandListBySQL(lightAttenuationCommand);
+
 
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
@@ -77,18 +76,22 @@ public class LuminousAttenuation {
             return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
         }
 
+
         /**
          * 从lightAttenuationCommandList中 获取四项基本最详细的数据
          */
         lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand(lightAttenuationCommandList);
         String command = lightAttenuationCommand.getGetPortCommand();
 
+
         /**
          * 3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
          */
-        String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+        ExecuteCommand executeCommand = new ExecuteCommand();
+        String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
 
-        returnString = "Interface Status Vlan Duplex Speed Type\n" +
+
+        /*returnString = "Interface Status Vlan Duplex Speed Type\n" +
                 "---------------------------------------- -------- ---- ------- --------- ------\n" +
                 "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
                 "GigabitEthernet 1/2 up 1003 Full 100M copper\n" +
@@ -198,7 +201,8 @@ public class LuminousAttenuation {
                 "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
-        returnString = MyUtils.trimString(returnString);
+        returnString = MyUtils.trimString(returnString);*/
+
 
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
@@ -221,13 +225,16 @@ public class LuminousAttenuation {
                 e.printStackTrace();
             }
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
+
         }
+
 
         /**
          * 5：如果交换机返回信息不为 null说明命令执行正常,
-         * 则继续 根据交换机返回信息获取获取光衰端口号
+         * 则继续 根据交换机返回信息获取获取 up状态 光衰端口号 铜缆除外，铜缆关键词为 COPPER
          */
         List<String> port = ObtainUPStatusPortNumber(returnString);
+
 
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
@@ -255,19 +262,28 @@ public class LuminousAttenuation {
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = lightAttenuationCommand.getConversion();
-        String[] conversionSplit = conversion.split(";");
-        for (String convers:conversionSplit){
-            String[] conversSplit = convers.split(":");
-            for (int num=0;num<port.size();num++){
-                if (MyUtils.getFirstLetters(port.get(num)).trim().equals(conversSplit[0])){
-                    port.set(num,port.get(num).replace(conversSplit[0],conversSplit[1]));
+        if (conversion != null){
+            String[] conversionSplit = conversion.split(";");
+            for (String convers:conversionSplit){
+                /* 转译 分割为 字符串数组*/
+                String[] conversSplit = convers.split(":");
+                for (int num=0;num<port.size();num++){
+
+                    /* getFirstLetters 获取字符串开头字母部分
+                     * 判断 是否与转译相同
+                     * 如果相同 则 进行转译  */
+
+                    if (MyUtils.getFirstLetters(port.get(num)).trim().equals(conversSplit[0])){
+                        port.set(num,port.get(num).replace(conversSplit[0],conversSplit[1]));
+                    }
                 }
             }
         }
 
         /**
          * 8：根据 up状态端口号 及交换机信息
-         * 获取光衰参数  lightAttenuationCommand.getGetParameterCommand()
+         * 获取光衰参数命令 ：  lightAttenuationCommand.getGetParameterCommand()
+         * switchParameters ： 交换机信息类
          */
         HashMap<String, String> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
 
@@ -339,6 +355,9 @@ public class LuminousAttenuation {
                 }else {
                     continue;
                 }
+
+                /* 如果 lightAttenuationComparisons 为空 则光衰记录表中没有相关信息
+                则默认无问题*/
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
                     hashMap.put("IfQuestion","无问题");
                 }else {
@@ -385,7 +404,11 @@ public class LuminousAttenuation {
      * @return
      */
     public static List<String> ObtainUPStatusPortNumber(String returnString) {
+        /* 按行分割 交换机返回信息行信息 字符串数组*/
         String[] returnStringSplit = returnString.split("\r\n");
+        /*遍历 交换机行信息字符串数组
+         *  判断 交换机返回行信息是否包含 UP（状态）  且 不能为铜缆 "COPPER"
+         *  是 则存放入端口待取集合*/
         List<String> strings = new ArrayList<>();
         for (String string:returnStringSplit){
             /*包含 交换机返回行信息转化为大写 UP状态  不能为COPPER铜缆的  并且该行带有“/”的 存放入端口待取集合*/
@@ -397,11 +420,14 @@ public class LuminousAttenuation {
         if (MyUtils.isCollectionEmpty(strings)){
             return null;
         }
-        List<String> port = new ArrayList<>();
+
         /*遍历端口待取集合 执行取值方法 获取端口号*/
+        List<String> port = new ArrayList<>();
         for (String information:strings){
             /*根据 UP 截取端口号*/
-            String terminalSlogan = getTerminalSlogan(information);
+            String terminalSlogan = FunctionalMethods.getTerminalSlogan(information);
+            /* 端口号不能为 null
+            * getFirstLetters获取字符串开头字母部分  不能为 Eth  百兆网不获取 光衰信息*/
             if (terminalSlogan != null && !(MyUtils.getFirstLetters(terminalSlogan).equalsIgnoreCase("Eth"))){
                 port.add(terminalSlogan);
             }
@@ -411,58 +437,6 @@ public class LuminousAttenuation {
 
 
     /**
-     * 根据 UP 截取端口号
-     * @param information
-     * @return
-     */
-    public static String getTerminalSlogan(String information){
-        /**
-         * 获取端口号
-         */
-        String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword",Constant.getProfileInformation());
-        String[] keywords = deviceVersion.trim().split(" ");
-
-        /*GigabitEthernet 9/1 up routed Full 1000M fiber*/
-        /*根据UP分割字符串*/
-        /*交换机信息 根据 up(忽略大小写) 分割*/
-        String[] informationSplit = MyUtils.splitIgnoreCase(information.trim()," UP ");
-        /*遍历数组包含/的为端口号 但不能确定端口号是否完全
-        * 此时需要判断提取到的端口号是否包含字母
-        * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
-        for (String string:informationSplit){
-
-            String[] string_split = string.split(" ");
-            for (int num = 0;num < string_split.length;num++){
-                for (String keyword:keywords){
-                    if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase().toUpperCase())){
-                        /*判断提取到的端口号是否包含字母*/
-                        if (MyUtils.isNumeric(string_split[num])){
-                            /*包含则为完全端口号 否则为不完全端口号*/
-                            String port = string_split[num];
-                            // todo .
-                            if (port.indexOf(".")!=-1){
-                                return null;
-                            }
-                            return port;
-                        }else {
-                            /*例如：  GigabitEthernet 2/1 */
-                            /*否则为不完全端口号，需要加后面的GigabitEthernet*/
-                            String port = string_split[num] +" "+ string_split[num+1];
-                            // todo .
-                            if (port.indexOf(".")!=-1){
-                                return null;
-                            }
-                            return port;
-                        }
-                    }
-                }
-            }
-
-        }
-        return null;
-    }
-
-    /**
      * 根据 up状态端口号 及交换机信息 获取光衰参数
      * @param portNumber 端口号
      * @param switchParameters 交换机信息类
@@ -470,20 +444,25 @@ public class LuminousAttenuation {
      */
     public HashMap<String,String> getparameter(List<String> portNumber,SwitchParameters switchParameters,String command) {
         /*获取配置信息中 符合品牌的 获取基本信息的 获取光衰参数的 命令*/
-
-
         /*创建 返回对象 HashMap*/
+        /*hashMap.put(port+"TX",values.get("TX")+"");
+          hashMap.put(port+"RX",values.get("RX")+"");*/
         HashMap<String,String> hashMap = new HashMap<>();
+
         /*端口号集合 需要检测各端口号的光衰参数*/
         for (String port:portNumber){
-            /*替换端口号 得到完整的 获取端口号光衰参数命令 */
+
+            /*替换端口号 得到完整的 获取端口号光衰参数命令
+            * 例如：端口号： GigabitEthernet1/0/0
+            *       命令：   display transceiver interface 端口号 verbose
+            *       替换为： display transceiver interface GigabitEthernet1/0/0 verbose*/
             String FullCommand = command.replaceAll("端口号",port);
+
             /**
              * 交换机执行命令 并返回结果
              */
-            String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
-
-
+            ExecuteCommand executeCommand = new ExecuteCommand();
+            String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
             /*returnResults = "\n" +
                     "GigabitEthernet1/0/0 transceiver information:\n" +
                     "-------------------------------------------------------------\n" +
@@ -585,50 +564,95 @@ public class LuminousAttenuation {
      * @return
      */
     public static HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
-        /*切割成行信息*/
+        /*根据 "\r\n" 切割为行信息*/
         String[] Line_split = string.split("\r\n");
 
+        /*
+        * 自定义 光衰参数默认给个 50
+        * 收发光功率可能为正，但是一般最大30左右
+        * 此时默认给50 作为是否 获取到返回信息 的判断
+        * */
+        double txpower = 50;
+        double rxpower = 50;
 
-        /*自定义 光衰参数默认给个 100*/
-        double txpower = 1;
-        double rxpower = 1;
-
+        /**
+         * 创建字符串集合，用于存储 key：valu格式的参数
+         * 遍历交换机返回信息，如果 tx 和 rx 不在同一行 则说明 是 key：valu格式的参数
+         * 则 存入 集合中
+         */
         List<String> keyValueList = new ArrayList<>();
+
+        /* 遍历交换机返回信息行数组 */
         for (int number = 0 ;number<Line_split.length;number++) {
+
             /* 获取 TX POWER 和 RX POWER 的位置
             * 当其中一个值不为 -1时 则为key：value格式
-            * 如果全不为 -1时 则是 两个光衰参数在同一行 的格式*/
+            * 如果全不为 -1时 则是 两个光衰参数在同一行 的格式
+            * 如果全部为 -1时，则 RX、TX 都不包含*/
             int tx = Line_split[number].toUpperCase().indexOf("TX POWER");
             int rx = Line_split[number].toUpperCase().indexOf("RX POWER");
-            /* 设置 光衰参数的格式 预设为0key：value格式   为1是RX、TX  为-1时TX、RX*/
-            int num = 0 ;
-            if (tx!=-1 && rx!=-1){
-                /*如果全不为 -1时 则是 两个光衰参数在同一行 的格式*/
-                if (tx > rx){
-                    num = 1;
-                }else if (tx < rx){
-                    num = -1;
-                }
-            }else if (tx ==-1 && rx ==-1){
-                /* RX、TX 都不包含 则进入下一循环*/
+
+            /* RX、TX 都不包含 则进入下一循环*/
+            if (tx ==-1 && rx ==-1){
                 continue;
             }
 
-            if (num == 0 && (tx != -1 || rx != -1)){
+            /*如果 RX TX 同时不为 -1 则 需要判断 RX和TX的先后顺序
+            设 num 为 TX 与 RX的位置关系
+            为1是RX、TX  为-1时TX、RX*/
+            int num = 0 ;
+            if (tx!=-1 && rx!=-1){
+                /*如果全不为 -1时 则是 两个光衰参数在同一行 的格式
+                *需要判断 RX和TX的先后顺序 */
+                if (tx > rx){
+                    /*当 tx > rx时 说明 rx在前 TX 在后
+                    * 所以 num = 1时，说明 rx在前 TX 在后*/
+                    num = 1;
+                }else if (tx < rx){
+                    /*当 tx < rx时 说明 tx在前 RX 在后
+                     * 所以 num = -1时，说明 tx在前 RX 在后*/
+                    num = -1;
+                }
+            }else {
+                /*如果 TX RX 不同时为 -1 则 说明你 收发光功率不在一行
+                则程序  num = 0 时 为 不在一行 为 key：value格式 */
+            }
+
+            /* 因为 num = 0 所以 为 不在一行 为 key：value格式
+            * 需要 存放入 集合中 */
+            /* 去掉了 && (tx != -1 || rx != -1) 因为 之前 RX、TX 都不包含 已经做过判断 */
+            if (num == 0){
+
                 /* 包含 TX 或者 RX */
                 /*key : value*/
                 keyValueList.add(Line_split[number]);
+
             }else {
-                /*错误信息预定义 用于前端显示*/
+
+                /*错误信息预定义 用于前端显示 */
                 String parameterInformation = "";
-                /*如果两个都包含 则可能是在本行，或者是下一行 需要判断:*/
+
+                /*如果两个都包含 则可能是在本行，或者是下一行 需要判断:
+                * 例如：
+                *
+                * Current Rx Power(dBM) :-10.82
+                * Current Tx Power(dBM) :-2.04
+                *
+                * 和
+                *
+                * Rx Power    Tx Power
+                * -10.82      -2.04
+                *
+                * */
                 String nextrow = Line_split[number];
                 parameterInformation = nextrow;
+
                 /*两个都包含 则 两个参数值在一行*/
                 if (nextrow.indexOf(":") == -1){
                     nextrow = Line_split[number+1];
                     parameterInformation = parameterInformation +"\r\n"+ nextrow+"\r\n";
                 }
+
                 /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
                 List<Double> valueList = values.stream()
@@ -686,6 +710,7 @@ public class LuminousAttenuation {
                     rxpower = valueList.get(1);
                 }
                 break;
+
             }
         }
 
@@ -785,14 +810,16 @@ public class LuminousAttenuation {
                     }
                 }
             }
-
         }
-        if (Double.valueOf(txpower).doubleValue() == 1 || Double.valueOf(rxpower).doubleValue() == 1)
+
+        if (Double.valueOf(txpower).doubleValue() == 50 || Double.valueOf(rxpower).doubleValue() == 50)
             return null;
+
         HashMap<String,Double> hashMap = new HashMap<>();
         hashMap.put("TX",Double.valueOf(txpower).doubleValue() == 1?null:txpower);
         hashMap.put("RX",Double.valueOf(rxpower).doubleValue() == 1?null:rxpower);
         return hashMap;
+
     }
 
     /**
@@ -860,30 +887,4 @@ public class LuminousAttenuation {
         return MyUtils.stringToDouble(result);
     }
 
-    public static LightAttenuationCommand getpojo(List<LightAttenuationCommand> pojoList) {
-        LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
-        int sum = 0;
-        for (LightAttenuationCommand pojo:pojoList){
-            int num = 0 ;
-            if (!(pojo.getBrand().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getSwitchType().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getFirewareVersion().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getSubVersion().equals("*"))){
-                ++num;
-            }
-            if (sum<num){
-                sum = num;
-                lightAttenuationCommand = pojo;
-            }else if (sum == num && (pojo.getSwitchType().equals("*")) && (pojo.getSubVersion().equals("*"))){
-                lightAttenuationCommand = pojo;
-            }
-        }
-        return lightAttenuationCommand;
-    }
 }

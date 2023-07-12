@@ -10,6 +10,7 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
+import com.sgcc.share.util.ExecuteCommand;
 import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
@@ -80,7 +81,8 @@ public class OSPFFeatures {
         /**
          * 根据交换机信息类  执行交换命令
          */
-        String commandReturn = FunctionalMethods.executeScanCommandByCommand(switchParameters,command);
+        ExecuteCommand executeCommand = new ExecuteCommand();
+        String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
 
         /*commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
                 "Peer Statistic Information\n" +
@@ -494,38 +496,4 @@ public class OSPFFeatures {
         }
         return null;
     }
-
-
-    /**
-     * 获取 四项基本信息更加匹配的命令实体类
-     * @param pojoList
-     * @return
-     */
-    public static OspfCommand getpojo(List<OspfCommand> pojoList) {
-        OspfCommand ospfCommand = new OspfCommand();
-        int sum = 0;
-        for (OspfCommand pojo:pojoList){
-            int num = 0 ;
-            if (!(pojo.getBrand().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getSwitchType().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getFirewareVersion().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getSubVersion().equals("*"))){
-                ++num;
-            }
-            if (sum<num){
-                sum = num;
-                ospfCommand = pojo;
-            }else if (sum == num && (pojo.getSwitchType().equals("*")) && (pojo.getSubVersion().equals("*"))){
-                ospfCommand = pojo;
-            }
-        }
-        return ospfCommand;
-    }
-
 }

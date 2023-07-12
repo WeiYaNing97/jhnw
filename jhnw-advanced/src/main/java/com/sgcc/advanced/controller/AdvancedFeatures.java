@@ -48,8 +48,8 @@ public class AdvancedFeatures {
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
         }
-        //线程池
 
+        //线程池
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
@@ -57,7 +57,9 @@ public class AdvancedFeatures {
 
         try {
             /*高级功能线程池*/
+
             AdvancedThreadPool.switchLoginInformations(parameterSet, functionName);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

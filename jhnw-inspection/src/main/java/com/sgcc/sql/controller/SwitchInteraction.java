@@ -2169,7 +2169,8 @@ public class SwitchInteraction {
         //具体命令
         String command = commandLogic.getCommand().trim();
         //执行命令
-        String command_string = FunctionalMethods.executeScanCommandByCommand(switchParameters, command);
+        ExecuteCommand executeCommand = new ExecuteCommand();
+        String command_string = executeCommand.executeScanCommandByCommand(switchParameters, command);
 
 
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验

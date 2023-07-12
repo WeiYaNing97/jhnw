@@ -9,10 +9,7 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
-import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.FunctionalMethods;
-import com.sgcc.share.util.MyUtils;
-import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.util.*;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
@@ -76,7 +73,8 @@ public class ErrorPackage {
         /**
          * 3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息
          */
-        String returnString = FunctionalMethods.executeScanCommandByCommand(switchParameters, portNumberCommand);
+        ExecuteCommand executeCommand = new ExecuteCommand();
+        String returnString = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
 
         /*returnString = "The brief information of interface(s) under route mode:\n" +
                 "Link: ADM - administratively down; Stby - standby\n" +
@@ -191,20 +189,28 @@ public class ErrorPackage {
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = errorRateCommand.getConversion();
-        String[] conversionSplit = conversion.split(";");
-        for (String convers:conversionSplit){
-            String[] conversSplit = convers.split(":");
-            for (int num=0;num<portList.size();num++){
-                if (MyUtils.getFirstLetters(portList.get(num)).trim().equals(conversSplit[0])){
-                    portList.set(num,portList.get(num).replace(conversSplit[0],conversSplit[1]));
+        if (conversion != null){
+            String[] conversionSplit = conversion.split(";");
+            for (String convers:conversionSplit){
+                /* 转译 分割为 字符串数组*/
+                String[] conversSplit = convers.split(":");
+                for (int num=0;num<portList.size();num++){
+                    /* getFirstLetters 获取字符串开头字母部分
+                    * 判断 是否与转译相同
+                    * 如果相同 则 进行转译  */
+                    if (MyUtils.getFirstLetters(portList.get(num)).trim().equals(conversSplit[0])){
+                        portList.set(num,portList.get(num).replace(conversSplit[0],conversSplit[1]));
+                    }
                 }
             }
         }
+
 
         /*获取误码率参数命令*/
         String errorPackageCommand = errorRateCommand.getGetParameterCommand();
         /*获取到误码率参数 map集合*/
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
+
 
         if (errorPackageParameters == null){
 
@@ -228,12 +234,16 @@ public class ErrorPackage {
 
             return AjaxResult.error("所有端口都没有获取到误码率参数");
         }
+
+
         /*获取交换机四项基本信息ID*/
         Long switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
         errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
         /*获取误码率参数集合中的Key
         * key值为端口号*/
         Set<String> strings = errorPackageParameters.keySet();
+
+
         for (String port:strings){
 
             ErrorRate errorRate = new ErrorRate();
@@ -369,7 +379,8 @@ public class ErrorPackage {
             /**
              * 交换机执行命令 并返回结果
              */
-            String returnResults = FunctionalMethods.executeScanCommandByCommand(switchParameters, FullCommand);
+            ExecuteCommand executeCommand = new ExecuteCommand();
+            String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
 
             /*returnResults = "GigabitEthernet1/0/1 current state : UP\n" +
                     "Line protocol current state : UP\n" +
@@ -430,7 +441,9 @@ public class ErrorPackage {
                 continue;
             }
 
+            /*查看交换机误码率数量*/
             valueList = getParameters(switchParameters,returnResults);
+            /*获取 描述：Description:*/
             String description = getDescription(returnResults);
 
             if (description!=null){
@@ -468,29 +481,33 @@ public class ErrorPackage {
 
     /**
      * 根据交换机返回信息获取获取UP状态端口号
+     *
      * @param returnString
      * @return
      */
     public static List<String> ObtainUPStatusPortNumber(String returnString) {
+        /* 按行分割 交换机返回信息行信息 字符串数组*/
         String[] returnStringSplit = returnString.split("\r\n");
-        List<String> strings = new ArrayList<>();
 
+        /*遍历 交换机行信息字符串数组
+        *  判断 交换机返回行信息是否包含 UP（状态）
+        *  是 则存放入端口待取集合*/
+        List<String> strings = new ArrayList<>();
         for (String string:returnStringSplit){
-            /*包含 交换机返回行信息转化为大写 UP状态  并且该行带有“/”的 存放入端口待取集合*/
             if ((string.toUpperCase().indexOf(" UP ")!=-1)){
                 strings.add(string.trim());
             }
         }
-
         /*判断端口待取集合是否为空*/
         if (MyUtils.isCollectionEmpty(strings)){
             return null;
         }
-        List<String> port = new ArrayList<>();
+
         /*遍历端口待取集合 执行取值方法 获取端口号*/
+        List<String> port = new ArrayList<>();
         for (String information:strings){
-            /*根据 UP 截取端口号*/
-            String terminalSlogan = LuminousAttenuation.getTerminalSlogan(information);
+            /*根据 UP 截取端口号 */
+            String terminalSlogan = FunctionalMethods.getTerminalSlogan(information);
             if (terminalSlogan != null){
                 port.add(terminalSlogan);
             }
@@ -504,93 +521,185 @@ public class ErrorPackage {
      * @return
      */
     public List<String> getParameters(SwitchParameters switchParameters,String returnResults) {
-
-        String[] returnResultssplit = returnResults.split("\r\n");
-
+        /* 获取配置文件 关于 误码率 的配置信息*/
         Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率",Constant.getProfileInformation());
+        /*获取 key值
+        * key值为 ： 描述 或者 品牌名*/
         Set<String> keys = deviceVersion.keySet();
 
+        /* 交换机品牌 默认为 null*/
         String brand = null;
+
+        /* 遍历交换机 品牌名 */
         for (String key:keys){
-            if (switchParameters.getDeviceBrand().equalsIgnoreCase(key)){
+            /* 获取交换机信息实体类中的 设备品牌*/
+            String deviceBrand = switchParameters.getDeviceBrand();
+
+            /* 判断交换机基本信息品牌名 是否与 配置文件key值(交换机品牌名) 相等 忽略大小写
+            * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
+            if (deviceBrand.equalsIgnoreCase(key)){
                 brand = key;
+                break;
+
+                /* 如果不相等 则 判断是否为  Huawei  或者 Quidway
+                 * 如果 为 "Huawei或Quidway"  则判断 key交换机品牌 是否 等于 "Quidway或Huawei"
+                 * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
+
+            }else if (deviceBrand.equalsIgnoreCase("Huawei") || deviceBrand.equalsIgnoreCase("Quidway")){
+                if (deviceBrand.equalsIgnoreCase("Huawei") && "Quidway".equalsIgnoreCase(key)){
+                    brand = key;
+                    break;
+                }else if (deviceBrand.equalsIgnoreCase("Quidway") && "Huawei".equalsIgnoreCase(key)){
+                    brand = key;
+                    break;
+                }
+            }
+        }
+        /*根据 交换机品牌名 获取交换机误码率信息 */
+        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand,Constant.getProfileInformation());
+        keys = deviceVersion.keySet();
+
+        /*型号*/
+        String model = null;
+        /*版本*/
+        String firmwareVersion = null;
+        /*子版本*/
+        String subversionNumber = null;
+        /*遍历 误码率 品牌下的 key*/
+        for (String key:keys){
+            /*如果 交换机型号switchParameters.getDeviceModel() 与 配置文件中 key匹配
+            * 则 配置文件key 赋值 型号model */
+            if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
+                model = key;
                 break;
             }
         }
-        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand,Constant.getProfileInformation());
-        keys = deviceVersion.keySet();
-        String model = null;
-        String firmwareVersion = null;
-        String subversionNumber = null;
-        for (String key:keys){
-            if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
-                model = key;
-            }
-        }
-        if (model!=null){
+
+        /*如果 型号 model 不为 null
+        * 则可以根据 品牌和型号 获取 误码率信息*/
+        if ( model!=null ){
+
             deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model,Constant.getProfileInformation());
             keys = deviceVersion.keySet();
+
+            /*遍历 误码率 品牌、型号 下的 key*/
             for (String key:keys){
-                if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
+                /*如果 交换机型号switchParameters.getFirmwareVersion() 与 配置文件中 key匹配
+                 * 则 配置文件key 赋值 型号 firmwareVersion */
+                if (switchParameters.getFirmwareVersion().equalsIgnoreCase(key)){
                     firmwareVersion = key;
+                    break;
                 }
             }
+
+            /*如果 型号 firmwareVersion 不为 null
+             * 则可以根据 品牌和型号 获取 误码率信息*/
             if (firmwareVersion!=null){
+
                 deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model+"."+firmwareVersion,Constant.getProfileInformation());
                 keys = deviceVersion.keySet();
+
+                /*遍历 误码率 品牌、型号、版本 下的 key*/
                 for (String key:keys){
-                    if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
+                    /*如果 交换机型号switchParameters.getSubversionNumber() 与 配置文件中 key匹配
+                     * 则 配置文件key 赋值 型号 subversionNumber */
+                    if (switchParameters.getSubversionNumber().equalsIgnoreCase(key)){
                         subversionNumber = key;
+                        break;
                     }
                 }
+
             }
+
         }
 
-        String condition = (brand==null?"":"."+brand)+(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
+
+        /* 动态查询条件
+        *  一定有 品牌 brand
+        * 型号、版本、子版本 如果为 null的 则为""空字符， 如果不为 null 则为  "."+属性值 */
+        String condition = brand +(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
         deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率"+condition,Constant.getProfileInformation());
-        String input = null;
-        String output = null;
-        String crc = null;
         Set<String> strings = deviceVersion.keySet();
+
+        /*key值 ：
+        *   Input: $ input errors
+            Output: $ output errors
+            CRC: $ CRC,
+        */
+
+        /* 获取三个参数的关键词 并存储再 hashMap 集合中*/
         HashMap<String,String> hashMap =new HashMap<>();
-        HashMap<String, String> valueTotalError = getValueTotalError(returnResults);
         for (String key:strings){
             switch (key.toLowerCase()){
                 case "input":
-                    input = (String) deviceVersion.get(key);
+                    String input = (String) deviceVersion.get(key);
                     hashMap.put("Input",input);
                     break;
                 case "output":
-                    output = (String) deviceVersion.get(key);
+                    String output = (String) deviceVersion.get(key);
                     hashMap.put("Output",output);
                     break;
                 case "crc":
-                    crc = (String) deviceVersion.get(key);
+                    String crc = (String) deviceVersion.get(key);
                     hashMap.put("CRC",crc);
                     break;
             }
         }
+
+
+        /* 获取 hashMap 的 key值 */
         Set<String> keySet = hashMap.keySet();
+
+
+        /* 遍历 hashMap 的 key值
+        * 获取关键词是否包含 Total Error
+        * 如果存在则通过 Total Error 先获取到 ： Input 和 Output*/
+        HashMap<String, String> valueTotalError = new HashMap<>();
         for (String key:keySet){
             if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
+                /* 通过 Total Error 先获取到 ： Input 和 Output */
+                valueTotalError = getValueTotalError(returnResults);
+            }
+        }
+
+        /*遍历 hashMap 的 key值
+        * 获取对应的参数值*/
+        for (String key:keySet){
+            /*key值的关键词 包含 "Total Error" */
+            if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
+
+                /*如果根据 "Total Error" 获取行信息为 空 则取下一参数*/
                 if (valueTotalError.size()==0){
                     continue;
                 }
+
+                /*根据 key 获取关键词 */
                 String value = valueTotalError.get(key);
                 if (value == null){
                     continue;
                 }
+
+                /*根据配置文件的取值信息 取参数值*/
                 String placeholdersContaining = getPlaceholdersContaining(value, hashMap.get(key));
                 if (placeholdersContaining!=null){
                     hashMap.put(key,placeholdersContaining);
                 }
+
+                /*如果关键词不包含 "Total Error"
+                * */
             }else if (!(MyUtils.containIgnoreCase(hashMap.get(key),"Total Error"))){
+                /* 按行分割 交换机返回信息每行信息 为字符串数组*/
+                String[] returnResultssplit = returnResults.split("\r\n");
+
+                /*遍历 交换机返回信息行信息 字符串数组*/
                 for (String str:returnResultssplit){
+                    /*根据配置文件的取值信息 取参数值*/
                     String placeholdersContaining = getPlaceholdersContaining(str, hashMap.get(key));
                     if (placeholdersContaining!=null){
                         hashMap.put(key,placeholdersContaining);
                         break;
                     }
+
                 }
             }
         }
@@ -604,32 +713,6 @@ public class ErrorPackage {
 
     }
 
-    public static ErrorRateCommand getpojo(List<ErrorRateCommand> pojoList) {
-        ErrorRateCommand errorRateCommand = new ErrorRateCommand();
-        int sum = 0;
-        for (ErrorRateCommand pojo:pojoList){
-            int num = 0 ;
-            if (!(pojo.getBrand().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getSwitchType().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getFirewareVersion().equals("*"))){
-                ++num;
-            }
-            if (!(pojo.getSubVersion().equals("*"))){
-                ++num;
-            }
-            if (sum<num){
-                sum = num;
-                errorRateCommand = pojo;
-            }else if (sum == num && (pojo.getSwitchType().equals("*")) && (pojo.getSubVersion().equals("*"))){
-                errorRateCommand = pojo;
-            }
-        }
-        return errorRateCommand;
-    }
 
     /**
      * 当取词关键词有 Total Error 时的取词逻辑 需要区分时Input的Total Error，还是Output的Total Error
@@ -641,36 +724,50 @@ public class ErrorPackage {
      * @return
      */
     public static HashMap<String,String> getValueTotalError(String information) {
-
+        /* 按行  分割  交换机返回信息字符串数组 */
         String[] informationSplit = information.split("\r\n");
+        /* 遍历交换机返回信息 行信息 */
         List<String> valueList = new ArrayList<>();
-        for (int number = 0;number<informationSplit.length;number++){
-            if (MyUtils.containIgnoreCase(informationSplit[number],"Input")
-            && !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))){
+        for (int number = 0; number<informationSplit.length; number++){
 
+            /*判断 行信息 包含 "Input" 则 在list集合中 存储 Input*/
+            if (MyUtils.containIgnoreCase(informationSplit[number],"Input")){ //&& !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))
                 valueList.add("Input");
-            }else if (MyUtils.containIgnoreCase(informationSplit[number],"Output")
-            && !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))){
+            }
 
+            /*判断 行信息 包含 "Output" 则 在list集合中 存储 Output*/
+            if (MyUtils.containIgnoreCase(informationSplit[number],"Output")){//&& !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))
                 valueList.add("Output");
-            }else if (MyUtils.containIgnoreCase(informationSplit[number],"Total Error")){
+            }
 
+            /*判断 行信息 包含 "Total Error" 则 在list集合中 存储 行信息*/
+            if (MyUtils.containIgnoreCase(informationSplit[number],"Total Error")){
                 valueList.add(informationSplit[number]);
             }
+
         }
 
+        /* "Total Error" 与  "Input"、"Output" 的map对应关系 */
         HashMap<String,String> returnMap = new HashMap<>();
-
+        /*循环遍历 存储包含"Total Error"、"Input"、"Output" 信息的集合 */
         for (int i =0 ;i<valueList.size();i++){
+            /*判断 集合元素是否包含 "Total Error"
+
+            * 如果包含 则 判断是否包含 "Input" 或者 "Output"
+            * 存在着则 存入map集合 key值为 "Input" 或者 "Output"
+            *
+            * 如果 不包含 "Input" 及 "Output"  且 "Total Error"不为 0 元素
+             则取出 前一元素 作为 key值*/
             if (MyUtils.containIgnoreCase(valueList.get(i),"Total Error")){
                 if (MyUtils.containIgnoreCase(valueList.get(i),"Input")){
                     returnMap.put("Input",valueList.get(i));
                 }else if (MyUtils.containIgnoreCase(valueList.get(i),"Output")){
                     returnMap.put("Output",valueList.get(i));
-                }else {
+                }else if (i != 0){
                     returnMap.put(valueList.get(i-1),valueList.get(i));
                 }
             }
+
         }
 
         return returnMap;
@@ -679,6 +776,7 @@ public class ErrorPackage {
 
     /**
      * 根据配置文件的取值信息 取参数值
+     *
      * 逻辑：因为取词为数字 占位符为：$ 。
      * 1：首先将交换机返回信息数字替换为"",将配置文件中的占位符$替换为""
      * 2：如果str1Str 不包含 str2Str 则返回null
@@ -690,14 +788,15 @@ public class ErrorPackage {
      * @return
      */
     public static String getPlaceholdersContaining(String str1 , String str2) {
-        /*1*/
+        /*1 首先将交换机返回信息数字替换为"",将配置文件中的占位符$替换为""*/
         String str1Str = str1.replaceAll("\\d", "");
         String str2Str = str2.trim().replace("$", "");
-        /*2*/
+        /*2 如果str1Str 不包含 str2Str 则返回null*/
         if (str1Str.indexOf(str2Str) ==-1){
             return null;
         }
-        /*3  占位符位置 */
+        /*3  占位符位置
+        * 将配置文件的关键词按空格转换为字符串数组，获取$ 的下标、*/
         Integer num = null;
         String[] $str2 = str2.split(" ");
         for (int number = 0; number<$str2.length; number++){
@@ -706,7 +805,9 @@ public class ErrorPackage {
             }
         }
 
-        /*4*/
+        /*4 如果关键词的$位置在开头和结尾，则可以根据去掉$的关键词分割交换机返回信息。
+        然后（$开头：第一元素的最后一位。$结尾：第二元素的第一位。）获取参数
+         */
         if (num == 0){
             // $在关键词的开头
             String[] str1Split = str1.split(str2Str.trim());
@@ -778,7 +879,7 @@ public class ErrorPackage {
                 return null;
             }
         }else {
-            /* 5 */
+            /* 5  关键词根据 $ 分割为数组，按照元素分割交换机返回信息。*/
             // 中间
             String[] str2Split = str2.trim().split(" \\$ ");
             if (str2Split.length==2){
@@ -817,6 +918,7 @@ public class ErrorPackage {
 
     /**
      * 获取 描述：Description:
+     *
      * 忽略大小写判断返回信息是否包含 Description:  如果不包含返回 null
      * 如果包含，则按行分割，然后逐行判断是否包含 Description:
      * 如果包含 则返回 Description 属性值
@@ -824,29 +926,45 @@ public class ErrorPackage {
      * @return
      */
     public static String getDescription(String information) {
-
+        /* 配置文件中 获取 Description 关键词
+        * 关键词 根据 ； 转化为 关键词 字符串 数组*/
         String descriptionValue = (String) CustomConfigurationUtil.getValue("误码率.描述", Constant.getProfileInformation());
         String[] descriptionSplit = descriptionValue.split(";");
         for (String description:descriptionSplit){
 
+            /* 判断交换机返回信息 是否包含 Description关键词
+            * 如果不包含 则 跳出当前循环 进行下一个 循环*/
             if (information.trim().toLowerCase().indexOf(description.toLowerCase()) == -1){
                 continue;
             }
 
+            /*按行分割 获得交换机返回信息 数组*/
             String[] informationSplit = information.split("\r\n");
 
+            /*遍历 交换机返回信息数组
+            * 判断 Description关键词 在那一行 */
             for (String string:informationSplit){
-                if (string.trim().toLowerCase().indexOf(description.toLowerCase())!=-1){
-
+                /*交换机返回信息行信息中 判断是否包含 Description关键词
+                * 如果包含 则 != -1
+                * 如果不包含 则 = -1*/
+                /* 如果行信息中 以"Description :" 开头 则 i=0 */
+                int i = string.trim().toLowerCase().indexOf(description.toLowerCase());
+                if (i!=-1){
+                    /*将交换机行信息中 “:” 修改为 “ ： ”   例如："Description: ZhiNengFuZhu" 修改为："Description : ZhiNengFuZhu"
+                    * repaceWhiteSapce  方法为： 多个连续空格 改为 多个单空格
+                    */
                     string = MyUtils.repaceWhiteSapce(string.replace(":"," : "));
-
+                    /* 根据 "Description :" 分割数组*/
                     String[] strings = MyUtils.splitIgnoreCase(string, description+" :");
                     if (strings.length == 0){
                         return null;
                     }
-                    /*第一个元素是 ""  */
+                    /* 分割数组 要小于3个元素*/
                     if (strings.length < 3){
-                        if (strings[0].equalsIgnoreCase("")){
+                        /*当交换机返回信息以"Description :"开头， 即 i==0  且  第一个元素是 ""
+                        * 数组应为 ["","ZhiNengFuZhu"]
+                        * 返回第二的元素*/
+                        if (strings[0].equalsIgnoreCase("") && (i == 0)){
                             return strings[1].trim();
                         }else {
                             return strings[0].trim();
