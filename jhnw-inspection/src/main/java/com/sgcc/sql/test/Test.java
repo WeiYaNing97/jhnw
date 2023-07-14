@@ -8,6 +8,7 @@ import java.util.TimerTask;
 
 public class Test {
     public static void main(String[] args) {
+
         /*Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             public void run() {
@@ -17,10 +18,6 @@ public class Test {
         }, 1000, 6000);*/
         /*int exception = getException();
         System.err.println(exception);*/
-
-        Throwable t = new Throwable();
-        StackTraceElement[] frames = t.getStackTrace();
-        for (StackTraceElement frame : frames);
     }
 
     public static int getException() {

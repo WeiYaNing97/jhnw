@@ -617,7 +617,7 @@ public class ErrorPackage {
         /* 动态查询条件
         *  一定有 品牌 brand
         * 型号、版本、子版本 如果为 null的 则为""空字符， 如果不为 null 则为  "."+属性值 */
-        String condition = brand +(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
+        String condition = "."+brand +(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
         deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率"+condition,Constant.getProfileInformation());
         Set<String> strings = deviceVersion.keySet();
 

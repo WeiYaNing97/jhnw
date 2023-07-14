@@ -263,12 +263,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCountByName" resultType="java.lang.Integer">
         SELECT COUNT(DISTINCT create_time) FROM switch_scan_result WHERE user_name = #{username};
     </select>
-    <select id="selectSwitchScanResultListPages" resultType="com.sgcc.share.domain.SwitchScanResult">
+    <select id="selectSwitchScanResultListPages" resultType="com.sgcc.share.domain.SwitchScanResult" resultMap="SwitchScanResultResult">
         SELECT
-        switch_scan_result.id,
-        switch_scan_result.switch_ip,
-        switch_scan_result.switch_id,
-        switch_scan_result.switch_name,
+        switch_scan_result.id ,
+        switch_scan_result.switch_ip ,
+        switch_scan_result.switch_id ,
+        switch_scan_result.switch_name ,
         switch_scan_result.switch_password,
         switch_scan_result.configureCiphers,
         switch_scan_result.login_method,

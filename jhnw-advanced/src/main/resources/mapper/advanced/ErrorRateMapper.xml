@@ -73,7 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchIp != null">switch_ip = #{switchIp},</if>
             <if test="switchId != null">switch_id = #{switchId},</if>
             <if test="port != null and port != ''">port = #{port},</if>
-            <if test="description != null and description != ''">port = #{description},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
             <if test="inputErrors != null">input_errors = #{inputErrors},</if>
             <if test="outputErrors != null">output_errors = #{outputErrors},</if>
             <if test="crc != null">crc = #{crc},</if>
