@@ -77,11 +77,11 @@ public class ExecuteCommand {
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:未获取到交换机返回信息\r\n");
+                                "问题为:命令："+ command+"未获取到交换机返回信息\r\n");
                         PathHelper.writeDataToFileByName(
                                 "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:未获取到交换机返回信息\r\n"
+                                        "问题为:命令："+ command+"未获取到交换机返回信息\r\n"
                                 , "问题日志");
                     } catch (IOException e1) {
                         e1.printStackTrace();
@@ -89,12 +89,17 @@ public class ExecuteCommand {
 
                     command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), " ", null);
 
-
                     return null;
 
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 } finally {
+                    /**
+                     * 在Java的try-catch-finally语句中，如果try或catch块中存在return语句，会先执行finally块中的代码，然后再返回到调用的地方。
+                     * 无论try或catch块中是否存在return语句，finally块中的代码都会被执行。
+                     * finally块通常用于清理资源、关闭文件或释放锁等操作，以确保在程序执行过程中不论是否发生异常都能正确地执行这些操作。
+                     * 需要注意的是，如果finally块中也存在return语句，它将会覆盖try或catch块中的return语句，即最终返回的结果是finally块中的return语句的返回值。
+                     */
                     executor.shutdown();
                 }
 
