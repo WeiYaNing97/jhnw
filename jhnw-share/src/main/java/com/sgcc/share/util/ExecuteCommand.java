@@ -57,16 +57,19 @@ public class ExecuteCommand {
                 /**
                  * 交换机返回信息 及 超时
                  */
-                ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                MyExecutors myExecutors = new MyExecutors();
+                ScheduledExecutorService executor = myExecutors.newScheduledThreadPool(1);
+
                 // 提交要执行的方法，并设置超时时间为2秒
                 ScheduledFuture<?> future = executor.schedule(() -> {
                     // 执行的方法逻辑
                     command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), command, null);
 
                 }, 1, TimeUnit.SECONDS);
+
                 try {
-                    // 等待任务执行结果，同时设置超时时间为20秒
-                    future.get(20, TimeUnit.SECONDS);
+                    // 等待任务执行结果，同时设置超时时间为21秒
+                    future.get(21, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
 
                     try {
