@@ -40,11 +40,11 @@ import java.util.List;
 public class ImportExportController {
 
     @Autowired
-    private static ICommandLogicService commandLogicService;
+    private  ICommandLogicService commandLogicService;
     @Autowired
-    private static IProblemScanLogicService problemScanLogicService;
+    private  IProblemScanLogicService problemScanLogicService;
     @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
+    private  ITotalQuestionTableService totalQuestionTableService;
 
     /**
      * 交换机问题、分析、修复表数据导出

@@ -2,7 +2,17 @@ package com.sgcc.advanced.utils;
 
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 
+/**
+ * 不能写入共用模块的方法类
+ */
 public class Utils {
+
+    /**
+     * 光衰功能 比较参数是否改变
+     * @param lightAttenuationComparison
+     * @param pojo
+     * @return
+     */
     public static boolean LightAttenuationComparisonEquals(LightAttenuationComparison lightAttenuationComparison,LightAttenuationComparison pojo) {
         /*TX平均值*/
         if (!(lightAttenuationComparison.getTxAverageValue().equals(pojo.getTxAverageValue()))){ return false; }

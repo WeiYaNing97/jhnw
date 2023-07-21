@@ -114,8 +114,8 @@ public class AdvancedThread extends Thread {
                 switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
             }
         }
-
-        AdvancedThreadPool.removeThread(this.getName());
+        AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
+        advancedThreadPool.removeThread(this.getName());
         countDownLatch.countDown();
 
 

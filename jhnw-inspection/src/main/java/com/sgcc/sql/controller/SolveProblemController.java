@@ -44,17 +44,17 @@ import java.util.stream.Collectors;
 public class SolveProblemController {
 
     @Autowired
-    private static ICommandLogicService commandLogicService;
+    private  ICommandLogicService commandLogicService;
     @Autowired
-    private static IValueInformationService valueInformationService;
+    private  IValueInformationService valueInformationService;
     @Autowired
-    private static IReturnRecordService returnRecordService;
+    private  IReturnRecordService returnRecordService;
     @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
+    private  ITotalQuestionTableService totalQuestionTableService;
     @Autowired
-    private static ISwitchProblemService switchProblemService;
+    private  ISwitchProblemService switchProblemService;
     @Autowired
-    private static ISwitchScanResultService switchScanResultService;
+    private  ISwitchScanResultService switchScanResultService;
     @Autowired
     private ISwitchInformationService switchInformationService;
 

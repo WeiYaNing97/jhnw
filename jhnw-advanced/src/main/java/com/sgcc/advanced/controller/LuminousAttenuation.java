@@ -382,7 +382,7 @@ public class LuminousAttenuation {
     }
 
 
-    public static String meanJudgmentProblem(LightAttenuationComparison lightAttenuationComparison) {
+    public String meanJudgmentProblem(LightAttenuationComparison lightAttenuationComparison) {
         double rxLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getRxLatestNumber());
         double txLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getTxLatestNumber());
         double rxStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxStartValue());
@@ -403,7 +403,7 @@ public class LuminousAttenuation {
      * @param returnString
      * @return
      */
-    public static List<String> ObtainUPStatusPortNumber(String returnString) {
+    public List<String> ObtainUPStatusPortNumber(String returnString) {
         /* 按行分割 交换机返回信息行信息 字符串数组*/
         String[] returnStringSplit = returnString.split("\r\n");
         /*遍历 交换机行信息字符串数组
@@ -563,7 +563,7 @@ public class LuminousAttenuation {
      * @param string
      * @return
      */
-    public static HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
+    public HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
         /*根据 "\r\n" 切割为行信息*/
         String[] Line_split = string.split("\r\n");
 
@@ -880,10 +880,9 @@ public class LuminousAttenuation {
      * @param newParameter
      * @return
      */
-    public static double updateAverage(int numberParameters ,double avg, double newParameter) {
+    public double updateAverage(int numberParameters ,double avg, double newParameter) {
         DecimalFormat df = new DecimalFormat("#.0000");
         String result = df.format((newParameter + numberParameters * avg) / (numberParameters + 1));
-
         return MyUtils.stringToDouble(result);
     }
 

@@ -39,9 +39,9 @@ import java.util.List;
 public class CommandLogicController extends BaseController
 {
     @Autowired
-    private static ICommandLogicService commandLogicService;
+    private  ICommandLogicService commandLogicService;
     @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
+    private  ITotalQuestionTableService totalQuestionTableService;
 
 
     /**

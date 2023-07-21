@@ -26,21 +26,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class DatabaseDeletionControler {
 
     @Autowired
-    private static ICommandLogicService commandLogicService;
+    private ICommandLogicService commandLogicService;
     @Autowired
-    private static IProblemScanLogicService problemScanLogicService;
+    private IProblemScanLogicService problemScanLogicService;
     @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
+    private ITotalQuestionTableService totalQuestionTableService;
     @Autowired
-    private static IBasicInformationService basicInformationService;
+    private IBasicInformationService basicInformationService;
     @Autowired
-    private static IReturnRecordService returnRecordService;
+    private IReturnRecordService returnRecordService;
     @Autowired
-    private static ISwitchErrorService switchErrorService;
+    private ISwitchErrorService switchErrorService;
     @Autowired
-    private static ISwitchFailureService switchFailureService;
+    private ISwitchFailureService switchFailureService;
     @Autowired
-    private static ISwitchScanResultService switchScanResultService;
+    private ISwitchScanResultService switchScanResultService;
 
     /**
      * 删除数据表所有数据

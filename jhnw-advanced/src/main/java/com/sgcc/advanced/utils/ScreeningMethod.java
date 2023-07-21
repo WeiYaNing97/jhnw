@@ -7,9 +7,13 @@ import com.sgcc.advanced.domain.OspfCommand;
 
 import java.util.*;
 
+/**
+ * 获取四项基本最详细的数据
+ */
 public class ScreeningMethod {
 
     /**
+     * 误码率
      * ErrorRateCommand
      * 从errorRateCommandList中 获取四项基本最详细的数据
      */
@@ -108,6 +112,7 @@ public class ScreeningMethod {
     }
 
     /**
+     * 光衰
      * lightAttenuationCommand
      */
     public static LightAttenuationCommand ObtainPreciseEntityClassesLightAttenuationCommand(List<LightAttenuationCommand> lightAttenuationCommandList) {
@@ -202,6 +207,7 @@ public class ScreeningMethod {
     }
 
     /**
+     * ospf
      * OspfCommand
      */
     public static OspfCommand ObtainPreciseEntityClassesOspfCommand(List<OspfCommand> ospfCommandList) {

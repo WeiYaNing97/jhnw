@@ -33,13 +33,13 @@ import java.util.concurrent.*;
 public class DefinitionProblemController extends BaseController {
 
     @Autowired
-    private static ICommandLogicService commandLogicService;
+    private  ICommandLogicService commandLogicService;
     @Autowired
-    private static IProblemScanLogicService problemScanLogicService;
+    private  IProblemScanLogicService problemScanLogicService;
     @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
+    private  ITotalQuestionTableService totalQuestionTableService;
     @Autowired
-    private static IBasicInformationService basicInformationService;
+    private  IBasicInformationService basicInformationService;
 
     /**
      * @method: 定义获取基本信息命令插入

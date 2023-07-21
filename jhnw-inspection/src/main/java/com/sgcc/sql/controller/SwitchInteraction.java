@@ -52,25 +52,25 @@ import java.util.stream.Collectors;
 public class SwitchInteraction {
 
     @Autowired
-    private static ICommandLogicService commandLogicService;
+    private  ICommandLogicService commandLogicService;
     @Autowired
-    private static IReturnRecordService returnRecordService;
+    private  IReturnRecordService returnRecordService;
     @Autowired
-    private static IProblemScanLogicService problemScanLogicService;
+    private  IProblemScanLogicService problemScanLogicService;
     @Autowired
-    private static IValueInformationService valueInformationService;
+    private  IValueInformationService valueInformationService;
     @Autowired
-    private static ISwitchProblemService switchProblemService;
+    private  ISwitchProblemService switchProblemService;
     @Autowired
-    private static ITotalQuestionTableService totalQuestionTableService;
+    private  ITotalQuestionTableService totalQuestionTableService;
     @Autowired
-    private static IBasicInformationService basicInformationService;
+    private  IBasicInformationService basicInformationService;
     @Autowired
-    private static ISwitchScanResultService switchScanResultService;
+    private  ISwitchScanResultService switchScanResultService;
     @Autowired
-    private static IInformationService informationService;
+    private  IInformationService informationService;
     @Autowired
-    private static IFormworkService formworkService;
+    private  IFormworkService formworkService;
     /**
      * todo  测试获取交换机基本信息逻辑执行结果
      * @param ip

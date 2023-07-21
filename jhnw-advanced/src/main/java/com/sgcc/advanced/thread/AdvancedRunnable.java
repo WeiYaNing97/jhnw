@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 public class AdvancedRunnable {
-    public static void switchLoginInformations(ParameterSet parameterSet, List<String> functionName) {
+    public  void switchLoginInformations(ParameterSet parameterSet, List<String> functionName) {
         ExecutorService executorService = Executors.newFixedThreadPool(parameterSet.getThreadCount(), new NamedThreadFactory());
         int i = 1;
         for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){

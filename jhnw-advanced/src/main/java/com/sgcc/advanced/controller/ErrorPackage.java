@@ -485,7 +485,7 @@ public class ErrorPackage {
      * @param returnString
      * @return
      */
-    public static List<String> ObtainUPStatusPortNumber(String returnString) {
+    public List<String> ObtainUPStatusPortNumber(String returnString) {
         /* 按行分割 交换机返回信息行信息 字符串数组*/
         String[] returnStringSplit = returnString.split("\r\n");
 
@@ -723,7 +723,7 @@ public class ErrorPackage {
      * @param information
      * @return
      */
-    public static HashMap<String,String> getValueTotalError(String information) {
+    public HashMap<String,String> getValueTotalError(String information) {
         /* 按行  分割  交换机返回信息字符串数组 */
         String[] informationSplit = information.split("\r\n");
         /* 遍历交换机返回信息 行信息 */
@@ -787,7 +787,7 @@ public class ErrorPackage {
      * @param str2
      * @return
      */
-    public static String getPlaceholdersContaining(String str1 , String str2) {
+    public String getPlaceholdersContaining(String str1 , String str2) {
         /*1 首先将交换机返回信息数字替换为"",将配置文件中的占位符$替换为""*/
         String str1Str = str1.replaceAll("\\d", "");
         String str2Str = str2.trim().replace("$", "");

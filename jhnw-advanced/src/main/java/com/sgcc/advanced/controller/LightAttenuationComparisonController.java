@@ -115,6 +115,8 @@ public class LightAttenuationComparisonController extends BaseController
         /*根据实体类ID 查询数据库中的实体类*/
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
         LightAttenuationComparison pojo = lightAttenuationComparisonService.selectLightAttenuationComparisonById(lightAttenuationComparison.getId());
+
+
         /*查看前端传入数据是否有修改
         * 如果没有修改，则默认 当前参数设置为 基准和平均值*/
         if (Utils.LightAttenuationComparisonEquals(lightAttenuationComparison,pojo)){
@@ -128,6 +130,8 @@ public class LightAttenuationComparisonController extends BaseController
             lightAttenuationComparison.setRxAverageValue(lightAttenuationComparison.getRxLatestNumber());
             return toAjax(lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison));
         }
+
+
         /* 数量设置为 1 */
         lightAttenuationComparison.setNumberParameters(1);
         return toAjax(lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison));

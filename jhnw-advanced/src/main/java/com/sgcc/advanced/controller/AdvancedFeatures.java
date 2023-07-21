@@ -57,8 +57,8 @@ public class AdvancedFeatures {
 
         try {
             /*高级功能线程池*/
-
-            AdvancedThreadPool.switchLoginInformations(parameterSet, functionName);
+            AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
+            advancedThreadPool.switchLoginInformations(parameterSet, functionName);
 
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -120,19 +120,4 @@ public class Stack {
 
     }
 
-    public static void main(String[] args) {
-        Stack stack = new Stack();
-
-        stack.push("先进");
-        stack.push("后进");
-
-        Object pop = stack.pop();
-
-        System.out.println("\r\n1 = "+pop);
-        pop = stack.pop();
-
-        System.out.println("\r\n2 = "+pop);
-
-    }
-
 }

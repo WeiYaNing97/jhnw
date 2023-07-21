@@ -299,7 +299,7 @@ public class OSPFFeatures {
      * 根据交换机返回信息提取OSPF数据
      * @return
      */
-    public static AjaxResult getOspfListByString(List<String> returnStringSplit) {
+    public AjaxResult getOspfListByString(List<String> returnStringSplit) {
 
         HashMap<Integer,String> titleMap = new HashMap<>();
         for (int number = 0 ;number < returnStringSplit.size(); number++){
@@ -370,7 +370,7 @@ public class OSPFFeatures {
      * @param number
      * @return
      */
-    public static List<Ospf> getPojoList(Ospf pojo,List<String> stringList,int number) {
+    public List<Ospf> getPojoList(Ospf pojo,List<String> stringList,int number) {
         List<Ospf> ospfList = new ArrayList<>();
         for (String pojoString:stringList){
             Ospf ospf = new Ospf();
@@ -411,7 +411,7 @@ public class OSPFFeatures {
      * @param strings
      * @return
      */
-    public static List<String> removOspfSpaceCharacter(int number,List<String> strings) {
+    public List<String> removOspfSpaceCharacter(int number,List<String> strings) {
         /*创建返回对象*/
         List<String> returnStringList = new ArrayList<>();
         /*遍历行信息*/
@@ -445,7 +445,7 @@ public class OSPFFeatures {
      * @param information
      * @return
      */
-    public static List<Object> getPropertyValueSubscripts(String information) {
+    public List<Object> getPropertyValueSubscripts(String information) {
         /*单词数组*/
         String[] string_split = information.trim().split(" ");
         String word = "";

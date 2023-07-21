@@ -13,10 +13,11 @@ import java.util.concurrent.*;
 public class ExecuteCommand {
 
     @Autowired
-    private static IReturnRecordService returnRecordService;
+    private IReturnRecordService returnRecordService;
 
     //命令返回信息
-    private static String command_string = null;
+    private String command_string = null;
+
     /**
      * 根据交换机信息类 与 具体命令，执行并返回交换机返回信息
      * @param switchParameters
@@ -24,6 +25,7 @@ public class ExecuteCommand {
      * @return
      */
     public String executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
+
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
         /*程序登录用户*/
@@ -37,11 +39,13 @@ public class ExecuteCommand {
         /*交换机执行的命令*/
         returnRecord.setCurrentCommLog(command);
 
+
         /*交换机返回信息 插入数据库状态 为-1时错误 否则为交换机返回信息 在数据库中的ID*/
         int insert_id = 0;
         /*交换机返回信息 是否存在故障的标志 默认为 true*/
         boolean deviceBrand = true;
         do {
+
             deviceBrand = true;
             if (switchParameters.getMode().equalsIgnoreCase("ssh")) {
                 /*当交换机连接协议为 SSH时*/
@@ -62,8 +66,11 @@ public class ExecuteCommand {
 
                 // 提交要执行的方法，并设置超时时间为2秒
                 ScheduledFuture<?> future = executor.schedule(() -> {
+
+
                     // 执行的方法逻辑
                     command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), command, null);
+
 
                 }, 1, TimeUnit.SECONDS);
 
