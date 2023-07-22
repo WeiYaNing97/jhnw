@@ -297,11 +297,6 @@
                             list1.push(chaip)
                         }
                     }
-                    // if(chaip['ip'] === thisip){
-                    //     for (let g = 0;g<problemIdList.length;g++){
-                    //         list1.push(chaip)
-                    //     }
-                    // }
                 }
                 const allProIdList = []
                 const userinformation = list1.map(x=>JSON.stringify(x))
@@ -409,19 +404,6 @@
                             this.$set(jiaid[i].children[g],'hebing',hebingInfo)
                         }
                     }
-                    //修改ip
-
-                    // console.log(row)
-                    // const thisid = row.hproblemId
-                    // let thisparip = ''
-                    // const allwenti = this.lishiData
-                    // for(let i = 0;i<allwenti.length;i++){
-                    //     for (let g = 0;g<allwenti[i].children.length;g++){
-                    //         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
-                    //             for (let n = 0;n<allwenti[i].children[g].children[m].children.length;n++){
-                    //                 console.log(allwenti[i].children[g].children[m].children[n].hproblemId)
-                    //                 if (allwenti[i].children[g].children[m].children[n].hproblemId === thisid){
-                    //                     thisparip = allwenti[i].children[g].switchIp
 
                     //返回数据添加hproblemId
                     for(let i = 0;i<jiaid.length;i++){
@@ -447,6 +429,17 @@
                         for (let g = 0;g<jiaid[i].children.length;g++){
                             for (let m = 0;m<jiaid[i].children[g].children.length;m++){
                                 for (let n = 0;n<jiaid[i].children[g].children[m].children.length;n++){
+                                    //7.14修改历史扫描
+                                    if (jiaid[i].children[g].children[m].typeProblem == "高级功能"){
+                                        let str = jiaid[i].children[g].children[m].children[n].dynamicInformation
+                                        let startStr = "=:=是=:="
+                                        let endStr = "=:="
+                                        var startIndex = str.indexOf(startStr) + 1
+                                        var endIndex = str.indexOf(endStr)
+                                        var result = str.substring(startIndex, endIndex)
+                                        console.log(result)
+                                    }
+
                                     if (jiaid[i].children[g].children[m].children[n].valueInformationVOList.length>0){
                                         let yongone = ''
                                         let endyong = ''

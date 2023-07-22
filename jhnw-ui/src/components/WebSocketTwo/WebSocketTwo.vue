@@ -7,6 +7,7 @@
 <!--    <el-button type="primary" size="small" @click="lishi">历史扫描</el-button>-->
 <!--    <p>我是：{{ endIp }}</p>-->
 <!--    <el-button type="primary" size="small" @click="wenben">测试按钮</el-button>-->
+<!--    <el-button @click="closeWeb">关闭webscoket</el-button>-->
 <!--    <el-button type="primary" size="small" @click="exportDocx">生成报告</el-button>-->
 <!--    <el-input type="textarea" v-model="wenbenben"></el-input>-->
 <!--    当前扫描-->
@@ -981,7 +982,6 @@
                                         if (shu[i].children[g].children[m].valueInformationVOList[n].exhibit === '是') {
                                             mi1 = shu[i].children[g].children[m].valueInformationVOList[n].dynamicInformation
                                             mi2 = mi2 + ' ' + mi1
-                                            // console.log(mi2)
                                         }
                                     }
                                     const wenti = shu[i].children[g].children[m].problemName
@@ -1020,6 +1020,11 @@
                 console.log('错误的' + "+" + event.code + "+" + event.reason + "+" + event.wasClean)
                 console.log(event, '通信发生错误')
                 this.wsInit()
+            },
+            closeWeb(event){
+                console.log('guanbi')
+                this.webSocket.close()
+                // this.wsCloseHanler(event)
             },
             /**
              * ws关闭

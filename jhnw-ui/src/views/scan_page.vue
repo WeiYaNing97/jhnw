@@ -61,8 +61,8 @@
 <!--          </el-select>-->
           <el-button @click="avTest" type="primary" style="margin-right: 10px">高级配置</el-button>
           <p style="display: inline-block;margin: 0">扫描线程数:</p>
-          <el-input-number size="small" style="width:75px" v-model="num" controls-position="right"
-                           @change="handleChange" :min="1" :max="5"></el-input-number>
+          <el-input-number size="small" style="width:100px" v-model="num" controls-position="right"
+                           @change="handleChange" :min="1" :max="maxValue"></el-input-number>
         </div>
         <!--        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
@@ -106,11 +106,6 @@
                     :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
             <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
             <el-table-column type="selection" width="45"></el-table-column>
-
-            <!--            <el-table-column type="text" width="45">-->
-            <!--              <div style="height: 30px;width:30px" v-loading="loadingOne"></div>-->
-            <!--            </el-table-column>-->
-
             <el-table-column prop="ip" label="设备IP">
               <template slot-scope="{ row }">
                 <el-input v-if="row.isEdit" v-model="row.ip"
@@ -134,14 +129,10 @@
             </el-table-column>
             <el-table-column prop="mode" label="连接方式">
               <template slot-scope="{ row }">
-<!--                <el-input v-if="row.isEdit" v-model="row.mode"-->
-<!--                          placeholder="连接方式" size="small"></el-input>-->
-
                 <el-select v-if="row.isEdit" v-model="row.mode" size="small" placeholder="连接方式">
                   <el-option label="ssh" value="ssh"/>
                   <el-option label="telnet" value="telnet"/>
                 </el-select>
-
                 <span v-else>{{ row.mode }}</span>
               </template>
             </el-table-column>
@@ -163,7 +154,7 @@
               <template slot-scope="{ row }">
                 <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
                 <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
-                <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
+                <el-button @click.native.prevent="deleteRow(row.row_index)" type="text" size="small">删除</el-button>
                 <!--                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>-->
               </template>
             </el-table-column>
@@ -362,6 +353,7 @@
                 },
                 //计数器
                 num:1,
+                maxValue:20,
                 //表格上传的设备信息
                 importData:[],
                 dialogVisible:false,
@@ -842,8 +834,8 @@
                 })
             },
             //删除扫描设备
-            deleteRow(index, rows) {
-                rows.splice(index, 1);
+            deleteRow(index) {
+                this.tableData.splice(index,1)
             },
             //确定
             queding(row){
@@ -898,7 +890,9 @@
             },
             //计数器
             handleChange(value) {
-                console.log(value);
+                if (this.num > this.maxValue){
+                    this.num = this.maxValue
+                }
             },
             //关闭导入弹窗
             handleClose(done) {

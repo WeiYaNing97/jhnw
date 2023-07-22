@@ -5,6 +5,7 @@
 <!--      type="textarea"-->
 <!--      style="white-space: pre-wrap;"-->
 <!--      v-model="textarea" :rows="10" readonly></el-input>-->
+    <el-button @click="exportFile">导出</el-button>
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="系统信息" name="first">
         <el-input
@@ -22,7 +23,7 @@
           style="white-space: pre-wrap;"
           v-model="textareaOne" :rows="10" readonly></el-input>
       </el-tab-pane>
-      <el-tab-pane label="风险" name="third">
+      <el-tab-pane label="异常" name="third">
         <el-input
           id="webtThree"
           resize="none"
@@ -45,6 +46,8 @@
 
 <script>
     import Cookies from "js-cookie"
+    import  {MessageBox} from "element-ui"
+    import { saveAs } from 'file-saver'
     export default {
         name: "WebSocket",
         data() {
@@ -110,6 +113,26 @@
             },30000)
         },
         methods: {
+            //导出
+            exportFile(){
+                MessageBox.confirm('确定导出以下所有文本框内容吗？','提示').then(c=>{
+                    const date = new Date()
+                    const contentOne = document.getElementById('webtOne').value
+                    const contentTwo = document.getElementById('webtTwo').value
+                    const contentThree = document.getElementById('webtThree').value
+                    const fileNameOne = '发送与接收_' + date.getTime() + '.txt'
+                    const fileNameTwo = '系统信息_' + date.getTime() + '.txt'
+                    const fileNameThree = '风险_' + date.getTime() + '.txt'
+                    const blobOne = new Blob([contentOne], { type: 'text/plain;charset=utf-8' })
+                    const blobTwo = new Blob([contentTwo], { type: 'text/plain;charset=utf-8' })
+                    const blobThree = new Blob([contentThree], { type: 'text/plain;charset=utf-8' })
+                    saveAs(blobOne,fileNameOne)
+                    saveAs(blobTwo,fileNameTwo)
+                    saveAs(blobThree,fileNameThree)
+                }).catch(ee=>{
+                    this.$message.warning('导出取消!')
+                })
+            },
             //扫描结束传给父组件
             postEnd(){
                 this.$emit('eventOne',this.saoend)
@@ -120,7 +143,7 @@
             },
             //
             handleClick(tab, event) {
-                console.log(tab, event)
+                // console.log(tab, event)
             },
             geifurepaired(){
                 return this.repairend
