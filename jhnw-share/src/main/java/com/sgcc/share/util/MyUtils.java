@@ -155,10 +155,12 @@ public class MyUtils {
         }*/
         /*字符串数组以\r\n拼接成字符串*/
         for (int num = 0 ;num<lines.length;num++){
-            if (lines[num].indexOf("^")!=-1){
+
+            if (lines[num].indexOf("^")!=-1 && lines[num].indexOf("^down") ==-1){
                 continue;
             }
             lines[num] = repaceWhiteSapce(lines[num]);
+
         }
 
         return String.join("\r\n", lines);

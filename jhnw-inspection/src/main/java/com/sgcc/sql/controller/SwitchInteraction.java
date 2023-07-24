@@ -525,7 +525,22 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,switchParameters.getNotFinished());
+
+
+                    // todo command
+                    /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                     * 返回结果
+                     * 如果交换机返回信息错误，则返回信息为 null*/
+                    ExecuteCommand executeCommand = new ExecuteCommand();
+                    commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
+                    if (commandString == null){
+                        //交换机返回信息错误 导致 方法返回值为null
+                        //所谓 修复失败 则返回错误
+                        return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+                    }
+
+
+                    //commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,switchParameters.getNotFinished());
                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                     //  WebSocket 传输 命令
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command);
@@ -567,7 +582,23 @@ public class SwitchInteraction {
                             returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
 
                             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                                switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
+
+
+                                // todo command
+                                /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                                 * 返回结果
+                                 * 如果交换机返回信息错误，则返回信息为 null*/
+                                ExecuteCommand executeCommand = new ExecuteCommand();
+                                commandString = executeCommand.executeScanCommandByCommand(switchParameters, " ");
+                                if (commandString == null){
+                                    //交换机返回信息错误 导致 方法返回值为null
+                                    //所谓 修复失败 则返回错误
+                                    return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
+                                }
+
+
+
+                                //switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
                             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                                 switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",switchParameters.getNotFinished());
                             }
@@ -840,7 +871,21 @@ public class SwitchInteraction {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,switchParameters.getNotFinished());
+
+                        // todo command
+                        /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                         * 返回结果
+                         * 如果交换机返回信息错误，则返回信息为 null*/
+                        ExecuteCommand executeCommand = new ExecuteCommand();
+                        commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
+                        if (commandString == null){
+                            //交换机返回信息错误 导致 方法返回值为null
+                            //所谓 修复失败 则返回错误
+                            break;
+                        }
+
+
+                        //commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,switchParameters.getNotFinished());
                     }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                         //  WebSocket 传输 命令
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"发送:"+command);
@@ -882,7 +927,22 @@ public class SwitchInteraction {
                                 returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
 
                                 if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                                    switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
+
+                                    // todo command
+                                    /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                                     * 返回结果
+                                     * 如果交换机返回信息错误，则返回信息为 null*/
+                                    ExecuteCommand executeCommand = new ExecuteCommand();
+                                    commandString = executeCommand.executeScanCommandByCommand(switchParameters, " ");
+                                    if (commandString == null){
+                                        //交换机返回信息错误 导致 方法返回值为null
+                                        //所谓 修复失败 则返回错误
+                                        break;
+                                    }
+
+
+
+                                    //switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
                                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                                     switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",switchParameters.getNotFinished());
                                 }
@@ -906,6 +966,13 @@ public class SwitchInteraction {
                     }
 
                 }while (!deviceBrand);
+
+
+                if (commandString == null){
+                    //交换机返回信息错误 导致 方法返回值为null
+                    //所谓 修复失败 则返回错误
+                    break;
+                }
 
 
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题

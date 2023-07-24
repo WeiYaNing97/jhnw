@@ -195,7 +195,18 @@ public class ExecuteCommand {
             String current_return_log = command_string.substring(0,command_string.length()-LineInformation[LineInformation.length-1].length()-2);
 
             // TODO 去掉^之前的 \r\n
-            if (current_return_log.indexOf("^")!=-1){
+            /* 不包含 ： ^down
+            * 原因:交换机正确返回信息也包含：
+            *
+
+                PHY: Physical
+                *down: administratively down
+                ^down: standby
+                ~down: LDT down
+                #down: LBDT down
+
+                * */
+            if (current_return_log.indexOf("^")!=-1 && current_return_log.indexOf("^down") ==-1){
                 current_return_log = current_return_log.substring(2 + LineInformation[LineInformation.length-1].trim().length(),current_return_log.length());
             }
 

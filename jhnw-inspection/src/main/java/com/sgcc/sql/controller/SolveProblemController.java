@@ -10,15 +10,12 @@ import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchInformationService;
 import com.sgcc.share.service.ISwitchScanResultService;
 import com.sgcc.share.switchboard.ConnectToObtainInformation;
-import com.sgcc.share.util.FunctionalMethods;
+import com.sgcc.share.util.*;
 import com.sgcc.sql.domain.*;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.thread.RepairFixedThreadPool;
-import com.sgcc.share.util.EncryptUtil;
-import com.sgcc.share.util.MyUtils;
-import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -408,6 +405,7 @@ public class SolveProblemController {
                     }
 
                 }
+
                 if(solveProblem.indexOf("错误") != -1){
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
 
@@ -531,6 +529,8 @@ public class SolveProblemController {
             //根据 连接方法 判断 实际连接方式
             //并发送命令 接受返回结果
             System.err.print("\r\n"+"命令："+command+"\r\n");
+
+
             //创建 存储交换机返回数据 实体类
             ReturnRecord returnRecord = new ReturnRecord();
 
@@ -559,7 +559,27 @@ public class SolveProblemController {
                         e.printStackTrace();
                     }
 
-                    commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,null);
+
+
+
+                    // todo command
+                    /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                     * 返回结果
+                     * 如果交换机返回信息错误，则返回信息为 null*/
+                    ExecuteCommand executeCommand = new ExecuteCommand();
+                    commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
+                    if (commandString == null){
+                        //交换机返回信息错误 导致 方法返回值为null
+                        //所谓 修复失败 则返回错误
+                        return switchParameters.getIp()+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:交换机返回错误信息";
+                    }
+
+
+
+                    //commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,null);
+
+
+
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
 
@@ -575,7 +595,9 @@ public class SolveProblemController {
                     //commandString = Utils.removeLoginInformation(commandString);
                 }
 
+
                 returnRecord.setCurrentReturnLog(commandString);
+
 
                 //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
                 boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
@@ -600,7 +622,22 @@ public class SolveProblemController {
                             returnRecord.setCurrentIdentifier(switchParameters.getIp()+ "出现故障:"+returnString+"\r\n");
 
                             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                                switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
+
+
+                                // todo command
+                                /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                                 * 返回结果
+                                 * 如果交换机返回信息错误，则返回信息为 null*/
+                                ExecuteCommand executeCommand = new ExecuteCommand();
+                                commandString = executeCommand.executeScanCommandByCommand(switchParameters, " ");
+                                if (commandString == null){
+                                    //交换机返回信息错误 导致 方法返回值为null
+                                    //所谓 修复失败 则返回错误
+                                    return switchParameters.getIp()+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:交换机返回错误信息";
+                                }
+
+
+                                //switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
                             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                                 switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",switchParameters.getNotFinished());
                             }

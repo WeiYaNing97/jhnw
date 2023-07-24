@@ -161,7 +161,16 @@ public class ConnectToObtainInformation {
         String returnString = null;
         /* 执行 回车命令 获取交换机及返回结果*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+
+            // todo command
+            /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+             * 返回结果
+             * 如果交换机返回信息错误，则返回信息为 null*/
+            /*ExecuteCommand executeCommand = new ExecuteCommand();
+            returnString = executeCommand.executeScanCommandByCommand(switchParameters, "\r");*/
+
             returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
+
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
             returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
         }
@@ -174,6 +183,16 @@ public class ConnectToObtainInformation {
         if (trim.endsWith(">")){
             /*发送 enable 命令 查看返回结果 */
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+
+
+                // todo command
+                /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                 * 返回结果
+                 * 如果交换机返回信息错误，则返回信息为 null*/
+                /*ExecuteCommand executeCommand = new ExecuteCommand();
+                returnString = executeCommand.executeScanCommandByCommand(switchParameters, "enable");*/
+
+
                 returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"enable",null);
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
@@ -192,6 +211,15 @@ public class ConnectToObtainInformation {
                     if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                         SshMethod connectMethod = switchParameters.getConnectMethod();
                         SshConnect sshConnect = switchParameters.getSshConnect();
+
+                        // todo command
+                        /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+                         * 返回结果
+                         * 如果交换机返回信息错误，则返回信息为 null*/
+                        /*ExecuteCommand executeCommand = new ExecuteCommand();
+                        returnString = executeCommand.executeScanCommandByCommand(switchParameters, switchParameters.getConfigureCiphers());*/
+
+
                         returnString = connectMethod.sendCommand(switchParameters.getIp(),sshConnect,switchParameters.getConfigureCiphers(),null);
                     }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                         returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
@@ -232,16 +260,17 @@ public class ConnectToObtainInformation {
         //遍历数据表命令 分割得到的 命令数组
         for (String command:commandsplit){
             /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
-             * 返回结果*/
+             * 返回结果
+             * 如果交换机返回信息错误，则返回信息为 null*/
             ExecuteCommand executeCommand = new ExecuteCommand();
             commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
 
             /*commandString = "";
             commandString = MyUtils.trimString(commandString);*/
-
             if (commandString == null){
                 continue;
             }
+
             /**
              * 根据交换机返回结果 获取 交换机基本信息
              */
