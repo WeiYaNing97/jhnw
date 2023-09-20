@@ -18,11 +18,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 public class AdvancedRunnable {
-    public  void switchLoginInformations(ParameterSet parameterSet, List<String> functionName) {
+    public  void switchLoginInformations(ParameterSet parameterSet, List<String> functionName,boolean isRSA) {
         ExecutorService executorService = Executors.newFixedThreadPool(parameterSet.getThreadCount(), new NamedThreadFactory());
         int i = 1;
         for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){
-            executorService.execute(new Task(switchParameters,functionName));//mode, ip, name, password,configureCiphers, port, loginUser,time
+            executorService.execute(new Task(switchParameters,functionName,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
         executorService.shutdown();
         System.err.println("executorService.shutdown()线程结束");
@@ -40,10 +40,12 @@ public class AdvancedRunnable {
 
         private SwitchParameters switchParameters = null;
         private List<String> functionName = null;
+        boolean isRSA = false;
 
-        public Task(SwitchParameters switchParameters,List<String> functionName){
+        public Task(SwitchParameters switchParameters,List<String> functionName,boolean isRSA){
             this.switchParameters = switchParameters;
             this.functionName = functionName;
+            this.isRSA = isRSA;
         }
 
         @Override
@@ -52,7 +54,7 @@ public class AdvancedRunnable {
             String threadName = getThreadName();
             switchParameters.setThreadName(threadName);
             ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
-            AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters);
+            AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters, isRSA);
             //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))) {
                 this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");

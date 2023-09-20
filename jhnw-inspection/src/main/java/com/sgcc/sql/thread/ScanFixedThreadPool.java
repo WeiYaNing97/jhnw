@@ -23,7 +23,7 @@ public class ScanFixedThreadPool {
     /**
      * newFixedThreadPool submit submit
      */
-    public static void switchLoginInformations(ParameterSet parameterSet) throws InterruptedException {
+    public static void switchLoginInformations(ParameterSet parameterSet,boolean isRSA) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
@@ -33,7 +33,7 @@ public class ScanFixedThreadPool {
             switchParameters.setThreadName(threadName);
             i++;
             threadNameMap.put(threadName, threadName);
-            fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool));//mode, ip, name, password,configureCiphers, port, loginUser,time
+            fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
         countDownLatch.await();
         fixedThreadPool.shutdown();

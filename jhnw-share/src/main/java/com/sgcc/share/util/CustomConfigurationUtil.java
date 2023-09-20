@@ -1,15 +1,12 @@
 package com.sgcc.share.util;
-import ch.qos.logback.core.util.FileUtil;
 import com.sgcc.share.domain.Constant;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.yaml.snakeyaml.Yaml;
-
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Map;
+
 @Api("配置文件相关")
 public class CustomConfigurationUtil {
     @ApiOperation("读取配置文件内容到常量类")

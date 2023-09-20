@@ -20,14 +20,16 @@ public class ScanThread extends Thread  {
     // 用于计数线程是否执行完成
     CountDownLatch countDownLatch = null;
     ExecutorService fixedThreadPool = null;
+    boolean isRSA = true;
     // 为线程命名
     public ScanThread(String threadName,
                       SwitchParameters switchParameters,
-                      CountDownLatch countDownLatch,ExecutorService fixedThreadPool) {
+                      CountDownLatch countDownLatch,ExecutorService fixedThreadPool,boolean isRSA) {
         super(threadName);
         this.countDownLatch = countDownLatch;
         this.fixedThreadPool = fixedThreadPool;
         this.switchParameters = switchParameters;
+        this.isRSA = isRSA;
     }
 
     @Override
@@ -45,8 +47,10 @@ public class ScanThread extends Thread  {
             int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
             System.err.println("活跃线程数："+threadCount);
             SwitchInteraction switchInteraction = new SwitchInteraction();
+
             //扫描方法 logInToGetBasicInformation
-            AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters,null,null);
+            AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters,null,null,isRSA);
+
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
         } catch (Exception e) {
             e.printStackTrace();

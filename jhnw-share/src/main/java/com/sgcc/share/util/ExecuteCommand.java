@@ -6,18 +6,14 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.IOException;
 import java.util.concurrent.*;
 
 public class ExecuteCommand {
-
     @Autowired
     private IReturnRecordService returnRecordService;
-
     //命令返回信息
     private String command_string = null;
-
     /**
      * 根据交换机信息类 与 具体命令，执行并返回交换机返回信息
      * @param switchParameters
@@ -25,7 +21,6 @@ public class ExecuteCommand {
      * @return
      */
     public String executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
-
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
         /*程序登录用户*/
@@ -38,14 +33,11 @@ public class ExecuteCommand {
         returnRecord.setSubVersion(switchParameters.getSubversionNumber());
         /*交换机执行的命令*/
         returnRecord.setCurrentCommLog(command);
-
-
         /*交换机返回信息 插入数据库状态 为-1时错误 否则为交换机返回信息 在数据库中的ID*/
         int insert_id = 0;
         /*交换机返回信息 是否存在故障的标志 默认为 true*/
         boolean deviceBrand = true;
         do {
-
             deviceBrand = true;
             if (switchParameters.getMode().equalsIgnoreCase("ssh")) {
                 /*当交换机连接协议为 SSH时*/
@@ -56,22 +48,21 @@ public class ExecuteCommand {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
                 /**
                  * 交换机返回信息 及 超时
                  */
                 MyExecutors myExecutors = new MyExecutors();
                 ScheduledExecutorService executor = myExecutors.newScheduledThreadPool(1);
-
                 // 提交要执行的方法，并设置超时时间为2秒
                 ScheduledFuture<?> future = executor.schedule(() -> {
-
-
                     // 执行的方法逻辑
                     command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), command, null);
-
-
+                    /*command_string = "display interface brief\n" +
+                            "PHY: Physical\n" +
+                            "*down: administratively down\n" +
+                            "^down: standby\n" +
+                            "~down: LDT down\n" +
+                            "#down: LBDT down\n" + command_string;*/
                 }, 1, TimeUnit.SECONDS);
 
                 try {
@@ -197,14 +188,11 @@ public class ExecuteCommand {
             // TODO 去掉^之前的 \r\n
             /* 不包含 ： ^down
             * 原因:交换机正确返回信息也包含：
-            *
-
                 PHY: Physical
                 *down: administratively down
                 ^down: standby
                 ~down: LDT down
                 #down: LBDT down
-
                 * */
             if (current_return_log.indexOf("^")!=-1 && current_return_log.indexOf("^down") ==-1){
                 current_return_log = current_return_log.substring(2 + LineInformation[LineInformation.length-1].trim().length(),current_return_log.length());
@@ -224,7 +212,6 @@ public class ExecuteCommand {
         //按行切割最后一位应该是 标识符
         String current_identifier = LineInformation[LineInformation.length-1].trim();
         returnRecord.setCurrentIdentifier(current_identifier);
-
         // todo  交换机返回标识符的前端回显
         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
         try {
@@ -236,7 +223,6 @@ public class ExecuteCommand {
         //返回信息表，返回插入条数
         returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
         returnRecordService.updateReturnRecord(returnRecord);
-
         //粗略判断命令是否错误 错误为false 正确为true
         if (!(FunctionalMethods.judgmentError( switchParameters,command_string))){
             /*字段按行分割为 行信息数组 LineInformation*/
@@ -270,5 +256,4 @@ public class ExecuteCommand {
         }
         return command_string;
     }
-
 }

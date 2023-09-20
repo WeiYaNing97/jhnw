@@ -382,44 +382,6 @@ public class ErrorPackage {
             ExecuteCommand executeCommand = new ExecuteCommand();
             String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            /*returnResults = "GigabitEthernet1/0/1 current state : UP\n" +
-                    "Line protocol current state : UP\n" +
-                    "Last line protocol up time : 2022-10-26 17:38:19\n" +
-                    "Description:TO_AnPingZhan_NE40EX8_G1/1/2\n" +
-                    "Route Port,The Maximum Transmit Unit is 1500\n" +
-                    "Internet Address is 11.36.97.9/30\n" +
-                    "IP Sending Frames' Format is PKTFMT_ETHNT_2, Hardware address is 0819-a6f2-be6c\n" +
-                    "The Vendor PN is LTD1314-BC+-H3C\n" +
-                    "The Vendor Name is Hisense\n" +
-                    "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\n" +
-                    "WaveLength: 1310nm, Transmission Distance: 40km\n" +
-                    "Rx Power: -15.90dBm, Tx Power: 0.38dBm\n" +
-                    "Loopback:none, full-duplex mode, negotiation: disable, Pause Flowcontrol:Receive Enable and Send Enable\n" +
-                    "Last physical up time : 2022-10-26 17:38:19\n" +
-                    "Last physical down time : 2022-10-26 17:38:06\n" +
-                    "Statistics last cleared:never\n" +
-                    "Last 300 seconds input rate: 2728 bits/sec, 1 packets/sec\n" +
-                    "Last 300 seconds output rate: 1284152 bits/sec, 891 packets/sec\n" +
-                    "Input: 14898796154 bytes, 46662204 packets\n" +
-                    "Output: 2812600098295 bytes, 4616344671 packets\n" +
-                    "Input:\n" +
-                    "Unicast: 35727172 packets, Multicast: 10927967 packets\n" +
-                    "Broadcast: 7065 packets, JumboOctets: 41876 packets\n" +
-                    "CRC: 0 packets, Symbol: 0 packets\n" +
-                    "Overrun: 0 packets, InRangeLength: 0 packets\n" +
-                    "LongPacket: 0 packets, Jabber: 0 packets, Alignment: 0 packets\n" +
-                    "Fragment: 0 packets, Undersized Frame: 0 packets\n" +
-                    "RxPause: 0 packets\n" +
-                    "Output:\n" +
-                    "Unicast: 4606248991 packets, Multicast: 10085097 packets\n" +
-                    "Broadcast: 10583 packets, JumboOctets: 374322636 packets\n" +
-                    "Lost: 0 packets, Overflow: 0 packets, Underrun: 0 packets\n" +
-                    "System: 0 packets, Overruns: 0 packets\n" +
-                    "TxPause: 0 packets\n" +
-                    "Unknown Vlan: 0 packets";
-            returnResults = MyUtils.trimString(returnResults);*/
-
-
             if (returnResults == null){
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();

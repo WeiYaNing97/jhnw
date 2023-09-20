@@ -10,6 +10,8 @@ configuration:
   identifier: (TM);®
   # 日志路径
   logPath: "D:\\jhnwadminlog"
+  # 定时任务路径
+  timedTaskPath: "D:\\jhnwadminlog\\交换机信息模板.xlsx"
 
 #获取交换机基本信息
 BasicInformation:

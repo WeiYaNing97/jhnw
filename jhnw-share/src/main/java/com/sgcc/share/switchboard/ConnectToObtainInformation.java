@@ -32,12 +32,18 @@ public class ConnectToObtainInformation {
      * @param switchParameters
      * @return
      */
-    public AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters) {
+    public AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters,boolean isRSA) {
         //连接交换机  requestConnect：
         AjaxResult requestConnect_ajaxResult = null;
         for (int number = 0; number <1 ; number++){
-            switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
-            switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
+            if (isRSA){
+                switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
+                switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
+            }else {
+                switchParameters.setPassword(switchParameters.getPassword());
+                switchParameters.setConfigureCiphers(switchParameters.getConfigureCiphers());
+            }
+
             requestConnect_ajaxResult = requestConnect(switchParameters);
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
                 break;
@@ -70,7 +76,11 @@ public class ConnectToObtainInformation {
             String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getPassword());
             switchParameters.setPassword(passwordDensificationAndSalt);//用户密码
             //密码 MD5 加密
-            String configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
+            String configureCiphersDensificationAndSalt = null;
+            if (switchParameters.getConfigureCiphers() != null && !(switchParameters.getConfigureCiphers().equals("null"))){
+                configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
+            }
+
             switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
 
             /**

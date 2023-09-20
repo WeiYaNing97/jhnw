@@ -22,16 +22,18 @@ public class DirectionalScanThread extends Thread  {
     // 用于计数线程是否执行完成
     CountDownLatch countDownLatch = null;
     ExecutorService fixedThreadPool = null;
+    boolean isRSA = true;
     // 为线程命名
     public DirectionalScanThread(String threadName,
                                  SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,
-                                 CountDownLatch countDownLatch, ExecutorService fixedThreadPool) {
+                                 CountDownLatch countDownLatch, ExecutorService fixedThreadPool,boolean isRSA) {
         super(threadName);
         this.switchParameters = switchParameters;
         this.totalQuestionTables = totalQuestionTables;
         this.advancedName = advancedName;
         this.countDownLatch = countDownLatch;
         this.fixedThreadPool = fixedThreadPool;
+        this.isRSA = isRSA;
     }
 
     @Override
@@ -48,7 +50,7 @@ public class DirectionalScanThread extends Thread  {
             System.err.println("活跃线程数："+threadCount);
             SwitchInteraction switchInteraction = new SwitchInteraction();
             //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-            AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters, totalQuestionTables,advancedName);
+            AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters, totalQuestionTables,advancedName,isRSA);
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
 
         } catch (Exception e) {

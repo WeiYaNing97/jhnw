@@ -18,6 +18,12 @@
             <artifactId>jhnw-share</artifactId>
             <version>3.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.sgcc</groupId>
+            <artifactId>jhnw-quartz</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+
         <!--通用工具-->
         <dependency>
             <groupId>com.sgcc</groupId>
@@ -86,6 +92,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

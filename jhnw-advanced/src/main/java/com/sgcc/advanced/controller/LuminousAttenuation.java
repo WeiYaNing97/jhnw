@@ -363,6 +363,7 @@ public class LuminousAttenuation {
                 }else {
                     lightAttenuationComparison = lightAttenuationComparisons.get(0);
                     if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
+                        //判断光衰是否有问题
                         hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
                     }
                 }
@@ -382,16 +383,33 @@ public class LuminousAttenuation {
     }
 
 
+    /**
+    * @Description 判断光衰是否有问题
+     *  最新参数 减 起始值的绝对值 与额定偏差作比较
+     *  判断是否小于额定偏差，小于则无问题，大于有问题
+    * @createTime 2023/8/25 11:08
+    * @desc
+    * @param lightAttenuationComparison
+     * @return
+    */
     public String meanJudgmentProblem(LightAttenuationComparison lightAttenuationComparison) {
+        //RX最新参数
         double rxLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getRxLatestNumber());
+        //TX最新参数
         double txLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getTxLatestNumber());
+        //RX起始值(基准)
         double rxStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxStartValue());
+        //TX起始值(基准)
         double txStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxStartValue());
+
         DecimalFormat df = new DecimalFormat("#.0000");
+        //绝对值   |最新参数 - 起始值|
         Double rxfiberAttenuation = Math.abs(rxLatestNumber - rxStartValue);
         Double txfiberAttenuation = Math.abs(txLatestNumber - txStartValue);
+
         rxfiberAttenuation = MyUtils.stringToDouble(df.format(rxfiberAttenuation));
         txfiberAttenuation = MyUtils.stringToDouble(df.format(txfiberAttenuation));
+        // 绝对值>额定偏差
         if (rxfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getRxRatedDeviation()) || txfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
             return "有问题";
         }

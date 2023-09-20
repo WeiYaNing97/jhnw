@@ -22,15 +22,17 @@ public class AdvancedThread extends Thread {
     // 用于计数线程是否执行完成
     CountDownLatch countDownLatch = null;
     ExecutorService fixedThreadPool = null;
+    boolean isRSA = true;
     // 为线程命名
     public AdvancedThread(String threadName,
                           SwitchParameters switchParameters, List<String> functionName,
-                      CountDownLatch countDownLatch, ExecutorService fixedThreadPool) {
+                      CountDownLatch countDownLatch, ExecutorService fixedThreadPool,boolean isRSA) {
         super(threadName);
         this.functionName = functionName;
         this.countDownLatch = countDownLatch;
         this.fixedThreadPool = fixedThreadPool;
         this.switchParameters = switchParameters;
+        this.isRSA = isRSA;
     }
 
     @Override
@@ -45,7 +47,8 @@ public class AdvancedThread extends Thread {
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
-        AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters);
+        AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters,isRSA);
+
         //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
         if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))
         && !(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))) {

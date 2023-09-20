@@ -18,7 +18,7 @@ public class AdvancedThreadPool {
      * 高级功能线程池
      *
      */
-    public void switchLoginInformations(ParameterSet parameterSet, List<String> functionName) throws InterruptedException {
+    public void switchLoginInformations(ParameterSet parameterSet, List<String> functionName,boolean isRSA) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
@@ -30,7 +30,7 @@ public class AdvancedThreadPool {
             switchParameters.setThreadName(threadName);
             i++;
             threadNameMap.put(threadName, threadName);
-            fixedThreadPool.execute(new AdvancedThread(threadName,switchParameters,functionName,countDownLatch,fixedThreadPool));//mode, ip, name, password,configureCiphers, port, loginUser,time
+            fixedThreadPool.execute(new AdvancedThread(threadName,switchParameters,functionName,countDownLatch,fixedThreadPool,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
         countDownLatch.await();
         fixedThreadPool.shutdown();

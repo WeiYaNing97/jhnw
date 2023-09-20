@@ -24,7 +24,7 @@ public class DirectionalScanThreadPool {
     /**
      * newFixedThreadPool submit submit
      */
-    public static void switchLoginInformations(ParameterSet parameterSet, List<TotalQuestionTable> totalQuestionTables,List<String> advancedName) throws InterruptedException {
+    public static void switchLoginInformations(ParameterSet parameterSet, List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) throws InterruptedException {
 
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
@@ -36,7 +36,7 @@ public class DirectionalScanThreadPool {
             i++;
             threadNameMap.put(threadName, threadName);
             switchParameters.setThreadName(threadName);
-            fixedThreadPool.execute(new DirectionalScanThread(threadName,switchParameters,totalQuestionTables, advancedName,countDownLatch,fixedThreadPool));
+            fixedThreadPool.execute(new DirectionalScanThread(threadName,switchParameters,totalQuestionTables, advancedName,countDownLatch,fixedThreadPool,isRSA));
         }
         countDownLatch.await();
         fixedThreadPool.shutdown();

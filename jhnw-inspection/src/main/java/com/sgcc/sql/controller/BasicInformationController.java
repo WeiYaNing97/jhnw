@@ -114,7 +114,6 @@ public class BasicInformationController extends BaseController
     public List<BasicInformation> getPojolist()
     {
         List<BasicInformation> list = basicInformationService.selectBasicInformationList(null);
-
         List<BasicInformation> pojolist = new ArrayList<>();
         for (BasicInformation basicInformation:list){
             BasicInformation pojo = new BasicInformation();
@@ -123,8 +122,6 @@ public class BasicInformationController extends BaseController
             pojo.setProblemId(basicInformation.getProblemId());
             pojolist.add(pojo);
         }
-
         return pojolist;
     }
-
 }
