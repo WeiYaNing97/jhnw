@@ -465,6 +465,7 @@ public class SwitchInteraction {
         //5.获取交换机可扫描的问题并执行分析操作
         /*当 totalQuestionTables 不为空时，为专项扫描*/
         AjaxResult ajaxResult = scanProblem(switchParameters,totalQuestionTables);
+
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){

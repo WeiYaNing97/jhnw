@@ -375,7 +375,9 @@ public class LuminousAttenuation {
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -402,18 +404,41 @@ public class LuminousAttenuation {
         //TX起始值(基准)
         double txStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxStartValue());
 
+        //RX平均值
+        double rxAverageValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxAverageValue());
+        //TX平均值
+        double txAverageValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue());
+
+        /*RX即时偏差*/
+        double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
+        /*TX即时偏差*/
+        double txImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
+
         DecimalFormat df = new DecimalFormat("#.0000");
-        //绝对值   |最新参数 - 起始值|
+        //额定绝对值   |最新参数 - 起始值|
         Double rxfiberAttenuation = Math.abs(rxLatestNumber - rxStartValue);
         Double txfiberAttenuation = Math.abs(txLatestNumber - txStartValue);
-
         rxfiberAttenuation = MyUtils.stringToDouble(df.format(rxfiberAttenuation));
         txfiberAttenuation = MyUtils.stringToDouble(df.format(txfiberAttenuation));
-        // 绝对值>额定偏差
-        if (rxfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getRxRatedDeviation()) || txfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
+
+        //即时绝对值   |最新参数 - 平均值|
+        Double rxImmediateLightDecay  = Math.abs(rxLatestNumber - rxAverageValue);
+        Double txImmediateLightDecay  = Math.abs(txLatestNumber - txAverageValue);
+        rxImmediateLightDecay = MyUtils.stringToDouble(df.format(rxImmediateLightDecay));
+        txImmediateLightDecay = MyUtils.stringToDouble(df.format(txImmediateLightDecay));
+        if (rxImmediateLightDecay > rxImmediateDeviation
+        || txImmediateLightDecay > txImmediateDeviation){
             return "有问题";
         }
+
+        // 绝对值>额定偏差
+        if (rxfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getRxRatedDeviation())
+                || txfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
+            return "有问题";
+        }
+
         return "无问题";
+
     }
 
     /**

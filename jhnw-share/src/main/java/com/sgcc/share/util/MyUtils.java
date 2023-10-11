@@ -487,4 +487,20 @@ public class MyUtils {
 
         return newArray;
     }
+
+
+    /**
+    * @Description 判断内容是否存在 IP特征
+    * @author charles
+    * @createTime 2023/10/10 9:16
+    * @desc
+    * @param input
+     * @return
+    */
+    public static boolean containsIPAddress(String input) {
+        String ipPattern = "(\\d{1,3}\\.){3}\\d{1,3}"; // IP地址的正则表达式
+        Pattern pattern = Pattern.compile(ipPattern);
+        Matcher matcher = pattern.matcher(input);
+        return matcher.find();
+    }
 }

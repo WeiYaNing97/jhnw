@@ -103,7 +103,7 @@ public class OSPFFeatures {
                 "0.0.0.2 GigabitEthernet8/0/22 11.37.96.61 Full\n" +
                 "0.0.0.2 GigabitEthernet1/0/10 11.37.96.40 Full\n" +
                 "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 Full\n" +
-                "----------------------------------------------------------------------------\n" +
+                "----------- --------------- ----------------------- ---------------------------\n" +
                 "Total Peer(s): 15\n" +
                 "\n" +
                 "OSPF Process 11 with Router ID 30.9.98.241\n" +
@@ -336,6 +336,11 @@ public class OSPFFeatures {
             for (int num = integer+1 ;num < returnStringSplit.size();num++){
                 valueList.add(returnStringSplit.get(num));
             }
+
+            if(valueList.size() ==0){
+                break;
+            }
+
             /*标题下第一行 为参数行*/
             String value = valueList.get(0);
             /*获取参数行的列*/
@@ -375,7 +380,8 @@ public class OSPFFeatures {
         for (String pojoString:stringList){
             Ospf ospf = new Ospf();
             String[] pojoStringSplit = pojoString.split(" ");
-            if (number != pojoStringSplit.length){
+            /*元素数不相等 或者 数据不包含IP 则结束遍历*/
+            if (number != pojoStringSplit.length || !(MyUtils.containsIPAddress(pojoString))){/*添加了对数据的 IP 特征检测*/
                 break;
             }
             if(pojo.getNeighborID() != null){

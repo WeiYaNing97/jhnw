@@ -52,6 +52,10 @@ OSPF:
   rxRatedDeviation: 1
   # TX默认额定偏差
   txRatedDeviation: 0.5
+  # RX即时偏差
+  rxImmediateDeviation: 0.5
+  # TX即时偏差
+  txImmediateDeviation: 0.3
 
 # 端口号
 obtainPortNumber:
@@ -72,10 +76,6 @@ obtainPortNumber:
     Input: $ input errors
     Output: $ output errors
     CRC: $ CRC,
-    S2152:
-      Input: $ input errors
-      Output: $ output errors
-      CRC: $ CRC,
   Huawei:
     CRC: 'CRC: $'
     Input: 'Total Error: $'
