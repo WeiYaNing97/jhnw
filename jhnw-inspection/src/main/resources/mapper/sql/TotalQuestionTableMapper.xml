@@ -11,7 +11,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="firewareVersion"    column="fireware_version"    />
         <result property="subVersion"    column="sub_version"    />
         <result property="notFinished"    column="not_finished"    />
-        <result property="commandId"    column="command_id"    />
+        <!--因为该字段包含 命令ID 与 分析ID 故实体类中更改名称 -->
+        <result property="logicalID"    column="command_id"    />
         <result property="problemName"    column="problem_name"    />
         <result property="temProName"    column="tem_pro_name"    />
         <result property="typeProblem"    column="type_problem"    />
@@ -33,7 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <result property="firewareVersion"    column="fireware_version"    />
             <result property="subVersion"    column="sub_version"    />
             <result property="notFinished"    column="not_finished"    />
-            <result property="commandId"    column="command_id"    />
+            <result property="logicalID"    column="command_id"    />
             <result property="problemName"    column="problem_name"    />
             <result property="temProName"    column="tem_pro_name"    />
             <result property="typeProblem"    column="type_problem"    />
@@ -56,7 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version like concat('%', #{firewareVersion}, '%')</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version like concat('%', #{subVersion}, '%')</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished like concat('%', #{notFinished}, '%')</if>
-            <if test="commandId != null "> and command_id like concat('%', #{commandId}, '%')</if>
+            <if test="logicalID != null "> and command_id like concat('%', #{logicalID}, '%')</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
@@ -72,7 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <sql id="selectTotalQuestionTableVo">
-        select id, brand, type, fireware_version,sub_version,not_finished, command_id, type_problem,tem_pro_name,problem_name, problem_describe_id ,problem_solving_id,remarks,required_items from total_question_table
+        select id, brand, type, fireware_version,sub_version ,not_finished, command_id, type_problem,tem_pro_name,problem_name, problem_describe_id ,problem_solving_id,remarks,required_items from total_question_table
     </sql>
 
     <select id="selectTotalQuestionTableList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
@@ -85,7 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
             <if test="temProName != null  and temProName != ''"> and tem_pro_name = #{temProName}</if>
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
@@ -107,7 +108,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and (fireware_version = #{firewareVersion} or fireware_version = '*')</if>
             <if test="subVersion != null  and subVersion != ''"> and (sub_version = #{subVersion} or sub_version = '*')</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name = #{temProName}</if>
@@ -138,7 +139,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion} </if>
             <if test="subVersion != null  and subVersion != ''"> and  sub_version = #{subVersion} </if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
             <if test="temProName != null  and temProName != ''"> and tem_pro_name = #{temProName}</if>
             <if test="typeProblem != null  and typeProblem != ''"> and type_problem = #{typeProblem}</if>
@@ -183,7 +184,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
@@ -207,7 +208,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
@@ -232,7 +233,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
@@ -256,7 +257,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
@@ -280,7 +281,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished = #{notFinished}</if>
-            <if test="commandId != null "> and command_id = #{commandId}</if>
+            <if test="logicalID != null "> and command_id = #{logicalID}</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
@@ -304,7 +305,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version like concat('%', #{firewareVersion}, '%')</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version like concat('%', #{subVersion}, '%')</if>
             <if test="notFinished != null  and notFinished != ''"> and not_finished like concat('%', #{notFinished}, '%')</if>
-            <if test="commandId != null "> and command_id like concat('%', #{commandId}, '%')</if>
+            <if test="logicalID != null "> and command_id like concat('%', #{logicalID}, '%')</if>
             <if test="problemName != null  and problemName != ''"> and problem_name like concat('%', #{problemName}, '%')</if>
 
             <if test="temProName != null  and temProName != ''"> and tem_pro_name like concat('%', #{temProName}, '%')</if>
@@ -339,7 +340,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null">fireware_version,</if>
             <if test="subVersion != null">sub_version,</if>
             <if test="notFinished != null">not_finished,</if>
-            <if test="commandId != null">command_id,</if>
+            <if test="logicalID != null">command_id,</if>
             <if test="problemName != null">problem_name,</if>
 
             <if test="temProName != null">tem_pro_name,</if>
@@ -357,7 +358,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null">#{firewareVersion},</if>
             <if test="subVersion != null">#{subVersion},</if>
             <if test="notFinished != null">#{notFinished},</if>
-            <if test="commandId != null">#{commandId},</if>
+            <if test="logicalID != null">#{logicalID},</if>
             <if test="problemName != null">#{problemName},</if>
 
             <if test="temProName != null">#{temProName},</if>
@@ -379,7 +380,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null and firewareVersion != '' ">fireware_version,</if>
             <if test="subVersion != null and subVersion != '' ">sub_version,</if>
             <if test="notFinished != null and notFinished != '' ">not_finished,</if>
-            <if test="commandId != null and commandId != '' ">command_id,</if>
+            <if test="logicalID != null and logicalID != '' ">command_id,</if>
             <if test="problemName != null and problemName != '' ">problem_name,</if>
 
             <if test="temProName != null and temProName != '' ">tem_pro_name,</if>
@@ -397,7 +398,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null and firewareVersion != '' ">#{firewareVersion},</if>
             <if test="subVersion != null and subVersion != '' ">#{subVersion},</if>
             <if test="notFinished != null and notFinished != '' ">#{notFinished},</if>
-            <if test="commandId != null and commandId != '' ">#{commandId},</if>
+            <if test="logicalID != null and logicalID != '' ">#{logicalID},</if>
             <if test="problemName != null and problemName != '' ">#{problemName},</if>
 
             <if test="temProName != null and temProName != '' ">#{temProName},</if>
@@ -421,7 +422,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="firewareVersion != null">fireware_version = #{firewareVersion},</if>
             <if test="subVersion != null">sub_version = #{subVersion},</if>
             <if test="notFinished != null">not_finished = #{notFinished},</if>
-            command_id = #{commandId},
+            command_id = #{logicalID},
             <if test="problemName != null">problem_name = #{problemName},</if>
 
             <if test="temProName != null">tem_pro_name = #{temProName},</if>

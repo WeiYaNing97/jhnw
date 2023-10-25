@@ -94,40 +94,71 @@ public class ConnectToObtainInformation {
     }
 
     /**
-     * 连接交换机方法
-     */
+    * @Description 连接交换机方法
+    * @author charles
+    * @createTime 2023/10/11 13:58
+    * @desc
+    * @param switchParameters
+     * @return
+    */
     @GetMapping("requestConnect")
     public AjaxResult requestConnect(SwitchParameters switchParameters) {
+
         //设定连接结果 预设连接失败为 false
         boolean is_the_connection_successful =false;
         List<Object> objects = null;
+
+        /*连接方式 为 SSH*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+
             //创建ssh连接方法
             SshMethod connectMethod = new SshMethod();
+
             //连接ssh 成功为 true  失败为  false
+            /*为 true 时 返回 SshConnect JSCH的 使用方法类*/
             objects = connectMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword());
-            boolean loginBoolean = (boolean) objects.get(0);
-            if (loginBoolean == true){
-                SshConnect sshConnect =  (SshConnect)objects.get(1);
-                switchParameters.setSshConnect(sshConnect);
-                switchParameters.setConnectMethod(connectMethod);
-                if (sshConnect!=null){
+
+            /* 判断交换机是否连接成功 成功*/
+            if ((boolean) objects.get(0) == true){
+
+                /*(JSCH 使用方法类)*/
+                if ( (SshConnect) objects.get(1) != null){
+                    SshConnect sshConnect =  (SshConnect)objects.get(1);
+                    switchParameters.setSshConnect(sshConnect);/*JSCH的使用方法类*/
+                    switchParameters.setConnectMethod(connectMethod);/*ssh的使用方法类*/
                     is_the_connection_successful = true;
                 }
+
             }else {
+                /* 判断交换机是否连接成功 失败 */
+                /* 集合的最后一个元素 为 连接失败的原因 */
                 if (objects.get(objects.size()-1) instanceof String){
+                    /*连接失败的原因*/
                     String sshVersion = (String) objects.get(objects.size()-1);
-                    if (sshVersion.indexOf(switchParameters.getIp())!=-1){
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ sshVersion+"\r\n");
+                    try {
+                        PathHelper.writeDataToFile("风险:"+"ip:"+ sshVersion+"\r\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    /*sshVersion 是否包含 IP地址*/
+                    /*if (sshVersion.indexOf(switchParameters.getIp())!=-1){
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ sshVersion+"\r\n");
                         try {
                             PathHelper.writeDataToFile("风险:"+"ip:"+ sshVersion+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }
+                    }*/
+
                 }
+
             }
+
+        /*连接方式 为 telnet*/
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+
             //创建telnet连接方法
             TelnetSwitchMethod telnetSwitchMethod = new TelnetSwitchMethod();
             //连接telnet 成功为 true  失败为  false
@@ -142,6 +173,7 @@ public class ConnectToObtainInformation {
 
         /* is_the_connection_successful 交换机连接成功*/
         if(is_the_connection_successful){
+
             //enable 配置  返回 交换机连接失败  或   交换机连接成功
             String enable = enable(switchParameters);
             if (enable.equals("交换机连接成功")){
@@ -152,65 +184,71 @@ public class ConnectToObtainInformation {
                 ajaxResult.put("msg","交换机连接失败");
                 return ajaxResult;
             }
+
         }else {
+
             AjaxResult ajaxResult = new AjaxResult();
             ajaxResult.put("loginError",objects); // 交换机连接的返回信息
             ajaxResult.put("msg","交换机连接失败");
             return ajaxResult;
+
         }
+
     }
 
 
     /**
-     * 配置密码  enable 方法
-     * @param
+    * @Description 配置密码enable方法
+    * @author charles
+    * @createTime 2023/10/11 14:36
+    * @desc  有些交换机需要 通过配置密码登录
+    * @param switchParameters
      * @return
-     */
+    */
     public String enable(SwitchParameters switchParameters) {
+
         /*交换机返回结果*/
         String returnString = null;
+
         /* 执行 回车命令 获取交换机及返回结果*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-
-            // todo command
-            /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
-             * 返回结果
-             * 如果交换机返回信息错误，则返回信息为 null*/
-            /*ExecuteCommand executeCommand = new ExecuteCommand();
-            returnString = executeCommand.executeScanCommandByCommand(switchParameters, "\r");*/
-
+            // SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 回车  、 返回信息未结束标准）
             returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
-
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
             returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
         }
-        if (returnString==null){
+
+
+        if (returnString == null || returnString == "" ){
             return "交换机连接失败";
+        }else if (returnString.equals("遗失对主机的连接")){
+            return "遗失对主机的连接";
         }
-        String trim = returnString.trim();
-        /*判断 交换机返回结果给标识符 是否 以> 结尾*/
+
+
+        /*判断交换机返回结果的标识符 是否 以> 结尾*/
         /*思科交换机返回信息是 #  不需要发送 enable*/
-        if (trim.endsWith(">")){
+        if (returnString.trim().endsWith(">")){
+
+
             /*发送 enable 命令 查看返回结果 */
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-
-
-                // todo command
-                /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
-                 * 返回结果
-                 * 如果交换机返回信息错误，则返回信息为 null*/
-                /*ExecuteCommand executeCommand = new ExecuteCommand();
-                returnString = executeCommand.executeScanCommandByCommand(switchParameters, "enable");*/
-
-
+                /* SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 enable  、 返回信息未结束标准）*/
                 returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"enable",null);
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
             }
+
+
             /*判断交换机返回结果是否为空*/
-            if (returnString == null){
+            if (returnString == null || returnString == ""){
                 return "交换机连接失败";
-            }else {
+            }else if (returnString.equals("遗失对主机的连接")){
+                return "交换机连接失败";
+
+
+            } else {
+
                 String substring = returnString.substring(returnString.length() - 1, returnString.length());
                 if (returnString.indexOf("command")!=-1 && returnString.indexOf("%")!=-1 ){
                     return "交换机连接成功";
@@ -220,27 +258,32 @@ public class ConnectToObtainInformation {
                     /* 输入 配置密码*/
                     if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                         SshMethod connectMethod = switchParameters.getConnectMethod();
-                        SshConnect sshConnect = switchParameters.getSshConnect();
 
-                        // todo command
-                        /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
-                         * 返回结果
-                         * 如果交换机返回信息错误，则返回信息为 null*/
-                        /*ExecuteCommand executeCommand = new ExecuteCommand();
-                        returnString = executeCommand.executeScanCommandByCommand(switchParameters, switchParameters.getConfigureCiphers());*/
+                        /*(JSCH 使用方法类)SshConnect sshConnect = switchParameters.getSshConnect();
+                        SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 配置密码  、 返回信息未结束标准）*/
+                        returnString = connectMethod.sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),switchParameters.getConfigureCiphers(),null);
 
+                        if (returnString == null || returnString == ""){
+                            return "交换机连接失败";
+                        }else if (returnString.equals("遗失对主机的连接")){
+                            return "交换机连接失败";
 
-                        returnString = connectMethod.sendCommand(switchParameters.getIp(),sshConnect,switchParameters.getConfigureCiphers(),null);
+                        }
+
                     }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                         returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
                     }
                     return "交换机连接成功";
+
                 }
+
             }
-            /*思科交换机返回信息是 #  不需要发送 enable*/
-        }else if (trim.substring(trim.length()-1,trim.length()).equals("#")){
+
+            /*思科交换机返回信息的标识符结尾是 #  不需要发送 enable*/
+        }else if (returnString.trim().endsWith("#")){
             return "交换机连接成功";
         }
+
         return "交换机连接失败";
     }
 

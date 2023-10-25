@@ -92,7 +92,7 @@ public class TotalQuestionTableController extends BaseController
         if (totalQuestionTables!=null){
             List<String> longList = new ArrayList<>();
             for (TotalQuestionTable pojo:totalQuestionTables){
-                longList.add(pojo.getCommandId());
+                longList.add(pojo.getLogicalID());
             }
             //this.longList=longList;
             return longList;
@@ -138,7 +138,7 @@ public class TotalQuestionTableController extends BaseController
     @GetMapping("/select")
     public Long select(TotalQuestionTable totalQuestionTable)
     {
-        totalQuestionTable.setCommandId(null);
+        totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         return list.get(0).getId();
     }
@@ -232,26 +232,23 @@ public class TotalQuestionTableController extends BaseController
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
         TotalQuestionTable pojo = new TotalQuestionTable();
+
         String brand = null;
         if (!(totalQuestionTable.getBrand().equals(""))){
             brand = totalQuestionTable.getBrand();
         }
-
         String type = null;
         if (!(totalQuestionTable.getType().equals(""))){
             type = totalQuestionTable.getType();
         }else {type = "*";}
-
         String firewareVersion = null;
         if (!(totalQuestionTable.getFirewareVersion().equals(""))){
             firewareVersion = totalQuestionTable.getFirewareVersion();
         }else {firewareVersion = "*";}
-
         String subVersion = null;
         if (!(totalQuestionTable.getSubVersion().equals(""))){
             subVersion = totalQuestionTable.getSubVersion();
         }else {subVersion = "*";}
-
         String typeProblem = null;
         if (!(totalQuestionTable.getTypeProblem().equals(""))){
             typeProblem = totalQuestionTable.getTypeProblem();
@@ -260,16 +257,18 @@ public class TotalQuestionTableController extends BaseController
         if (!(totalQuestionTable.getTemProName().equals(""))){
             temProName = totalQuestionTable.getTemProName();
         }
+
         //先根据六个条件 查询 是否存在 如果存在 则 返回错误 问题已存在
         pojo.setBrand(brand);
         pojo.setType(type);
         pojo.setFirewareVersion(firewareVersion);
         pojo.setSubVersion(subVersion);
-        pojo.setTypeProblem(typeProblem);
-        pojo.setTemProName(temProName);
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
-        if (totalQuestionTables.size() != 0){
+        pojo.setTypeProblem(typeProblem);/*范式种类*/
+        pojo.setTemProName(temProName);/*范式名称*/
 
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
+
+        if (totalQuestionTables.size() != 0){
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"交换机问题已存在\r\n");
             try {
@@ -279,9 +278,9 @@ public class TotalQuestionTableController extends BaseController
             } catch ( IOException e) {
                 e.printStackTrace();
             }
-
             return  AjaxResult.error("问题已存在");
         }
+
         int insert = 0;
         try{
             if (totalQuestionTable.getType().equals("")){
@@ -301,8 +300,7 @@ public class TotalQuestionTableController extends BaseController
                 WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"SQL唯一约束异常,问题已存在\r\n");
                 try {
                     //插入问题简述及问题路径
-                    PathHelper.writeDataToFile("风险："+"SQL唯一约束异常,问题已存在\r\n"
-                            +"方法com.sgcc.web.controller.sql.total_question_table.add");
+                    PathHelper.writeDataToFile("风险："+"SQL唯一约束异常,问题已存在\r\n");
                 } catch ( IOException e1) {
                     e1.printStackTrace();
                 }
@@ -310,6 +308,7 @@ public class TotalQuestionTableController extends BaseController
                 return  AjaxResult.error("SQL唯一约束异常,问题已存在");
             }
         }
+
         if (insert <= 0){
             return AjaxResult.error();
         }
@@ -341,7 +340,7 @@ public class TotalQuestionTableController extends BaseController
     public List<String> brandlist()
     {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setCommandId(null);
+        totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
         if (typeProblemlist.size() == 0){
             return null;
@@ -364,7 +363,7 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("根据实体类查询品牌")
     public List<String> typelist(TotalQuestionTable totalQuestionTable)
     {
-        totalQuestionTable.setCommandId(null);
+        totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypelist(totalQuestionTable);
         if (typeProblemlist.size() == 0){
             return null;
@@ -387,7 +386,7 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("根据实体类查询内部固件版本")
     public List<String> firewareVersionlist(TotalQuestionTable totalQuestionTable)
     {
-        totalQuestionTable.setCommandId(null);
+        totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable);
         if (typeProblemlist.size() == 0){
         return null;
@@ -410,7 +409,7 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("根据实体类查询子版本号")
     public List<String> subVersionlist(TotalQuestionTable totalQuestionTable)
     {
-        totalQuestionTable.setCommandId(null);
+        totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
         if (typeProblemlist.size() == 0){
         return null;
@@ -473,7 +472,7 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("根据问题实体类查询问题名称")
     public List<String> problemNameList(TotalQuestionTable totalQuestionTable)
     {
-        totalQuestionTable.setCommandId(null);
+        totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (list.size() == 0){
             return null;
@@ -504,7 +503,7 @@ public class TotalQuestionTableController extends BaseController
         totalQuestionTable.setProblemName(problemName);
         totalQuestionTable.setTypeProblem(typeProblem);
         totalQuestionTable.setTemProName(temProName);
-        totalQuestionTable.setCommandId(null);
+        totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTables.size() != 0){
             return totalQuestionTables.get(0).getId();
@@ -519,17 +518,17 @@ public class TotalQuestionTableController extends BaseController
     @MyLog(title = "查询问题及命令列表", businessType = BusinessType.OTHER)
     public TableDataInfo list(@RequestBody TotalQuestionTable totalQuestionTable)
     {
-        String selectCommandId = totalQuestionTable.getCommandId();
-        totalQuestionTable.setCommandId(null);
+        String logicalID = totalQuestionTable.getLogicalID();
+        totalQuestionTable.setLogicalID(null);
         startPage();
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (list.size() == 0){
             return null;
         }
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-        if (selectCommandId.equals("0")){//未定义解决问题命令
+        if (logicalID.equals("0")){//未定义解决问题命令
             for (TotalQuestionTable pojo:list){
-                if (pojo.getCommandId() == null || pojo.getCommandId().equals("")){
+                if (pojo.getLogicalID() == null || pojo.getLogicalID().equals("")){
                     totalQuestionTables.add(pojo);
                 }
             }
@@ -650,7 +649,7 @@ public class TotalQuestionTableController extends BaseController
                 return AjaxResult.error();
             }
         }
-        if (totalQuestionTable.getCommandId() != null){
+        if (totalQuestionTable.getLogicalID() != null){
             DefinitionProblemController definitionProblemController = new DefinitionProblemController();
             boolean scan = definitionProblemController.deleteScanningLogic(id);
             if (!scan){

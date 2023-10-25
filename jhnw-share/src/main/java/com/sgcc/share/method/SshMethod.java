@@ -20,56 +20,73 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("ConnectMethod")
 public class SshMethod {
-    /***
-    * @method: 连接telnet 或者 ssh
-    * @Param: [mode 连接方法, ip, port, name, password, end:telnet结尾标识符]
-    * @return: com.sgcc.jhnw.util.Result
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
+    /**
+    * @Description  连接ssh
+    * @author charles
+    * @createTime 2023/10/11 14:02
+    * @desc
+     * 连接交换机 返回 List<Object> 数组
+     * 如果连接成功 则返回 true 和 SshConnect(JSCH 使用方法类)
+     * 如果连接失败 则返回 false
+    * @param ip
+     * @param port
+     * @param name
+     * @param password
+     * @return
     */
     @RequestMapping("requestConnect")
     public List<Object> requestConnect(String ip, int port, String name, String password){
-        List<Object> objects = new ArrayList<>();
-        //this.ReturnInformation = "";
-        //创建连接 ip 端口号：22
+
+        //(JSCH 使用方法类) 创建连接 ip 端口号：22
         SshConnect sshConnect = new SshConnect(ip, port, null, null);
+
         //用户名、密码
         String[] cmds = { name, password};
+
         //连接方法
         List<Object> login = sshConnect.login(ip, cmds);
-        boolean loginBoolean = (boolean) login.get(0);
-        if (loginBoolean == true){
+
+        /*判断交换机是否连接成功*/
+        if ((boolean) login.get(0) == true){
+            List<Object> objects = new ArrayList<>();
             objects.add(true);
-            objects.add(sshConnect);
+            objects.add(sshConnect);/* JSCH 使用方法类 */
             return objects;
         }
+
         return login;
     }
 
-    /***
-    * @method: 发送命令
-    * @Param: [command]
-    * @return: com.sgcc.jhnw.util.Result
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
+    /**
+    * @Description  发送命令
+    * @author charles
+    * @createTime 2023/10/11 14:14
+    * @desc
+    * @param ip
+     * @param sshConnect   (JSCH 使用方法类)
+     * @param command   命令
+     * @param notFinished   返回信息未结束标准
+     * @return
     */
     @RequestMapping("sendCommand")
     public String sendCommand(String ip,SshConnect sshConnect,String command,String notFinished){
         //ssh发送命令
-        //将命令放到数组中，满足方法的参数要求
+        //将命令放到数组中，满足封装的JSCH方法的参数要求
         String[] cmds = {command};
         /*if (this.ReturnInformation.endsWith(EndIdentifier) && command.equalsIgnoreCase("quit")) {
             quit = true;
         }*/
+
         //发送命令 quit:涉及是否断开交换机连接
         String string = sshConnect.batchCommand(ip,cmds, notFinished,null,false);
 
-        if (string.equals("")){
-            return "";
+        if (string.equals("") || string == null){
+            return null;
         }
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }
+
         if (string.length()>1 && string.substring(0, 1).equals("\n")){
             //字符串删除子字符串
             string = trimStr(string, string.substring(0, 1));
@@ -126,12 +143,13 @@ public class SshMethod {
         return string;
     }
 
-    /***
-    * @method: 关闭连接
-    * @Param: []
-    * @return: void
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
+    /**
+    * @Description 关闭连接
+    * @author charles
+    * @createTime 2023/10/11 14:14
+    * @desc
+    * @param sshConnect	(JSCH 使用方法类)
+     * @return
     */
     @RequestMapping("closeConnect")
     public void closeConnect(SshConnect sshConnect){

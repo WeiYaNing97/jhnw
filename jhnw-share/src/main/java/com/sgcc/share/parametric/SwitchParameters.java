@@ -33,7 +33,7 @@ public class SwitchParameters {
      */
     private SshMethod connectMethod;//ssh连接方法
     private TelnetSwitchMethod telnetSwitchMethod;//telnet连接方法
-    private SshConnect sshConnect;//ssh连接工具
+    private SshConnect sshConnect;//(JSCH 使用方法类)
     private TelnetComponent telnetComponent;//telnet连接工具
     public void setIp(String ip) {
         this.ip = ip;

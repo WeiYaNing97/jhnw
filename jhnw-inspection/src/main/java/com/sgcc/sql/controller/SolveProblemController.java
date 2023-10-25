@@ -1026,14 +1026,7 @@ public class SolveProblemController {
     @GetMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测
 
-        /*Long[] id = new Long[problemIds.size()];
-        for (int idx = 0; idx < problemIds.size(); idx++){
-            id[idx] = Long.parseLong(problemIds.get(idx));
-        }*/
-
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
-
-
 
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListByIds(id);

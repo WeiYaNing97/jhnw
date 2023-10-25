@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: '嘉豪交换机',
+      title: '衡水交换机巡检系统',
       logo: logoImg
     }
   }

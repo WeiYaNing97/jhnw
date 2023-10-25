@@ -125,4 +125,16 @@ public class CommandLogic extends BaseEntity
                 ", endIndex='" + endIndex + '\'' +
                 '}';
     }
+
+    public String toJson() {
+        return "{" +
+                "id:'" + id + '\'' +
+                ",state:'" + state + '\'' +
+                ",cLine:'" + cLine + '\'' +
+                ",command:'" + command + '\'' +
+                ",resultCheckId:'" + resultCheckId + '\'' +
+                ",problemId:'" + problemId + '\'' +
+                ",endIndex:'" + endIndex + '\'' +
+                '}';
+    }
 }

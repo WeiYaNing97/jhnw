@@ -29,6 +29,16 @@ public interface ITotalQuestionTableService
     public List<TotalQuestionTable> selectTotalQuestionTableList(TotalQuestionTable totalQuestionTable);
 
     /**
+    * @Description 导出功能 查询所有
+    * @author charles
+    * @createTime 2023/10/24 19:37
+    * @desc
+    * @param
+     * @return
+    */
+    List<TotalQuestionTable> scanningSQLselectTotalQuestionTableList();
+
+    /**
      * 新增问题及命令
      * 
      * @param totalQuestionTable 问题及命令
@@ -141,4 +151,5 @@ public interface ITotalQuestionTableService
 
     /*删除数据表所有数据*/
     int deleteTotalQuestionTable();
+
 }

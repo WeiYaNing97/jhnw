@@ -63,17 +63,19 @@ public class ProblemDescribeController extends BaseController
             if (i>0){
                 return AjaxResult.success("成功！");
             }
-        }
-        //如果问题表 问题描述ID 为0时 则插入问题描述信息
-        int i = problemDescribeService.insertProblemDescribe(pojo);
-        //插入成功后 ID添加到问题表 问题描述ID字段
-        if (i>0){
-            totalQuestionTable.setProblemDescribeId(pojo.getId());
-            i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+        }else if (totalQuestionTable.getProblemDescribeId().equals(0L)){
+            //如果问题表 问题描述ID 为0时 则插入问题描述信息
+            int i = problemDescribeService.insertProblemDescribe(pojo);
+            //插入成功后 ID添加到问题表 问题描述ID字段
             if (i>0){
-                return AjaxResult.success("成功！");
+                totalQuestionTable.setProblemDescribeId(pojo.getId());
+                i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+                if (i>0){
+                    return AjaxResult.success("成功！");
+                }
             }
         }
+
         return AjaxResult.error("失败！");
     }
 
@@ -90,7 +92,8 @@ public class ProblemDescribeController extends BaseController
         if (deleteProblemDescribeById>0){
             //根据 问题描述表ID  查询 问题表实体类
             TotalQuestionTable totalQuestionTable =  totalQuestionTableService.selectPojoByproblemDescribeId(id);
-            totalQuestionTable.setProblemDescribeId(null);
+            /*默认为0L  删除描述后则   清0L*/
+            totalQuestionTable.setProblemDescribeId(0L);
             int updateTotalQuestionTable = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
             return toAjax(updateTotalQuestionTable);
         }

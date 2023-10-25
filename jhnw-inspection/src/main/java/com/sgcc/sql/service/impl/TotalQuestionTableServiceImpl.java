@@ -551,4 +551,18 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return pojo;
     }
 
+
+    /**
+    * @Description 导出数据库 查询所有
+    * @author charles
+    * @createTime 2023/10/24 19:38
+    * @desc
+    * @param
+     * @return
+    */
+    @Override
+    public List<TotalQuestionTable> scanningSQLselectTotalQuestionTableList() {
+        return totalQuestionTableMapper.selectTotalQuestionTableList(null);
+    }
+
 }

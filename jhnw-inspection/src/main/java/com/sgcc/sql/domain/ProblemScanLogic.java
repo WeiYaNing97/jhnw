@@ -65,8 +65,6 @@ public class ProblemScanLogic extends BaseEntity
     /** 问题索引 */
     @Excel(name = "问题索引")
     private String problemId;
-
-
     /** false行号 */
     @Excel(name = "false行号")
     private String fLine;
@@ -316,6 +314,30 @@ public class ProblemScanLogic extends BaseEntity
                 ", fComId='" + fComId + '\'' +
                 ", returnCmdId=" + returnCmdId +
                 ", cycleStartId='" + cycleStartId + '\'' +
+                '}';
+    }
+
+    public String toJson() {
+        return "{" +
+                "id:'" + id + '\'' +
+                ",matched:'" + matched + '\'' +
+                ",relativePosition:'" + relativePosition + '\'' +
+                ",matchContent:'" + matchContent + '\'' +
+                ",action:'" + action + '\'' +
+                ",rPosition:" + rPosition +
+                ",length:'" + length + '\'' +
+                ",exhibit:'" + exhibit + '\'' +
+                ",wordName:'" + wordName + '\'' +
+                ",compare:'" + compare + '\'' +
+                ",tNextId:'" + tNextId + '\'' +
+                ",tComId:'" + tComId + '\'' +
+                ",problemId:'" + problemId + '\'' +
+                ",fLine:'" + fLine + '\'' +
+                ",tLine:'" + tLine + '\'' +
+                ",fNextId:'" + fNextId + '\'' +
+                ",fComId:'" + fComId + '\'' +
+                ",returnCmdId:" + returnCmdId +
+                ",cycleStartId:'" + cycleStartId + '\'' +
                 '}';
     }
 }

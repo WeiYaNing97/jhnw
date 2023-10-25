@@ -124,13 +124,13 @@ public class ProblemScanLogicController extends BaseController {
     public List<String> getParameterNameCollection(@PathVariable Long totalQuestionTableId){
         //根据问题ID 获取问题表数据
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        //如果问题表数据没有定义 扫描命令的ID 则 返回null
+        //如果问题表数据没有定义 扫描的逻辑ID(是命令也可能是分析) 则 返回null
         if (totalQuestionTable == null
-                || totalQuestionTable.getCommandId() == null
-                || totalQuestionTable.getCommandId().equals("")){
+                || totalQuestionTable.getLogicalID() == null
+                || totalQuestionTable.getLogicalID().equals("")){
             return null;
         }
-        String problemScanLogicID = totalQuestionTable.getCommandId();
+        String problemScanLogicID = totalQuestionTable.getLogicalID();
         if (problemScanLogicID == null){
             return null;
         }
@@ -217,7 +217,8 @@ public class ProblemScanLogicController extends BaseController {
     }
 
     /**
-     * @method: getParameterNameCollection    命令ID 没有带ID之前的 方法
+     * @method: getParameterNameCollection
+     * 命令ID 没有带ID之前的 方法
      * @Param: [totalQuestionTableId]
      * @return: java.util.List<java.lang.String>
      * @Author: 天幕顽主
@@ -227,14 +228,14 @@ public class ProblemScanLogicController extends BaseController {
     public List<String> getParameterNameCollectionNO(Long totalQuestionTableId){
         //根据问题ID 获取问题表数据
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        //如果问题表数据没有定义 扫描命令的ID 则 返回null
+        //如果问题表数据没有定义 扫描逻辑的ID 则 返回null
         if (totalQuestionTable == null
-                || totalQuestionTable.getCommandId() == null
-                || totalQuestionTable.getCommandId().equals("")){
+                || totalQuestionTable.getLogicalID() == null
+                || totalQuestionTable.getLogicalID().equals("")){
             return null;
         }
         //扫描命令的ID
-        String commandIdString = totalQuestionTable.getCommandId().substring(2,totalQuestionTable.getCommandId().length());
+        String commandIdString = totalQuestionTable.getLogicalID().substring(2,totalQuestionTable.getLogicalID().length());
         //hashset 获得 参数名 唯一
         HashSet<String> parameterName = new HashSet<>();
         do {

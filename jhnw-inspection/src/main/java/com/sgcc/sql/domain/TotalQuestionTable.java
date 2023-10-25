@@ -46,10 +46,12 @@ public class TotalQuestionTable extends BaseEntity
     @ApiModelProperty("未完成标志")
     private String notFinished;
 
-    /** 启动命令ID */
+    /** 逻辑ID   对应  数据库中的  commandId  */
+    /*因为该字段包含 命令ID 与 分析ID 故实体类中更改名称 */
+    /* (是命令也可能是分析) */
     @Excel(name = "扫描索引")
-    @ApiModelProperty("扫描索引")
-    private String commandId;
+    @ApiModelProperty("逻辑ID")
+    private String logicalID;
 
     /** 范式种类 */
     @Excel(name = "范式分类")
@@ -139,14 +141,6 @@ public class TotalQuestionTable extends BaseEntity
         this.notFinished = notFinished;
     }
 
-    public String getCommandId() {
-        return commandId;
-    }
-
-    public void setCommandId(String commandId) {
-        this.commandId = commandId;
-    }
-
     public String getProblemName() {
         return problemName;
     }
@@ -203,6 +197,15 @@ public class TotalQuestionTable extends BaseEntity
         this.requiredItems = requiredItems;
     }
 
+    public String getLogicalID() {
+        return logicalID;
+    }
+
+    public void setLogicalID(String logicalID) {
+        this.logicalID = logicalID;
+    }
+
+
     @Override
     public String toString() {
         return "TotalQuestionTable{" +
@@ -212,14 +215,33 @@ public class TotalQuestionTable extends BaseEntity
                 ", firewareVersion='" + firewareVersion + '\'' +
                 ", subVersion='" + subVersion + '\'' +
                 ", notFinished='" + notFinished + '\'' +
-                ", commandId='" + commandId + '\'' +
-                ", problemName='" + problemName + '\'' +
-                ", temProName='" + temProName + '\'' +
+                ", logicalID='" + logicalID + '\'' +
                 ", typeProblem='" + typeProblem + '\'' +
+                ", temProName='" + temProName + '\'' +
+                ", problemName='" + problemName + '\'' +
                 ", problemDescribeId=" + problemDescribeId +
                 ", problemSolvingId='" + problemSolvingId + '\'' +
                 ", remarks='" + remarks + '\'' +
                 ", requiredItems=" + requiredItems +
+                '}';
+    }
+
+    public String toJson() {
+        return "{" +
+                "id:" + id +
+                ",brand:'" + brand + '\'' +
+                ",type:'" + type + '\'' +
+                ",firewareVersion:'" + firewareVersion + '\'' +
+                ",subVersion:'" + subVersion + '\'' +
+                ",notFinished:'" + notFinished + '\'' +
+                ",logicalID:'" + logicalID + '\'' +
+                ",typeProblem:'" + typeProblem + '\'' +
+                ",temProName:'" + temProName + '\'' +
+                ",problemName:'" + problemName + '\'' +
+                ",problemDescribeId:" + problemDescribeId +
+                ",problemSolvingId:'" + problemSolvingId + '\'' +
+                ",remarks:'" + remarks + '\'' +
+                ",requiredItems:" + requiredItems +
                 '}';
     }
 }

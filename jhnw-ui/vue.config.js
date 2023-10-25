@@ -5,7 +5,7 @@ function resolve(dir) {
   return path.join(__dirname, dir)
 }
 
-const name = process.env.VUE_APP_TITLE || '嘉豪交换机' // 网页标题
+const name = process.env.VUE_APP_TITLE || '衡水交换机巡检系统' // 网页标题
 
 const port = process.env.port || process.env.npm_config_port || 70 // 端口
 
