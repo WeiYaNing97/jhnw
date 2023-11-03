@@ -54,7 +54,6 @@ public class DefinitionProblemController extends BaseController {
     @ApiOperation("数据库导出")
     @PostMapping("/scanningSQL")
     public AjaxResult scanningSQL() {
-
         Long totalQuestionTableId = null;
         Long[] totalQuestionTableIds = new Long[1];
         totalQuestionTableIds[0] = totalQuestionTableId;
@@ -62,10 +61,8 @@ public class DefinitionProblemController extends BaseController {
         LoginUser loginUser = SecurityUtils.getLoginUser();
         //List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
         List<String> fileName = new ArrayList<>();
-
-        /*问题*/
+        /*问题表*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-
         /* todo 交换机问题表*/
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
         /* todo 命令表 */
@@ -74,14 +71,12 @@ public class DefinitionProblemController extends BaseController {
         List<CommandLogic> repaircommandLogicList = new ArrayList<>();
         /* todo 分析表 */
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
-
         if (totalQuestionTableId != null){
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(totalQuestionTableIds);
         }else {
             /*导出功能 查询所有*/
             totalQuestionTables = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
         }
-
         DefinitionProblemController definitionProblemController = new DefinitionProblemController();
         for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
             HashMap<String, Object> scanLogicalEntityClass = definitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
@@ -111,36 +106,27 @@ public class DefinitionProblemController extends BaseController {
                 }
             }
         }
-        List<ProblemScanLogic> pojoList = definitionProblemController.definitionProblem(problemScanLogicList);
 
+        List<ProblemScanLogic> pojoList = definitionProblemController.definitionProblem(problemScanLogicList);
         List<String> exportText = new ArrayList<>();
         exportText.add("交换机问题表");
         for (TotalQuestionTable pojo:totalQuestionTables){
-            /*String entityClassString = MyUtils.getEntityClassString(pojo);
-            exportText.add(entityClassString);*/
             exportText.add(pojo.toJson());
         }
-
         exportText.add("交换机分析表");
         for (ProblemScanLogic pojo:pojoList){
-            /*String entityClassString = MyUtils.getEntityClassString(pojo);
-            exportText.add(entityClassString);*/
             exportText.add(pojo.toJson());
         }
-
         exportText.add("交换机命令表");
         for (CommandLogic pojo:commandLogicList){
-            /*String entityClassString = MyUtils.getEntityClassString(pojo);
-            exportText.add(entityClassString);*/
             exportText.add(pojo.toJson());
         }
         for (CommandLogic pojo:repaircommandLogicList){
-            /*String entityClassString = MyUtils.getEntityClassString(pojo);
-            exportText.add(entityClassString);*/
             exportText.add(pojo.toJson());
         }
-        fileName.add(MyUtils.fileWrite(exportText, MyUtils.getDate("yyyyMMddhhmmss")));
 
+
+        fileName.add(MyUtils.fileWrite(exportText, MyUtils.getDate("yyyyMMddhhmmss")));
         AjaxResult ajaxResult = new AjaxResult(200, "成功", fileName);
         return ajaxResult;
 
@@ -149,27 +135,26 @@ public class DefinitionProblemController extends BaseController {
     @ApiOperation("数据库导入")
     @PostMapping("/importData")
     @ResponseBody
-    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
-    {
+    public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
 
+        /* 读入TXT文件
+         * 将读取到的信息 按行放入list集合中*/
         InputStream inputStream = file.getInputStream();
-
-        /* 读入TXT文件 */
         InputStreamReader reader = new InputStreamReader(inputStream); // 建立一个输入流对象reader
         BufferedReader br = new BufferedReader(reader); // 建立一个对象，它把文件内容转成计算机能读懂的语言
-        String line = "";
         List<String> line_list = new ArrayList<>();
+        String line = "";
         while ((line = br.readLine()) != null) {// 一次读入一行数据
             line_list.add(line);
         }
+
+        /*遍历信息集合 根据关键词判断放入 三张表 的集合中*/
         List<String> totalQuestionTableList = new ArrayList<>(); //1  交换机问题表
         List<String> commandLogicList = new ArrayList<>(); //2   交换机命令表
         List<String> problemScanLogicList = new ArrayList<>(); //3  交换机分析表
         int number = 0;
         for (int num = 0;num<line_list.size();num++){
-
             String line_String = line_list.get(num);
-
             if (line_String.equals("交换机问题表")){
                 number = 1;
             }else if (line_String.equals("交换机命令表")){
@@ -177,7 +162,6 @@ public class DefinitionProblemController extends BaseController {
             }else if (line_String.equals("交换机分析表")){
                 number = 3;
             }
-
             switch (number){
                 case 1:
                     totalQuestionTableList.add(line_String);
@@ -191,41 +175,38 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
+
+        /*遍历三张表的集合
+         * 将 Json字符串 转变换为 对应的实体类*/
         List<CommandLogic> commandLogics = new ArrayList<>();
         for (int i = 1 ; i <commandLogicList.size();i++){
-            //commandLogics.add(importConversionCommandLogic(commandLogicList.get(i)));
             commandLogics.add( JSON.parseObject( commandLogicList.get(i), CommandLogic.class) );
         }
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
         for (int i = 1 ; i <problemScanLogicList.size();i++){
-            //problemScanLogics.add(importConversionProblemScanLogic(ProblemScanLogicList.get(i)));
             problemScanLogics.add( JSON.parseObject( problemScanLogicList.get(i), ProblemScanLogic.class) );
         }
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
         for (int i = 1 ; i <totalQuestionTableList.size();i++){
-            //totalQuestionTables.add(importConversionTotalQuestionTable(totalQuestionTableList.get(i)));
             totalQuestionTables.add( JSON.parseObject( totalQuestionTableList.get(i), TotalQuestionTable.class) );
         }
 
-
+        /*将实体类对象插入数据库*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
-
         for (CommandLogic pojo:commandLogics){
             int i = commandLogicService.insertCommandLogicImport(pojo);
             if (i<0){
                 return AjaxResult.error();
             }
         }
-
         for (ProblemScanLogic pojo:problemScanLogics){
             int i = problemScanLogicService.insertProblemScanLogicImport(pojo);
             if (i<0){
                 return AjaxResult.error();
             }
         }
-
         for (TotalQuestionTable pojo:totalQuestionTables){
             int i = totalQuestionTableService.insertTotalQuestionTableImport(pojo);
             if (i<0){
@@ -235,9 +216,6 @@ public class DefinitionProblemController extends BaseController {
 
         return AjaxResult.success();
     }
-
-
-
 
 
     /**
@@ -1149,10 +1127,8 @@ public class DefinitionProblemController extends BaseController {
     @GetMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
     public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
-
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
-
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final List<String>[] analysisList = new List[]{new ArrayList<>()};
         FutureTask future = new FutureTask(new Callable<List<String>>() {
@@ -1169,35 +1145,28 @@ public class DefinitionProblemController extends BaseController {
             System.out.println(result);
         } catch (InterruptedException e) {
             e.printStackTrace();
-
         } catch (ExecutionException e) {
             e.printStackTrace();
-
         } catch (TimeoutException e) {
             return AjaxResult.error("查询超时");
-
         }finally{
             future.cancel(true);
             executor.shutdown();
-
         }
-
         return AjaxResult.success(analysisList[0]);
     }
 
 
     //@RequestMapping("getAnalysisList")
     public  List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser){
-
         /*根据 交换机问题实体类 获得命令集合和分析实体类集合*/
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
+
         if (scanLogicalEntityClass == null){
             return null;
         }
-
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-
         HashMap<Long,String> hashMap = new HashMap<>();
         for (CommandLogic commandLogic:commandLogicList){
             String commandLogicString = commandLogicString(commandLogic);
@@ -1229,15 +1198,15 @@ public class DefinitionProblemController extends BaseController {
      * @return
     */
     public  HashMap<String,Object> getScanLogicalEntityClass(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser) {
-
-        if (totalQuestionTable.getLogicalID() == null){
+        /*判断分析ID 是否为空 */
+        /*if (totalQuestionTable.getLogicalID() == null){
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
             List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
             if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
                 return null;
             }
             totalQuestionTable = totalQuestionTables.get(0);
-        }
+        }*/
 
         /*取出命令 或 分析 字段*/
         if (totalQuestionTable.getLogicalID() == null){
@@ -1836,9 +1805,7 @@ public class DefinitionProblemController extends BaseController {
                 +"\"matched\"" +"="+ "\""+ problemScanLogicVO.getMatched() +"\","
                 +"\"relative\"" +"="+ "\""+ problemScanLogicVO.getRelative() +"\","
                 +"\"position\"" +"="+ "\""+ problemScanLogicVO.getPosition() +"\","
-
                 +"\"cursorRegion\"" +"="+ "\""+ problemScanLogicVO.getCursorRegion() +"\","
-
                 +"\"matchContent\"" +"="+ "\""+ problemScanLogicVO.getMatchContent() +"\","
                 +"\"action\"" +"="+ "\""+ problemScanLogicVO.getAction() +"\","
                 +"\"tNextId\"" +"="+ "\""+ problemScanLogicVO.gettNextId() +"\","
@@ -1852,7 +1819,6 @@ public class DefinitionProblemController extends BaseController {
                 +"\"problemId\"" +"="+ "\""+ problemScanLogicVO.getProblemId() +"\","
                 +"\"cycleStartId\"" +"="+ "\""+ problemScanLogicVO.getCycleStartId() +"\","
                 +"\"pageIndex\"" +"="+ "\""+ problemScanLogicVO.getPageIndex() +"\""+"}";
-
         return problemScanLogicVOString;
     }
 

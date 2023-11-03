@@ -26,16 +26,27 @@ public class FunctionalMethods {
 
     /*获取交换机基本信息 有返回ID 没有插入并返回ID*/
     public static Long getSwitchParametersId(SwitchParameters switchParameters) {
+        /**交换机四项基本信息对象*/
         SwitchInformation switchInformation = new SwitchInformation();
+        /*四项基本信息*/
         switchInformation.setBrand(switchParameters.getDeviceBrand());
         switchInformation.setSwitchType(switchParameters.getDeviceModel());
         switchInformation.setFirewareVersion(switchParameters.getFirmwareVersion());
+        /*当子版本为空时，字段赋值为 null
+        * 考虑到 如果置空<null> 的话， 会查出大量前三个信息相同的数据来
+        * 例如
+        * 1： H3C S2152 5.20.99 1600
+        * 2： H3C S2152 5.20.99 <null>*/
         switchInformation.setSubVersion(switchParameters.getSubversionNumber() == null?"null":switchParameters.getSubversionNumber());
+
         switchInformationService = SpringBeanUtil.getBean(ISwitchInformationService.class);//解决 多线程 service 为null问题
         List<SwitchInformation> switchInformationList = switchInformationService.selectSwitchInformationList(switchInformation);
         if (MyUtils.isCollectionEmpty(switchInformationList)){
             int i = switchInformationService.insertSwitchInformation(switchInformation);
-            return switchInformation.getId();
+            if (i>0){
+                return switchInformation.getId();
+            }
+            return Long.valueOf(i).longValue();
         }else {
             return switchInformationList.get(0).getId();
         }
@@ -98,7 +109,7 @@ public class FunctionalMethods {
      */
     @RequestMapping("compareVersion")
     public static boolean compareVersion(SwitchParameters switchParameters, String compare,String current_Round_Extraction_String){
-
+        /* 提取到的词 进行分割 */
         String[] current_Round_Extraction_split = current_Round_Extraction_String.split("=:=");
         Map<String,String> value_String = new HashMap<>();
         if(!(current_Round_Extraction_String.equals(""))){
@@ -119,7 +130,7 @@ public class FunctionalMethods {
             compare = compare.replace("子版本",switchParameters.getSubversionNumber());
         }
 
-        // 获取比较参数
+        /** 提取参数*/
         String getParameters = compare;
         getParameters = getParameters.replace("<=",":");
         getParameters = getParameters.replace(">=",":");
@@ -128,28 +139,28 @@ public class FunctionalMethods {
         getParameters = getParameters.replace(">",":");
         getParameters = getParameters.replace("=",":");
         String[] parameter = getParameters.split(":");
+
+        /** 提取比较符号 这样做可以不打乱顺序*/
         String getComparisonNumber = compare;
-        //参数一 替换 ：
-        getComparisonNumber = getComparisonNumber.replace(parameter[0],":");
-        //参数二 替换 ：
-        getComparisonNumber = getComparisonNumber.replace(parameter[1],":");
-        //如果参数数组长度为3 则有三个参数
-        if (parameter.length == 3){
-            //参数三 替换 ：
-            getComparisonNumber = getComparisonNumber.replace(parameter[2],":");
+        getComparisonNumber = getComparisonNumber.replace(parameter[0],":");//参数一 替换 ：
+        getComparisonNumber = getComparisonNumber.replace(parameter[1],":");//参数二 替换 ：
+        if (parameter.length == 3){//如果参数数组长度为3 则有三个参数
+            getComparisonNumber = getComparisonNumber.replace(parameter[2],":");//参数三 替换 ：
         }
-        //假设有三个参数 ： 5.20.99<固件版本<5.20.100   5.20.98<5.20.99<5.20.100
-        //替换 “:”后 ： :<:<:
-        //截取后 去掉了前后 得到：     <:<
+        //假设有三个参数 ： 5.20.98<5.20.99<5.20.100 替换 “:”后 ： :<:<:  截取后 去掉了前后 得到： <:<
         getComparisonNumber = getComparisonNumber.substring(1,getComparisonNumber.length()-1);
-        //comparisonNumber : [<,<]
+        //comparisonNumber 得到 [<,<]
         String[] comparisonNumber = getComparisonNumber.split(":");
 
+        /** 获取比较数组的集合
+         * 例如：
+         * {[5.20.98,<,5.20.99],[5.20.99,<,5.20.100]}*/
         List<String[]> compareList = new ArrayList<>();
-        //comparisonNumber.length ==1  有 一个比较
         if (comparisonNumber.length ==1){
-            String[] compareArray = new String[3];
-
+            //comparisonNumber.length ==1  有 一个比较
+            /* 如果是比较取词后的内容  例如比较 用户名 <= damin
+            查找提取到的数据中 是否有对应的key
+            如果 key 的 value值 不为null 则 由 value值 替换 key */
             String value1 = value_String.get(parameter[0]);
             String value2 = value_String.get(parameter[1]);
             if (value1 != null){
@@ -159,13 +170,16 @@ public class FunctionalMethods {
                 parameter[1] = value2;
             }
 
+            /* 得到 [5.20.98 , < , 5.20.99] */
+            String[] compareArray = new String[3];
             compareArray[0] = parameter[0];
             compareArray[1] = comparisonNumber[0];
             compareArray[2] = parameter[1];
             compareList.add(compareArray);
 
-            //comparisonNumber.length == 2  有 两个比较
         }else if (comparisonNumber.length ==2){
+            //comparisonNumber.length == 2  有 两个比较
+            /* 如果是比较取词后的内容,查找提取到的数据中 是否有对应的key*/
             String value0 = value_String.get(parameter[0]);
             String value1 = value_String.get(parameter[1]);
             String value2 = value_String.get(parameter[2]);
@@ -178,12 +192,14 @@ public class FunctionalMethods {
             if (value2 != null){
                 parameter[2] = value2;
             }
+
             //第一组比较
             String[] compareArray1 = new String[3];
             compareArray1[0] = parameter[0];
             compareArray1[1] = comparisonNumber[0];
             compareArray1[2] = parameter[1];
             compareList.add(compareArray1);
+
             //第二组比较
             String[] compareArray2 = new String[3];
             compareArray2[0] = parameter[1];
@@ -192,62 +208,62 @@ public class FunctionalMethods {
             compareList.add(compareArray2);
         }
 
+        /**循环 比较数组的集合
+         * 例如 ： {[5.20.98,<,5.20.99],[5.20.99,<,5.20.100]}
+         * 因为需要循环遍历 数组 所以 只能当false的时候才能返回*/
         boolean compare_size;
-        //循环 比较数组
         for (String[] compareArray:compareList){
             switch (compareArray[1]){
                 case ">":
-                    //如果 str1 > str2  返回 true
-                    //如果 str1 < str2  返回 false
+                    /*要求参数一大于参数二
+                    * 要求方法返回true*/
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
-                    //如果 str1 < str2  返回 false
-                    // !false 则会进入
-                    if (!compare_size){
+                    if (compare_size){
+                    }else {
                         return false;
                     }
                     break;
                 case "<":
-                    //如果 str1 > str2  返回 true
-                    //如果 str1 < str2  返回 false
-                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
-                    //如果 str1 > str2  返回 true 则会进入
+                    /*要求参数一小于参数二
+                     * 要求方法返回 true
+                     * 并且要求 参数一等于参数二的时候 方法返回true*/
+                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]) //如果 str1 > str2  返回 true
+                            || compareArray[0].equals(compareArray[2]);  //如果 str1 = str2  返回 true
                     if (compare_size){
                         return false;
                     }
                     break;
                 case "=":
-                    //相等 为  true
+                    /*要求 参数一 等于 参数二
+                     * 要求 参数一 等于 参数二的时候返回 true*/
                     compare_size = compareArray[0].equals(compareArray[2]);
-                    //不相等 则 false
-                    //!false 则会进入 返回 false
-                    if (!compare_size){
+                    if (compare_size){
+                    }else {
                         return false;
                     }
                     break;
                 case ">=":
-                    //如果 str1 > str2  返回 true
-                    //如果 str1 < str2  返回 false
-                    //如果 str1 == str2  返回 true
+                    /*要求 参数一 等于 参数二
+                     * 要求方法返回 true
+                     * 要求 参数一 等于 参数二的时候返回 true*/
                     compare_size = compareVersionNumber(compareArray[0], compareArray[2]) || compareArray[0].equals(compareArray[2]);
-                    //如果 str1 < str2  返回 false
-                    // !false  会进入
-                    if (!compare_size){
+                    if (compare_size){
+                    }else {
                         return false;
                     }
                     break;
                 case "<=":
-                    //如果 str1 > str2  返回 false
-                    //如果 str1 < str2  返回 true
-                    //如果 str1 == str2  返回 true
-                    compare_size = !(compareVersionNumber(compareArray[0], compareArray[2])) || compareArray[0].equals(compareArray[2]);
-                    if (!compare_size){
+                    /*要求 参数一 等于 参数二
+                     * 要求方法返回 false*/
+                    compare_size = compareVersionNumber(compareArray[0], compareArray[2]);
+                    if (compare_size){
                         return false;
                     }
                     break;
                 case "!=":
-                    //如果 str1 == str2  返回 false
-                    compare_size = !(compareArray[0].equals(compareArray[2]));
-                    if (!compare_size){
+                    //如果 str1 == str2  compare_size 为 true
+                    compare_size = compareArray[0].equals(compareArray[2]);
+                    if (compare_size){
                         return false;
                     }
                     break;
@@ -259,7 +275,7 @@ public class FunctionalMethods {
     /**
      * @method: 比较系统版本号大小 参数一是否大于参数二
      * 如果 str1 > str2 返回 true
-     * 如果 str1 < str2 返回 false
+     * 如果 str1 <= str2 返回 false
      * @Param: [str1, str2]
      * @return: boolean
      * @Author: 天幕顽主
@@ -269,6 +285,7 @@ public class FunctionalMethods {
         String[] split1 = str1.split("\\.");
         String[] split2 = str2.split("\\.");
         int j;
+
         //取得最短数组长度 只比较大版本
         if (split1.length < split2.length){
             j=split1.length;
@@ -277,6 +294,7 @@ public class FunctionalMethods {
         }else{
             j=split1.length;
         }
+
         //比较大版本
         for (int i=0;i<j;i++){
             int i1 = Integer.valueOf(split1[i]).intValue();
@@ -287,6 +305,7 @@ public class FunctionalMethods {
                 return false;
             }
         }
+
         //大版本一致
         //比较长度 长度长的 是大版本
         if (split1.length < split2.length){
@@ -299,7 +318,7 @@ public class FunctionalMethods {
     }
 
     /**
-     * 取词 按位置取词
+     * 取词操作  按位置取词
      * @param returnString  交换机返回信息行信息
      * @param matchContent 关键词
      * @param relativePosition_line
@@ -377,122 +396,54 @@ public class FunctionalMethods {
     }
 
     /**
-     * @method: 取词     (依靠关键词)
-     *         //取词方法
-     * @Param: [     action提取方法 ：取词 取版本, returnString 返回信息的一行, matchContent 提取关键字, integer 位置, length 长度WLs]
-     * 提取方法 ：取词 取版本  返回信息的一行 提取关键字 位置 长度WLs
-     * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    public static String wordSelection1(String returnString,String matchContent,Integer integer,String length){
-        // 获取 W、L、S
-        String substring = length.substring(length.length() - 1, length.length());
-        //获取取值长度
-        int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();
-        //预设返回值
-        String return_string = "";
-
-        switch (substring){
-            // 取词和取字符串
-            case "w":
-            case "W":
-            case "s":
-            case "S":
-                //以matchContent 为参照  获取位置 因为后期转化为数组，关键词后第一位为 [0]
-                integer = integer - 1 ;
-
-                String get_word = "";
-                get_word = "";
-                String returnString_string = " "+returnString.trim()+" ";
-                if (returnString_string.indexOf(" "+matchContent+" ")!=-1){
-                    String[] split_String = returnString_string.split(" "+matchContent+" ");
-                    String[] split_w = split_String[1].split(" ");
-                    //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度
-                    if (split_w.length<integer.intValue()+word_length){
-                        return null;
-                    }
-                    //取词位置
-                    int number = integer.intValue();
-                    for (int num = 0;num<word_length;num++){
-                        get_word = " "+split_w[number]+" ";
-                        number++;
-                        return_string += get_word.trim();
-                    }
-                }
-                if (return_string.length()>0){
-                    return return_string;
-                }else {
-                    return null;
-                }
-                // 取字母
-            case "l":
-            case "L":
-                String takeLetters = "" ;
-                takeLetters = "";
-                //模糊匹配 位置
-                int string_position=returnString.indexOf(matchContent);
-                if (string_position!=-1){
-                    //string_position+matchContent.length() 取词关键字 最后一位字母位置
-                    int num =string_position+matchContent.length();
-                    int word_position = string_position+matchContent.length()+integer.intValue();
-                    String removeKeywords = returnString.substring(word_position,returnString.length()).trim();
-                    if (word_length>removeKeywords.length()){
-                        takeLetters = "";
-                    }else {
-                        takeLetters = removeKeywords.substring(0,word_length);
-                    }
-                    return_string =takeLetters.trim();
-                }
-        }
-        if (return_string.length()>0){
-            return return_string;
-        }else {
-            return null;
-        }
-    }
-
-    /**
      * @method: 匹配方法
-     * matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
-     * @Param: [matchType  精确匹配  模糊匹配  不存在
-     * returnString  交换机返回信息
-     * matchString]  分析表 关键字 --- 匹配的信息
+     *
+     * @Param:
+     *
+     * matched : 精确匹配    取词方式
+     * information_line_n：交换机返回信息行
+     * matchContent：数据库 关键词
      * @return: boolean
      * @Author: 天幕顽主
      * @E-mail: WeiYaNing97@163.com
      */
     public static boolean matchAnalysis(String matchType,String returnString,String matchString){
+
         switch(matchType){
             case "精确匹配" :
-                //先模糊匹配 看是否存在
+
+                if ((" "+returnString+" ").indexOf(" "+matchString+" ") != -1){
+                    return true;
+                }else {
+                    return false;
+                }
+
+                /*//先模糊匹配 看是否存在
                 int indexPosition = returnString.indexOf(matchString);
-                if (indexPosition!=-1){//模糊匹配
-
-                    String frontPosition = " ";
-                    String rearPosition =" ";
-
-                    if ((frontPosition+returnString+rearPosition).indexOf(frontPosition+matchString+rearPosition) != -1){
+                if (indexPosition!=-1){//模糊匹配 存在
+                    if ((" "+returnString+" ").indexOf(" "+matchString+" ") != -1){
                         return true;
                     }else {
                         return false;
                     }
-
                 }else {
                     return false;
-                }
+                }*/
+
             case "模糊匹配" :
                 if (returnString.indexOf(matchString)!=-1){
                     return true;
                 }else {
                     return false;
                 }
+
             case "不存在" :
                 if (returnString.indexOf(matchString)!=-1){
                     return false;
                 }else {
                     return true;
                 }
+
             default :
                 return false;
         }

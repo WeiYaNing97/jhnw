@@ -861,7 +861,7 @@
                 // var ws = null
                 // const wsuri = 'ws://192.168.1.98/dev-api/websocket/loophole'
                 const wsuri = `wss://${location.host}/dev-api/websocket/loophole${Cookies.get('usName')}`
-                // const wsuri = `ws://${location.host}/prod-api/websocket/loophole${Cookies.get('usName')}`
+                 //const wsuri = `ws://${location.host}/prod-api/websocket/loophole${Cookies.get('usName')}`
                 this.ws = wsuri
                 if (!this.wsIsRun) return
                 // 销毁ws

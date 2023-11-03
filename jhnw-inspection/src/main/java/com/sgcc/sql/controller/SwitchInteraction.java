@@ -336,7 +336,8 @@ public class SwitchInteraction {
     @PostMapping("/multipleScans/{scanNum}")
     @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
 
-    public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {//待测
+    public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {
+        /*扫描时间*/
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         ParameterSet parameterSet = new ParameterSet();
         /*程序登陆人*/
@@ -349,18 +350,17 @@ public class SwitchInteraction {
         for (String information:switchInformation){
             /* 交换机登录信息 转化为 实体类 */
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
-
             // 四个参数 设默认值
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
             switchParameters.setScanningTime(simpleDateFormat);
             BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
-
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
         }
+
         /*交换机登录信息*/
         parameterSet.setSwitchParameters(switchParametersList);
 
@@ -1258,22 +1258,25 @@ public class SwitchInteraction {
                                              Integer insertsInteger,
                                              Integer loop,Integer numberOfCycles) {
 
-
-        /*判断当前分析ID(currentID)是否为空。如果为空则用第一条分析ID(firstID).
-        如果当前分析ID(currentID)不为空，说明是第二次调用本方法，则使用当前分析ID(currentID)，
-        都赋值给ID。
+        /** 将要执行的ID */
+        /*默认使用 currentID
+        判断当前分析ID(currentID)是否为空。
+        如果为空则用第一条分析ID(firstID).
+        如果当前分析ID(currentID)不为空，说明是第二次调用本方法，则使用当前分析ID(currentID) 赋值给ID
         */
-        String id = firstID; //默认使用 firstID
-        if (currentID != null){
-            id = currentID;
+        String id = currentID;
+        if (currentID == null){
+            id = firstID;
         }
 
+        /**判断是通过数据表获取逻辑 还是 前端传输逻辑*/
         /*判断输入参数problemScanLogicList分析逻辑实体类集合是否为空，
-        不为空则，分析逻辑数据通过problemScanLogicList来存储。 //预取交换机基本信息功能
-        如果为空，则需要查询数据库。都是通过ID来获取具体分析逻辑数据。*/
-        /*判断是通过数据表获取逻辑 还是 前端传输逻辑
-        * 如果是空 则通过ID 在数据库中查询出要执行的分析数据
+        *不为空则，分析逻辑数据通过problemScanLogicList来存储。 //预取交换机基本信息功能
+        *如果为空，则需要查询数据库。都是通过ID来获取具体分析逻辑数据。
+         *如果是空 则通过ID 在数据库中查询出要执行的分析数据
         * 如果不为空 则通过ID 在集合列表中查询出要执行的分析数据 */
+
+        //分析逻辑
         ProblemScanLogic problemScanLogic = null;
         if (problemScanLogicList == null){
             //根据ID查询分析数据
@@ -1289,15 +1292,19 @@ public class SwitchInteraction {
         }
 
 
-        //如果循环ID不为空的话 说明分析数据为循环分析则需要调出循环ID当做当前分析ID继续执行
-        //循环分析数据 不需要分析 功能指向循环位置
+
         /**
          * 判断是否是循环逻辑 并处理循环逻辑
          */
-        if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
+        //如果循环ID不为空的话 说明分析数据为循环分析则需要调出循环ID当做当前分析ID继续执行
+        //循环分析数据 不需要分析 功能指向循环位置
+        if (problemScanLogic.getCycleStartId()!=null
+                && !(problemScanLogic.getCycleStartId().equals("null"))){
+
             //比较循环次数和最大循环测试
             loop = loop + 1;
             if (loop > numberOfCycles){
+                /*循环超过了最大循环次数*/
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();
                     if (subversionNumber!=null){
@@ -1320,12 +1327,23 @@ public class SwitchInteraction {
 
                 return null;
             }
+
             /*需要调出循环ID 当做 当前分析ID 继续执行*/
-            currentID = problemScanLogic.getCycleStartId();
-            String loop_string = selectProblemScanLogicById(switchParameters,/*交换机信息类*/totalQuestionTable,/*交换机问题类*/return_information_array,/*交换机返回信息 行数组*/
-                    "", /*单次提取数据 因为是要进行下一循环 所以 传输为""*/extractInformation_string, /*该问题全部提取数据*/
-                    line_n, /*光标位置*/firstID, /*第一分析ID*/problemScanLogicList, /*交换机分析数据集合 用于专项扫描*/currentID, /*当前分析ID*/
-                    insertsInteger, /*问题插入数据库次数*/loop, /*循环次数*/numberOfCycles);/*最大循环次数*/
+            /*currentID = problemScanLogic.getCycleStartId();*/
+            String loop_string = selectProblemScanLogicById(
+                    switchParameters,/*交换机信息类*/
+                    totalQuestionTable,/*交换机问题类*/
+                    return_information_array,/*交换机返回信息 行数组*/
+                    "", /*单次提取数据 因为是要进行下一循环 所以 传输为""*/
+                    extractInformation_string, /*该问题全部提取数据*/
+                    line_n, /*光标位置*/
+                    firstID, /*第一分析ID*/
+                    problemScanLogicList, /*交换机分析数据集合 用于专项扫描*/
+                    problemScanLogic.getCycleStartId(), /*当前分析ID*/
+                    insertsInteger, /*问题插入数据库次数*/
+                    loop, /*循环次数*/
+                    numberOfCycles);/*最大循环次数*/
+
             return loop_string;
         }
 
@@ -1365,40 +1383,60 @@ public class SwitchInteraction {
                     }
                 }
 
-                //问题数据 插入问题表 如果有参数 及插入
+                //问题数据 插入问题表
                 Long insertId = insertSwitchScanResult(switchParameters, totalQuestionTable, problemScanLogic, current_Round_Extraction_String);
+                if (insertId < 0){
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    try {
+                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
+                                "问题数据插入失败\r\n");
+                        PathHelper.writeDataToFile(
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
+                                        "问题数据插入失败\r\n"
+                        );
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return "问题数据插入失败";
+                }
+
+
                 //插入问题数据次数 加一
                 insertsInteger++;
                 /*单词提取数据清空*/
                 current_Round_Extraction_String = "";
                 //根据 用户信息 和 扫描时间 获取扫描出问题数据列表  集合 并放入 websocket
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+                /**查询当前扫描出的问题表放入websocket*/
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-                //getSwitchScanResultListBySwitchParameters(switchParameters);
 
+                //getSwitchScanResultListBySwitchParameters(switchParameters);
                 /*如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
                 则tNextId赋值给当前分析ID 调用本方法，继续分析流程。*/
-                /*完成、有问题、无问题时，走下一t ID*/
+                /*有问题、无问题时，走下一t ID*/
                 if (problemScanLogic.gettNextId() != null){
-                    currentID = problemScanLogic.gettNextId();
+
                     /*如果使用 第一条分析ID firstID  则 当前分析ID currentID 要为 null*/
                     String loop_string = selectProblemScanLogicById(switchParameters,totalQuestionTable,
                             return_information_array,"",extractInformation_string,
-                            line_n,firstID,problemScanLogicList,currentID,insertsInteger, loop, numberOfCycles);
-
+                            line_n,firstID,problemScanLogicList,
+                            problemScanLogic.gettNextId(), /*currentID = problemScanLogic.gettNextId();*/
+                            insertsInteger, loop, numberOfCycles);
                     return loop_string;
-
                 }
 
-                /*如果tComId不为空时，则调用方法executeScanCommandByCommandId发送新命令，通过analysisReturnResults进行新的分析。*/
+                /*如果tComId不为空时，则调用方法executeScanCommandByCommandId发送新命令，
+                通过analysisReturnResults进行新的分析。*/
                 if (problemScanLogic.gettComId() != null){
                     List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
-                    /*if (executeScanCommandByCommandId_object.size() == 1){
-                        AjaxResult ajaxResult = (AjaxResult) executeScanCommandByCommandId_object.get(0);
-                        if ((ajaxResult.get("msg")+"").indexOf("错误") !=-1){
-                            return ajaxResult.get("msg")+"";
-                        }
-                    }*/
                     if ((executeScanCommandByCommandId_object.get(0) instanceof String)
                             && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
                         /*交换机返回错误信息处理*/
@@ -1409,29 +1447,28 @@ public class SwitchInteraction {
                     return analysisReturnResults_String;
                 }
             }
-            //TODO ProblemId 包含完成 且 插入条数insertsInteger 为0
+
+            // ProblemId 包含完成 且 插入条数insertsInteger 为0
+
             // 分析执行 完成
             /*完成有程序分析结束  也可能是 获取基本信息 结束*/
-            if (problemScanLogic.getProblemId().equals("完成")){
+            if (problemScanLogic.getProblemId().equals("完成") && insertsInteger == 0){
+                //问题数据 插入问题表  完成
+                //Long insertId = insertSwitchScanResult(switchParameters, totalQuestionTable, problemScanLogic, current_Round_Extraction_String);
+                return extractInformation_string;
+            }else if (problemScanLogic.getProblemId().equals("完成")){
                 return extractInformation_string;
             }
+
         }
 
 
-
-
+        /*匹配方式*/
         String matching_logic = "";
         //相对位置行
         String relativePosition_line ="";
         /*//相对位置列
         String relativePosition_row ="";*/
-
-        //分析数据 的 关键字
-        String matchContent = "";
-        if (problemScanLogic.getMatchContent()!=null){
-            matchContent = problemScanLogic.getMatchContent().trim();
-        }
-
         if (problemScanLogic.getRelativePosition()!=null && !(problemScanLogic.getRelativePosition().equals("null"))){
             /* present,0 */  /*present 当前行*/
             String[] relativePosition_split = problemScanLogic.getRelativePosition().split(",");
@@ -1459,25 +1496,29 @@ public class SwitchInteraction {
         //比较分析
         String compare = problemScanLogic.getCompare();
 
-        /* 记录之前的光标位置 */
+        /* 定义记录之前的光标位置的参数 */
         int frontMarker = 0;
-        /* 取词 */
+        /** 取词 */
         if (action != null && action.indexOf("full") != -1){
-            /*full为全文扫描  relativePosition_line是相对于第几行*/
+            /*full为 相对于全文取词    ：   取词full
+            relativePosition_line是相对于第几行
+            */
             frontMarker = line_n;
             line_n = Integer.valueOf(relativePosition_line).intValue();
-        }else if (action != null && action.equalsIgnoreCase("取词")){//&& action.indexOf("present") != -1  present 改为了空
-            /*present为按行扫描  此时不需要记录之前光标 relativePosition_line 相对于第几行
-            当relativePosition_line = 0是 扫描光标行*/
-            int line_number = Integer.valueOf(relativePosition_line).intValue();
-            line_n = line_n + line_number;
+        }else if (action != null && action.equalsIgnoreCase("取词")){
+            //&& action.indexOf("present") != -1  present 改为了空
+            /*present为按行扫描  此时不需要记录之前光标
+            relativePosition_line 相对于第几行
+            当relativePosition_line = 0 是 扫描光标行*/
+
+            line_n = line_n + Integer.valueOf(relativePosition_line).intValue();
         }
+
+
 
         /*匹配逻辑 */
         if (matched != null && matching_logic!=""){
-            /*
-                full全文按行  &   presentrelative
-
+            /*full全文按行  &   presentrelative
             * full&full       记录位置 回到第一行 开始全文扫描
             * full&present    不记录位置 从当前行 开始全文扫描
             * present&present 不记录位置 只在当前行
@@ -1500,6 +1541,7 @@ public class SwitchInteraction {
                 case "present&full":     //全文匹配 当前行 无意义
                     break;
                 default:
+
                     String[] matching_logic_split = matching_logic.split("&");
                     if (matching_logic_split.length == 2){
                         /* N 转化为 int类型 */
@@ -1518,8 +1560,17 @@ public class SwitchInteraction {
                         frontMarker = line_n;
                         line_n = line_n;
                     }
+
             }
         }
+
+
+        //分析数据 的 关键字
+        String matchContent = "";
+        if (problemScanLogic.getMatchContent()!=null){
+            matchContent = problemScanLogic.getMatchContent().trim();
+        }
+
 
         //从line_n=0 开始检索集合 一直到最后一位
         for (int num = line_n; num<return_information_array.length; num++){
@@ -1528,14 +1579,17 @@ public class SwitchInteraction {
             line_n = num;
             //返回信息的数组元素 第 num 条
             String information_line_n = return_information_array[num];
+
             //匹配逻辑 有成功失败之分
             if (matched != null){
+                /** 匹配方法 */
                 //根据匹配方法 得到是否匹配（成功:true 失败:false）
                 //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
                 boolean matchAnalysis_true_false = FunctionalMethods.matchAnalysis(matched, information_line_n, matchContent.trim());
+
                 //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
                 if (matchAnalysis_true_false){
-
+                    /**匹配成功*/
                     try {
                         String subversionNumber = switchParameters.getSubversionNumber();
                         if (subversionNumber!=null){
@@ -1553,21 +1607,27 @@ public class SwitchInteraction {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
-                    /* 进行 成功逻辑*/
+                    /**扫描分析成功逻辑*/
                     String trueLogic = trueLogic(switchParameters, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
                             line_n, firstID, problemScanLogicList, currentID,
                             insertsInteger, loop, numberOfCycles, problemScanLogic);
                     return trueLogic;
-                    //匹配失败
                 }else {
-                    //relativePosition.equals("null") 全文检索 数据表修改之前历史遗留问题
-                    // 如果不是最后一条信息 并且 全文检索(full&)的话  则返回到循环 返回信息数组 的下一条
-                    if ((matching_logic.indexOf("full&")!=-1
-                            || problemScanLogic.getRelativePosition().indexOf("null") != -1 )
-                            && num<return_information_array.length-1){
+                    /**匹配失败*/
+                    /*
+                    *
+                    * 取词方法包含 "full&"  则说明是全文匹配 则需要配置当前及下文数据
+                    * 并且 当前行不为 倒数第二行时（倒数第一行 为 标识符 如：<H3C-S2152-1> ） 则 continue 继续遍历
+                    *
+                    */
+
+                    /*|| problemScanLogic.getRelativePosition().indexOf("null") != -1
+                    注释原因 逻辑修改后一定不包含null
+                      参数值一般为 ： present,0   full,0   1,0   0,1*/
+
+                    if ((matching_logic.indexOf("full&")!=-1)
+                            && num < return_information_array.length-1){
                         continue;
                     }
 
@@ -1585,13 +1645,10 @@ public class SwitchInteraction {
                                 "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                         "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                                        "、"+matched+matchContent+"失败\r\n"
-                        );
+                                        "、"+matched+matchContent+"失败\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
                     /*失败逻辑*/
                     String falseLogic = falseLogic(switchParameters, totalQuestionTable,
                             return_information_array, current_Round_Extraction_String, extractInformation_string,
@@ -1603,9 +1660,9 @@ public class SwitchInteraction {
                 }
             }
 
-
             //取词
             if (action!=null && !action.equals("null")){
+
                 //取词数
                 String wordSelection_string = null;
                 if (action.equals("品牌")){
@@ -1622,12 +1679,16 @@ public class SwitchInteraction {
                             information_line_n,matchContent, //返回信息的一行     matchContent.trim() 提取关键字
                             relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
                 }
+
                 //取词逻辑只有成功，但是如果取出为空 则为 取词失败
                 if (wordSelection_string == null){
+
+                    /* action.indexOf("full") != -1 取词包含 full  则 说明是全文取词 */
                     if (action.indexOf("full") != -1){
                         /*取词逻辑失败 光标返回 回到0行之前位置 */
                         line_n  =  frontMarker;
                     }
+
                     try {
                         String subversionNumber = switchParameters.getSubversionNumber();
                         if (subversionNumber!=null){
@@ -1683,12 +1744,16 @@ public class SwitchInteraction {
                         return_information_array, current_Round_Extraction_String, extractInformation_string,
                         line_n, firstID, problemScanLogicList, currentID,
                         insertsInteger, loop, numberOfCycles, problemScanLogic);
+
                 return trueLogic;
+
             }
             //比较
             if (compare!=null){
-                //比较
+
+                /** 比较 */
                 boolean compare_boolean = FunctionalMethods.compareVersion(switchParameters,compare,current_Round_Extraction_String);
+
                 if (compare_boolean){
                     try {
                         String subversionNumber = switchParameters.getSubversionNumber();
@@ -1730,6 +1795,7 @@ public class SwitchInteraction {
                         e.printStackTrace();
                     }
                 }
+
                 if (compare_boolean){
                     /*成功逻辑*/
                     String trueLogic = trueLogic(switchParameters, totalQuestionTable,
@@ -1752,46 +1818,54 @@ public class SwitchInteraction {
 
 
     /**
-    * @Description  true逻辑
+    * @Description  扫描分析成功逻辑
     * @author charles
     * @createTime 2023/10/19 10:16
     * @desc
-    * @param switchParameters
-     * @param totalQuestionTable
-     * @param return_information_array
-     * @param current_Round_Extraction_String
-     * @param extractInformation_string
-     * @param line_n
-     * @param firstID
-     * @param problemScanLogicList
-     * @param currentID
-     * @param insertsInteger
-     * @param loop
-     * @param numberOfCycles
-     * @param problemScanLogic
-     * @return
+    * @param switchParameters 交换机登录信息
+     * @param totalQuestionTable  问题表
+     * @param return_information_array  交换机返回信息
+     * @param current_Round_Extraction_String 单词提取信息
+     * @param extractInformation_string 完整取词信息
+     * @param line_n 扫描光标行数
+     * @param firstID 分析逻辑开始ID
+     * @param problemScanLogicList  分析逻辑数据集合
+     * @param currentID 当前分析ID
+     * @param insertsInteger 插入数据次数
+     * @param loop 循环次数
+     * @param numberOfCycles  最大循环次数
+     * @param problemScanLogic  分析逻辑
+     *
+     * @return 返回提取信息 或者 null
     */
     public String trueLogic(SwitchParameters switchParameters,TotalQuestionTable totalQuestionTable,
                             String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
                             int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
                             Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
+
         /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
         if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
+            /**发送命令 返回结果*/
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
             if ((executeScanCommandByCommandId_object.get(0) instanceof String)
                     && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
                 /*交换机返回错误信息处理*/
                 return null;
             }
+            /** 分析 */
             String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
                     executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
             return analysisReturnResults_String;
         }
-        /* 判断 下一条分析ID 是否为空 不为空 则继续进行分析*/
+
+        /** 判断 下一条分析ID 是否为空
+         * 不为空 则继续进行分析*/
         if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
+            /*继续进行分析*/
             String ProblemScanLogic_returnstring = selectProblemScanLogicById(switchParameters,totalQuestionTable,
                     return_information_array,current_Round_Extraction_String,extractInformation_string,
                     line_n,firstID,problemScanLogicList,problemScanLogic.gettNextId(),insertsInteger, loop, numberOfCycles);
+
             //如果返回信息为null
             if (ProblemScanLogic_returnstring!=null){
                 //内分析传到上一层
@@ -1799,8 +1873,10 @@ public class SwitchInteraction {
                 extractInformation_string = ProblemScanLogic_returnstring;
                 return ProblemScanLogic_returnstring;
             }
+
             return ProblemScanLogic_returnstring;
         }
+
         return null;
     }
 
@@ -1828,23 +1904,26 @@ public class SwitchInteraction {
                              Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
         /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
         if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
+            /**发送命令 返回结果*/
             List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.getfComId());
             if ((executeScanCommandByCommandId_object.get(0) instanceof String)
                     && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
                 /*交换机返回错误信息处理*/
                 return null;
             }
+            /** 分析 */
             String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
                     executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
             return analysisReturnResults_String;
         }
-        /* 判断 下一条分析ID 是否为空 不为空 则继续进行分析*/
+        /* 判断 下一条分析ID 是否为空
+        不为空 则继续进行分析*/
         if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
-            //下一条frue分析ID
-            String fNextId = problemScanLogic.getfNextId();
             String ProblemScanLogic_returnstring = selectProblemScanLogicById(switchParameters,totalQuestionTable,
                     return_information_array,current_Round_Extraction_String,extractInformation_string,
-                    line_n,firstID,problemScanLogicList,fNextId,insertsInteger, loop, numberOfCycles);
+                    line_n,firstID,problemScanLogicList,
+                    problemScanLogic.getfNextId(), // problemScanLogic.getfNextId(); 下一条frue分析ID
+                    insertsInteger, loop, numberOfCycles);
             //如果返回信息为null
             if (ProblemScanLogic_returnstring!=null){
                 //内分析传到上一层
@@ -1857,47 +1936,59 @@ public class SwitchInteraction {
         return null;
     }
 
+
+
     /**
-     * @method: 插人动态信息数据
-     * @Param: [Map<String,String> user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接
-     *                 boolean boo  分析成功 还是分析失败 true && false
-     *                 ProblemScanLogic problemScanLogic 分析信息
-     *                 String parameterString 单词提取信息
-     *                 ]
-     * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
+    * @Description
+    * @author charles
+    * @createTime 2023/10/25 14:13
+    * @desc
+    * @param switchParameters	交换机登录信息
+     * @param totalQuestionTable	问题表
+     * @param problemScanLogic	 分析信息
+     * @param parameterString	 单词提取信息
+     * @return
+    */
     public Long insertSwitchScanResult (SwitchParameters switchParameters,
                                         TotalQuestionTable totalQuestionTable,
                                         ProblemScanLogic problemScanLogic,
                                         String parameterString){
-        //截取 有问题 还是 无问题
+        //有问题、无问题
         String substring = problemScanLogic.getProblemId();
-        //截取 问题代码
+        //问题ID
         String problemId = totalQuestionTable.getId()+"";
+        /*扫描结果表实体类*/
         SwitchScanResult switchScanResult = new SwitchScanResult();
-        //插入问题数据
+        //交换机ID 和 扫描线程名
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
         /*获取交换机四项基本信息ID*/
         switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
+        /*名字 密码 配置密码 连接方式 端口号*/
         switchScanResult.setSwitchName(switchParameters.getName()); //name
         switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
         switchScanResult.setConfigureCiphers(switchParameters.getConfigureCiphers());
         switchScanResult.setLoginMethod(switchParameters.getMode());
         switchScanResult.setPortNumber(switchParameters.getPort());
+        /*问题索引*/
         switchScanResult.setProblemId(problemId); // 问题索引
+        /*范式分类 范式名称 自定义名称*/
         switchScanResult.setTypeProblem(totalQuestionTable.getTypeProblem());
         switchScanResult.setTemProName(totalQuestionTable.getTemProName());
         switchScanResult.setProblemName(totalQuestionTable.getProblemName());
+        /*问题备注 问题详细说明和指导索引*/
         switchScanResult.setRemarks(totalQuestionTable.getRemarks());
         switchScanResult.setProblemDescribeId(totalQuestionTable.getProblemDescribeId());
+        /* 取值参数 */
         switchScanResult.setDynamicInformation(parameterString);
-        switchScanResult.setIfQuestion(substring); //是否有问题
+        /*是否有问题*/
+        switchScanResult.setIfQuestion(substring);
+
+        /** 判断是否定义解决问题逻辑*/
         if (totalQuestionTable.getProblemSolvingId() != null){
             switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());//命令索引
         }else {
-            /*//传输登陆人姓名 及问题简述
+
+            //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+totalQuestionTable.getId()
                     +totalQuestionTable.getTypeProblem()+totalQuestionTable.getTemProName()+totalQuestionTable.getProblemName()
                     +"未定义解决问题\r\n");
@@ -1908,17 +1999,27 @@ public class SwitchInteraction {
                         +"未定义解决问题\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
-            }*/
+            }
+
         }
+
         switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
         switchScanResult.setPhonenumber(switchParameters.getLoginUser().getUser().getPhonenumber()); //登录手机号
+
         //插入 扫描时间
         DateTime dateTime = new DateTime(switchParameters.getScanningTime(), "yyyy-MM-dd HH:mm:ss");
         switchScanResult.setCreateTime(dateTime);
+
         //插入问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+
         int insertId = switchScanResultService.insertSwitchScanResult(switchScanResult);
-        return switchScanResult.getId();
+        if (insertId > 0){
+            return switchScanResult.getId();
+        }
+
+        return Long.valueOf(insertId).longValue();
+
     };
 
 
@@ -2193,7 +2294,11 @@ public class SwitchInteraction {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;
+
+            List<Object> objectList = new ArrayList<>();
+            objectList.add("错误信息:定义问题扫描命令不存在");
+            return objectList;
+
         }
         //具体命令
         String command = commandLogic.getCommand().trim();

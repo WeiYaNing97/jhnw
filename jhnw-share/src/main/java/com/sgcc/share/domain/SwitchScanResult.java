@@ -26,8 +26,8 @@ public class SwitchScanResult extends BaseEntity
     @Excel(name = "交换机四项基本信息表ID索引")
     private Long switchId;
 
-    /** 交换机姓名 */
-    @Excel(name = "交换机姓名")
+    /** 交换机名 */
+    @Excel(name = "交换机名")
     private String switchName;
 
     /** 交换机密码 */
