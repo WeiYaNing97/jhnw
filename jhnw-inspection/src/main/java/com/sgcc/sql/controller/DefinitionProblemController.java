@@ -80,7 +80,7 @@ public class DefinitionProblemController extends BaseController {
         DefinitionProblemController definitionProblemController = new DefinitionProblemController();
         for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
             HashMap<String, Object> scanLogicalEntityClass = definitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
-            if (scanLogicalEntityClass != null){
+            if (scanLogicalEntityClass.size() != 0){
                 /*命令数据*/
                 List<CommandLogic> commandLogics = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
                 if (commandLogics != null){
@@ -952,24 +952,20 @@ public class DefinitionProblemController extends BaseController {
 
     /**
      * 存放入 数据库里的数据 实体类  拆分  true  false
-     * @param ProblemScanLogicList
+    * @Description  当错误行号不为空时 则 错误信息取出 放入 一个新的实体类 然后放入 需要返回的实体类集合 并把原实体类错误信息清空
+    * @author charles
+    * @createTime 2023/11/3 13:13
+    * @desc
+    * @param ProblemScanLogicList
      * @return
-     */
+    */
     public  List<ProblemScanLogic> splitSuccessFailureLogic(List<ProblemScanLogic> ProblemScanLogicList) {
-        /*遍历 分析集合
-         * 当错误行号不为空时 则 错误信息取出 放入 一个新的实体类 然后放入 需要返回的实体类集合 并把原实体类错误信息清空
-         * 原实体类 放入 需要返回的实体类集合
-         * */
+        /* 定义需要返回的实体类*/
         List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
-
-        if (ProblemScanLogicList == null){
-            return ProblemScanLogics;
-        }
-
+        /*当错误行号不为空时 则 错误信息取出 放入 一个新的实体类 然后放入 需要返回的实体类集合 并把原实体类错误信息清空*/
         for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
             if (problemScanLogic.getfLine()!=null){
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
-
                 problemScanLogicf.setId(problemScanLogic.getId());
                 problemScanLogicf.setMatched(problemScanLogic.getMatched());
                 problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
@@ -980,16 +976,13 @@ public class DefinitionProblemController extends BaseController {
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
                 problemScanLogic.setfLine(null);
                 problemScanLogic.setfNextId(null);
-
                 problemScanLogic.setProblemId(null);
                 problemScanLogic.setfComId(null);
                 ProblemScanLogics.add(problemScanLogicf);
             }
             ProblemScanLogics.add(problemScanLogic);
         }
-
         return ProblemScanLogics;
-
     }
 
 
@@ -1162,13 +1155,16 @@ public class DefinitionProblemController extends BaseController {
         /*根据 交换机问题实体类 获得命令集合和分析实体类集合*/
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
 
-        if (scanLogicalEntityClass == null){
-            return null;
+        if (scanLogicalEntityClass.size() == 0){
+            return new ArrayList<>();
         }
+        /* 获取两个实体类集合*/
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+
         HashMap<Long,String> hashMap = new HashMap<>();
         for (CommandLogic commandLogic:commandLogicList){
+            /* 1=:={"onlyIndex"="1697080798279","trueFalse"="","pageIndex"="1","command"="dis cu","para"="","resultCheckId"="0","nextIndex"="1697080824879"} */
             String commandLogicString = commandLogicString(commandLogic);
             String[] commandLogicStringsplit = commandLogicString.split("=:=");
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
@@ -1178,13 +1174,16 @@ public class DefinitionProblemController extends BaseController {
             String[] problemScanLogicStringsplit = problemScanLogicString.split("=:=");
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
-        List<String> stringList = new ArrayList<>();
+
+        /*List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
             if (hashMap.get(number+1)!=null && !(hashMap.get(number+1).equals("null"))){
                 System.err.println(hashMap.get(number+1));
                 stringList.add(hashMap.get(number+1));
             }
-        }
+        }*/
+        Collection<String> values = hashMap.values();
+        List<String> stringList = new ArrayList<>(values);
         return stringList;
     }
 
@@ -1198,54 +1197,61 @@ public class DefinitionProblemController extends BaseController {
      * @return
     */
     public  HashMap<String,Object> getScanLogicalEntityClass(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser) {
-        /*判断分析ID 是否为空 */
-        /*if (totalQuestionTable.getLogicalID() == null){
-            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-            List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
-            if (null == totalQuestionTables || totalQuestionTables.size() ==0 ){
-                return null;
-            }
-            totalQuestionTable = totalQuestionTables.get(0);
-        }*/
-
-        /*取出命令 或 分析 字段*/
+        /* 判断分析ID 是否为空
+         * 如果为空 则 返回 null
+         * 取出命令 或 分析 字段 */
         if (totalQuestionTable.getLogicalID() == null){
-            return null;
+            return new HashMap<>();
         }
         String problemScanLogicID = totalQuestionTable.getLogicalID();
 
-        /*去除 "命令" 或 "分析"  */
-        String problemId = null;
-        String commandID = null;
+
+        /*
+        * 去除 "命令" 或 "分析"
+        * 得到 命令表 或者    分析表ID（存入分析集合）
+        * */
+        List<String> problemIds = new ArrayList<>();
+        List<String> commandIDs = new ArrayList<>();
         if (problemScanLogicID.indexOf("分析") != -1){
-            problemId = problemScanLogicID.replaceAll("分析","");
+            problemIds.add(problemScanLogicID.replaceAll("分析",""));
         }else if (problemScanLogicID.indexOf("命令") != -1){
-            commandID = problemScanLogicID.replaceAll("命令","");
+            commandIDs.add(problemScanLogicID.replaceAll("命令",""));
         }
 
-
+        /* 命令表集合
+        * 返回分析数据集合 */
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
 
         HashMap<String,Object> hashMappojo = new HashMap<>();
         do {
-            /*如果分析ID 不为空 */
-            if (problemId != null){
-                //根据第一个分析ID 查询出所有的数据条数
+            /* 如果分析ID 不为空
+             * 则当前的ID为 分析数据ID */
+            if (problemIds.size() != 0){
+                //根据分析ID 查询出所有的数据条数
                 /*需要行号 所以 需要拆分 true false */
-                List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
-                problemScanLogicList =splitSuccessFailureLogic(problemScanLogicList);
+                List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+                for (String problemId:problemIds){
+                    problemScanLogicList.addAll(problemScanLogicList(problemId,loginUser));//commandLogic.getProblemId()
+                }
 
-                problemId = null;
-                if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+                /*存放入数据库里的数据实体类拆分true和false*/
+                problemScanLogicList =splitSuccessFailureLogic(problemScanLogicList);
+                /* 查询完数据 将分析ID置空 */
+                problemIds = new ArrayList<>();
+                if (problemScanLogicList == null || problemScanLogicList.size() ==0 ){
                     HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
                     ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
                     ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
                     return ScanLogicalEntityMap;
 
                 }
+
                 /*遍历分析实体类集合，筛选出 命令ID  拼接命令String*/
                 for (ProblemScanLogic problemScanLogic:problemScanLogicList){
+                    /* 根据行号 查询 map集合中 是否存在 分析实体类
+                    * 存在则结束本次循环
+                    * 不存在 则插入map集合 并插入 返回分析数据集合 */
                     if (hashMappojo.get(problemScanLogic.gettLine()) != null
                             || hashMappojo.get(problemScanLogic.getfLine()) != null){
                         continue;
@@ -1253,122 +1259,60 @@ public class DefinitionProblemController extends BaseController {
                         if (problemScanLogic.gettLine() != null){
                             hashMappojo.put(problemScanLogic.gettLine(),problemScanLogic);
                         }
-
                         if (problemScanLogic.getfLine() != null){
                             hashMappojo.put(problemScanLogic.getfLine(),problemScanLogic);
                         }
-
                     }
-
+                    /*插入 返回分析数据集合*/
                     problemScanLogics.add(problemScanLogic);
-
+                    /*判断 下一命令ID是否为空 不为空则 插入命令ID集合*/
                     if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
-                        if (commandID == null){
-                            commandID = problemScanLogic.gettComId()+":";
-                        }else {
-                            commandID += problemScanLogic.gettComId()+":";
-                        }
+                        commandIDs.add(problemScanLogic.gettComId());
                     }
-
                     if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
-                        if (commandID == null){
-                            commandID = problemScanLogic.getfComId()+":";
-                        }else {
-                            commandID += problemScanLogic.getfComId()+":";
-                        }
+                        commandIDs.add(problemScanLogic.getfComId());
                     }
-
                 }
                 /*如果 取出的 分析数据 没有下一命令ID 则 退出 do while*/
-                if (commandID == null){
+                if (commandIDs.size() == 0){
                     break;
                 }
-
             }
 
-            /*如果 命令ID 不为空*/
-            if (commandID != null){
-                /*如果 命令ID 包含 ： 则需要去掉最后一个 ：*/
-                if (commandID.indexOf(":")!=-1){
-                    commandID = commandID.substring(0,commandID.length()-1);
-                }
-
-                String[] commandIDsplit = commandID.split(":");
+            /*如果 命令ID集合 不为空*/
+            if (commandIDs.size() != 0){
+                List<String>  commandIDList = commandIDs;
                 /*命令ID 清空 */
-                commandID = null;
+                commandIDs = new ArrayList<>();
+                for (String commandid:commandIDList){
 
-                for (String commandid:commandIDsplit){
-                    if (problemId == null){
-                        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-                        CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandid);
-                        if (commandLogic == null || commandLogic.getProblemId() == null){
-                            HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
-                            ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
-                            ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
-                            return ScanLogicalEntityMap;
-                        }
-                        commandLogicList.add(commandLogic);
+                    commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+                    CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandid);
+                    if (commandLogic == null || commandLogic.getProblemId() == null){
+                        HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
+                        ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
+                        ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
+                        return ScanLogicalEntityMap;
+                    }
 
-                        if (hashMappojo.get(commandLogic.getcLine()) != null){
-                            continue;
-                        }else {
-                            hashMappojo.put(commandLogic.getcLine(),commandLogic);
-                        }
+                    commandLogicList.add(commandLogic);
+                    if (hashMappojo.get(commandLogic.getcLine()) != null){
+                        continue;
+                    }else {
+                        hashMappojo.put(commandLogic.getcLine(),commandLogic);
+                    }
 
-                        /*根据命令实体类 ResultCheckId 值  考虑 是否走 分析表
-                         * ResultCheckId 为 0 时，则 进行分析
-                         * ResultCheckId 为 1 时，则 进行拼接命令String */
-                        if (commandLogic.getResultCheckId().equals("0")){
-                            //根据第一个分析ID 查询出所有的数据条数
-                            /*需要行号 所以 需要拆分 true false */
-                            List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId(),loginUser);//commandLogic.getProblemId()
-                            problemScanLogicList =splitSuccessFailureLogic(problemScanLogicList);
-
-                            if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-                                HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
-                                ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
-                                ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
-                                return ScanLogicalEntityMap;
-                            }
-                            /*遍历分析实体类集合，筛选出 命令ID  拼接命令String*/
-                            for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-
-                                if (hashMappojo.get(problemScanLogic.gettLine()) != null || hashMappojo.get(problemScanLogic.getfLine()) != null){
-                                    continue;
-                                }else {
-                                    if (problemScanLogic.gettLine() != null){
-                                        hashMappojo.put(problemScanLogic.gettLine(),problemScanLogic);
-                                    }
-                                    if (problemScanLogic.getfLine() != null){
-                                        hashMappojo.put(problemScanLogic.getfLine(),problemScanLogic);
-                                    }
-                                }
-
-                                problemScanLogics.add(problemScanLogic);
-                                if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
-                                    if (commandID == null){
-                                        commandID = problemScanLogic.gettComId()+":";
-                                    }else {
-                                        commandID += problemScanLogic.gettComId()+":";
-                                    }
-                                }
-                                if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!= ""){
-                                    if (commandID == null){
-                                        commandID = problemScanLogic.getfComId()+":";
-                                    }else {
-                                        commandID += problemScanLogic.getfComId()+":";
-                                    }
-                                }
-                            }
-                        }else {
-                            commandID = commandLogic.getEndIndex()+":";
-                        }
-
+                    /*根据命令实体类 ResultCheckId 值  考虑 是否走 分析表
+                     * ResultCheckId 为 0 时，则 进行分析
+                     * ResultCheckId 为 1 时，则 进行命令 */
+                    if (commandLogic.getResultCheckId().equals("0")){
+                        problemIds.add(commandLogic.getProblemId());
+                    }else {
+                        commandIDs.add(commandLogic.getEndIndex());
                     }
                 }
             }
-
-        }while (commandID != null);
+        }while (commandIDs.size() != 0 || problemIds.size() != 0);
 
         HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
         ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
@@ -1394,12 +1338,15 @@ public class DefinitionProblemController extends BaseController {
         /*获取命令集合和分析逻辑集合*/
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
 
+
         /*命令集合*/
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         /*分析逻辑集合*/
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+
         String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
         String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
+
 
         int deleteCommandLogicByIds = 1;
 
@@ -1409,7 +1356,7 @@ public class DefinitionProblemController extends BaseController {
         }
 
         /*当命令删除成功 且 存在分析时*/
-        if (deleteCommandLogicByIds>0 && problemScanLogicId.length>0){
+        if (deleteCommandLogicByIds >0 && problemScanLogicId.length >0){
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             int deleteProblemScanLogicByIds = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicId);
             if (deleteProblemScanLogicByIds>0){
@@ -1476,26 +1423,32 @@ public class DefinitionProblemController extends BaseController {
     }
 
     /**
-     * @method: 根据分析ID 获取 分析实体类集合
-     * @Param: [problemScanLogicID]
-     * @return: java.util.List<com.sgcc.sql.domain.ProblemScanLogic>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
+     * 根据分析ID 获取 分析实体类集合
+    * @Description
+    * @author charles
+    * @createTime 2023/11/3 13:24
+    * @desc
+    * @param problemScanLogicID
+     * @param loginUser
+     * @return  返回 集合
+    */
     //@RequestMapping("problemScanLogicList")
     public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID,LoginUser loginUser){
 
         /*预设跳出循环条件 为 false*/
         boolean contain = false;
+
         /*预设map key为分析表ID value为 分析表实体类*/
         Map<String,ProblemScanLogic> problemScanLogicHashMap = new HashMap<>();
-
         do {
             String  problemScanID = "";
-            /*分析ID 根据“：” 分割 为 分析ID数组*/
+            /*分析ID 根据“：” 分割 为 分析ID数组
+            * 因为分析逻辑 可能出现 true 和 false 多个ID情况*/
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
+
             /*遍历分析ID数组*/
             for (String id:problemScanLogicIDsplit){
+
                 /*根据分析ID 在 map中查询 分析实体类
                 * 如果查询不为null 则 说明 map中存在 分析实体类
                 * 需要进行 分析ID数组的 下一项 查询  。
@@ -1505,14 +1458,15 @@ public class DefinitionProblemController extends BaseController {
                     problemScanLogicHashMap.put(id,pojo);
                     continue;
                 }
+
                 /*如果查询为null 则 说明 map中不存在 分析实体类
                 * 需要到数据库中查询
                 * 并放入 map中 存储
                 * 如果查询结果为 null 则返回 查询结果为null*/
                 problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
-                if (problemScanLogic ==null){
 
+                if (problemScanLogic ==null){
                     //传输登陆人姓名 及问题简述
                     WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"根据ID："+id+"查询分析表数据失败,未查出对应ID数据\r\n");
                     try {
@@ -1522,47 +1476,52 @@ public class DefinitionProblemController extends BaseController {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-                    return null;
+                    /* 返回空集合 */
+                    return new ArrayList<>();
                 }
                 problemScanLogicHashMap.put(id,problemScanLogic);
+
                 /*当循环ID不为空时，则查询逻辑中，分支中没有下一行ID
                 * 则 进行下一元素的分析iD*/
                 if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
                     continue;
                 }
-                /*解决 完成后 有数据 逻辑错误 不能显示问题 */
-                /*if (problemScanLogic.getProblemId()!=null && (problemScanLogic.getProblemId().equals("完成"))){
-                    continue;
-                }*/
-                /*如果 正确 下一ID 不为空 则 拼接到此轮 分析表ID中*/
+
+                /*如果 正确 下一ID 不为空 则 拼接到 分析表ID中*/
                 if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
                         && problemScanLogic.gettNextId()!="" &&  !(MyUtils.isContainChinese(problemScanLogic.gettNextId()))){
                     problemScanID += problemScanLogic.gettNextId()+":";
                 }
-                /*如果 错误 下一ID 不为空 则 拼接到此轮 分析表ID中*/
+                /*如果 错误 下一ID 不为空 则 拼接到 分析表ID中*/
                 if (problemScanLogic.getfNextId()!=null && !(problemScanLogic.getfNextId().equals("null"))
                         && problemScanLogic.getfNextId()!="" &&  !(MyUtils.isContainChinese(problemScanLogic.getfNextId()))){
                     problemScanID += problemScanLogic.getfNextId()+":";
                 }
+
             }
+
             /*如果没有ID 则 视为没有下一层 分析数据 则 退出 do while*/
             if (problemScanID.equals("")){
                 break;
             }
+
             /*分割 分析ID 为数组
             * 遍历数组 及 map
             * 去除 map中存在的 分析ID*/
             String[] problemScanIDsplit = problemScanID.split(":");
             problemScanID = "";
             for (String id:problemScanIDsplit){
-                for (String hashSetid: problemScanLogicHashMap.keySet()){
+                if (problemScanLogicHashMap.get(id) == null){
+                    problemScanID += id+":";
+                }
+                /*for (String hashSetid: problemScanLogicHashMap.keySet()){
                     if (!(id.equals(hashSetid))){
                         problemScanID += id+":";
                     }
                     break;
-                }
+                }*/
             }
+
             /*如果problemScanID 不为 "" 则 contain = true
             * problemScanID 去掉 最后一个 ： */
             if (!(problemScanID.equals(""))){
@@ -1571,15 +1530,19 @@ public class DefinitionProblemController extends BaseController {
             }else {
                 contain = false;
             }
+
         }while (contain);
+
         /*map中数据 存放到list集合中*/
-        List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
+        /*List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
         Iterator<Map.Entry<String, ProblemScanLogic>> it = problemScanLogicHashMap.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, ProblemScanLogic> entry = it.next();
             ProblemScanLogicList.add(entry.getValue());
-        }
-
+        }*/
+        Collection<ProblemScanLogic> values = problemScanLogicHashMap.values();
+        // 将Collection转换为List
+        List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>(values);
         /*此时查询出了  数据库存储的 信息*/
         return ProblemScanLogicList;
     }
