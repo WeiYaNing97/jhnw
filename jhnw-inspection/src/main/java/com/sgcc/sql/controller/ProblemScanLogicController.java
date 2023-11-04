@@ -128,11 +128,11 @@ public class ProblemScanLogicController extends BaseController {
         if (totalQuestionTable == null
                 || totalQuestionTable.getLogicalID() == null
                 || totalQuestionTable.getLogicalID().equals("")){
-            return null;
+            return new ArrayList<>();
         }
         String problemScanLogicID = totalQuestionTable.getLogicalID();
         if (problemScanLogicID == null){
-            return null;
+            return new ArrayList<>();
         }
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
@@ -144,24 +144,18 @@ public class ProblemScanLogicController extends BaseController {
         }
         do {
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
-
             problemScanLogicID = "";
-
             for (String problemID:problemScanLogicIDsplit){
                 if (ProblemId == null){
                     commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
                     CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemID);
                     if (commandLogic == null || commandLogic.getProblemId() == null){
-                        return null;
+                        return new ArrayList<>();
                     }
                     commandLogicList.add(commandLogic);
-
                     if (commandLogic.getResultCheckId().equals("0")){
                         //根据第一个分析ID 查询出所有的数据条数
                         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(commandLogic.getProblemId());//commandLogic.getProblemId()
-                        if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-                            return null;
-                        }
                         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
                             problemScanLogics.add(problemScanLogic);
                             if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
@@ -174,20 +168,14 @@ public class ProblemScanLogicController extends BaseController {
                     }else {
                         problemScanLogicID = commandLogic.getEndIndex()+":";
                     }
-
                     if (problemScanLogicID!=""){
                         break;
                     }
                 }
-
                 if (ProblemId != null){
-
                     //根据第一个分析ID 查询出所有的数据条数
                     List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(ProblemId);//commandLogic.getProblemId()
                     ProblemId = null;
-                    if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-                        return null;
-                    }
                     for (ProblemScanLogic problemScanLogic:problemScanLogicList){
                         problemScanLogics.add(problemScanLogic);
                         if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!= ""){
@@ -197,16 +185,12 @@ public class ProblemScanLogicController extends BaseController {
                             problemScanLogicID += problemScanLogic.getfComId()+":";
                         }
                     }
-
                     if (problemScanLogicID!=""){
                         break;
                     }
                 }
-
             }
-
         }while (problemScanLogicID.indexOf(":")!=-1);
-
         List<String> wordNameList = new ArrayList<>();
         for (ProblemScanLogic pojo:problemScanLogics){
             if (pojo.getWordName() != null){
@@ -232,7 +216,7 @@ public class ProblemScanLogicController extends BaseController {
         if (totalQuestionTable == null
                 || totalQuestionTable.getLogicalID() == null
                 || totalQuestionTable.getLogicalID().equals("")){
-            return null;
+            return new ArrayList<>();
         }
         //扫描命令的ID
         String commandIdString = totalQuestionTable.getLogicalID().substring(2,totalQuestionTable.getLogicalID().length());
@@ -292,7 +276,7 @@ public class ProblemScanLogicController extends BaseController {
             for (String id:problemScanLogicIDsplit){
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
                 if (problemScanLogic ==null){
-                    return null;
+                    return new ArrayList<>();
                 }
                 if (problemScanLogic.gettNextId()!="" && problemScanLogic.gettNextId()!=null && !(MyUtils.isContainChinese(problemScanLogic.gettNextId()))){
                     problemScanID += problemScanLogic.gettNextId()+":";
@@ -366,7 +350,7 @@ public class ProblemScanLogicController extends BaseController {
         if (pojo == null){
             problemScanLogicMap.put(problemScanLogic.getId(),problemScanLogic);
         }
-        return null;
+        return new ArrayList<>();
     }
 
 }

@@ -1980,7 +1980,7 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogicList = splitSuccessFailureLogic(problemScanLogicList);
 
         if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
-            return null;
+            return new ArrayList<>();
         }
 
         HashMap<Long,String> hashMap = new HashMap<>();
