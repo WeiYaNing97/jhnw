@@ -18,21 +18,18 @@ public class PathHelper {
         String logPresent = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
         logPresent = "["+logPresent+"] ";
         str = logPresent + str ;
-        //文件目录
-        File writefile;
-        BufferedWriter bw;
-        boolean append = true;  //  是否追加
-        String path = "";
+
         /* 获取 设备是 路由器的标志*/
         String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
-
+        String path = "";
         if (logPath != null && !logPath.equals("")){
             path = logPath+  "\\" + logTime + "\\" +logTime +"log.txt";
         }else {
             path = logPath+  "\\" + logTime + "\\" +logTime +"log.txt";
         }
 
-        writefile = new File(path);
+        //文件目录
+        File writefile = new File(path);
         if (writefile.exists() == false)   // 判断文件是否存在，不存在则生成
         {
             try {
@@ -49,7 +46,9 @@ public class PathHelper {
                 e.printStackTrace();
             }
         }
+        BufferedWriter bw;
         try {
+            boolean append = true;  //  是否追加
             FileWriter fw = new FileWriter(writefile, append);
             bw = new BufferedWriter(fw);
             fw.write(str);
@@ -71,10 +70,6 @@ public class PathHelper {
         String logPresent = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
         logPresent = "["+logPresent+"] ";
         str = logPresent + str ;
-        //文件目录
-        File writefile;
-        BufferedWriter bw;
-        boolean append = true;  //  是否追加
         String path = "";
         String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
         if (logPath != null && !logPath.equals("")){
@@ -82,7 +77,8 @@ public class PathHelper {
         }else {
             path = logPath+  "\\"  + logTime +  "\\" +logTime +"log"+name+".txt";
         }
-        writefile = new File(path);
+        //文件目录
+        File writefile = new File(path);
         if (writefile.exists() == false)   // 判断文件是否存在，不存在则生成
         {
             try {
@@ -98,7 +94,9 @@ public class PathHelper {
                 e.printStackTrace();
             }
         }
+        BufferedWriter bw;
         try {
+            boolean append = true;  //  是否追加
             FileWriter fw = new FileWriter(writefile, append);
             bw = new BufferedWriter(fw);
             fw.write(str);

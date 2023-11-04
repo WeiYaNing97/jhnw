@@ -1,12 +1,10 @@
 package com.sgcc.advanced.utils;
-
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 
 /**
  * 不能写入共用模块的方法类
  */
 public class Utils {
-
     /**
      * 光衰功能 比较参数是否改变
      * @param lightAttenuationComparison
@@ -26,10 +24,8 @@ public class Utils {
         if (!(lightAttenuationComparison.getTxStartValue().equals(pojo.getTxStartValue()))){ return false; }
         /*RX起始值(基准)*/
         if (!(lightAttenuationComparison.getRxStartValue().equals(pojo.getRxStartValue()))){ return false; }
-
         /*rx额定偏差*/
         if (lightAttenuationComparison.getRxRatedDeviation() == null && pojo.getRxRatedDeviation() == null){
-
         }else {
             if ((lightAttenuationComparison.getRxRatedDeviation() != null && pojo.getRxRatedDeviation() != null)
                     && !(lightAttenuationComparison.getRxRatedDeviation().equals(pojo.getRxRatedDeviation()))){
@@ -38,7 +34,6 @@ public class Utils {
         }
         /*tx额定偏差*/
         if (lightAttenuationComparison.getTxRatedDeviation() == null && pojo.getTxRatedDeviation() == null){
-
         }else {
             if ((lightAttenuationComparison.getTxRatedDeviation() != null && pojo.getTxRatedDeviation() != null)
                     && !(lightAttenuationComparison.getTxRatedDeviation().equals(pojo.getTxRatedDeviation()))){
@@ -47,5 +42,4 @@ public class Utils {
         }
         return true;
     }
-
 }

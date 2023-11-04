@@ -135,39 +135,30 @@ public class SwitchScanResultController extends BaseController
      * @E-mail: WeiYaNing97@163.com
      */
     public Long insertSwitchScanResult (SwitchParameters switchParameters, HashMap<String,String> hashMap){
-
         SwitchScanResult switchScanResult = new SwitchScanResult();
-
         //插入问题数据
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
-
         /*获取交换机四项基本信息ID*/
         switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
-
         switchScanResult.setSwitchName(switchParameters.getName()); //name
         switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
         switchScanResult.setConfigureCiphers(switchParameters.getConfigureCiphers());
-
         switchScanResult.setLoginMethod(switchParameters.getMode());
         switchScanResult.setPortNumber(switchParameters.getPort());
-
         switchScanResult.setTypeProblem("高级功能");
         switchScanResult.setTemProName(hashMap.get("ProblemName"));
         switchScanResult.setProblemName(hashMap.get("ProblemName"));
         switchScanResult.setDynamicInformation(hashMap.get("parameterString"));
         switchScanResult.setIfQuestion(hashMap.get("IfQuestion")); //是否有问题
-
-
         switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
         switchScanResult.setPhonenumber(switchParameters.getLoginUser().getUser().getPhonenumber()); //登录手机号
         //插入 扫描时间
         DateTime dateTime = new DateTime(switchParameters.getScanningTime(), "yyyy-MM-dd HH:mm:ss");
         switchScanResult.setCreateTime(dateTime);
-
         //插入问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         int i = switchScanResultService.insertSwitchScanResult(switchScanResult);
-        return switchScanResult.getId();
+        return Long.valueOf(i).longValue();
     };
 
     @ApiOperation("获取交换机问题扫描结果页数")
@@ -178,7 +169,6 @@ public class SwitchScanResultController extends BaseController
         /*获取交换机问题扫描结果不同时间条数*/
         int number = switchScanResultService.selectCountByName(username);
         Integer ceilResult = (int) Math.ceil((double) number / 10); // 获取小数进一
-        System.err.println(ceilResult);
         return ceilResult;
     }
 
@@ -193,14 +183,12 @@ public class SwitchScanResultController extends BaseController
     public List<ScanResultsCO> getSwitchScanResultListByName(@PathVariable String pageNumber) {//@PathVariable String pageNumber
         /*系统登录人姓名*/
         String userName = SecurityUtils.getLoginUser().getUsername();
-
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         int page = 10 * (Integer.valueOf(pageNumber).intValue()-1);
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultListPages(userName,page);
-
         /*如果查询结果为空 则直接返回 null*/
         if (MyUtils.isCollectionEmpty(list)){
-            return null;
+            return new ArrayList<>();
         }
         /*交换机扫描结果主键集合*/
         Long[] ids = new Long[list.size()];
@@ -210,17 +198,12 @@ public class SwitchScanResultController extends BaseController
             ids[num] = list.get(num).getId();
             hashMap.put(list.get(num).getId(),list.get(num));
         }
-
         /*根据主键数组 查询 带有格式的实体类 集合*/
         List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchProblemVOListByIds(ids);
-
         for (SwitchProblemVO switchProblemVO:switchProblemList){
-
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-
                 switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-
                 List<ValueInformationVO> valueInformationVOList = new ArrayList<>();
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());
                 //提取信息 如果不为空 则有参数

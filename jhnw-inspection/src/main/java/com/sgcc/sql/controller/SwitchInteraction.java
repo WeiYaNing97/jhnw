@@ -1868,12 +1868,10 @@ public class SwitchInteraction {
         switchScanResult.setDynamicInformation(parameterString);
         /*是否有问题*/
         switchScanResult.setIfQuestion(substring);
-
         /** 判断是否定义解决问题逻辑*/
         if (totalQuestionTable.getProblemSolvingId() != null){
             switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());//命令索引
         }else {
-
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+totalQuestionTable.getId()
                     +totalQuestionTable.getTypeProblem()+totalQuestionTable.getTemProName()+totalQuestionTable.getProblemName()
@@ -1886,24 +1884,15 @@ public class SwitchInteraction {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
-
         switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
         switchScanResult.setPhonenumber(switchParameters.getLoginUser().getUser().getPhonenumber()); //登录手机号
-
         //插入 扫描时间
         DateTime dateTime = new DateTime(switchParameters.getScanningTime(), "yyyy-MM-dd HH:mm:ss");
         switchScanResult.setCreateTime(dateTime);
-
         //插入问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-
         int insertId = switchScanResultService.insertSwitchScanResult(switchScanResult);
-        if (insertId > 0){
-            return switchScanResult.getId();
-        }
-
         return Long.valueOf(insertId).longValue();
 
     };

@@ -41,8 +41,7 @@ public class SwitchErrorController extends BaseController
     public List<SwitchError> selectSwitchErrorListByPojo(SwitchError switchError)
     {
         switchErrorService = SpringBeanUtil.getBean(ISwitchErrorService.class);
-        List<SwitchError> list = switchErrorService.selectSwitchErrorListByPojo(switchError);
-        return list;
+        return switchErrorService.selectSwitchErrorListByPojo(switchError);
     }
 
     /**

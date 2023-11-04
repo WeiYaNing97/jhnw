@@ -109,8 +109,7 @@ public class InformationController extends BaseController
     @GetMapping("/informationBrand")
     public List<String> getDeviceBrand()
     {
-        List<String> list = informationService.selectDeviceBrandList();
-        return list;
+        return informationService.selectDeviceBrandList();
     }
 
     /**
@@ -119,7 +118,6 @@ public class InformationController extends BaseController
     @GetMapping("/informationModel")
     public List<String> getDeviceModel(String brand)
     {
-        List<String> list = informationService.selectDeviceModelList(brand);
-        return list;
+        return informationService.selectDeviceModelList(brand);
     }
 }

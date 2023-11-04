@@ -460,11 +460,6 @@ public class ErrorPackage {
                 strings.add(string.trim());
             }
         }
-        /*判断端口待取集合是否为空*/
-        if (MyUtils.isCollectionEmpty(strings)){
-            return null;
-        }
-
         /*遍历端口待取集合 执行取值方法 获取端口号*/
         List<String> port = new ArrayList<>();
         for (String information:strings){

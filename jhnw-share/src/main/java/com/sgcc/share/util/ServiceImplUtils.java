@@ -22,7 +22,7 @@ public class ServiceImplUtils {
             Integer integer = chars.length;
             List<String> valueString = new ArrayList<>();
             if (integer<0){
-                return null;
+                return new ArrayList<>();
             }
             valueString.add(chars[0]+"");
             for (int i = 1 ; i < integer;i++){
@@ -39,6 +39,6 @@ public class ServiceImplUtils {
             }
             return valueString;
         }
-        return null;
+        return new ArrayList<>();
     }
 }

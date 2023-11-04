@@ -54,7 +54,12 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     @Override
     public int insertSwitchScanResult(SwitchScanResult switchScanResult)
     {
-        return switchScanResultMapper.insertSwitchScanResult(switchScanResult);
+        int i = switchScanResultMapper.insertSwitchScanResult(switchScanResult);
+        if (i>0){
+            return switchScanResult.getId().intValue();
+        }else {
+            return i;
+        }
     }
 
     /**

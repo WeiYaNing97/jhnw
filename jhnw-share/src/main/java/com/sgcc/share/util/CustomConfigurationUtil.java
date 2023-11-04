@@ -13,9 +13,7 @@ public class CustomConfigurationUtil {
     @PostMapping("/ObtainAllConfigurationFileParameters")
     public void ObtainAllConfigurationFileParameters() {
         String path3 = "/customconfiguration.yml";
-
         InputStream inputStream = this.getClass().getResourceAsStream(path3);
-
         Yaml yaml = new Yaml();
         Constant.setProfileInformation(yaml.load(inputStream));
         try {

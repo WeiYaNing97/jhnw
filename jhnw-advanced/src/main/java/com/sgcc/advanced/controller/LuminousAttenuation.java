@@ -351,7 +351,12 @@ public class LuminousAttenuation {
 
                 /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
                 if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
-                    average(switchParameters,getparameter,portstr);
+                    int average = average(switchParameters, getparameter, portstr);
+                    if (average>0){
+
+                    }else {
+                        /*数据库操作失败*/
+                    }
                 }else {
                     continue;
                 }
@@ -458,10 +463,6 @@ public class LuminousAttenuation {
             if ((string.toUpperCase().indexOf(" UP ")!=-1)  && (string.toUpperCase().indexOf("COPPER") == -1)){
                 strings.add(string.trim());
             }
-        }
-        /*判断端口待取集合是否为空*/
-        if (MyUtils.isCollectionEmpty(strings)){
-            return null;
         }
 
         /*遍历端口待取集合 执行取值方法 获取端口号*/
@@ -573,7 +574,7 @@ public class LuminousAttenuation {
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
 
 
-            if (values == null){
+            if (values.size() == 0){
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();
                     if (subversionNumber!=null){
@@ -724,7 +725,7 @@ public class LuminousAttenuation {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        return null;
+                        return new HashMap<>();
                     }
                     int nu =0;
                     for (int i = 0;i<values.size();i++){
@@ -855,10 +856,10 @@ public class LuminousAttenuation {
             }
         }
 
-        if (Double.valueOf(txpower).doubleValue() == 50 || Double.valueOf(rxpower).doubleValue() == 50)
-            return null;
-
         HashMap<String,Double> hashMap = new HashMap<>();
+        if (Double.valueOf(txpower).doubleValue() == 50 || Double.valueOf(rxpower).doubleValue() == 50)
+            return hashMap;
+
         hashMap.put("TX",Double.valueOf(txpower).doubleValue() == 1?null:txpower);
         hashMap.put("RX",Double.valueOf(rxpower).doubleValue() == 1?null:rxpower);
         return hashMap;
@@ -872,7 +873,7 @@ public class LuminousAttenuation {
      * @param port
      * @return
      */
-    public List<LightAttenuationComparison> average(SwitchParameters switchParameters,HashMap<String,String> hashMap,String port) {
+    public int average(SwitchParameters switchParameters,HashMap<String,String> hashMap,String port) {
         LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
         lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
         /*获取交换机四项基本信息ID*/
@@ -901,7 +902,7 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
             lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
 
-            lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison);
+            return lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison);
         }else {
             lightAttenuationComparison = lightAttenuationComparisons.get(0);
             lightAttenuationComparison.setRxLatestNumber(rx);
@@ -911,9 +912,8 @@ public class LuminousAttenuation {
             double txAverageValue = updateAverage(lightAttenuationComparison.getNumberParameters(), MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue()), MyUtils.stringToDouble(tx));
             lightAttenuationComparison.setTxAverageValue("" + txAverageValue);
             lightAttenuationComparison.setNumberParameters(lightAttenuationComparison.getNumberParameters()+1);
-            lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison);
+            return lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison);
         }
-        return null;
     }
 
     /**
