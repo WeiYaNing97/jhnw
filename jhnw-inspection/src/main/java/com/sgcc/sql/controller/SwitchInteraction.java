@@ -122,7 +122,7 @@ public class SwitchInteraction {
         /*交换机连接失败 前端显示连接失败原因 写入日志*/
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-            if (loginError != null){
+            if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
@@ -195,7 +195,7 @@ public class SwitchInteraction {
 
         }else {
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-            if (loginError != null){
+            if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
@@ -443,7 +443,7 @@ public class SwitchInteraction {
 
         switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
         /*高级功能*/
-        if (advancedName != null){
+        if (advancedName != null && advancedName.size() != 0){
             for (String function:advancedName){
                 switch (function){
                     case "OSPF":

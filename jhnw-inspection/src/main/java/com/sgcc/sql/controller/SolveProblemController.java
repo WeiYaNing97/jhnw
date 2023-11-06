@@ -153,9 +153,11 @@ public class SolveProblemController {
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         try {
+
             if (allProIdList == null || allProIdList.size() != 0){
                 problemIdList = allProIdList;
             }
+
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
             repairFixedThreadPool.Solution(parameterSet, problemIdListList, problemIdList);//scanNum
         } catch (InterruptedException e) {
@@ -235,8 +237,9 @@ public class SolveProblemController {
         AjaxResult requestConnect_ajaxResult = connectToObtainInformation.requestConnect( switchParameters );
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
+
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-            if (loginError != null){
+            if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
@@ -321,7 +324,7 @@ public class SolveProblemController {
                 List<CommandLogic> commandLogics = queryCommandSet(switchScanResult.getComId() + "");
                 // todo JDK8新特性测试
                 List<String> commandList = commandLogics.stream().map(m -> m.getCommand()).collect(Collectors.toList());
-                if (commandList == null){
+                if (commandList.size() == 0){
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
                     try {
                         PathHelper.writeDataToFile("错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");

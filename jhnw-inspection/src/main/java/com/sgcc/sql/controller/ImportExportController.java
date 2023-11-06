@@ -102,7 +102,7 @@ public class ImportExportController {
             if(totalQuestionTable.getProblemSolvingId() != null){
                 SolveProblemController solveProblemController = new SolveProblemController();
                 List<CommandLogic> commandPojoList = solveProblemController.queryCommandSet(totalQuestionTable.getProblemSolvingId());
-                if (commandPojoList != null){
+                if (commandPojoList.size() != 0){
                     for (CommandLogic pojo:commandPojoList){
                         repaircommandLogicList.add(pojo);
                     }

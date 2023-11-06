@@ -92,9 +92,9 @@ public class SshConnect implements Runnable {
             while (echo != null) {
                 sshInformation.getCurrEcho().append(echo);
                 String[] lineStr = echo.split("\\n");
-                if (lineStr != null && lineStr.length > 0) {
+                if (lineStr.length > 0) {
                     String lastLineStr = lineStr[lineStr.length - 1];
-                    if (lastLineStr != null && lastLineStr.indexOf(sshInformation.getMoreEcho()) > 0) {
+                    if (lastLineStr.indexOf(sshInformation.getMoreEcho()) > 0) {
                         sshInformation.getTotalEcho().append(echo.replace(lastLineStr, ""));
                     } else {
                         sshInformation.getTotalEcho().append(echo);
@@ -332,7 +332,7 @@ public class SshConnect implements Runnable {
                 //接收交换机返回信息 转换为字符串数组
                 String[] lineStrs = sshInformation.getCurrEcho().toString().split("\\n");
                 //接收交换机返回信息不为空
-                if (lineStrs != null && lineStrs.length > 0) {
+                if (lineStrs.length > 0) {
                     //private String moreEcho = "---- More ----";
                     //接收交换机返回信息的最后信息 lineStrs[lineStrs.length - 1]
                     //接收交换机返回信息的最后信息 是否是 MoreEcho 是 则没有返回完全

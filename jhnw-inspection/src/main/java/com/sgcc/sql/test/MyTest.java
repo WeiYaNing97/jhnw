@@ -2,13 +2,11 @@ package com.sgcc.sql.test;
 
 import com.alibaba.fastjson.JSON;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.sql.controller.TotalQuestionTableController;
 import com.sgcc.sql.domain.ProblemScanLogic;
 import com.sgcc.sql.domain.ProblemScanLogicCO;
-import com.sgcc.sql.service.ITotalQuestionTableService;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.lang.model.element.NestingKind;
 import java.util.*;
 
 /**
@@ -19,9 +17,16 @@ import java.util.*;
  **/
 public class MyTest {
     public static void main(String[] args) {
-        TotalQuestionTableController totalQuestionTableController = new TotalQuestionTableController();
-        List<String> stringList = totalQuestionTableController.temProNamelist("韦亚宁");
-
+        String[] vs = "asdfghj".split("v");
+        if (vs != null) {
+            System.err.println("null");
+        }
+        if (vs.length > 0){
+            System.err.println(">");
+        }
+        if (vs.length == 0){
+            System.err.println("==");
+        }
     }
 
 }

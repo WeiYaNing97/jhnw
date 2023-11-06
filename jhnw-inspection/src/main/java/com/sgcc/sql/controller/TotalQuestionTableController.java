@@ -90,7 +90,7 @@ public class TotalQuestionTableController extends BaseController
 
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         List<String> longList = new ArrayList<>();
-        if (totalQuestionTables!=null){
+        if (totalQuestionTables.size() != 0){
             for (TotalQuestionTable pojo:totalQuestionTables){
                 longList.add(pojo.getLogicalID());
             }

@@ -83,7 +83,7 @@ public class DefinitionProblemController extends BaseController {
             if (scanLogicalEntityClass.size() != 0){
                 /*命令数据*/
                 List<CommandLogic> commandLogics = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-                if (commandLogics != null){
+                if (commandLogics.size() != 0){
                     for (CommandLogic pojo:commandLogics){
                         commandLogicList.add(pojo);
                     }
@@ -91,7 +91,7 @@ public class DefinitionProblemController extends BaseController {
             }
             /*分析数据*/
             List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-            if (problemScanLogics != null){
+            if (problemScanLogics.size() != 0){
                 for (ProblemScanLogic pojo:problemScanLogics){
                     problemScanLogicList.add(pojo);
                 }
@@ -99,7 +99,7 @@ public class DefinitionProblemController extends BaseController {
             if(totalQuestionTable.getProblemSolvingId() != null){
                 SolveProblemController solveProblemController = new SolveProblemController();
                 List<CommandLogic> commandPojoList = solveProblemController.queryCommandSet(totalQuestionTable.getProblemSolvingId());
-                if (commandPojoList != null){
+                if (commandPojoList.size() != 0){
                     for (CommandLogic pojo:commandPojoList){
                         repaircommandLogicList.add(pojo);
                     }
@@ -1239,7 +1239,8 @@ public class DefinitionProblemController extends BaseController {
                 problemScanLogicList =splitSuccessFailureLogic(problemScanLogicList);
                 /* 查询完数据 将分析ID置空 */
                 problemIds = new ArrayList<>();
-                if (problemScanLogicList == null || problemScanLogicList.size() ==0 ){
+
+                if (problemScanLogicList.size() ==0 ){
                     HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
                     ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
                     ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
@@ -1801,7 +1802,7 @@ public class DefinitionProblemController extends BaseController {
 
         /*如果 analysisList 为空则未定义 可直接插入
         * 如果 analysisList 不为空则未定义 则需要先删除*/
-        if (analysisList != null){
+        if (analysisList != null || analysisList.size() != 0){
             List<String> jsonPojoList = new ArrayList<>();
             for (String analysis:analysisList){
                 jsonPojoList.add(analysis.replaceAll("\"=\"","\":\""));
@@ -1979,7 +1980,7 @@ public class DefinitionProblemController extends BaseController {
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
         problemScanLogicList = splitSuccessFailureLogic(problemScanLogicList);
 
-        if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+        if (problemScanLogicList.size() ==0 ){
             return new ArrayList<>();
         }
 
@@ -2038,7 +2039,7 @@ public class DefinitionProblemController extends BaseController {
         DefinitionProblemController definitionProblemController = new DefinitionProblemController();
         List<ProblemScanLogic> problemScanLogicList = definitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
 
-        if (null == problemScanLogicList || problemScanLogicList.size() ==0 ){
+        if (problemScanLogicList.size() ==0 ){
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"获取交换机基本信息分析逻辑为空\r\n");
             try {
