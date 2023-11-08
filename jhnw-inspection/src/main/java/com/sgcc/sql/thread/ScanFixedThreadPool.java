@@ -47,8 +47,7 @@ public class ScanFixedThreadPool {
 
 
     public static String getThreadName(int i) {
-        Random random = new Random();
-        String name = System.currentTimeMillis() + random.nextInt(100) +" ";
+        String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
 

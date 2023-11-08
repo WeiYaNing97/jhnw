@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
@@ -46,13 +45,10 @@ public class TotalQuestionTableController extends BaseController
 {
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
-
     @Autowired
     private ISysUserService userService;
-
     @Autowired
     private IInformationService informationService;
-
     /**
      * 导出问题及命令列表
      */
@@ -76,25 +72,18 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("根据交换机信息查询扫描问题的命令ID")
     @GetMapping(value = "/commandIdByInformation")
-    public List<String> commandIdByInformation(String brand,
-                                               String type,
-                                               String firewareVersion,
-                                               String subversionNumber)
-    {
+    public List<String> commandIdByInformation(String brand,String type,String firewareVersion,String subversionNumber) {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-
         totalQuestionTable.setBrand(brand);
         totalQuestionTable.setType(type);
         totalQuestionTable.setFirewareVersion(firewareVersion);
         totalQuestionTable.setSubVersion(subversionNumber);
-
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         List<String> longList = new ArrayList<>();
         if (totalQuestionTables.size() != 0){
             for (TotalQuestionTable pojo:totalQuestionTables){
                 longList.add(pojo.getLogicalID());
             }
-            //this.longList=longList;
         }
         return longList;
     }
@@ -220,7 +209,6 @@ public class TotalQuestionTableController extends BaseController
     {
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
-
         String brand = null;
         if (!(totalQuestionTable.getBrand().equals(""))){
             brand = totalQuestionTable.getBrand();
@@ -245,7 +233,6 @@ public class TotalQuestionTableController extends BaseController
         if (!(totalQuestionTable.getTemProName().equals(""))){
             temProName = totalQuestionTable.getTemProName();
         }
-
         //先根据六个条件 查询 是否存在 如果存在 则 返回错误 问题已存在
         TotalQuestionTable pojo = new TotalQuestionTable();
         pojo.setBrand(brand);
@@ -255,7 +242,6 @@ public class TotalQuestionTableController extends BaseController
         pojo.setTypeProblem(typeProblem);/*范式种类*/
         pojo.setTemProName(temProName);/*范式名称*/
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
-
         if (totalQuestionTables.size() != 0){
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"交换机问题已存在\r\n");
@@ -268,7 +254,6 @@ public class TotalQuestionTableController extends BaseController
             }
             return  AjaxResult.error("问题已存在");
         }
-
         int insert = 0;
         try{
             if (totalQuestionTable.getType().equals("")){
@@ -530,12 +515,10 @@ public class TotalQuestionTableController extends BaseController
         }
         HashSet<String> typeProblemHashSet = new HashSet();
         HashSet<String> temProNameHashSet = new HashSet();
-
         for (TotalQuestionTable totalQuestion:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestion.getTypeProblem());
             temProNameHashSet.add(totalQuestion.getTypeProblem()+"=:="+totalQuestion.getTemProName());
         }
-
         List<TotalQuestionTableCO> pojoCOList = new ArrayList<>();
         List<TotalQuestionTableVO> pojoVOList = new ArrayList<>();
         for (String typeProblem:typeProblemHashSet){
@@ -543,7 +526,6 @@ public class TotalQuestionTableController extends BaseController
             totalQuestionTableCO.setTypeProblem(typeProblem);
             pojoCOList.add(totalQuestionTableCO);
         }
-
         for (String temProName:temProNameHashSet){
             TotalQuestionTableVO totalQuestionTableVO = new TotalQuestionTableVO();
             String[] split = temProName.split("=:=");
@@ -551,7 +533,6 @@ public class TotalQuestionTableController extends BaseController
             totalQuestionTableVO.setTemProName(split[1]);
             pojoVOList.add(totalQuestionTableVO);
         }
-
         for (TotalQuestionTableCO totalQuestionTableCO:pojoCOList){
             List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
             for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
@@ -561,7 +542,6 @@ public class TotalQuestionTableController extends BaseController
             }
             totalQuestionTableCO.setTotalQuestionTableVOList(totalQuestionTableVOList);
         }
-
         for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
             List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
             for (TotalQuestionTable totalQuestion:totalQuestionTableList){
@@ -590,14 +570,12 @@ public class TotalQuestionTableController extends BaseController
         for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestionTableVO.getTypeProblem());
         }
-
         List<TotalQuestionTableCO> totalQuestionTableCOList = new ArrayList<>();
         for (String typeProblem:typeProblemHashSet){
             TotalQuestionTableCO totalQuestionTableCO = new TotalQuestionTableCO();
             totalQuestionTableCO.setTypeProblem(typeProblem);
             totalQuestionTableCOList.add(totalQuestionTableCO);
         }
-
         for (TotalQuestionTableCO totalQuestionTableCO:totalQuestionTableCOList){
             List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
             for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
@@ -607,7 +585,6 @@ public class TotalQuestionTableController extends BaseController
             }
             totalQuestionTableCO.setTotalQuestionTableVOList(totalQuestionTableVOList);
         }
-
         return totalQuestionTableCOList;
     }
 
@@ -640,7 +617,6 @@ public class TotalQuestionTableController extends BaseController
         if (i<=0){
             return AjaxResult.error();
         }
-
         return AjaxResult.success();
     }
 }

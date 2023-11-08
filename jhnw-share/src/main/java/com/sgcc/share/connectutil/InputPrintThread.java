@@ -21,9 +21,7 @@ public class InputPrintThread extends Thread {
 
     @Override
     public void run() {
-        
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-
         String ip = null;
         TelnetInformation telnetInformation = null;
         for (Map.Entry<String,TelnetInformation> entry : TelnetComponent.switchInformation.entrySet()){
@@ -33,8 +31,6 @@ public class InputPrintThread extends Thread {
                 break;
             }
         }
-        
-        
         try {
             //这里会发生阻塞，通过websocket推送进行
             int num = telnetInformation.getNum();
@@ -47,11 +43,8 @@ public class InputPrintThread extends Thread {
                     stringBuilder.append(ab);
                     //WebSocketServer.sendInfo(ab + "", SocketIdEnum.TELNET.getValue());
                 }
-
                 telnetInformation.setReturnInformation(telnetInformation.getReturnInformation() + stringBuilder.toString());
-
                 TelnetComponent.switchInformation.put(ip,telnetInformation);
-                
             }
         } catch (IOException e) {
             e.printStackTrace();

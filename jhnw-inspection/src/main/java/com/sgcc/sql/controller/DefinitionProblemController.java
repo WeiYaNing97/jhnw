@@ -1,7 +1,5 @@
 package com.sgcc.sql.controller;
 import com.alibaba.fastjson.JSON;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -45,7 +43,6 @@ public class DefinitionProblemController extends BaseController {
     private  ITotalQuestionTableService totalQuestionTableService;
     @Autowired
     private  IBasicInformationService basicInformationService;
-
     /**
      * 交换机问题、分析、修复表数据导出
      * @param
@@ -106,7 +103,6 @@ public class DefinitionProblemController extends BaseController {
                 }
             }
         }
-
         List<ProblemScanLogic> pojoList = definitionProblemController.definitionProblem(problemScanLogicList);
         List<String> exportText = new ArrayList<>();
         exportText.add("交换机问题表");
@@ -124,12 +120,9 @@ public class DefinitionProblemController extends BaseController {
         for (CommandLogic pojo:repaircommandLogicList){
             exportText.add(pojo.toJson());
         }
-
-
         fileName.add(MyUtils.fileWrite(exportText, MyUtils.getDate("yyyyMMddhhmmss")));
         AjaxResult ajaxResult = new AjaxResult(200, "成功", fileName);
         return ajaxResult;
-
     }
 
     @ApiOperation("数据库导入")
@@ -147,7 +140,6 @@ public class DefinitionProblemController extends BaseController {
         while ((line = br.readLine()) != null) {// 一次读入一行数据
             line_list.add(line);
         }
-
         /*遍历信息集合 根据关键词判断放入 三张表 的集合中*/
         List<String> totalQuestionTableList = new ArrayList<>(); //1  交换机问题表
         List<String> commandLogicList = new ArrayList<>(); //2   交换机命令表
@@ -174,8 +166,6 @@ public class DefinitionProblemController extends BaseController {
                     break;
             }
         }
-
-
         /*遍历三张表的集合
          * 将 Json字符串 转变换为 对应的实体类*/
         List<CommandLogic> commandLogics = new ArrayList<>();
@@ -190,7 +180,6 @@ public class DefinitionProblemController extends BaseController {
         for (int i = 1 ; i <totalQuestionTableList.size();i++){
             totalQuestionTables.add( JSON.parseObject( totalQuestionTableList.get(i), TotalQuestionTable.class) );
         }
-
         /*将实体类对象插入数据库*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
@@ -213,7 +202,6 @@ public class DefinitionProblemController extends BaseController {
                 return AjaxResult.error();
             }
         }
-
         return AjaxResult.success();
     }
 
@@ -229,16 +217,12 @@ public class DefinitionProblemController extends BaseController {
     @PostMapping("insertInformationAnalysis/{command}/{custom}")
     @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.UPDATE)
     public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
-
         custom = "["+custom+"]";
-
         String comands = "";
-
         for (int num = 0 ;num < command.length; num++){
             comands = comands + command[num] + "=:=";
         }
         comands = comands.substring(0,comands.length()-"=:=".length()) + custom;
-
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         //创建实体类
@@ -260,7 +244,6 @@ public class DefinitionProblemController extends BaseController {
             }
             return false;
         }
-
         Long id = basicInformation.getId();
         boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,jsonPojoList,id);
         return insertInformationAnalysisMethod;
@@ -284,33 +267,27 @@ public class DefinitionProblemController extends BaseController {
                 e.printStackTrace();
             }
         }
-
-        System.err.println("\r\n"+"前端出入数据：\r\n");
+        System.err.println("定义获取基本信息分析数据插入\r\n");
         for (String jsonPojo:jsonPojoList){
             System.err.println(jsonPojo);
         }
-
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
         /*遍历分析数据
         * 如果分析数据中含有command 则 是命令 则 进入 String 转 命令实体类方法
         * 如果分析数据中不含有command 则 是分析 则 进入 String 转 分析实体类方法*/
-
         for (int number=0;number<jsonPojoList.size();number++){
             // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
                 CommandLogic commandLogic = analysisCommandLogic(jsonPojoList.get(number));
                 commandLogicList.add(commandLogic);
                 continue;
-
             }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
-
                 /*如果分析数据中不含有command 则 是分析 则 进入 String 转 分析实体类方法
                 * 如果当前集合元素是分析 则 需要考虑下一集合元素是 命令 还是分析
                 * 如果是命令 则 在 Sting 转 分析实体类中 传入 命令属性值
                 * 如果是分析 则 在 Sting 转 分析实体类中 传入 分析属性值
                 * 这会影响到 前端数据传入的 下一ID 的 赋值问题*/
-
                 if (number+1<jsonPojoList.size()){
                     // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
                     if (jsonPojoList.get(number+1).indexOf("command") !=-1){
@@ -330,8 +307,6 @@ public class DefinitionProblemController extends BaseController {
                     problemScanLogicList.add(problemScanLogic);
                     continue;
                 }
-
-
             }
         }
         //将相同ID  时间戳 的 实体类 放到一个实体
@@ -355,10 +330,8 @@ public class DefinitionProblemController extends BaseController {
         /*获取交换机基本信息第一条数据为ID 需要传送给 获取交换机基本信息命令的分析ID*/
         String jsonPojoOne = jsonPojoList.get(0);
         ProblemScanLogic problemScanLogic = analysisProblemScanLogic(jsonPojoOne, "分析");
-
         BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
         basicInformation.setProblemId(problemScanLogic.getId());
-
         int i = basicInformationService.updateBasicInformation(basicInformation);
         if (i<=0){
             WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"获取交换机基本信息命令的ProblemId字段失败\r\n");
@@ -1135,7 +1108,6 @@ public class DefinitionProblemController extends BaseController {
         try {
             Integer maximumTimeoutString = (Integer) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
             List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
-            System.out.println(result);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -1881,32 +1853,25 @@ public class DefinitionProblemController extends BaseController {
     public boolean updatebasicAnalysis(@RequestParam Long basicInformationId,@RequestBody List<String> pojoList){
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
-
         /*根据分析ID 获取 分析实体类集合*/
         /*因为是要删除 需要ID唯一 所以不需要拆分 */
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(basicInformation.getProblemId(),SecurityUtils.getLoginUser());//commandLogic.getProblemId()
-
         /*String[] ids = new String[problemScanLogicList.size()];
         for (int i=0;i<problemScanLogicList.size();i++){
             ids[i] = problemScanLogicList.get(i).getId();
         }*/
-
         String[] ids = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
-
         int j = problemScanLogicService.deleteProblemScanLogicByIds(ids);
         if (j<=0){
             return false;
         }
-
         LoginUser loginUser = SecurityUtils.getLoginUser();
         /*调用insertInformationAnalysisMethod方法，插入新的分析数据*/
         boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,pojoList,basicInformationId);
-
         if (!insertInformationAnalysisMethod){
             return false;
         }
         return true;
-
     }
 
 
@@ -1934,7 +1899,6 @@ public class DefinitionProblemController extends BaseController {
         executor.execute(future);
         try {
             List<String> result = (List<String>) future.get(60000, TimeUnit.MILLISECONDS);
-            System.out.println(result);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -1979,11 +1943,9 @@ public class DefinitionProblemController extends BaseController {
         /* 因为要返回前端信息 成功和失败分为两行 所以 拆分 true false*/
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
         problemScanLogicList = splitSuccessFailureLogic(problemScanLogicList);
-
         if (problemScanLogicList.size() ==0 ){
             return new ArrayList<>();
         }
-
         HashMap<Long,String> hashMap = new HashMap<>();
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
             /*因为获取交换机基本信息，故没有 问题ID 为null*/
@@ -1992,10 +1954,8 @@ public class DefinitionProblemController extends BaseController {
             /*problemScanLogicStringsplit[0] 行号*/
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
-
         List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
-            System.err.println(hashMap.get(number+1));
             stringList.add(hashMap.get(number+1));
         }
         return stringList;

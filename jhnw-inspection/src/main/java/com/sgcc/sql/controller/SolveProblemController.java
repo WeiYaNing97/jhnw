@@ -96,7 +96,6 @@ public class SolveProblemController {
             DefinitionProblemController definitionProblemController = new DefinitionProblemController();
             String string = definitionProblemController.commandLogicString(commandLogic);
             String[] split = string.split("=:=");
-            System.err.println("\r\n"+split[1]+"\r\n");
             commandLogicStringList.add(split[1]);
         }
         return commandLogicStringList;
@@ -237,7 +236,6 @@ public class SolveProblemController {
         AjaxResult requestConnect_ajaxResult = connectToObtainInformation.requestConnect( switchParameters );
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
-
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
@@ -462,7 +460,6 @@ public class SolveProblemController {
         for (String command:commandList){
             //根据 连接方法 判断 实际连接方式
             //并发送命令 接受返回结果
-            System.err.print("\r\n"+"命令："+command+"\r\n");
             //创建 存储交换机返回数据 实体类
             ReturnRecord returnRecord = new ReturnRecord();
             returnRecord.setSwitchIp(switchParameters.getIp());
@@ -506,6 +503,9 @@ public class SolveProblemController {
                     commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,null);
                     //commandString = Utils.removeLoginInformation(commandString);
                 }
+
+                System.err.println("\r\n"+"命令："+command+"\r\n交换机返回信息:\r\n"+commandString+"\r\n");
+
                 returnRecord.setCurrentReturnLog(commandString);
                 //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
                 boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
@@ -515,7 +515,6 @@ public class SolveProblemController {
                     for (String returnString : commandStringSplit) {
                         deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
                         if (!deviceBrand) {
-                            System.err.println("\r\n"+switchParameters.getIp() + "故障:"+returnString+"\r\n");
                             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"故障:"+switchParameters.getIp()+":"+returnString+"\r\n");
                             try {
                                 PathHelper.writeDataToFile("故障:"+switchParameters.getIp()+":"+returnString+"\r\n");
@@ -548,13 +547,11 @@ public class SolveProblemController {
                 insert_id = returnRecordService.insertReturnRecord(returnRecord);
             }while (!deviceBrand);
             //返回信息表，返回插入条数
-            returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
             returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
             //去除其他 交换机登录信息
             commandString = FunctionalMethods.removeLoginInformation(commandString);
             //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
             commandString = MyUtils.trimString(commandString);
-            System.err.print("\r\n"+"交换机返回信息："+commandString+"\r\n");
             //交换机返回信息 按行分割为 字符串数组
             String[] commandString_split = commandString.split("\r\n");
             // 返回日志内容
@@ -604,8 +601,8 @@ public class SolveProblemController {
                 }
             }
             //返回信息表，返回插入条数
-            returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
             int update = returnRecordService.updateReturnRecord(returnRecord);
+
             //判断命令是否错误 错误为false 正确为true
             if (!(FunctionalMethods.judgmentError( switchParameters,commandString))){
                 //  简单检验，命令正确，新命令  commandLogic.getEndIndex()

@@ -34,11 +34,9 @@ public class SwitchIssueEcho {
     public void getSwitchScanResultListByData(String username,Long longId){
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         SwitchProblemVO pojpVO = switchScanResultService.selectSwitchScanResultListById(longId);
-
         if (pojpVO == null){
             return;
         }
-
         List<SwitchProblemCO> switchProblemCOList = pojpVO.getSwitchProblemCOList();
         for (SwitchProblemCO switchProblemCO:switchProblemCOList){
             /*赋值随机数 前端需要*/
@@ -81,23 +79,19 @@ public class SwitchIssueEcho {
             }
             switchProblemCO.setValueInformationVOList(valueInformationVOList);
         }
-
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         ScanResultsVO scanResultsVO = new ScanResultsVO();
         scanResultsVO.setSwitchIp(pojpVO.getSwitchIp());
         scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue();
-
         scanResultsVO.setShowBasicInfo("("+pojpVO.getBrand()+" "+pojpVO.getSwitchType()+" "
                 +pojpVO.getFirewareVersion()+" "+pojpVO.getSubVersion()+")");
-
         List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
         switchProblemVOList.add(pojpVO);
         scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
-
         scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
         String switchIp = scanResultsVO.getSwitchIp();
-        String[] split = switchIp.split(":");
+        //String[] split = switchIp.split(":");
         scanResultsVO.setSwitchIp(switchIp);
         List<SwitchProblemVO> pojoVOlist = scanResultsVO.getSwitchProblemVOList();
         for (SwitchProblemVO switchProblemVO:pojoVOlist){
@@ -107,5 +101,4 @@ public class SwitchIssueEcho {
         scanResultsVOList.add(scanResultsVO);
         WebSocketService.sendMessage("loophole"+username,scanResultsVOList);
     }
-
 }

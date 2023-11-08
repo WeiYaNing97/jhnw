@@ -32,7 +32,6 @@ public class TelnetComponent {
         telnetInformation.setReturnInformation(null);
         telnetInformation.setNum(0);
         telnetInformation.setBytes(new char[1024]);
-
         switchInformation.put(ip,telnetInformation);
         return switchInformation;
     }
@@ -69,7 +68,6 @@ public class TelnetComponent {
         outputThread.setDaemon(true);
         telnetInformation.setOutputThread(outputThread);
         switchInformation.put(ip,telnetInformation);
-
         outputThread.start();
         telnetInformation.setOutputThread(outputThread);
         switchInformation.put(ip,telnetInformation);
@@ -84,7 +82,6 @@ public class TelnetComponent {
      **/
     public String sendCommand(String ip,String send) throws IOException {
         TelnetInformation telnetInformation = switchInformation.get(ip);
-
         telnetInformation.setReturnInformation("");
         //加入换行符
          send = send + "\n";
@@ -93,20 +90,16 @@ public class TelnetComponent {
         }
         telnetInformation.getOutputStream().write(send.getBytes());
         telnetInformation.getOutputStream().flush();
-
         try {
             Thread.sleep(2*1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         telnetInformation.setReturnInformation(removeGarbledCode(telnetInformation.getReturnInformation()));
-
         String returnInformation = telnetInformation.getReturnInformation().trim();
         if (returnInformation.startsWith(send));{
             returnInformation = returnInformation.substring(send.length(),returnInformation.length());
         }
-
         return returnInformation;
     }
 

@@ -30,7 +30,6 @@ public class InspectionMethods {
             /*如果返回为空 则可以直接存入 map集合*/
             if (pojo != null){
                 /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-
                 /* 获取 两个交换机问题的 参数数量的精确度 */
                 /*map*/
                 int usedNumber = 0;
@@ -132,7 +131,6 @@ public class InspectionMethods {
         /*两项的长度*/
         int value1Length = value1.length();
         int value2Length = value2.length();
-
         if (value1Boolean && value2Boolean){
             /*如果两个都含有 * 取最长的*/
             if (value1Length<value2Length){

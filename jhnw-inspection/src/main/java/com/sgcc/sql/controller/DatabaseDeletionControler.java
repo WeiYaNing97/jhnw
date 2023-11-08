@@ -41,7 +41,6 @@ public class DatabaseDeletionControler {
     private ISwitchFailureService switchFailureService;
     @Autowired
     private ISwitchScanResultService switchScanResultService;
-
     /**
      * 删除数据表所有数据
      *
@@ -57,34 +56,22 @@ public class DatabaseDeletionControler {
         switchErrorService = SpringBeanUtil.getBean(ISwitchErrorService.class);
         switchFailureService = SpringBeanUtil.getBean(ISwitchFailureService.class);
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-
         /*删除数据表所有数据*/
         /*获取交换机基本信息命令*/
         int deleteBasicInformation =  basicInformationService.deleteBasicInformation();
-        System.err.println("deleteBasicInformation:"+deleteBasicInformation);
         /*交换机问题表*/
         int deleteTotalQuestionTable =  totalQuestionTableService.deleteTotalQuestionTable();
-        System.err.println("deleteTotalQuestionTable:"+deleteTotalQuestionTable);
         /*交换机扫描命令 和 修复交换机问题命令 表*/
         int deleteCommandLogic =  commandLogicService.deleteCommandLogic();
-        System.err.println("deleteCommandLogic:"+deleteCommandLogic);
         /*扫描交换机问题分析表*/
         int deleteProblemScanLogic = problemScanLogicService.deleteProblemScanLogic();
-        System.err.println("deleteProblemScanLogic:"+deleteProblemScanLogic);
         /*交换机返回信息表*/
         int deleteReturnRecord = returnRecordService.deleteReturnRecord();
-        System.err.println("deleteReturnRecord:"+deleteReturnRecord);
         /*交换机错误表*/
         int deleteSwitchErrorByError = switchErrorService.deleteSwitchErrorByError();
-        System.err.println("deleteSwitchErrorByError:"+deleteSwitchErrorByError);
         /*交换机故障表*/
         int deleteSwitchFailureByFailure = switchFailureService.deleteSwitchFailureByFailure();
-        System.err.println("deleteSwitchFailureByFailure:"+deleteSwitchFailureByFailure);
         /*交换机扫描结果表*/
         int deleteSwitchScanResult = switchScanResultService.deleteSwitchScanResult();
-        System.err.println("deleteSwitchScanResult:"+deleteSwitchScanResult);
-
     }
-
-
 }

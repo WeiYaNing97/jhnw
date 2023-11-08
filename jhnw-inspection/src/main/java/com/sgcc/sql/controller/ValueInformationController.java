@@ -26,7 +26,6 @@ public class ValueInformationController extends BaseController
 {
     @Autowired
     private IValueInformationService valueInformationService;
-
     /**
      * 查询取值信息存储列表
      */
@@ -38,7 +37,6 @@ public class ValueInformationController extends BaseController
         List<ValueInformation> list = valueInformationService.selectValueInformationList(valueInformation);
         return getDataTable(list);
     }
-
     /**
      * 导出取值信息存储列表
      */
@@ -61,7 +59,6 @@ public class ValueInformationController extends BaseController
     {
         return AjaxResult.success(valueInformationService.selectValueInformationById(id));
     }
-
     /**
      * 新增取值信息存储
      */
@@ -72,7 +69,6 @@ public class ValueInformationController extends BaseController
     {
         return toAjax(valueInformationService.insertValueInformation(valueInformation));
     }
-
     /**
      * 修改取值信息存储
      */
@@ -83,7 +79,6 @@ public class ValueInformationController extends BaseController
     {
         return toAjax(valueInformationService.updateValueInformation(valueInformation));
     }
-
     /**
      * 删除取值信息存储
      */
@@ -94,7 +89,6 @@ public class ValueInformationController extends BaseController
     {
         return toAjax(valueInformationService.deleteValueInformationByIds(ids));
     }
-
     /**
     * @method: 根据第一个参数id 查询参数列表
     * @Param: [id]

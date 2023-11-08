@@ -21,11 +21,9 @@ public class RepairFixedThread extends Thread {
     SwitchParameters switchParameters = null;
     List<SwitchScanResult> switchScanResults = null;
     List<String> problemIds = null;
-
     // 用于计数线程是否执行完成
     CountDownLatch countDownLatch = null;
     ExecutorService fixedThreadPool = null;
-
     // 为线程命名
     public RepairFixedThread(String threadName,
                              SwitchParameters SwitchParameters,
@@ -35,14 +33,12 @@ public class RepairFixedThread extends Thread {
         this.switchParameters = SwitchParameters;
         this.switchScanResults = switchScanResults;
         this.problemIds = problemIds;
-
         this.countDownLatch = countDownLatch;
         this.fixedThreadPool = fixedThreadPool;
     }
 
     @Override
     public void run() {
-
         try {
             try {
                 PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"开始时间：" + "\r\n","线程");
@@ -52,7 +48,6 @@ public class RepairFixedThread extends Thread {
             //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
             int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
             System.err.println("活跃线程数："+threadCount);
-
             SolveProblemController solveProblemController = new SolveProblemController();
             AjaxResult ajaxResult = solveProblemController.batchSolution(switchParameters,switchScanResults,problemIds);
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
@@ -71,13 +66,11 @@ public class RepairFixedThread extends Thread {
             RepairFixedThreadPool.removeThread(this.getName());
             countDownLatch.countDown();
         }
-
         try {
             PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"结束时间：" + "\r\n","线程");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
         int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
         System.err.println("活跃线程数："+threadCount);

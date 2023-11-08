@@ -54,8 +54,7 @@ public class RepairFixedThreadPool {
         System.out.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
     }
     public static String getThreadName(int i) {
-        Random random = new Random();
-        String name = System.currentTimeMillis() + random.nextInt(100) +" ";
+        String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
 

@@ -25,13 +25,11 @@ public class DirectionalScanThreadPool {
      * newFixedThreadPool submit submit
      */
     public static void switchLoginInformations(ParameterSet parameterSet, List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) throws InterruptedException {
-
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
         int i=0;
         for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){
-
             String threadName = getThreadName(i);
             i++;
             threadNameMap.put(threadName, threadName);
@@ -48,8 +46,7 @@ public class DirectionalScanThreadPool {
         System.out.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
     }
     public static String getThreadName(int i) {
-        Random random = new Random();
-        String name = System.currentTimeMillis() + random.nextInt(100) +" ";
+        String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
 

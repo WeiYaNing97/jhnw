@@ -135,7 +135,6 @@ public class CommandLogicController extends BaseController
         LoginUser loginUser = SecurityUtils.getLoginUser();
         /*如果 修复命令集合为空  或者  交换机问题ID为0L 则 返回 false失败*/
         if (commandLogicList.size() == 0 || totalQuestionTableId == 0L){
-
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"定义修复交换机问题逻辑数据为空\r\n");
             try {
@@ -147,7 +146,6 @@ public class CommandLogicController extends BaseController
             }
             return false;
         }
-
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         List<CommandLogic> commandLogics = new ArrayList<>();
@@ -155,10 +153,8 @@ public class CommandLogicController extends BaseController
             //CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
             DefinitionProblemController definitionProblemController = new DefinitionProblemController();
             CommandLogic commandLogic = definitionProblemController.analysisCommandLogic(commandLogicList.get(number));
-
             commandLogics.add(commandLogic);
         }
-
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         for (int number=0;number<commandLogics.size();number++){
             int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
@@ -166,11 +162,9 @@ public class CommandLogicController extends BaseController
                 //传输登陆人姓名 及问题简述
                 WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"修复交换机问题命令插入失败\r\n");
                 try {
-
                     //插入问题简述及问题路径
                     PathHelper.writeDataToFile("错误："+"修复交换机问题命令插入失败\r\n"
                             +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -180,26 +174,20 @@ public class CommandLogicController extends BaseController
                 totalQuestionTable.setProblemSolvingId(commandLogics.get(number).getId());
             }
         }
-
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-
         if (i<=0){
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机问题实体类修复问题ID修改失败\r\n");
             try {
-
                 //插入问题简述及问题路径
                 PathHelper.writeDataToFile("错误："+"交换机问题实体类修复问题ID修改失败\r\n"
                         +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return false;
         }
-
         return true;
-
     }
 
     /**
@@ -214,7 +202,6 @@ public class CommandLogicController extends BaseController
         CommandLogicString = CommandLogicString.replace("{","");
         CommandLogicString = CommandLogicString.replace("}","");
         String[]  jsonPojo_split = CommandLogicString.split(",");
-
         HashMap<String,String> hashMap = new HashMap<>();
         hashMap.put("onlyIndex",null);
         hashMap.put("resultCheckId","0");
@@ -222,7 +209,6 @@ public class CommandLogicController extends BaseController
         hashMap.put("nextIndex","0");
         hashMap.put("pageIndex",null);
         hashMap.put("endIndex","0");
-
         for (String pojo:jsonPojo_split){
             String[] split = pojo.split(":");
             String split0 = split[0].replace("\"","");
@@ -248,14 +234,12 @@ public class CommandLogicController extends BaseController
                     break;
             }
         }
-
         //如果 常规检验 的话 下一ID  应是 下一命令ID
         //下一分析ID  应是  0
         if (hashMap.get("resultCheckId").equals("1")){
             hashMap.put("endIndex",hashMap.get("nextIndex"));
             hashMap.put("nextIndex","0");
         }
-
         /** 主键索引 */
         commandLogic.setId(hashMap.get("onlyIndex"));
         /** 状态 */
@@ -270,7 +254,6 @@ public class CommandLogicController extends BaseController
         commandLogic.setEndIndex(hashMap.get("endIndex"));
         /** 命令行号 */
         commandLogic.setcLine(hashMap.get("pageIndex"));
-
         return commandLogic;
     }
 
@@ -329,7 +312,6 @@ public class CommandLogicController extends BaseController
             ids[num] = commandLogicList.get(num).getId();
         }*/
         String[] ids = commandLogicList.stream().map(l ->l.getId()).toArray(String[]::new);
-
         int deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(ids);
         if (deleteCommandLogicByIds<=0){
             return false;
@@ -342,6 +324,4 @@ public class CommandLogicController extends BaseController
         }
         return true;
     }
-
-
 }
