@@ -25,9 +25,6 @@ public class RuoYiApplication
             Constant character = new Constant();
             character.ObtainAllConfigurationFileParameters();
 
-            /*RX即时偏差*/
-            double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
-
             OspfEnum.assignment();
             MemoryCPU memoryCPU = new MemoryCPU();
             memoryCPU.initSystemInfo();
