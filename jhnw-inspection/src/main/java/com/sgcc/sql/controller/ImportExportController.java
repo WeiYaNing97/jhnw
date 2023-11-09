@@ -61,7 +61,6 @@ public class ImportExportController {
         totalQuestionTableIds[0] = totalQuestionTableId;
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
-        //List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
         List<String> fileName = new ArrayList<>();
         /*问题表*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -79,7 +78,6 @@ public class ImportExportController {
             /*导出功能 查询所有*/
             totalQuestionTables = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
         }
-
         DefinitionProblemController definitionProblemController = new DefinitionProblemController();
         for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
             HashMap<String, Object> scanLogicalEntityClass = definitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
@@ -109,7 +107,6 @@ public class ImportExportController {
                 }
             }
         }
-
         List<ProblemScanLogic> pojoList = definitionProblemController.definitionProblem(problemScanLogicList);
         List<String> exportText = new ArrayList<>();
         exportText.add("交换机问题表");
@@ -127,19 +124,15 @@ public class ImportExportController {
         for (CommandLogic pojo:repaircommandLogicList){
             exportText.add(pojo.toJson());
         }
-
-
         fileName.add(MyUtils.fileWrite(exportText, MyUtils.getDate("yyyyMMddhhmmss")));
         AjaxResult ajaxResult = new AjaxResult(200, "成功", fileName);
         return ajaxResult;
-
     }
 
     @ApiOperation("数据库导入")
     @PostMapping("/importData")
     @ResponseBody
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
-
         /* 读入TXT文件
         * 将读取到的信息 按行放入list集合中*/
         InputStream inputStream = file.getInputStream();
@@ -150,7 +143,6 @@ public class ImportExportController {
         while ((line = br.readLine()) != null) {// 一次读入一行数据
             line_list.add(line);
         }
-
         /*遍历信息集合 根据关键词判断放入 三张表 的集合中*/
         List<String> totalQuestionTableList = new ArrayList<>(); //1  交换机问题表
         List<String> commandLogicList = new ArrayList<>(); //2   交换机命令表
@@ -177,8 +169,6 @@ public class ImportExportController {
                     break;
             }
         }
-
-
         /*遍历三张表的集合
         * 将 Json字符串 转变换为 对应的实体类*/
         List<CommandLogic> commandLogics = new ArrayList<>();
@@ -193,7 +183,6 @@ public class ImportExportController {
         for (int i = 1 ; i <totalQuestionTableList.size();i++){
             totalQuestionTables.add( JSON.parseObject( totalQuestionTableList.get(i), TotalQuestionTable.class) );
         }
-
         /*将实体类对象插入数据库*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
@@ -216,7 +205,6 @@ public class ImportExportController {
                 return AjaxResult.error();
             }
         }
-
         return AjaxResult.success();
     }
 

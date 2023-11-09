@@ -67,30 +67,31 @@ public class SolveProblemController {
     @ApiOperation("查询修复问题命令")
     @MyLog(title = "查询解决问题命令", businessType = BusinessType.OTHER)
     public List<String> queryCommandListBytotalQuestionTableId(@PathVariable Long totalQuestionTableId){
-        //系统登陆人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
+        /*根据ID 查询问题数据*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
+        if (totalQuestionTable.getProblemSolvingId() == null){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机问题表修复命令ID为空\r\n");
+            WebSocketService.sendMessage(SecurityUtils.getLoginUser().getUsername(),"错误："+"交换机问题表修复命令ID为空\r\n");
             try {
                 //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+"交换机问题表修复命令ID为空\r\n"
-                        +"方法com.sgcc.web.controller.sql.SolveProblemController.queryCommandListBytotalQuestionTableId");
+                PathHelper.writeDataToFile("错误："+"交换机问题表修复命令ID为空\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
             return new ArrayList<>();
         }
+        /*修复命令ID*/
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
             commandLogicList.add(commandLogic);
+            /*修复逻辑只有命令,所以下一ID只能是命令ID ： EndIndex*/
             problemSolvingId = commandLogic.getEndIndex();
         }while (!(problemSolvingId.equals("0")));
+
         List<String> commandLogicStringList = new ArrayList<>();
         for (CommandLogic commandLogic:commandLogicList){
             DefinitionProblemController definitionProblemController = new DefinitionProblemController();
@@ -113,7 +114,6 @@ public class SolveProblemController {
     @PostMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum ,@PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
-        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         /*需要修复的问题*/
         Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
         // 根据 问题ID  查询 扫描出的问题
@@ -129,6 +129,7 @@ public class SolveProblemController {
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         // 迭代器遍历HashSet：
         Iterator<String> iterator = userHashSet.iterator();
+        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         while(iterator.hasNext()){
             SwitchParameters switchParameters= getUserMap(iterator.next());
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());

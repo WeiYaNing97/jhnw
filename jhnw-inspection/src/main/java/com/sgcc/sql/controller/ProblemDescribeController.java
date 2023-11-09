@@ -33,19 +33,15 @@ public class ProblemDescribeController extends BaseController
 {
     @Autowired
     private IProblemDescribeService problemDescribeService;
-
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
-
     /*可新增 可修改*/
     /**
      * 新增问题描述
      */
     @ApiOperation("新增/修改问题详细说明和指导索引")
-
     @PutMapping("/insertProblemDescribe")
     @PostMapping("/insertProblemDescribe")
-
     @MyLog(title = "新增问题详细说明和指导索引", businessType = BusinessType.INSERT)
     public AjaxResult insertProblemDescribe(@RequestParam Long totalQuestionTableId,@RequestBody String problemDescribe)
     {
@@ -55,7 +51,6 @@ public class ProblemDescribeController extends BaseController
         ProblemDescribe pojo = new ProblemDescribe();
         //问题描述放入实体类
         pojo.setProblemDescribe(problemDescribe);
-
         //如果问题表 问题描述ID 不为0时 说明有问题描述，修改，只修改问题描述表描述字段
         if (!(totalQuestionTable.getProblemDescribeId().equals(0L))){
             pojo.setId(totalQuestionTable.getProblemDescribeId());
@@ -75,7 +70,6 @@ public class ProblemDescribeController extends BaseController
                 }
             }
         }
-
         return AjaxResult.error("失败！");
     }
 
@@ -113,8 +107,6 @@ public class ProblemDescribeController extends BaseController
         }
         return problemDescribe;
     }
-
-
     /*=====================================================================================================================
     =====================================================================================================================
     =====================================================================================================================*/
