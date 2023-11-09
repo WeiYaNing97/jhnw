@@ -41,6 +41,7 @@ public class OspfEnum {
         portNumber = ((String) escapeMap.get("portNumber")).split(";");
         /** BFD状态 */
         BFDState = ((String) escapeMap.get("BFDState")).split(";");
+
     }
 
     /**

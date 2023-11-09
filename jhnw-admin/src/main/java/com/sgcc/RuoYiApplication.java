@@ -3,6 +3,7 @@ import com.sgcc.advanced.domain.OspfEnum;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MemoryCPU;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.MyUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -23,6 +24,9 @@ public class RuoYiApplication
         try {
             Constant character = new Constant();
             character.ObtainAllConfigurationFileParameters();
+
+            /*RX即时偏差*/
+            double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
 
             OspfEnum.assignment();
             MemoryCPU memoryCPU = new MemoryCPU();

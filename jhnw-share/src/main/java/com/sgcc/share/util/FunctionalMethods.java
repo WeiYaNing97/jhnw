@@ -729,6 +729,9 @@ public class FunctionalMethods {
             return null;
         }
         Map<String, Object> value = (Map<String, Object>) CustomConfigurationUtil.getValue("BasicInformation.equivalence", Constant.getProfileInformation());
+        if (value.size() == 0){
+            return null;
+        }
         Set<String> strings = value.keySet();
         for (String key:strings){
             if (brand.equalsIgnoreCase(key)){

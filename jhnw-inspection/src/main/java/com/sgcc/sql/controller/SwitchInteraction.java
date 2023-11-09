@@ -2107,7 +2107,8 @@ public class SwitchInteraction {
     public String analysisReturnResults(SwitchParameters switchParameters,
                                         TotalQuestionTable totalQuestionTable,
                                         List<Object> executeScanCommandByCommandId_object,String current_Round_Extraction_String,String extractInformation_string){
-        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());//配置文件中 获取 最大循环次数  循环 为定义问题的循环 例如 获取多用户
+        //配置文件中 获取 最大循环次数  循环 为定义问题的循环 例如 获取多用户
+        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
         //根据ID去分析
         // executeScanCommandByCommandId_object.get(1)+""  分析第一条ID
         //executeScanCommandByCommandId_object.get(0).toString() 交换机返回信息

@@ -213,7 +213,6 @@ public class ErrorPackage {
 
 
         if (errorPackageParameters == null){
-
             try {
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -231,7 +230,6 @@ public class ErrorPackage {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             return AjaxResult.error("所有端口都没有获取到误码率参数");
         }
 
@@ -242,10 +240,7 @@ public class ErrorPackage {
         /*获取误码率参数集合中的Key
         * key值为端口号*/
         Set<String> strings = errorPackageParameters.keySet();
-
-
         for (String port:strings){
-
             ErrorRate errorRate = new ErrorRate();
             errorRate.setSwitchIp(switchParameters.getIp());
             errorRate.setSwitchId(switchID);
@@ -255,11 +250,9 @@ public class ErrorPackage {
              */
             List<ErrorRate> list = errorRateService.selectErrorRateList(errorRate);
             ErrorRate primaryErrorRate = new ErrorRate();
-
             if (!(MyUtils.isCollectionEmpty(list))){
                 primaryErrorRate = list.get(0);
             }
-
             /* 获取该端口号的 错误包参数 */
             List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
             for (String error:errorPackageValue){
@@ -407,7 +400,6 @@ public class ErrorPackage {
             valueList = getParameters(switchParameters,returnResults);
             /*获取 描述：Description:*/
             String description = getDescription(returnResults);
-
             if (description!=null){
                 valueList.add("Description:"+description);
             }
@@ -480,28 +472,46 @@ public class ErrorPackage {
     public List<String> getParameters(SwitchParameters switchParameters,String returnResults) {
         /* 获取配置文件 关于 误码率 的配置信息*/
         Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率",Constant.getProfileInformation());
+        if (deviceVersion.size() == 0){
+            /* 误码率功能未获取到配置文件关键词 */
+            try {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:误码率功能未获取到配置文件关键词\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:误码率功能未获取到配置文件关键词\r\n"
+                        , "问题日志");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return new ArrayList<>();
+        }
+
+
         /*获取 key值
         * key值为 ： 描述 或者 品牌名*/
         Set<String> keys = deviceVersion.keySet();
-
         /* 交换机品牌 默认为 null*/
         String brand = null;
-
         /* 遍历交换机 品牌名 */
         for (String key:keys){
             /* 获取交换机信息实体类中的 设备品牌*/
             String deviceBrand = switchParameters.getDeviceBrand();
-
             /* 判断交换机基本信息品牌名 是否与 配置文件key值(交换机品牌名) 相等 忽略大小写
             * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
             if (deviceBrand.equalsIgnoreCase(key)){
                 brand = key;
                 break;
-
                 /* 如果不相等 则 判断是否为  Huawei  或者 Quidway
                  * 如果 为 "Huawei或Quidway"  则判断 key交换机品牌 是否 等于 "Quidway或Huawei"
                  * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
-
             }else if (deviceBrand.equalsIgnoreCase("Huawei") || deviceBrand.equalsIgnoreCase("Quidway")){
                 if (deviceBrand.equalsIgnoreCase("Huawei") && "Quidway".equalsIgnoreCase(key)){
                     brand = key;
@@ -514,8 +524,30 @@ public class ErrorPackage {
         }
         /*根据 交换机品牌名 获取交换机误码率信息 */
         deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand,Constant.getProfileInformation());
-        keys = deviceVersion.keySet();
+        if (deviceVersion.size() == 0){
+            /* 误码率功能未获取到配置文件关键词 */
+            try {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:误码率功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:误码率功能未获取到品牌为:"+brand+"配置文件关键词\r\n"
+                        , "问题日志");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return new ArrayList<>();
+        }
 
+
+        keys = deviceVersion.keySet();
         /*型号*/
         String model = null;
         /*版本*/
@@ -535,10 +567,8 @@ public class ErrorPackage {
         /*如果 型号 model 不为 null
         * 则可以根据 品牌和型号 获取 误码率信息*/
         if ( model!=null ){
-
             deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model,Constant.getProfileInformation());
             keys = deviceVersion.keySet();
-
             /*遍历 误码率 品牌、型号 下的 key*/
             for (String key:keys){
                 /*如果 交换机型号switchParameters.getFirmwareVersion() 与 配置文件中 key匹配
@@ -548,14 +578,11 @@ public class ErrorPackage {
                     break;
                 }
             }
-
             /*如果 型号 firmwareVersion 不为 null
              * 则可以根据 品牌和型号 获取 误码率信息*/
             if (firmwareVersion!=null){
-
                 deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model+"."+firmwareVersion,Constant.getProfileInformation());
                 keys = deviceVersion.keySet();
-
                 /*遍历 误码率 品牌、型号、版本 下的 key*/
                 for (String key:keys){
                     /*如果 交换机型号switchParameters.getSubversionNumber() 与 配置文件中 key匹配
@@ -577,13 +604,11 @@ public class ErrorPackage {
         String condition = "."+brand +(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
         deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率"+condition,Constant.getProfileInformation());
         Set<String> strings = deviceVersion.keySet();
-
-        /*key值 ：
+        /*key ：value
         *   Input: $ input errors
             Output: $ output errors
             CRC: $ CRC,
         */
-
         /* 获取三个参数的关键词 并存储再 hashMap 集合中*/
         HashMap<String,String> hashMap =new HashMap<>();
         for (String key:strings){
@@ -603,33 +628,30 @@ public class ErrorPackage {
             }
         }
 
-
         /* 获取 hashMap 的 key值 */
         Set<String> keySet = hashMap.keySet();
-
-
         /* 遍历 hashMap 的 key值
         * 获取关键词是否包含 Total Error
         * 如果存在则通过 Total Error 先获取到 ： Input 和 Output*/
         HashMap<String, String> valueTotalError = new HashMap<>();
         for (String key:keySet){
             if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
-                /* 通过 Total Error 先获取到 ： Input 和 Output */
+                /* 通过 Total Error 先获取到 ：包含Input和Output值的行信息
+                * 例如：
+                * Input ：行信息
+                * Output ：行信息 */
                 valueTotalError = getValueTotalError(returnResults);
             }
         }
 
-        /*遍历 hashMap 的 key值
-        * 获取对应的参数值*/
+        /*遍历 hashMap 的 key值  获取对应的参数值*/
         for (String key:keySet){
-            /*key值的关键词 包含 "Total Error" */
+            /*key值 的 value值是否包含 "Total Error" */
             if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
-
                 /*如果根据 "Total Error" 获取行信息为 空 则取下一参数*/
                 if (valueTotalError.size()==0){
                     continue;
                 }
-
                 /*根据 key 获取关键词 */
                 String value = valueTotalError.get(key);
                 if (value == null){
@@ -641,7 +663,6 @@ public class ErrorPackage {
                 if (placeholdersContaining!=null){
                     hashMap.put(key,placeholdersContaining);
                 }
-
                 /*如果关键词不包含 "Total Error"
                 * */
             }else if (!(MyUtils.containIgnoreCase(hashMap.get(key),"Total Error"))){
@@ -656,64 +677,83 @@ public class ErrorPackage {
                         hashMap.put(key,placeholdersContaining);
                         break;
                     }
-
                 }
             }
         }
-
         List<String> stringList = new ArrayList<>();
         for (String key:keySet){
             stringList.add(key + ":" +hashMap.get(key));
         }
-
         return stringList;
-
     }
 
 
     /**
-     * 当取词关键词有 Total Error 时的取词逻辑 需要区分时Input的Total Error，还是Output的Total Error
+    * @Description  当取词关键词有 Total Error 时的取词逻辑
+     * 需要区分时Input的Total Error，还是Output的Total Error
+     *
+     * 交换机返回信息文本例子：
+     * Input: 982431567 packets, 1214464892426 bytes
+     * Unicast: 981439518, Multicast: 404
+     * Broadcast: 991644, Jumbo: 0
+     * Discard: 0, Pause: 0
+     * Frames: 0
+     *
+     * Total Error: 2
+     * CRC: 1, Giants: 0
+     * Jabbers: 0, Fragments: 0
+     * Runts: 0, DropEvents: 0
+     * Alignments: 0, Symbols: 1
+     * Ignoreds: 0
+     *
+     * Output: 508606045 packets, 45046419657 bytes
+     * Unicast: 502482495, Multicast: 6122779
+     * Broadcast: 771, Jumbo: 0
+     * Discard: 0, Pause: 0
+     *
+     * Total Error: 0
+     * Collisions: 0, ExcessiveCollisions: 0
+     * Late Collisions: 0, Deferreds: 0
+     * Buffers Purged: 0
      *
      * 实现逻辑：按行分割成字符串 包含 Input、Output、Total Error的都放入集合
      * 然后遍历集合，将Total Error元素取出来，如果Total Error元素行包含Input 或 Output则放入HashMap<String,String>
      *     如果包含Input 或 Output 则取前一个元素，看是Input 还是 Output
-     * @param information
+    * @author charles
+    * @createTime 2023/11/8 15:45
+    * @desc
+    * @param information
      * @return
-     */
+    */
     public HashMap<String,String> getValueTotalError(String information) {
         /* 按行  分割  交换机返回信息字符串数组 */
         String[] informationSplit = information.split("\r\n");
-        /* 遍历交换机返回信息 行信息 */
+
+        /* 遍历交换机返回信息 行信息
+        *判断 行信息 包含 "Input" 则 在list集合中 存储 Input
+        *判断 行信息 包含 "Output" 则 在list集合中 存储 Output
+        *判断 行信息 包含 "Total Error" 则 在list集合中存储整行的信息*/
         List<String> valueList = new ArrayList<>();
         for (int number = 0; number<informationSplit.length; number++){
-
-            /*判断 行信息 包含 "Input" 则 在list集合中 存储 Input*/
+            /*判断一个字符串是否包含另一个字符串(忽略大小写)*/
             if (MyUtils.containIgnoreCase(informationSplit[number],"Input")){ //&& !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))
                 valueList.add("Input");
             }
-
-            /*判断 行信息 包含 "Output" 则 在list集合中 存储 Output*/
             if (MyUtils.containIgnoreCase(informationSplit[number],"Output")){//&& !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))
                 valueList.add("Output");
             }
-
-            /*判断 行信息 包含 "Total Error" 则 在list集合中 存储 行信息*/
             if (MyUtils.containIgnoreCase(informationSplit[number],"Total Error")){
                 valueList.add(informationSplit[number]);
             }
-
         }
 
-        /* "Total Error" 与  "Input"、"Output" 的map对应关系 */
+        /* 存储 "Total Error" 与"Input 、Output" 的map对应关系 */
         HashMap<String,String> returnMap = new HashMap<>();
         /*循环遍历 存储包含"Total Error"、"Input"、"Output" 信息的集合 */
         for (int i =0 ;i<valueList.size();i++){
             /*判断 集合元素是否包含 "Total Error"
-
-            * 如果包含 则 判断是否包含 "Input" 或者 "Output"
-            * 存在着则 存入map集合 key值为 "Input" 或者 "Output"
-            *
-            * 如果 不包含 "Input" 及 "Output"  且 "Total Error"不为 0 元素
+            * 如果包含 则 判断该行是否包含 "Input" 或者 "Output" ，存在着则 存入map集合 key值为 "Input" 或者 "Output"
+            * 如果 不包含 "Input" 及 "Output"  且 "Total Error"不为 集合的0号元素
              则取出 前一元素 作为 key值*/
             if (MyUtils.containIgnoreCase(valueList.get(i),"Total Error")){
                 if (MyUtils.containIgnoreCase(valueList.get(i),"Input")){
@@ -724,9 +764,7 @@ public class ErrorPackage {
                     returnMap.put(valueList.get(i-1),valueList.get(i));
                 }
             }
-
         }
-
         return returnMap;
     }
 
@@ -745,15 +783,16 @@ public class ErrorPackage {
      * @return
      */
     public String getPlaceholdersContaining(String str1 , String str2) {
+
         /*1 首先将交换机返回信息数字替换为"",将配置文件中的占位符$替换为""*/
         String str1Str = str1.replaceAll("\\d", "");
         String str2Str = str2.trim().replace("$", "");
-        /*2 如果str1Str 不包含 str2Str 则返回null*/
+        /*2 如果 行信息 不包含 关键词 则返回null*/
         if (str1Str.indexOf(str2Str) ==-1){
             return null;
         }
-        /*3  占位符位置
-        * 将配置文件的关键词按空格转换为字符串数组，获取$ 的下标、*/
+
+        /*3  占位符位置 将配置文件的关键词按空格转换为字符串数组，获取$ 的下标、*/
         Integer num = null;
         String[] $str2 = str2.split(" ");
         for (int number = 0; number<$str2.length; number++){
@@ -768,8 +807,8 @@ public class ErrorPackage {
         if (num == 0){
             // $在关键词的开头
             String[] str1Split = str1.split(str2Str.trim());
-            // 开头等于二，关键词在中间 $代表的参数会在第一个数组元素中
-            // 开头等于 一，关键词在结尾 $代表的参数在唯一一个数组元素中
+            // 开头等于二，关键词在中间 $代表的参数会在第一个数组元素中 ["元素一 $","元素二"]
+            // 开头等于 一，关键词在结尾 $代表的参数在唯一一个数组元素中 ["元素一 $"]
             /*关键词在中间 或者在结尾*/
             if (str1Split.length==2 || str1Split.length==1){
                 String[] parameterArray = str1Split[0].trim().split(" ");
@@ -782,7 +821,7 @@ public class ErrorPackage {
                     return value;
                 }
             }else {
-                /*如果有多个 关键词，则需要遍历获取，直到获取到数字为止*/
+                /*如果有多个 关键词，则需要遍历获取，直到获取到数字为止 ["元素一 $","元素二","元素三","元素四"]*/
                 for (String returnstr1:str1Split){
                     String[] parameterArray = returnstr1.trim().split(" ");
                     /*获取数组的最后一个元素*/
@@ -801,19 +840,20 @@ public class ErrorPackage {
         }else if (num == $str2.length-1){
             // $在关键词的结尾
             String[] str1Split = str1.split(str2Str.trim());
-            //结尾等于二，关键词在中间 $代表的参数会在第二个数组元素中
-            // 结尾等于 一，关键词在开头 $代表的参数在唯一一个数组元素中
+            //结尾等于二，关键词在中间 $代表的参数会在第二个数组元素中   ["元素一","$ 元素二"]
+            // 结尾等于 一，关键词在开头 $代表的参数在唯一一个数组元素中  ["$ 元素一"]
             if (str1Split.length==2){
                 String[] parameterArray = str1Split[1].trim().split(" ");
-                /*获取数组的最后一个元素*/
+                /*获取数组的第一个元素*/
                 String value = parameterArray[0].trim();
                 value = FunctionalMethods.judgeResultWordSelection(value);
                 if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                     return value;
                 }
             }else if (str1Split.length==1){
+                // ["$ 元素一","$ 元素二","$ 元素三","$ 元素四","$ 元素五"]
                 String[] parameterArray = str1Split[0].trim().split(" ");
-                /*获取数组的最后一个元素*/
+                /*获取数组的第一个元素*/
                 String value = parameterArray[0].trim();
                 value = FunctionalMethods.judgeResultWordSelection(value);
                 if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
@@ -874,7 +914,7 @@ public class ErrorPackage {
 
 
     /**
-     * 获取 描述：Description:
+     * 获取 描述：Description:  电力局数据库表还没有改(添加 Description 字段)
      *
      * 忽略大小写判断返回信息是否包含 Description:  如果不包含返回 null
      * 如果包含，则按行分割，然后逐行判断是否包含 Description:
@@ -886,18 +926,20 @@ public class ErrorPackage {
         /* 配置文件中 获取 Description 关键词
         * 关键词 根据 ； 转化为 关键词 字符串 数组*/
         String descriptionValue = (String) CustomConfigurationUtil.getValue("误码率.描述", Constant.getProfileInformation());
-        String[] descriptionSplit = descriptionValue.split(";");
-        for (String description:descriptionSplit){
+        if (descriptionValue == null){
+            return null;
+        }
 
+        String[] descriptionSplit = descriptionValue.split(";");
+
+        for (String description:descriptionSplit){
             /* 判断交换机返回信息 是否包含 Description关键词
             * 如果不包含 则 跳出当前循环 进行下一个 循环*/
             if (information.trim().toLowerCase().indexOf(description.toLowerCase()) == -1){
                 continue;
             }
-
             /*按行分割 获得交换机返回信息 数组*/
             String[] informationSplit = information.split("\r\n");
-
             /*遍历 交换机返回信息数组
             * 判断 Description关键词 在那一行 */
             for (String string:informationSplit){
@@ -933,7 +975,4 @@ public class ErrorPackage {
         }
         return null;
     }
-
-
-
 }

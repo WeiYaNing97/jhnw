@@ -306,7 +306,7 @@ public class ConnectToObtainInformation {
     public AjaxResult getBasicInformationCurrency(SwitchParameters switchParameters) {
 
         //目前获取基本信息命令是多个命令是由,号分割的，
-        // 所以需要根据, 来分割。例如：display device manuinfo,display ver
+        // 所以需要根据; 来分割。例如：display device manuinfo;display ver
         /*H3C*/
         String[] commandsplit = ( (String) CustomConfigurationUtil.getValue("BasicInformation.getBrandCommand", Constant.getProfileInformation())).split(";");
         String commandString =""; //预设交换机返回结果

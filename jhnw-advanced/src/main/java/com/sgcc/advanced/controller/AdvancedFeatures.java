@@ -98,6 +98,14 @@ public class AdvancedFeatures {
     }
 
 
+    /**
+    * @Description   todo 未完成  定时任务
+    * @author charles
+    * @createTime 2023/11/8 13:46
+    * @desc
+    * @param
+     * @return
+    */
     public String advancedScheduledTasks() {
 
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -178,23 +186,31 @@ public class AdvancedFeatures {
 
     }
 
+    /**
+    * @Description  获取定时任务 交换机登录信息 集合
+    * @author charles
+    * @createTime 2023/11/8 13:47
+    * @desc
+    * @param
+     * @return
+    */
     public List<SwitchLoginInformation> readExcel() {
         //定时任务功能 文件存放目录
         String url = (String) CustomConfigurationUtil.getValue("configuration.timedTaskPath", Constant.getProfileInformation());
+        if (url == null){
+            return new ArrayList<>();
+        }
 
         ExcelReader reader = ExcelUtil.getReader(url);
         List<Map<String,Object>>  readAllMap = new ArrayList<>();
-
         try {
             // 读取 Excel 文件的操作
             readAllMap = reader.readAll();
         } catch (Exception e) {
             // 异常处理逻辑
-
         } finally {
             reader.close();
         }
-
         List<SwitchLoginInformation> switchLoginInformations = new ArrayList<>();
         for (Map<String,Object> readMap:readAllMap){
             Set<Map.Entry<String, Object>> entries = readMap.entrySet();
@@ -219,7 +235,6 @@ public class AdvancedFeatures {
                     case "配置密码":
                         switchLoginInformation.setConfigureCiphers(entrie.getValue() == null?null:entrie.getValue().toString());
                         break;
-
                 }
             }
             switchLoginInformations.add(switchLoginInformation);

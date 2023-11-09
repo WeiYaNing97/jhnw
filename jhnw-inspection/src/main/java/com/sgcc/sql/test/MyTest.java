@@ -17,15 +17,9 @@ import java.util.*;
  **/
 public class MyTest {
     public static void main(String[] args) {
-        String[] vs = "asdfghj".split("v");
-        if (vs != null) {
-            System.err.println("null");
-        }
-        if (vs.length > 0){
-            System.err.println(">");
-        }
-        if (vs.length == 0){
-            System.err.println("==");
+        String[] vs = "asdfghj".split("ghj");
+        for (String s:vs){
+            System.err.println(1 + s);
         }
     }
 
