@@ -13,6 +13,7 @@ import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.IProblemScanLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,7 +108,7 @@ public class ImportExportController {
                 }
             }
         }
-        List<ProblemScanLogic> pojoList = definitionProblemController.definitionProblem(problemScanLogicList);
+        List<ProblemScanLogic> pojoList = InspectionMethods.definitionProblem(problemScanLogicList);
         List<String> exportText = new ArrayList<>();
         exportText.add("交换机问题表");
         for (TotalQuestionTable pojo:totalQuestionTables){

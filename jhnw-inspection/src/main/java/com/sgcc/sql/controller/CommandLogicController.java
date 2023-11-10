@@ -16,6 +16,7 @@ import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.service.ICommandLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.share.webSocket.WebSocketService;
+import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -151,8 +152,7 @@ public class CommandLogicController extends BaseController
         List<CommandLogic> commandLogics = new ArrayList<>();
         for (int number=0;number<commandLogicList.size();number++){
             //CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
-            DefinitionProblemController definitionProblemController = new DefinitionProblemController();
-            CommandLogic commandLogic = definitionProblemController.analysisCommandLogic(commandLogicList.get(number));
+            CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(commandLogicList.get(number));
             commandLogics.add(commandLogic);
         }
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
@@ -190,72 +190,7 @@ public class CommandLogicController extends BaseController
         return true;
     }
 
-    /**
-     * @method: 命令表数据 有String 转化为 CommandLogic
-     * @Param: [CommandLogicString]
-     * @return: com.sgcc.sql.domain.CommandLogic
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    public CommandLogic analysisCommandLogicString(String CommandLogicString){
-        CommandLogic commandLogic = new CommandLogic();
-        CommandLogicString = CommandLogicString.replace("{","");
-        CommandLogicString = CommandLogicString.replace("}","");
-        String[]  jsonPojo_split = CommandLogicString.split(",");
-        HashMap<String,String> hashMap = new HashMap<>();
-        hashMap.put("onlyIndex",null);
-        hashMap.put("resultCheckId","0");
-        hashMap.put("command",null);
-        hashMap.put("nextIndex","0");
-        hashMap.put("pageIndex",null);
-        hashMap.put("endIndex","0");
-        for (String pojo:jsonPojo_split){
-            String[] split = pojo.split(":");
-            String split0 = split[0].replace("\"","");
-            String split1 = split[1].replace("\"","");
-            switch (split0){
-                case "onlyIndex"://本层ID 主键ID
-                    hashMap.put("onlyIndex",split1);
-                    break;
-                case "resultCheckId":// 常规校验1 自定义校验0
-                    hashMap.put("resultCheckId",split1);
-                    break;
-                case "command":// 命令
-                    hashMap.put("command",split1);
-                    break;
-                case "para":// 参数
-                    hashMap.put("command",hashMap.get("command")+":"+split1);
-                    break;
-                case "nextIndex"://下一分析ID 也是 首分析ID
-                    hashMap.put("nextIndex",split1);
-                    break;
-                case "pageIndex"://命令行号
-                    hashMap.put("pageIndex",split1);
-                    break;
-            }
-        }
-        //如果 常规检验 的话 下一ID  应是 下一命令ID
-        //下一分析ID  应是  0
-        if (hashMap.get("resultCheckId").equals("1")){
-            hashMap.put("endIndex",hashMap.get("nextIndex"));
-            hashMap.put("nextIndex","0");
-        }
-        /** 主键索引 */
-        commandLogic.setId(hashMap.get("onlyIndex"));
-        /** 状态 */
-        commandLogic.setState(null);
-        /** 命令 */
-        commandLogic.setCommand(hashMap.get("command"));
-        /** 返回结果验证id */
-        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
-        /** 返回分析id */
-        commandLogic.setProblemId(hashMap.get("nextIndex"));
-        /** 命令结束索引 */
-        commandLogic.setEndIndex(hashMap.get("endIndex"));
-        /** 命令行号 */
-        commandLogic.setcLine(hashMap.get("pageIndex"));
-        return commandLogic;
-    }
+
 
 
     /**
@@ -324,4 +259,5 @@ public class CommandLogicController extends BaseController
         }
         return true;
     }
+
 }

@@ -154,14 +154,13 @@ public class SwitchInteraction {
             /*遍历分析逻辑字符串集合：List<String> pojoList
             通过 调用 analysisProblemScanLogic 方法 将字符串 转化为 分析逻辑实体类，
             并放入 分析逻辑实体类集合 List<ProblemScanLogic> problemScanLogicList。*/
-            DefinitionProblemController definitionProblemController = new DefinitionProblemController();
             for (String pojo:pojoList){
                 //本条是分析 下一条是 分析
-                ProblemScanLogic problemScanLogic = definitionProblemController.analysisProblemScanLogic(pojo, "分析");
+                ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(pojo, "分析");
                 problemScanLogicList.add(problemScanLogic);
             }
             //将相同ID  时间戳 的 实体类 放到一个实体
-            List<ProblemScanLogic> problemScanLogics = definitionProblemController.definitionProblem(problemScanLogicList);
+            List<ProblemScanLogic> problemScanLogics = InspectionMethods.definitionProblem(problemScanLogicList);
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息

@@ -17,6 +17,7 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.thread.RepairFixedThreadPool;
 import com.sgcc.share.webSocket.WebSocketService;
+import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,8 +96,7 @@ public class SolveProblemController {
 
         List<String> commandLogicStringList = new ArrayList<>();
         for (CommandLogic commandLogic:commandLogicList){
-            DefinitionProblemController definitionProblemController = new DefinitionProblemController();
-            String string = definitionProblemController.commandLogicString(commandLogic);
+            String string = InspectionMethods.commandLogicString(commandLogic);
             String[] split = string.split("=:=");
             commandLogicStringList.add(split[1]);
         }
@@ -136,7 +136,7 @@ public class SolveProblemController {
         Iterator<String> iterator = userHashSet.iterator();
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         while(iterator.hasNext()){
-            SwitchParameters switchParameters= getUserMap(iterator.next());
+            SwitchParameters switchParameters= InspectionMethods.getUserMap(iterator.next());
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
             switchParameters.setScanningTime(simpleDateFormat);
             switchParametersList.add(switchParameters);
@@ -179,51 +179,7 @@ public class SolveProblemController {
         }
     }
 
-    /**
-     * 交换机登录信息提取
-     */
-    public static SwitchParameters getUserMap(String userinformation) {
-        /*不用 JSON.parseObject 方法 是因为 port 字段类型不匹配。前端传入 String，实体类 Integer */
-        //用户信息
-        String userInformationString = userinformation;
-        userInformationString = userInformationString.replace("{","");
-        userInformationString = userInformationString.replace("}","");
-        userInformationString = userInformationString.replace("\"","");
-        String[] userinformationSplit = userInformationString.split(",");
-        SwitchParameters switchParameters = new SwitchParameters();
-        for (String userString:userinformationSplit){
-            String[] userStringsplit = userString.split(":");
-            String key = userStringsplit[0];
-            String value = userStringsplit[1];
-            switch (key.trim()){
-                case "mode":
-                    //登录方式
-                    switchParameters.setMode(value);
-                    break;
-                case "ip":
-                    //ip地址
-                    switchParameters.setIp(value);
-                    break;
-                case "name":
-                    //用户名
-                    switchParameters.setName(value);
-                    break;
-                case "password":
-                    //密码
-                    switchParameters.setPassword(EncryptUtil.desaltingAndDecryption(value));
-                    break;
-                case "configureCiphers":
-                    //密码
-                    switchParameters.setConfigureCiphers(EncryptUtil.desaltingAndDecryption(value));
-                    break;
-                case "port":
-                    //端口号
-                    switchParameters.setPort(Integer.valueOf(value).intValue());
-                    break;
-            }
-        }
-        return switchParameters;
-    }
+
 
     /***
      * @method: 修复问题
