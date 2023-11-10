@@ -103,24 +103,18 @@ public class ConnectToObtainInformation {
     */
     @GetMapping("requestConnect")
     public AjaxResult requestConnect(SwitchParameters switchParameters) {
-
         //设定连接结果 预设连接失败为 false
         boolean is_the_connection_successful =false;
         List<Object> objects = null;
-
         /*连接方式 为 SSH*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-
             //创建ssh连接方法
             SshMethod connectMethod = new SshMethod();
-
             //连接ssh 成功为 true  失败为  false
             /*为 true 时 返回 SshConnect JSCH的 使用方法类*/
             objects = connectMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword());
-
             /* 判断交换机是否连接成功 成功*/
             if ((boolean) objects.get(0) == true){
-
                 /*(JSCH 使用方法类)*/
                 if ( (SshConnect) objects.get(1) != null){
                     SshConnect sshConnect =  (SshConnect)objects.get(1);
@@ -128,7 +122,6 @@ public class ConnectToObtainInformation {
                     switchParameters.setConnectMethod(connectMethod);/*ssh的使用方法类*/
                     is_the_connection_successful = true;
                 }
-
             }else {
                 /* 判断交换机是否连接成功 失败 */
                 /* 集合的最后一个元素 为 连接失败的原因 */
@@ -141,7 +134,6 @@ public class ConnectToObtainInformation {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                     /*sshVersion 是否包含 IP地址*/
                     /*if (sshVersion.indexOf(switchParameters.getIp())!=-1){
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ sshVersion+"\r\n");
@@ -151,14 +143,10 @@ public class ConnectToObtainInformation {
                             e.printStackTrace();
                         }
                     }*/
-
                 }
-
             }
-
         /*连接方式 为 telnet*/
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-
             //创建telnet连接方法
             TelnetSwitchMethod telnetSwitchMethod = new TelnetSwitchMethod();
             //连接telnet 成功为 true  失败为  false
@@ -168,12 +156,9 @@ public class ConnectToObtainInformation {
                 switchParameters.setTelnetSwitchMethod(telnetSwitchMethod);
                 is_the_connection_successful = true;
             }
-
         }
-
         /* is_the_connection_successful 交换机连接成功*/
         if(is_the_connection_successful){
-
             //enable 配置  返回 交换机连接失败  或   交换机连接成功
             String enable = enable(switchParameters);
             if (enable.equals("交换机连接成功")){
@@ -184,16 +169,12 @@ public class ConnectToObtainInformation {
                 ajaxResult.put("msg","交换机连接失败");
                 return ajaxResult;
             }
-
         }else {
-
             AjaxResult ajaxResult = new AjaxResult();
             ajaxResult.put("loginError",objects); // 交换机连接的返回信息
             ajaxResult.put("msg","交换机连接失败");
             return ajaxResult;
-
         }
-
     }
 
 

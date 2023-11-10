@@ -20,6 +20,7 @@ import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
@@ -113,18 +114,22 @@ public class SolveProblemController {
     @ApiOperation("修复问题接口")
     @PostMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,@PathVariable  List<String> problemIdList,@PathVariable  Long scanNum ,@PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
+    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,
+                                            @PathVariable  List<String> problemIdList,
+                                            @PathVariable  Long scanNum,
+                                            @PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
         /*需要修复的问题*/
         Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
         // 根据 问题ID  查询 扫描出的问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-        /*根据ID集合 查询所有  SwitchProblem 数据*/
+        /*根据ID集合 查询所有 扫描结果SwitchProblem 数据*/
         List<SwitchScanResult> switchScanResultList = switchScanResultService.selectSwitchScanResultByIds(ids);
         /*交换机 用户信息 String 格式    去重*/
-        HashSet<String> userHashSet = new HashSet<>();
+        /*HashSet<String> userHashSet = new HashSet<>();
         for (int number = 0 ; number <userinformation.size() ; number++){
             userHashSet.add((String) userinformation.get(number));
-        }
+        }*/
+        Set<String> userHashSet = userinformation.stream().map(Object::toString).collect(Collectors.toSet());
         /* 装换成 Json 格式*/
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         // 迭代器遍历HashSet：
@@ -141,6 +146,7 @@ public class SolveProblemController {
         /* 遍历 交换机基本信息 */
         for (SwitchParameters switchParameters:switchParametersList){
             List<SwitchScanResult>  problemIdPojoList = new ArrayList<>();
+            /* 遍历交换机问题 插入问题集合 */
             for (SwitchScanResult switchScanResult:switchScanResultList){
                 if (switchParameters.getIp().equals( switchScanResult.getSwitchIp().split(":")[0]) ){
                     problemIdPojoList.add(switchScanResult);
@@ -148,21 +154,23 @@ public class SolveProblemController {
             }
             problemIdListList.add(problemIdPojoList);
         }
+
         ParameterSet parameterSet = new ParameterSet();
-        parameterSet.setSwitchParameters(switchParametersList);
+        parameterSet.setSwitchParameters(switchParametersList);/*修复交换机集合*/
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
-        try {
 
-            if (allProIdList == null || allProIdList.size() != 0){
+        try {
+            /*交换机所有扫描结果ID*/
+            if (allProIdList != null || allProIdList.size() != 0){
                 problemIdList = allProIdList;
             }
-
             RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
             repairFixedThreadPool.Solution(parameterSet, problemIdListList, problemIdList);//scanNum
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"修复结束\r\n");
         try {
             PathHelper.writeDataToFile("系统信息："+"修复结束\r\n");
@@ -175,6 +183,7 @@ public class SolveProblemController {
      * 交换机登录信息提取
      */
     public static SwitchParameters getUserMap(String userinformation) {
+        /*不用 JSON.parseObject 方法 是因为 port 字段类型不匹配。前端传入 String，实体类 Integer */
         //用户信息
         String userInformationString = userinformation;
         userInformationString = userInformationString.replace("{","");
@@ -226,8 +235,6 @@ public class SolveProblemController {
      */
 
     public AjaxResult batchSolution(SwitchParameters switchParameters, List<SwitchScanResult> switchScanResultList , List<String> problemIds){
-        //是否连接成功
-        boolean requestConnect_boolean = false;
         /* requestConnect方法：
         传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
@@ -256,10 +263,11 @@ public class SolveProblemController {
             }
             return AjaxResult.error("交换机连接失败");
         }
+
         switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
         //是否连接成功
-        requestConnect_boolean = requestConnect_ajaxResult.get("msg").equals("操作成功");//(boolean) objectMap.get("TrueAndFalse");
-        if (requestConnect_boolean){
+        //boolean requestConnect_boolean = requestConnect_ajaxResult.get("msg").equals("操作成功");//(boolean) objectMap.get("TrueAndFalse");
+        if (requestConnect_ajaxResult.get("msg").equals("操作成功")){
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
@@ -385,10 +393,10 @@ public class SolveProblemController {
      * @return  key : value   ->  用户名 : admin
      */
     public HashMap<String,String> separationParameters(String dynamicInformation) {
-        HashMap<String,String> valueHashMap = new HashMap<>();
         //几个参数中间的 参数是 以  "=:=" 来分割的
         //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
         String[] parameterStringsplit = dynamicInformation.split("=:=");
+        HashMap<String,String> valueHashMap = new HashMap<>();
         //判断提取参数 是否为空
         if (parameterStringsplit.length>0){
             //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
@@ -506,7 +514,6 @@ public class SolveProblemController {
                 }
 
                 System.err.println("\r\n"+"命令："+command+"\r\n交换机返回信息:\r\n"+commandString+"\r\n");
-
                 returnRecord.setCurrentReturnLog(commandString);
                 //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
                 boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
@@ -603,7 +610,6 @@ public class SolveProblemController {
             }
             //返回信息表，返回插入条数
             int update = returnRecordService.updateReturnRecord(returnRecord);
-
             //判断命令是否错误 错误为false 正确为true
             if (!(FunctionalMethods.judgmentError( switchParameters,commandString))){
                 //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
@@ -624,142 +630,6 @@ public class SolveProblemController {
             }
         }
         return "成功";
-    }
-
-
-
-    /**
-     * @method: 根据当前登录人 获取 以往扫描信息
-     * @Param: []
-     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
-    public List<ScanResultsCO> getUnresolvedProblemInformationByUserName(){
-
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        String userName = loginUser.getUsername();
-        switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
-        List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByDataAndUserName(null,userName);
-        if (switchProblemList.size() == 0){
-            return new ArrayList<>();
-        }
-        HashSet<String> hashSet = new HashSet<>();
-        for (SwitchProblemVO switchProblemVO:switchProblemList){
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String time = format.format(switchProblemVO.getCreateTime());
-            hashSet.add(switchProblemVO.getSwitchIp()+"=:="+time);
-            Date date1 = new Date();
-            switchProblemVO.hproblemId =  Long.valueOf(FunctionalMethods.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
-            List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
-            for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-                valueInformationService = SpringBeanUtil.getBean(IValueInformationService.class);//解决 多线程 service 为null问题
-                List<ValueInformationVO> valueInformationVOList = valueInformationService.selectValueInformationVOListByID(switchProblemCO.getValueId());
-                for (ValueInformationVO valueInformationVO:valueInformationVOList){
-                    Date date2 = new Date();
-                    valueInformationVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date2)+""+ (int)(Math.random()*10000+1)).longValue();
-                }
-                Date date3 = new Date();
-                switchProblemCO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date3)+""+ (int)(Math.random()*10000+1)).longValue();
-                switchProblemCO.setValueInformationVOList(valueInformationVOList);
-            }
-        }
-        //将IP地址去重放入set集合中
-        HashSet<String> time_hashSet = new HashSet<>();
-        for (SwitchProblemVO switchProblemVO:switchProblemList){
-            Date createTime = switchProblemVO.getCreateTime();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String time = simpleDateFormat.format(createTime);
-            time_hashSet.add(time);
-        }
-        List<Date> arr = new ArrayList<Date>();
-        for (String time:time_hashSet){
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            try {
-                arr.add(format.parse(time));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        List<Date> sort = MyUtils.sort(arr);
-        List<String> stringtime = new ArrayList<>();
-        for (int number = sort.size()-1;number>=0;number--){
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String time = dateFormat.format(sort.get(number));
-            stringtime.add(time);
-        }
-        List<ScanResultsCO> scanResultsCOList = new ArrayList<>();
-        for (String time:stringtime){
-            ScanResultsCO scanResultsCO = new ScanResultsCO();
-            scanResultsCO.setCreateTime(time);
-            scanResultsCOList.add(scanResultsCO);
-        }
-        List<ScanResultsVO> scanResultsVOPojoList = new ArrayList<>();
-        for (String hashString:hashSet){
-            String[] split = hashString.split("=:=");
-            ScanResultsVO scanResultsVO = new ScanResultsVO();
-            scanResultsVO.setSwitchIp(split[0]);
-            scanResultsVO.setCreateTime(split[1]);
-            scanResultsVOPojoList.add(scanResultsVO);
-        }
-        for (ScanResultsVO scanResultsVO:scanResultsVOPojoList){
-            List<SwitchProblemVO> pojoList = new ArrayList<>();
-            String pinpai = "*";
-            String xinghao = "*";
-            String banben = "*";
-            String zibanben = "*";
-            for (SwitchProblemVO switchProblemVO:switchProblemList){
-                DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String time = format.format(switchProblemVO.getCreateTime());
-                if (scanResultsVO.getSwitchIp().equals(switchProblemVO.getSwitchIp())
-                        && scanResultsVO.getCreateTime().equals(time)){
-                    String brand = switchProblemVO.getBrand();
-                    if (!(brand .equals("*"))){
-                        pinpai = brand;
-                    }
-                    String switchType = switchProblemVO.getSwitchType();
-                    if (!(switchType .equals("*"))){
-                        xinghao = switchType;
-                    }
-                    String firewareVersion = switchProblemVO.getFirewareVersion();
-                    if (!(firewareVersion .equals("*"))){
-                        banben = firewareVersion;
-                    }
-                    String subVersion = switchProblemVO.getSubVersion();
-                    if (!(subVersion .equals("*"))){
-                        zibanben = subVersion;
-                    }
-                    pojoList.add(switchProblemVO);
-                }
-            }
-            scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
-            scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
-            scanResultsVO.setSwitchProblemVOList(pojoList);
-        }
-        for (ScanResultsCO scanResultsCO:scanResultsCOList){
-            List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
-            for (ScanResultsVO scanResultsVO:scanResultsVOPojoList){
-                if (scanResultsCO.getCreateTime().equals(scanResultsVO.getCreateTime())){
-                    scanResultsVOList.add(scanResultsVO);
-                }
-            }
-            scanResultsCO.setScanResultsVOList(scanResultsVOList);
-        }
-        for (ScanResultsCO scanResultsCO:scanResultsCOList){
-            scanResultsCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-            List<ScanResultsVO> scanResultsVOList = scanResultsCO.getScanResultsVOList();
-            for (ScanResultsVO scanResultsVO:scanResultsVOList){
-                scanResultsVO.setCreateTime(null);
-                scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-                List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
-                for (SwitchProblemVO switchProblemVO:switchProblemVOList){
-                    switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
-                    switchProblemVO.setSwitchIp(null);
-                    switchProblemVO.setCreateTime(null);
-                }
-            }
-        }
-        return scanResultsCOList;
     }
 
 
@@ -798,13 +668,11 @@ public class SolveProblemController {
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
-
         //将IP地址去重放入set集合中
         HashSet<String> ip_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
-
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String ip_string:ip_hashSet){
@@ -814,15 +682,12 @@ public class SolveProblemController {
             scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
-
             String pinpai = "*";
             String xinghao = "*";
             String banben = "*";
             String zibanben = "*";
-
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
 
@@ -850,16 +715,13 @@ public class SolveProblemController {
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
             for (SwitchProblemVO switchProblemVO:switchProblemVOList){
                 switchProblemVO.setSwitchIp(null);
             }
         }
-
         WebSocketService.sendMessage("loophole:"+loginUser.getUsername(),scanResultsVOList);
-
         return scanResultsVOList;
     }
 
@@ -873,18 +735,14 @@ public class SolveProblemController {
      */
     @GetMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测
-
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
-
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListByIds(id);
-
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultByIds(id);
         HashMap<Long,SwitchScanResult> hashMap = new HashMap<>();
         for (SwitchScanResult switchScanResult:list){
             hashMap.put(switchScanResult.getId(),switchScanResult);
         }
-
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
@@ -925,13 +783,11 @@ public class SolveProblemController {
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
-
         //将IP地址去重放入set集合中
         HashSet<String> ip_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
-
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String ip_string:ip_hashSet){
@@ -940,18 +796,14 @@ public class SolveProblemController {
             scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             scanResultsVOList.add(scanResultsVO);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
-
             String pinpai = "*";
             String xinghao = "*";
             String banben = "*";
             String zibanben = "*";
-
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 if (switchProblemVO.getSwitchIp().equals(scanResultsVO.getSwitchIp())){
-
                     String brand = switchProblemVO.getBrand();
                     if (!(brand .equals("*"))){
                         pinpai = brand;
@@ -968,7 +820,6 @@ public class SolveProblemController {
                     if (!(subVersion .equals("*"))){
                         zibanben = subVersion;
                     }
-
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
@@ -976,7 +827,6 @@ public class SolveProblemController {
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
@@ -985,11 +835,7 @@ public class SolveProblemController {
                 switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             }
         }
-
         WebSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);
-
         return scanResultsVOList;
-
     }
-
 }

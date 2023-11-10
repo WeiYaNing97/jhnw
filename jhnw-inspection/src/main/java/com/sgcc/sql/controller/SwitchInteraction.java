@@ -51,7 +51,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/sql/SwitchInteraction")
 @Transactional(rollbackFor = Exception.class)
 public class SwitchInteraction {
-
     @Autowired
     private  ICommandLogicService commandLogicService;
     @Autowired
@@ -228,6 +227,7 @@ public class SwitchInteraction {
     @MyLog(title = "专项扫描问题", businessType = BusinessType.OTHER)
     public  String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<String> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
         /*交换机信息集合*/
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         for (String information:switchInformation){
@@ -239,15 +239,24 @@ public class SwitchInteraction {
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
             switchParametersList.add(switchParameters);
         }
+
+        /*高级功能集合*/
         List<Long> idScan = new ArrayList<>();
+        /*交换机问题表集合*/
         List<String> advancedName = new ArrayList<>();
+        /* 遍历专项扫描问题集合*/
         for (String id:totalQuestionTableId){
+            /*判断字符串是否为全数字*/
             if (MyUtils.allIsNumeric(id)){
+                /*交换机问题表*/
                 idScan.add(Long.valueOf(id).longValue());
             }else {
+                /*高级功能*/
                 advancedName.add(id);
             }
         }
+
+        /*根据交换机问题表ID集合 查询问题表数据*/
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         Long[] ids = idScan.toArray(new Long[idScan.size()]);
@@ -259,14 +268,18 @@ public class SwitchInteraction {
             WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
             return "扫描结束";
         }
-        parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
-        parameterSet.setSwitchParameters(switchParametersList);
+
+
+        parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());/*线程*/
+        parameterSet.setSwitchParameters(switchParametersList);/*交换机信息表*/
+
         try {
             boolean isRSA = true;
             DirectionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedName,isRSA);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
@@ -545,8 +558,7 @@ public class SwitchInteraction {
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"交换机返回信息插入失败\r\n");
                     try {
                         //插入问题简述及问题路径
-                        PathHelper.writeDataToFile("错误："+"交换机返回信息插入失败\r\n"
-                                +"方法com.sgcc.web.controller.sql.SwitchInteraction.getBasicInformationList");
+                        PathHelper.writeDataToFile("错误："+"交换机返回信息插入失败\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -833,8 +845,7 @@ public class SwitchInteraction {
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"交换机返回信息插入失败\r\n");
                         try {
                             //插入问题简述及问题路径
-                            PathHelper.writeDataToFile("错误："+"交换机返回信息插入失败\r\n"
-                                    +"方法com.sgcc.web.controller.sql.SwitchInteraction.getBasicInformationList");
+                            PathHelper.writeDataToFile("错误："+"交换机返回信息插入失败\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -1167,7 +1178,6 @@ public class SwitchInteraction {
                     insertsInteger, /*问题插入数据库次数*/
                     loop, /*循环次数*/
                     numberOfCycles);/*最大循环次数*/
-
             return loop_string;
         }
 
@@ -1257,14 +1267,13 @@ public class SwitchInteraction {
                 /*如果tComId不为空时，则调用方法executeScanCommandByCommandId发送新命令，
                 通过analysisReturnResults进行新的分析。*/
                 if (problemScanLogic.gettComId() != null){
-                    List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
-                    if ((executeScanCommandByCommandId_object.get(0) instanceof String)
-                            && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
+                    CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
+                    if (!commandReturn.isSuccessOrNot()){
                         /*交换机返回错误信息处理*/
                         return null;
                     }
                     String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
-                            executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
+                            commandReturn,current_Round_Extraction_String, extractInformation_string);
                     return analysisReturnResults_String;
                 }
             }
@@ -1634,15 +1643,14 @@ public class SwitchInteraction {
         /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
         if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
             /**发送命令 返回结果*/
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
-            if ((executeScanCommandByCommandId_object.get(0) instanceof String)
-                    && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
+            CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
+            if (!commandReturn.isSuccessOrNot()){
                 /*交换机返回错误信息处理*/
                 return null;
             }
             /** 分析 */
             String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
-                    executeScanCommandByCommandId_object,current_Round_Extraction_String, extractInformation_string);
+                    commandReturn,current_Round_Extraction_String, extractInformation_string);
             return analysisReturnResults_String;
         }
         /** 判断 下一条分析ID 是否为空
@@ -1689,15 +1697,14 @@ public class SwitchInteraction {
         /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
         if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
             /**发送命令 返回结果*/
-            List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.getfComId());
-            if ((executeScanCommandByCommandId_object.get(0) instanceof String)
-                    && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
+            CommandReturn commandReturn  = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.getfComId());
+            if (!commandReturn.isSuccessOrNot()){
                 /*交换机返回错误信息处理*/
                 return null;
             }
             /** 分析 */
             String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
-                    executeScanCommandByCommandId_object,  current_Round_Extraction_String,  extractInformation_string);
+                    commandReturn ,  current_Round_Extraction_String,  extractInformation_string);
             return analysisReturnResults_String;
         }
         /* 判断 下一条分析ID 是否为空
@@ -1902,18 +1909,15 @@ public class SwitchInteraction {
         if (switchProblemList.size() == 0){
             return new ArrayList<>();
         }
-
         /*根据用户名 和 扫描时间 得到 交换机扫描结果数据*//*
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultByDataAndUserName(loginTime,loginName);
         HashMap<Long,SwitchScanResult> hashMap = new HashMap<>();
         for (SwitchScanResult switchScanResult:list){
             hashMap.put(switchScanResult.getId(),switchScanResult);
         }*/
-
         /*遍历带有结构的 扫描结果表*/
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
-
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
                 /*赋值随机数 前端需要*/
                 switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
@@ -1956,13 +1960,11 @@ public class SwitchInteraction {
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
-
         //将IP地址去重放入set集合中
         HashSet<String> ip_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
-
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String ip_string:ip_hashSet){
@@ -1971,18 +1973,14 @@ public class SwitchInteraction {
             scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
-
             String pinpai = "*";
             String xinghao = "*";
             String banben = "*";
             String zibanben = "*";
-
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 if (switchProblemVO.getSwitchIp() .equals(scanResultsVO.getSwitchIp()) ){
-
                     String brand = switchProblemVO.getBrand();
                     if (!(brand .equals("*"))){
                         pinpai = brand;
@@ -1999,16 +1997,13 @@ public class SwitchInteraction {
                     if (subVersion != null && !(subVersion .equals("*"))){
                         zibanben = subVersion;
                     }
-
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
-
             scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             String switchIp = scanResultsVO.getSwitchIp();
@@ -2020,9 +2015,7 @@ public class SwitchInteraction {
                 switchProblemVO.setSwitchIp(null);
             }
         }
-
         WebSocketService.sendMessage("loophole"+switchParameters.getLoginUser().getUsername(),scanResultsVOList);
-
         return scanResultsVOList;
     }
 
@@ -2036,7 +2029,7 @@ public class SwitchInteraction {
      * 分析ID 连接方式 ssh和telnet连接
      */
     @GetMapping("/executeScanCommandByCommandId")
-    public List<Object> executeScanCommandByCommandId(SwitchParameters switchParameters,
+    public CommandReturn executeScanCommandByCommandId(SwitchParameters switchParameters,
                                                       TotalQuestionTable totalQuestionTable,
                                                       String commandId) {
         //命令ID获取具体命令
@@ -2067,9 +2060,9 @@ public class SwitchInteraction {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            List<Object> objectList = new ArrayList<>();
-            objectList.add("错误信息:定义问题扫描命令不存在");
-            return objectList;
+            CommandReturn commandReturn = new CommandReturn();
+            commandReturn.setSuccessOrNot(false);
+            return commandReturn;
         }
         //具体命令
         String command = commandLogic.getCommand().trim();
@@ -2083,13 +2076,19 @@ public class SwitchInteraction {
             first_problem_scanLogic_Id = commandLogic.getProblemId();
         }else {
             /*接下来还是命令 不进行分析*/
-            List<Object> objectList = executeScanCommandByCommandId(switchParameters,totalQuestionTable,commandLogic.getEndIndex());
-            return objectList;
+            CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,commandLogic.getEndIndex());
+            return commandReturn;
+
         }
-        List<Object> objectList = new ArrayList<>();
-        objectList.add(command_string == null?"返回错误信息":command_string);//交换机返回信息
-        objectList.add(first_problem_scanLogic_Id);//分析第一条ID
-        return objectList;
+        CommandReturn commandReturn = new CommandReturn();
+        if (command_string == null){
+            commandReturn.setSuccessOrNot(false);
+        }else {
+            commandReturn.setSuccessOrNot(true);
+            commandReturn.setReturnResults(command_string);
+            commandReturn.setAnalysisID(first_problem_scanLogic_Id);
+        }
+        return commandReturn;
     }
 
 
@@ -2106,7 +2105,7 @@ public class SwitchInteraction {
     @GetMapping("analysisReturnResults")
     public String analysisReturnResults(SwitchParameters switchParameters,
                                         TotalQuestionTable totalQuestionTable,
-                                        List<Object> executeScanCommandByCommandId_object,String current_Round_Extraction_String,String extractInformation_string){
+                                        CommandReturn commandReturn,String current_Round_Extraction_String,String extractInformation_string){
         //配置文件中 获取 最大循环次数  循环 为定义问题的循环 例如 获取多用户
         Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
         //根据ID去分析
@@ -2114,9 +2113,9 @@ public class SwitchInteraction {
         //executeScanCommandByCommandId_object.get(0).toString() 交换机返回信息
         //executeScanCommandByCommandId_object.get(0).toString().split("\r\n") 将交换机返回信息 按行来切割 字符串数组
         String problemScanLogic_string = selectProblemScanLogicById(switchParameters, totalQuestionTable,
-                executeScanCommandByCommandId_object.get(0).toString().split("\r\n")  //交换机返回信息  行信息数组
+                commandReturn.getReturnResults().toString().split("\r\n")  //交换机返回信息  行信息数组
                 ,current_Round_Extraction_String,extractInformation_string, 0,
-                executeScanCommandByCommandId_object.get(1)+""  //分析第一条ID
+                commandReturn.getAnalysisID()  //分析第一条ID
                 ,null,null,0,0,numberOfCycles);// loop end
         if (problemScanLogic_string!=null){
             return problemScanLogic_string;
@@ -2215,26 +2214,22 @@ public class SwitchInteraction {
                 switchParameters.setNotFinished(totalQuestionTable.getNotFinished());
                 //根据命令ID获取具体命令，执行
                 //返回  交换机返回信息 和  第一条分析ID
-                List<Object> executeScanCommandByCommandId_object = executeScanCommandByCommandId(switchParameters,totalQuestionTable,totalQuestionTable.getLogicalID().replace("命令",""));
-                if (MyUtils.isCollectionEmpty(executeScanCommandByCommandId_object)){
-                    continue;
-                }
-                if ((executeScanCommandByCommandId_object.get(0) instanceof String)
-                        && ((String)executeScanCommandByCommandId_object.get(0)).indexOf("错误")!=-1){
+                CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,totalQuestionTable.getLogicalID().replace("命令",""));
+                if (!commandReturn.isSuccessOrNot()){
                     /*交换机返回错误信息处理
                      * 遍历下一个问题*/
                     continue;
                 }
                 //分析
                 String analysisReturnResults_String = analysisReturnResults(switchParameters, totalQuestionTable,
-                        executeScanCommandByCommandId_object,  "",  "");
+                        commandReturn ,  "",  "");
             }else if (totalQuestionTable.getLogicalID().indexOf("分析") != -1){
-                List<Object> executeScanCommandByCommandId_object = new ArrayList<>();
-                executeScanCommandByCommandId_object.add("");
-                executeScanCommandByCommandId_object.add(totalQuestionTable.getLogicalID().replaceAll("分析",""));
+                CommandReturn commandReturn = new CommandReturn();
+                commandReturn.setReturnResults("");
+                commandReturn.setAnalysisID(totalQuestionTable.getLogicalID().replaceAll("分析",""));
                 //分析
                 String analysisReturnResults_String = analysisReturnResults(switchParameters, totalQuestionTable,
-                        executeScanCommandByCommandId_object,  "",  "");
+                        commandReturn,  "",  "");
             }
         }
         return new AjaxResult();
