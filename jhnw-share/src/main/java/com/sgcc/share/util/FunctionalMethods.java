@@ -22,8 +22,6 @@ public class FunctionalMethods {
 
     @Autowired
     private static ISwitchInformationService switchInformationService;
-
-
     /*获取交换机基本信息 有返回ID 没有插入并返回ID*/
     public static Long getSwitchParametersId(SwitchParameters switchParameters) {
         /**交换机四项基本信息对象*/
@@ -59,7 +57,6 @@ public class FunctionalMethods {
      * @method: 判断是否为错误命令 或是否执行成功  简单判断
      * @Param: [str] 交换机返回信息
      * @return: boolean  判断命令是否错误 错误为false 正确为true
-     * @E-mail: WeiYaNing97@163.com
      */
     public static boolean judgmentError(SwitchParameters switchParameters, String str){
         SwitchError switchError = new SwitchError();
@@ -81,7 +78,6 @@ public class FunctionalMethods {
      * @method: 判断是否故障
      * @Param: [str] 交换机返回信息
      * @return: boolean  判断命令是否故障 故障为false 正常为true
-     * @E-mail: WeiYaNing97@163.com
      */
     public static boolean switchfailure(SwitchParameters switchParameters, String switchInformation){
         SwitchFailure switchFailure = new SwitchFailure();
@@ -278,8 +274,6 @@ public class FunctionalMethods {
      * 如果 str1 <= str2 返回 false
      * @Param: [str1, str2]
      * @return: boolean
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static boolean compareVersionNumber(String str1,String str2){
         String[] split1 = str1.split("\\.");
@@ -404,8 +398,6 @@ public class FunctionalMethods {
      * information_line_n：交换机返回信息行
      * matchContent：数据库 关键词
      * @return: boolean
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static boolean matchAnalysis(String matchType,String returnString,String matchString){
 
@@ -471,8 +463,6 @@ public class FunctionalMethods {
      * @method: 去除登录信息
      * @Param: [switchInformation]
      * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static String removeLoginInformation(String switchInformation){
         //交换机返回信息 按行分割为 字符串数组
@@ -508,8 +498,6 @@ public class FunctionalMethods {
      * @method: 鉴别返回信息是否包含 登录信息  有则去除  并且 返回登录信息后信息
      * @Param: [switchInformation]
      * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static String loginInformationAuthentication(String switchInformation){
         //交换机返回信息 按行分割为 字符串数组

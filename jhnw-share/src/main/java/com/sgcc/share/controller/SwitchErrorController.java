@@ -23,9 +23,6 @@ import java.util.List;
 
 /**
  * 交换机错误Controller
- * 
- * @author ruoyi
- * @date 2022-08-16
  */
 @RestController
 @RequestMapping("/share/switch_error")

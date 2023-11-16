@@ -44,16 +44,12 @@ public class LuminousAttenuation {
     public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
         /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
         LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
-
-
         lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
         lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
         lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
         lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
         List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandListBySQL(lightAttenuationCommand);
-
-
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
             try {
@@ -75,22 +71,16 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
         }
-
-
         /**
          * 从lightAttenuationCommandList中 获取四项基本最详细的数据
          */
         lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand(lightAttenuationCommandList);
         String command = lightAttenuationCommand.getGetPortCommand();
-
-
         /**
          * 3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
          */
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
-
-
         /*returnString = "Interface Status Vlan Duplex Speed Type\n" +
                 "---------------------------------------- -------- ---- ------- --------- ------\n" +
                 "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
@@ -202,11 +192,8 @@ public class LuminousAttenuation {
                 "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
         returnString = MyUtils.trimString(returnString);*/
-
-
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
-
             try {
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -227,15 +214,11 @@ public class LuminousAttenuation {
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
 
         }
-
-
         /**
          * 5：如果交换机返回信息不为 null说明命令执行正常,
          * 则继续 根据交换机返回信息获取获取 up状态 光衰端口号 铜缆除外，铜缆关键词为 COPPER
          */
         List<String> port = ObtainUPStatusPortNumber(returnString);
-
-
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
             // todo 关于没有端口号为UP状态 的错误代码库
@@ -258,7 +241,6 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能无UP状态端口号\r\n");
         }
-
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = lightAttenuationCommand.getConversion();
@@ -286,7 +268,6 @@ public class LuminousAttenuation {
          * switchParameters ： 交换机信息类
          */
         HashMap<String, String> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
-
         /*9：获取光衰参数为空*/
         if (MyUtils.isMapEmpty(getparameter)){
             try {
@@ -308,7 +289,6 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
         }
-
         /*10:获取光衰参数不为空*/
         try {
             for (String portstr:port){
@@ -332,23 +312,16 @@ public class LuminousAttenuation {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
                 SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                 HashMap<String,String> hashMap = new HashMap<>();
                 hashMap.put("ProblemName","光衰");
                 LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
                 lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
-
-
                 /*获取交换机四项基本信息ID*/
                 lightAttenuationComparison.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
-
-
                 lightAttenuationComparison.setPort(portstr);
                 lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
                 List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
-
                 /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
                 if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
                     int average = average(switchParameters, getparameter, portstr);
@@ -360,7 +333,6 @@ public class LuminousAttenuation {
                 }else {
                     continue;
                 }
-
                 /* 如果 lightAttenuationComparisons 为空 则光衰记录表中没有相关信息
                 则默认无问题*/
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
@@ -372,17 +344,13 @@ public class LuminousAttenuation {
                         hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
                     }
                 }
-
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(portstr+"TX")+
                         "  RX:"+getparameter.get(portstr+"RX"));
-
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -408,24 +376,20 @@ public class LuminousAttenuation {
         double rxStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxStartValue());
         //TX起始值(基准)
         double txStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxStartValue());
-
         //RX平均值
         double rxAverageValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxAverageValue());
         //TX平均值
         double txAverageValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue());
-
         /*RX即时偏差*/
         double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
         /*TX即时偏差*/
         double txImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
-
         DecimalFormat df = new DecimalFormat("#.0000");
         //额定绝对值   |最新参数 - 起始值|
         Double rxfiberAttenuation = Math.abs(rxLatestNumber - rxStartValue);
         Double txfiberAttenuation = Math.abs(txLatestNumber - txStartValue);
         rxfiberAttenuation = MyUtils.stringToDouble(df.format(rxfiberAttenuation));
         txfiberAttenuation = MyUtils.stringToDouble(df.format(txfiberAttenuation));
-
         //即时绝对值   |最新参数 - 平均值|
         Double rxImmediateLightDecay  = Math.abs(rxLatestNumber - rxAverageValue);
         Double txImmediateLightDecay  = Math.abs(txLatestNumber - txAverageValue);
@@ -435,15 +399,12 @@ public class LuminousAttenuation {
         || txImmediateLightDecay > txImmediateDeviation){
             return "有问题";
         }
-
         // 绝对值>额定偏差
         if (rxfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getRxRatedDeviation())
                 || txfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
             return "有问题";
         }
-
         return "无问题";
-
     }
 
     /**
@@ -464,7 +425,6 @@ public class LuminousAttenuation {
                 strings.add(string.trim());
             }
         }
-
         /*遍历端口待取集合 执行取值方法 获取端口号*/
         List<String> port = new ArrayList<>();
         for (String information:strings){
@@ -492,16 +452,13 @@ public class LuminousAttenuation {
         /*hashMap.put(port+"TX",values.get("TX")+"");
           hashMap.put(port+"RX",values.get("RX")+"");*/
         HashMap<String,String> hashMap = new HashMap<>();
-
         /*端口号集合 需要检测各端口号的光衰参数*/
         for (String port:portNumber){
-
             /*替换端口号 得到完整的 获取端口号光衰参数命令
             * 例如：端口号： GigabitEthernet1/0/0
             *       命令：   display transceiver interface 端口号 verbose
             *       替换为： display transceiver interface GigabitEthernet1/0/0 verbose*/
             String FullCommand = command.replaceAll("端口号",port);
-
             /**
              * 交换机执行命令 并返回结果
              */
@@ -545,8 +502,6 @@ public class LuminousAttenuation {
                     "User Set Tx Power Low Threshold(dBM) :-13.50\n" +
                     "-------------------------------------------------------------";
             returnResults = MyUtils.trimString(returnResults);*/
-
-
             if (returnResults == null){
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();
@@ -572,8 +527,6 @@ public class LuminousAttenuation {
              * 提取光衰参数
              */
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
-
-
             if (values.size() == 0){
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();
@@ -594,7 +547,6 @@ public class LuminousAttenuation {
                 }
                 continue;
             }
-
             hashMap.put(port+"TX",values.get("TX")+"");
             hashMap.put(port+"RX",values.get("RX")+"");
         }
@@ -610,7 +562,6 @@ public class LuminousAttenuation {
     public HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
         /*根据 "\r\n" 切割为行信息*/
         String[] Line_split = string.split("\r\n");
-
         /*
         * 自定义 光衰参数默认给个 50
         * 收发光功率可能为正，但是一般最大30左右
@@ -618,29 +569,24 @@ public class LuminousAttenuation {
         * */
         double txpower = 50;
         double rxpower = 50;
-
         /**
          * 创建字符串集合，用于存储 key：valu格式的参数
          * 遍历交换机返回信息，如果 tx 和 rx 不在同一行 则说明 是 key：valu格式的参数
          * 则 存入 集合中
          */
         List<String> keyValueList = new ArrayList<>();
-
         /* 遍历交换机返回信息行数组 */
         for (int number = 0 ;number<Line_split.length;number++) {
-
             /* 获取 TX POWER 和 RX POWER 的位置
             * 当其中一个值不为 -1时 则为key：value格式
             * 如果全不为 -1时 则是 两个光衰参数在同一行 的格式
             * 如果全部为 -1时，则 RX、TX 都不包含*/
             int tx = Line_split[number].toUpperCase().indexOf("TX POWER");
             int rx = Line_split[number].toUpperCase().indexOf("RX POWER");
-
             /* RX、TX 都不包含 则进入下一循环*/
             if (tx ==-1 && rx ==-1){
                 continue;
             }
-
             /*如果 RX TX 同时不为 -1 则 需要判断 RX和TX的先后顺序
             设 num 为 TX 与 RX的位置关系
             为1是RX、TX  为-1时TX、RX*/
@@ -661,21 +607,16 @@ public class LuminousAttenuation {
                 /*如果 TX RX 不同时为 -1 则 说明你 收发光功率不在一行
                 则程序  num = 0 时 为 不在一行 为 key：value格式 */
             }
-
             /* 因为 num = 0 所以 为 不在一行 为 key：value格式
             * 需要 存放入 集合中 */
             /* 去掉了 && (tx != -1 || rx != -1) 因为 之前 RX、TX 都不包含 已经做过判断 */
             if (num == 0){
-
                 /* 包含 TX 或者 RX */
                 /*key : value*/
                 keyValueList.add(Line_split[number]);
-
             }else {
-
                 /*错误信息预定义 用于前端显示 */
                 String parameterInformation = "";
-
                 /*如果两个都包含 则可能是在本行，或者是下一行 需要判断:
                 * 例如：
                 *
@@ -690,19 +631,16 @@ public class LuminousAttenuation {
                 * */
                 String nextrow = Line_split[number];
                 parameterInformation = nextrow;
-
                 /*两个都包含 则 两个参数值在一行*/
                 if (nextrow.indexOf(":") == -1){
                     nextrow = Line_split[number+1];
                     parameterInformation = parameterInformation +"\r\n"+ nextrow+"\r\n";
                 }
-
                 /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
                 List<Double> valueList = values.stream()
                         .filter(i -> i < 0)
                         .collect(Collectors.toList());
-
                 if (valueList.size()!=2){
                     /*光衰参数行有少于2个数值 无法取出*/
                     if (values.size()<2){
@@ -757,9 +695,6 @@ public class LuminousAttenuation {
 
             }
         }
-
-
-
         /*key ： value 格式*/
         if (keyValueList.size()!=0){
             /*当包含 TX POWER 或 RX POWER 的数多余2条是 要再次筛选  光衰参数信息 或是阈值信息*/
@@ -767,7 +702,6 @@ public class LuminousAttenuation {
                 /*存储再次筛选后的 行信息*/
                 List<String> keylist = new ArrayList<>();
                 for (int num = 0 ; num<keyValueList.size();num++){
-
                     /*Current Rx Power(dBM)                 :-11.87
                       Default Rx Power High Threshold(dBM)  :-2.00
                       Default Rx Power Low  Threshold(dBM)  :-23.98
@@ -784,8 +718,6 @@ public class LuminousAttenuation {
                     keyValueList = keylist;
                 }
             }
-
-
             /*遍历 行信息集合*/
             for (String keyvalue:keyValueList){
                 /*当 行信息包含 RX 说明是 RX数据*/
@@ -820,7 +752,6 @@ public class LuminousAttenuation {
                         }
                     }
                 }
-
                 /*当 行信息包含 TX 说明是 TX数据*/
                 if (MyUtils.containIgnoreCase(keyvalue,"TX")){
                     if (MyUtils.containIgnoreCase(keyvalue,"TX POWER")){
@@ -855,11 +786,9 @@ public class LuminousAttenuation {
                 }
             }
         }
-
         HashMap<String,Double> hashMap = new HashMap<>();
         if (Double.valueOf(txpower).doubleValue() == 50 || Double.valueOf(rxpower).doubleValue() == 50)
             return hashMap;
-
         hashMap.put("TX",Double.valueOf(txpower).doubleValue() == 1?null:txpower);
         hashMap.put("RX",Double.valueOf(rxpower).doubleValue() == 1?null:rxpower);
         return hashMap;
@@ -881,7 +810,6 @@ public class LuminousAttenuation {
         lightAttenuationComparison.setPort(port);
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
         List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
-
         String rx = hashMap.get(port+"RX");
         String tx = hashMap.get(port+"TX");
         if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
@@ -898,10 +826,8 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxLatestNumber(tx);
             lightAttenuationComparison.setTxAverageValue(tx);
             lightAttenuationComparison.setTxStartValue(tx);
-
             lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
             lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
-
             return lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison);
         }else {
             lightAttenuationComparison = lightAttenuationComparisons.get(0);

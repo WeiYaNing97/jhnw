@@ -33,16 +33,13 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 @Component("advancedFeatures")
 public class AdvancedFeatures {
-
     @ApiOperation("高级功能接口")
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "高级功能", businessType = BusinessType.OTHER)
     public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {//待测
-
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
-
         /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
         for (String information:switchInformation){
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
@@ -55,23 +52,19 @@ public class AdvancedFeatures {
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
         }
-
         //线程池
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
-
         try {
             /*高级功能线程池*/
             AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
             boolean isRSA = true;
             advancedThreadPool.switchLoginInformations(parameterSet, functionName,isRSA);
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         System.err.println("扫描结束");
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
@@ -79,12 +72,10 @@ public class AdvancedFeatures {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         Date now = new Date();
         Date now_10 = new Date(now.getTime() + 600000); //10分钟后的时间
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
         String nowTime_10 = dateFormat.format(now_10);
-
         while (true){
             if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
                 WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
@@ -94,7 +85,6 @@ public class AdvancedFeatures {
                 return "扫描结束";
             }
         }
-
     }
 
 
@@ -107,31 +97,22 @@ public class AdvancedFeatures {
      * @return
     */
     public String advancedScheduledTasks() {
-
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-
         System.err.println("advancedScheduledTasks = " + simpleDateFormat);
-
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
-
         List<String> functionName =new ArrayList<>();
         functionName.add("OSPF");
         LoginUser loginUser = new LoginUser();
         SysUser user = new SysUser();
         user.setUserName("admin");
         loginUser.setUser(user);
-
         List<SwitchLoginInformation> switchLoginInformations = readExcel();
-
         if (!MyUtils.isCollectionEmpty(switchLoginInformations)){
-
             return "扫描结束";
         }
-
         /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
         for (SwitchLoginInformation switchLoginInformation:switchLoginInformations){
-
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser(loginUser);
             switchParameters.setScanningTime(simpleDateFormat);
@@ -140,27 +121,20 @@ public class AdvancedFeatures {
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
-
         }
-
         //线程池
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setSwitchParameters(switchParametersList);
-
-
         parameterSet.setLoginUser(loginUser);
         parameterSet.setThreadCount(Integer.valueOf(5+"").intValue());
-
         try {
             /*高级功能线程池*/
             AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
             boolean isRSA = false;
             advancedThreadPool.switchLoginInformations(parameterSet, functionName,isRSA);
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         System.err.println("扫描结束");
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
         try {
@@ -168,12 +142,10 @@ public class AdvancedFeatures {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         Date now = new Date();
         Date now_10 = new Date(now.getTime() + 600000); //10分钟后的时间
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
         String nowTime_10 = dateFormat.format(now_10);
-
         while (true){
             if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
                 WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
@@ -183,7 +155,6 @@ public class AdvancedFeatures {
                 return "扫描结束";
             }
         }
-
     }
 
     /**
@@ -200,7 +171,6 @@ public class AdvancedFeatures {
         if (url == null){
             return new ArrayList<>();
         }
-
         ExcelReader reader = ExcelUtil.getReader(url);
         List<Map<String,Object>>  readAllMap = new ArrayList<>();
         try {

@@ -28,8 +28,6 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年03月22日 11:17
  */
 @RestController
@@ -213,8 +211,6 @@ public class DefinitionProblemController extends BaseController {
      * @method: 定义获取基本信息命令插入
      * @Param: [jsonPojoList]
      * @return: void
-     * @Author: 天幕顽主=:=
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("定义获取交换机基本信息命令")
     @PostMapping("insertInformationAnalysis/{command}/{custom}")
@@ -256,8 +252,6 @@ public class DefinitionProblemController extends BaseController {
      * @method: 定义获取基本信息分析数据插入
      * @Param: [jsonPojoList]
      * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public boolean insertInformationAnalysisMethod(LoginUser loginUser,@RequestBody List<String> jsonPojoList,Long basicInformationId){//@RequestBody List<String> jsonPojoList
         if (jsonPojoList.size() == 0){
@@ -353,8 +347,6 @@ public class DefinitionProblemController extends BaseController {
      * @method: 插入分析问题的数据
      * @Param: [jsonPojoList]
      * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @PostMapping("definitionProblemJsonPojo")
     @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
@@ -368,12 +360,13 @@ public class DefinitionProblemController extends BaseController {
     }
 
     /**
-     * @method: 插入分析问题的数据
-     * @Param: [jsonPojoList]
-     * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     */
+    * @Description 插入分析问题的数据
+    * @desc
+    * @param totalQuestionTableId
+     * @param jsonPojoList
+     * @param loginUser
+     * @return
+    */
     public boolean definitionProblemJsonPojo(Long totalQuestionTableId,@RequestBody List<String> jsonPojoList,LoginUser loginUser){
         //@RequestBody List<String> jsonPojoList
         // /*判断问题分析逻辑是否为空*/
@@ -488,8 +481,6 @@ public class DefinitionProblemController extends BaseController {
      * @method: 根据交换机问题实体类查询问题分析逻辑数据
      * @Param: []
      * @return: java.util.List<java.lang.String>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("查询定义分析问题数据")
     @GetMapping("getAnalysisList")
@@ -528,14 +519,12 @@ public class DefinitionProblemController extends BaseController {
     public  List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser){
         /*根据 交换机问题实体类 获得命令集合和分析实体类集合*/
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
-
         if (scanLogicalEntityClass.size() == 0){
             return new ArrayList<>();
         }
         /* 获取两个实体类集合*/
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-
         HashMap<Long,String> hashMap = new HashMap<>();
         for (CommandLogic commandLogic:commandLogicList){
             /* 1=:={"onlyIndex"="1697080798279","trueFalse"="","pageIndex"="1","command"="dis cu","para"="","resultCheckId"="0","nextIndex"="1697080824879"} */
@@ -544,11 +533,11 @@ public class DefinitionProblemController extends BaseController {
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
         }
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            /*problemScanLogic 转化 Sting*/
             String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,totalQuestionTable.getId()+"");
             String[] problemScanLogicStringsplit = problemScanLogicString.split("=:=");
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
-
         /*List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
             if (hashMap.get(number+1)!=null && !(hashMap.get(number+1).equals("null"))){
@@ -563,8 +552,6 @@ public class DefinitionProblemController extends BaseController {
 
     /**
     * @Description  根据 交换机问题实体类 获得命令集合和分析实体类集合
-    * @author charles
-    * @createTime 2023/10/12 15:04
     * @desc
     * @param totalQuestionTable
      * @param loginUser
@@ -702,14 +689,12 @@ public class DefinitionProblemController extends BaseController {
         /*命令集合、分析逻辑集合 筛选ID集合*/
         String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
         String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
-
         int deleteCommandLogicByIds = 1;
         /*命令集合不为空 删除命令集合*/
         if (commandLogicId.length>0){
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(commandLogicId);
         }
-
         /*当命令删除成功 且 存在分析时 删除分析数据*/
         if (deleteCommandLogicByIds >0 && problemScanLogicId.length >0){
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
@@ -776,8 +761,6 @@ public class DefinitionProblemController extends BaseController {
     /**
      * 根据分析ID 获取 分析实体类集合
     * @Description
-    * @author charles
-    * @createTime 2023/11/3 13:24
     * @desc
     * @param problemScanLogicID
      * @param loginUser
@@ -789,8 +772,7 @@ public class DefinitionProblemController extends BaseController {
         boolean contain = false;
         /*预设map key为分析表ID value为 分析表实体类*/
         Map<String,ProblemScanLogic> problemScanLogicHashMap = new HashMap<>();
-        do {
-            String  problemScanID = "";
+        do {String  problemScanID = "";
             /*分析ID 根据“：” 分割 为 分析ID数组
             * 因为分析逻辑 可能出现 true 和 false 多个ID情况*/
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
@@ -854,7 +836,6 @@ public class DefinitionProblemController extends BaseController {
                     problemScanID += id+":";
                 }
             }
-
             /*如果problemScanID 不为 "" 则 contain = true
             * problemScanID 去掉 最后一个 ： */
             if (!(problemScanID.equals(""))){
@@ -865,7 +846,6 @@ public class DefinitionProblemController extends BaseController {
             }
 
         }while (contain);
-
         /*map中数据 存放到list集合中*/
         /*List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
         Iterator<Map.Entry<String, ProblemScanLogic>> it = problemScanLogicHashMap.entrySet().iterator();
@@ -880,7 +860,8 @@ public class DefinitionProblemController extends BaseController {
         return ProblemScanLogicList;
     }
 
-    /*定义分析问题数据修改  由下方updateAnalysisPrimary方法优化得到*/
+    /*定义分析问题数据修改  由下方updateAnalysisPrimary方法优化得到
+    * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
     @ApiOperation("分析问题数据修改")
     @PutMapping("updateAnalysis")
     //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
@@ -900,7 +881,6 @@ public class DefinitionProblemController extends BaseController {
         /* 获取两个实体类ID集合 */
         Set<String> commandLogicSet = commandLogicList.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
         Set<String> problemScanLogicSet = problemScanLogics.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
-
         for (String id:problemScanLogicSet){
             int j = problemScanLogicService.deleteProblemScanLogicById(id);
             if (j<=0){
@@ -913,14 +893,13 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
-
         boolean definitionProblemJsonPojo = definitionProblemJsonPojo(totalQuestionTableId,pojoList,loginUser);//jsonPojoList
         return definitionProblemJsonPojo;
     }
 
-
-
-    /*定义分析问题数据修改 优化后得到上方 updateAnalysis方法 */
+    /*定义分析问题数据修改 优化后得到上方 updateAnalysis方法
+    * 实现逻辑是 调用已经实现的完整的 查询、删除、添加功能 实现修改功能
+    *  */
     //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
     public boolean updateAnalysisPrimary (@RequestParam Long totalQuestionTableId,@RequestBody List<String> pojoList){
         //系统登陆人信息
@@ -969,7 +948,6 @@ public class DefinitionProblemController extends BaseController {
                     }
                 }
             }
-
             //将相同ID  时间戳 的 实体类 放到一个实体
             //注释原因该方法是为了获取不重复的分析ID(将相同ID时间戳的实体类放到一个实体)，下方使用了HashSet也可以使ID不重复
             //List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
@@ -1014,6 +992,7 @@ public class DefinitionProblemController extends BaseController {
         /*根据分析ID 获取 分析实体类集合*/
         /*因为是要删除 需要ID唯一 所以不需要拆分 */
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(basicInformation.getProblemId(),SecurityUtils.getLoginUser());//commandLogic.getProblemId()
+        /* 因为ID唯一 所以不用去重 */
         String[] ids = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
         int j = problemScanLogicService.deleteProblemScanLogicByIds(ids);
         if (j<=0){

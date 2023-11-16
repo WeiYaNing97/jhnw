@@ -1,8 +1,6 @@
 package com.sgcc.share.connectutil;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年06月07日 13:46
  */
 import org.springframework.beans.BeansException;

@@ -26,8 +26,6 @@ public class SwitchIssueEcho {
      * @method: 查询扫描出的问题表 放入 websocket
      * @Param: []
      * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("getSwitchScanResultListByData")
     @ApiOperation("查询当前扫描出的问题表放入websocket")

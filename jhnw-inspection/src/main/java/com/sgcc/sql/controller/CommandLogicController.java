@@ -31,8 +31,6 @@ import java.util.List;
 /**
  * 命令逻辑Controller
  * 命令逻辑相关操作
- * @author 韦亚宁
- * @date 2021-12-14
  */
 @Api("交换机命令管理")
 @RestController
@@ -124,8 +122,6 @@ public class CommandLogicController extends BaseController
      * @method: 修复问题集合插入及问题表数据修改
      * @Param: [totalQuestionTableId, commandLogicList]
      * @return: boolean
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("修复问题命令插入")
     //@PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
@@ -140,8 +136,7 @@ public class CommandLogicController extends BaseController
             WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"定义修复交换机问题逻辑数据为空\r\n");
             try {
                 //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+"定义修复交换机问题逻辑数据为空\r\n"
-                        +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
+                PathHelper.writeDataToFile("错误："+"定义修复交换机问题逻辑数据为空\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -163,8 +158,7 @@ public class CommandLogicController extends BaseController
                 WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"修复交换机问题命令插入失败\r\n");
                 try {
                     //插入问题简述及问题路径
-                    PathHelper.writeDataToFile("错误："+"修复交换机问题命令插入失败\r\n"
-                            +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
+                    PathHelper.writeDataToFile("错误："+"修复交换机问题命令插入失败\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -180,8 +174,7 @@ public class CommandLogicController extends BaseController
             WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机问题实体类修复问题ID修改失败\r\n");
             try {
                 //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+"交换机问题实体类修复问题ID修改失败\r\n"
-                        +"方法com.sgcc.web.controller.sql.command_logic.insertModifyProblemCommandSet");
+                PathHelper.writeDataToFile("错误："+"交换机问题实体类修复问题ID修改失败\r\n");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -197,8 +190,6 @@ public class CommandLogicController extends BaseController
      * @method: 修改解决问题命令List
      * @Param: [totalQuestionTableId]
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("修改修复问题命令")
     @PutMapping("updateProblemSolvingCommand")
@@ -218,8 +209,6 @@ public class CommandLogicController extends BaseController
      * @method: 删除解决问题命令List
      * @Param: [totalQuestionTableId]
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("删除修复问题命令")
     @DeleteMapping("deleteProblemSolvingCommand")

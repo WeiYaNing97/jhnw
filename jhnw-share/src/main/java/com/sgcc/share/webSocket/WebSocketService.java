@@ -60,7 +60,6 @@ public class WebSocketService {
 
     /**
      * 收到客户端消息后调用的方法
-     *
      * @param message 客户端发送过来的消息*/
     @OnMessage
     public void onMessage(String message, Session session) {
@@ -83,11 +82,7 @@ public class WebSocketService {
 
         }
     }
-
-
-
     /**
-     *
      * @param session
      * @param error
      */
@@ -125,8 +120,6 @@ public class WebSocketService {
             throw new RuntimeException(e.getMessage());
         }
     }
-
-
     public static void sendMessage(String userName,String string){
         try {
             WebSocketClient webSocketClient = webSocketMap.get(userName);
@@ -140,47 +133,34 @@ public class WebSocketService {
             throw new RuntimeException(e.getMessage());
         }
     }
-
-
     public static synchronized int getOnlineCount() {
         return onlineCount;
     }
-
     public static synchronized void addOnlineCount() {
         WebSocketService.onlineCount++;
     }
-
     public static synchronized void subOnlineCount() {
         WebSocketService.onlineCount--;
     }
-
     public static void setOnlineCount(int onlineCount) {
         WebSocketService.onlineCount = onlineCount;
     }
-
-
     public static ConcurrentHashMap<String, WebSocketClient> getWebSocketMap() {
         return webSocketMap;
     }
-
     public static void setWebSocketMap(ConcurrentHashMap<String, WebSocketClient> webSocketMap) {
         WebSocketService.webSocketMap = webSocketMap;
     }
-
     public Session getSession() {
         return session;
     }
-
     public void setSession(Session session) {
         this.session = session;
     }
-
     public String getUserName() {
         return userName;
     }
-
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
 }

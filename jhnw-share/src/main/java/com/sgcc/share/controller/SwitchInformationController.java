@@ -22,9 +22,6 @@ import java.util.List;
 
 /**
  * 交换机四项基本信息Controller
- * 
- * @author ruoyi
- * @date 2023-05-09
  */
 @RestController
 @RequestMapping("/share/switchinformation")

@@ -21,23 +21,18 @@ import java.util.*;
 
 /**
  * 问题扫描逻辑Controller
- * 
- * @author 韦亚宁
- * @date 2021-12-14
  */
 @RestController
 @RequestMapping("/sql/problem_scan_logic")
 //事务
 @Transactional(rollbackFor = Exception.class)
 public class ProblemScanLogicController extends BaseController {
-
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
     @Autowired
     private ICommandLogicService commandLogicService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
-
     /**
      * 查询问题扫描逻辑列表
      */
@@ -116,8 +111,6 @@ public class ProblemScanLogicController extends BaseController {
      * @method: getParameterNameCollection    命令ID 没有带ID之前的 方法
      * @Param: [totalQuestionTableId]
      * @return: java.util.List<java.lang.String>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("获取定义的参数名")
     @GetMapping("/getParameterNameCollection/{totalQuestionTableId}")

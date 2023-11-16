@@ -6,6 +6,9 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
 import java.util.concurrent.*;
 
@@ -15,11 +18,19 @@ public class ExecuteCommand {
     //命令返回信息
     private String command_string = null;
     /**
-     * 根据交换机信息类 与 具体命令，执行并返回交换机返回信息
-     * @param switchParameters
+    * @Description  根据交换机信息类 与 具体命令，执行并返回交换机返回信息
+    * @desc
+     *
+     *      事务注解 Propagation.NOT_SUPPORTED的含义是指该方法不应该在任何事务中运行，
+     *     即使当前存在活动的事务，也会将它挂起。这样一来，方法  executeScanCommandByCommandId  将以非事务方式运行。
+     *     处理原因： 考虑到很多调用发送命令方法的逻辑添加了事务属性，
+     *     担心回滚食物的时候 会将像交换机发送命令返回信息的记录回滚
+     *
+    * @param switchParameters
      * @param command
      * @return
-     */
+    */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public String executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
@@ -64,12 +75,10 @@ public class ExecuteCommand {
                             "~down: LDT down\n" +
                             "#down: LBDT down\n" + command_string;*/
                 }, 1, TimeUnit.SECONDS);
-
                 try {
                     // 等待任务执行结果，同时设置超时时间为21秒
                     future.get(21, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
-
                     try {
                         String subversionNumber = switchParameters.getSubversionNumber();
                         if (subversionNumber!=null){
@@ -87,11 +96,8 @@ public class ExecuteCommand {
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
-
                     command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), " ", null);
-
                     return null;
-
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 } finally {
@@ -103,12 +109,6 @@ public class ExecuteCommand {
                      */
                     executor.shutdown();
                 }
-
-
-
-
-
-
             } else if (switchParameters.getMode().equalsIgnoreCase("telnet")) {
                 // todo 交换机发送命令的前端回显
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(), switchParameters.getIp()+"发送:" + command+"\r\n");
@@ -132,7 +132,6 @@ public class ExecuteCommand {
                     /*当行信息包含 故障时 进入错误代码库*/
                     deviceBrand = FunctionalMethods.switchfailure(switchParameters, LineInformation);
                     if (!deviceBrand) {
-
                         try {
                             String subversionNumber = switchParameters.getSubversionNumber();
                             if (subversionNumber!=null){
@@ -154,7 +153,6 @@ public class ExecuteCommand {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
                         returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+LineInformation+"\r\n");
                         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                             switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r ",switchParameters.getNotFinished());
@@ -173,10 +171,8 @@ public class ExecuteCommand {
         //返回信息表，返回插入条数
         returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
         returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
-
         //去除其他 交换机登录信息
         command_string = FunctionalMethods.removeLoginInformation(command_string);
-
         //按行切割: 字段按行分割为 行信息数组 LineInformation
         String[] LineInformation = command_string.split("\r\n");
         /*当返回信息不止为 标识符时*/
@@ -184,7 +180,6 @@ public class ExecuteCommand {
             /*获取返回日志 去除 标识符
              * 标识符为 最后一个元素  注意要删除 \r\n  所以-2*/
             String current_return_log = command_string.substring(0,command_string.length()-LineInformation[LineInformation.length-1].length()-2);
-
             // TODO 去掉^之前的 \r\n
             /* 不包含 ： ^down
             * 原因:交换机正确返回信息也包含：
@@ -197,9 +192,7 @@ public class ExecuteCommand {
             if (current_return_log.indexOf("^")!=-1 && current_return_log.indexOf("^down") ==-1){
                 current_return_log = current_return_log.substring(2 + LineInformation[LineInformation.length-1].trim().length(),current_return_log.length());
             }
-
             returnRecord.setCurrentReturnLog(current_return_log);
-
             // todo  交换机返回日志的前端回显
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
             try {
@@ -208,7 +201,6 @@ public class ExecuteCommand {
                 e.printStackTrace();
             }
         }
-
         //按行切割最后一位应该是 标识符
         String current_identifier = LineInformation[LineInformation.length-1].trim();
         returnRecord.setCurrentIdentifier(current_identifier);
@@ -219,7 +211,6 @@ public class ExecuteCommand {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         //返回信息表，返回插入条数
         returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
         returnRecordService.updateReturnRecord(returnRecord);

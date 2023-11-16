@@ -9,9 +9,6 @@ import com.sgcc.common.core.domain.BaseEntity;
 
 /**
  * 获取基本信息命令对象 basic_information
- * 
- * @author 韦亚宁
- * @date 2021-12-21
  */
 @ApiModel(value = "BasicInformation", description = "获取交换机基本信息命令实体")
 public class BasicInformation extends BaseEntity

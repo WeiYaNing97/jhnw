@@ -49,7 +49,6 @@ public class OSPFFeatures {
         ospfCommand.setSubVersion(switchParameters.getSubversionNumber());
         /*查询 符合交换机基本信息的 OSPF命令集合*/
         ospfCommandService = SpringBeanUtil.getBean(IOspfCommandService.class);
-
         List<OspfCommand> ospfCommandList = ospfCommandService.selectOspfCommandListBySQL(ospfCommand);
         /*OSPF命令集合为空  则中止OSPF高级共功能*/
         if (MyUtils.isCollectionEmpty(ospfCommandList)){
@@ -70,20 +69,16 @@ public class OSPFFeatures {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
             return;
         }
-
         /*通过四项基本欸的精确度 筛选最精确的OSPF命令*/
         ospfCommand = ScreeningMethod.ObtainPreciseEntityClassesOspfCommand(ospfCommandList);
         String command = ospfCommand.getGetParameterCommand();
-
         /**
          * 根据交换机信息类  执行交换命令
          */
         ExecuteCommand executeCommand = new ExecuteCommand();
         String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
-
         /*commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
                 "Peer Statistic Information\n" +
                 "----------------------------------------------------------------------------\n" +
@@ -200,7 +195,6 @@ public class OSPFFeatures {
                 "----------------------------------------------------------------------------\n" +
                 "Total Peer(s): 1";
         commandReturn = MyUtils.trimString(commandReturn);*/
-
         /*执行命令返回结果为null 则是命令执行错误*/
         if (commandReturn == null){
             try {
@@ -222,17 +216,13 @@ public class OSPFFeatures {
             }
             return;
         }
-
         /*根据交换机返回信息提取OSPF数据*/
         /*行数据*/
         String[] returnStringSplit = commandReturn.split("\r\n");
         List<String> collect = Arrays.stream(returnStringSplit).collect(Collectors.toList());
         AjaxResult ospfListByString = getOspfListByString(collect);
-
         if(ospfListByString.get("msg").equals("操作成功")){
-
             List<Ospf> ospfList = (List<Ospf>) ospfListByString.get("data");
-
             for (Ospf ospf:ospfList){
                 try {
                     try {
@@ -252,7 +242,6 @@ public class OSPFFeatures {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                     SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                     HashMap<String,String> hashMap = new HashMap<>();
                     hashMap.put("ProblemName","OSPF");
@@ -265,10 +254,8 @@ public class OSPFFeatures {
                     // =:= 是自定义分割符
                     hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber());
                     Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
-
                     SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                     switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -293,14 +280,11 @@ public class OSPFFeatures {
             }
         }
     }
-
-
     /**
      * 根据交换机返回信息提取OSPF数据
      * @return
      */
     public AjaxResult getOspfListByString(List<String> returnStringSplit) {
-
         HashMap<Integer,String> titleMap = new HashMap<>();
         for (int number = 0 ;number < returnStringSplit.size(); number++){
             /*判断一个字符串是否包含另一个字符串(忽略大小写)*/
@@ -309,14 +293,11 @@ public class OSPFFeatures {
                 titleMap.put(number,returnStringSplit.get(number));
             }
         }
-
         List<Ospf> returnList = new ArrayList<>();
         Set<Integer> integers = titleMap.keySet();
-
         for (Integer integer:integers){
             /*OSPF数组*/
             List<String> valueList = new ArrayList<>();
-
             String NameLine = titleMap.get(integer);
             Ospf propertyValueSubscripts = null;
             /*标题的 标题名数*/
@@ -332,15 +313,12 @@ public class OSPFFeatures {
                 propertyValueSubscripts = (Ospf) property.get(0);
                 number = (Integer) property.get(1);
             }
-
             for (int num = integer+1 ;num < returnStringSplit.size();num++){
                 valueList.add(returnStringSplit.get(num));
             }
-
             if(valueList.size() ==0){
                 break;
             }
-
             /*标题下第一行 为参数行*/
             String value = valueList.get(0);
             /*获取参数行的列*/
@@ -351,7 +329,6 @@ public class OSPFFeatures {
                 /*如果不一致 则需要去去除空格*/
                 valueList = removOspfSpaceCharacter(number,valueList);
             }
-
             if (MyUtils.isCollectionEmpty(valueList)){
                 continue;
             }else {
@@ -364,7 +341,6 @@ public class OSPFFeatures {
                 }
             }
         }
-
         return AjaxResult.success(returnList);
     }
 
@@ -405,7 +381,6 @@ public class OSPFFeatures {
             if(pojo.getBFDState() != null){
                 ospf.setBFDState(pojoStringSplit[Integer.valueOf(pojo.getBFDState()).intValue()]);
             }
-
             ospfList.add(ospf);
         }
         return ospfList;
@@ -444,8 +419,6 @@ public class OSPFFeatures {
         }
         return returnStringList;
     }
-
-
     /**
      * 获取属性值下标
      * @param information
@@ -491,7 +464,6 @@ public class OSPFFeatures {
                 number++;
                 word = "";
             }
-
         }
         if (word.equals("")){
             List<Object> objects = new ArrayList<>();

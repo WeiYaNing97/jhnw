@@ -21,12 +21,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 public class ConnectToObtainInformation {
-
     @Autowired
     private IInformationService informationService;
-
     /**
      * 连接交换机 获取交换机基本信息
      * @param switchParameters
@@ -43,14 +40,11 @@ public class ConnectToObtainInformation {
                 switchParameters.setPassword(switchParameters.getPassword());
                 switchParameters.setConfigureCiphers(switchParameters.getConfigureCiphers());
             }
-
             requestConnect_ajaxResult = requestConnect(switchParameters);
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
                 break;
             }
         }
-
-
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
             // todo 交换机连接失败 错误代码
@@ -80,14 +74,11 @@ public class ConnectToObtainInformation {
             if (switchParameters.getConfigureCiphers() != null && !(switchParameters.getConfigureCiphers().equals("null"))){
                 configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
             }
-
             switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
-
             /**
              * 获取交换机基本信息
              */
             AjaxResult basicInformationList_ajaxResult = getBasicInformationCurrency(switchParameters);
-
             return basicInformationList_ajaxResult;
         }
         return AjaxResult.error("交换机连接失败");
@@ -95,8 +86,6 @@ public class ConnectToObtainInformation {
 
     /**
     * @Description 连接交换机方法
-    * @author charles
-    * @createTime 2023/10/11 13:58
     * @desc
     * @param switchParameters
      * @return
@@ -180,17 +169,13 @@ public class ConnectToObtainInformation {
 
     /**
     * @Description 配置密码enable方法
-    * @author charles
-    * @createTime 2023/10/11 14:36
     * @desc  有些交换机需要 通过配置密码登录
     * @param switchParameters
      * @return
     */
     public String enable(SwitchParameters switchParameters) {
-
         /*交换机返回结果*/
         String returnString = null;
-
         /* 执行 回车命令 获取交换机及返回结果*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             // SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 回车  、 返回信息未结束标准）
@@ -198,20 +183,14 @@ public class ConnectToObtainInformation {
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
             returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
         }
-
-
         if (returnString == null || returnString == "" ){
             return "交换机连接失败";
         }else if (returnString.equals("遗失对主机的连接")){
             return "遗失对主机的连接";
         }
-
-
         /*判断交换机返回结果的标识符 是否 以> 结尾*/
         /*思科交换机返回信息是 #  不需要发送 enable*/
         if (returnString.trim().endsWith(">")){
-
-
             /*发送 enable 命令 查看返回结果 */
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 /* SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 enable  、 返回信息未结束标准）*/
@@ -219,17 +198,12 @@ public class ConnectToObtainInformation {
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
             }
-
-
             /*判断交换机返回结果是否为空*/
             if (returnString == null || returnString == ""){
                 return "交换机连接失败";
             }else if (returnString.equals("遗失对主机的连接")){
                 return "交换机连接失败";
-
-
             } else {
-
                 String substring = returnString.substring(returnString.length() - 1, returnString.length());
                 if (returnString.indexOf("command")!=-1 && returnString.indexOf("%")!=-1 ){
                     return "交换机连接成功";
@@ -239,32 +213,24 @@ public class ConnectToObtainInformation {
                     /* 输入 配置密码*/
                     if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                         SshMethod connectMethod = switchParameters.getConnectMethod();
-
                         /*(JSCH 使用方法类)SshConnect sshConnect = switchParameters.getSshConnect();
                         SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 配置密码  、 返回信息未结束标准）*/
                         returnString = connectMethod.sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),switchParameters.getConfigureCiphers(),null);
-
                         if (returnString == null || returnString == ""){
                             return "交换机连接失败";
                         }else if (returnString.equals("遗失对主机的连接")){
                             return "交换机连接失败";
-
                         }
-
                     }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                         returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
                     }
                     return "交换机连接成功";
-
                 }
-
             }
-
             /*思科交换机返回信息的标识符结尾是 #  不需要发送 enable*/
         }else if (returnString.trim().endsWith("#")){
             return "交换机连接成功";
         }
-
         return "交换机连接失败";
     }
 
@@ -275,7 +241,7 @@ public class ConnectToObtainInformation {
      * user_Object ：
      * SshConnect ssh连接工具，connectMethod ssh连接,
      * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
-     * @E-mail: WeiYaNing97@163.com
+     *
      * 通过null 查询初所有会的交换机基本信息的命令字符串集合
      * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
      * 通过返回提取的信息，给基本属性赋值
@@ -285,7 +251,6 @@ public class ConnectToObtainInformation {
      */
     @ApiOperation("通用获取交换机基本信息")
     public AjaxResult getBasicInformationCurrency(SwitchParameters switchParameters) {
-
         //目前获取基本信息命令是多个命令是由,号分割的，
         // 所以需要根据; 来分割。例如：display device manuinfo;display ver
         /*H3C*/
@@ -298,29 +263,24 @@ public class ConnectToObtainInformation {
              * 如果交换机返回信息错误，则返回信息为 null*/
             ExecuteCommand executeCommand = new ExecuteCommand();
             commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
-
             /*commandString = "";
             commandString = MyUtils.trimString(commandString);*/
             if (commandString == null){
                 continue;
             }
-
             /**
              * 根据交换机返回结果 获取 交换机基本信息
              */
             HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(commandString);
-
             if (hashMap.get("pinpai")!=null
                     && hashMap.get("xinghao")!=null
                     && hashMap.get("banben")!=null){
-
                 hashMap.put("pinpai",hashMap.get("pinpai"));
                 hashMap.put("xinghao",hashMap.get("xinghao"));
                 hashMap.put("banben",removeSpecialSymbols(hashMap.get("banben")));
                 hashMap.put("zibanben",removeSpecialSymbols(hashMap.get("zibanben")));
                 System.err.println("品牌:"+hashMap.get("pinpai")+"型号:"+hashMap.get("xinghao")+
                         "版本:"+hashMap.get("banben")+"子版本:"+hashMap.get("zibanben"));
-
                 try {
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
@@ -336,13 +296,11 @@ public class ConnectToObtainInformation {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 switchParameters.setDeviceBrand(hashMap.get("pinpai"));
                 switchParameters.setDeviceModel(hashMap.get("xinghao"));
                 switchParameters.setFirmwareVersion(hashMap.get("banben"));
                 switchParameters.setSubversionNumber(hashMap.get("zibanben"));
                 return AjaxResult.success(switchParameters);
-
             }else {
                 try {
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:"+switchParameters.getIp() +"基本信息："+
@@ -359,7 +317,6 @@ public class ConnectToObtainInformation {
                     e.printStackTrace();
                 }
             }
-
         }
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
     }
@@ -370,21 +327,15 @@ public class ConnectToObtainInformation {
      * 通过 配置文件 获取取交换机基本信息规则
      * 根据交换机返回结果 获取 交换机基本信息
      * @return  返回  交换机基本信息
-     *
      * 品牌和型号应为一个单词 中间不包含空格
-     *
      */
     public HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
-
         informationService = SpringBeanUtil.getBean(IInformationService.class);
         List<String> brandList = informationService.selectDeviceBrandList();
-
         List<String> brands = new ArrayList<>();
         List<Information> brand_model = new ArrayList<>();
-
         String firmwareVersion = null;
         String subversionNo = null;
-
         /* 创建返回对象 */
         HashMap<String,String> map = new HashMap<>();
         String[] return_word = returns_String.replaceAll("\r\n"," ").split(" ");
@@ -411,7 +362,6 @@ public class ConnectToObtainInformation {
                 }
             }
         }
-
         if (MyUtils.isCollectionEmpty(brand_model)){
             for (Information information:informationList){
                 if (returns_String.toLowerCase().indexOf(information.getDeviceModel().toLowerCase())!=-1){
@@ -419,20 +369,14 @@ public class ConnectToObtainInformation {
                 }
             }
         }
-
         if (MyUtils.isCollectionEmpty(brand_model)){
             return map;
         }
-
-
-
-
         /** 设备版本 */
         /*yml 配置文件中 多个值之间用;隔开*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceVersion",Constant.getProfileInformation());
         /** 设备子版本 */
         String deviceSubversion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceSubversion",Constant.getProfileInformation());
-
         String[] rowSplit = returns_String.split("\r\n");
         String[] deviceVersionSplit =deviceVersion.split(";");
         for (String version:deviceVersionSplit){
@@ -506,17 +450,12 @@ public class ConnectToObtainInformation {
                 firmwareVersion = firmwareVersion.substring("Version".length(),firmwareVersion.length()).trim();
             }
         }
-
-
-
         /** 设备子版本 */
         String[] deviceSubversionSplit =deviceSubversion.split(";");
         for (String version:deviceSubversionSplit){
-
             if (!MyUtils.containIgnoreCase(returns_String,version)){
                 continue;
             }
-
             for (int number = 0 ; number < rowSplit.length; number++){
                 /*获取版本号位置*/
                 int rowposition = rowSplit[number].toUpperCase().indexOf(version.toUpperCase());
@@ -539,32 +478,19 @@ public class ConnectToObtainInformation {
                     break;
                 }
             }
-
             if (subversionNo!=null){
                 break;
             }
-
         }
-
-
-
-
         if (firmwareVersion != null && subversionNo == null && firmwareVersion.indexOf("(")!=-1 && firmwareVersion.indexOf(")")!=-1){
-
             int i = firmwareVersion.indexOf("(");
             int j = firmwareVersion.indexOf(")");
-
             subversionNo = firmwareVersion.substring(i+1, j);
-
         }
-
-
-
         map.put("pinpai",brand_model.get(0).getDeviceBrand().equalsIgnoreCase("Quidway")?"Huawei":brand_model.get(0).getDeviceBrand());
         map.put("xinghao",brand_model.get(0).getDeviceModel());
         map.put("banben",firmwareVersion);
         map.put("zibanben",subversionNo);
-
         return map;
     }
 

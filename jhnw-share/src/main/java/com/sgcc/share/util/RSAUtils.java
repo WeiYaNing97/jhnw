@@ -316,15 +316,13 @@ public class RSAUtils {
 			/*KeyPair kp = getRsaKP();
 			PrivateKey priKey = kp.getPrivate();
 			PublicKey pubKey = kp.getPublic();
-
 			System.out.println("公钥:\r\n");
 			String pubKeyString = base64Encode(pubKey.getEncoded());
 			System.out.println(pubKeyString);
 			System.out.println("秘钥:\r\n");
 			String priKeyString = base64Encode(priKey.getEncoded());
 			System.out.println(priKeyString);*/
-
-			String jiami= "韦亚宁";
+			String jiami= "测试";
 			System.err.println("\r\n加密前："+jiami);
 			//java后端方式实现RSA加密，公钥和私钥本案例中有改动，项目中按照实际公钥和私钥进行替换
 			//设置公钥
@@ -349,9 +347,7 @@ public class RSAUtils {
 					"2ZqnOCudzmY="));
 			String jiemi=rsaDecrypt(prikey,RSAUtils.base64Decode(jiami));
 			System.out.println("\r\n解密后："+jiemi);
-
 		}catch(Exception ex){
-
 		}
 	}
 

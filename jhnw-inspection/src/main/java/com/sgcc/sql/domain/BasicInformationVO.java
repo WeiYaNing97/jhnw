@@ -9,9 +9,6 @@ import java.util.Arrays;
 
 /**
  * 获取基本信息命令对象 basic_information
- * 
- * @author 韦亚宁
- * @date 2021-12-21
  */
 public class BasicInformationVO extends BaseEntity
 {

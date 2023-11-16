@@ -13,27 +13,21 @@ public class CommandReturn {
     private String returnResults;
     /*分析ID*/
     private String analysisID;
-
     public boolean isSuccessOrNot() {
         return successOrNot;
     }
-
     public void setSuccessOrNot(boolean successOrNot) {
         this.successOrNot = successOrNot;
     }
-
     public String getReturnResults() {
         return returnResults;
     }
-
     public void setReturnResults(String returnResults) {
         this.returnResults = returnResults;
     }
-
     public String getAnalysisID() {
         return analysisID;
     }
-
     public void setAnalysisID(String analysisID) {
         this.analysisID = analysisID;
     }

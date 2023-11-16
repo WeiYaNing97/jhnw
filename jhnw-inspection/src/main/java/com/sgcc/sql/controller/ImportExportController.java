@@ -29,12 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年03月22日 11:17
- *
  * 数据库数据导入导出 相关功能
- *
  */
 @Api("数据库导入导出管理")
 @RestController

@@ -21,8 +21,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2021年11月19日 15:57
  *
  */
@@ -77,14 +75,12 @@ public class MemoryCPU {
                 MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
                 // 椎内存使用情况
                 MemoryUsage memoryUsage = memoryMXBean.getHeapMemoryUsage();
-
                 // 初始的总内存
                 long initTotalMemorySize = memoryUsage.getInit();
                 // 最大可用内存
                 long maxMemorySize = memoryUsage.getMax();
                 // 已使用的内存
                 long usedMemorySize = memoryUsage.getUsed();
-
                 // 操作系统
                 String osName = System.getProperty("os.name");
                 // 总的物理内存
@@ -103,9 +99,7 @@ public class MemoryCPU {
                         .getParent() != null; parentThread = parentThread.getParent()) {
 
                 }
-
                 int totalThread = parentThread.activeCount();
-
                 // 磁盘使用情况
                 File[] files = File.listRoots();
                 for (File file : files) {
@@ -117,7 +111,6 @@ public class MemoryCPU {
                     /*System.err.println(path + "总:" + total + ",可用空间:" + un + ",空闲空间:" + free);
                     System.err.println("=============================================");*/
                 }
-
                 /*System.err.println("操作系统:" + osName);
                 System.err.println("程序启动时间:" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                         .format(new Date(ManagementFactory.getRuntimeMXBean().getStartTime())));
@@ -166,7 +159,6 @@ public class MemoryCPU {
 
     /**
      * 打印 CPU 信息
-     *
      * @param systemInfo
      */
     private void printlnCpuInfo(SystemInfo systemInfo) throws InterruptedException {

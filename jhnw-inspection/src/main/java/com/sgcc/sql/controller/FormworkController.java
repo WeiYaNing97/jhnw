@@ -24,7 +24,6 @@ import com.sgcc.common.core.page.TableDataInfo;
 
 /**
  * 问题模板Controller
- * 
  * @author ruoyi
  * @date 2023-03-13
  */

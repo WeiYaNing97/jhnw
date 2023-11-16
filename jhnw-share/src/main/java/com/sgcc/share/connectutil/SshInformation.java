@@ -8,8 +8,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.Arrays;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年06月21日 14:29
  */
 public class SshInformation {

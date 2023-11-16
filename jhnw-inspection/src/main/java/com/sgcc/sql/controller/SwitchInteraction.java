@@ -32,6 +32,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,8 +74,6 @@ public class SwitchInteraction {
     private  IFormworkService formworkService;
     /**
     * @Description预执行获取交换机基本信息
-    * @author charles
-    * @createTime 2023/10/11 13:45
     * @desc
     * @param ip
      * @param name
@@ -218,8 +217,6 @@ public class SwitchInteraction {
      * @method: 多线程扫描 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
      * @Param: [switchInformation]
      * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("专项扫描问题")
     @PostMapping("/directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
@@ -375,8 +372,6 @@ public class SwitchInteraction {
      *          loginUser 登录人信息，time 扫描时间
      *          List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("logInToGetBasicInformation")
     public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) {
@@ -1022,8 +1017,6 @@ public class SwitchInteraction {
      * @Param: [user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接]
      * @Param: [resultString 交换机返回信息,first_problem_scanLogic_Id 第一条分析ID,firmwareVersion 内部固件版本号)
      * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public String analysisReturn(SwitchParameters switchParameters,TotalQuestionTable totalQuestionTable,
                                  String resultString,String first_problem_scanLogic_Id,List<ProblemScanLogic> problemScanLogicList){
@@ -1033,8 +1026,7 @@ public class SwitchInteraction {
         //是否循环判断 loop循环 end 单次
         /* 传入参数[user_String 用户信息【连接方式、ip地址、用户名、密码】, way 连接方法, connectMethod ssh连接, telnetSwitchMethod telnet连接,
                 交换机返回信息字符串, 单次分析提取数据，循环分析提取数据
-                交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号]
-         */
+                交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号] */
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
         Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
         String strings = selectProblemScanLogicById(switchParameters, totalQuestionTable,
@@ -1109,7 +1101,6 @@ public class SwitchInteraction {
         *如果为空，则需要查询数据库。都是通过ID来获取具体分析逻辑数据。
          *如果是空 则通过ID 在数据库中查询出要执行的分析数据
         * 如果不为空 则通过ID 在集合列表中查询出要执行的分析数据 */
-
         //分析逻辑
         ProblemScanLogic problemScanLogic = null;
         if (problemScanLogicList == null){
@@ -1125,8 +1116,6 @@ public class SwitchInteraction {
             }
         }
 
-
-
         /**
          * 判断是否是循环逻辑 并处理循环逻辑
          */
@@ -1134,7 +1123,6 @@ public class SwitchInteraction {
         //循环分析数据 不需要分析 功能指向循环位置
         if (problemScanLogic.getCycleStartId()!=null
                 && !(problemScanLogic.getCycleStartId().equals("null"))){
-
             //比较循环次数和最大循环测试
             loop = loop + 1;
             if (loop > numberOfCycles){
@@ -1158,10 +1146,8 @@ public class SwitchInteraction {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 return null;
             }
-
             /*需要调出循环ID 当做 当前分析ID 继续执行*/
             /*currentID = problemScanLogic.getCycleStartId();*/
             String loop_string = selectProblemScanLogicById(
@@ -1179,10 +1165,10 @@ public class SwitchInteraction {
                     numberOfCycles);/*最大循环次数*/
             return loop_string;
         }
-
         // todo 打算修改的 ProblemId  问题
         //如果 问题索引字段 不为空 null 则 说明  分析数据 是 分析出问题或者可以结束了
         // problemScanLogic.getProblemId() 可以为 有问题(前端显示:异常) 无问题(前端显示:安全) 完成
+
         /**
          * 判断 是否有问题
          */
@@ -1215,7 +1201,6 @@ public class SwitchInteraction {
                         e.printStackTrace();
                     }
                 }
-
                 //问题数据 插入问题表
                 Long insertId = insertSwitchScanResult(switchParameters, totalQuestionTable, problemScanLogic, current_Round_Extraction_String);
                 if (insertId < 0){
@@ -1240,8 +1225,6 @@ public class SwitchInteraction {
                     }
                     return "问题数据插入失败";
                 }
-
-
                 //插入问题数据次数 加一
                 insertsInteger++;
                 /*单词提取数据清空*/
@@ -1287,8 +1270,8 @@ public class SwitchInteraction {
             }else if (problemScanLogic.getProblemId().equals("完成")){
                 return extractInformation_string;
             }
-
         }
+
         /*匹配方式*/
         String matching_logic = "";
         //相对位置行
@@ -1325,8 +1308,7 @@ public class SwitchInteraction {
         /** 取词 */
         if (action != null && action.indexOf("full") != -1){
             /*full为 相对于全文取词    ：   取词full
-            relativePosition_line是相对于第几行
-            */
+            relativePosition_line是相对于第几行*/
             frontMarker = line_n;
             line_n = Integer.valueOf(relativePosition_line).intValue();
         }else if (action != null && action.equalsIgnoreCase("取词")){
@@ -1334,7 +1316,6 @@ public class SwitchInteraction {
             /*present为按行扫描  此时不需要记录之前光标
             relativePosition_line 相对于第几行
             当relativePosition_line = 0 是 扫描光标行*/
-
             line_n = line_n + Integer.valueOf(relativePosition_line).intValue();
         }
         /*匹配逻辑 */
@@ -1346,9 +1327,7 @@ public class SwitchInteraction {
             * present&full    不记录位置 只在全文进行当前行匹配  无意义
             * full&N          记录位置 到第N行 开始全文扫描  N 是全文
             * present&N       不记录位置 只在当前行进行匹配  N 是相对前光标
-
-            todo 注意  缺少 从之前光标相对位置进行全文匹配
-            */
+            todo 注意  缺少 从之前光标相对位置进行全文匹配 */
             /*光标位置*/
             switch(matching_logic){
                 case "full&full" : //从第一行 全文扫描
@@ -1426,12 +1405,8 @@ public class SwitchInteraction {
                     return trueLogic;
                 }else {
                     /**匹配失败*/
-                    /*
-                    *
-                    * 取词方法包含 "full&"  则说明是全文匹配 则需要配置当前及下文数据
-                    * 并且 当前行不为 倒数第二行时（倒数第一行 为 标识符 如：<H3C-S2152-1> ） 则 continue 继续遍历
-                    *
-                    */
+                    /* 取词方法包含 "full&"  则说明是全文匹配 则需要配置当前及下文数据
+                    * 并且 当前行不为 倒数第二行时（倒数第一行 为 标识符 如：<H3C-S2152-1> ） 则 continue 继续遍历 */
                     /*|| problemScanLogic.getRelativePosition().indexOf("null") != -1
                     注释原因 逻辑修改后一定不包含null
                       参数值一般为 ： present,0   full,0   1,0   0,1*/
@@ -1616,8 +1591,6 @@ public class SwitchInteraction {
 
     /**
     * @Description  扫描分析成功逻辑
-    * @author charles
-    * @createTime 2023/10/19 10:16
     * @desc
     * @param switchParameters 交换机登录信息
      * @param totalQuestionTable  问题表
@@ -1730,8 +1703,6 @@ public class SwitchInteraction {
 
     /**
     * @Description
-    * @author charles
-    * @createTime 2023/10/25 14:13
     * @desc
     * @param switchParameters	交换机登录信息
      * @param totalQuestionTable	问题表
@@ -1806,8 +1777,6 @@ public class SwitchInteraction {
      * @method: 查询扫描出的问题表 放入 websocket
      * @Param: []
      * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("getUnresolvedProblemInformationByData")
     @ApiOperation("查询当前扫描出的问题表放入websocket")
@@ -1897,8 +1866,6 @@ public class SwitchInteraction {
      * @method: 查询扫描出的问题表 放入 websocket
      * @Param: [ ]
      * @return: java.util.List < com.sgcc.sql.domain.SwitchProblem >
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("getSwitchScanResultListBySwitchParameters")
     @ApiOperation("查询当前扫描出的问题表放入websocket")
@@ -2023,8 +1990,6 @@ public class SwitchInteraction {
      * @method: 根据命令ID获取具体命令，执行并返回交换机返回信息
      * @Param:
      * @return:  返回的是 解决问题ID
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      * 分析ID 连接方式 ssh和telnet连接
      */
     @GetMapping("/executeScanCommandByCommandId")
@@ -2096,8 +2061,6 @@ public class SwitchInteraction {
      * @method: 执行分析
      * @Param: [resultString_ProblemScanLogicId]
      * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      * 用户信息 连接方式 ssh、telnet
      * 交换机返回信息 分析ID
      */
@@ -2129,8 +2092,6 @@ public class SwitchInteraction {
      * 当 totalQuestionTables 不为空时，为专项扫描
      * @Param: [user_String, connectMethod, telnetSwitchMethod]
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("scanProblem")
     public AjaxResult scanProblem (SwitchParameters switchParameters,
@@ -2240,8 +2201,6 @@ public class SwitchInteraction {
      *  根据交换机基本信息 查询 可执行命令的 命令信息
      * @Param: []
      * @return: java.util.List<java.lang.Long>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping(value = "/commandIdByInformation")
     public AjaxResult commandIdByInformation(SwitchParameters switchParameters) {

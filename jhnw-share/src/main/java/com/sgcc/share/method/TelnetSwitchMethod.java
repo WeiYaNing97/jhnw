@@ -17,11 +17,8 @@ import java.io.*;
 @RestController
 @RequestMapping("/sql/telnet")
 public class TelnetSwitchMethod {
-
     //private static TelnetComponent telnetComponent;
-
     //public String moreEcho = "---- More ----";
-
     /**
      * @Author MRC
      * @Description //TODO 打开telnet连接
@@ -31,9 +28,7 @@ public class TelnetSwitchMethod {
      **/
     @GetMapping("requestConnect")
     public TelnetComponent requestConnect(String ip, Integer port, String name, String password, String end){
-
         TelnetComponent open = open(ip, port);
-
         try {
             Thread.sleep(5*1000);
         } catch (InterruptedException e) {
@@ -66,14 +61,12 @@ public class TelnetSwitchMethod {
     @GetMapping("sendCommand")
     public String sendCommand(String ip,TelnetComponent telnetComponent,String common,String notFinished){
         String returnStringCommand = dispatchOrders(ip,telnetComponent,common,notFinished);
-
         String endIdentifier = "<>,[]";
         String[] endIdentifierSplit = endIdentifier.split(",");
         String returnString = "";
         for (String end:endIdentifierSplit){
             String substring = end.substring(0, 1);
             if (returnStringCommand.indexOf(substring) != -1){
-
                 switch (substring){
                     case "[" :
                         substring = "\\[";
@@ -112,7 +105,6 @@ public class TelnetSwitchMethod {
                         substring = "\\()";
                         break;
                 }
-
                 String[] split1 = returnStringCommand.split(substring);
                 String[] split2 = split1[split1.length-1].split(end.substring(1,2));
                 String end_split = split2[0];
@@ -143,15 +135,12 @@ public class TelnetSwitchMethod {
         if (notFinished != null){
             moreEcho = notFinished;
         }
-
         if (null == common) {
             return "error";
         }
-
         try {
             String readFileContent = telnetComponent.sendCommand(ip,common);
             try {
-
                 while (readFileContent.indexOf(moreEcho)!=-1){
                     readFileContent = readFileContent.replaceAll(moreEcho," ");
                     String sendCommon = dispatchOrders(ip,telnetComponent," ",moreEcho);

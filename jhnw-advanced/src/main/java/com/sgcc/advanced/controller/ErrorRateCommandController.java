@@ -32,7 +32,6 @@ public class ErrorRateCommandController extends BaseController
 {
     @Autowired
     private IErrorRateCommandService errorRateCommandService;
-
     /**
      * 查询误码率命令列表
      */
@@ -44,7 +43,6 @@ public class ErrorRateCommandController extends BaseController
         List<ErrorRateCommand> list = errorRateCommandService.selectErrorRateCommandList(errorRateCommand);
         return getDataTable(list);
     }
-
     /**
      * 导出误码率命令列表
      */
@@ -57,7 +55,6 @@ public class ErrorRateCommandController extends BaseController
         ExcelUtil<ErrorRateCommand> util = new ExcelUtil<ErrorRateCommand>(ErrorRateCommand.class);
         return util.exportExcel(list, "误码率命令数据");
     }
-
     /**
      * 获取误码率命令详细信息
      */
@@ -67,7 +64,6 @@ public class ErrorRateCommandController extends BaseController
     {
         return AjaxResult.success(errorRateCommandService.selectErrorRateCommandById(id));
     }
-
     /**
      * 新增误码率命令
      */
@@ -81,7 +77,6 @@ public class ErrorRateCommandController extends BaseController
         }
         return toAjax(errorRateCommandService.insertErrorRateCommand(errorRateCommand));
     }
-
     /**
      * 修改误码率命令
      */
@@ -92,7 +87,6 @@ public class ErrorRateCommandController extends BaseController
     {
         return toAjax(errorRateCommandService.updateErrorRateCommand(errorRateCommand));
     }
-
     /**
      * 删除误码率命令
      */

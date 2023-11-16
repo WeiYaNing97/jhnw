@@ -7,8 +7,6 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年06月23日 13:59
  */
 public class TelnetInformation {

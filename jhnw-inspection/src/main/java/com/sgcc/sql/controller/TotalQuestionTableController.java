@@ -32,9 +32,6 @@ import java.util.List;
 
 /**
  * 问题及命令Controller
- * 
- * @author 韦亚宁
- * @date 2021-12-14
  */
 @RestController
 @RequestMapping("/sql/total_question_table")
@@ -67,8 +64,6 @@ public class TotalQuestionTableController extends BaseController
      * @method: 根据交换机信息查询扫描问题的命令ID
      * @Param: []
      * @return: java.util.List<java.lang.Long>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @ApiOperation("根据交换机信息查询扫描问题的命令ID")
     @GetMapping(value = "/commandIdByInformation")
@@ -302,8 +297,6 @@ public class TotalQuestionTableController extends BaseController
      * @method: 查询所有品牌
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("/brandlist")
     @ApiOperation("查询所有品牌")
@@ -326,8 +319,6 @@ public class TotalQuestionTableController extends BaseController
      * @method: 根据所选品牌 查询所有型号
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("/typelist")
     @ApiOperation("根据实体类查询品牌")
@@ -349,8 +340,6 @@ public class TotalQuestionTableController extends BaseController
      * @method: 根据所选品牌、型号   查询所有内部固件版本
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("/firewareVersionlist")
     @ApiOperation("根据实体类查询内部固件版本")
@@ -372,8 +361,6 @@ public class TotalQuestionTableController extends BaseController
      * @method: 根据所选品牌、型号、内部固件版本   查询所有子版本号
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("/subVersionlist")
     @ApiOperation("根据实体类查询子版本号")
@@ -395,8 +382,6 @@ public class TotalQuestionTableController extends BaseController
     * @method: 查询所有问题种类
     * @Param: [totalQuestionTable]
     * @return: java.util.List<java.lang.String>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     @GetMapping("/typeProblemlist")
     @ApiOperation("查询所有问题种类")
@@ -417,8 +402,6 @@ public class TotalQuestionTableController extends BaseController
      * @method: 根据问题种类查询范本问题名称
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("/temProNamelist")
     @ApiOperation("根据问题种类查询范本问题名称")
@@ -431,8 +414,6 @@ public class TotalQuestionTableController extends BaseController
     * @method: 根据问题实体类查询问题名称
     * @Param: [totalQuestionTable]
     * @return: java.util.List<java.lang.String>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     @GetMapping("/problemNameList")
     @ApiOperation("根据问题实体类查询问题名称")
@@ -454,8 +435,6 @@ public class TotalQuestionTableController extends BaseController
      * @method: 获取 解决问题 命令ID
      * @Param: []
      * @return: java.util.List<java.lang.Long>
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping(value = "/totalQuestionTableId")
     public Long totalQuestionTableId( String brand, String type, String firewareVersion, String subVersion, String problemName, String typeProblem,String temProName)

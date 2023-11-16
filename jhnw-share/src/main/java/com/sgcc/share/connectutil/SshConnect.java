@@ -1,8 +1,6 @@
 package com.sgcc.share.connectutil;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2021年09月02日 9:54
  */
 import com.jcraft.jsch.*;

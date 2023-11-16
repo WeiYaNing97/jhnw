@@ -25,8 +25,6 @@ import java.util.List;
 /**
  * 获取基本信息命令Controller
  * 获取基本信息命令相关操作
- * @author 韦亚宁
- * @date 2021-12-21
  */
 @Api("获取基本信息命令管理")
 @RestController

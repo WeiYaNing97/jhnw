@@ -36,9 +36,6 @@ import com.sgcc.common.core.page.TableDataInfo;
 
 /**
  * 交换机扫描结果Controller
- * 
- * @author ruoyi
- * @date 2022-08-26
  */
 @RestController
 @RequestMapping("/share/switch_scan_result")
@@ -131,8 +128,6 @@ public class SwitchScanResultController extends BaseController
      * @method: 高级功能扫描结果插入数据库
      * @Param:
      * @return: void
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public Long insertSwitchScanResult (SwitchParameters switchParameters, HashMap<String,String> hashMap){
         SwitchScanResult switchScanResult = new SwitchScanResult();
@@ -240,7 +235,6 @@ public class SwitchScanResultController extends BaseController
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
-
         //将IP地址去重放入set集合中
         HashSet<String> time_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
@@ -265,14 +259,12 @@ public class SwitchScanResultController extends BaseController
             String time = dateFormat.format(sort.get(number));
             stringtime.add(time);
         }
-
         List<ScanResultsCO> scanResultsCOList = new ArrayList<>();
         for (String time:stringtime){
             ScanResultsCO scanResultsCO = new ScanResultsCO();
             scanResultsCO.setCreateTime(time);
             scanResultsCOList.add(scanResultsCO);
         }
-
         HashSet<String> hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
 
@@ -280,7 +272,6 @@ public class SwitchScanResultController extends BaseController
             String time = format.format(switchProblemVO.getCreateTime());
             hashSet.add(switchProblemVO.getSwitchIp()+"=:="+time);
         }
-
         List<ScanResultsVO> scanResultsVOPojoList = new ArrayList<>();
         for (String hashString:hashSet){
             String[] split = hashString.split("=:=");
@@ -289,52 +280,40 @@ public class SwitchScanResultController extends BaseController
             scanResultsVO.setCreateTime(split[1]);
             scanResultsVOPojoList.add(scanResultsVO);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOPojoList){
             List<SwitchProblemVO> pojoList = new ArrayList<>();
-
             String pinpai = "*";
             String xinghao = "*";
             String banben = "*";
             String zibanben = "*";
-
             for (SwitchProblemVO switchProblemVO:switchProblemList){
                 DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String time = format.format(switchProblemVO.getCreateTime());
                 if (scanResultsVO.getSwitchIp().equals(switchProblemVO.getSwitchIp())
                         && scanResultsVO.getCreateTime().equals(time)){
-
                     String brand = switchProblemVO.getBrand();
                     if (!(brand .equals("*"))){
                         pinpai = brand;
                     }
-
                     String switchType = switchProblemVO.getSwitchType();
                     if (!(switchType .equals("*"))){
                         xinghao = switchType;
                     }
-
                     String firewareVersion = switchProblemVO.getFirewareVersion();
                     if (!(firewareVersion .equals("*"))){
                         banben = firewareVersion;
                     }
-
                     String subVersion = switchProblemVO.getSubVersion();
                     if (subVersion !=null && !(subVersion .equals("*"))){
                         zibanben = subVersion;
                     }
-
                     pojoList.add(switchProblemVO);
-
                 }
             }
-
             scanResultsVO.setSwitchIp(scanResultsVO.getSwitchIp());
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(pojoList);
-
         }
-
         for (ScanResultsCO scanResultsCO:scanResultsCOList){
             List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
             for (ScanResultsVO scanResultsVO:scanResultsVOPojoList){
@@ -342,18 +321,15 @@ public class SwitchScanResultController extends BaseController
                     scanResultsVOList.add(scanResultsVO);
                 }
             }
-
             scanResultsCO.setScanResultsVOList(scanResultsVOList);
-
         }
-
         for (ScanResultsCO scanResultsCO:scanResultsCOList){
             scanResultsCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             List<ScanResultsVO> scanResultsVOList = scanResultsCO.getScanResultsVOList();
             for (ScanResultsVO scanResultsVO:scanResultsVOList){
                 scanResultsVO.setCreateTime(null);
                 String switchIp = scanResultsVO.getSwitchIp();
-                String[] split = switchIp.split(":");
+                //String[] split = switchIp.split(":");
                 scanResultsVO.setSwitchIp(switchIp);
                 scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                 List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
@@ -364,7 +340,6 @@ public class SwitchScanResultController extends BaseController
                 }
             }
         }
-
         return scanResultsCOList;
     }
 }

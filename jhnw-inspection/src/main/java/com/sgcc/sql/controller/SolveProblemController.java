@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 /**
  * 与交换机交互方法类
- * * @E-mail: WeiYaNing97@163.com
  * @date 2022年01月05日 14:18
  */
 @Api("修复问题管理")
@@ -61,8 +60,6 @@ public class SolveProblemController {
      * @method: 根据问题ID 查询 解决问题ID命令 返回List<String>
      * @Param: [totalQuestionTableId]
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      *
      */
     @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
@@ -185,9 +182,6 @@ public class SolveProblemController {
      * @method: 修复问题
      * @Param: []
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     *
      */
 
     public AjaxResult batchSolution(SwitchParameters switchParameters, List<SwitchScanResult> switchScanResultList , List<String> problemIds){
@@ -376,8 +370,6 @@ public class SolveProblemController {
      * @method: 根据 命令ID commandId 查询命令集合 用于解决问题
      * @Param: [commandId]
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("queryCommandSet")
     @ApiOperation("查询修复命令集合")
@@ -396,9 +388,6 @@ public class SolveProblemController {
      * @method: 执行解决问题
      * @Param: [parameterID]
      * @return: com.sgcc.common.core.domain.AjaxResult
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
-     *
      */
     //@RequestMapping("solveProblem")
     public String solveProblem(SwitchParameters switchParameters,
@@ -593,8 +582,6 @@ public class SolveProblemController {
      * @method: 根据用户名 和 修复问题ID 列表
      * @Param:
      * @return:
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("getUnresolvedProblemInformationByIds")
     public List<ScanResultsVO> getUnresolvedProblemInformationByIds(LoginUser loginUser,List<String> problemIds){//待测
@@ -686,8 +673,6 @@ public class SolveProblemController {
      * @method: 根据用户名 和 修复问题ID 列表
      * @Param:
      * @return:
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     @GetMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测

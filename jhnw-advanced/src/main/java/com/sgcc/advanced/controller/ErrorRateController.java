@@ -32,7 +32,6 @@ public class ErrorRateController extends BaseController
 {
     @Autowired
     private IErrorRateService errorRateService;
-
     /**
      * 查询误码率列表
      */
@@ -44,7 +43,6 @@ public class ErrorRateController extends BaseController
         List<ErrorRate> list = errorRateService.selectErrorRateList(errorRate);
         return getDataTable(list);
     }
-
     /**
      * 导出误码率列表
      */

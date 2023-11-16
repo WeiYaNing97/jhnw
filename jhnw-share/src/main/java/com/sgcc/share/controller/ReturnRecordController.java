@@ -20,9 +20,6 @@ import java.util.List;
 
 /**
  * 返回信息Controller
- * 
- * @author 韦亚宁
- * @date 2021-12-22
  */
 @RestController
 @RequestMapping("/share/return_record")

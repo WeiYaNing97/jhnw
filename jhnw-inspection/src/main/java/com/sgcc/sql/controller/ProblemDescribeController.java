@@ -21,8 +21,6 @@ import com.sgcc.common.core.page.TableDataInfo;
 
 /**
  * 问题详细说明和指导索引
- * 
- * @author ruoyi
  * @date 2022-05-26
  */
 @ApiOperation("问题详细说明和指导索引")

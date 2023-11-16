@@ -15,15 +15,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年08月02日 14:42
  */
 public class MyUtils {
-
-
     public static String isEmpty = "Is_Empty";
-
     /**
      * 根据正则表达式判断字符是否为汉字
      */
@@ -33,7 +28,6 @@ public class MyUtils {
         Matcher match = pattern.matcher(str);
         return match.find();
     }
-
     /**
      * 该方法主要使用正则表达式来判断字符串中是否包含字母
      * @author fenggaopan 2015年7月21日 上午9:49:40
@@ -45,7 +39,6 @@ public class MyUtils {
         Matcher m = Pattern.compile(regex).matcher(cardNum);
         return m.matches();
     }
-
     /**
      * 查询字符串中首个数字出现的位置
      * @param str 查询的字符串
@@ -59,7 +52,6 @@ public class MyUtils {
         }
         return i;
     }
-
     /**
      * 判断字符串是否包含数字
      * @param str
@@ -208,8 +200,6 @@ public class MyUtils {
      * @method: 进度条
      * @Param: [总数, 完成数]
      * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static String progressBar(double number1,double number2) {
         return (int)(number2/number1*100)+"%";
@@ -219,8 +209,6 @@ public class MyUtils {
      * @method: 多个连续空格 改为 多个单空格
      * @Param: [original]
      * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static String repaceWhiteSapce(String original){
         StringBuilder sb = new StringBuilder();
@@ -468,9 +456,7 @@ public class MyUtils {
 
     /**
      * 数组去掉最后一个元素
-     *
      * 要去掉Java数组的最后一个元素，可以创建一个新的数组，并将原数组中除最后一个元素之外的所有元素复制到新数组中。
-     *
      * @param array
      * @return
      */
@@ -491,8 +477,6 @@ public class MyUtils {
 
     /**
     * @Description 判断内容是否存在 IP特征
-    * @author charles
-    * @createTime 2023/10/10 9:16
     * @desc
     * @param input
      * @return

@@ -255,6 +255,7 @@ public class InspectionMethods {
                     break;
             }
         }
+
         //如果 常规检验 的话 下一ID  应是 下一命令ID
         //下一分析ID  应是  0
         /*如果为常规校验的话，resultCheckId = 1；则分析数据的下一条ID为下一命令ID。则nextIndex属性值 应赋值给 实体类endIndex字段。*/
@@ -280,6 +281,7 @@ public class InspectionMethods {
         commandLogic.setEndIndex(hashMap.get("endIndex"));
         /** 命令行号 */
         commandLogic.setcLine(hashMap.get("pageIndex"));
+
         /*插入数据库*/
         //int i = commandLogicService.insertCommandLogic(commandLogic);
         return commandLogic;

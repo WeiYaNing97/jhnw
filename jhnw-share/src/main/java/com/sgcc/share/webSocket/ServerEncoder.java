@@ -13,20 +13,17 @@ import java.util.ArrayList;
  * 如果你写了一个名叫Student的类，需要通过sendObject()方法发送，那么这里就是Text<Student>
  */
 public class ServerEncoder implements Encoder.Text<ArrayList> {
-
     @Override
     public void destroy() {
         //
         // 这里不重要
     }
-
     @Override
     public void init(EndpointConfig arg0) {
         //
         // 这里也不重要
 
     }
-
     /*
      *  encode()方法里的参数和Text<T>里的T一致，如果你是Student，这里就是encode（Student student）
      */

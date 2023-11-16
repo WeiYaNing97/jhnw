@@ -31,7 +31,6 @@ public class EncryptUtil {
 	 */
 	public static String encrypt(String xmlStr) {
 		byte[] encrypt = null;
-
 		try {
 			// 取需要加密内容的utf-8编码。
 			encrypt = xmlStr.getBytes("utf-8");
@@ -47,14 +46,12 @@ public class EncryptUtil {
 		}
 		// 组合消息体
 		byte[] totalByte = EncryptUtil.addMD5(md5Hasn, encrypt);
-
 		// 取密钥和偏转向量
 		byte[] key = new byte[8];
 		byte[] iv = new byte[8];
 		getKeyIV(EncryptUtil.key, key, iv);
 		SecretKeySpec deskey = new SecretKeySpec(key, "DES");
 		IvParameterSpec ivParam = new IvParameterSpec(iv);
-
 		// 使用DES算法使用加密消息体
 		byte[] temp = null;
 		try {
@@ -62,7 +59,6 @@ public class EncryptUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		// 使用Base64加密后返回
 		return new BASE64Encoder().encode(temp);
 	}
@@ -71,13 +67,10 @@ public class EncryptUtil {
 	 * <li>
 	 * 方法名称:encrypt</li> <li>
 	 * 功能描述:
-	 * 
 	 * <pre>
 	 * 解密方法
 	 * </pre>
-	 * 
 	 * </li>
-	 * 
 	 * @param xmlStr
 	 *            需要解密的消息字符串
 	 * @return 解密后的字符串
@@ -92,15 +85,12 @@ public class EncryptUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		// 取密钥和偏转向量
 		byte[] key = new byte[8];
 		byte[] iv = new byte[8];
 		getKeyIV(EncryptUtil.key, key, iv);
-
 		SecretKeySpec deskey = new SecretKeySpec(key, "DES");
 		IvParameterSpec ivParam = new IvParameterSpec(iv);
-
 		// 使用DES算法解密
 		byte[] temp = null;
 		try {
@@ -108,7 +98,6 @@ public class EncryptUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		// 进行解密后的md5Hash校验
 		byte[] md5Hash = null;
 		try {
@@ -116,7 +105,6 @@ public class EncryptUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		// 进行解密校检
 		for (int i = 0; i < md5Hash.length; i++) {
 			if (md5Hash[i] != temp[i]) {
@@ -124,7 +112,6 @@ public class EncryptUtil {
 				throw new Exception("MD5校验错误。");
 			}
 		}
-
 		// 返回解密后的数组，其中前16位MD5Hash码要除去。
 		return new String(temp, 16, temp.length - 16, "utf-8");
 	}
@@ -133,13 +120,10 @@ public class EncryptUtil {
 	 * <li>
 	 * 方法名称:TripleDES_CBC_Encrypt</li> <li>
 	 * 功能描述:
-	 * 
 	 * <pre>
 	 * 经过封装的三重DES/CBC加密算法，如果包含中文，请注意编码。
 	 * </pre>
-	 * 
 	 * </li>
-	 * 
 	 * @param sourceBuf
 	 *            需要加密内容的字节数组。
 	 * @param deskey
@@ -166,13 +150,10 @@ public class EncryptUtil {
 	 * <li>
 	 * 方法名称:TripleDES_CBC_Decrypt</li> <li>
 	 * 功能描述:
-	 * 
 	 * <pre>
 	 * 经过封装的三重DES / CBC解密算法
 	 * </pre>
-	 * 
 	 * </li>
-	 * 
 	 * @param sourceBuf
 	 *            需要解密内容的字节数组
 	 * @param deskey
@@ -200,13 +181,10 @@ public class EncryptUtil {
 	 * <li>
 	 * 方法名称:DES_CBC_Encrypt</li> <li>
 	 * 功能描述:
-	 * 
 	 * <pre>
 	 * 经过封装的DES/CBC加密算法，如果包含中文，请注意编码。
 	 * </pre>
-	 * 
 	 * </li>
-	 * 
 	 * @param sourceBuf
 	 *            需要加密内容的字节数组。
 	 * @param deskey
@@ -359,12 +337,9 @@ public class EncryptUtil {
 	 * <li>
 	 * 方法名称:getKeyIV</li> <li>
 	 * 功能描述:
-	 * 
 	 * <pre>
-	 * 
 	 * </pre>
 	 * </li>
-	 * 
 	 * @param encryptKey
 	 * @param key
 	 * @param iv
@@ -388,7 +363,6 @@ public class EncryptUtil {
 			iv[i] = buf[i + 8];
 		}
 	}
-
 	//MD5加盐
 	// 加密加盐
 	public static String densificationAndSalt(String string)//[3,8,12,13,20,23]
@@ -404,7 +378,6 @@ public class EncryptUtil {
 		}
 		return sb.toString();
 	}
-
 	//脱盐
 	// 脱盐解密
 	public static String desaltingAndDecryption(String saltMd5Str)
@@ -423,9 +396,8 @@ public class EncryptUtil {
 		}
 		return decrypt;
 	}
-
 	public static void main(String[] args) {
-			String string = "韦亚宁";
+			String string = "测试";
 			System.out.println("源字符串="+string);
 			System.out.println("加密后"+EncryptUtil.densificationAndSalt(string));
 			System.err.println("解密后"+EncryptUtil.desaltingAndDecryption(densificationAndSalt(string)));

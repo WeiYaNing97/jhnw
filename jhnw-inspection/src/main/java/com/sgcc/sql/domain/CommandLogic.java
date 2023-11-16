@@ -7,9 +7,7 @@ import com.sgcc.common.core.domain.BaseEntity;
 
 /**
  * 命令逻辑对象 command_logic
- * 
- * @author 韦亚宁
- * @date 2021-12-14
+
  */
 public class CommandLogic extends BaseEntity
 {

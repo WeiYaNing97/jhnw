@@ -12,8 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2021年09月29日 14:55
  */
 @ResponseBody
@@ -22,8 +20,6 @@ import java.util.regex.Pattern;
 public class SshMethod {
     /**
     * @Description  连接ssh
-    * @author charles
-    * @createTime 2023/10/11 14:02
     * @desc
      * 连接交换机 返回 List<Object> 数组
      * 如果连接成功 则返回 true 和 SshConnect(JSCH 使用方法类)
@@ -36,16 +32,12 @@ public class SshMethod {
     */
     @RequestMapping("requestConnect")
     public List<Object> requestConnect(String ip, int port, String name, String password){
-
         //(JSCH 使用方法类) 创建连接 ip 端口号：22
         SshConnect sshConnect = new SshConnect(ip, port, null, null);
-
         //用户名、密码
         String[] cmds = { name, password};
-
         //连接方法
         List<Object> login = sshConnect.login(ip, cmds);
-
         /*判断交换机是否连接成功*/
         if ((boolean) login.get(0) == true){
             List<Object> objects = new ArrayList<>();
@@ -53,14 +45,11 @@ public class SshMethod {
             objects.add(sshConnect);/* JSCH 使用方法类 */
             return objects;
         }
-
         return login;
     }
 
     /**
     * @Description  发送命令
-    * @author charles
-    * @createTime 2023/10/11 14:14
     * @desc
     * @param ip
      * @param sshConnect   (JSCH 使用方法类)
@@ -76,17 +65,14 @@ public class SshMethod {
         /*if (this.ReturnInformation.endsWith(EndIdentifier) && command.equalsIgnoreCase("quit")) {
             quit = true;
         }*/
-
         //发送命令 quit:涉及是否断开交换机连接
         String string = sshConnect.batchCommand(ip,cmds, notFinished,null,false);
-
         if (string.equals("") || string == null){
             return null;
         }
         if (string.indexOf("遗失对主机的连接")!=-1){
             return string;
         }
-
         if (string.length()>1 && string.substring(0, 1).equals("\n")){
             //字符串删除子字符串
             string = trimStr(string, string.substring(0, 1));
@@ -119,7 +105,6 @@ public class SshMethod {
         }
         //  todo  --More--
         if (notFinished == null || notFinished == ""){
-
             string = MyUtils.trimString(string);
             String[] stringSplit = string.split("\r\n");
             for (String stringStr:stringSplit){
@@ -134,19 +119,15 @@ public class SshMethod {
                     }
                 }
             }
-
         }else {
             string = string.replace(notFinished,"");
         }
-
        // this.ReturnInformation = string;
         return string;
     }
 
     /**
     * @Description 关闭连接
-    * @author charles
-    * @createTime 2023/10/11 14:14
     * @desc
     * @param sshConnect	(JSCH 使用方法类)
      * @return
@@ -156,8 +137,6 @@ public class SshMethod {
         //ssh关闭连接
         sshConnect.close();
     }
-
-
     //删除字符串中 第一个满足条件的 子字符串
     public static String trimStr(String str, String indexStr){
         if(str == null){
@@ -175,10 +154,8 @@ public class SshMethod {
         }
         return newStr.toString();
     }
-
     //查看字符串中是否存在某一字符
     //boolean status = str.contains("a");
-
     //获取字符串中 字符的 位置
     public static Integer startChar(String str,String specialChar){
         Matcher matcher= Pattern.compile(specialChar).matcher(str);
@@ -188,7 +165,6 @@ public class SshMethod {
         }
         return null;
     }
-
     public static Integer letterFirst(String temporary){
         char[] charArr = temporary.toCharArray();
         for (int i=0;i<charArr.length;i++){
