@@ -19,18 +19,25 @@ import java.util.stream.Collectors;
 public class MyTest {
 
     public static void main(String[] args) {
-        List<Integer> integerList = new ArrayList<>();
-        integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);
-        integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);
-        integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);integerList.add(1);
-        integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);
-        integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);
-        integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);integerList.add(2);
+        int[] array = new int[5];
+        array[1] = 1;
+        array[2] = 2;
+        array[3] = 3;
+        array[4] = 4;
+        array[0] = 1;
 
-        Set<Integer> collect = integerList.stream().collect(Collectors.toSet());
-        for (Integer integer:collect){
-            System.err.println(integer);
+        int i = removeElement(array, 1);
+
+    }
+    public static int removeElement(int[] nums, int val) {
+        int newLength = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != val) {
+                nums[newLength] = nums[i];
+                newLength++;
+            }
         }
+        return newLength;
     }
 
 }
