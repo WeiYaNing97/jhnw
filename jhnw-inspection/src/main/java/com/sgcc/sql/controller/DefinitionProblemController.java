@@ -171,15 +171,15 @@ public class DefinitionProblemController extends BaseController {
          * 将 Json字符串 转变换为 对应的实体类*/
         List<CommandLogic> commandLogics = new ArrayList<>();
         for (int i = 1 ; i <commandLogicList.size();i++){
-            commandLogics.add( JSON.parseObject( commandLogicList.get(i), CommandLogic.class) );
+            commandLogics.add( JSON.parseObject( commandLogicList.get(i).replace("\'null\'","null"), CommandLogic.class) );
         }
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
         for (int i = 1 ; i <problemScanLogicList.size();i++){
-            problemScanLogics.add( JSON.parseObject( problemScanLogicList.get(i), ProblemScanLogic.class) );
+            problemScanLogics.add( JSON.parseObject( problemScanLogicList.get(i).replace("\'null\'","null"), ProblemScanLogic.class) );
         }
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
         for (int i = 1 ; i <totalQuestionTableList.size();i++){
-            totalQuestionTables.add( JSON.parseObject( totalQuestionTableList.get(i), TotalQuestionTable.class) );
+            totalQuestionTables.add( JSON.parseObject( totalQuestionTableList.get(i).replace("\'null\'","null"), TotalQuestionTable.class) );
         }
         /*将实体类对象插入数据库*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);

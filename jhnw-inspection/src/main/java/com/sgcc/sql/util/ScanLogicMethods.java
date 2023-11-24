@@ -5,6 +5,7 @@ import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.sql.controller.SwitchInteraction;
+import com.sgcc.sql.domain.CommandReturn;
 import com.sgcc.sql.domain.ProblemScanLogic;
 import com.sgcc.sql.domain.TotalQuestionTable;
 
@@ -18,7 +19,34 @@ import java.util.List;
  * @create: 2023-11-20 09:26
  **/
 public class ScanLogicMethods {
-    public static String MatchingLogicMethod(SwitchParameters switchParameters,
+
+    /**
+    * @Description 匹配逻辑方法
+    * @author charles
+    * @createTime 2023/11/20 10:30
+    * @desc
+    * @param switchParameters
+     * @param matched
+     * @param information_line_n
+     * @param matchContent
+     * @param totalQuestionTable
+     * @param return_information_array
+     * @param current_Round_Extraction_String
+     * @param extractInformation_string
+     * @param line_n
+     * @param firstID
+     * @param problemScanLogicList
+     * @param currentID
+     * @param insertsInteger
+     * @param loop
+     * @param numberOfCycles
+     * @param problemScanLogic
+     * @param matching_logic
+     * @param num
+     * @param frontMarker
+     * @return
+    */
+    public String MatchingLogicMethod(SwitchParameters switchParameters,
                                              String matched, String information_line_n, String matchContent,
                                              TotalQuestionTable totalQuestionTable,
                                              String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
@@ -50,8 +78,8 @@ public class ScanLogicMethods {
                 e.printStackTrace();
             }
             /**扫描分析成功逻辑*/
-            SwitchInteraction switchInteraction = new SwitchInteraction();
-            String trueLogic = switchInteraction.trueLogic(switchParameters, totalQuestionTable,
+            ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
+            String trueLogic = scanLogicMethods.trueLogic(switchParameters, totalQuestionTable,
                     return_information_array, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
@@ -86,8 +114,8 @@ public class ScanLogicMethods {
                 e.printStackTrace();
             }
             /*失败逻辑*/
-            SwitchInteraction switchInteraction = new SwitchInteraction();
-            String falseLogic = switchInteraction.falseLogic(switchParameters, totalQuestionTable,
+            ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
+            String falseLogic = scanLogicMethods.falseLogic(switchParameters, totalQuestionTable,
                     return_information_array, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
@@ -97,15 +125,39 @@ public class ScanLogicMethods {
         }
     }
 
-
-    public static String LogicalMethodofWordExtraction(
+    /**
+    * @Description 取词逻辑方法
+    * @author charles
+    * @createTime 2023/11/20 10:31
+    * @desc
+    * @param switchParameters
+     * @param action
+     * @param information_line_n
+     * @param matchContent
+     * @param totalQuestionTable
+     * @param return_information_array
+     * @param current_Round_Extraction_String
+     * @param extractInformation_string
+     * @param line_n
+     * @param firstID
+     * @param problemScanLogicList
+     * @param currentID
+     * @param insertsInteger
+     * @param loop
+     * @param numberOfCycles
+     * @param problemScanLogic
+     * @param relativePosition_line
+     * @param frontMarker
+     * @return
+    */
+    public String LogicalMethodofWordExtraction(
             SwitchParameters switchParameters,
             String action, String information_line_n, String matchContent,
             TotalQuestionTable totalQuestionTable,
             String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
             int line_n, String firstID , List<ProblemScanLogic> problemScanLogicList, String currentID,
             Integer insertsInteger, Integer loop,Integer numberOfCycles,ProblemScanLogic problemScanLogic,
-            String relativePosition_line, int num, int frontMarker) {
+            String relativePosition_line, int frontMarker) {
         //取词数
         String wordSelection_string = null;
         if (action.equals("品牌")){
@@ -177,15 +229,36 @@ public class ScanLogicMethods {
         extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
         current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
         /*成功逻辑*/
-        SwitchInteraction switchInteraction = new SwitchInteraction();
-        String trueLogic = switchInteraction.trueLogic(switchParameters, totalQuestionTable,
+        ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
+        String trueLogic = scanLogicMethods.trueLogic(switchParameters, totalQuestionTable,
                 return_information_array, current_Round_Extraction_String, extractInformation_string,
                 line_n, firstID, problemScanLogicList, currentID,
                 insertsInteger, loop, numberOfCycles, problemScanLogic);
         return trueLogic;
     }
 
-    public static String ComparativeLogicMethod(
+    /**
+    * @Description 比较逻辑方法
+    * @author charles
+    * @createTime 2023/11/20 10:31
+    * @desc
+    * @param switchParameters
+     * @param compare
+     * @param totalQuestionTable
+     * @param return_information_array
+     * @param current_Round_Extraction_String
+     * @param extractInformation_string
+     * @param line_n
+     * @param firstID
+     * @param problemScanLogicList
+     * @param currentID
+     * @param insertsInteger
+     * @param loop
+     * @param numberOfCycles
+     * @param problemScanLogic
+     * @return
+    */
+    public String ComparativeLogicMethod(
             SwitchParameters switchParameters,
             String compare,
             TotalQuestionTable totalQuestionTable,
@@ -235,21 +308,140 @@ public class ScanLogicMethods {
                 e.printStackTrace();
             }
         }
-        SwitchInteraction switchInteraction = new SwitchInteraction();
+
+        ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
         if (compare_boolean){
             /*成功逻辑*/
-            String trueLogic = switchInteraction.trueLogic(switchParameters, totalQuestionTable,
+            String trueLogic = scanLogicMethods.trueLogic(switchParameters, totalQuestionTable,
                     return_information_array, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
             return trueLogic;
         }else {
             /*失败逻辑*/
-            String falseLogic = switchInteraction.falseLogic(switchParameters, totalQuestionTable,
+            String falseLogic = scanLogicMethods.falseLogic(switchParameters, totalQuestionTable,
                     return_information_array, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
             return falseLogic;
         }
+    }
+
+    /**
+     * @Description  扫描分析成功逻辑
+     * @desc
+     * @param switchParameters 交换机登录信息
+     * @param totalQuestionTable  问题表
+     * @param return_information_array  交换机返回信息
+     * @param current_Round_Extraction_String 单词提取信息
+     * @param extractInformation_string 完整取词信息
+     * @param line_n 扫描光标行数
+     * @param firstID 分析逻辑开始ID
+     * @param problemScanLogicList  分析逻辑数据集合
+     * @param currentID 当前分析ID
+     * @param insertsInteger 插入数据次数
+     * @param loop 循环次数
+     * @param numberOfCycles  最大循环次数
+     * @param problemScanLogic  分析逻辑
+     *
+     * @return 返回提取信息 或者 null
+     */
+    public  String trueLogic(SwitchParameters switchParameters,TotalQuestionTable totalQuestionTable,
+                            String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
+                            int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
+                            Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
+
+        SwitchInteraction switchInteraction = new SwitchInteraction();
+        /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
+        if (problemScanLogic.gettComId()!=null && problemScanLogic.gettComId()!=""){
+            /**发送命令 返回结果*/
+            CommandReturn commandReturn = switchInteraction.executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
+            if (!commandReturn.isSuccessOrNot()){
+                /*交换机返回错误信息处理*/
+                return null;
+            }
+            /** 分析 */
+            String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters,totalQuestionTable,
+                    commandReturn,current_Round_Extraction_String, extractInformation_string);
+            return analysisReturnResults_String;
+        }
+        /** 判断 下一条分析ID 是否为空
+         * 不为空 则继续进行分析*/
+        if (problemScanLogic.gettNextId()!=null && problemScanLogic.gettNextId()!=""){
+            /*继续进行分析*/
+            String ProblemScanLogic_returnstring = switchInteraction.selectProblemScanLogicById(switchParameters,totalQuestionTable,
+                    return_information_array,current_Round_Extraction_String,extractInformation_string,
+                    line_n,firstID,problemScanLogicList,problemScanLogic.gettNextId(),insertsInteger, loop, numberOfCycles);
+            //如果返回信息为null
+            if (ProblemScanLogic_returnstring!=null){
+                //内分析传到上一层
+                //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                extractInformation_string = ProblemScanLogic_returnstring;
+                return ProblemScanLogic_returnstring;
+            }
+            return ProblemScanLogic_returnstring;
+        }
+        return null;
+    }
+
+
+    /**
+    * @Description  扫描分析失败逻辑
+    * @author charles
+    * @createTime 2023/11/20 10:48
+    * @desc
+    * @param switchParameters
+     * @param totalQuestionTable
+     * @param return_information_array
+     * @param current_Round_Extraction_String
+     * @param extractInformation_string
+     * @param line_n
+     * @param firstID
+     * @param problemScanLogicList
+     * @param currentID
+     * @param insertsInteger
+     * @param loop
+     * @param numberOfCycles
+     * @param problemScanLogic
+     * @return
+    */
+    public  String falseLogic(SwitchParameters switchParameters, TotalQuestionTable totalQuestionTable,
+                             String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
+                             int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
+                             Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
+
+        SwitchInteraction switchInteraction = new SwitchInteraction();
+
+        /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
+        if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
+            /**发送命令 返回结果*/
+            CommandReturn commandReturn  = switchInteraction.executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.getfComId());
+            if (!commandReturn.isSuccessOrNot()){
+                /*交换机返回错误信息处理*/
+                return null;
+            }
+            /** 分析 */
+            String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters,totalQuestionTable,
+                    commandReturn ,  current_Round_Extraction_String,  extractInformation_string);
+            return analysisReturnResults_String;
+        }
+        /* 判断 下一条分析ID 是否为空
+        不为空 则继续进行分析*/
+        if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
+            String ProblemScanLogic_returnstring = switchInteraction.selectProblemScanLogicById(switchParameters,totalQuestionTable,
+                    return_information_array,current_Round_Extraction_String,extractInformation_string,
+                    line_n,firstID,problemScanLogicList,
+                    problemScanLogic.getfNextId(), // problemScanLogic.getfNextId(); 下一条frue分析ID
+                    insertsInteger, loop, numberOfCycles);
+            //如果返回信息为null
+            if (ProblemScanLogic_returnstring!=null){
+                //内分析传到上一层
+                //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
+                extractInformation_string = ProblemScanLogic_returnstring;
+                return ProblemScanLogic_returnstring;
+            }
+            return ProblemScanLogic_returnstring;
+        }
+        return null;
     }
 }

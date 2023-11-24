@@ -95,4 +95,15 @@ public class FormworkServiceImpl implements IFormworkService
     {
         return formworkMapper.deleteFormworkById(id);
     }
+
+    /**
+     * @Description 根据问题ID  like模糊查询模板索引 查询模板数据
+     * @desc
+     * @param id
+     * @return
+     */
+    @Override
+    public List<String> selectFormworkByLikeFormworkIndex(String id) {
+        return formworkMapper.selectFormworkByLikeFormworkIndex(id);
+    }
 }

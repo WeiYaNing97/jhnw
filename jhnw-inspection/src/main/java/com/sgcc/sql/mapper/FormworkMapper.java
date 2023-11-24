@@ -60,4 +60,11 @@ public interface FormworkMapper
      */
     public int deleteFormworkByIds(Long[] ids);
 
+    /**
+     * @Description 根据问题ID  like模糊查询模板索引 查询模板数据
+     * @desc
+     * @param id
+     * @return
+     */
+    List<String> selectFormworkByLikeFormworkIndex(String id);
 }

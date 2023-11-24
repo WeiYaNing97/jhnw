@@ -38,7 +38,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </select>
-        
+
+    <select id="selectFormworkByLikeFormworkIndex"  resultType="string">
+        select formwork_name from formwork
+        where FIND_IN_SET( #{formworkIndex} , formwork_index) > 0
+    </select>
+
     <insert id="insertFormwork" parameterType="Formwork" useGeneratedKeys="true" keyProperty="id">
         insert into formwork
         <trim prefix="(" suffix=")" suffixOverrides=",">

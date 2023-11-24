@@ -15,6 +15,7 @@ import com.sgcc.share.domain.Information;
 import com.sgcc.share.service.IInformationService;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.*;
+import com.sgcc.sql.service.IFormworkService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.system.service.ISysUserService;
@@ -26,9 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 问题及命令Controller
@@ -40,6 +40,8 @@ import java.util.List;
 @Api("交换机问题管理")
 public class TotalQuestionTableController extends BaseController
 {
+    @Autowired
+    private IFormworkService formworkService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
     @Autowired
@@ -577,6 +579,11 @@ public class TotalQuestionTableController extends BaseController
     @DeleteMapping("/deleteTotalQuestionTable")
     public AjaxResult deleteTotalQuestionTable(@RequestBody Long id)
     {
+        List<String> formworks = formworkService.selectFormworkByLikeFormworkIndex(id+"");
+        if (formworks.size() != 0){
+            return AjaxResult.error("删除失败,该问题加入模板",formworks);
+        }
+
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
         if (totalQuestionTable.getProblemSolvingId() != null){
             CommandLogicController commandLogicController = new CommandLogicController();

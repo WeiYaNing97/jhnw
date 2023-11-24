@@ -168,12 +168,68 @@ public class ConnectToObtainInformation {
 
 
     /**
+     * 配置密码  enable 方法
+     * @param
+     * @return
+     */
+    public String enable(SwitchParameters switchParameters) {
+        /*交换机返回结果*/
+        String returnString = null;
+        /* 执行 回车命令 获取交换机及返回结果*/
+        if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+            returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
+        }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+            returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
+        }
+        if (returnString==null){
+            return "交换机连接失败";
+        }
+        String trim = returnString.trim();
+        /*判断 交换机返回结果给标识符 是否 以> 结尾*/
+        /*思科交换机返回信息是 #  不需要发送 enable*/
+        if (trim.endsWith(">")){
+            /*发送 enable 命令 查看返回结果 */
+            if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"enable",null);
+            }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
+            }
+            /*判断交换机返回结果是否为空*/
+            if (returnString == null){
+                return "交换机连接失败";
+            }else {
+                String substring = returnString.substring(returnString.length() - 1, returnString.length());
+                if (returnString.indexOf("command")!=-1 && returnString.indexOf("%")!=-1 ){
+                    return "交换机连接成功";
+                }else if (substring.equalsIgnoreCase("#")){
+                    return "交换机连接成功";
+                }else if (returnString.indexOf(":")!=-1){
+                    /* 输入 配置密码*/
+                    if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                        SshMethod connectMethod = switchParameters.getConnectMethod();
+                        SshConnect sshConnect = switchParameters.getSshConnect();
+                        returnString = connectMethod.sendCommand(switchParameters.getIp(),sshConnect,switchParameters.getConfigureCiphers(),null);
+                    }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                        returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
+                    }
+                    return "交换机连接成功";
+                }
+            }
+            /*思科交换机返回信息是 #  不需要发送 enable*/
+        }else if (trim.substring(trim.length()-1,trim.length()).equals("#")){
+            return "交换机连接成功";
+        }
+        return "交换机连接失败";
+    }
+
+
+    /**
     * @Description 配置密码enable方法
     * @desc  有些交换机需要 通过配置密码登录
     * @param switchParameters
      * @return
     */
-    public String enable(SwitchParameters switchParameters) {
+    public String enable1(SwitchParameters switchParameters) {
         /*交换机返回结果*/
         String returnString = null;
         /* 执行 回车命令 获取交换机及返回结果*/
