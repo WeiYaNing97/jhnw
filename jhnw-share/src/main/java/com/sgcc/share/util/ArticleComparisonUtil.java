@@ -13,67 +13,19 @@ public class ArticleComparisonUtil {
 
     public static void main(String[] args) {
 
-        String theOriginal = "[1364] 24 Nov 09:22:29.306 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 09:29:49.475 * 1 changes in 900 seconds. Saving...\n" +
-                "[1364] 27 Nov 09:29:49.655 * Background saving started by pid 29832\n" +
-                "[1364] 27 Nov 09:29:55.32 # fork operation complete\n" +
-                "[1364] 27 Nov 09:29:55.312 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 09:34:56.104 * Background saving started by pid 26492\n" +
-                "[1364] 27 Nov 09:34:56.323 # fork operation complete\n" +
-                "[1364] 27 Nov 09:34:56.324 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 10:37:37.765 * 1 changes in 900 seconds. Saving...\n" +
-                "[1364] 27 Nov 10:37:37.809 * Background saving started by pid 33420\n" +
-                "[1364] 27 Nov 10:37:38.254 # fork operation complete\n" +
-                "[1364] 27 Nov 10:37:38.254 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 10:42:39.069 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 10:42:39.074 * Background saving started by pid 33032\n" +
-                "[1364] 27 Nov 10:42:39.178 # fork operation complete\n" +
-                "[1364] 27 Nov 10:42:39.185 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 10:47:40.088 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 10:47:40.095 * Background saving started by pid 29992\n" +
-                "[1364] 27 Nov 10:47:40.745 # fork operation complete\n" +
-                "[1364] 27 Nov 10:47:40.746 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 12:46:02.101 * 1 changes in 900 seconds. Saving...\n" +
-                "[1364] 27 Nov 12:46:02.134 * Background saving started by pid 35836\n" +
-                "[1364] 27 Nov 12:46:02.461 # fork operation complete\n" +
-                "[1364] 27 Nov 12:46:02.461 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 12:51:03.092 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 12:51:03.098 * Background saving started by pid 33128\n" +
-                "[1364] 27 Nov 12:51:03.312 # fork operation complete\n" +
-                "[1364] 27 Nov 12:51:03.313 * Background saving terminated with success";
-        String newarticle = "[1364] 24 Nov 09:22:29.306 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 09:29:49.475 * 1 changes in 900 seconds. Saving...\n" +
-                "[1364] 27 Nov 09:29:49.655 * Background saving started by pid 29832\n" +
-                "[1364] 27 Nov 09:29:55.312 # fork operation complete\n" +
-                "[1364] 27 Nov 09:29:55.312 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 09:34:56.104 * Background saving started by pid 26492\n" +
-                "[1364] 27 Nov 09:34:56.323 # fork operation complete\n" +
-                "[1364] 27 Nov 09:34:56.324 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 10:37:37.765 * 1 changes in 900 seconds. Saving...\n" +
-                "[1364] 27 Nov 10:37:37.809 * Background saving started by pid 33420\n" +
-                "[1364] 27 Nov 10:37:38.254 # fork operation complete\n" +
-                "[1364] 27 Nov 10:37:38.24 # fork operation complete\n" +
-                "[1364] 27 Nov 10:37:38.254 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 10:42:39.069 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 10:42:39.074 * Background saving started by pid 33032\n" +
-                "[1364] 27 Nov 10:42:39.178 # fork operation complete\n" +
-                "[1364] 27 Nov 10:42:39.185 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 10:47:40.088 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 10:47:40.095 * Background saving started by pid 29992\n" +
-                "[1364] 27 Nov 10:47:40.745 # fork operation complete\n" +
-                "[1364] 27 Nov 10:47:40.746 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 12:46:02.101 * 1 changes in 900 seconds. Saving...\n" +
-                "[1364] 27 Nov 12:46:02.134 * Background saving started by pid 35836\n" +
-                "[1364] 27 Nov 12:46:02.461 # fork operation complete\n" +
-                "[1364] 27 Nov 12:46:02.461 * Background saving terminated with success\n" +
-                "[1364] 27 Nov 12:51:03.092 * 10 changes in 300 seconds. Saving...\n" +
-                "[1364] 27 Nov 12:51:03.098 * Background saving started by pid 33128\n" +
-                "[1364] 27 Nov 12:51:03.312 # fork operation complete\n" +
-                "[1364] 27 Nov 12:51:03.313 * Background saving terminated with success\n"+
-                "[1364] 27 Nov 12:51:03.313 * Background saving terminated with success";
+        String theOriginal = "[1364] 24 Nov 09:22:29.306 * Background saving terminated with success\r\n" +
+                "[1364] 27 Nov 09:29:49.475 * 1 changes in 900 seconds. Saving...\r\n" +
+                "[1364] 27 Nov 09:29:49.655 * Background saving started by pid 29832\r\n" +
+                "[1364] 27 Nov 09:29:55.312 # fork operation complete\r\n" +
+                "[1364] 27 Nov 09:29:55.312 * Background saving terminated with success\r\n" +
+                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...";
+        String newarticle = "[1364] 24 Nov 09:22:29.306 * Background saving terminated with success\r\n" +
+                "[1364] 27 Nov 09:29:49.475 * 1 changes in 900 seconds. Saving...\r\n" +
+                "[1364] 27 Nov 09:29:49.655 * Background saving started by pid 29832\r\n" +
+                "[1364] 27 Nov 09:29:55.312 # fork operation complete\r\n" +
+                "[1364] 27 Nov 09:29:55.312 * Background saving terminated with success\r\n" +
+                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...\r\n"+
+                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...";
 
         HashMap<String, List<Integer>> stringListHashMap = GetProblemLines(theOriginal, newarticle);
 
