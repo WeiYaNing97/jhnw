@@ -17,27 +17,6 @@ import java.util.stream.Collectors;
  * @create: 2023-10-18 10:04
  **/
 public class MyTest {
-
     public static void main(String[] args) {
-        int[] array = new int[5];
-        array[1] = 1;
-        array[2] = 2;
-        array[3] = 3;
-        array[4] = 4;
-        array[0] = 1;
-
-        int i = removeElement(array, 1);
-
     }
-    public static int removeElement(int[] nums, int val) {
-        int newLength = 0;
-        for (int i = 0; i < nums.length; i++) {
-            if (nums[i] != val) {
-                nums[newLength] = nums[i];
-                newLength++;
-            }
-        }
-        return newLength;
-    }
-
 }

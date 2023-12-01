@@ -234,6 +234,17 @@ public class MyUtils {
     }
 
     /**
+    * @Description 多个连续的相同字符串，改为单个字符串
+    * @desc
+    * @param input	 原始字符串      例如："这是  一个  包含EEEEEE多个           连续空格  的字符串";
+     * @param string 连续的相同字符串例如：“EEE”；
+     * @return  修改后的字符串       例如：“这是  一个  包含EEE多个           连续空格  的字符串”；
+    */
+    public static String replaceMultipleStringsWithSingleString(String input,String string) {
+        return input.replaceAll(string+"+", string);
+    }
+
+    /**
      * 时间由大到小排序
      * @param dateList
      * @return
@@ -313,8 +324,6 @@ public class MyUtils {
         }
     }
 
-
-    /*String*/
     /**
      * 去除字符串尾部非字符串部分
      * @param str
@@ -330,6 +339,7 @@ public class MyUtils {
         }
         return str.substring(0, index + 1);
     }
+
     /**
      * 根据字符串 根据字符串（忽略大小写）分割为字符串数组
      *
@@ -352,6 +362,7 @@ public class MyUtils {
     public static double stringToDouble(String str) throws NumberFormatException {
         return Double.parseDouble(str);
     }
+
     /**
      * 字符串截取double值
      * @param input
@@ -381,6 +392,7 @@ public class MyUtils {
         }
         return str;
     }
+
     /**
      * 判断 double值 是否在阈值内
      * @param value
@@ -392,7 +404,6 @@ public class MyUtils {
         return value >= min && value <= max;
     }
 
-    /*判空*/
     /**
      * 判断集合是否为空， 为空返回true
      * 集合判空
@@ -402,6 +413,7 @@ public class MyUtils {
     public static boolean isCollectionEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty() || collection.size() == 0;
     }
+
     /**
      * 判断Map集合是否为空， 为空返回true
      * @param map
@@ -462,15 +474,12 @@ public class MyUtils {
      */
     public static String[] RemoveLastElement(String[] array) {
         // 原始数组 array;
-
         // 创建一个新数组，长度为原数组长度减1
         String[] newArray = new String[array.length - 1];
-
         // 将原数组中除最后一个元素外的所有元素复制到新数组中
         for (int i = 0; i < newArray.length; i++) {
             newArray[i] = array[i];
         }
-
         return newArray;
     }
 
