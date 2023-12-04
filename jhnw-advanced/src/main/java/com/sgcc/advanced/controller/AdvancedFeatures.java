@@ -89,26 +89,40 @@ public class AdvancedFeatures {
 
 
     /**
-    * @Description   todo 未完成  定时任务
+    * @Description   todo 未完成  定时任务 功能基本昨晚，参数有问题
     * @author charles
     * @createTime 2023/11/8 13:46
     * @desc
     * @param
      * @return
     */
-    public String advancedScheduledTasks() {
+    public String advancedScheduledTasks(String nameList) {
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         System.err.println("advancedScheduledTasks = " + simpleDateFormat);
+
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         List<String> functionName =new ArrayList<>();
-        functionName.add("OSPF");
+        String[] namesplit = nameList.split(";");
+        for (String name:namesplit){
+            functionName.add( name );
+        }
+
         LoginUser loginUser = new LoginUser();
         SysUser user = new SysUser();
         user.setUserName("admin");
         loginUser.setUser(user);
-        List<SwitchLoginInformation> switchLoginInformations = readExcel();
-        if (!MyUtils.isCollectionEmpty(switchLoginInformations)){
+
+        //List<SwitchLoginInformation> switchLoginInformations = readExcel();
+        List<SwitchLoginInformation> switchLoginInformations = new ArrayList<>();
+        SwitchLoginInformation pojo = new SwitchLoginInformation();
+        pojo.setIp("192.168.1.100");
+        pojo.setName("admin");
+        pojo.setPassword("admin");
+        pojo.setMode("ssh");
+        pojo.setPort("22");
+        switchLoginInformations.add(pojo);
+        if (MyUtils.isCollectionEmpty(switchLoginInformations)){
             return "扫描结束";
         }
         /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
@@ -127,10 +141,16 @@ public class AdvancedFeatures {
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(loginUser);
         parameterSet.setThreadCount(Integer.valueOf(5+"").intValue());
+
         try {
             /*高级功能线程池*/
             AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
             boolean isRSA = false;
+
+            System.out.println(parameterSet);
+            System.out.println(functionName);
+            System.out.println(isRSA);
+
             advancedThreadPool.switchLoginInformations(parameterSet, functionName,isRSA);
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -158,7 +178,7 @@ public class AdvancedFeatures {
     }
 
     /**
-    * @Description  获取定时任务 交换机登录信息 集合
+    * @Description  获取定时任务 获取交换机登录信息 集合
     * @author charles
     * @createTime 2023/11/8 13:47
     * @desc
@@ -171,6 +191,7 @@ public class AdvancedFeatures {
         if (url == null){
             return new ArrayList<>();
         }
+        /*读取表格内容*/
         ExcelReader reader = ExcelUtil.getReader(url);
         List<Map<String,Object>>  readAllMap = new ArrayList<>();
         try {
@@ -181,6 +202,7 @@ public class AdvancedFeatures {
         } finally {
             reader.close();
         }
+
         List<SwitchLoginInformation> switchLoginInformations = new ArrayList<>();
         for (Map<String,Object> readMap:readAllMap){
             Set<Map.Entry<String, Object>> entries = readMap.entrySet();
@@ -209,6 +231,7 @@ public class AdvancedFeatures {
             }
             switchLoginInformations.add(switchLoginInformation);
         }
+
         return switchLoginInformations;
     }
 }

@@ -11,8 +11,13 @@ import java.util.stream.Collectors;
  **/
 public class ArticleComparisonUtil {
 
+    /**
+    * @Description 后端测试方法
+    * @desc
+    * @param args
+     * @return
+    */
     public static void main(String[] args) {
-
         String theOriginal = "[1364] 24 Nov 09:22:29.306 * Background saving terminated with success\r\n" +
                 "[1364] 27 Nov 09:29:49.475 * 1 changes in 900 seconds. Saving...\r\n" +
                 "[1364] 27 Nov 09:29:49.655 * Background saving started by pid 29832\r\n" +
@@ -26,38 +31,29 @@ public class ArticleComparisonUtil {
                 "[1364] 27 Nov 09:29:55.312 * Background saving terminated with success\r\n" +
                 "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...\r\n"+
                 "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...";
-
         HashMap<String, List<Integer>> stringListHashMap = GetProblemLines(theOriginal, newarticle);
-
         List<Integer> newarticleRowlist = stringListHashMap.get("newarticle");
         List<Integer> theOriginalRowlist = stringListHashMap.get("theOriginal");
 
-        System.err.println("========================================================");
-        System.err.println("=====================newarticle========================");
-        System.err.println("========================================================");
         String[] newarticlesplit = newarticle.split("\r\n");
         for (int i = 0 ; i< newarticlesplit.length ; i++ ){
             if (newarticleRowlist.contains(i)){
-                System.err.println(i +"               "+newarticlesplit[i]);
+                System.err.println(i +"newarticle"+newarticlesplit[i]);
             }else {
-                System.out.println(i +"               "+newarticlesplit[i]);
+                System.out.println(i +"newarticle"+newarticlesplit[i]);
             }
         }
-        System.err.println();
-        System.err.println();
-        System.err.println();
-        System.err.println("========================================================");
-        System.err.println("=====================theOriginal========================");
-        System.err.println("========================================================");
+
         String[] theOriginalsplit = theOriginal.split("\r\n");
         for (int i = 0 ; i< theOriginalsplit.length ; i++ ){
             if (theOriginalRowlist.contains(i)){
-                System.err.println(i +"               "+theOriginalsplit[i]);
+                System.err.println(i +"theOriginal"+theOriginalsplit[i]);
             }else {
-                System.out.println(i +"               "+theOriginalsplit[i]);
+                System.out.println(i +"theOriginal"+theOriginalsplit[i]);
             }
         }
     }
+
 
     /**
     * @Description 获取两文的问题行
@@ -75,6 +71,7 @@ public class ArticleComparisonUtil {
         List<String> theOriginalList = listHashMap.get("只存在theOriginalMap中的key");
         List<String> newarticleList = listHashMap.get("只存在newarticleMap中的key");
         List<String> ExistingAndDifferent = listHashMap.get("都存在且不相同key");
+
         //获取两文出现问题的数据
         theOriginalList.addAll(ExistingAndDifferent);
         newarticleList.addAll(ExistingAndDifferent);

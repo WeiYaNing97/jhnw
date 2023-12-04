@@ -18,5 +18,12 @@ import java.util.stream.Collectors;
  **/
 public class MyTest {
     public static void main(String[] args) {
+        advancedScheduledTasks("123","234","345");
+    }
+
+    public static void advancedScheduledTasks(String... functionNameList) {
+        for (String name:functionNameList){
+            System.out.println(name);
+        }
     }
 }
