@@ -50,6 +50,7 @@ public class LuminousAttenuation {
         lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
         lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
         List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandListBySQL(lightAttenuationCommand);
+
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
             try {
@@ -71,14 +72,12 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
         }
-        /**
-         * 从lightAttenuationCommandList中 获取四项基本最详细的数据
-         */
+
+        //从lightAttenuationCommandList中 获取四项基本最详细的数据
         lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand(lightAttenuationCommandList);
         String command = lightAttenuationCommand.getGetPortCommand();
-        /**
-         * 3：配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
-         */
+
+        //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
         /*returnString = "Interface Status Vlan Duplex Speed Type\n" +
@@ -192,7 +191,7 @@ public class LuminousAttenuation {
                 "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
         returnString = MyUtils.trimString(returnString);*/
-        /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
+        // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
         if (returnString == null){
             try {
                 String subversionNumber = switchParameters.getSubversionNumber();
@@ -212,13 +211,12 @@ public class LuminousAttenuation {
                 e.printStackTrace();
             }
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
-
         }
-        /**
-         * 5：如果交换机返回信息不为 null说明命令执行正常,
-         * 则继续 根据交换机返回信息获取获取 up状态 光衰端口号 铜缆除外，铜缆关键词为 COPPER
-         */
+
+        //5：如果交换机返回信息不为 null说明命令执行正常,
+        //则继续 根据交换机返回信息获取获取 up状态 光衰端口号 铜缆除外，铜缆关键词为 COPPER
         List<String> port = ObtainUPStatusPortNumber(returnString);
+
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
             // todo 关于没有端口号为UP状态 的错误代码库
@@ -241,6 +239,7 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能无UP状态端口号\r\n");
         }
+
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = lightAttenuationCommand.getConversion();
@@ -262,11 +261,9 @@ public class LuminousAttenuation {
             }
         }
 
-        /**
-         * 8：根据 up状态端口号 及交换机信息
-         * 获取光衰参数命令 ：  lightAttenuationCommand.getGetParameterCommand()
-         * switchParameters ： 交换机信息类
-         */
+        //8：根据 up状态端口号 及交换机信息
+        //获取光衰参数命令 ：  lightAttenuationCommand.getGetParameterCommand()
+        //switchParameters ： 交换机信息类
         HashMap<String, String> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
         /*9：获取光衰参数为空*/
         if (MyUtils.isMapEmpty(getparameter)){
@@ -289,6 +286,7 @@ public class LuminousAttenuation {
             }
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
         }
+
         /*10:获取光衰参数不为空*/
         try {
             for (String portstr:port){
@@ -312,9 +310,7 @@ public class LuminousAttenuation {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
-                HashMap<String,String> hashMap = new HashMap<>();
-                hashMap.put("ProblemName","光衰");
+
                 LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
                 lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
                 /*获取交换机四项基本信息ID*/
@@ -333,6 +329,9 @@ public class LuminousAttenuation {
                 }else {
                     continue;
                 }
+
+                HashMap<String,String> hashMap = new HashMap<>();
+                hashMap.put("ProblemName","光衰");
                 /* 如果 lightAttenuationComparisons 为空 则光衰记录表中没有相关信息
                 则默认无问题*/
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
@@ -347,6 +346,8 @@ public class LuminousAttenuation {
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(portstr+"TX")+
                         "  RX:"+getparameter.get(portstr+"RX"));
+
+                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
@@ -354,6 +355,8 @@ public class LuminousAttenuation {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
         return AjaxResult.success();
     }
 
@@ -415,6 +418,7 @@ public class LuminousAttenuation {
     public List<String> ObtainUPStatusPortNumber(String returnString) {
         /* 按行分割 交换机返回信息行信息 字符串数组*/
         String[] returnStringSplit = returnString.split("\r\n");
+
         /*遍历 交换机行信息字符串数组
          *  判断 交换机返回行信息是否包含 UP（状态）  且 不能为铜缆 "COPPER"
          *  是 则存放入端口待取集合*/
@@ -425,6 +429,7 @@ public class LuminousAttenuation {
                 strings.add(string.trim());
             }
         }
+
         /*遍历端口待取集合 执行取值方法 获取端口号*/
         List<String> port = new ArrayList<>();
         for (String information:strings){
@@ -436,6 +441,7 @@ public class LuminousAttenuation {
                 port.add(terminalSlogan);
             }
         }
+
         return port;
     }
 

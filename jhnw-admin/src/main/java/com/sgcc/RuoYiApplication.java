@@ -25,7 +25,6 @@ public class RuoYiApplication
             Constant character = new Constant();
             character.ObtainAllConfigurationFileParameters();
 
-            OspfEnum.assignment();
             MemoryCPU memoryCPU = new MemoryCPU();
             memoryCPU.initSystemInfo();
         } catch (Exception e) {

@@ -13,12 +13,12 @@ import java.util.concurrent.Executors;
 public class AdvancedThreadPool {
 
     // 用来存储线程名称的map
-    public Map threadNameMap = new HashMap();
+    public static Map threadNameMap = new HashMap();
     /**
      * 高级功能线程池
      *
      */
-    public void switchLoginInformations(ParameterSet parameterSet, List<String> functionName,boolean isRSA) throws InterruptedException {
+    public static void switchLoginInformations(ParameterSet parameterSet, List<String> functionName,boolean isRSA) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
@@ -32,18 +32,18 @@ public class AdvancedThreadPool {
             threadNameMap.put(threadName, threadName);
             fixedThreadPool.execute(new AdvancedThread(threadName,switchParameters,functionName,countDownLatch,fixedThreadPool,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
+
         countDownLatch.await();
         fixedThreadPool.shutdown();
     }
 
-    public void removeThread(String threadname) {
+    public static void removeThread(String threadname) {
         threadNameMap.remove(threadname);
         System.out.println("删除线程Thread" + threadname + ", Hash表的Size：" + threadNameMap.size());
     }
     /*线程命名*/
-    public String getThreadName(int i) {
-        Random random = new Random();
-        String name = System.currentTimeMillis() + random.nextInt(100) +" ";
+    public static String getThreadName(int i) {
+        String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
 }

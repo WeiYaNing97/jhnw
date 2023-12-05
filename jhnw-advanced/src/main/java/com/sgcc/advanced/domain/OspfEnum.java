@@ -1,91 +1,77 @@
 package com.sgcc.advanced.domain;
 
-import com.sgcc.share.domain.Constant;
-import com.sgcc.share.util.CustomConfigurationUtil;
-
-import java.util.Map;
+import java.util.List;
 
 public class OspfEnum {
 
     /** 邻居ID */
-    public static String[] neighborID;
+    public List<String> neighborID;
     /** 脉波重复间隔 */
-    public static String[] pri ;
+    public List<String> pri ;
     /** 状态 */
-    public static String[] state ;
+    public List<String> state ;
     /** 停滞时间 */
-    public static String[] deadTime ;
+    public List<String> deadTime ;
     /** 住址 */
-    public static String[] address ;
+    public List<String> address ;
     /** 端口号 */
-    public static String[] portNumber ;
+    public List<String> portNumber ;
     /** BFD状态 */
-    public static String[] BFDState ;
+    public List<String> BFDState ;
 
-
-    public static void assignment() {
-        Object escape = CustomConfigurationUtil.getValue("OSPF", Constant.getProfileInformation());
-        Map<String,Object> escapeMap = (Map<String,Object>) escape;
-
-        /** 邻居ID */
-        neighborID = ((String) escapeMap.get("neighborID")).split(";");
-        /** 脉波重复间隔 */
-        pri = ((String) escapeMap.get("pri")).split(";");
-        /** 状态 */
-        state = ((String) escapeMap.get("state")).split(";");
-        /** 停滞时间 */
-        deadTime = ((String) escapeMap.get("deadTime")).split(";");
-        /** 住址 */
-        address = ((String) escapeMap.get("address")).split(";");
-        /** 端口号 */
-        portNumber = ((String) escapeMap.get("portNumber")).split(";");
-        /** BFD状态 */
-        BFDState = ((String) escapeMap.get("BFDState")).split(";");
-
+    public List<String> getNeighborID() {
+        return neighborID;
     }
 
-    /**
-     * 字符串 匹配配置文件中配置的 标题名称
-     * @param str
-     * @return
-     */
-    public static String enumeratorValues(String str) {
-        for (String neighborID:neighborID){
-            if (str.equalsIgnoreCase(neighborID)){
-                return "neighborID";
-            }
-        }
-        for (String pri:pri){
-            if (str.equalsIgnoreCase(pri)){
-                return "pri";
-            }
-        }
-        for (String state:state){
-            if (str.equalsIgnoreCase(state)){
-                return "state";
-            }
-        }
-        for (String deadTime:deadTime){
-            if (str.equalsIgnoreCase(deadTime)){
-                return "deadTime";
-            }
-        }
-        for (String address:address){
-            if (str.equalsIgnoreCase(address)){
-                return "address";
-            }
-        }
-        for (String portNumber:portNumber){
-            if (str.equalsIgnoreCase(portNumber)){
-                return "portNumber";
-            }
-        }
-        for (String BFDState:BFDState){
-            if (str.equalsIgnoreCase(BFDState)){
-                return "BFDState";
-            }
-        }
-        return null;
+    public void setNeighborID(List<String> neighborID) {
+        this.neighborID = neighborID;
     }
 
+    public List<String> getPri() {
+        return pri;
+    }
+
+    public void setPri(List<String> pri) {
+        this.pri = pri;
+    }
+
+    public List<String> getState() {
+        return state;
+    }
+
+    public void setState(List<String> state) {
+        this.state = state;
+    }
+
+    public List<String> getDeadTime() {
+        return deadTime;
+    }
+
+    public void setDeadTime(List<String> deadTime) {
+        this.deadTime = deadTime;
+    }
+
+    public List<String> getAddress() {
+        return address;
+    }
+
+    public void setAddress(List<String> address) {
+        this.address = address;
+    }
+
+    public List<String> getPortNumber() {
+        return portNumber;
+    }
+
+    public void setPortNumber(List<String> portNumber) {
+        this.portNumber = portNumber;
+    }
+
+    public List<String> getBFDState() {
+        return BFDState;
+    }
+
+    public void setBFDState(List<String> BFDState) {
+        this.BFDState = BFDState;
+    }
 }

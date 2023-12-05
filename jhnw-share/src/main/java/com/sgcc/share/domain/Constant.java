@@ -1,6 +1,8 @@
 package com.sgcc.share.domain;
 
 import org.yaml.snakeyaml.Yaml;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -13,6 +15,14 @@ public class Constant {
         InputStream inputStream = this.getClass().getResourceAsStream(path3);
         Yaml yaml = new Yaml();
         ProfileInformation = yaml.load(inputStream);
+
+        /*关闭IO流*/
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return;
     }
 
