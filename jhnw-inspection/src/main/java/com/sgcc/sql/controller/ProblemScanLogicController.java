@@ -30,8 +30,6 @@ public class ProblemScanLogicController extends BaseController {
     @Autowired
     private IProblemScanLogicService problemScanLogicService;
     @Autowired
-    private ICommandLogicService commandLogicService;
-    @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
     /**
      * 查询问题扫描逻辑列表
@@ -102,10 +100,6 @@ public class ProblemScanLogicController extends BaseController {
     }
 
 
-    /*=====================================================================================================================
-    =====================================================================================================================
-    =====================================================================================================================*/
-
     /**
      *  todo 定义修复问题命令时 获取定义的参数名的方法  由getParameterNameCollectionNo方法优化得到
      * @method: getParameterNameCollection    命令ID 没有带ID之前的 方法
@@ -115,25 +109,27 @@ public class ProblemScanLogicController extends BaseController {
     @ApiOperation("获取定义的参数名")
     @GetMapping("/getParameterNameCollection/{totalQuestionTableId}")
     public List<String> getParameterNameCollection(@PathVariable Long totalQuestionTableId){
-        //系统登陆人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
         //根据问题ID 获取问题表数据
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
         /*根据 交换机问题实体类 获得命令集合和分析实体类集合*/
         DefinitionProblemController definitionProblemController = new DefinitionProblemController();
-        HashMap<String, Object> scanLogicalEntityClass = definitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
+        HashMap<String, Object> scanLogicalEntityClass = definitionProblemController.getScanLogicalEntityClass(totalQuestionTable, SecurityUtils.getLoginUser());
         if (scanLogicalEntityClass.size() == 0){
             return new ArrayList<>();
         }
+
         /* 获取分析实体类集合*/
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+
         List<String> wordNameList = new ArrayList<>();
         for (ProblemScanLogic pojo:problemScanLogics){
             if (pojo.getWordName() != null){
                 wordNameList.add(pojo.getWordName());
             }
         }
+
         return wordNameList;
     }
 }

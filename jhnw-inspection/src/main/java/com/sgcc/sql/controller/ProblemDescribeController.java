@@ -33,6 +33,7 @@ public class ProblemDescribeController extends BaseController
     private IProblemDescribeService problemDescribeService;
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
+
     /*可新增 可修改*/
     /**
      * 新增问题描述
@@ -45,10 +46,12 @@ public class ProblemDescribeController extends BaseController
     {
         //根据问题ID 查询问题表问题信息
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
         //创建新的 问题描述表实体类
         ProblemDescribe pojo = new ProblemDescribe();
         //问题描述放入实体类
         pojo.setProblemDescribe(problemDescribe);
+
         //如果问题表 问题描述ID 不为0时 说明有问题描述，修改，只修改问题描述表描述字段
         if (!(totalQuestionTable.getProblemDescribeId().equals(0L))){
             pojo.setId(totalQuestionTable.getProblemDescribeId());
@@ -68,18 +71,17 @@ public class ProblemDescribeController extends BaseController
                 }
             }
         }
+
         return AjaxResult.error("失败！");
     }
 
 
     /**
-     *
      * 删除问题描述
      */
     @ApiOperation("删除问题详细说明和指导索引")
     @DeleteMapping("/deleteProblemDescribe")
-    public AjaxResult deleteProblemDescribe(Long id)
-    {
+    public AjaxResult deleteProblemDescribe(Long id) {
         int deleteProblemDescribeById = problemDescribeService.deleteProblemDescribeById(id);
         if (deleteProblemDescribeById>0){
             //根据 问题描述表ID  查询 问题表实体类
@@ -97,8 +99,7 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("获取问题详细说明和指导索引")
     @GetMapping(value = "selectProblemDescribe")
-    public ProblemDescribe selectProblemDescribe(@RequestParam Long id)
-    {
+    public ProblemDescribe selectProblemDescribe(@RequestParam Long id) {
         ProblemDescribe problemDescribe = problemDescribeService.selectProblemDescribeById(id);
         if (problemDescribe == null){
             return null;

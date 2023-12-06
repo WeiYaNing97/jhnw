@@ -58,6 +58,7 @@ public class ImportExportController {
         totalQuestionTableIds[0] = totalQuestionTableId;
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+        //List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
         List<String> fileName = new ArrayList<>();
         /*问题表*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -78,10 +79,10 @@ public class ImportExportController {
         DefinitionProblemController definitionProblemController = new DefinitionProblemController();
         for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
             HashMap<String, Object> scanLogicalEntityClass = definitionProblemController.getScanLogicalEntityClass(totalQuestionTable, loginUser);
-            if (scanLogicalEntityClass != null){
+            if (scanLogicalEntityClass.size() != 0){
                 /*命令数据*/
                 List<CommandLogic> commandLogics = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-                if (commandLogics != null){
+                if (commandLogics.size() != 0){
                     for (CommandLogic pojo:commandLogics){
                         commandLogicList.add(pojo);
                     }
@@ -89,7 +90,7 @@ public class ImportExportController {
             }
             /*分析数据*/
             List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-            if (problemScanLogics != null){
+            if (problemScanLogics.size() != 0){
                 for (ProblemScanLogic pojo:problemScanLogics){
                     problemScanLogicList.add(pojo);
                 }
@@ -130,8 +131,9 @@ public class ImportExportController {
     @PostMapping("/importData")
     @ResponseBody
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
+
         /* 读入TXT文件
-        * 将读取到的信息 按行放入list集合中*/
+         * 将读取到的信息 按行放入list集合中*/
         InputStream inputStream = file.getInputStream();
         InputStreamReader reader = new InputStreamReader(inputStream); // 建立一个输入流对象reader
         BufferedReader br = new BufferedReader(reader); // 建立一个对象，它把文件内容转成计算机能读懂的语言
@@ -167,18 +169,18 @@ public class ImportExportController {
             }
         }
         /*遍历三张表的集合
-        * 将 Json字符串 转变换为 对应的实体类*/
+         * 将 Json字符串 转变换为 对应的实体类*/
         List<CommandLogic> commandLogics = new ArrayList<>();
         for (int i = 1 ; i <commandLogicList.size();i++){
-            commandLogics.add( JSON.parseObject( commandLogicList.get(i), CommandLogic.class) );
+            commandLogics.add( JSON.parseObject( commandLogicList.get(i).replace("\'null\'","null"), CommandLogic.class) );
         }
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
         for (int i = 1 ; i <problemScanLogicList.size();i++){
-            problemScanLogics.add( JSON.parseObject( problemScanLogicList.get(i), ProblemScanLogic.class) );
+            problemScanLogics.add( JSON.parseObject( problemScanLogicList.get(i).replace("\'null\'","null"), ProblemScanLogic.class) );
         }
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
         for (int i = 1 ; i <totalQuestionTableList.size();i++){
-            totalQuestionTables.add( JSON.parseObject( totalQuestionTableList.get(i), TotalQuestionTable.class) );
+            totalQuestionTables.add( JSON.parseObject( totalQuestionTableList.get(i).replace("\'null\'","null"), TotalQuestionTable.class) );
         }
         /*将实体类对象插入数据库*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -204,5 +206,4 @@ public class ImportExportController {
         }
         return AjaxResult.success();
     }
-
 }

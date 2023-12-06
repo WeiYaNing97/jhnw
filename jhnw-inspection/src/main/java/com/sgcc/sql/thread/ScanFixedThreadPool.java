@@ -4,9 +4,11 @@ import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -32,17 +34,20 @@ public class ScanFixedThreadPool {
             String threadName = getThreadName(i);
             switchParameters.setThreadName(threadName);
             i++;
+            /*加入map*/
             threadNameMap.put(threadName, threadName);
             fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
+
         }
         countDownLatch.await();
+        /*关闭线程池*/
         fixedThreadPool.shutdown();
     }
 
 
     public static void removeThread(String i) {
         threadNameMap.remove(i);
-        System.out.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
+        System.err.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
     }
 
 
@@ -50,6 +55,4 @@ public class ScanFixedThreadPool {
         String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
-
-
 }

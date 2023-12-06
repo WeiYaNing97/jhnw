@@ -75,6 +75,7 @@ public class TotalQuestionTableController extends BaseController
         totalQuestionTable.setType(type);
         totalQuestionTable.setFirewareVersion(firewareVersion);
         totalQuestionTable.setSubVersion(subversionNumber);
+
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         List<String> longList = new ArrayList<>();
         if (totalQuestionTables.size() != 0){
@@ -82,6 +83,7 @@ public class TotalQuestionTableController extends BaseController
                 longList.add(pojo.getLogicalID());
             }
         }
+
         return longList;
     }
 
@@ -96,6 +98,7 @@ public class TotalQuestionTableController extends BaseController
         Information information = new Information();
         information.setDeviceBrand(totalQuestionTable.getBrand());
         information.setDeviceModel(totalQuestionTable.getType());
+
         List<Information> informationlist = informationService.selectInformationList(information);
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (informationlist.size()!=0){
@@ -177,8 +180,7 @@ public class TotalQuestionTableController extends BaseController
     @GetMapping("/judgeSuperAdministrator")
     @ApiOperation("判断是否为超级管理员")
     public boolean judgeSuperAdministrator() {
-        LoginUser login = SecurityUtils.getLoginUser();
-        Long userId = login.getUserId();
+        Long userId = SecurityUtils.getLoginUser().getUserId();
         if (userId == 1L){
             return true;
         }else {
@@ -202,10 +204,10 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("新增问题")
     @PostMapping("add")
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
-    public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable)
-    {
+    public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable) {
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+
         String brand = null;
         if (!(totalQuestionTable.getBrand().equals(""))){
             brand = totalQuestionTable.getBrand();
@@ -230,6 +232,7 @@ public class TotalQuestionTableController extends BaseController
         if (!(totalQuestionTable.getTemProName().equals(""))){
             temProName = totalQuestionTable.getTemProName();
         }
+
         //先根据六个条件 查询 是否存在 如果存在 则 返回错误 问题已存在
         TotalQuestionTable pojo = new TotalQuestionTable();
         pojo.setBrand(brand);
@@ -239,6 +242,7 @@ public class TotalQuestionTableController extends BaseController
         pojo.setTypeProblem(typeProblem);/*范式种类*/
         pojo.setTemProName(temProName);/*范式名称*/
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
+
         if (totalQuestionTables.size() != 0){
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"交换机问题已存在\r\n");
@@ -251,6 +255,7 @@ public class TotalQuestionTableController extends BaseController
             }
             return  AjaxResult.error("问题已存在");
         }
+
         int insert = 0;
         try{
             if (totalQuestionTable.getType().equals("")){
@@ -277,13 +282,16 @@ public class TotalQuestionTableController extends BaseController
                 return  AjaxResult.error("SQL唯一约束异常,问题已存在");
             }
         }
+
         if (insert <= 0){
             return AjaxResult.error();
         }
+
         Information information = new Information();
         information.setDeviceBrand(totalQuestionTable.getBrand());
         information.setDeviceModel(totalQuestionTable.getType());
         List<Information> informationlist = informationService.selectInformationList(information);
+
         if (informationlist.size() == 0){
             int i = informationService.insertInformation(information);
             if (i>0){
@@ -292,6 +300,7 @@ public class TotalQuestionTableController extends BaseController
                 AjaxResult.error("交换机信息表同步失败");
             }
         }
+
         return AjaxResult.success(totalQuestionTable.getId()+"");
     }
 
@@ -302,8 +311,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/brandlist")
     @ApiOperation("查询所有品牌")
-    public List<String> brandlist()
-    {
+    public List<String> brandlist() {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setLogicalID(null);
         List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
@@ -450,10 +458,12 @@ public class TotalQuestionTableController extends BaseController
         totalQuestionTable.setTypeProblem(typeProblem);
         totalQuestionTable.setTemProName(temProName);
         totalQuestionTable.setLogicalID(null);
+
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTables.size() != 0){
             return totalQuestionTables.get(0).getId();
         }
+
         return null;
     }
 
@@ -488,18 +498,20 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/fuzzyQueryListByPojo")
     @ApiOperation("根据实体类模糊查询 实体类集合")
-    public List<TotalQuestionTableCO> fuzzyQueryListByPojo(TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
+    public List<TotalQuestionTableCO> fuzzyQueryListByPojo(TotalQuestionTable totalQuestionTable)
     {
         List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
         if (totalQuestionTableList.size() == 0){
             return new ArrayList<>();
         }
+
         HashSet<String> typeProblemHashSet = new HashSet();
         HashSet<String> temProNameHashSet = new HashSet();
         for (TotalQuestionTable totalQuestion:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestion.getTypeProblem());
             temProNameHashSet.add(totalQuestion.getTypeProblem()+"=:="+totalQuestion.getTemProName());
         }
+
         List<TotalQuestionTableCO> pojoCOList = new ArrayList<>();
         List<TotalQuestionTableVO> pojoVOList = new ArrayList<>();
         for (String typeProblem:typeProblemHashSet){
@@ -507,6 +519,7 @@ public class TotalQuestionTableController extends BaseController
             totalQuestionTableCO.setTypeProblem(typeProblem);
             pojoCOList.add(totalQuestionTableCO);
         }
+
         for (String temProName:temProNameHashSet){
             TotalQuestionTableVO totalQuestionTableVO = new TotalQuestionTableVO();
             String[] split = temProName.split("=:=");
@@ -547,6 +560,7 @@ public class TotalQuestionTableController extends BaseController
         if (totalQuestionTableList.size() == 0){
             return new ArrayList<>();
         }
+
         HashSet<String> typeProblemHashSet = new HashSet();
         for (TotalQuestionTableVO totalQuestionTableVO:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestionTableVO.getTypeProblem());

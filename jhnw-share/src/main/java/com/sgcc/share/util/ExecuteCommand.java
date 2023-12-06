@@ -32,6 +32,7 @@ public class ExecuteCommand {
     */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public String executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
+
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
         /*程序登录用户*/
@@ -42,8 +43,8 @@ public class ExecuteCommand {
         returnRecord.setType(switchParameters.getDeviceModel());
         returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
         returnRecord.setSubVersion(switchParameters.getSubversionNumber());
-        /*交换机执行的命令*/
-        returnRecord.setCurrentCommLog(command);
+        returnRecord.setCurrentCommLog(command);/*交换机执行的命令*/
+
         /*交换机返回信息 插入数据库状态 为-1时错误 否则为交换机返回信息 在数据库中的ID*/
         int insert_id = 0;
         /*交换机返回信息 是否存在故障的标志 默认为 true*/

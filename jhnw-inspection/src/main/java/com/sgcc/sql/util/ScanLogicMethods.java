@@ -57,6 +57,7 @@ public class ScanLogicMethods {
         //根据匹配方法 得到是否匹配（成功:true 失败:false）
         //matched : 精确匹配  information_line_n：交换机返回信息行  matchContent：数据库 关键词
         boolean matchAnalysis_true_false = FunctionalMethods.matchAnalysis(matched, information_line_n, matchContent.trim());
+
         //如果最终逻辑成功 则把 匹配成功的行数 付给变量 line_n
         if (matchAnalysis_true_false){
             /**匹配成功*/

@@ -221,6 +221,7 @@ public class DefinitionProblemController extends BaseController {
         for (int num = 0 ;num < command.length; num++){
             comands = comands + command[num] + "=:=";
         }
+
         comands = comands.substring(0,comands.length()-"=:=".length()) + custom;
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -228,8 +229,10 @@ public class DefinitionProblemController extends BaseController {
         BasicInformation basicInformation = new BasicInformation();
         //放入获取交换机基本信息命令
         basicInformation.setCommand(comands);
+
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         int i = basicInformationService.insertBasicInformation(basicInformation);
+
         //当i<=0时插入失败
         if (i<=0){
             //传输登陆人姓名 及问题简述
@@ -243,6 +246,7 @@ public class DefinitionProblemController extends BaseController {
             }
             return false;
         }
+
         Long id = basicInformation.getId();
         boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,jsonPojoList,id);
         return insertInformationAnalysisMethod;
@@ -264,16 +268,20 @@ public class DefinitionProblemController extends BaseController {
                 e.printStackTrace();
             }
         }
+
         System.err.println("定义获取基本信息分析数据插入\r\n");
         for (String jsonPojo:jsonPojoList){
             System.err.println(jsonPojo);
         }
+
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+
         /*遍历分析数据
         * 如果分析数据中含有command 则 是命令 则 进入 String 转 命令实体类方法
         * 如果分析数据中不含有command 则 是分析 则 进入 String 转 分析实体类方法*/
         for (int number=0;number<jsonPojoList.size();number++){
+
             // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
                 CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(jsonPojoList.get(number));
@@ -305,7 +313,9 @@ public class DefinitionProblemController extends BaseController {
                     continue;
                 }
             }
+
         }
+
         //将相同ID  时间戳 的 实体类 放到一个实体
         /*相同ID的分析实体类需要放到一个实体类中(因为这里是ture和false的原因，造成了一个实体类分割成了两个相同ID的实体类)*/
         List<ProblemScanLogic> problemScanLogics = InspectionMethods.definitionProblem(problemScanLogicList);
@@ -339,6 +349,8 @@ public class DefinitionProblemController extends BaseController {
             }
             return false;
         }
+
+
         return true;
     }
 
@@ -352,7 +364,6 @@ public class DefinitionProblemController extends BaseController {
     @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
     @ApiOperation("定义分析问题数据")
     public boolean definitionProblemJson(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
-
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         boolean definitionProblemJsonboolean = definitionProblemJsonPojo(totalQuestionTableId,jsonPojoList,loginUser);
@@ -453,6 +464,7 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
+
         if(commandId == null){
             for (ProblemScanLogic problemScanLogic:problemScanLogics){
                 if (problemScanLogic.gettLine().equals("1")){
@@ -460,12 +472,11 @@ public class DefinitionProblemController extends BaseController {
                 }
             }
         }
+
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
         /*赋值问题表数据的 逻辑ID  此时为命令ID*/
         totalQuestionTable.setLogicalID(commandId);
-
-
 
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
         if (i<=0){
@@ -488,6 +499,7 @@ public class DefinitionProblemController extends BaseController {
     public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
         final List<String>[] analysisList = new List[]{new ArrayList<>()};
         FutureTask future = new FutureTask(new Callable<List<String>>() {
@@ -498,6 +510,7 @@ public class DefinitionProblemController extends BaseController {
             }
         });
         executor.execute(future);
+
         try {
             Integer maximumTimeoutString = (Integer) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
             List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
@@ -509,8 +522,10 @@ public class DefinitionProblemController extends BaseController {
             return AjaxResult.error("查询超时");
         }finally{
             future.cancel(true);
+            /* 关闭连接 */
             executor.shutdown();
         }
+
         return AjaxResult.success(analysisList[0]);
     }
 
@@ -522,9 +537,9 @@ public class DefinitionProblemController extends BaseController {
         if (scanLogicalEntityClass.size() == 0){
             return new ArrayList<>();
         }
+
         /* 获取两个实体类集合*/
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
         HashMap<Long,String> hashMap = new HashMap<>();
         for (CommandLogic commandLogic:commandLogicList){
             /* 1=:={"onlyIndex"="1697080798279","trueFalse"="","pageIndex"="1","command"="dis cu","para"="","resultCheckId"="0","nextIndex"="1697080824879"} */
@@ -532,12 +547,14 @@ public class DefinitionProblemController extends BaseController {
             String[] commandLogicStringsplit = commandLogicString.split("=:=");
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
         }
+        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
             /*problemScanLogic 转化 Sting*/
             String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,totalQuestionTable.getId()+"");
             String[] problemScanLogicStringsplit = problemScanLogicString.split("=:=");
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
+
         /*List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
             if (hashMap.get(number+1)!=null && !(hashMap.get(number+1).equals("null"))){
@@ -545,6 +562,7 @@ public class DefinitionProblemController extends BaseController {
                 stringList.add(hashMap.get(number+1));
             }
         }*/
+
         Collection<String> values = hashMap.values();
         List<String> stringList = new ArrayList<>(values);
         return stringList;
@@ -565,6 +583,7 @@ public class DefinitionProblemController extends BaseController {
             return new HashMap<>();
         }
         String problemScanLogicID = totalQuestionTable.getLogicalID();
+
         /*去除 "命令" 或 "分析"
         * 得到 命令表 或者    分析表ID（存入分析集合）
         * */
@@ -575,11 +594,13 @@ public class DefinitionProblemController extends BaseController {
         }else if (problemScanLogicID.indexOf("命令") != -1){
             commandIDs.add(problemScanLogicID.replaceAll("命令",""));
         }
+
         /* 命令表集合
         * 返回分析数据集合 */
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
         HashMap<String,Object> hashMappojo = new HashMap<>();
+
         do {
             /* 如果分析ID 不为空
              * 则当前的ID为 分析数据ID */
@@ -663,10 +684,12 @@ public class DefinitionProblemController extends BaseController {
                 }
             }
         }while (commandIDs.size() != 0 || problemIds.size() != 0);
+
         HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
         ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
         ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
         return ScanLogicalEntityMap;
+
     }
 
 
@@ -677,24 +700,31 @@ public class DefinitionProblemController extends BaseController {
     @DeleteMapping("deleteScanningLogic")
     @ApiOperation("删除扫描逻辑数据")
     public boolean deleteScanningLogic(@RequestBody Long id) {
+
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
+
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+
         /* 获取命令集合和分析逻辑集合 */
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
+
         /*命令集合  分析逻辑集合  */
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+
         /*命令集合、分析逻辑集合 筛选ID集合*/
         String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
         String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
+
         int deleteCommandLogicByIds = 1;
         /*命令集合不为空 删除命令集合*/
         if (commandLogicId.length>0){
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
             deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(commandLogicId);
         }
+
         /*当命令删除成功 且 存在分析时 删除分析数据*/
         if (deleteCommandLogicByIds >0 && problemScanLogicId.length >0){
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
@@ -755,6 +785,7 @@ public class DefinitionProblemController extends BaseController {
                 e.printStackTrace();
             }
         }
+
         return false;
     }
 
@@ -770,12 +801,16 @@ public class DefinitionProblemController extends BaseController {
     public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID,LoginUser loginUser){
         /*预设跳出循环条件 为 false*/
         boolean contain = false;
+
         /*预设map key为分析表ID value为 分析表实体类*/
         Map<String,ProblemScanLogic> problemScanLogicHashMap = new HashMap<>();
+
         do {String  problemScanID = "";
+
             /*分析ID 根据“：” 分割 为 分析ID数组
             * 因为分析逻辑 可能出现 true 和 false 多个ID情况*/
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
+
             /*遍历分析ID数组*/
             for (String id:problemScanLogicIDsplit){
                 /*根据分析ID 在 map中查询 分析实体类
@@ -822,10 +857,12 @@ public class DefinitionProblemController extends BaseController {
                     problemScanID += problemScanLogic.getfNextId()+":";
                 }
             }
+
             /*如果没有ID 则 视为没有下一层 分析数据 则 退出 do while*/
             if (problemScanID.equals("")){
                 break;
             }
+
             /*分割 分析ID 为数组
             * 遍历数组 及 map
             * 去除 map中存在的 分析ID*/
@@ -836,6 +873,7 @@ public class DefinitionProblemController extends BaseController {
                     problemScanID += id+":";
                 }
             }
+
             /*如果problemScanID 不为 "" 则 contain = true
             * problemScanID 去掉 最后一个 ： */
             if (!(problemScanID.equals(""))){
@@ -846,6 +884,7 @@ public class DefinitionProblemController extends BaseController {
             }
 
         }while (contain);
+
         /*map中数据 存放到list集合中*/
         /*List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
         Iterator<Map.Entry<String, ProblemScanLogic>> it = problemScanLogicHashMap.entrySet().iterator();
@@ -854,13 +893,15 @@ public class DefinitionProblemController extends BaseController {
             ProblemScanLogicList.add(entry.getValue());
         }*/
         Collection<ProblemScanLogic> values = problemScanLogicHashMap.values();
+
         // 将Collection转换为List
         List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>(values);
+
         /*此时查询出了  数据库存储的 信息*/
         return ProblemScanLogicList;
     }
 
-    /*定义分析问题数据修改  由下方updateAnalysisPrimary方法优化得到
+    /*定义分析问题数据修改
     * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
     @ApiOperation("分析问题数据修改")
     @PutMapping("updateAnalysis")
@@ -868,18 +909,19 @@ public class DefinitionProblemController extends BaseController {
     public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> pojoList){
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
         /*根据 交换机问题实体类 获得命令集合和分析实体类集合*/
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
         if (scanLogicalEntityClass.size() == 0){
             return false;
         }
+
         /* 获取两个实体类集合*/
-        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
         /* 获取两个实体类ID集合 */
-        Set<String> commandLogicSet = commandLogicList.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
         Set<String> problemScanLogicSet = problemScanLogics.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
         for (String id:problemScanLogicSet){
             int j = problemScanLogicService.deleteProblemScanLogicById(id);
@@ -887,94 +929,19 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
+        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        Set<String> commandLogicSet = commandLogicList.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
         for (String id:commandLogicSet){
             int i = commandLogicService.deleteCommandLogicById(id);
             if (i<=0){
                 return false;
             }
         }
+
         boolean definitionProblemJsonPojo = definitionProblemJsonPojo(totalQuestionTableId,pojoList,loginUser);//jsonPojoList
         return definitionProblemJsonPojo;
     }
 
-    /*定义分析问题数据修改 优化后得到上方 updateAnalysis方法
-    * 实现逻辑是 调用已经实现的完整的 查询、删除、添加功能 实现修改功能
-    *  */
-    //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
-    public boolean updateAnalysisPrimary (@RequestParam Long totalQuestionTableId,@RequestBody List<String> pojoList){
-        //系统登陆人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-        AjaxResult analysisListTimeouts = getAnalysisListTimeouts(totalQuestionTable);
-        if (!(analysisListTimeouts.get("msg").equals("操作成功"))){
-            return false;
-        }
-        List<String> analysisList = (List<String>) analysisListTimeouts.get("data");
-        /*如果 analysisList 为空则未定义 可直接插入
-        * 如果 analysisList 不为空则未定义 则需要先删除*/
-        if (analysisList != null || analysisList.size() != 0){
-            List<String> jsonPojoList = new ArrayList<>();
-            for (String analysis:analysisList){
-                jsonPojoList.add(analysis.replaceAll("\"=\"","\":\""));
-            }
-            List<CommandLogic> commandLogicList = new ArrayList<>();
-            List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
-            for (int number=0;number<jsonPojoList.size();number++){
-                // 如果 前端传输字符串  存在 command  说明 是命令
-                if (jsonPojoList.get(number).indexOf("command")!=-1){
-                    CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(jsonPojoList.get(number));
-                    commandLogicList.add(commandLogic);
-                    continue;
-                }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
-                    if (number+1<jsonPojoList.size()){
-                        // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
-                        if (jsonPojoList.get(number+1).indexOf("command") !=-1){
-                            //本条是分析 下一条是 命令
-                            ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
-                            problemScanLogicList.add(problemScanLogic);
-                            continue;
-                        }else {
-                            //本条是分析 下一条是 分析
-                            ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
-                            problemScanLogicList.add(problemScanLogic);
-                            continue;
-                        }
-                    }else {
-                        //本条是分析 下一条是 问题
-                        ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
-                        problemScanLogicList.add(problemScanLogic);
-                        continue;
-                    }
-                }
-            }
-            //将相同ID  时间戳 的 实体类 放到一个实体
-            //注释原因该方法是为了获取不重复的分析ID(将相同ID时间戳的实体类放到一个实体)，下方使用了HashSet也可以使ID不重复
-            //List<ProblemScanLogic> problemScanLogics = definitionProblem(problemScanLogicList);
-            HashSet<String> problemScanLogicSet = new HashSet<>();
-            for (ProblemScanLogic problemScanLogic:problemScanLogicList){
-                problemScanLogicSet.add(problemScanLogic.getId());
-            }
-            HashSet<String> commandLogicSet = new HashSet<>();
-            for (CommandLogic commandLogic:commandLogicList){
-                commandLogicSet.add(commandLogic.getId());
-            }
-            for (String id:problemScanLogicSet){
-                int j = problemScanLogicService.deleteProblemScanLogicById(id);
-                if (j<=0){
-                    return false;
-                }
-            }
-            for (String id:commandLogicSet){
-                int i = commandLogicService.deleteCommandLogicById(id);
-                if (i<=0){
-                    return false;
-                }
-            }
-        }
-        boolean definitionProblemJsonPojo = definitionProblemJsonPojo(totalQuestionTableId,pojoList,loginUser);//jsonPojoList
-        return definitionProblemJsonPojo;
-    }
 
 
     /**
@@ -989,21 +956,25 @@ public class DefinitionProblemController extends BaseController {
     public boolean updatebasicAnalysis(@RequestParam Long basicInformationId,@RequestBody List<String> pojoList){
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
+
         /*根据分析ID 获取 分析实体类集合*/
         /*因为是要删除 需要ID唯一 所以不需要拆分 */
         List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(basicInformation.getProblemId(),SecurityUtils.getLoginUser());//commandLogic.getProblemId()
+
         /* 因为ID唯一 所以不用去重 */
         String[] ids = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
         int j = problemScanLogicService.deleteProblemScanLogicByIds(ids);
         if (j<=0){
             return false;
         }
+
         LoginUser loginUser = SecurityUtils.getLoginUser();
         /*调用insertInformationAnalysisMethod方法，插入新的分析数据*/
         boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,pojoList,basicInformationId);
         if (!insertInformationAnalysisMethod){
             return false;
         }
+
         return true;
     }
 
@@ -1028,7 +999,9 @@ public class DefinitionProblemController extends BaseController {
                 return analysisList[0];
             }
         });
+
         executor.execute(future);
+
         try {
             List<String> result = (List<String>) future.get(60000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -1049,6 +1022,7 @@ public class DefinitionProblemController extends BaseController {
             future.cancel(true);
             executor.shutdown();
         }
+
         List<String> List = analysisList[0];
         List<String> strings = new ArrayList<>();
         for (String stringList:List){
@@ -1056,6 +1030,7 @@ public class DefinitionProblemController extends BaseController {
                 strings.add(stringList);
             }
         }
+
         return AjaxResult.success(strings);
     }
 
@@ -1066,6 +1041,7 @@ public class DefinitionProblemController extends BaseController {
      * @return
      */
     public  List<String>  getBasicInformationProblemScanLogic(String problemId,LoginUser loginUser) {
+
         //loginUser 登陆人信息
         //problemId 分析ID
         /*根据分析ID 获取 分析实体类集合*/
@@ -1075,6 +1051,7 @@ public class DefinitionProblemController extends BaseController {
             return new ArrayList<>();
         }
         problemScanLogicList = InspectionMethods.splitSuccessFailureLogic(problemScanLogicList);
+
         /*行号:实体类*/
         HashMap<Long,String> hashMap = new HashMap<>();
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
@@ -1084,11 +1061,13 @@ public class DefinitionProblemController extends BaseController {
             /*problemScanLogicStringsplit[0] 行号*/
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
+
         /*根据行号排序，创建成新的集合 并返回*/
         List<String> stringList = new ArrayList<>();
         for (Long number=0L;number<hashMap.size();number++){
             stringList.add(hashMap.get(number+1));
         }
+
         return stringList;
     }
 
@@ -1104,6 +1083,7 @@ public class DefinitionProblemController extends BaseController {
     public boolean deleteBasicInformationProblemScanLogic(@RequestBody Long id) {
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         BasicInformation basicInformation = basicInformationService.selectBasicInformationById(id);
+
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         String problemId = null ;
@@ -1167,5 +1147,6 @@ public class DefinitionProblemController extends BaseController {
             }
             return true;
         }
+
     }
 }

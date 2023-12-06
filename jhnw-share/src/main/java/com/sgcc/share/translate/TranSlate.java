@@ -4,8 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年03月03日 16:51
  */
 public class TranSlate {

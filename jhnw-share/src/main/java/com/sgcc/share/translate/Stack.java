@@ -1,8 +1,6 @@
 package com.sgcc.share.translate;
 
 /**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
  * @date 2022年03月24日 14:03
  */
 /**

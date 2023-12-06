@@ -20,7 +20,7 @@ import java.util.List;
 public class SwitchIssueEcho {
 
     @Autowired
-    private static ISwitchScanResultService switchScanResultService;
+    private ISwitchScanResultService switchScanResultService;
 
     /**
      * @method: 查询扫描出的问题表 放入 websocket
@@ -30,12 +30,15 @@ public class SwitchIssueEcho {
     @GetMapping("getSwitchScanResultListByData")
     @ApiOperation("查询当前扫描出的问题表放入websocket")
     public void getSwitchScanResultListByData(String username,Long longId){
+
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         SwitchProblemVO pojpVO = switchScanResultService.selectSwitchScanResultListById(longId);
         if (pojpVO == null){
             return;
         }
+
         List<SwitchProblemCO> switchProblemCOList = pojpVO.getSwitchProblemCOList();
+
         for (SwitchProblemCO switchProblemCO:switchProblemCOList){
             /*赋值随机数 前端需要*/
             switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
@@ -45,6 +48,7 @@ public class SwitchIssueEcho {
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());*/
             //提取信息 如果不为空 则有参数
             if (switchProblemCO.getDynamicInformation()!=null && !switchProblemCO.getDynamicInformation().equals("")){//switchScanResult.getDynamicInformation()!=null && !switchScanResult.getDynamicInformation().equals("")
+
                 //String dynamicInformation = switchScanResult.getDynamicInformation();
                 String dynamicInformation = switchProblemCO.getDynamicInformation();
                 //几个参数中间的 参数是 以  "=:=" 来分割的
@@ -52,6 +56,7 @@ public class SwitchIssueEcho {
                 String[] dynamicInformationsplit = dynamicInformation.split("=:=");
                 //判断提取参数 是否为空
                 if (dynamicInformationsplit.length>0){
+
                     //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
                     //所以 参数组 要倒序插入
                     for (int number=dynamicInformationsplit.length-1;number>0;number--){
@@ -73,10 +78,13 @@ public class SwitchIssueEcho {
                         valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                         valueInformationVOList.add(valueInformationVO);
                     }
+
                 }
             }
             switchProblemCO.setValueInformationVOList(valueInformationVOList);
         }
+
+
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         ScanResultsVO scanResultsVO = new ScanResultsVO();

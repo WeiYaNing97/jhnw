@@ -155,9 +155,7 @@ public class AdvancedFeatures {
             e.printStackTrace();
         }
 
-
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));
         while (true){
             if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
@@ -167,9 +165,8 @@ public class AdvancedFeatures {
             if (dateFormat.format(new Date(new Date().getTime())).compareTo(nowTime_10) >=0 ){
                 return "扫描结束";
             }
-        }
-
-
+        }*/
+        return "扫描结束";
     }
 
     /**

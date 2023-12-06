@@ -69,6 +69,7 @@ public class SolveProblemController {
         /*根据ID 查询问题数据*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
         if (totalQuestionTable.getProblemSolvingId() == null){
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(SecurityUtils.getLoginUser().getUsername(),"错误："+"交换机问题表修复命令ID为空\r\n");
@@ -80,6 +81,7 @@ public class SolveProblemController {
             }
             return new ArrayList<>();
         }
+
         /*修复命令ID*/
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
         List<CommandLogic> commandLogicList = new ArrayList<>();
@@ -117,18 +119,22 @@ public class SolveProblemController {
                                             @PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
         /*需要修复的问题*/
         Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
+
         // 根据 问题ID  查询 扫描出的问题
-        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         /*根据ID集合 查询所有 扫描结果SwitchProblem 数据*/
+        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         List<SwitchScanResult> switchScanResultList = switchScanResultService.selectSwitchScanResultByIds(ids);
+
         /*交换机 用户信息 String 格式    去重*/
         /*HashSet<String> userHashSet = new HashSet<>();
         for (int number = 0 ; number <userinformation.size() ; number++){
             userHashSet.add((String) userinformation.get(number));
         }*/
         Set<String> userHashSet = userinformation.stream().map(Object::toString).collect(Collectors.toSet());
+
         /* 装换成 Json 格式*/
         List<SwitchParameters> switchParametersList = new ArrayList<>();
+
         // 迭代器遍历HashSet：
         Iterator<String> iterator = userHashSet.iterator();
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -138,6 +144,7 @@ public class SolveProblemController {
             switchParameters.setScanningTime(simpleDateFormat);
             switchParametersList.add(switchParameters);
         }
+
         /* 交换机问题 */
         List<List<SwitchScanResult>> problemIdListList = new ArrayList<>();
         /* 遍历 交换机基本信息 */
@@ -162,8 +169,7 @@ public class SolveProblemController {
             if (allProIdList != null || allProIdList.size() != 0){
                 problemIdList = allProIdList;
             }
-            RepairFixedThreadPool repairFixedThreadPool = new RepairFixedThreadPool();
-            repairFixedThreadPool.Solution(parameterSet, problemIdListList, problemIdList);//scanNum
+            RepairFixedThreadPool.Solution(parameterSet, problemIdListList, problemIdList);//scanNum
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -192,6 +198,7 @@ public class SolveProblemController {
             connectMethod ssh连接方法 或者 telnetSwitchMethod telnet连接方法（其中一个，为空者不存在）] */
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult requestConnect_ajaxResult = connectToObtainInformation.requestConnect( switchParameters );
+
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
@@ -225,6 +232,7 @@ public class SolveProblemController {
             if (basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
                 return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
             }
+
             /*要修复问题的集合*/
             List<SwitchScanResult> switchScanResultLists = new ArrayList<>();
             for (SwitchScanResult switchScanResult:switchScanResultList){
@@ -246,6 +254,7 @@ public class SolveProblemController {
                     }
                 }
             }
+
             if (switchScanResultLists.size() == 0){
                 //getUnresolvedProblemInformationByIds(loginUser,problemIds);
                 if (problemIds != null){
@@ -258,6 +267,7 @@ public class SolveProblemController {
                 }
                 return AjaxResult.success("修复结束");
             }
+
             /*遍历 需要修复的 交换机问题*/
             for (SwitchScanResult switchScanResult:switchScanResultLists){
                 /*如果交换机扫描结果中 未定义 修复问题 则 去交换机问题表中查询 并赋值*/
@@ -276,6 +286,7 @@ public class SolveProblemController {
                         continue;
                     }
                 }
+
                 //传参 修复问题命令ID
                 //返回 命令集合 和 参数集合
                 List<CommandLogic> commandLogics = queryCommandSet(switchScanResult.getComId() + "");
@@ -290,6 +301,7 @@ public class SolveProblemController {
                     }
                     continue;
                 }
+
                 /*返回  map  参数名 ： 参数值*/
                 HashMap<String, String> valueHashMap = separationParameters(switchScanResult.getDynamicInformation());
                 //执行解决问题
@@ -309,6 +321,7 @@ public class SolveProblemController {
                         }
                     }
                 }
+
                 if(solveProblem.indexOf("错误") != -1){
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"错误："+"问题名称：" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
                     try {
@@ -317,22 +330,27 @@ public class SolveProblemController {
                         e.printStackTrace();
                     }
                 }
+
                 //getUnresolvedProblemInformationByIds(loginUser,problemIds);
                 if (problemIds != null){
                     getSwitchScanResultListByIds(switchParameters.getLoginUser(),problemIds);
                 }
             }
+
             //getUnresolvedProblemInformationByIds(loginUser,problemIds);
             if (problemIds != null){
                 getSwitchScanResultListByIds(switchParameters.getLoginUser(),problemIds);
             }
+
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
             }
+
             return AjaxResult.success("修复结束");
         }
+
         return AjaxResult.error("交换机连接失败");
     }
 
@@ -346,6 +364,7 @@ public class SolveProblemController {
         //几个参数中间的 参数是 以  "=:=" 来分割的
         //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
         String[] parameterStringsplit = dynamicInformation.split("=:=");
+
         HashMap<String,String> valueHashMap = new HashMap<>();
         //判断提取参数 是否为空
         if (parameterStringsplit.length>0){
@@ -409,6 +428,7 @@ public class SolveProblemController {
                 commandList.set(num,command_split[0]);
             }
         }
+
         String commandString =""; //预设交换机返回结果
         //user_String, connectMethod, telnetSwitchMethod
         for (String command:commandList){
@@ -423,6 +443,7 @@ public class SolveProblemController {
             returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
             returnRecord.setSubVersion(switchParameters.getSubversionNumber());
             returnRecord.setCurrentCommLog(command.trim());
+
             int insert_id = 0;
             boolean deviceBrand = true;
             do {
@@ -499,12 +520,14 @@ public class SolveProblemController {
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
                 insert_id = returnRecordService.insertReturnRecord(returnRecord);
             }while (!deviceBrand);
+
             //返回信息表，返回插入条数
             returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
             //去除其他 交换机登录信息
             commandString = FunctionalMethods.removeLoginInformation(commandString);
             //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
             commandString = MyUtils.trimString(commandString);
+
             //交换机返回信息 按行分割为 字符串数组
             String[] commandString_split = commandString.split("\r\n");
             // 返回日志内容
@@ -553,6 +576,7 @@ public class SolveProblemController {
                     e.printStackTrace();
                 }
             }
+
             //返回信息表，返回插入条数
             int update = returnRecordService.updateReturnRecord(returnRecord);
             //判断命令是否错误 错误为false 正确为true
@@ -574,6 +598,7 @@ public class SolveProblemController {
                 }
             }
         }
+
         return "成功";
     }
 
@@ -585,16 +610,15 @@ public class SolveProblemController {
      */
     @GetMapping("getUnresolvedProblemInformationByIds")
     public List<ScanResultsVO> getUnresolvedProblemInformationByIds(LoginUser loginUser,List<String> problemIds){//待测
-        /*Long[] id = new Long[problemIds.size()];
-        for (int idx = 0; idx < problemIds.size(); idx++){
-            id[idx] = Long.parseLong(problemIds.get(idx));
-        }*/
+
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
+
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByIds(id);
         if (switchProblemList.size() == 0){
             return new ArrayList<>();
         }
+
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(FunctionalMethods.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -611,11 +635,13 @@ public class SolveProblemController {
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
+
         //将IP地址去重放入set集合中
         HashSet<String> ip_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
+
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String ip_string:ip_hashSet){
@@ -625,6 +651,7 @@ public class SolveProblemController {
             scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
+
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
             String pinpai = "*";
@@ -658,12 +685,14 @@ public class SolveProblemController {
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
+
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
             for (SwitchProblemVO switchProblemVO:switchProblemVOList){
                 switchProblemVO.setSwitchIp(null);
             }
         }
+
         WebSocketService.sendMessage("loophole:"+loginUser.getUsername(),scanResultsVOList);
         return scanResultsVOList;
     }
@@ -677,13 +706,16 @@ public class SolveProblemController {
     @GetMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
+
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-        List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListByIds(id);
+
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultByIds(id);
         HashMap<Long,SwitchScanResult> hashMap = new HashMap<>();
         for (SwitchScanResult switchScanResult:list){
             hashMap.put(switchScanResult.getId(),switchScanResult);
         }
+
+        List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListByIds(id);
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
@@ -724,11 +756,13 @@ public class SolveProblemController {
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
+
         //将IP地址去重放入set集合中
         HashSet<String> ip_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
+
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String ip_string:ip_hashSet){
@@ -737,6 +771,7 @@ public class SolveProblemController {
             scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             scanResultsVOList.add(scanResultsVO);
         }
+
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
             String pinpai = "*";
@@ -768,6 +803,7 @@ public class SolveProblemController {
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
+
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             scanResultsVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
@@ -776,6 +812,7 @@ public class SolveProblemController {
                 switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             }
         }
+
         WebSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);
         return scanResultsVOList;
     }

@@ -24,6 +24,7 @@ public class SshConnect implements Runnable {
     private static final String BLANKSPACE = new String(new byte[] { 32 });
     //回车
     private static final String ENTER = new String(new byte[] { 13 });
+
     //某些设备回显数据中的控制字符
     private static final String[] PREFIX_STRS = { BACKSPACE + "+" + BLANKSPACE + "+" + BACKSPACE + "+",
             "(" + ESC + "\\[\\d+[A-Z]" + BLANKSPACE + "*)+" };

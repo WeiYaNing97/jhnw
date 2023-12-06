@@ -20,6 +20,7 @@ public class TelnetComponent {
     private OutputStream outputStream;
     private Thread outputThread;
 
+    /*存在内存风险*/
     public static HashMap<String,TelnetInformation> switchInformation = new HashMap<>();
 
     private HashMap<String,TelnetInformation> setSwitchInformation(String ip){

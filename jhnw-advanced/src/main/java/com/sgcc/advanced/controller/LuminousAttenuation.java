@@ -191,6 +191,7 @@ public class LuminousAttenuation {
                 "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
         returnString = MyUtils.trimString(returnString);*/
+
         // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
         if (returnString == null){
             try {
@@ -318,6 +319,7 @@ public class LuminousAttenuation {
                 lightAttenuationComparison.setPort(portstr);
                 lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
                 List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
+
                 /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
                 if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
                     int average = average(switchParameters, getparameter, portstr);
@@ -343,19 +345,20 @@ public class LuminousAttenuation {
                         hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
                     }
                 }
+
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(portstr+"TX")+
                         "  RX:"+getparameter.get(portstr+"RX"));
-
                 SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
         return AjaxResult.success();
     }
@@ -408,6 +411,7 @@ public class LuminousAttenuation {
             return "有问题";
         }
         return "无问题";
+
     }
 
     /**
@@ -553,9 +557,11 @@ public class LuminousAttenuation {
                 }
                 continue;
             }
+
             hashMap.put(port+"TX",values.get("TX")+"");
             hashMap.put(port+"RX",values.get("RX")+"");
         }
+
         return hashMap;
     }
 
@@ -625,15 +631,11 @@ public class LuminousAttenuation {
                 String parameterInformation = "";
                 /*如果两个都包含 则可能是在本行，或者是下一行 需要判断:
                 * 例如：
-                *
                 * Current Rx Power(dBM) :-10.82
                 * Current Tx Power(dBM) :-2.04
-                *
                 * 和
-                *
                 * Rx Power    Tx Power
                 * -10.82      -2.04
-                *
                 * */
                 String nextrow = Line_split[number];
                 parameterInformation = nextrow;
@@ -811,13 +813,15 @@ public class LuminousAttenuation {
     public int average(SwitchParameters switchParameters,HashMap<String,String> hashMap,String port) {
         LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
         lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
-        /*获取交换机四项基本信息ID*/
-        lightAttenuationComparison.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
+        lightAttenuationComparison.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));/*获取交换机四项基本信息ID*/
         lightAttenuationComparison.setPort(port);
+
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
         List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
+
         String rx = hashMap.get(port+"RX");
         String tx = hashMap.get(port+"TX");
+
         if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
             /*需要新插入信息*/
             lightAttenuationComparison = new LightAttenuationComparison();
@@ -834,6 +838,7 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxStartValue(tx);
             lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
             lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
+
             return lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison);
         }else {
             lightAttenuationComparison = lightAttenuationComparisons.get(0);
@@ -844,6 +849,7 @@ public class LuminousAttenuation {
             double txAverageValue = updateAverage(lightAttenuationComparison.getNumberParameters(), MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue()), MyUtils.stringToDouble(tx));
             lightAttenuationComparison.setTxAverageValue("" + txAverageValue);
             lightAttenuationComparison.setNumberParameters(lightAttenuationComparison.getNumberParameters()+1);
+
             return lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison);
         }
     }

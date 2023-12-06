@@ -27,7 +27,6 @@ public class ScreeningMethod {
                 /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
                 /* 获取 两个交换机问题的 参数数量的精确度 */
                 /*map*/
-
                 int usedNumber = 0;
                 if (!(errorRateCommandPojo.getSwitchType().equals("*"))){
                     usedNumber = usedNumber +1;
@@ -38,7 +37,6 @@ public class ScreeningMethod {
                 if (!(errorRateCommandPojo.getSubVersion().equals("*"))){
                     usedNumber = usedNumber +1;
                 }
-
                 /*新*/
                 int newNumber = 0;
                 if (!(errorRateCommand.getSwitchType().equals("*"))){
@@ -50,7 +48,6 @@ public class ScreeningMethod {
                 if (!(errorRateCommand.getSubVersion().equals("*"))){
                     newNumber = newNumber +1;
                 }
-
                 /*对比参数的数量大小
                  * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
                 if (usedNumber < newNumber){
@@ -59,7 +56,6 @@ public class ScreeningMethod {
                     continue;
                 }else if (usedNumber == newNumber){
                     /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
-
                     String pojotype = errorRateCommandPojo.getSwitchType();
                     String errorRateCommandtype = errorRateCommand.getSwitchType();
                     /*比较两个属性的精确度
@@ -108,7 +104,6 @@ public class ScreeningMethod {
             }
         }
         return errorRateCommandPojo;
-
     }
 
     /**

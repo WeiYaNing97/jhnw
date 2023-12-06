@@ -19,10 +19,10 @@ public class DirectionalScanThread extends Thread  {
     SwitchParameters switchParameters = null;
     List<TotalQuestionTable> totalQuestionTables = null;
     List<String> advancedName = null;
-    // 用于计数线程是否执行完成
-    CountDownLatch countDownLatch = null;
+    CountDownLatch countDownLatch = null;// 用于计数线程是否执行完成
     ExecutorService fixedThreadPool = null;
     boolean isRSA = true;
+
     // 为线程命名
     public DirectionalScanThread(String threadName,
                                  SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,
@@ -39,31 +39,21 @@ public class DirectionalScanThread extends Thread  {
     @Override
     public void run() {
         try {
-            try {
-                PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"开始时间：" + "\r\n","线程");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-            int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-            System.err.println("活跃线程数："+threadCount);
+
             SwitchInteraction switchInteraction = new SwitchInteraction();
             //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
-            AjaxResult ajaxResult = switchInteraction.logInToGetBasicInformation(switchParameters, totalQuestionTables,advancedName,isRSA);
+            switchInteraction.logInToGetBasicInformation(switchParameters, totalQuestionTables,advancedName,isRSA);
+
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             DirectionalScanThreadPool.removeThread(this.getName());
             countDownLatch.countDown();
         }
-        try {
-            PathHelper.writeDataToFileByName("IP:"+switchParameters.getIp()+"结束时间：" + "\r\n","线程");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-        int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-        System.err.println("活跃线程数："+threadCount);
+        /*int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
+        System.err.println("活跃线程数："+threadCount);*/
     }
 }

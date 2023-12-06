@@ -52,10 +52,9 @@ public class SwitchScanResultController extends BaseController
     @ApiOperation("查询交换机扫描结果列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:list')")
     @GetMapping("/list")
-    public TableDataInfo list(SwitchScanResult switchScanResult)
-    {
-        LoginUser login = SecurityUtils.getLoginUser();
-        switchScanResult.setUserName(login.getUsername());
+    public TableDataInfo list(SwitchScanResult switchScanResult) {
+
+        switchScanResult.setUserName(SecurityUtils.getLoginUser().getUsername());
         startPage();
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultList(switchScanResult);
         for (SwitchScanResult pojo:list){
@@ -71,8 +70,7 @@ public class SwitchScanResultController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:export')")
     @Log(title = "交换机扫描结果", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
-    public AjaxResult export(SwitchScanResult switchScanResult)
-    {
+    public AjaxResult export(SwitchScanResult switchScanResult) {
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultList(switchScanResult);
         ExcelUtil<SwitchScanResult> util = new ExcelUtil<SwitchScanResult>(SwitchScanResult.class);
         return util.exportExcel(list, "交换机扫描结果数据");
@@ -84,8 +82,7 @@ public class SwitchScanResultController extends BaseController
     @ApiOperation("获取交换机扫描结果详细信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return AjaxResult.success(switchScanResultService.selectSwitchScanResultById(id));
     }
 
@@ -96,8 +93,7 @@ public class SwitchScanResultController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:add')")
     @Log(title = "交换机扫描结果", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody SwitchScanResult switchScanResult)
-    {
+    public AjaxResult add(@RequestBody SwitchScanResult switchScanResult) {
         return toAjax(switchScanResultService.insertSwitchScanResult(switchScanResult));
     }
 
@@ -108,8 +104,7 @@ public class SwitchScanResultController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:edit')")
     @Log(title = "交换机扫描结果", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody SwitchScanResult switchScanResult)
-    {
+    public AjaxResult edit(@RequestBody SwitchScanResult switchScanResult) {
         return toAjax(switchScanResultService.updateSwitchScanResult(switchScanResult));
     }
 
@@ -119,8 +114,7 @@ public class SwitchScanResultController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:remove')")
     @Log(title = "交换机扫描结果", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
+    public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(switchScanResultService.deleteSwitchScanResultByIds(ids));
     }
 
@@ -133,8 +127,7 @@ public class SwitchScanResultController extends BaseController
         SwitchScanResult switchScanResult = new SwitchScanResult();
         //插入问题数据
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
-        /*获取交换机四项基本信息ID*/
-        switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
+        switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));/*获取交换机四项基本信息ID*/
         switchScanResult.setSwitchName(switchParameters.getName()); //name
         switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
         switchScanResult.setConfigureCiphers(switchParameters.getConfigureCiphers());

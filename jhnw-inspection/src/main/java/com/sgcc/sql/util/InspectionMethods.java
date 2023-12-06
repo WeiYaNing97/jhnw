@@ -841,6 +841,7 @@ public class InspectionMethods {
         for (ProblemScanLogic problemScanLogic:pojoList){
             hashSet.add(problemScanLogic.getId());
         }
+
         //创建ProblemScanLogic 集合 放入获取分析ID 作为返回的 实体类集合
         Map<String,ProblemScanLogic> pojoMap = new HashMap<>();
         for (String problemScanLogicId:hashSet){
@@ -848,6 +849,7 @@ public class InspectionMethods {
             problem_scanLogic.setId(problemScanLogicId);
             pojoMap.put(problemScanLogicId,problem_scanLogic);
         }
+
         for (ProblemScanLogic pojo:pojoList){
             String pojoId = pojo.getId();
             ProblemScanLogic problemScanLogic = pojoMap.get(pojoId);
@@ -932,6 +934,7 @@ public class InspectionMethods {
             pojoMap.put(pojoId,problemScanLogic);
 
         }
+
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
         Iterator it = pojoMap.entrySet().iterator();
         while (it.hasNext()) {
@@ -939,6 +942,7 @@ public class InspectionMethods {
             ProblemScanLogic problemScanLogic = (ProblemScanLogic) entry.getValue();
             problemScanLogicList.add(problemScanLogic);
         }
+
         return problemScanLogicList;
     }
 
@@ -952,8 +956,10 @@ public class InspectionMethods {
         userInformationString = userInformationString.replace("{","");
         userInformationString = userInformationString.replace("}","");
         userInformationString = userInformationString.replace("\"","");
+
         String[] userinformationSplit = userInformationString.split(",");
         SwitchParameters switchParameters = new SwitchParameters();
+
         for (String userString:userinformationSplit){
             String[] userStringsplit = userString.split(":");
             String key = userStringsplit[0];
@@ -985,6 +991,7 @@ public class InspectionMethods {
                     break;
             }
         }
+
         return switchParameters;
     }
 }

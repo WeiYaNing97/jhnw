@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class AdvancedThreadPool {
 
@@ -29,17 +30,19 @@ public class AdvancedThreadPool {
             String threadName = getThreadName(i);
             switchParameters.setThreadName(threadName);
             i++;
+            /*加入map*/
             threadNameMap.put(threadName, threadName);
             fixedThreadPool.execute(new AdvancedThread(threadName,switchParameters,functionName,countDownLatch,fixedThreadPool,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
         }
 
         countDownLatch.await();
+        /*关闭线程池*/
         fixedThreadPool.shutdown();
     }
 
     public static void removeThread(String threadname) {
         threadNameMap.remove(threadname);
-        System.out.println("删除线程Thread" + threadname + ", Hash表的Size：" + threadNameMap.size());
+        System.err.println("删除线程Thread" + threadname + ", Hash表的Size：" + threadNameMap.size());
     }
     /*线程命名*/
     public static String getThreadName(int i) {

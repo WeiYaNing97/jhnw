@@ -22,11 +22,13 @@ public class RuoYiApplication
         SpringApplication.run(RuoYiApplication.class, args);
         System.out.println("(♥◠‿◠)ﾉﾞ  若依启动成功   ლ(´ڡ`ლ)ﾞ  \n" );
         try {
+            /*获取配置文件信息*/
             Constant character = new Constant();
             character.ObtainAllConfigurationFileParameters();
 
-            MemoryCPU memoryCPU = new MemoryCPU();
-            memoryCPU.initSystemInfo();
+            /*获取CPU、内存信息，改为前端请求了*/
+            /*MemoryCPU memoryCPU = new MemoryCPU();
+            memoryCPU.initSystemInfo();*/
         } catch (Exception e) {
             e.printStackTrace();
         }

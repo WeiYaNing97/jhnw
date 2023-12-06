@@ -38,8 +38,7 @@ public class ReturnRecordController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(ReturnRecord returnRecord)
     {
-        LoginUser login = SecurityUtils.getLoginUser();
-        returnRecord.setUserName(login.getUsername());
+        returnRecord.setUserName(SecurityUtils.getLoginUser().getUsername());
         startPage();
         List<ReturnRecord> list = returnRecordService.selectReturnRecordList(returnRecord);
         for (ReturnRecord pojo:list){
