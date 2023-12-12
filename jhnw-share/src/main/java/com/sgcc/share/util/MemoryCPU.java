@@ -48,12 +48,13 @@ public class MemoryCPU {
 
     @ApiOperation("获取服务器CPU、内存大小及使用率")
     //@GetMapping("/get_Memory_CPU")
+    @Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
     public String get_Memory_CPU() {
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+
                 "内存使用率 : "+MemoryUsage+"\r\n"+
                 "CPU总数 : "+TotalCPUs+"\r\n"+
                 "CPU利用率 : "+CPUUtilization+"\r\n";
-        //WebSocketService.sendMessageAll(Memory_CPU);
+        WebSocketService.sendMessageAll(Memory_CPU);
         return Memory_CPU;
     }
 
@@ -78,7 +79,6 @@ public class MemoryCPU {
      * @param
      * @return void
      */
-    @Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
     public void initSystemInfo() {
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {

@@ -48,6 +48,7 @@ public class LuminousAttenuation {
         lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
         lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
+
         lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
         List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandListBySQL(lightAttenuationCommand);
 
@@ -73,13 +74,14 @@ public class LuminousAttenuation {
             return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
         }
 
-        //从lightAttenuationCommandList中 获取四项基本最详细的数据
-        lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand(lightAttenuationCommandList);
+        //从 lightAttenuationCommandList 中 获取四项基本最详细的数据
+        lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand( lightAttenuationCommandList );
         String command = lightAttenuationCommand.getGetPortCommand();
 
         //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
+
         /*returnString = "Interface Status Vlan Duplex Speed Type\n" +
                 "---------------------------------------- -------- ---- ------- --------- ------\n" +
                 "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
