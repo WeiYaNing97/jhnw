@@ -741,7 +741,8 @@ public class FunctionalMethods {
      */
     public static String getTerminalSlogan(String information){
         /*
-         *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词*/
+         *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
+         * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth */
         String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword",Constant.getProfileInformation());
         String[] keywords = deviceVersion.trim().split(" ");
 

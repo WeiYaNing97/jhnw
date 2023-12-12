@@ -50,6 +50,7 @@ public class MemoryCPU {
     //@GetMapping("/get_Memory_CPU")
     @Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
     public String get_Memory_CPU() {
+        initSystemInfo();
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+
                 "内存使用率 : "+MemoryUsage+"\r\n"+
                 "CPU总数 : "+TotalCPUs+"\r\n"+

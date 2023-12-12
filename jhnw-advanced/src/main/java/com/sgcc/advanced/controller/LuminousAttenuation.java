@@ -417,10 +417,14 @@ public class LuminousAttenuation {
     }
 
     /**
-     * 根据交换机返回信息获取获取UP状态端口号
-     * @param returnString
+    * @Description根据交换机返回信息获取获取UP状态端口号
+     *
+    * @desc 遍历交换及返回信息，其中包含" UP "状态的且 不包含"COPPER"铜缆的 端口号 筛选出来
+     *
+     *
+    * @param returnString
      * @return
-     */
+    */
     public List<String> ObtainUPStatusPortNumber(String returnString) {
         /* 按行分割 交换机返回信息行信息 字符串数组*/
         String[] returnStringSplit = returnString.split("\r\n");
