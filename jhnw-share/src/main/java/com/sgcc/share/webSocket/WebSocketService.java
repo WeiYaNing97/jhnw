@@ -3,10 +3,13 @@ package com.sgcc.share.webSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,11 +78,9 @@ public class WebSocketService {
                 e.printStackTrace();
             }
         }else if (message.equals("接收结束")){
-
             Map<String, List<String>> requestParameterMap = session.getRequestParameterMap();
             List<String> stringList = requestParameterMap.get("userName");
             userMap.put(stringList.get(0),"接收结束");
-
         }
     }
     /**
@@ -133,6 +134,17 @@ public class WebSocketService {
             throw new RuntimeException(e.getMessage());
         }
     }
+    public static void sendMessageAll(String string) {
+        Collection<WebSocketClient> values = webSocketMap.values();
+            try {
+                for (WebSocketClient value:values){
+                value.getSession().getBasicRemote().sendText(string);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
     public static synchronized int getOnlineCount() {
         return onlineCount;
     }

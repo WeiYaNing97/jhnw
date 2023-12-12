@@ -3,10 +3,7 @@ package com.sgcc.sql.thread;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,7 +34,6 @@ public class ScanFixedThreadPool {
             /*加入map*/
             threadNameMap.put(threadName, threadName);
             fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
-
         }
         countDownLatch.await();
         /*关闭线程池*/

@@ -37,7 +37,6 @@ public class AdvancedFeatures {
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "高级功能", businessType = BusinessType.OTHER)
     public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {//待测
-
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
@@ -53,18 +52,15 @@ public class AdvancedFeatures {
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
         }
-
         //线程池
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
-
         try {
             /*高级功能线程池*/
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
             AdvancedThreadPool.switchLoginInformations(parameterSet, functionName,true);
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -75,7 +71,6 @@ public class AdvancedFeatures {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));
         while (true){
@@ -100,7 +95,6 @@ public class AdvancedFeatures {
     */
     public String advancedScheduledTasks(String nameList) {
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        System.err.println("advancedScheduledTasks = " + simpleDateFormat);
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
@@ -112,7 +106,7 @@ public class AdvancedFeatures {
 
         LoginUser loginUser = new LoginUser();
         SysUser user = new SysUser();
-        user.setUserName("admin");
+        user.setUserName("quartz");
         loginUser.setUser(user);
 
         /*获取定时任务 获取交换机登录信息 集合*/

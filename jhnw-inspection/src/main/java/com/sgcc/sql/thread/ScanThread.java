@@ -40,6 +40,7 @@ public class ScanThread extends Thread  {
             System.err.println("活跃线程数："+threadCount);*/
 
             SwitchInteraction switchInteraction = new SwitchInteraction();
+
             //扫描方法 logInToGetBasicInformation
             switchInteraction.logInToGetBasicInformation(switchParameters,null,null,isRSA);
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());

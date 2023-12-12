@@ -33,7 +33,6 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -393,6 +392,7 @@ public class SwitchInteraction {
     @GetMapping("logInToGetBasicInformation")
     public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) {
         /*连接交换机 获取交换机基本信息*/
+
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters,isRSA);
 

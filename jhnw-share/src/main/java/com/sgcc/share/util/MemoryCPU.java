@@ -1,7 +1,11 @@
 package com.sgcc.share.util;
+import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +20,7 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +33,12 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/sql")
 @Slf4j
+/**
+ * 定时任务的使用
+ * @author pan_junbiao
+ **/
+@Component
+@EnableScheduling   // 1.开启定时任务
 public class MemoryCPU {
 
     private static String MemorySize = null;//内存大小
@@ -36,13 +47,13 @@ public class MemoryCPU {
     private static String CPUUtilization = null;//CPU利用率
 
     @ApiOperation("获取服务器CPU、内存大小及使用率")
-    @GetMapping("/get_Memory_CPU")
+    //@GetMapping("/get_Memory_CPU")
     public String get_Memory_CPU() {
-        initSystemInfo();
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+
                 "内存使用率 : "+MemoryUsage+"\r\n"+
                 "CPU总数 : "+TotalCPUs+"\r\n"+
                 "CPU利用率 : "+CPUUtilization+"\r\n";
+        //WebSocketService.sendMessageAll(Memory_CPU);
         return Memory_CPU;
     }
 
@@ -67,7 +78,9 @@ public class MemoryCPU {
      * @param
      * @return void
      */
+    @Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
     public void initSystemInfo() {
+
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 SystemInfo systemInfo = new SystemInfo();

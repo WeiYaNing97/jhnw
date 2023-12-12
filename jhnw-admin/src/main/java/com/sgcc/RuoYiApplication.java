@@ -1,9 +1,5 @@
 package com.sgcc;
-import com.sgcc.advanced.domain.OspfEnum;
-import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.MemoryCPU;
 import com.sgcc.share.domain.Constant;
-import com.sgcc.share.util.MyUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
