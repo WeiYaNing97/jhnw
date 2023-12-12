@@ -734,7 +734,7 @@ public class FunctionalMethods {
 
 
     /**
-     * 根据 UP 截取端口号
+     * 根据 UP 截取端口号 并 去除带"."的子端口
      *
      * @param information
      * @return
@@ -742,7 +742,8 @@ public class FunctionalMethods {
     public static String getTerminalSlogan(String information){
         /*
          *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
-         * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth */
+         * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth
+         * 根据空格分割为 关键词数组*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword",Constant.getProfileInformation());
         String[] keywords = deviceVersion.trim().split(" ");
 
@@ -755,16 +756,29 @@ public class FunctionalMethods {
          * 此时需要判断提取到的端口号是否包含字母
          * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
         for (String string:informationSplit){
-            /* GigabitEthernet 9/1 */
+            /* 两种情况
+            * GigabitEthernet 9/1
+            * GigabitEthernet9/1 */
             String[] string_split = string.trim().split(" ");
 
             /* 遍历交换机信息数组 */
             for (int num = 0;num < string_split.length;num++){
 
-                /* 遍历配置文件 获取端口号关键词 */
+                /* 遍历配置文件 获取端口号关键词
+                *
+                * 查看 是否以 关键字开头
+                *
+                * 如果 以关键字开头，则判断 是否包含字母
+                * 如果包含数字 则端口号完全，
+                * 如果不包含字母则端口号不全，数值部分在下一个数组元素
+                *
+                * 端口号不能存在.情况发生。为子端口号，例如 TenGigabitEthernet 5/51.231 为 TenGigabitEthernet 5/51 子端口
+                * 子端口 不用检测*/
                 for (String keyword:keywords){
+
                     /*判断数组元素 是否已 关键词为 首*/
                     if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase())){
+
                         /*判断提取到的端口号是否包含字母
                          * 包含数字 则端口号完全 */
                         if (MyUtils.isNumeric(string_split[num])){
@@ -789,7 +803,9 @@ public class FunctionalMethods {
                             return port;
                         }
                     }
+
                 }
+
             }
         }
         return null;

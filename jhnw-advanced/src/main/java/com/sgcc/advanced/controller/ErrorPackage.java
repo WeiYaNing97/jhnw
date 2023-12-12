@@ -441,7 +441,7 @@ public class ErrorPackage {
         /*遍历端口待取集合 执行取值方法 获取端口号*/
         List<String> port = new ArrayList<>();
         for (String information:strings){
-            /*根据 UP 截取端口号 */
+            /* 根据 UP 截取端口号 并 去除带"."的子端口 */
             String terminalSlogan = FunctionalMethods.getTerminalSlogan(information);
             if (terminalSlogan != null){
                 port.add(terminalSlogan);

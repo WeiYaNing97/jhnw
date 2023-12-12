@@ -247,16 +247,15 @@ public class LuminousAttenuation {
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = lightAttenuationCommand.getConversion();
         if (conversion != null){
+            /*GE:GigabitEthernet*/
             String[] conversionSplit = conversion.split(";");
             for (String convers:conversionSplit){
                 /* 转译 分割为 字符串数组*/
                 String[] conversSplit = convers.split(":");
                 for (int num=0;num<port.size();num++){
-
                     /* getFirstLetters 获取字符串开头字母部分
                      * 判断 是否与转译相同
                      * 如果相同 则 进行转译  */
-
                     if (MyUtils.getFirstLetters(port.get(num)).trim().equals(conversSplit[0])){
                         port.set(num,port.get(num).replace(conversSplit[0],conversSplit[1]));
                     }
@@ -417,9 +416,9 @@ public class LuminousAttenuation {
     }
 
     /**
-    * @Description根据交换机返回信息获取获取UP状态端口号
+    * @Description 根据交换机返回信息获取获取 UP 状态端口号
      *
-    * @desc 遍历交换及返回信息，其中包含" UP "状态的且 不包含"COPPER"铜缆的 端口号 筛选出来
+    * @desc 遍历交换及返回信息，其中包含" UP "状态的、不包含"COPPER"铜缆的、不为”Eth“百兆光纤的 且不包含"."子端口号的  端口号筛选出来
      *
      *
     * @param returnString
@@ -443,13 +442,16 @@ public class LuminousAttenuation {
         /*遍历端口待取集合 执行取值方法 获取端口号*/
         List<String> port = new ArrayList<>();
         for (String information:strings){
-            /*根据 UP 截取端口号*/
+
+            /*根据 UP 截取端口号 并 去除带"."的子端口*/
             String terminalSlogan = FunctionalMethods.getTerminalSlogan(information);
+
             /* 端口号不能为 null
             * getFirstLetters获取字符串开头字母部分  不能为 Eth  百兆网不获取 光衰信息*/
             if (terminalSlogan != null && !(MyUtils.getFirstLetters(terminalSlogan).equalsIgnoreCase("Eth"))){
                 port.add(terminalSlogan);
             }
+
         }
 
         return port;
