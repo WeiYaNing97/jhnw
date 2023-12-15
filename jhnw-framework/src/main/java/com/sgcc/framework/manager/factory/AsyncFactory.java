@@ -6,6 +6,7 @@ import java.util.TimerTask;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
+import com.sgcc.framework.security.filter.GlobalFilter;
 import com.sgcc.system.domain.SwitchOperLog;
 import com.sgcc.system.service.ISwitchOperLogService;
 import org.slf4j.Logger;

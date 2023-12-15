@@ -2,6 +2,8 @@ package com.sgcc.web.controller.system;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.sgcc.framework.security.filter.GlobalFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -146,6 +148,7 @@ public class SysUserController extends BaseController
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysUser user)
     {
+
         userService.checkUserAllowed(user);
         if (StringUtils.isNotEmpty(user.getPhonenumber())
                 && UserConstants.NOT_UNIQUE.equals(userService.checkPhoneUnique(user)))
@@ -159,6 +162,7 @@ public class SysUserController extends BaseController
         }
         user.setUpdateBy(getUsername());
         return toAjax(userService.updateUser(user));
+
     }
 
     /**

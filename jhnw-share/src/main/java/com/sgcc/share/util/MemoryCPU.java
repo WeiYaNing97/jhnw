@@ -48,7 +48,7 @@ public class MemoryCPU {
 
     @ApiOperation("获取服务器CPU、内存大小及使用率")
     //@GetMapping("/get_Memory_CPU")
-    @Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
+    //@Scheduled(cron="0/5 * *  * * ? ")   //每5秒执行一次
     public String get_Memory_CPU() {
         initSystemInfo();
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+

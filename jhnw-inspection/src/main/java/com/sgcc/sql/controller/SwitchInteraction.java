@@ -28,6 +28,7 @@ import com.sgcc.sql.thread.DirectionalScanThreadPool;
 import com.sgcc.sql.thread.ScanFixedThreadPool;
 import com.sgcc.sql.util.InspectionMethods;
 import com.sgcc.sql.util.ScanLogicMethods;
+import com.sgcc.system.service.ISysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -377,9 +378,9 @@ public class SwitchInteraction {
                 return "扫描结束";
             }
         }*/
+
         return "扫描结束";
     }
-
 
 
     /**
