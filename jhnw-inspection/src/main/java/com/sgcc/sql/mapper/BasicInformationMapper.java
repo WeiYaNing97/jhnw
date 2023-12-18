@@ -6,9 +6,7 @@ import java.util.List;
 
 /**
  * 获取基本信息命令Mapper接口
- * 
- * @author 韦亚宁
- * @date 2021-12-21
+ *
  */
 public interface BasicInformationMapper 
 {

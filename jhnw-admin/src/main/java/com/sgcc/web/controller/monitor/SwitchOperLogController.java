@@ -22,9 +22,7 @@ import com.sgcc.common.core.page.TableDataInfo;
 
 /**
  * 操作日志记录Controller
- * 
- * @author 天幕顽主
- * @date 2022-07-13
+ *
  */
 @RestController
 @RequestMapping("/system/switch_oper_log")

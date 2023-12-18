@@ -13,9 +13,6 @@ import com.sgcc.system.service.ISwitchOperLogService;
 
 /**
  * 操作日志记录Service业务层处理
- * 
- * @author 天幕顽主
- * @date 2022-07-13
  */
 @Service
 public class SwitchOperLogServiceImpl implements ISwitchOperLogService 

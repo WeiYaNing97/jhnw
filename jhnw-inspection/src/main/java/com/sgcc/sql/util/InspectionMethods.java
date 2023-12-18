@@ -161,8 +161,6 @@ public class InspectionMethods {
      * @method: commandLogic转化为String
      * @Param: [commandLogic]
      * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static String commandLogicString(CommandLogic commandLogic){
         String onlyIndex = commandLogic.getId();
@@ -207,8 +205,6 @@ public class InspectionMethods {
      * @method: 字符串解析 CommandLogic 实体类 并返回
      * @Param: [jsonPojo]
      * @return: com.sgcc.sql.domain.CommandLogic
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
         /*第一步：去掉“{”“}”，然后以“，”分割（扫描逻辑中命令是否有带“，”的，会有影响）*/
@@ -288,11 +284,9 @@ public class InspectionMethods {
     }
 
     /**
-     * @method: problemScanLogic   转化  Sting
+     * @method: problemScanLogic 实体类转化  Sting
      * @Param: [problemScanLogic]
      * @return: java.lang.String
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static String problemScanLogicSting(ProblemScanLogic problemScanLogic,String id){
         //定义一个 符合 前端字符串的 实体类
@@ -465,8 +459,6 @@ public class InspectionMethods {
      * @method: 字符串解析 ProblemScanLogic 实体类 并返回
      * @Param: [jsonPojo, ifCommand : 分析、命令、问题]
      * @return: com.sgcc.sql.domain.ProblemScanLogic
-     * @Author: 天幕顽主
-     * @E-mail: WeiYaNing97@163.com
      */
     public static ProblemScanLogic analysisProblemScanLogic(@RequestBody String jsonPojo, String ifCommand){
         ProblemScanLogic problemScanLogic = new ProblemScanLogic();

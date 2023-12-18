@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 
 /**
  * 专项扫描多线程
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
- * @date 2022年08月09日 14:04
  */
 public class DirectionalScanThreadPool {
 

@@ -2,6 +2,7 @@ package com.sgcc.share.controller;
 
 import java.util.List;
 
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchFailure;
 import com.sgcc.share.service.ISwitchFailureService;
@@ -60,7 +61,7 @@ public class SwitchFailureController extends BaseController
      * 导出交换机故障列表
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:export')")
-    @Log(title = "交换机故障", businessType = BusinessType.EXPORT)
+    @MyLog(title = "交换机故障", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(SwitchFailure switchFailure)
     {
@@ -83,7 +84,7 @@ public class SwitchFailureController extends BaseController
      * 新增交换机故障
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:add')")
-    @Log(title = "交换机故障", businessType = BusinessType.INSERT)
+    @MyLog(title = "交换机故障", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody SwitchFailure switchFailure)
     {
@@ -94,7 +95,7 @@ public class SwitchFailureController extends BaseController
      * 修改交换机故障
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:edit')")
-    @Log(title = "交换机故障", businessType = BusinessType.UPDATE)
+    @MyLog(title = "交换机故障", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody SwitchFailure switchFailure)
     {
@@ -105,7 +106,7 @@ public class SwitchFailureController extends BaseController
      * 删除交换机故障
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:remove')")
-    @Log(title = "交换机故障", businessType = BusinessType.DELETE)
+    @MyLog(title = "交换机故障", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{failureIds}")
     public AjaxResult remove(@PathVariable Long[] failureIds)
     {

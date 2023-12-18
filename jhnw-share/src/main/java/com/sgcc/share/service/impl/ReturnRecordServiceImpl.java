@@ -12,9 +12,6 @@ import java.util.List;
 
 /**
  * 返回信息Service业务层处理
- * 
- * @author 韦亚宁
- * @date 2021-12-22
  */
 @Service
 public class ReturnRecordServiceImpl implements IReturnRecordService
@@ -100,8 +97,6 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
     * @method: 根据时间 查询pojo集合
     * @Param: [s]
     * @return: java.util.List<com.sgcc.sql.domain.ReturnRecord>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     @Override
     public List<ReturnRecord> selectReturnRecordListByDataTime(String data) {

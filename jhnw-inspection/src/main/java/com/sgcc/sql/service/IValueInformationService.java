@@ -65,8 +65,6 @@ public interface IValueInformationService
     * @method: 根据第一个参数id 查询参数列表
     * @Param: [id]
     * @return: java.util.List<com.sgcc.sql.domain.ValueInformationVO>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     List<ValueInformationVO> selectValueInformationVOListByID(Long id);
 

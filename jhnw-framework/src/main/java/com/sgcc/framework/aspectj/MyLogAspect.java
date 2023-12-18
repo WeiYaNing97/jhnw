@@ -102,8 +102,6 @@ public class MyLogAspect
             // 处理设置注解上的参数
             getControllerMethodDescription(joinPoint, controllerLog, operLog, jsonResult);
             // 保存数据库
-            System.err.println("");
-
             /*获取地址*/
             String realAddressByIP = AddressUtils.getRealAddressByIP(operLog.getOperIp());
             operLog.setOperLocation(realAddressByIP);

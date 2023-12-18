@@ -6,9 +6,6 @@ import com.sgcc.sql.domain.TotalQuestionTableVO;
 
 /**
  * 问题及命令Service接口
- * 
- * @author 韦亚宁
- * @date 2021-12-14
  */
 public interface ITotalQuestionTableService 
 {
@@ -76,8 +73,6 @@ public interface ITotalQuestionTableService
     * @method: 查询问题及命令列表
     * @Param: [totalQuestionTable]
     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     List<TotalQuestionTable> selectTotalQuestionTabletypeProblemList(TotalQuestionTable totalQuestionTable);
 
@@ -85,8 +80,6 @@ public interface ITotalQuestionTableService
     * @method: 品牌列表
     * @Param: [totalQuestionTable]
     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     List<TotalQuestionTable> selectTotalQuestionTablebrandList(TotalQuestionTable totalQuestionTable);
 
@@ -94,8 +87,6 @@ public interface ITotalQuestionTableService
     * @method: 型号列表
     * @Param: [totalQuestionTable]
     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     List<TotalQuestionTable> selectTotalQuestionTabletypelist(TotalQuestionTable totalQuestionTable);
 
@@ -103,8 +94,6 @@ public interface ITotalQuestionTableService
     * @method: 内部固件版本
     * @Param: [totalQuestionTable]
     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     List<TotalQuestionTable> selectTotalQuestionTablefirewareVersionlist(TotalQuestionTable totalQuestionTable);
 
@@ -112,8 +101,6 @@ public interface ITotalQuestionTableService
     * @method: 子版本号
     * @Param: [totalQuestionTable]
     * @return: java.util.List<com.sgcc.sql.domain.TotalQuestionTable>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     List<TotalQuestionTable> selectTotalQuestionTablesubVersionlist(TotalQuestionTable totalQuestionTable);
 
@@ -121,8 +108,6 @@ public interface ITotalQuestionTableService
     * @method: 根据 问题描述表ID  查询 问题表实体类
     * @Param: [id]
     * @return: com.sgcc.sql.domain.TotalQuestionTable
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     TotalQuestionTable selectPojoByproblemDescribeId(Long id);
 

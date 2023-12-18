@@ -1,6 +1,7 @@
 package com.sgcc.share.controller;
 
 import com.sgcc.common.annotation.Log;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -51,7 +52,7 @@ public class ReturnRecordController extends BaseController
      * 导出返回信息列表
      */
     @PreAuthorize("@ss.hasPermi('sql:return_record:export')")
-    @Log(title = "返回信息", businessType = BusinessType.EXPORT)
+    @MyLog(title = "返回信息", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ReturnRecord returnRecord)
     {
@@ -74,7 +75,7 @@ public class ReturnRecordController extends BaseController
      * 新增返回信息
      */
     @PreAuthorize("@ss.hasPermi('sql:return_record:add')")
-    @Log(title = "返回信息", businessType = BusinessType.INSERT)
+    @MyLog(title = "返回信息", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ReturnRecord returnRecord)
     {
@@ -85,7 +86,7 @@ public class ReturnRecordController extends BaseController
      * 修改返回信息
      */
     @PreAuthorize("@ss.hasPermi('sql:return_record:edit')")
-    @Log(title = "返回信息", businessType = BusinessType.UPDATE)
+    @MyLog(title = "返回信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ReturnRecord returnRecord)
     {
@@ -96,7 +97,7 @@ public class ReturnRecordController extends BaseController
      * 删除返回信息
      */
     @PreAuthorize("@ss.hasPermi('sql:return_record:remove')")
-    @Log(title = "返回信息", businessType = BusinessType.DELETE)
+    @MyLog(title = "返回信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

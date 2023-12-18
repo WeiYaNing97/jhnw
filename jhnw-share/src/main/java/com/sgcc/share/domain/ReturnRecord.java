@@ -6,9 +6,6 @@ import com.sgcc.common.core.domain.BaseEntity;
 import java.util.Date;
 /**
  * 返回信息对象 return_record
- * 
- * @author 韦亚宁
- * @date 2021-12-22
  */
 public class ReturnRecord extends BaseEntity
 {

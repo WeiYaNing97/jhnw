@@ -7,9 +7,7 @@ import java.util.List;
 
 /**
  * 问题及命令对象 total_question_table
- * 
- * @author 韦亚宁
- * @date 2021-12-14
+ *
  */
 public class TotalQuestionTableVO extends BaseEntity
 {

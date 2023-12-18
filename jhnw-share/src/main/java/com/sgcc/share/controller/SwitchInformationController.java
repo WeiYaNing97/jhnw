@@ -1,4 +1,5 @@
 package com.sgcc.share.controller;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.domain.SwitchInformation;
 import com.sgcc.share.service.ISwitchInformationService;
@@ -49,7 +50,7 @@ public class SwitchInformationController extends BaseController
      * 导出交换机四项基本信息列表
      */
     @PreAuthorize("@ss.hasPermi('sql:switchInformation:export')")
-    @Log(title = "交换机四项基本信息", businessType = BusinessType.EXPORT)
+    @MyLog(title = "交换机四项基本信息", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(SwitchInformation switchInformation)
     {
@@ -75,7 +76,7 @@ public class SwitchInformationController extends BaseController
      * 新增交换机四项基本信息
      */
     @PreAuthorize("@ss.hasPermi('sql:switchInformation:add')")
-    @Log(title = "交换机四项基本信息", businessType = BusinessType.INSERT)
+    @MyLog(title = "交换机四项基本信息", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody SwitchInformation switchInformation)
     {
@@ -86,7 +87,7 @@ public class SwitchInformationController extends BaseController
      * 修改交换机四项基本信息
      */
     @PreAuthorize("@ss.hasPermi('sql:switchInformation:edit')")
-    @Log(title = "交换机四项基本信息", businessType = BusinessType.UPDATE)
+    @MyLog(title = "交换机四项基本信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody SwitchInformation switchInformation)
     {
@@ -97,7 +98,7 @@ public class SwitchInformationController extends BaseController
      * 删除交换机四项基本信息
      */
     @PreAuthorize("@ss.hasPermi('sql:switchInformation:remove')")
-    @Log(title = "交换机四项基本信息", businessType = BusinessType.DELETE)
+    @MyLog(title = "交换机四项基本信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

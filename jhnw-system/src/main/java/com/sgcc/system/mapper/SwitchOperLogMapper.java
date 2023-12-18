@@ -5,9 +5,6 @@ import com.sgcc.system.domain.SwitchOperLog;
 
 /**
  * 操作日志记录Mapper接口
- * 
- * @author 天幕顽主
- * @date 2022-07-13
  */
 public interface SwitchOperLogMapper 
 {

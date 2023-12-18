@@ -40,10 +40,6 @@ public class RepairFixedThread extends Thread {
     @Override
     public void run() {
         try {
-            //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-            /*int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-            System.err.println("活跃线程数："+threadCount);*/
-
             SolveProblemController solveProblemController = new SolveProblemController();
             solveProblemController.batchSolution(switchParameters,switchScanResults,problemIds);
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
@@ -53,9 +49,6 @@ public class RepairFixedThread extends Thread {
             RepairFixedThreadPool.removeThread(this.getName());
             countDownLatch.countDown();
         }
-        //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-        /*int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-        System.err.println("活跃线程数："+threadCount);*/
     }
 
 }

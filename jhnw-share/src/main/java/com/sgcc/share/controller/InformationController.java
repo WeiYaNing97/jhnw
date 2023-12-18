@@ -2,6 +2,7 @@ package com.sgcc.share.controller;
 
 import java.util.List;
 
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.domain.Information;
 import com.sgcc.share.service.IInformationService;
@@ -50,7 +51,7 @@ public class InformationController extends BaseController
      * 导出交换机信息列表
      */
     @PreAuthorize("@ss.hasPermi('sql:information:export')")
-    @Log(title = "交换机信息", businessType = BusinessType.EXPORT)
+    @MyLog(title = "交换机信息", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(Information information)
     {
@@ -73,7 +74,7 @@ public class InformationController extends BaseController
      * 新增交换机信息
      */
     @PreAuthorize("@ss.hasPermi('sql:information:add')")
-    @Log(title = "交换机信息", businessType = BusinessType.INSERT)
+    @MyLog(title = "交换机信息", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody Information information)
     {
@@ -84,7 +85,7 @@ public class InformationController extends BaseController
      * 修改交换机信息
      */
     @PreAuthorize("@ss.hasPermi('sql:information:edit')")
-    @Log(title = "交换机信息", businessType = BusinessType.UPDATE)
+    @MyLog(title = "交换机信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody Information information)
     {
@@ -95,7 +96,7 @@ public class InformationController extends BaseController
      * 删除交换机信息
      */
     @PreAuthorize("@ss.hasPermi('sql:information:remove')")
-    @Log(title = "交换机信息", businessType = BusinessType.DELETE)
+    @MyLog(title = "交换机信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

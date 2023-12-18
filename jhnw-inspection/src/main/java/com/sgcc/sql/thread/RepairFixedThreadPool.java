@@ -10,10 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
- * 修复多线程
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
- * @date 2022年07月29日 15:36
+ * 修复逻辑 多线程
  */
 public class RepairFixedThreadPool {
 

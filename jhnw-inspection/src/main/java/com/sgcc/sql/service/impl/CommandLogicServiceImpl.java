@@ -11,9 +11,6 @@ import java.util.List;
 
 /**
  * 命令逻辑Service业务层处理
- * 
- * @author 韦亚宁
- * @date 2021-12-14
  */
 @Service
 public class CommandLogicServiceImpl implements ICommandLogicService 

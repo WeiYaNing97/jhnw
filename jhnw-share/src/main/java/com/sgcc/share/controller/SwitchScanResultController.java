@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import cn.hutool.core.date.DateTime;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -68,7 +69,7 @@ public class SwitchScanResultController extends BaseController
      */
     @ApiOperation("导出交换机扫描结果列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:export')")
-    @Log(title = "交换机扫描结果", businessType = BusinessType.EXPORT)
+    @MyLog(title = "交换机扫描结果", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(SwitchScanResult switchScanResult) {
         List<SwitchScanResult> list = switchScanResultService.selectSwitchScanResultList(switchScanResult);
@@ -91,7 +92,7 @@ public class SwitchScanResultController extends BaseController
      */
     @ApiOperation("新增交换机扫描结果")
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:add')")
-    @Log(title = "交换机扫描结果", businessType = BusinessType.INSERT)
+    @MyLog(title = "交换机扫描结果", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody SwitchScanResult switchScanResult) {
         return toAjax(switchScanResultService.insertSwitchScanResult(switchScanResult));
@@ -102,7 +103,7 @@ public class SwitchScanResultController extends BaseController
      */
     @ApiOperation("修改交换机扫描结果")
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:edit')")
-    @Log(title = "交换机扫描结果", businessType = BusinessType.UPDATE)
+    @MyLog(title = "交换机扫描结果", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody SwitchScanResult switchScanResult) {
         return toAjax(switchScanResultService.updateSwitchScanResult(switchScanResult));
@@ -112,7 +113,7 @@ public class SwitchScanResultController extends BaseController
      * 删除交换机扫描结果
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:remove')")
-    @Log(title = "交换机扫描结果", businessType = BusinessType.DELETE)
+    @MyLog(title = "交换机扫描结果", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(switchScanResultService.deleteSwitchScanResultByIds(ids));

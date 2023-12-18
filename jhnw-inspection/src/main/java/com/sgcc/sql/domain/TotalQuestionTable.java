@@ -7,9 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 /**
  * 问题及命令对象 total_question_table
- * 
- * @author 韦亚宁
- * @date 2021-12-14
+ *
  */
 @ApiModel(value = "TotalQuestionTable", description = "交换机问题实体")
 public class TotalQuestionTable extends BaseEntity

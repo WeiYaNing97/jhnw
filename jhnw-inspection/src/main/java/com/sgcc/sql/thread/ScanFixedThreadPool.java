@@ -10,9 +10,6 @@ import java.util.stream.IntStream;
 
 /**
  * 扫描全部问题多线程池
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
- * @date 2022年07月29日 15:36
  */
 public class ScanFixedThreadPool {
 

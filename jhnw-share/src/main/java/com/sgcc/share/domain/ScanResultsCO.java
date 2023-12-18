@@ -4,11 +4,6 @@ import com.sgcc.common.annotation.Excel;
 
 import java.util.List;
 
-/**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
- * @date 2022年08月12日 11:33
- */
 public class ScanResultsCO {
 
     public Long hproblemId;

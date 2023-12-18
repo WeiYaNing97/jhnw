@@ -3,11 +3,6 @@ package com.sgcc.share.domain;
 import com.sgcc.common.annotation.Excel;
 import java.util.List;
 
-/**
- * @author 天幕顽主
- * @E-mail: WeiYaNing97@163.com
- * @date 2022年01月12日 11:44
- */
 public class ScanResultsVO {
 
     public Long hproblemId;

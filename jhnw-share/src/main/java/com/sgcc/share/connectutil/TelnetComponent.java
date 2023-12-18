@@ -133,8 +133,6 @@ public class TelnetComponent {
     * @method: 去除交换机返回信息 字符串中的 乱码（高亮）
     * @Param: [returnInformation]
     * @return: java.lang.String
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     public String removeGarbledCode(String returnInformation){
         char[] returnInformationChars = returnInformation.toCharArray();

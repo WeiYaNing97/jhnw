@@ -7,9 +7,6 @@ import java.util.List;
 
 /**
  * 返回信息Service接口
- * 
- * @author 韦亚宁
- * @date 2021-12-22
  */
 public interface IReturnRecordService 
 {
@@ -65,8 +62,6 @@ public interface IReturnRecordService
     * @method: 根据时间 查询pojo集合
     * @Param: [s]
     * @return: java.util.List<com.sgcc.sql.domain.ReturnRecord>
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     List<ReturnRecord> selectReturnRecordListByDataTime(String data);
 

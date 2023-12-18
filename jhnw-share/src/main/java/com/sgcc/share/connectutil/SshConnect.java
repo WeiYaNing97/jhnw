@@ -111,8 +111,6 @@ public class SshConnect implements Runnable {
     * @method: 读取服务器执行命令后返回信息
     * @Param: [instr]
     * @return: java.lang.String
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     protected String readOneEcho(InputStream instr) {
         byte[] buff = new byte[1024];
@@ -161,8 +159,6 @@ public class SshConnect implements Runnable {
     * @method: 连接SSH
     * @Param: [cmds] cmds[0]:用户名 cmds[1] 密码
     * @return: boolean
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     public List<Object> login(String ip, String[] cmds) {
         List<Object> objects = new ArrayList<>();
@@ -230,9 +226,6 @@ public class SshConnect implements Runnable {
     /***
     * @method: 向服务器发送命令
     * @Param: [command 命令, sendEnter]
-    * @return: void
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     protected String sendCommand(String ip,String command, boolean sendEnter) {
         SshInformation sshInformation = switchInformation.get(ip);
@@ -283,8 +276,6 @@ public class SshConnect implements Runnable {
     * @method: 执行单个命令
     * @Param: [command, ifEnter]
     * @return: java.lang.String
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     private String runCommand(String ip ,String command,String notFinished,boolean ifEnter) {
         SshInformation sshInformation = switchInformation.get(ip);
@@ -385,8 +376,6 @@ public class SshConnect implements Runnable {
     * @method: 接收命令数组，发送命令（单个）
     * @Param: [cmds 命令, othernEenterCmds]
     * @return: java.lang.String
-    * @Author: 天幕顽主
-    * @E-mail: WeiYaNing97@163.com
     */
     public String batchCommand(String ip,String[] cmds,String notFinished, int[] othernEenterCmds,boolean quit) {
         SshInformation sshInformation = switchInformation.get(ip);

@@ -9,9 +9,6 @@ import com.sgcc.common.core.domain.BaseEntity;
 
 /**
  * 操作日志记录对象 switch_oper_log
- * 
- * @author 天幕顽主
- * @date 2022-07-13
  */
 public class SwitchOperLog extends BaseEntity
 {

@@ -456,7 +456,6 @@ public class SwitchInteraction {
      * user_Object ：
      * SshConnect ssh连接工具，connectMethod ssh连接,
      * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
-     * @E-mail: WeiYaNing97@163.com
      * 通过null 查询初所有会的交换机基本信息的命令字符串集合
      * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
      * 通过返回提取的信息，给基本属性赋值
@@ -732,7 +731,6 @@ public class SwitchInteraction {
      * user_Object ：
      * SshConnect ssh连接工具，connectMethod ssh连接,
      * TelnetComponent Telnet连接工具，telnetSwitchMethod telnet连接]
-     * @E-mail: WeiYaNing97@163.com
      * 通过null 查询初所有会的交换机基本信息的命令字符串集合
      * 遍历交换机基本信息的命令字符串集合 通过 扫描分析方法 获得所有提取信息
      * 通过返回提取的信息，给基本属性赋值
