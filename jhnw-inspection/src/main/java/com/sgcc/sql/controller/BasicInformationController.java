@@ -1,6 +1,6 @@
 package com.sgcc.sql.controller;
 
-import com.sgcc.common.annotation.Log;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.page.TableDataInfo;
@@ -8,19 +8,13 @@ import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.BasicInformation;
 import com.sgcc.sql.service.IBasicInformationService;
-import com.sgcc.sql.service.ICommandLogicService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -53,7 +47,7 @@ public class BasicInformationController extends BaseController
      * 导出获取基本信息命令列表
      */
     @PreAuthorize("@ss.hasPermi('sql:basic_information:export')")
-    @Log(title = "获取基本信息命令", businessType = BusinessType.EXPORT)
+    @MyLog(title = "获取基本信息命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(BasicInformation basicInformation)
     {
@@ -76,7 +70,7 @@ public class BasicInformationController extends BaseController
      * 新增获取基本信息命令
      */
     @PreAuthorize("@ss.hasPermi('sql:basic_information:add')")
-    @Log(title = "获取基本信息命令", businessType = BusinessType.INSERT)
+    @MyLog(title = "获取基本信息命令", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BasicInformation basicInformation)
     {
@@ -87,7 +81,7 @@ public class BasicInformationController extends BaseController
      * 修改获取基本信息命令
      */
     @PreAuthorize("@ss.hasPermi('sql:basic_information:edit')")
-    @Log(title = "获取基本信息命令", businessType = BusinessType.UPDATE)
+    @MyLog(title = "获取基本信息命令", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BasicInformation basicInformation)
     {
@@ -98,7 +92,7 @@ public class BasicInformationController extends BaseController
      * 删除获取基本信息命令
      */
     @PreAuthorize("@ss.hasPermi('sql:basic_information:remove')")
-    @Log(title = "获取基本信息命令", businessType = BusinessType.DELETE)
+    @MyLog(title = "获取基本信息命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

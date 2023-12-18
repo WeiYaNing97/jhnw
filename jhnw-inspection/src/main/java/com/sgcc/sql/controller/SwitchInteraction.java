@@ -1,5 +1,4 @@
 package com.sgcc.sql.controller;
-
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
 import com.sgcc.advanced.controller.ErrorPackage;
@@ -28,7 +27,6 @@ import com.sgcc.sql.thread.DirectionalScanThreadPool;
 import com.sgcc.sql.thread.ScanFixedThreadPool;
 import com.sgcc.sql.util.InspectionMethods;
 import com.sgcc.sql.util.ScanLogicMethods;
-import com.sgcc.system.service.ISysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -36,7 +34,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -742,7 +739,7 @@ public class SwitchInteraction {
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      */
     @GetMapping("/getBasicInformationList")
-    // @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
+    @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
     public  AjaxResult getBasicInformationList(SwitchParameters switchParameters) {
         //查询 获取基本信息命令表  中的全部命令
         //BasicInformation pojo_NULL = new BasicInformation(); //null

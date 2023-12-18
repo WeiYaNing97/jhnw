@@ -1,12 +1,7 @@
 package com.sgcc.framework.manager.factory;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimerTask;
 
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateTime;
-import com.sgcc.framework.security.filter.GlobalFilter;
 import com.sgcc.system.domain.SwitchOperLog;
 import com.sgcc.system.service.ISwitchOperLogService;
 import org.slf4j.Logger;
@@ -121,6 +116,9 @@ public class AsyncFactory
             @Override
             public void run()
             {
+                Thread thread = Thread.currentThread();
+                System.err.println("recordOper线程名："+thread.getName());
+
                 // 远程查询操作地点
                 operLog.setOperLocation(AddressUtils.getRealAddressByIP(operLog.getOperIp()));
                 SpringUtils.getBean(ISwitchOperLogService.class).insertSwitchOperLog(operLog);

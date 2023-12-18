@@ -10,7 +10,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
@@ -128,7 +127,7 @@ public class ProblemDescribeController extends BaseController
      * 导出问题描述列表
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:export')")
-    @Log(title = "问题描述", businessType = BusinessType.EXPORT)
+    @MyLog(title = "问题描述", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ProblemDescribe problemDescribe)
     {
@@ -151,7 +150,7 @@ public class ProblemDescribeController extends BaseController
      * 新增问题描述
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:add')")
-    @Log(title = "问题描述", businessType = BusinessType.INSERT)
+    @MyLog(title = "问题描述", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ProblemDescribe problemDescribe)
     {
@@ -162,7 +161,7 @@ public class ProblemDescribeController extends BaseController
      * 修改问题描述
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:edit')")
-    @Log(title = "问题描述", businessType = BusinessType.UPDATE)
+    @MyLog(title = "问题描述", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ProblemDescribe problemDescribe)
     {
@@ -173,7 +172,7 @@ public class ProblemDescribeController extends BaseController
      * 删除问题描述
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:remove')")
-    @Log(title = "问题描述", businessType = BusinessType.DELETE)
+    @MyLog(title = "问题描述", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

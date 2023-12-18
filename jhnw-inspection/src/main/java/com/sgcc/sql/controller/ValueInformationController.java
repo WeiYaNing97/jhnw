@@ -1,6 +1,5 @@
 package com.sgcc.sql.controller;
-
-import com.sgcc.common.annotation.Log;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.page.TableDataInfo;
@@ -41,7 +40,7 @@ public class ValueInformationController extends BaseController
      * 导出取值信息存储列表
      */
     @PreAuthorize("@ss.hasPermi('sql:value_information:export')")
-    @Log(title = "取值信息存储", businessType = BusinessType.EXPORT)
+    @MyLog(title = "取值信息存储", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ValueInformation valueInformation)
     {
@@ -63,7 +62,7 @@ public class ValueInformationController extends BaseController
      * 新增取值信息存储
      */
     @PreAuthorize("@ss.hasPermi('sql:value_information:add')")
-    @Log(title = "取值信息存储", businessType = BusinessType.INSERT)
+    @MyLog(title = "取值信息存储", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ValueInformation valueInformation)
     {
@@ -73,7 +72,7 @@ public class ValueInformationController extends BaseController
      * 修改取值信息存储
      */
     @PreAuthorize("@ss.hasPermi('sql:value_information:edit')")
-    @Log(title = "取值信息存储", businessType = BusinessType.UPDATE)
+    @MyLog(title = "取值信息存储", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ValueInformation valueInformation)
     {
@@ -83,7 +82,7 @@ public class ValueInformationController extends BaseController
      * 删除取值信息存储
      */
     @PreAuthorize("@ss.hasPermi('sql:value_information:remove')")
-    @Log(title = "取值信息存储", businessType = BusinessType.DELETE)
+    @MyLog(title = "取值信息存储", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

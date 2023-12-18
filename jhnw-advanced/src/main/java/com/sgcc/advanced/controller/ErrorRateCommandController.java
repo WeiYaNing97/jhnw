@@ -1,6 +1,6 @@
 package com.sgcc.advanced.controller;
-
 import java.util.List;
+import com.sgcc.common.annotation.MyLog;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
@@ -47,7 +46,7 @@ public class ErrorRateCommandController extends BaseController
      * 导出误码率命令列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:export')")
-    @Log(title = "误码率命令", businessType = BusinessType.EXPORT)
+    @MyLog(title = "误码率命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ErrorRateCommand errorRateCommand)
     {
@@ -68,7 +67,7 @@ public class ErrorRateCommandController extends BaseController
      * 新增误码率命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:add')")
-    @Log(title = "误码率命令", businessType = BusinessType.INSERT)
+    @MyLog(title = "误码率命令", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ErrorRateCommand errorRateCommand)
     {
@@ -81,7 +80,7 @@ public class ErrorRateCommandController extends BaseController
      * 修改误码率命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:edit')")
-    @Log(title = "误码率命令", businessType = BusinessType.UPDATE)
+    @MyLog(title = "误码率命令", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ErrorRateCommand errorRateCommand)
     {
@@ -91,7 +90,7 @@ public class ErrorRateCommandController extends BaseController
      * 删除误码率命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:remove')")
-    @Log(title = "误码率命令", businessType = BusinessType.DELETE)
+    @MyLog(title = "误码率命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

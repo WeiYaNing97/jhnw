@@ -1,7 +1,6 @@
 package com.sgcc.framework.aspectj;
 
 import com.alibaba.fastjson.JSON;
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessStatus;
@@ -9,26 +8,30 @@ import com.sgcc.common.enums.HttpMethod;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.ServletUtils;
 import com.sgcc.common.utils.StringUtils;
+import com.sgcc.common.utils.ip.AddressUtils;
 import com.sgcc.common.utils.ip.IpUtils;
+import com.sgcc.common.utils.spring.SpringUtils;
 import com.sgcc.framework.manager.AsyncManager;
 import com.sgcc.framework.manager.factory.AsyncFactory;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.system.domain.SwitchOperLog;
-import com.sgcc.system.domain.SysOperLog;
+import com.sgcc.system.service.ISwitchOperLogService;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.Map;
+import java.util.TimerTask;
 
 /**
  * 操作日志记录处理
@@ -39,6 +42,9 @@ import java.util.Map;
 @Component
 public class MyLogAspect
 {
+    @Autowired
+    private ISwitchOperLogService switchOperLogService;
+
     private static final Logger log = LoggerFactory.getLogger(MyLogAspect.class);
 
     /**
@@ -68,10 +74,8 @@ public class MyLogAspect
     {
         try
         {
-
             // 获取当前的用户
             LoginUser loginUser = SecurityUtils.getLoginUser();
-
             // *========数据库日志=========*//
             SwitchOperLog operLog = new SwitchOperLog();
             operLog.setStatus(BusinessStatus.SUCCESS.ordinal());
@@ -98,10 +102,16 @@ public class MyLogAspect
             // 处理设置注解上的参数
             getControllerMethodDescription(joinPoint, controllerLog, operLog, jsonResult);
             // 保存数据库
-            AsyncManager.me().execute(AsyncFactory.recordOper(operLog));
-        }
-        catch (Exception exp)
-        {
+            System.err.println("");
+
+            /*获取地址*/
+            String realAddressByIP = AddressUtils.getRealAddressByIP(operLog.getOperIp());
+            operLog.setOperLocation(realAddressByIP);
+
+            switchOperLogService = SpringBeanUtil.getBean(ISwitchOperLogService.class);
+            switchOperLogService.insertSwitchOperLog(operLog);
+            /*AsyncManager.me().execute(AsyncFactory.recordOper(operLog));*/
+        } catch (Exception exp) {
             // 记录本地异常日志
             log.error("==前置通知异常==");
             log.error("异常信息:{}", exp.getMessage());
@@ -220,4 +230,5 @@ public class MyLogAspect
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse
                 || o instanceof BindingResult;
     }
+
 }

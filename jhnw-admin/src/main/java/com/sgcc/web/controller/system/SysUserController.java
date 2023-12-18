@@ -3,7 +3,6 @@ package com.sgcc.web.controller.system;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.sgcc.framework.security.filter.GlobalFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

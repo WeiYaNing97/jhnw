@@ -12,7 +12,6 @@ import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.ExecuteCommand;
-import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;

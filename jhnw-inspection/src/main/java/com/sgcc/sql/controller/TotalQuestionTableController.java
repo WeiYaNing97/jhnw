@@ -1,6 +1,4 @@
 package com.sgcc.sql.controller;
-
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -28,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 问题及命令Controller
@@ -52,7 +49,7 @@ public class TotalQuestionTableController extends BaseController
      * 导出问题及命令列表
      */
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:export')")
-    @Log(title = "问题及命令", businessType = BusinessType.EXPORT)
+    @MyLog(title = "问题及命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(TotalQuestionTable totalQuestionTable)
     {
@@ -140,7 +137,7 @@ public class TotalQuestionTableController extends BaseController
      * 修改问题及命令
      */
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:edit')")
-    @Log(title = "问题及命令", businessType = BusinessType.UPDATE)
+    @MyLog(title = "问题及命令", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody TotalQuestionTable totalQuestionTable)
     {
@@ -589,7 +586,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("删除交换机问题")
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:remove')")
-    @Log(title = "删除交换机问题", businessType = BusinessType.DELETE)
+    @MyLog(title = "删除交换机问题", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteTotalQuestionTable")
     public AjaxResult deleteTotalQuestionTable(@RequestBody Long id)
     {

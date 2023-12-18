@@ -1,6 +1,5 @@
 package com.sgcc.sql.controller;
-
-import com.sgcc.common.annotation.Log;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.page.TableDataInfo;
@@ -40,7 +39,7 @@ public class SwitchProblemController extends BaseController
      * 导出交换机问题列表
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:export')")
-    @Log(title = "交换机问题", businessType = BusinessType.EXPORT)
+    @MyLog(title = "交换机问题", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(SwitchProblem switchProblem)
     {
@@ -63,7 +62,7 @@ public class SwitchProblemController extends BaseController
      * 新增交换机问题
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:add')")
-    @Log(title = "交换机问题", businessType = BusinessType.INSERT)
+    @MyLog(title = "交换机问题", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody SwitchProblem switchProblem)
     {
@@ -75,7 +74,7 @@ public class SwitchProblemController extends BaseController
      * 修改交换机问题
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:edit')")
-    @Log(title = "交换机问题", businessType = BusinessType.UPDATE)
+    @MyLog(title = "交换机问题", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody SwitchProblem switchProblem)
     {
@@ -86,7 +85,7 @@ public class SwitchProblemController extends BaseController
      * 删除交换机问题
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:remove')")
-    @Log(title = "交换机问题", businessType = BusinessType.DELETE)
+    @MyLog(title = "交换机问题", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

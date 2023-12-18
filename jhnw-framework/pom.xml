@@ -64,6 +64,12 @@
             <version>5.7.19</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sgcc</groupId>
+            <artifactId>jhnw-share</artifactId>
+            <version>3.7.0</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 

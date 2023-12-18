@@ -1,15 +1,12 @@
 package com.sgcc.sql.controller;
-
-import com.sgcc.common.annotation.Log;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
-import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.connectutil.SpringBeanUtil;
-import com.sgcc.share.util.MyUtils;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import io.swagger.annotations.ApiOperation;
@@ -47,7 +44,7 @@ public class ProblemScanLogicController extends BaseController {
      * 导出问题扫描逻辑列表
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:export')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.EXPORT)
+    @MyLog(title = "问题扫描逻辑", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ProblemScanLogic problemScanLogic)
     {
@@ -70,7 +67,7 @@ public class ProblemScanLogicController extends BaseController {
      * 新增问题扫描逻辑
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:add')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.INSERT)
+    @MyLog(title = "问题扫描逻辑", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ProblemScanLogic problemScanLogic)
     {
@@ -81,7 +78,7 @@ public class ProblemScanLogicController extends BaseController {
      * 修改问题扫描逻辑
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:edit')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.UPDATE)
+    @MyLog(title = "问题扫描逻辑", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ProblemScanLogic problemScanLogic)
     {
@@ -92,7 +89,7 @@ public class ProblemScanLogicController extends BaseController {
      * 删除问题扫描逻辑
      */
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:remove')")
-    @Log(title = "问题扫描逻辑", businessType = BusinessType.DELETE)
+    @MyLog(title = "问题扫描逻辑", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable String[] ids)
     {

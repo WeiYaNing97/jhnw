@@ -1,6 +1,8 @@
 package com.sgcc.advanced.controller;
 
 import java.util.List;
+
+import com.sgcc.common.annotation.MyLog;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
@@ -47,7 +48,7 @@ public class LightAttenuationCommandController extends BaseController
      * 导出光衰命令列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:export')")
-    @Log(title = "光衰命令", businessType = BusinessType.EXPORT)
+    @MyLog(title = "光衰命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(LightAttenuationCommand lightAttenuationCommand)
     {
@@ -70,7 +71,7 @@ public class LightAttenuationCommandController extends BaseController
      * 新增光衰命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:add')")
-    @Log(title = "光衰命令", businessType = BusinessType.INSERT)
+    @MyLog(title = "光衰命令", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody LightAttenuationCommand lightAttenuationCommand)
     {
@@ -84,7 +85,7 @@ public class LightAttenuationCommandController extends BaseController
      * 修改光衰命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:edit')")
-    @Log(title = "光衰命令", businessType = BusinessType.UPDATE)
+    @MyLog(title = "光衰命令", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody LightAttenuationCommand lightAttenuationCommand)
     {
@@ -95,7 +96,7 @@ public class LightAttenuationCommandController extends BaseController
      * 删除光衰命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:remove')")
-    @Log(title = "光衰命令", businessType = BusinessType.DELETE)
+    @MyLog(title = "光衰命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

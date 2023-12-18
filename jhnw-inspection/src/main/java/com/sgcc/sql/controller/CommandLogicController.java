@@ -1,6 +1,5 @@
 package com.sgcc.sql.controller;
 
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -22,10 +21,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -59,7 +56,7 @@ public class CommandLogicController extends BaseController
      * 导出命令逻辑列表
      */
     @PreAuthorize("@ss.hasPermi('sql:command_logic:export')")
-    @Log(title = "命令逻辑", businessType = BusinessType.EXPORT)
+    @MyLog(title = "命令逻辑", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(CommandLogic commandLogic)
     {
@@ -82,7 +79,7 @@ public class CommandLogicController extends BaseController
      * 新增命令逻辑
      */
     @PreAuthorize("@ss.hasPermi('sql:command_logic:add')")
-    @Log(title = "命令逻辑", businessType = BusinessType.INSERT)
+    @MyLog(title = "命令逻辑", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody CommandLogic commandLogic)
     {
@@ -93,7 +90,7 @@ public class CommandLogicController extends BaseController
      * 修改命令逻辑
      */
     @PreAuthorize("@ss.hasPermi('sql:command_logic:edit')")
-    @Log(title = "命令逻辑", businessType = BusinessType.UPDATE)
+    @MyLog(title = "命令逻辑", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody CommandLogic commandLogic)
     {
@@ -104,7 +101,7 @@ public class CommandLogicController extends BaseController
      * 删除命令逻辑
      */
     @PreAuthorize("@ss.hasPermi('sql:command_logic:remove')")
-    @Log(title = "命令逻辑", businessType = BusinessType.DELETE)
+    @MyLog(title = "命令逻辑", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable String[] ids)
     {

@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -905,7 +904,7 @@ public class DefinitionProblemController extends BaseController {
     * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
     @ApiOperation("分析问题数据修改")
     @PutMapping("updateAnalysis")
-    //@MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
+    @MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
     public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> pojoList){
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();

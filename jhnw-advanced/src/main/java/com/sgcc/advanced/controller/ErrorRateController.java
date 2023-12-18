@@ -2,6 +2,7 @@ package com.sgcc.advanced.controller;
 
 import com.sgcc.advanced.domain.ErrorRate;
 import com.sgcc.advanced.service.IErrorRateService;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.sgcc.common.annotation.Log;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
@@ -47,7 +47,7 @@ public class ErrorRateController extends BaseController
      * 导出误码率列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:export')")
-    @Log(title = "误码率", businessType = BusinessType.EXPORT)
+    @MyLog(title = "误码率", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ErrorRate errorRate)
     {
@@ -70,7 +70,7 @@ public class ErrorRateController extends BaseController
      * 新增误码率
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:add')")
-    @Log(title = "误码率", businessType = BusinessType.INSERT)
+    @MyLog(title = "误码率", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ErrorRate errorRate)
     {
@@ -81,7 +81,7 @@ public class ErrorRateController extends BaseController
      * 修改误码率
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:edit')")
-    @Log(title = "误码率", businessType = BusinessType.UPDATE)
+    @MyLog(title = "误码率", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ErrorRate errorRate)
     {
@@ -92,7 +92,7 @@ public class ErrorRateController extends BaseController
      * 删除误码率
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:remove')")
-    @Log(title = "误码率", businessType = BusinessType.DELETE)
+    @MyLog(title = "误码率", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
