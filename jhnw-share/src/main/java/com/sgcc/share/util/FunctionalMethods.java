@@ -39,15 +39,19 @@ public class FunctionalMethods {
 
         switchInformationService = SpringBeanUtil.getBean(ISwitchInformationService.class);//解决 多线程 service 为null问题
         List<SwitchInformation> switchInformationList = switchInformationService.selectSwitchInformationList(switchInformation);
+
         if (MyUtils.isCollectionEmpty(switchInformationList)){
+
             int i = switchInformationService.insertSwitchInformation(switchInformation);
             if (i>0){
                 return switchInformation.getId();
             }
             return Long.valueOf(i).longValue();
+
         }else {
             return switchInformationList.get(0).getId();
         }
+
     }
 
 
@@ -717,7 +721,7 @@ public class FunctionalMethods {
             return null;
         }
         Map<String, Object> value = (Map<String, Object>) CustomConfigurationUtil.getValue("BasicInformation.equivalence", Constant.getProfileInformation());
-        if (value.size() == 0){
+        if (value == null){
             return null;
         }
         Set<String> strings = value.keySet();
@@ -734,11 +738,21 @@ public class FunctionalMethods {
 
 
     /**
-     * 根据 UP 截取端口号 并 去除带"."的子端口
+    * @Description 根据 UP 截取端口号 并 去除带"."的子端口
+    * @author charles
+    * @createTime 2023/12/18 15:13
+    * @desc
      *
-     * @param information
+     * 执行逻辑为从 yml文件 中获取端口号关键词。
+     * 根据“ ”分割获得字符串数组，然后遍历字符串数组。
+     * （根据空格再分割）判断字符串数组元素中是否包含交换机端口号关键词，如果包含关键词的判断是否包含数字，
+     * 如果包含数字的端口号完全，不包含字母的做端口号不完全，需要添加下一元素
+     *
+     * 如果端口号不完全走，需要添加下元素。
+     *
+    * @param information
      * @return
-     */
+    */
     public static String getTerminalSlogan(String information){
         /*
          *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
@@ -756,11 +770,11 @@ public class FunctionalMethods {
          * 此时需要判断提取到的端口号是否包含字母
          * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
         for (String string:informationSplit){
+
             /* 两种情况
             * GigabitEthernet 9/1
             * GigabitEthernet9/1 */
             String[] string_split = string.trim().split(" ");
-
             /* 遍历交换机信息数组 */
             for (int num = 0;num < string_split.length;num++){
 
@@ -768,9 +782,9 @@ public class FunctionalMethods {
                 *
                 * 查看 是否以 关键字开头
                 *
-                * 如果 以关键字开头，则判断 是否包含字母
+                * 如果 以关键字开头，则判断 是否包含数字
                 * 如果包含数字 则端口号完全，
-                * 如果不包含字母则端口号不全，数值部分在下一个数组元素
+                * 如果不包含数字则端口号不全，数值部分在下一个数组元素
                 *
                 * 端口号不能存在.情况发生。为子端口号，例如 TenGigabitEthernet 5/51.231 为 TenGigabitEthernet 5/51 子端口
                 * 子端口 不用检测*/
@@ -779,7 +793,7 @@ public class FunctionalMethods {
                     /*判断数组元素 是否已 关键词为 首*/
                     if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase())){
 
-                        /*判断提取到的端口号是否包含字母
+                        /*判断提取到的端口号是否包含数字
                          * 包含数字 则端口号完全 */
                         if (MyUtils.isNumeric(string_split[num])){
                             /*包含则为完全端口号 否则为不完全端口号*/

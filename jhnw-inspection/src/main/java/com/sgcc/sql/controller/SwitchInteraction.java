@@ -1068,7 +1068,7 @@ public class SwitchInteraction {
                 交换机返回信息字符串, 单次分析提取数据，循环分析提取数据
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号] */
         //设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
-        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
+        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());/*最大循环次数*/
 
         String strings = selectProblemScanLogicById(switchParameters, totalQuestionTable,
                 resultString.split("\r\n"), //交换机返回结果 按行分割 交换机返回信息字符串
@@ -1098,6 +1098,7 @@ public class SwitchInteraction {
      * @return
      */
     public String removeIdentifier(String strings) {
+        /*# 标识符  两个标识符之间以;分阁*/
         String identifierString = (String) CustomConfigurationUtil.getValue("configuration.identifier", Constant.getProfileInformation());
         String[] identifiersplit = identifierString.split(";");
         for (String identifier:identifiersplit){

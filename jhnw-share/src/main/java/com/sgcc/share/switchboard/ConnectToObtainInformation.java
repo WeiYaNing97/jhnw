@@ -328,6 +328,7 @@ public class ConnectToObtainInformation {
              * 根据交换机返回结果 获取 交换机基本信息
              */
             HashMap<String, String> hashMap = analyzeStringToGetBasicInformation(commandString);
+
             if (hashMap.get("pinpai")!=null
                     && hashMap.get("xinghao")!=null
                     && hashMap.get("banben")!=null){

@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
  */
 public class MyUtils {
     public static String isEmpty = "Is_Empty";
+
     /**
      * 根据正则表达式判断字符是否为汉字
      */
@@ -28,6 +29,7 @@ public class MyUtils {
         Matcher match = pattern.matcher(str);
         return match.find();
     }
+
     /**
      * 该方法主要使用正则表达式来判断字符串中是否包含字母
      * @author fenggaopan 2015年7月21日 上午9:49:40
@@ -39,6 +41,7 @@ public class MyUtils {
         Matcher m = Pattern.compile(regex).matcher(cardNum);
         return m.matches();
     }
+
     /**
      * 查询字符串中首个数字出现的位置
      * @param str 查询的字符串
@@ -52,6 +55,7 @@ public class MyUtils {
         }
         return i;
     }
+
     /**
      * 判断字符串是否包含数字
      * @param str
@@ -62,7 +66,14 @@ public class MyUtils {
         return pattern.matcher(str).matches();
     }
 
-    /*判断字符串是否为全数字*/
+    /**
+    * @Description 判断字符串是否为全数字
+    * @author charles
+    * @createTime 2023/12/22 8:41
+    * @desc
+    * @param str
+     * @return
+    */
     public static boolean allIsNumeric(String str){
         //使用正则表达式判断字符串是否全由数字组成
         return str.matches("\\d+");
@@ -115,12 +126,14 @@ public class MyUtils {
     }
 
     /**
-     * 获取下载路径
-     *
-     * @param filename 文件名称
-     */
-    public static String getAbsoluteFile(String filename)
-    {
+    * @Description 获取下载路径
+    * @author charles
+    * @createTime 2023/12/22 8:41
+    * @desc
+    * @param filename
+     * @return
+    */
+    public static String getAbsoluteFile(String filename) {
         /*只适用于RuoYi  此为 配置文件配置信息*/
         String downloadPath = RuoYiConfig.getDownloadPath() + filename;
         File desc = new File(downloadPath);
@@ -158,13 +171,19 @@ public class MyUtils {
         return String.join("\r\n", lines);
     }
 
-    /*
-    Java时间设为二十四小时制和十二小时制的区别：
-    1) 二十四小时制： “yyyy-MM-dd HH:mm:ss”
-    2)十二小时制： “"yyyy-MM-dd hh:mm:ss"”
+    /**
+    * @Description 获取时间 格式自定
+    * @author charles
+    * @createTime 2023/12/22 8:42
+     *
+    * @desc
+     * Java时间设为二十四小时制和十二小时制的区别：
+     *     1) 二十四小时制： “yyyy-MM-dd HH:mm:ss”
+     *     2)十二小时制： “"yyyy-MM-dd hh:mm:ss"”
+     *     例如：type  =  "yyyy-MM-dd hh:mm:ss"
+     *
+     * @return
     */
-    //获取时间 格式自定
-    //例如：type  =  "yyyy-MM-dd hh:mm:ss"
     public static String getDate(String type){
         String time = new SimpleDateFormat(type).format(new Date());
         return time;
@@ -187,7 +206,14 @@ public class MyUtils {
         return parse;
     }
 
-    //时间排序 由大到小
+    /**
+    * @Description 时间排序 由大到小
+    * @author charles
+    * @createTime 2023/12/22 8:43
+    * @desc
+    * @param dateList
+     * @return
+    */
     public static List<Date> sortDate(List<Date> dateList){
         dateList.sort((a1,a2) ->{
             return a1.compareTo(a2);
@@ -197,19 +223,28 @@ public class MyUtils {
 
 
     /**
-     * @method: 进度条
-     * @Param: [总数, 完成数]
-     * @return: java.lang.String
-     */
+    * @Description 进度条
+    * @author charles
+    * @createTime 2023/12/22 8:44
+    * @desc
+    * @param number1
+     * @param number2
+     * @return
+    */
     public static String progressBar(double number1,double number2) {
+
         return (int)(number2/number1*100)+"%";
+
     }
 
     /**
-     * @method: 多个连续空格 改为 多个单空格
-     * @Param: [original]
-     * @return: java.lang.String
-     */
+    * @Description 多个连续空格 改为 多个单空格
+    * @author charles
+    * @createTime 2023/12/22 8:44
+    * @desc
+    * @param original
+     * @return
+    */
     public static String repaceWhiteSapce(String original){
         StringBuilder sb = new StringBuilder();
         boolean isFirstSpace = false;//标记是否是第一个空格
@@ -245,10 +280,60 @@ public class MyUtils {
     }
 
     /**
-     * 时间由大到小排序
-     * @param dateList
+    * @Description   去掉字符串首尾的非数字非字母部分。
+     * removeNonAlphanumeric方法使用正则表达式^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$
+    * @author charles
+    * @createTime 2023/12/22 8:48
+    * @desc
+    * @param str
+     * @return
+    */
+    public static String removeNonAlphanumeric(String str) {
+        return str.replaceAll("^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$", "");
+    }
+
+    /**
+     * @Description 字符串调整方法，当字符串中存在":"，且":"的前一字符不为" ",下一字符为" "时，则将":"替换成" :"。
+     * @author charles
+     * @createTime 2023/12/20 15:55
+     * @desc
+     * @param input
      * @return
      */
+    public static String adjustColon(String input) {
+        /*Pattern pattern = Pattern.compile("(?<! ):");
+        Matcher matcher = pattern.matcher(input);
+        return matcher.replaceAll(" :");*/
+        return input.replaceAll("(?<=\\S):(?=\\s)|(?<=\\s):(?=\\S)", " : ").replaceAll("\\s+"," ").trim();
+    }
+
+    /**
+     * @Description 子字符串在父字符串中出现的所有位置
+     * @author charles
+     * @createTime 2023/12/21 19:20
+     * @desc
+     * @param parent
+     * @param child
+     * @return
+     */
+    public static List<Integer> getSubstringPositions(String parent, String child) {
+        List<Integer> positions = new ArrayList<>();
+        int index = parent.indexOf(child);
+        while (index != -1) {
+            positions.add(index);
+            index = parent.indexOf(child, index + 1);
+        }
+        return positions;
+    }
+
+    /**
+    * @Description 时间由大到小排序
+    * @author charles
+    * @createTime 2023/12/22 8:45
+    * @desc
+    * @param dateList
+     * @return
+    */
     public static List<Date> sort(List<Date> dateList){
         dateList.sort((a1,a2) ->{
             return a1.compareTo(a2);
@@ -257,10 +342,13 @@ public class MyUtils {
     }
 
     /**
-     * 删除数组空文本返回新数组
-     * @param strArray
+    * @Description 删除数组空文本返回新数组
+    * @author charles
+    * @createTime 2023/12/22 8:45
+    * @desc
+    * @param strArray
      * @return
-     */
+    */
     public static String[] removeArrayEmptyTextBackNewArray(String[] strArray) {
         List<String> strList= Arrays.asList(strArray);
         List<String> strListNew=new ArrayList<>();
@@ -275,10 +363,13 @@ public class MyUtils {
 
 
     /**
-     * 判断字符串中是否包含数字
-     * @param source 待判断字符串
-     * @return 字符串中是否包含数字，true：包含数字，false：不包含数字
-     */
+    * @Description 判断字符串中是否包含数字
+    * @author charles
+    * @createTime 2023/12/22 8:45
+    * @desc
+    * @param source
+     * @return
+    */
     public static boolean containDigit(String source) {
         char ch;
         for(int i=0; i<source.length();i++){
@@ -350,7 +441,9 @@ public class MyUtils {
      * @return
      */
     public static String[] splitIgnoreCase(String string,String str){
+
         return string.split("(?i)"+str);
+
     }
 
     /*Double*/
@@ -380,6 +473,20 @@ public class MyUtils {
     }
 
     /**
+     * 字符串截取 Integer 值
+     * @return
+     */
+    public static List<Integer> extractInts(String str) {
+        List<Integer> intList = new ArrayList<>();
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(str);
+        while (matcher.find()) {
+            intList.add(Integer.parseInt(matcher.group()));
+        }
+        return intList;
+    }
+
+    /**
      * 字符串截取数字字符串
      * @return
      */
@@ -401,7 +508,9 @@ public class MyUtils {
      * @return
      */
     public static boolean isInRange(double value, double min, double max) {
+
         return value >= min && value <= max;
+
     }
 
     /**
@@ -420,7 +529,9 @@ public class MyUtils {
      * @return
      */
     public static boolean isMapEmpty(Map<?, ?> map) {
+
         return map == null || map.isEmpty() || map.size() == 0;
+
     }
 
     /**
@@ -463,7 +574,7 @@ public class MyUtils {
                 break;
             }
         }
-        return sb.toString();
+        return sb.toString().trim();
     }
 
     /**

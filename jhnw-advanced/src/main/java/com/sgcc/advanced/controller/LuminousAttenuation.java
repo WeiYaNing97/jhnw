@@ -22,6 +22,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.split;
+
 /**
  * 光衰功能
  */
@@ -37,7 +39,7 @@ public class LuminousAttenuation {
     private ILightAttenuationCommandService lightAttenuationCommandService;
 
     /**
-     * 光衰功能接口
+     * 光衰功能接口  发送命令 获取返回端口号信息数据
      * @param switchParameters
      * @return
      */
@@ -76,6 +78,7 @@ public class LuminousAttenuation {
 
         //从 lightAttenuationCommandList 中 获取四项基本最详细的数据
         lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand( lightAttenuationCommandList );
+        /*获取up端口号命令*/
         String command = lightAttenuationCommand.getGetPortCommand();
 
         //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
@@ -267,6 +270,7 @@ public class LuminousAttenuation {
         //获取光衰参数命令 ：  lightAttenuationCommand.getGetParameterCommand()
         //switchParameters ： 交换机信息类
         HashMap<String, String> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
+
         /*9：获取光衰参数为空*/
         if (MyUtils.isMapEmpty(getparameter)){
             try {
@@ -335,10 +339,13 @@ public class LuminousAttenuation {
 
                 HashMap<String,String> hashMap = new HashMap<>();
                 hashMap.put("ProblemName","光衰");
+
                 /* 如果 lightAttenuationComparisons 为空 则光衰记录表中没有相关信息
                 则默认无问题*/
+
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
                     hashMap.put("IfQuestion","无问题");
+
                 }else {
                     lightAttenuationComparison = lightAttenuationComparisons.get(0);
                     if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
@@ -391,6 +398,7 @@ public class LuminousAttenuation {
         double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
         /*TX即时偏差*/
         double txImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
+
         DecimalFormat df = new DecimalFormat("#.0000");
         //额定绝对值   |最新参数 - 起始值|
         Double rxfiberAttenuation = Math.abs(rxLatestNumber - rxStartValue);
@@ -418,8 +426,9 @@ public class LuminousAttenuation {
     /**
     * @Description 根据交换机返回信息获取获取 UP 状态端口号
      *
-    * @desc 遍历交换及返回信息，其中包含" UP "状态的、不包含"COPPER"铜缆的、不为”Eth“百兆光纤的 且不包含"."子端口号的  端口号筛选出来
-     *
+    * @desc
+     * 遍历交换及返回信息，其中包含" UP "状态的、不包含"COPPER"铜缆的、
+     * 不为”Eth“百兆光纤的 且不包含"."子端口号的  端口号筛选出来
      *
     * @param returnString
      * @return
@@ -459,17 +468,19 @@ public class LuminousAttenuation {
 
 
     /**
-     * 根据 up状态端口号 及交换机信息 获取光衰参数
+     * 根据 up状态端口号 及交换机信息  发送命令并获取光衰参数信息
      * @param portNumber 端口号
      * @param switchParameters 交换机信息类
      * @return
      */
     public HashMap<String,String> getparameter(List<String> portNumber,SwitchParameters switchParameters,String command) {
+
         /*获取配置信息中 符合品牌的 获取基本信息的 获取光衰参数的 命令*/
         /*创建 返回对象 HashMap*/
         /*hashMap.put(port+"TX",values.get("TX")+"");
           hashMap.put(port+"RX",values.get("RX")+"");*/
         HashMap<String,String> hashMap = new HashMap<>();
+
         /*端口号集合 需要检测各端口号的光衰参数*/
         for (String port:portNumber){
             /*替换端口号 得到完整的 获取端口号光衰参数命令
@@ -482,44 +493,23 @@ public class LuminousAttenuation {
              */
             ExecuteCommand executeCommand = new ExecuteCommand();
             String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
-            /*returnResults = "\n" +
-                    "GigabitEthernet1/0/0 transceiver information:\n" +
-                    "-------------------------------------------------------------\n" +
-                    "Common information:\n" +
-                    "Transceiver Type :1000_BASE_LX_SFP\n" +
-                    "Connector Type :LC\n" +
-                    "Wavelength(nm) :1310\n" +
-                    "Transfer Distance(m) :10000(9um),550(50um),550(62.5um)\n" +
-                    "Digital Diagnostic Monitoring :YES\n" +
-                    "Vendor Name :CISCO\n" +
-                    "Vendor Part Number :FTLF1318P3BTL-CS\n" +
-                    "Ordering Name :\n" +
-                    "-------------------------------------------------------------\n" +
-                    "Manufacture information:\n" +
-                    "Manu. Serial Number :FNS17500515\n" +
-                    "Manufacturing Date :2013-12-08\n" +
-                    "Vendor Name :CISCO\n" +
-                    "-------------------------------------------------------------\n" +
-                    "Alarm information:\n" +
-                    "-------------------------------------------------------------\n" +
-                    "Diagnostic information:\n" +
-                    "Temperature(��C) :39\n" +
-                    "Voltage(V) :3.31\n" +
-                    "Bias Current(mA) :23.70\n" +
-                    "Bias High Threshold(mA) :65.00\n" +
-                    "Bias Low Threshold(mA) :1.00\n" +
-                    "Current Rx Power(dBM) :-11.12\n" +
-                    "Default Rx Power High Threshold(dBM) :1.00\n" +
-                    "Default Rx Power Low Threshold(dBM) :-23.01\n" +
-                    "Current Tx Power(dBM) :-5.55\n" +
-                    "Default Tx Power High Threshold(dBM) :1.00\n" +
-                    "Default Tx Power Low Threshold(dBM) :-13.50\n" +
-                    "User Set Rx Power High Threshold(dBM) :1.00\n" +
-                    "User Set Rx Power Low Threshold(dBM) :-23.01\n" +
-                    "User Set Tx Power High Threshold(dBM) :1.00\n" +
-                    "User Set Tx Power Low Threshold(dBM) :-13.50\n" +
-                    "-------------------------------------------------------------";
-            returnResults = MyUtils.trimString(returnResults);*/
+
+            /*returnResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
+                    "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\r\n" +
+                    "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";*/
+
+            /*returnResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
+                    "            Default Rx Power High Threshold(dBM)  :-2.00\r\n" +
+                    "            Default Rx Power Low  Threshold(dBM)  :-23.98\r\n" +
+                    "            Current Tx Power(dBM)                 :-2.80\r\n" +
+                    "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
+                    "            Default Tx Power Low  Threshold(dBM)  :-6.00";*/
+
+            /*returnResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
+                "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +
+                "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +
+                "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";*/
+
             if (returnResults == null){
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();
@@ -541,10 +531,13 @@ public class LuminousAttenuation {
                 continue;
             }
 
+
+
             /**
              * 提取光衰参数
              */
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
+
             if (values.size() == 0){
                 try {
                     String subversionNumber = switchParameters.getSubversionNumber();
@@ -566,8 +559,13 @@ public class LuminousAttenuation {
                 continue;
             }
 
+
+
             hashMap.put(port+"TX",values.get("TX")+"");
+            System.err.println(port+"TX" +"            "+values.get("TX")+"");
             hashMap.put(port+"RX",values.get("RX")+"");
+            System.err.println(port+"RX"+"              "+values.get("RX")+"");
+
         }
 
         return hashMap;
@@ -581,38 +579,65 @@ public class LuminousAttenuation {
      */
     public HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
         /*根据 "\r\n" 切割为行信息*/
-        String[] Line_split = string.split("\r\n");
+        String[] Line_split = string.toUpperCase().split("\r\n");
+
         /*
         * 自定义 光衰参数默认给个 50
         * 收发光功率可能为正，但是一般最大30左右
         * 此时默认给50 作为是否 获取到返回信息 的判断
         * */
-        double txpower = 50;
-        double rxpower = 50;
-        /**
-         * 创建字符串集合，用于存储 key：valu格式的参数
-         * 遍历交换机返回信息，如果 tx 和 rx 不在同一行 则说明 是 key：valu格式的参数
-         * 则 存入 集合中
-         */
+        double txpower = 50.0;
+        double rxpower = 50.0;
+
+        /*创建字符串集合，用于存储 key：valu格式的参数
+         遍历交换机返回信息，如果 tx 和 rx 不在同一行 则说明 是 key：valu格式的参数
+         则 存入 集合中*/
         List<String> keyValueList = new ArrayList<>();
+
         /* 遍历交换机返回信息行数组 */
         for (int number = 0 ;number<Line_split.length;number++) {
+
+            /* 字符串包含 TX POWER、RX POWER 一定是参数名
+             * 但是考虑到 可能不会是 TX POWER 或者 RX POWER
+             * 提供了另一种方式 当出现TX或者RX时，并且出现 dbm时，那么TX和RX的字段也会是参数名*/
+            if (Line_split[number].indexOf("TX POWER") !=-1
+                    || Line_split[number].indexOf("RX POWER") !=-1
+
+                    || ((Line_split[number].indexOf("TX") !=-1 || Line_split[number].indexOf("RX") !=-1) && Line_split[number].indexOf("DBM") !=-1)){
+
+            }else {
+                continue;
+            }
+
+
             /* 获取 TX POWER 和 RX POWER 的位置
             * 当其中一个值不为 -1时 则为key：value格式
             * 如果全不为 -1时 则是 两个光衰参数在同一行 的格式
             * 如果全部为 -1时，则 RX、TX 都不包含*/
-            int tx = Line_split[number].toUpperCase().indexOf("TX POWER");
-            int rx = Line_split[number].toUpperCase().indexOf("RX POWER");
-            /* RX、TX 都不包含 则进入下一循环*/
+            int tx = Line_split[number].indexOf("TX");
+            int rx = Line_split[number].indexOf("RX");
+
+            /* RX、TX都为-1时
+             则RX、TX都不包含
+             则进入下一循环*/
             if (tx ==-1 && rx ==-1){
                 continue;
             }
-            /*如果 RX TX 同时不为 -1 则 需要判断 RX和TX的先后顺序
-            设 num 为 TX 与 RX的位置关系
-            为1是RX、TX  为-1时TX、RX*/
+
+            /*如果 RX TX 同时不为 -1
+            则说明同时包含 RX TX
+            则 需要判断 RX 、 TX 的先后顺序*/
+
+            /*设 num 为 TX 与 RX的位置关系
+            为1是RX、TX
+            为-1时TX、RX
+            为0 时 key:value */
             int num = 0 ;
+
             if (tx!=-1 && rx!=-1){
                 /*如果全不为 -1时 则是 两个光衰参数在同一行 的格式
+                   RX power(dBm)       TX power(dBm)
+                   -5.96(OK)[AP]       -6.04(OK)
                 *需要判断 RX和TX的先后顺序 */
                 if (tx > rx){
                     /*当 tx > rx时 说明 rx在前 TX 在后
@@ -623,43 +648,58 @@ public class LuminousAttenuation {
                      * 所以 num = -1时，说明 tx在前 RX 在后*/
                     num = -1;
                 }
+
             }else {
-                /*如果 TX RX 不同时为 -1 则 说明你 收发光功率不在一行
-                则程序  num = 0 时 为 不在一行 为 key：value格式 */
+
+                /*如果 TX RX 不同时为 -1 则 说明：收、发光功率不在一行
+                则程序  num = 0
+                为 不在一行
+                为 key：value格式
+                num = 0  不做修改 */
+
             }
+
+
             /* 因为 num = 0 所以 为 不在一行 为 key：value格式
             * 需要 存放入 集合中 */
             /* 去掉了 && (tx != -1 || rx != -1) 因为 之前 RX、TX 都不包含 已经做过判断 */
             if (num == 0){
-                /* 包含 TX 或者 RX */
-                /*key : value*/
+
+                /* 包含 TX 或者 RX
+                key:value 格式
+                keyValueList集合 用于存储 key:value 格式数据*/
                 keyValueList.add(Line_split[number]);
+
             }else {
-                /*错误信息预定义 用于前端显示 */
-                String parameterInformation = "";
-                /*如果两个都包含 则可能是在本行，或者是下一行 需要判断:
-                * 例如：
-                * Current Rx Power(dBM) :-10.82
-                * Current Tx Power(dBM) :-2.04
-                * 和
-                * Rx Power    Tx Power
-                * -10.82      -2.04
-                * */
+
+                /*错误信息预定义 用于提取数据失败返回前端显示 */
                 String nextrow = Line_split[number];
-                parameterInformation = nextrow;
+                String parameterInformation = nextrow;
                 /*两个都包含 则 两个参数值在一行*/
-                if (nextrow.indexOf(":") == -1){
+                if (nextrow.indexOf( ":" ) == -1){
                     nextrow = Line_split[number+1];
-                    parameterInformation = parameterInformation +"\r\n"+ nextrow+"\r\n";
+                    parameterInformation = parameterInformation +"\r\n"+ nextrow;
                 }
+
+                String[] Line_split_split = Line_split[number].split("\\s+");
+
                 /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
-                List<Double> valueList = values.stream()
-                        .filter(i -> i < 0)
-                        .collect(Collectors.toList());
-                if (valueList.size()!=2){
-                    /*光衰参数行有少于2个数值 无法取出*/
-                    if (values.size()<2){
+
+                HashMap<String, Integer> position = new HashMap<>();
+
+                if (Line_split_split.length == values.size()){
+
+                    position = getPosition(Line_split[number]);
+
+                }else {
+                    /*去除单个的空格,保留连续多个空格*/
+                    String replaceAll = Line_split[number].replaceAll("(?<=\\S)\\s(?=\\S)", "");
+
+                    Line_split_split =replaceAll.split("\\s+");
+                    if (Line_split_split.length == values.size()){
+                        position = getPosition(replaceAll);
+                    }else {
                         try {
                             String subversionNumber = switchParameters.getSubversionNumber();
                             if (subversionNumber!=null){
@@ -668,52 +708,33 @@ public class LuminousAttenuation {
                             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
                                     "IP地址为:"+switchParameters.getIp()+","+
                                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能光衰参数一行数值个数不为2,无法取出光衰参数," +
+                                    "问题为:光衰功能光衰参数取词失败," +
                                     "光衰参数行信息:"+parameterInformation+"\r\n");
                             PathHelper.writeDataToFileByName(
                                     "IP地址为:"+switchParameters.getIp()+","+
                                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能光衰参数一行数值个数不为2,无法取出光衰参数," +
+                                            "问题为:光衰功能光衰参数取词失败," +
                                             "光衰参数行信息:"+parameterInformation+"\r\n"
                                     , "问题日志");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        return new HashMap<>();
                     }
-                    int nu =0;
-                    for (int i = 0;i<values.size();i++){
-                        if (values.get(i) < 0 ){
-                            nu = i ;
-                        }
-                    }
-                    if (num == 1){
-                        /*RX   TX*/
-                        rxpower = values.get(nu);
-                        txpower = values.get(nu+1);
-                    }else if (num == -1){
-                        /*TX  RX*/
-                        txpower = values.get(nu-1);
-                        rxpower = values.get(nu);
-                    }
-                    break;
                 }
-                if (num == 1){
-                    /*RX   TX*/
-                    rxpower = valueList.get(0);
-                    txpower = valueList.get(1);
-                }else if (num == -1){
-                    /*TX  RX*/
-                    txpower = valueList.get(0);
-                    rxpower = valueList.get(1);
-                }
-                break;
 
+                txpower = values.get(position.get("tx"));
+                rxpower = values.get(position.get("rx"));
+
+                break;
             }
         }
+
+
         /*key ： value 格式*/
         if (keyValueList.size()!=0){
-            /*当包含 TX POWER 或 RX POWER 的数多余2条是 要再次筛选  光衰参数信息 或是阈值信息*/
+
+            /*当包含 TX POWER 或 RX POWER 的数多余2条是
+            要再次筛选 CURRENT 光衰参数信息 或是阈值信息*/
             if (keyValueList.size() > 2){
                 /*存储再次筛选后的 行信息*/
                 List<String> keylist = new ArrayList<>();
@@ -725,88 +746,118 @@ public class LuminousAttenuation {
                       Default Tx Power High Threshold(dBM)  :1.00
                       Default Tx Power Low  Threshold(dBM)  :-6.00*/
                     /*遇到包含 CURRENT 是则存储行信息集合
-                    * 下面两行是否包含HIGH 和 LOW */
+                       containIgnoreCase   判断一个字符串是否包含另一个字符串(忽略大小写)
+                    * 下面两行是否包含HIGH 和 LOW 阈值区间*/
+
                     if (MyUtils.containIgnoreCase(keyValueList.get(num),"CURRENT")){
                         keylist.add(keyValueList.get(num));
                     }
+
                 }
+                /*筛选以后 重新赋值
+                  Current Rx Power(dBM)                 :-11.87
+                  Current Tx Power(dBM)                 :-2.80
+                */
                 if (keylist.size() > 1){
                     keyValueList = keylist;
                 }
+
             }
+
             /*遍历 行信息集合*/
             for (String keyvalue:keyValueList){
+
                 /*当 行信息包含 RX 说明是 RX数据*/
                 if (MyUtils.containIgnoreCase(keyvalue,"RX")){
-                    if (MyUtils.containIgnoreCase(keyvalue,"RX POWER")){
-                        /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
-                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                        if (doubleList.size()==1){
-                            rxpower = doubleList.get(0);
-                        }else if (doubleList.size()==3){
-                            rxpower = doubleList.get(0);
-                        }else {
-                            try {
-                                String subversionNumber = switchParameters.getSubversionNumber();
-                                if (subversionNumber!=null){
-                                    subversionNumber = "、"+subversionNumber;
-                                }
-                                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                        "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
-                                        "光衰参数行信息:"+keyvalue+"\r\n");
-                                PathHelper.writeDataToFileByName(
-                                        "IP地址为:"+switchParameters.getIp()+","+
-                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
-                                                "光衰参数行信息:"+keyvalue+"\r\n"
-                                        , "问题日志");
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                    /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
+                    List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+
+                    if (doubleList.size()==1){
+                            /*Current Rx Power(dBM)                 :-11.87
+                            Current Tx Power(dBM)                 :-2.80*/
+                        rxpower = doubleList.get(0);
+
+                    }else if (doubleList.size()==3){
+
+                        Double rx = getParameterValueIndex("RX", doubleList, keyvalue);
+                            /*  Rx Power:  -6.23dBm, Warning range: [-16.989,  -5.999]dBm
+                                Tx Power:  -6.16dBm, Warning range: [-9.500,  -2.999]dBm  */
+                        if (rx != null){
+                            rxpower = rx;
+                        }
+
+                    }else {
+                        try {
+                            String subversionNumber = switchParameters.getSubversionNumber();
+                            if (subversionNumber!=null){
+                                subversionNumber = "、"+subversionNumber;
                             }
+                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
+                                    "光衰参数行信息:"+keyvalue+"\r\n");
+                            PathHelper.writeDataToFileByName(
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
+                                            "光衰参数行信息:"+keyvalue+"\r\n"
+                                    , "问题日志");
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
+
                 /*当 行信息包含 TX 说明是 TX数据*/
                 if (MyUtils.containIgnoreCase(keyvalue,"TX")){
-                    if (MyUtils.containIgnoreCase(keyvalue,"TX POWER")){
-                        /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
-                        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                        if (doubleList.size()==1){
-                            txpower = doubleList.get(0);
-                        }else if (doubleList.size()==3){
-                            txpower = doubleList.get(0);
-                        }else {
-                            try {
-                                String subversionNumber = switchParameters.getSubversionNumber();
-                                if (subversionNumber!=null){
-                                    subversionNumber = "、"+subversionNumber;
-                                }
-                                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                        "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
-                                        "光衰参数行信息:"+keyvalue+"\r\n");
-                                PathHelper.writeDataToFileByName(
-                                        "IP地址为:"+switchParameters.getIp()+","+
-                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
-                                                "光衰参数行信息:"+keyvalue+"\r\n"
-                                        , "问题日志");
-                            } catch (IOException e) {
-                                e.printStackTrace();
+
+                    /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
+                    List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
+                    if (doubleList.size()==1){
+                        txpower = doubleList.get(0);
+                    }else if (doubleList.size()==3){
+                        Double tx = getParameterValueIndex("TX", doubleList, keyvalue);
+                        if (tx != null){
+                            txpower = tx;
+                        }
+                    }else {
+                        try {
+                            String subversionNumber = switchParameters.getSubversionNumber();
+                            if (subversionNumber!=null){
+                                subversionNumber = "、"+subversionNumber;
                             }
+                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
+                                    "光衰参数行信息:"+keyvalue+"\r\n");
+                            PathHelper.writeDataToFileByName(
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
+                                            "光衰参数行信息:"+keyvalue+"\r\n"
+                                    , "问题日志");
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
+
                 }
             }
         }
+
         HashMap<String,Double> hashMap = new HashMap<>();
-        if (Double.valueOf(txpower).doubleValue() == 50 || Double.valueOf(rxpower).doubleValue() == 50)
+
+        if (Double.valueOf(txpower).doubleValue() == 50.0 || Double.valueOf(rxpower).doubleValue() == 50.0)
             return hashMap;
-        hashMap.put("TX",Double.valueOf(txpower).doubleValue() == 1?null:txpower);
-        hashMap.put("RX",Double.valueOf(rxpower).doubleValue() == 1?null:rxpower);
+
+        /**
+        * 为什么等于1时为null？
+        */
+        hashMap.put("TX", txpower);/*Double.valueOf(txpower).doubleValue() == 1?null:txpower*/
+        hashMap.put("RX", rxpower);/*Double.valueOf(rxpower).doubleValue() == 1?null:rxpower*/
+
         return hashMap;
 
     }
@@ -875,4 +926,67 @@ public class LuminousAttenuation {
         return MyUtils.stringToDouble(result);
     }
 
+
+    /**
+     * @Description  获取 RX TX 位置
+     * @author charles
+     * @createTime 2023/12/19 12:34
+     * @desc
+     * @param input
+     * @return
+     */
+    public static HashMap<String,Integer> getPosition(String input) {
+        String[] split = input.toLowerCase().split("\\s+");
+        HashMap<String,Integer> position = new HashMap<>();
+        for (int i = 0 ; i < split.length ; i++){
+            if ( split[i].indexOf("rx")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
+
+                position.put("rx",i);
+            }else if ( split[i].indexOf("tx")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
+
+                position.put("tx",i);
+            }
+        }
+        return position;
+    }
+
+    /*获取 RX或者TX后面的第一个参数*/
+    public static Double getParameterValueIndex(String keyword,List<Double> values,String input) {
+
+        List<Integer> keywordPositions = MyUtils.getSubstringPositions(input, keyword);
+
+        if (keywordPositions.size()!=1){
+            return null;
+        }
+
+        Integer keywordPosition = keywordPositions.get(0);
+
+        Set<Integer> positionList = new HashSet<>();
+
+        for (double value:values){
+            positionList.addAll(MyUtils.getSubstringPositions(input, zero_suppression(value+"") ));
+        }
+        int i = 0;
+        for (i = keywordPosition+2 ; i < input.length()-1 ; i++){
+            boolean contains = positionList.contains(i);
+            if (contains){
+                break;
+            }
+        }
+        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(input.substring(i, input.length()));
+
+        if (doubleList.size() == 0){
+            return null;
+        }else {
+            return doubleList.get(0);
+        }
+    }
+
+    /*Double类型字符串去除结尾的0 或者结尾的.*/
+    public static String zero_suppression(String value) {
+        while ((value+"").endsWith("0") || (value+"").endsWith(".")){
+            value = value.substring(0,value.length()-1);
+        }
+        return value;
+    }
 }

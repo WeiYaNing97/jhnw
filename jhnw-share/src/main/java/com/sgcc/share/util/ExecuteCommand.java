@@ -20,12 +20,10 @@ public class ExecuteCommand {
     /**
     * @Description  根据交换机信息类 与 具体命令，执行并返回交换机返回信息
     * @desc
-     *
      *      事务注解 Propagation.NOT_SUPPORTED的含义是指该方法不应该在任何事务中运行，
      *     即使当前存在活动的事务，也会将它挂起。这样一来，方法  executeScanCommandByCommandId  将以非事务方式运行。
      *     处理原因： 考虑到很多调用发送命令方法的逻辑添加了事务属性，
      *     担心回滚食物的时候 会将像交换机发送命令返回信息的记录回滚
-     *
     * @param switchParameters
      * @param command
      * @return
