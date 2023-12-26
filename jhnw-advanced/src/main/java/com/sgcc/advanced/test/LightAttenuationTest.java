@@ -1,4 +1,4 @@
-package com.sgcc.sql.test;
+package com.sgcc.advanced.test;
 
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.MyUtils;
@@ -13,7 +13,7 @@ import java.util.*;
  * @author:
  * @create: 2023-10-18 10:04
  **/
-public class MyTest {
+public class LightAttenuationTest {
 
     public static void main(String[] args) {
 
@@ -325,7 +325,6 @@ public class MyTest {
 
     }
 
-
     /**
      * @Description  获取 RX TX 位置
      * @author charles
@@ -354,7 +353,6 @@ public class MyTest {
 
         return position;
     }
-
 
     public static Double getParameterValueIndex(String keyword,List<Double> values,String input) {
 

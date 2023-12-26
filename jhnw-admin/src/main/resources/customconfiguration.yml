@@ -61,12 +61,19 @@ OSPF:
 obtainPortNumber:
   #获取端口号关键词
   keyword:
-    Eth-Trunk
-    Ethernet
     GigabitEthernet
     GE
+    FastEthernet
+    Ten-GigabitEthernet
+    Ethernet
+    Eth-Trunk
+    XGigabitEthernet
+    Trunking
     BAGG
     Eth
+    FastEthernet
+    SFP
+    USB
 
 # 误码率
 # 截取参数关键字应注意精确度，防止提取到多个数值，导致提取失败或提取数值错误

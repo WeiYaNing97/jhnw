@@ -1,5 +1,6 @@
 package com.sgcc.advanced.controller;
 
+import com.sgcc.advanced.domain.OSPFPojo;
 import com.sgcc.advanced.domain.Ospf;
 import com.sgcc.advanced.domain.OspfCommand;
 import com.sgcc.advanced.domain.OspfEnum;
@@ -9,8 +10,10 @@ import com.sgcc.advanced.utils.Utils;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
+import com.sgcc.share.domain.Constant;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.ExecuteCommand;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -83,7 +88,7 @@ public class OSPFFeatures {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String command = ospfCommand.getGetParameterCommand();
         String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
-        /*commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
+        commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
                 "Peer Statistic Information\n" +
                 "----------------------------------------------------------------------------\n" +
                 "Area Id Interface Neighbor id State\n" +
@@ -198,7 +203,7 @@ public class OSPFFeatures {
                 "0.0.0.0 DCN-Serial1/0/0:0 128.79.235.137 Full\n" +
                 "----------------------------------------------------------------------------\n" +
                 "Total Peer(s): 1";
-        commandReturn = MyUtils.trimString(commandReturn);*/
+        commandReturn = MyUtils.trimString(commandReturn);
 
 
         /*执行命令返回结果为null 则是命令执行错误*/
@@ -223,54 +228,15 @@ public class OSPFFeatures {
             return;
         }
 
-        /*根据交换机返回信息提取OSPF数据*/
+        /*原方法：根据交换机返回信息提取OSPF数据*/
         /*行数据*/
         //String[] returnStringSplit = commandReturn.split("\r\n");
-        List<String> collect = Arrays.stream(commandReturn.split("\r\n")).collect(Collectors.toList());
-        AjaxResult ospfListByString = getOspfListByString(collect);
+        /*List<String> collect = Arrays.stream(commandReturn.split("\r\n")).collect(Collectors.toList());
+        AjaxResult ospfListByString = getOspfListByString(collect);*/
 
-        if(ospfListByString.get("msg").equals("操作成功")){
-            List<Ospf> ospfList = (List<Ospf>) ospfListByString.get("data");
-            for (Ospf ospf:ospfList){
-                try {
-                    try {
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:ospf功能状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n");
-                        PathHelper.writeDataToFileByName(
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:ospf功能状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber()+"\r\n"
-                                , "ospf");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    HashMap<String,String> hashMap = new HashMap<>();
-                    hashMap.put("ProblemName","OSPF");
-                    if (ospf.toString().toUpperCase().indexOf("FULL")!=-1){
-                        hashMap.put("IfQuestion","无问题");
-                        /*continue;*/
-                    }else {
-                        hashMap.put("IfQuestion","有问题");
-                    }
-                    // =:= 是自定义分割符
-                    hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getNeighborID()+"状态:"+ospf.getState()+"端口号:"+ospf.getPortNumber());
-                    SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+        List<OSPFPojo> pojoList =  getOSPFPojo(commandReturn);
 
-                    Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
-                    SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
-                    switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }else {
+        if (pojoList.size() == 0){
             try {
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -279,17 +245,68 @@ public class OSPFFeatures {
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
                         "IP地址为:"+switchParameters.getIp()+","+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:ospf功能"+ospfListByString.get("msg")+"\r\n");
+                        "问题为:ospf功能信息提取失败\r\n");
                 PathHelper.writeDataToFileByName(
                         "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:ospf功能"+ospfListByString.get("msg")+"\r\n"
+                                "问题为:ospf功能信息提取失败\r\n"
                         , "问题日志");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return;
         }
+
+
+        for (OSPFPojo ospf:pojoList){
+
+            try {
+                try {
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:ospf功能IP:"+ospf.getIp()+"端口号:"+ospf.getPort()+"状态:"+ospf.getState()+"\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:ospf功能IP:"+ospf.getIp()+"端口号:"+ospf.getPort()+"状态:"+ospf.getState()+"\r\n"
+                            , "ospf");
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                HashMap<String,String> hashMap = new HashMap<>();
+                hashMap.put("ProblemName","OSPF");
+                if (ospf.toString().toUpperCase().indexOf("FULL")!=-1){
+                    hashMap.put("IfQuestion","无问题");
+                    /*continue;*/
+                }else {
+                    hashMap.put("IfQuestion","有问题");
+                }
+
+                // =:= 是自定义分割符
+                hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getIp()+"状态:"+ospf.getState()+"端口号:"+ospf.getPort());
+
+                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+
+                Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+                SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+                switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
     }
+
 
 
     /**
@@ -404,7 +421,6 @@ public class OSPFFeatures {
         return ospfList;
     }
 
-
     /**
      * 去除属性值中间空格  通过代码逻辑
      * @param strings
@@ -437,6 +453,7 @@ public class OSPFFeatures {
         }
         return returnStringList;
     }
+
     /**
      * 获取属性值下标
      * @param information
@@ -492,5 +509,181 @@ public class OSPFFeatures {
             return objects;
         }
         return null;
+    }
+
+    /*================================第二种实现方法============================================*/
+
+
+
+    /* 获取 OSPF实体类集合
+    是整体类属性只有 IP 端口号 状态*/
+    public static List<OSPFPojo> getOSPFPojo(String information) {
+
+        /*
+         *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
+         * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth
+         * 根据空格分割为 关键词数组*/
+        String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
+        String[] keywords = deviceVersion.trim().split(" ");
+
+        List<String> keys = new ArrayList<>();
+
+        for (String key:keywords){
+            if (information.indexOf(" "+key+" ")!=-1){
+                keys.add(key);
+            }
+        }
+
+        List<String> string_split = Arrays.asList(information.split("\n"));
+
+        for (String key:keys){
+            for (int i = 0 ; i < string_split.size() ; i++){
+                if (string_split.get(i).indexOf(" "+key+" ") != -1){
+                    string_split.set(i,string_split.get(i).replace(key+" ",key));
+                }
+            }
+        }
+
+        String input = null;
+        for (String str:string_split){
+            List<String> stringList = extractIPAddresses(str);
+            if (stringList.size() == 2 && str.toLowerCase().indexOf("full")!=-1){
+                input = str.trim();
+            }
+        }
+
+        if (input == null){
+            return new ArrayList<>();
+        }
+
+        String[] split = input.split("\\s+");
+
+        /*获取数组各元素的意义*/
+        List<String> stringList = obtainParameterMeanings(split);
+
+        /*获取 IP、端口号、状态  数组下标*/
+        int ip = stringList.indexOf("IP");
+        int port = stringList.indexOf("端口");
+        int state = stringList.indexOf("状态");
+
+        /*获取 全文 与 含有full数据 按空格分割后 数组长度相等的行*/
+        List<String[]> arrayList = new ArrayList<>();
+        for (String str:string_split){
+            String[] rowsplit = str.trim().split("\\s+");
+            if (rowsplit.length == split.length){
+                arrayList.add(rowsplit);
+            }
+        }
+
+        /*筛选 与含有full数据长度相等的行集合
+         * 条件数 full数据 两个IP、一个端口号对应的列 数据特征要一样*/
+        List<String[]> stateList = new ArrayList<>();
+        for (String[] array:arrayList){
+            boolean isInput = true;
+            for (int i = 0 ; i < array.length ; i++){
+                String string = stringList.get(i);
+
+                if (string.equals("IP")){
+                    if (isIP(array[i])){
+                        continue;
+                    }else {
+                        isInput = false;
+                        break;
+                    }
+                }
+
+                else if (string.equals("端口")){
+                    if (isAlphanumeric(array[i])){
+                        continue;
+                    }else {
+                        isInput = false;
+                        break;
+                    }
+                }
+
+                else if (string.equals("未知")){
+
+                    boolean isIp = isIP(array[i]);
+                    boolean isPort = isAlphanumeric(array[i]);
+                    boolean isState = array[i].toLowerCase().indexOf("full")!=-1;
+
+                    if ( isIp || isPort || isState ){
+                        isInput = false;
+                        break;
+                    }else {
+                        continue;
+                    }
+
+                }
+            }
+            if (isInput){
+                stateList.add(array);
+            }
+        }
+
+        /*根据下标 到筛选后的集合中提取数据 赋值给OSPFPojo */
+        List<OSPFPojo> ospfPojos = new ArrayList<>();
+        for (String[] array:stateList){
+            OSPFPojo ospfPojo = new OSPFPojo();
+            ospfPojo.setIp(array[ip]);
+            ospfPojo.setPort(array[port]);
+            ospfPojo.setState(array[state]);
+            ospfPojos.add(ospfPojo);
+        }
+
+        return ospfPojos;
+    }
+
+    /**
+     * @Description 获取字符串中的IP集合
+     * @author charles
+     * @createTime 2023/12/22 16:41
+     * @desc
+     * @param input
+     * @return
+     */
+    public static List<String> extractIPAddresses(String input) {
+        List<String> ipAddresses = new ArrayList<>();
+        Pattern pattern = Pattern.compile(
+                "\\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b");
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            ipAddresses.add(matcher.group());
+        }
+        return ipAddresses;
+    }
+
+    /*获取数组各元素的意义*/
+    public static List<String> obtainParameterMeanings(String[] values) {
+        List<String> meanings = new ArrayList<>();
+        for (String value:values){
+            if (isIP(value)){
+                if ( value.indexOf("0.0.0.") != -1 ){
+                    meanings.add("无效IP");
+                }else {
+                    meanings.add("IP");
+                }
+            }else if (isAlphanumeric(value)){
+                meanings.add("端口");
+            }else if (value.toLowerCase().indexOf("full")!=-1){
+                meanings.add("状态");
+            }else {
+                meanings.add("未知");
+            }
+        }
+        return meanings;
+    }
+
+    /*判断字符串是否是IP*/
+    public static boolean isIP(String ip) {
+        String regex = "^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$";
+        return Pattern.matches(regex, ip);
+    }
+
+    /*判断字符串是否同时包含字母与数字*/
+    public static boolean isAlphanumeric(String str) {
+
+        return str.matches(".*[a-zA-Z].*") && str.matches(".*\\d.*");
+
     }
 }
