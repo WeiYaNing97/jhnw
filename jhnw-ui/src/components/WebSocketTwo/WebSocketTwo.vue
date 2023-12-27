@@ -904,9 +904,11 @@
             wsMessageHanler(e) {
                 if (e.data === 'pong'){
                     // console.log('22222'+e.data)
+                }else if(e.data.includes('内存')){
+                    console.log(e.data)
                 }else {
                     console.log('传输的单条问题数据：')
-                    console.log(JSON.parse(e.data))
+                    // console.log(JSON.parse(e.data))
                     let newJson = this.changeTreeDate(JSON.parse(e.data), 'switchProblemVOList', 'children')
                     let newJson1 = this.changeTreeDate(newJson, 'switchProblemCOList', 'children')
                     //备份完整线程IP

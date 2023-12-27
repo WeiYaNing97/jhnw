@@ -13,7 +13,7 @@
 <!--        <v-text class="right-menu-item" style="width: 150px">RAM:{{ aaa }}</v-text>-->
 
 <!--        v-trigger  自动执行，必须有-->
-        <el-button type="primary" @click="lunxun" v-show="false" v-trigger>轮询</el-button>
+<!--        <el-button type="primary" @click="lunxun" v-show="false" v-trigger>轮询</el-button>-->
 
 
 <!--        <el-tooltip content="cpu" effect="dark" placement="bottom">-->

@@ -7,7 +7,7 @@ function resolve(dir) {
 
 const name = process.env.VUE_APP_TITLE || '衡水交换机巡检系统' // 网页标题
 
-const port = process.env.port || process.env.npm_config_port || 70 // 端口
+const port = process.env.port || process.env.npm_config_port || 8060 // 端口
 
 //获取本机ip，自己添加的
 const os = require('os')
@@ -69,6 +69,7 @@ module.exports = {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
         target: `https://localhost:8080`,
+        // target: `https://192.168.1.98:8080`,
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''

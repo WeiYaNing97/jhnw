@@ -193,7 +193,7 @@
 <script>
 import { listJh_test, getJh_test, delJh_test, addJh_test, updateJh_test, exportJh_test } from "@/api/sql/jh_test";
 import WebSocket from '@/components/WebSocket/WebSocket'
-import WebSocketOne from "@/components/WebSocketOne/WebSocketOne"
+// import WebSocketOne from "@/components/WebSocketOne/WebSocketOne"
 import WebSocketTwo from "@/components/WebSocketTwo/WebSocketTwo"
 import  {MessageBox} from "element-ui"
 import log from "../../monitor/job/log"
@@ -204,7 +204,7 @@ export default {
   name: "Jh_test",
     components:{
         WebSocket,
-        WebSocketOne,
+        // WebSocketOne,
         WebSocketTwo
     },
   data() {

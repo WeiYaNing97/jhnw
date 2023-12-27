@@ -4,7 +4,7 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
-        <h2>网络设备配置与缺陷自动巡检系统</h2>
+        <h2>网络设备自动巡检系统</h2>
         <p>
           <b>当前版本:</b> <span>v1.0</span>
         </p>

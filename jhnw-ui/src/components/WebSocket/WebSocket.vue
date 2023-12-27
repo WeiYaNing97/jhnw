@@ -188,7 +188,7 @@
             },
             wsMessageHanler(e) {
                 if (e.data === 'pong'){
-                    // console.log('00000'+e.data)
+                    console.log('00000'+e.data)
                 }else {
                     console.log(e)
                     if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){

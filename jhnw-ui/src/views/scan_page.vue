@@ -2,11 +2,30 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true"
              v-show="showSearch" label-width="40px" :show-message="false">
+
       <el-form-item style="margin-left: 15px;width: 100%">
-        <el-button type="primary" @click="xinzeng" v-if="this.scanShow == true"
-                   icon="el-icon-plus" size="small">新增设备</el-button>
-        <el-button type="primary" icon="el-icon-d-arrow-right"
-                   size="small" v-if="this.scanShow == true" @click="dialogVisible = true">批量导入</el-button>
+<!--        2023.12.22-->
+        <el-dropdown trigger="click" size="small" split-button type="primary" @command="addHandleCommand" @click="addScanIp">
+          <i class="el-icon-plus"></i>  添加设备
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item icon="el-icon-d-arrow-right" command="bulkImport">批量导入设备</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
+<!--        <el-button type="primary" @click="xinzeng" v-if="this.scanShow == true"-->
+<!--                   icon="el-icon-plus" size="small">添加设备</el-button>-->
+
+<!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
+<!--                   size="small" v-if="this.scanShow == true" @click="dialogVisible = true">批量导入</el-button>-->
+        <el-dropdown style="padding-left: 20px" trigger="click" size="small"
+                     split-button type="primary" @command="scanHandleCommand" @click="fullScanNew">
+          <i class="el-icon-search"></i>  全面扫描
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item icon="el-icon-search" command="specialSearch">专项扫描</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-search" command="specialSearchAdv">高级功能扫描</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
         <el-button type="success" icon="el-icon-search" size="small" @click="fullScan"
                    v-if="this.scanShow == true" :disabled="this.scanUse == false" round>全面扫描</el-button>
         <el-button type="warning" size="small" @click="cancelScan"
@@ -103,6 +122,7 @@
           <p style="margin: 0;text-align: center">扫描设备信息</p>
           <el-table :data="tableData" style="width: 100%"
                     max-height="300" ref="tableData"
+
                     :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
             <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
             <el-table-column type="selection" width="45"></el-table-column>
@@ -810,10 +830,19 @@
                     }
                 })
             },
-            //新增设备
-            xinzeng(){
+            //
+            ceshi01(){
+              console.log('ssss')
+            },
+            //添加扫描IP new
+            addScanIpNew(){
+
+            },
+            //添加扫描IP
+            addScanIp(){
                 this.tableData.push({
-                    ip: '192.168.1.100',
+                    //这里的ip。name我给定默认值，是为了测试方便，去现场需要设为空，就是切换注释就行，依次类推
+                    // ip: '192.168.1.100',
                     name: 'admin',
                     password:'admin',
                     // passmi:'********',
@@ -822,7 +851,7 @@
                     // isEdit:true,
                     // conCip:'********',
                     // configureCiphers:''
-                    // ip: '',
+                    ip: '',
                     // name: '',
                     // password:'',
                     passmi:'********',
@@ -832,6 +861,20 @@
                     conCip:'********',
                     configureCiphers:''
                 })
+            },
+            //添加扫描IP下拉菜单操作
+            addHandleCommand(command){
+                if (command === 'bulkImport'){
+                    this.dialogVisible = true
+                }
+            },
+            //扫描下拉菜单操作
+            scanHandleCommand(command){
+                if (command === 'specialSearch'){
+                    console.log(command)
+                }else if (command === 'specialSearchAdv'){
+                    console.log(command)
+                }
             },
             //删除扫描设备
             deleteRow(index) {
@@ -975,7 +1018,10 @@
                     this.$message.warning('已取消扫描!')
                 })
             },
+            //
+            fullScanNew(){
 
+            },
             //全面扫描new
             fullScan(){
                 this.scanUse = false
@@ -1253,5 +1299,8 @@
   >>> .el-dialog__wrapper.modelDia>.el-dialog{
     width: 40%;
     height: 360px;
+  }
+  .el-dropdown-menu{
+    left:220px;
   }
 </style>
