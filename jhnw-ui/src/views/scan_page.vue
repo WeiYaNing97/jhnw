@@ -4,6 +4,12 @@
              v-show="showSearch" label-width="40px" :show-message="false">
 
       <el-form-item style="margin-left: 15px;width: 100%">
+
+        <el-button type="primary" @click="guangStart">光衰开始</el-button>
+        <el-button type="primary" @click="guangEnd">光衰结束</el-button>
+        <el-button type="primary" @click="errorStart">错误包开始</el-button>
+        <el-button type="primary" @click="errotEnd">错误包结束</el-button>
+
 <!--        2023.12.22-->
         <el-dropdown trigger="click" size="small" split-button type="primary" @command="addHandleCommand" @click="addScanIp">
           <i class="el-icon-plus"></i>  添加设备
@@ -18,26 +24,29 @@
 <!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
 <!--                   size="small" v-if="this.scanShow == true" @click="dialogVisible = true">批量导入</el-button>-->
         <el-dropdown style="padding-left: 20px" trigger="click" size="small"
-                     split-button type="primary" @command="scanHandleCommand" @click="fullScanNew">
+                     split-button type="success" v-show="this.scanButtonShow" @command="scanHandleCommand" @click="fullScan">
           <i class="el-icon-search"></i>  全面扫描
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item icon="el-icon-search" command="specialSearch">专项扫描</el-dropdown-item>
             <el-dropdown-item icon="el-icon-search" command="specialSearchAdv">高级功能扫描</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-search" command="modelScan">模板扫描</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
 
-        <el-button type="success" icon="el-icon-search" size="small" @click="fullScan"
-                   v-if="this.scanShow == true" :disabled="this.scanUse == false" round>全面扫描</el-button>
+<!--        <el-button type="success" icon="el-icon-search" size="small" @click="fullScans"-->
+<!--                   v-if="this.scanShow == true" :disabled="this.scanUse == false" round>全面扫描</el-button>-->
+
         <el-button type="warning" size="small" @click="cancelScan"
                    v-if="this.cancelShow == true" icon="el-icon-circle-close" round>取消扫描</el-button>
-        <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"
-                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>
 
-        <el-button type="success" @click="modelScan" v-if="this.scanShow == true"
-                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>下发模板</el-button>
+<!--        <el-button type="success" @click="specialSearch" v-if="this.scanShow == true"-->
+<!--                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>专项扫描</el-button>-->
 
-        <el-button type="success" @click="specialSearchAdv" v-if="this.scanShow == true"
-                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>高级功能</el-button>
+<!--        <el-button type="success" @click="modelScan" v-if="this.scanShow == true"-->
+<!--                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>下发模板</el-button>-->
+
+<!--        <el-button type="success" @click="specialSearchAdv" v-if="this.scanShow == true"-->
+<!--                   :disabled="this.scanUse == false" icon="el-icon-search" size="small" round>高级功能</el-button>-->
 
         <el-button type="primary" icon="el-icon-refresh-left" v-if="this.rStartShow == true"
                    @click="rStart" size="small">返  回</el-button>
@@ -49,28 +58,24 @@
 <!--        <el-button type="primary" @click="xinzeng" icon="el-icon-plus" size="small">新增设备</el-button>-->
 <!--        <el-button type="primary" icon="el-icon-d-arrow-right"-->
 <!--                   size="small" style="margin-left: 10px" @click="dialogVisible = true">批量导入</el-button>-->
+<!--        批量导入-->
         <el-dialog
           title="交换机信息导入"
           :visible.sync="dialogVisible"
           width="50%">
           <input type="file" id="importBtn" @click="handleClick" @change="handleImport"
                  style="height: 30px;cursor: pointer">
-
-          <!--          <label for="fileinp">-->
-          <!--            <input type="button" id="btnchuan" value="选择文件"><span id="textone">请上传文档</span>-->
-          <!--            <input type="file" id="fileinp" @click="handleClick" @change="handleImport"-->
-          <!--                   style="height: 30px;cursor: pointer">-->
-          <!--          </label>-->
-          <!--          <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>-->
+<!--                    <span style="font-size: 12px">仅允许导入xls、xlsx格式文件</span>-->
           <br/>
           <span>请下载模板:</span>
           <el-button type="text" size="small" icon="el-icon-download"
-                     @click="xiazai" style="margin-left: 10px">下载模板</el-button>
+                     @click="downloadTemp" style="margin-left: 10px">下载模板</el-button>
           <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="daorusure">确 定</el-button>
+          <el-button type="primary" @click="importIp">确 定</el-button>
           </span>
         </el-dialog>
+<!--        扫描线程数-->
         <div style="display: inline-block;float: right;margin-right: 100px">
 <!--          <el-select v-model="advcancedChoose" clearable placeholder="高级功能定义"-->
 <!--                     @focus="advacedNull" @change="openAdvanced" style="padding-right: 10px">-->
@@ -86,7 +91,7 @@
         <!--        <el-button type="primary" @click="testall" icon="el-icon-search" size="small">测试按钮</el-button>-->
       </el-form-item>
 
-<!--      专项扫描-->
+<!--      专项扫描、高级扫描-->
       <el-dialog
         title="扫描项目选择"
         :visible.sync="dialogVisibleSpecial"
@@ -103,7 +108,7 @@
           />
 <!--          <el-scrollbar style="height:100%">-->
             <el-tree show-checkbox
-                     :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"
+                     :data="specialItems" :props="defaultProps" :filter-node-method="filterNode"
                      @node-click="handleNodeClick" :default-expand-all="true" ref="treeone" node-key="id"></el-tree>
 <!--          </el-scrollbar>-->
         </div>
@@ -116,91 +121,67 @@
       </el-dialog>
 
       <el-divider></el-divider>
-<!--      <el-row>-->
-<!--        <el-col :span="14">-->
-          <!--      表格展示列表-->
-          <p style="margin: 0;text-align: center">扫描设备信息</p>
-          <el-table :data="tableData" style="width: 100%"
-                    max-height="300" ref="tableData"
-
-                    :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
-            <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
-            <el-table-column type="selection" width="45"></el-table-column>
-            <el-table-column prop="ip" label="设备IP">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.ip"
-                          placeholder="请输入ip" size="small"></el-input>
-                <span v-else>{{ row.ip }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="name" label="用户名">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.name"
-                          placeholder="请输入用户名" size="small"></el-input>
-                <span v-else>{{ row.name }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="password" label="密码">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.password" type="password"
-                          placeholder="请输入密码" size="small"></el-input>
-                <span v-else>{{ row.passmi }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="mode" label="连接方式">
-              <template slot-scope="{ row }">
-                <el-select v-if="row.isEdit" v-model="row.mode" size="small" placeholder="连接方式">
-                  <el-option label="ssh" value="ssh"/>
-                  <el-option label="telnet" value="telnet"/>
-                </el-select>
-                <span v-else>{{ row.mode }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="port" label="端口号">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.port"
-                          placeholder="端口" size="small"></el-input>
-                <span v-else>{{ row.port }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="configureCiphers" label="配置密码">
-              <template slot-scope="{ row }">
-                <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
-                          placeholder="配置密码" size="small"></el-input>
-                <span v-else>{{ row.conCip }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作">
-              <template slot-scope="{ row }">
-                <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
-                <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
-                <el-button @click.native.prevent="deleteRow(row.row_index)" type="text" size="small">删除</el-button>
-                <!--                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>-->
-              </template>
-            </el-table-column>
-          </el-table>
-<!--        </el-col>-->
-<!--        <el-col :span="10" v-show="showxiang">-->
-<!--          <p style="margin: 0;text-align: center">扫描项目选择</p>-->
-<!--          <div>-->
-<!--            <el-input-->
-<!--              v-model="deptName"-->
-<!--              placeholder="请输入查找内容"-->
-<!--              clearable-->
-<!--              size="small"-->
-<!--              prefix-icon="el-icon-search"-->
-<!--              style="margin-bottom: 20px;width: 80%;margin-left: 50px"-->
-<!--            />-->
-<!--          </div>-->
-<!--          <div style="max-height: 300px">-->
-<!--            <el-scrollbar style="height:100%">-->
-<!--              <el-tree style="max-height: 300px;width: 95%;margin-left:50px" show-checkbox-->
-<!--                       :data="fenxiang" :props="defaultProps" :filter-node-method="filterNode"-->
-<!--                       @node-click="handleNodeClick" ref="treeone" node-key="id"></el-tree>-->
-<!--            </el-scrollbar>-->
-<!--          </div>-->
-<!--        </el-col>-->
-<!--      </el-row>-->
+<!--                扫描设备列表-->
+      <div>
+        <p style="margin: 0;text-align: center">扫描设备信息</p>
+        <el-table :data="tableData" style="width: 100%"
+                  max-height="300" ref="tableData"
+                  :row-class-name="tableRowClassName" @row-click="currentLine" @selection-change="selectLine">
+          <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
+          <el-table-column type="selection" width="45"></el-table-column>
+          <el-table-column prop="ip" label="设备IP">
+            <template slot-scope="{ row }">
+              <el-input v-if="row.isEdit" v-model="row.ip"
+                        placeholder="请输入ip" size="small"></el-input>
+              <span v-else>{{ row.ip }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="用户名">
+            <template slot-scope="{ row }">
+              <el-input v-if="row.isEdit" v-model="row.name"
+                        placeholder="请输入用户名" size="small"></el-input>
+              <span v-else>{{ row.name }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="password" label="密码">
+            <template slot-scope="{ row }">
+              <el-input v-if="row.isEdit" v-model="row.password" type="password"
+                        placeholder="请输入密码" size="small"></el-input>
+              <span v-else>{{ row.passmi }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="mode" label="连接方式">
+            <template slot-scope="{ row }">
+              <el-select v-if="row.isEdit" v-model="row.mode" size="small" placeholder="连接方式">
+                <el-option label="ssh" value="ssh"/>
+                <el-option label="telnet" value="telnet"/>
+              </el-select>
+              <span v-else>{{ row.mode }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="port" label="端口号">
+            <template slot-scope="{ row }">
+              <el-input v-if="row.isEdit" v-model="row.port"
+                        placeholder="端口" size="small"></el-input>
+              <span v-else>{{ row.port }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="configureCiphers" label="配置密码">
+            <template slot-scope="{ row }">
+              <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
+                        placeholder="配置密码" size="small"></el-input>
+              <span v-else>{{ row.conCip }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作">
+            <template slot-scope="{ row }">
+              <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
+              <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
+              <el-button @click.native.prevent="deleteRow(row.row_index)" type="text" size="small">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
 
       <el-dialog
         title="提示"
@@ -212,30 +193,19 @@
           <el-button type="primary" @click="lishiend">确 定</el-button>
         </span>
       </el-dialog>
-
-      <!--   @keyup.enter.native="handleQuery"-- 回车事件 >
-      <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
-      <!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
     </el-form>
 
     <el-divider></el-divider>
     <!--    <input url="file:///D:/HBuilderX-test/first-test/index.html" />-->
 
     <WebSocketTwo :queryParams="queryParams" ref="webtwo"
-                  :endIp="endIp" @allNoPro="postNoPro" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
+                  :endIp="endIp" v-show="this.webTwoShow" @allNoPro="postNoPro" :saowanend="saowanend" :xiufuend="xiufuend" :num="num"></WebSocketTwo>
 
     <div class="app-container home">
       <el-row :gutter="20">
-        <WebSocket ref="webone" @event="getendIp" @eventOne="postEnd"></WebSocket>
+        <WebSocket ref="webone" v-show="this.webTwoShow" @event="getendIp" @eventOne="postEnd"></WebSocket>
       </el-row>
     </div>
-
-    <!--    <WebSocketOne></WebSocketOne>-->
-    <!--      下一页-->
-    <!--    <pagination v-show="total>0" :total="total" :page.sync="queryParams.pageNum" :limit.sync="queryParams.pageSize"
-            @pagination="getList"-->
-    <!--    />-->
-
     <!-- 添加或修改测试对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
@@ -267,9 +237,9 @@
     <el-dialog title="模板选择" class="modelDia" :visible.sync="dialogFormVisibleOne">
       <el-form :model="formScan">
         <el-form-item label="选择模板" label-width="80px">
+<!--          @focus="general($event)"-->
           <el-select v-model="formScan.model_name" placeholder="自定义模板"
-                     @change="getListModel" @focus="general($event)"
-                     name="model_name" style="width: 200px">
+                     @change="getListModel" name="model_name" style="width: 200px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item" :value="item"></el-option>
           </el-select>
@@ -301,8 +271,12 @@
         inject:["reload"],
         data() {
             return {
+                //最终扫描设备
+                finalScanIps:[],
                 //
                 advcancedChoose:'',
+                //WebSocketTwo不显示
+                webTwoShow:false,
                 //模板扫描
                 formScan:{
                     model_name:''
@@ -316,8 +290,6 @@
                 endIp:'',
                 //是否圆圈
                 loadingOne:true,
-                //扫描项目选择是否显示
-                showxiang:true,
                 //定时接收true或者false
                 torf:false,
                 torfOne:false,
@@ -327,28 +299,16 @@
                 xiufuend:false,
                 xiuendson:false,
                 //查询树
-                deptName:undefined,
+                deptName:'',
                 shuru:false,
-                tableData: [
-                    //     {
-                    //     ip: '',
-                    //     name: '',
-                    //     password:'',
-                    //     passmi:'********',
-                    //     mode:'ssh',
-                    //     port:22,
-                    //     isEdit:false,
-                    //     conCip:'********',
-                    //     configureCiphers:''
-                    // }
-                ],
-                xuanzhong:[
-
-                ],
-                //专项扫描
-                fenxiang: [
-
-                ],
+                //设备数组
+                tableData: [],
+                //表格上传的设备信息
+                importData:[],
+                //选中设备
+                chooseIp:[],
+                //专项扫描tree数据
+                specialItems: [],
                 //高级扫描
                 advancedScan:{
                     label:"高级功能",
@@ -365,7 +325,7 @@
                             label:"误码率",
                             id:'误码率'
                         }
-                    ]
+                    ],
                 },
                 defaultProps: {
                     children: 'children',
@@ -374,8 +334,6 @@
                 //计数器
                 num:1,
                 maxValue:20,
-                //表格上传的设备信息
-                importData:[],
                 dialogVisible:false,
                 dialogVisibleXiu:false,
                 dialogVisibleSpecial:false,
@@ -395,10 +353,7 @@
                 showSearch: true,
                 //专项还是高级功能
                 showButton:true,
-                //一键扫描是否可用
-                scanUse:false,
-                //一键扫描显示
-                scanShow:true,
+                scanButtonShow:false,
                 cancelShow:false,
                 rStartShow:false,
                 // 总条数
@@ -460,10 +415,11 @@
             };
         },
         watch:{
-            // 根据输入筛选专项
+            //根据输入筛选专项
             deptName(val) {
                 this.$refs.treeone.filter(val);
             },
+            //扫描结束
             saowanend(){
                 if (this.saowanend == true){
                     console.log('扫描已结束!')
@@ -474,22 +430,22 @@
                     this.cancelShow = false
                 }
             },
-            //默认全部选中
+            //监测是否已添加设备
             tableData(){
                 console.log(this.tableData.length)
                 if (this.tableData.length != 0){
-                    this.scanUse = true
+                    this.scanButtonShow = true
                 }else {
-                    this.scanUse = false
+                    this.scanButtonShow = false
                 }
-                this.$nextTick(() => {
-                    for (let i = 0; i < this.tableData.length; i++) {
-                        this.$refs.tableData.toggleRowSelection(
-                            this.tableData[i],
-                            true
-                        )
-                    }
-                })
+                // this.$nextTick(() => {
+                //     for (let i = 0; i < this.tableData.length; i++) {
+                //         this.$refs.tableData.toggleRowSelection(
+                //             this.tableData[i],
+                //             true
+                //         )
+                //     }
+                // })
             }
         },
         created() {
@@ -499,9 +455,42 @@
             // this.getList();
         },
         methods: {
+            ////////////测试按钮⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
+            guangStart(){
+                return request({
+                    url:'/advanced/LightAttenuationSnapshot/startSnapshot',
+                    method:'get'
+                }).then(response=>{
+                    console.log('日志')
+                })
+            },
+            guangEnd(){
+                return request({
+                    url:'/advanced/LightAttenuationSnapshot/threadInterrupt',
+                    method:'get'
+                }).then(response=>{
+                    console.log('日志')
+                })
+            },
+            errorStart(){
+                return request({
+                    url:'/advanced/ErrorPackageSnapshot/startSnapshot',
+                    method:'get'
+                }).then(response=>{
+                    console.log('日志')
+                })
+            },
+            errotEnd(){
+                return request({
+                    url:'/advanced/ErrorPackageSnapshot/threadInterrupt',
+                    method:'get'
+                }).then(response=>{
+                    console.log('日志')
+                })
+            },
+            /////////////////////测试按钮⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆
             //
             avTest(){
-              // console.log(this.advcancedChoose)
                 router.push({
                     path:'/advanced/ospf_command'
                 })
@@ -519,76 +508,6 @@
                     console.log('误码率')
                 }else if (this.advcancedChoose == '光纤衰耗'){
                     console.log('光纤衰耗')
-                }
-            },
-            //模板扫描模块
-            general(e){
-                this.who = e.target.getAttribute('name')
-                console.log(this.who)
-                return request({
-                    url:'/sql/formwork/getNameList',
-                    method:'get',
-                }).then(response=>{
-                    console.log(response)
-                    this.genList = response
-                })
-            },
-            getListModel(){
-                return request({
-                    url:'/sql/formwork/pojoByformworkName?formworkName=' + this.formScan.model_name,
-                    method:'get',
-                }).then(response=>{
-                    console.log(response)
-                    this.formworkId = response.id
-                    console.log(this.formworkId)
-                })
-            },
-            //模板扫描展示
-            modelScan(){
-                this.dialogFormVisibleOne = true
-            },
-            modelScanStart(){
-                if (this.formworkId == ''){
-                    this.$message.warning('请选择模板!')
-                }else {
-                    this.dialogFormVisibleOne = false
-                    this.scanUse = false
-                    this.scanShow = false
-                    this.cancelShow = true
-                    //最终扫描设备
-                    let zuihou = []
-                    if (this.xuanzhong.length>0){
-                        zuihou = this.xuanzhong
-                    }else {
-                        zuihou = JSON.parse(JSON.stringify(this.tableData))
-                    }
-                    var encrypt = new JSEncrypt();
-                    encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-                    for (let i = 0;i<zuihou.length;i++){
-                        this.$delete(zuihou[i],'isEdit')
-                        this.$delete(zuihou[i],'passmi')
-                        this.$delete(zuihou[i],'conCip')
-                        //给密码加密
-                        var pass = encrypt.encrypt(zuihou[i].password)
-                        this.$set(zuihou[i],'password',pass)
-                        //给配置密码加密
-                        var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
-                        this.$set(zuihou[i],'configureCiphers',passPei)
-                    }
-                    //传输几个线程
-                    const scanNum = this.num
-                    let zuihouall = zuihou.map(x=>JSON.stringify(x))
-                    console.log(zuihouall)
-                    // this.$message.success('扫描请求以提交!')
-                    console.log(this.formworkId)
-                    console.log(scanNum)
-                    return request({
-                        url:'/sql/SwitchInteraction/formworkScann/' + this.formworkId + '/' + scanNum,
-                        method:'post',
-                        data:zuihouall
-                    }).then(response=>{
-                        console.log('日志')
-                    })
                 }
             },
             /////////////////
@@ -623,37 +542,90 @@
                 if (!value) return true;
                 return data.label.indexOf(value) !== -1;
             },
-            //高级功能
-            specialSearchAdv(){
-                this.showButton = true
-                this.dialogVisibleSpecial = true
-                this.showxiang = true
-                // var ce = {}
-                this.fenxiang = [
-                    {
-                        label:"高级功能",
-                        children: [
-                            {
-                                label:"OSPF",
-                                id:'OSPF'
-                            },
-                            {
-                                label:"光衰",
-                                id:'光衰'
-                            },
-                            {
-                                label:"误码率",
-                                id:'误码率'
-                            }
-                        ]
-                    }
-                ]
+            ///////////////
+            //添加扫描IP
+            addScanIp(){
+                this.tableData.push({
+                    // ip: '192.168.1.100',
+                    name: 'admin',
+                    password:'admin',
+                    ip: '',
+                    // name: '',
+                    // password:'',
+                    passmi:'********',
+                    mode:'ssh',
+                    port:'22',
+                    isEdit:true,
+                    conCip:'********',
+                    configureCiphers:''
+                })
             },
-            //专项扫描
+            //添加扫描IP下拉菜单操作：批量导入
+            addHandleCommand(command){
+                if (command === 'bulkImport'){
+                    this.dialogVisible = true
+                }
+            },
+            //扫描 下拉菜单操作
+            scanHandleCommand(command){
+                //WebSocketTwo显示
+                this.webTwoShow = true
+                if (command === 'specialSearch'){
+                    this.specialSearch()
+                }else if (command === 'specialSearchAdv'){
+                    this.specialSearchAdv()
+                }else if (command === 'modelScan'){
+                    this.modelScan()
+                }
+            },
+            /////////////////////扫描块
+            //最终扫描设备
+            finalScanMethod(){
+                this.finalScanIps = []
+                let selectScanIps = []
+                if(this.chooseIp.length > 0){
+                    console.log('扫描选中设备如下')
+                    selectScanIps = JSON.parse(JSON.stringify(this.chooseIp))
+                }else {
+                    selectScanIps = JSON.parse(JSON.stringify(this.tableData))
+                }
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<selectScanIps.length;i++){
+                    this.$delete(selectScanIps[i],'isEdit')
+                    this.$delete(selectScanIps[i],'passmi')
+                    this.$delete(selectScanIps[i],'conCip')
+                    //给密码加密
+                    let passMi = encrypt.encrypt(selectScanIps[i].password)
+                    this.$set(selectScanIps[i],'password',passMi)
+                    //给配置密码加密
+                    let passConCip = encrypt.encrypt(selectScanIps[i].configureCiphers)
+                    this.$set(selectScanIps[i],'configureCiphers',passConCip)
+                }
+                this.finalScanIps = selectScanIps.map(item => JSON.stringify(item))
+                console.log('最终扫描设备')
+                console.log(this.finalScanIps)
+            },
+            //全面扫描
+            fullScan(){
+                this.finalScanMethod()
+                //WebSocketTwo显示
+                this.webTwoShow = true
+                // this.cancelShow = true
+                //传输几个线程
+                const scanNum = this.num
+                return request({
+                    url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
+                    method:'post',
+                    data:this.finalScanIps
+                }).then(response=>{
+                    console.log('日志')
+                })
+            },
+            //专项扫描获取tree
             specialSearch(){
                 this.showButton = false
                 this.dialogVisibleSpecial = true
-                this.showxiang = true
                 return request({
                     url:'/sql/total_question_table/fuzzyQueryListByPojoMybatis',
                     method:'get'
@@ -674,37 +646,119 @@
                             for (let m = 0;m<response[i].children[g].children.length;m++){
                                 this.$delete(response[i].children[g].children[m],'typeProblem')
                                 this.$delete(response[i].children[g].children[m],'temProName')
-                                let pinjie = response[i].children[g].children[m].problemName+' '+'('+
+                                let jointString = response[i].children[g].children[m].problemName+' '+'('+
                                     response[i].children[g].children[m].brand+' '+
                                     response[i].children[g].children[m].type+' '+
                                     response[i].children[g].children[m].firewareVersion+' '+
                                     response[i].children[g].children[m].subVersion+')'
-                                this.$set(response[i].children[g].children[m],'problemName',pinjie)
+                                this.$set(response[i].children[g].children[m],'problemName',jointString)
                             }
                         }
                     }
                     response = changeTreeDate(response,'typeProblem','label')
                     response = changeTreeDate(response,'temProName','label')
                     response = changeTreeDate(response,'problemName','label')
-                    //删除高级功能
+                    //删除后台传回的高级功能
                     if (response.length > 0){
-                        this.fenxiang = response.filter(item => {
+                        this.specialItems = response.filter(item => {
                             return item.label != '高级功能'
                         })
                     }
-                    this.fenxiang.push(this.advancedScan)
+                    //添加自定义的高级功能(高级功能传递 ：OSPF,误码率)
+                    this.specialItems.push(this.advancedScan)
                     console.log('专项扫描分类修改后:')
-                    console.log(this.fenxiang)
+                    console.log(this.specialItems)
                 })
+            },
+            //专项开始扫描
+            specialSearchStart(){
+                this.finalScanMethod()
+                //传输几个线程
+                let scanNum = this.num
+                //专项扫描选中的id
+                let specialChooseIds = this.$refs.treeone.getCheckedKeys()
+                let totalQuestionTableId = specialChooseIds.filter(function (item) {
+                    return typeof item !== 'undefined'
+                })
+                console.log('专项扫描选择的问题ID:')
+                console.log(totalQuestionTableId)
+                if(totalQuestionTableId.length == 0){
+                    this.$alert('没有选择要扫描的项,请选择!', '专项扫描', {
+                        confirmButtonText: '确定',
+                        type:'warning'
+                    })
+                }else {
+                    this.dialogVisibleSpecial = false
+                    return request({
+                        url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
+                        method:'post',
+                        data:this.finalScanIps
+                    }).then(response=>{
+                        // this.$message.success('扫描请求以提交!')
+                    })
+                }
+            },
+            //高级功能扫描获取tree
+            specialSearchAdv(){
+                this.showButton = true
+                this.dialogVisibleSpecial = true
+                this.specialItems = [
+                    {
+                        label:"高级功能",
+                        children: [
+                            {
+                                label:"OSPF",
+                                id:'OSPF'
+                            },
+                            {
+                                label:"光衰",
+                                id:'光衰'
+                            },
+                            {
+                                label:"误码率",
+                                id:'误码率'
+                            }
+                        ]
+                    }
+                ]
             },
             //高级功能开始扫描
             specialSearchStartAdv(){
-                this.scanShow = false
+                //扫描设备
+                this.finalScanMethod()
+                //传输几个线程
+                const scanNum = this.num
+                //高级扫描选中的id
+                let specialChooseIds = this.$refs.treeone.getCheckedKeys()
+                let totalQuestionTableId = specialChooseIds.filter(function (item) {
+                    return typeof item !== 'undefined'
+                })
+                console.log('专项扫描选择的问题ID:')
+                console.log(totalQuestionTableId)
+                if(totalQuestionTableId.length == 0){
+                    this.$alert('没有选择扫描项,请选择!', '高级扫描', {
+                        confirmButtonText: '确定',
+                        type:'warning'
+                    });
+                }else {
+                    this.dialogVisibleSpecial = false
+                    console.log('高级扫描开始')
+                    return request({
+                        url:'/advanced/AdvancedFeatures/advancedFunction/'+scanNum+'/'+totalQuestionTableId,
+                        method:'post',
+                        data:this.finalScanIps
+                    }).then(response=>{
+                        // this.$message.success('扫描请求以提交!')
+                    })
+                }
+            },
+            //高级功能开始扫描以前的备份
+            specialSearchStartAdvSSSSS(){
                 this.cancelShow = true
                 //最终扫描设备
                 let zuihou = []
-                if (this.xuanzhong.length>0){
-                    zuihou = this.xuanzhong
+                if (this.chooseIp.length>0){
+                    zuihou = this.chooseIp
                 }else {
                     zuihou = JSON.parse(JSON.stringify(this.tableData))
                 }
@@ -756,125 +810,76 @@
                     })
                 }
             },
-            //专项开始扫描
-            specialSearchStart(){
-                this.scanShow = false
-                this.cancelShow = true
-                //最终扫描设备
-                let zuihou = []
-                if (this.xuanzhong.length>0){
-                    zuihou = this.xuanzhong
+            //模板扫描
+            modelScan(){
+                this.dialogFormVisibleOne = true
+                return request({
+                    url:'/sql/formwork/getNameList',
+                    method:'get',
+                }).then(response=>{
+                    console.log(response)
+                    this.genList = response
+                })
+            },
+            // //模板扫描获取下拉数据
+            // general(e){
+            //     // this.who = e.target.getAttribute('name')
+            //     // return request({
+            //     //     url:'/sql/formwork/getNameList',
+            //     //     method:'get',
+            //     // }).then(response=>{
+            //     //     console.log(response)
+            //     //     this.genList = response
+            //     // })
+            // },
+            //获取选择的模板的ID
+            getListModel(){
+                return request({
+                    url:'/sql/formwork/pojoByformworkName?formworkName=' + this.formScan.model_name,
+                    method:'get',
+                }).then(response=>{
+                    this.formworkId = response.id
+                })
+            },
+            //模板开始扫描
+            modelScanStart(){
+                if (this.formworkId == ''){
+                    this.$message.warning('请选择模板!')
                 }else {
-                    zuihou = JSON.parse(JSON.stringify(this.tableData))
-                }
-                var encrypt = new JSEncrypt();
-                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-                for (let i = 0;i<zuihou.length;i++){
-                    this.$delete(zuihou[i],'isEdit')
-                    this.$delete(zuihou[i],'passmi')
-                    this.$delete(zuihou[i],'conCip')
-                    //密码加密
-                    var pass = encrypt.encrypt(zuihou[i].password)
-                    this.$set(zuihou[i],'password',pass)
-                    //配置密码加密
-                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
-                    this.$set(zuihou[i],'configureCiphers',passPei)
-                }
-                //传输几个线程
-                const scanNum = this.num
-                //专项扫描的所有id
-                var zhuanid = this.$refs.treeone.getCheckedKeys()
-                const totalQuestionTableId = []
-                for(let i = 0;i<=zhuanid.length;i++){
-                    if (typeof(zhuanid[i])!='undefined'){
-                        totalQuestionTableId.push(zhuanid[i])
-                    }
-                }
-                console.log('专项扫描所有问题ID:')
-                console.log(totalQuestionTableId)
-
-                let zuihouall = zuihou.map(x=>JSON.stringify(x))
-                console.log('专项扫描IP:')
-                console.log(zuihouall)
-                if(totalQuestionTableId.length == 0){
-                    this.$alert('没有选择要扫描的项,请重新选择!', '专项扫描', {
-                        confirmButtonText: '确定',
-                        type:'warning'
-                    })
-                }else {
-                    this.dialogVisibleSpecial = false
+                    this.dialogFormVisibleOne = false
+                    // this.cancelShow = true
+                    //最终扫描设备
+                    this.finalScanMethod()
+                    //传输几个线程
+                    const scanNum = this.num
+                    console.log(this.formworkId)
                     return request({
-                        url:'/sql/SwitchInteraction/directionalScann/'+totalQuestionTableId+'/'+scanNum,
+                        // url:'/sql/SwitchInteraction/formworkScann/' + this.formworkId + '/' + scanNum,
                         method:'post',
-                        data:zuihouall
+                        data:this.finalScanIps
                     }).then(response=>{
-                        // this.$message.success('扫描请求以提交!')
+
                     })
                 }
             },
-            //选择设备
-            xuanze(row){
-                this.xuanzhong = JSON.parse(JSON.stringify(row))
-                console.log(this.xuanzhong)
+            ///////////////////////////扫描设备
+            //选择设备变化时
+            selectLine(row){
+                this.chooseIp = row
+                console.log(this.chooseIp)
             },
             //获取当前表格行index
             tableRowClassName({row, rowIndex}) {
                 row.row_index = rowIndex;
             },
-            //
-            dianhang(row){
+            //点击当前行操作
+            currentLine(row){
                 let lineNum = row.row_index
                 this.tableData.forEach((row,index)=>{
                     if (lineNum != index){
                         row.isEdit = false
                     }
                 })
-            },
-            //
-            ceshi01(){
-              console.log('ssss')
-            },
-            //添加扫描IP new
-            addScanIpNew(){
-
-            },
-            //添加扫描IP
-            addScanIp(){
-                this.tableData.push({
-                    //这里的ip。name我给定默认值，是为了测试方便，去现场需要设为空，就是切换注释就行，依次类推
-                    // ip: '192.168.1.100',
-                    name: 'admin',
-                    password:'admin',
-                    // passmi:'********',
-                    // mode:'ssh',
-                    // port:22,
-                    // isEdit:true,
-                    // conCip:'********',
-                    // configureCiphers:''
-                    ip: '',
-                    // name: '',
-                    // password:'',
-                    passmi:'********',
-                    mode:'ssh',
-                    port:'22',
-                    isEdit:true,
-                    conCip:'********',
-                    configureCiphers:''
-                })
-            },
-            //添加扫描IP下拉菜单操作
-            addHandleCommand(command){
-                if (command === 'bulkImport'){
-                    this.dialogVisible = true
-                }
-            },
-            //扫描下拉菜单操作
-            scanHandleCommand(command){
-                if (command === 'specialSearch'){
-                    console.log(command)
-                }else if (command === 'specialSearchAdv'){
-                    console.log(command)
-                }
             },
             //删除扫描设备
             deleteRow(index) {
@@ -886,7 +891,7 @@
                 row.isEdit = !row.isEdit
             },
             //专项扫描
-            handleNodeClick(fenxiang) {
+            handleNodeClick(specialItems) {
 
             },
             //定时获取是否修复结束
@@ -895,7 +900,6 @@
                 console.log(this.xiufuend)
                 if (this.xiufuend === true){
                     clearInterval(this.xiuendson)
-                    // alert('修复已结束!')
                     this.dialogVisibleXiu = true
                 }
             },
@@ -915,39 +919,19 @@
                 // console.log(this.$refs.webtwo.geifu())
                 // console.log(this.$refs.treeone.getCheckedKeys())
             },
-            //导入弹窗确定
-            daorusure(){
-                console.log(this.importData)
-                this.dialogVisible = false
-                if (this.importData.length != 0){
-                    for (let i = 0;i<this.importData.length;i++){
-                        this.$set(this.importData[i],'passmi','********')
-                        this.$set(this.importData[i],'conCip','********')
-                        this.$set(this.importData[i],'isEdit',false)
-                        this.tableData.push(this.importData[i])
-                    }
-                    this.$message.success('批量导入成功!')
-                }else {
-                    this.$message.warning('批量导入失败，请查看导入数据或者下载模板!')
-                }
-            },
             //计数器
             handleChange(value) {
                 if (this.num > this.maxValue){
                     this.num = this.maxValue
                 }
             },
+            ///////////////////////导入模块
             //关闭导入弹窗
             handleClose(done) {
-                // this.$confirm('确认关闭？')
-                //     .then(_ => {
-                //         done();
-                //     })
-                //     .catch(_ => {});
                 this.dialogVisibleSpecial = false
             },
             //下载模板
-            xiazai(){
+            downloadTemp(){
                 window.location.href = '/交换机信息模板.xlsx'
                 this.dialogVisible = false
             },
@@ -959,8 +943,9 @@
                 }
             },
             handleImport(event) {
+                this.importData = []
                 let fileReader = new FileReader()
-                var file = event.currentTarget.files[0]
+                let file = event.currentTarget.files[0]
                 if (!file) {
                     return
                 }
@@ -1010,6 +995,22 @@
                 // 读取文件 成功后执行上面的回调函数
                 fileReader.readAsBinaryString(file)
             },
+            //导入弹窗确定
+            importIp(){
+                console.log(this.importData)
+                this.dialogVisible = false
+                if (this.importData.length != 0){
+                    for (let i = 0;i<this.importData.length;i++){
+                        this.$set(this.importData[i],'passmi','********')
+                        this.$set(this.importData[i],'conCip','********')
+                        this.$set(this.importData[i],'isEdit',false)
+                        this.tableData.push(this.importData[i])
+                    }
+                    this.$message.success('批量导入成功!')
+                }else {
+                    this.$message.warning('批量导入失败，请查看导入数据或者下载模板!')
+                }
+            },
             //取消扫描
             cancelScan(){
                 MessageBox.confirm('确定取消扫描吗？','提示').then(c=>{
@@ -1018,55 +1019,12 @@
                     this.$message.warning('已取消扫描!')
                 })
             },
-            //
-            fullScanNew(){
-
-            },
-            //全面扫描new
-            fullScan(){
-                this.scanUse = false
-                this.scanShow = false
-                this.cancelShow = true
-                //最终扫描设备
-                let zuihou = []
-                if (this.xuanzhong.length>0){
-                    zuihou = this.xuanzhong
-                }else {
-                    zuihou = JSON.parse(JSON.stringify(this.tableData))
-                }
-                var encrypt = new JSEncrypt();
-                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-                for (let i = 0;i<zuihou.length;i++){
-                    this.$delete(zuihou[i],'isEdit')
-                    this.$delete(zuihou[i],'passmi')
-                    this.$delete(zuihou[i],'conCip')
-                    //给密码加密
-                    var pass = encrypt.encrypt(zuihou[i].password)
-                    this.$set(zuihou[i],'password',pass)
-                    //给配置密码加密
-                    var passPei = encrypt.encrypt(zuihou[i].configureCiphers)
-                    this.$set(zuihou[i],'configureCiphers',passPei)
-                }
-                //传输几个线程
-                const scanNum = this.num
-                let zuihouall = zuihou.map(x=>JSON.stringify(x))
-                console.log(zuihouall)
-                return request({
-                    url:'/sql/SwitchInteraction/multipleScans/'+scanNum,
-                    method:'post',
-                    data:zuihouall
-                    // params:zuihouall
-                }).then(response=>{
-                    console.log('日志')
-                })
-            },
             //全面扫描
             saomiao(){
-                this.scanShow = false
                 //最终扫描设备
                 let zuihou = []
-                if (this.xuanzhong.length>0){
-                    zuihou = this.xuanzhong
+                if (this.chooseIp.length>0){
+                    zuihou = this.chooseIp
                 }else {
                     zuihou = JSON.parse(JSON.stringify(this.tableData))
                 }

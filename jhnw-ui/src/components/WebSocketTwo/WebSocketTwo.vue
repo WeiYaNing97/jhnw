@@ -465,8 +465,6 @@
                     this.form = response.rows[0]
                     this.dialogVisibleAdvanced = true
                 })
-
-
             },
             handleClose(done) {
                 this.dialogVisible = false
