@@ -88,7 +88,7 @@ public class OSPFFeatures {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String command = ospfCommand.getGetParameterCommand();
         String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
-        commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
+        /*commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
                 "Peer Statistic Information\n" +
                 "----------------------------------------------------------------------------\n" +
                 "Area Id Interface Neighbor id State\n" +
@@ -203,7 +203,7 @@ public class OSPFFeatures {
                 "0.0.0.0 DCN-Serial1/0/0:0 128.79.235.137 Full\n" +
                 "----------------------------------------------------------------------------\n" +
                 "Total Peer(s): 1";
-        commandReturn = MyUtils.trimString(commandReturn);
+        commandReturn = MyUtils.trimString(commandReturn);*/
 
 
         /*执行命令返回结果为null 则是命令执行错误*/
@@ -306,8 +306,6 @@ public class OSPFFeatures {
         }
 
     }
-
-
 
     /**
      * 根据交换机返回信息提取OSPF数据
@@ -513,8 +511,6 @@ public class OSPFFeatures {
 
     /*================================第二种实现方法============================================*/
 
-
-
     /* 获取 OSPF实体类集合
     是整体类属性只有 IP 端口号 状态*/
     public static List<OSPFPojo> getOSPFPojo(String information) {
@@ -534,7 +530,7 @@ public class OSPFFeatures {
             }
         }
 
-        List<String> string_split = Arrays.asList(information.split("\n"));
+        List<String> string_split = Arrays.asList(information.split("\r\n"));
 
         for (String key:keys){
             for (int i = 0 ; i < string_split.size() ; i++){
@@ -686,4 +682,5 @@ public class OSPFFeatures {
         return str.matches(".*[a-zA-Z].*") && str.matches(".*\\d.*");
 
     }
+
 }

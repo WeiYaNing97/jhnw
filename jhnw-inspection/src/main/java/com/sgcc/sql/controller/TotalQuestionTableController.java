@@ -306,7 +306,7 @@ public class TotalQuestionTableController extends BaseController
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
      */
-    @GetMapping("/brandlist")
+    /*@GetMapping("/brandlist")
     @ApiOperation("查询所有品牌")
     public List<String> brandlist() {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
@@ -320,14 +320,14 @@ public class TotalQuestionTableController extends BaseController
             stringList.add(pojo.getBrand());
         }
         return stringList;
-    }
+    }*/
 
     /**
      * @method: 根据所选品牌 查询所有型号
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
      */
-    @GetMapping("/typelist")
+    /*@GetMapping("/typelist")
     @ApiOperation("根据实体类查询品牌")
     public List<String> typelist(TotalQuestionTable totalQuestionTable)
     {
@@ -341,14 +341,14 @@ public class TotalQuestionTableController extends BaseController
             stringList.add(pojo.getType());
         }
         return stringList;
-    }
+    }*/
 
     /**
      * @method: 根据所选品牌、型号   查询所有内部固件版本
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
      */
-    @GetMapping("/firewareVersionlist")
+    /*@GetMapping("/firewareVersionlist")
     @ApiOperation("根据实体类查询内部固件版本")
     public List<String> firewareVersionlist(TotalQuestionTable totalQuestionTable)
     {
@@ -362,14 +362,14 @@ public class TotalQuestionTableController extends BaseController
             stringList.add(pojo.getFirewareVersion());
         }
         return stringList;
-    }
+    }*/
 
     /**
      * @method: 根据所选品牌、型号、内部固件版本   查询所有子版本号
      * @Param: [totalQuestionTable]
      * @return: java.util.List<java.lang.String>
      */
-    @GetMapping("/subVersionlist")
+    /*@GetMapping("/subVersionlist")
     @ApiOperation("根据实体类查询子版本号")
     public List<String> subVersionlist(TotalQuestionTable totalQuestionTable)
     {
@@ -383,7 +383,7 @@ public class TotalQuestionTableController extends BaseController
             stringList.add(pojo.getSubVersion());
         }
         return stringList;
-    }
+    }*/
 
     /**
     * @method: 查询所有问题种类
@@ -616,4 +616,5 @@ public class TotalQuestionTableController extends BaseController
         }
         return AjaxResult.success();
     }
+
 }

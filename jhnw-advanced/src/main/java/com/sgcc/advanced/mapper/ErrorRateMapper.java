@@ -2,6 +2,7 @@ package com.sgcc.advanced.mapper;
 
 
 import com.sgcc.advanced.domain.ErrorRate;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,4 +61,14 @@ public interface ErrorRateMapper
      * @return 结果
      */
     public int deleteErrorRateByIds(Long[] ids);
+
+    /**
+    * @Description 根据IP获取数据集合
+    * @author charles
+    * @createTime 2024/1/2 9:08
+    * @desc
+    * @param ip
+     * @return
+    */
+    List<ErrorRate> selectPojoListByIP(@Param("ip") String ip);
 }

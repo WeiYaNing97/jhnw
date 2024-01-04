@@ -276,7 +276,6 @@ public class SwitchInteraction {
             return "扫描结束";
         }
 
-
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());/*线程*/
         parameterSet.setSwitchParameters(switchParametersList);/*交换机信息表*/
 
@@ -295,18 +294,6 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-
-        /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));
-        while (true){
-            if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
-                WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
-                return "扫描结束";
-            }
-            if (dateFormat.format(new Date(new Date().getTime())).compareTo(nowTime_10) >=0 ){
-                return "扫描结束";
-            }
-        }*/
         return "扫描结束";
     }
 
@@ -1482,26 +1469,33 @@ public class SwitchInteraction {
         SwitchScanResult switchScanResult = new SwitchScanResult();
         //交换机ID 和 扫描线程名
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
+
         /*获取交换机四项基本信息ID*/
         switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
+
         /*名字 密码 配置密码 连接方式 端口号*/
         switchScanResult.setSwitchName(switchParameters.getName()); //name
         switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
         switchScanResult.setConfigureCiphers(switchParameters.getConfigureCiphers());
         switchScanResult.setLoginMethod(switchParameters.getMode());
         switchScanResult.setPortNumber(switchParameters.getPort());
+
         /*问题索引*/
         //问题ID
         switchScanResult.setProblemId(totalQuestionTable.getId()+""); // 问题索引
+
         /*范式分类 范式名称 自定义名称*/
         switchScanResult.setTypeProblem(totalQuestionTable.getTypeProblem());
         switchScanResult.setTemProName(totalQuestionTable.getTemProName());
         switchScanResult.setProblemName(totalQuestionTable.getProblemName());
+
         /*问题备注 问题详细说明和指导索引*/
         switchScanResult.setRemarks(totalQuestionTable.getRemarks());
         switchScanResult.setProblemDescribeId(totalQuestionTable.getProblemDescribeId());
+
         /* 取值参数 */
         switchScanResult.setDynamicInformation(parameterString);
+
         /*是否有问题*/
         //有问题、无问题
         switchScanResult.setIfQuestion(problemScanLogic.getProblemId());

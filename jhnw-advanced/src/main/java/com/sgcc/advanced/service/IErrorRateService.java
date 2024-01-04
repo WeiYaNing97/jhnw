@@ -60,4 +60,14 @@ public interface IErrorRateService
      * @return 结果
      */
     public int deleteErrorRateById(Long id);
+
+    /**
+    * @Description 根据IP获取数据集合
+    * @author charles
+    * @createTime 2024/1/2 9:07
+    * @desc
+    * @param ip
+     * @return
+    */
+    List<ErrorRate> selectPojoListByIP(String ip);
 }

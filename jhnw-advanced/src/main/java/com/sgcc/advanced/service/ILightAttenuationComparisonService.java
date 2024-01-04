@@ -59,4 +59,10 @@ public interface ILightAttenuationComparisonService
      * @return 结果
      */
     public int deleteLightAttenuationComparisonById(Long id);
+
+    /**
+    * @Description 根据IP获得光衰参数
+    */
+    List<LightAttenuationComparison> selectPojoListByIP(String ip);
+
 }

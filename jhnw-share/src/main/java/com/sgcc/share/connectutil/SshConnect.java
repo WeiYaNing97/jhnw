@@ -250,6 +250,7 @@ public class SshConnect implements Runnable {
         switchInformation.put(ip,sshInformation);
         return sshInformation.getCurrEcho().toString();
     }
+
     //测试此字符串是否以指定的后缀结尾
     protected boolean containsEchoEnd(String ip,String echo) {
         SshInformation sshInformation = switchInformation.get(ip);
@@ -371,7 +372,6 @@ public class SshConnect implements Runnable {
         return sshInformation.getCurrEcho().toString();
     }
 
-
     /***
     * @method: 接收命令数组，发送命令（单个）
     * @Param: [cmds 命令, othernEenterCmds]
@@ -407,7 +407,6 @@ public class SshConnect implements Runnable {
         return sshInformation.getCurrEcho().toString();
     }
 
-
     public String executive(String ip,String[] cmds,String notFinished, int[] othernEenterCmds) {
         if (cmds == null || cmds.length < 3) {
             logger.error("{} ssh cmds is null", this.ip);
@@ -421,7 +420,6 @@ public class SshConnect implements Runnable {
         logger.error("{} ssh login error", this.ip);
         return null;
     }
-
 
     private abstract class SSHUserInfo implements UserInfo, UIKeyboardInteractive {
         public String getPassword() {

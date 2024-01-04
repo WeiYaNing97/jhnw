@@ -234,4 +234,25 @@ public class LightAttenuationComparison extends BaseEntity
                 ", valueTwo='" + valueTwo + '\'' +
                 '}';
     }
+
+    public String toJson() {
+        return "LightAttenuationComparison{" +
+                "id:" + id +
+                ", switchIp:'" + switchIp + '\'' +
+                ", switchId:" + switchId +
+                ", numberParameters:" + numberParameters +
+                ", port:'" + port + '\'' +
+                ", txAverageValue:'" + txAverageValue + '\'' +
+                ", txLatestNumber:'" + txLatestNumber + '\'' +
+                ", rxAverageValue:'" + rxAverageValue + '\'' +
+                ", rxLatestNumber:'" + rxLatestNumber + '\'' +
+                ", txStartValue:'" + txStartValue + '\'' +
+                ", rxStartValue:'" + rxStartValue + '\'' +
+                ", rxRatedDeviation:'" + rxRatedDeviation + '\'' +
+                ", txRatedDeviation:'" + txRatedDeviation + '\'' +
+                ", valueOne:'" + valueOne + '\'' +
+                ", valueTwo:'" + valueTwo + '\'' +
+                '}';
+    }
+
 }

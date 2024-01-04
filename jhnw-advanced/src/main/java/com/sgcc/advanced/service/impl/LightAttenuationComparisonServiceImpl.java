@@ -91,4 +91,12 @@ public class LightAttenuationComparisonServiceImpl implements ILightAttenuationC
     {
         return lightAttenuationComparisonMapper.deleteLightAttenuationComparisonById(id);
     }
+
+    /**
+    * @Description 根据IP获得光衰参数
+    */
+    @Override
+    public List<LightAttenuationComparison> selectPojoListByIP(String ip) {
+        return lightAttenuationComparisonMapper.selectPojoListByIP(ip);
+    }
 }

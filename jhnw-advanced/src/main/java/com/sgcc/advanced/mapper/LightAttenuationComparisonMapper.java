@@ -2,6 +2,7 @@ package com.sgcc.advanced.mapper;
 
 
 import com.sgcc.advanced.domain.LightAttenuationComparison;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -60,4 +61,7 @@ public interface LightAttenuationComparisonMapper
      * @return 结果
      */
     public int deleteLightAttenuationComparisonByIds(Long[] ids);
+
+    /*根据IP获得光衰参数*/
+    List<LightAttenuationComparison> selectPojoListByIP(@Param("ip") String ip);
 }

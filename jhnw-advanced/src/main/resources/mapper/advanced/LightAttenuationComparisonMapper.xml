@@ -50,6 +50,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="valueTwo != null  and valueTwo != ''"> and value_two = #{valueTwo}</if>
         </where>
     </select>
+
+    <select id="selectPojoListByIP" parameterType="String" resultMap="LightAttenuationComparisonResult">
+        <include refid="selectLightAttenuationComparisonVo"/>
+        where switch_ip = #{ip}
+    </select>
     
     <select id="selectLightAttenuationComparisonById" parameterType="Long" resultMap="LightAttenuationComparisonResult">
         <include refid="selectLightAttenuationComparisonVo"/>

@@ -1,8 +1,10 @@
 package com.sgcc.sql.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.util.MyUtils;
@@ -50,6 +52,7 @@ public class ImportExportController {
      */
     @ApiOperation("数据库导出")
     @PostMapping("/scanningSQL")
+    @MyLog(title = "数据库导出", businessType = BusinessType.OTHER)
     public AjaxResult scanningSQL() {
         Long totalQuestionTableId = null;
         Long[] totalQuestionTableIds = new Long[1];
@@ -127,6 +130,7 @@ public class ImportExportController {
 
     @ApiOperation("数据库导入")
     @PostMapping("/importData")
+    @MyLog(title = "数据库导入", businessType = BusinessType.OTHER)
     @ResponseBody
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception {
 
@@ -204,4 +208,5 @@ public class ImportExportController {
         }
         return AjaxResult.success();
     }
+
 }

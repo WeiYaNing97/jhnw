@@ -44,9 +44,11 @@ public class AdvancedThreadPool {
         threadNameMap.remove(threadname);
         System.err.println("删除线程Thread" + threadname + ", Hash表的Size：" + threadNameMap.size());
     }
+
     /*线程命名*/
     public static String getThreadName(int i) {
         String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
+
 }

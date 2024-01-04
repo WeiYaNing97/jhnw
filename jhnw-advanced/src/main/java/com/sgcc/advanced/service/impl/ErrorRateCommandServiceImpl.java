@@ -3,6 +3,7 @@ package com.sgcc.advanced.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sgcc.advanced.controller.ErrorPackage;
 import com.sgcc.share.util.FunctionalMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -117,6 +118,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
 
         return pojo;
     }
+
 
     public List<ErrorRateCommand> selectErrorRateCommandListByEquivalence(ErrorRateCommand errorRateCommand) {
 

@@ -42,9 +42,6 @@ public class AsyncManager
      */
     public void execute(TimerTask task)
     {
-        Thread thread = Thread.currentThread();
-        System.err.println("execute线程名："+thread.getName());
-
         executor.schedule(task, OPERATE_DELAY_TIME, TimeUnit.MILLISECONDS);
     }
 

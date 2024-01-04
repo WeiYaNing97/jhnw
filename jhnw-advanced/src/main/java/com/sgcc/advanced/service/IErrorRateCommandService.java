@@ -1,6 +1,8 @@
 package com.sgcc.advanced.service;
 
 import java.util.List;
+
+import com.sgcc.advanced.controller.ErrorPackage;
 import com.sgcc.advanced.domain.ErrorRateCommand;
 
 /**
@@ -60,4 +62,5 @@ public interface IErrorRateCommandService
     public int deleteErrorRateCommandById(Long id);
 
     List<ErrorRateCommand> selectErrorRateCommandListBySQL(ErrorRateCommand errorRateCommand);
+
 }

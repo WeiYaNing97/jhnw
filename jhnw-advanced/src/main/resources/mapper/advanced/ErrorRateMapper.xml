@@ -38,7 +38,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErrorRateVo"/>
         where id = #{id}
     </select>
-        
+
+    <select id="selectPojoListByIP" parameterType="String" resultMap="ErrorRateResult">
+        <include refid="selectErrorRateVo"/>
+        where switch_ip = #{ip}
+    </select>
+
     <insert id="insertErrorRate" parameterType="ErrorRate">
         insert into error_rate
         <trim prefix="(" suffix=")" suffixOverrides=",">

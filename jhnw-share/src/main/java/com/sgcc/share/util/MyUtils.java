@@ -144,7 +144,6 @@ public class MyUtils {
         return downloadPath;
     }
 
-
     /**
      * 文章字段 换行夫 规范成\r\n
      * @param article
@@ -194,7 +193,6 @@ public class MyUtils {
         return time;
     }
 
-
     public static Date getStringtoData(String time){
         Date parse = null;
         try {
@@ -220,7 +218,6 @@ public class MyUtils {
         });
         return dateList;
     }
-
 
     /**
     * @Description 进度条
@@ -360,7 +357,6 @@ public class MyUtils {
         String[] strNewArray = strListNew.toArray(new String[strListNew.size()]);
         return   strNewArray;
     }
-
 
     /**
     * @Description 判断字符串中是否包含数字
@@ -544,7 +540,6 @@ public class MyUtils {
         return primary.toUpperCase().indexOf(keywords.toUpperCase())!=-1;
     }
 
-
     /**
      * 获取相对路径
      * @param filePath  文件名称
@@ -557,7 +552,6 @@ public class MyUtils {
         File file = new File(url.toURI());
         return file.getAbsolutePath() + "/" + filePath;
     }
-
 
     /**
      * 获取字符串开头字母部分
@@ -594,7 +588,6 @@ public class MyUtils {
         return newArray;
     }
 
-
     /**
     * @Description 判断内容是否存在 IP特征
     * @desc
@@ -607,4 +600,5 @@ public class MyUtils {
         Matcher matcher = pattern.matcher(input);
         return matcher.find();
     }
+
 }

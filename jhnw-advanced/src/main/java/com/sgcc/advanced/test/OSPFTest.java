@@ -72,10 +72,6 @@ public class OSPFTest {
         return meanings;
     }
 
-    public static void main(String[] args) {
-        List<OSPFPojo> ospfPojo = getOSPFPojo(string);
-        ospfPojo.stream().forEach(System.out::println);
-    }
 
     public static List<OSPFPojo> getOSPFPojo(String information) {
         /*
@@ -196,4 +192,8 @@ public class OSPFTest {
         return ospfPojos;
     }
 
+    public static void main(String[] args) {
+        List<OSPFPojo> ospfPojo = getOSPFPojo(string);
+        ospfPojo.stream().forEach(System.out::println);
+    }
 }

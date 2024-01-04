@@ -40,7 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErrorRateCommandVo"/>
         where id = #{id}
     </select>
-        
+
     <insert id="insertErrorRateCommand" parameterType="ErrorRateCommand" useGeneratedKeys="true" keyProperty="id">
         insert into error_rate_command
         <trim prefix="(" suffix=")" suffixOverrides=",">

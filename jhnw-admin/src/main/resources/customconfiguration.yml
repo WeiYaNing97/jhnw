@@ -80,14 +80,10 @@ obtainPortNumber:
 误码率:
   # 两个关键字之间以;分隔
   描述: Description
-  H3C1:
+  H3C:
     Input: 'Input: $ input errors'
     Output: $ output errors
     CRC: $ CRC,
-  H3C:
-    CRC: 'CRC: $'
-    Input: 'Total Error: $'
-    Output: 'Total Error: $'
   Huawei:
     CRC: 'CRC: $'
     Input: 'Total Error: $'

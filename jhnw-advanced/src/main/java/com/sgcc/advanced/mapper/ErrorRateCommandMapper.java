@@ -1,6 +1,8 @@
 package com.sgcc.advanced.mapper;
 
 import java.util.List;
+
+import com.sgcc.advanced.controller.ErrorPackage;
 import com.sgcc.advanced.domain.ErrorRateCommand;
 import org.apache.ibatis.annotations.Param;
 
@@ -61,4 +63,5 @@ public interface ErrorRateCommandMapper
     public int deleteErrorRateCommandByIds(Long[] ids);
 
     List<ErrorRateCommand> selectErrorRateCommandListBySQL(@Param("fuzzySQL") String fuzzySQL);
+
 }

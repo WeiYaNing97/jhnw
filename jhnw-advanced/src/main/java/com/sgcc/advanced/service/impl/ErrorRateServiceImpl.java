@@ -94,4 +94,17 @@ public class ErrorRateServiceImpl implements IErrorRateService
     {
         return errorRateMapper.deleteErrorRateById(id);
     }
+
+    /**
+    * @Description 根据IP获取数据集合
+    * @author charles
+    * @createTime 2024/1/2 9:08
+    * @desc
+    * @param ip
+     * @return
+    */
+    @Override
+    public List<ErrorRate> selectPojoListByIP(String ip) {
+        return errorRateMapper.selectPojoListByIP( ip );
+    }
 }

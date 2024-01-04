@@ -1,4 +1,5 @@
 package com.sgcc.advanced.controller;
+import com.sgcc.advanced.domain.InsertLightAttenuation;
 import com.sgcc.advanced.domain.LightAttenuationCommand;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationCommandService;
@@ -85,7 +86,7 @@ public class LuminousAttenuation {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
 
-        /*returnString = "Interface Status Vlan Duplex Speed Type\n" +
+        returnString = "Interface Status Vlan Duplex Speed Type\n" +
                 "---------------------------------------- -------- ---- ------- --------- ------\n" +
                 "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
                 "GigabitEthernet 1/2 up 1003 Full 100M copper\n" +
@@ -195,7 +196,7 @@ public class LuminousAttenuation {
                 "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
-        returnString = MyUtils.trimString(returnString);*/
+        returnString = MyUtils.trimString(returnString);
 
         // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
         if (returnString == null){
@@ -293,6 +294,8 @@ public class LuminousAttenuation {
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
         }
 
+        List<LightAttenuationComparison> pojoList = new ArrayList<>();
+
         /*10:获取光衰参数不为空*/
         try {
             for (String portstr:port){
@@ -327,8 +330,10 @@ public class LuminousAttenuation {
 
                 /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
                 if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
-                    int average = average(switchParameters, getparameter, portstr);
-                    if (average>0){
+
+                    InsertLightAttenuation insertLightAttenuation = average(switchParameters, getparameter, portstr);
+                    if (insertLightAttenuation.getInsertResults()>0){
+                        pojoList.add(insertLightAttenuation.getLightAttenuationComparison());
 
                     }else {
                         /*数据库操作失败*/
@@ -344,6 +349,7 @@ public class LuminousAttenuation {
                 则默认无问题*/
 
                 if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
+
                     hashMap.put("IfQuestion","无问题");
 
                 }else {
@@ -351,24 +357,46 @@ public class LuminousAttenuation {
                     if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
                         //判断光衰是否有问题
                         hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
+
+                        // todo  根据光衰参数阈值  的代码库 回显和日志
+                        try {
+                            String subversionNumber = switchParameters.getSubversionNumber();
+                            if (subversionNumber!=null){
+                                subversionNumber = "、"+subversionNumber;
+                            }
+
+                            PathHelper.writeDataToFileByName(
+                                    "IP地址为:("+switchParameters.getIp()+"),"+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            lightAttenuationComparison.toJson() +"\r\n"
+                                    , "光衰");
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }
+
+
 
                 hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
                         "TX:"+getparameter.get(portstr+"TX")+
                         "  RX:"+getparameter.get(portstr+"RX"));
+
                 SwitchScanResultController switchScanResultController = new SwitchScanResultController();
                 Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
 
                 SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
                 switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return AjaxResult.success();
+        return AjaxResult.success(pojoList);
     }
 
 
@@ -505,10 +533,10 @@ public class LuminousAttenuation {
                     "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
                     "            Default Tx Power Low  Threshold(dBM)  :-6.00";*/
 
-            /*returnResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
+            returnResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
                 "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +
                 "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +
-                "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";*/
+                "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";
 
             if (returnResults == null){
                 try {
@@ -869,7 +897,8 @@ public class LuminousAttenuation {
      * @param port
      * @return
      */
-    public int average(SwitchParameters switchParameters,HashMap<String,String> hashMap,String port) {
+    public InsertLightAttenuation average(SwitchParameters switchParameters,HashMap<String,String> hashMap,String port) {
+
         LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
         lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
         lightAttenuationComparison.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));/*获取交换机四项基本信息ID*/
@@ -882,6 +911,7 @@ public class LuminousAttenuation {
         String tx = hashMap.get(port+"TX");
 
         if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
+
             /*需要新插入信息*/
             lightAttenuationComparison = new LightAttenuationComparison();
             lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
@@ -898,8 +928,12 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
             lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
 
-            return lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison);
+            InsertLightAttenuation insertLightAttenuation = new InsertLightAttenuation();
+            insertLightAttenuation.setInsertResults(lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison));
+            insertLightAttenuation.setLightAttenuationComparison(lightAttenuationComparison);
+            return insertLightAttenuation;
         }else {
+
             lightAttenuationComparison = lightAttenuationComparisons.get(0);
             lightAttenuationComparison.setRxLatestNumber(rx);
             double rxAverageValue = updateAverage(lightAttenuationComparison.getNumberParameters(), MyUtils.stringToDouble(lightAttenuationComparison.getRxAverageValue()), MyUtils.stringToDouble(rx));
@@ -909,7 +943,11 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxAverageValue("" + txAverageValue);
             lightAttenuationComparison.setNumberParameters(lightAttenuationComparison.getNumberParameters()+1);
 
-            return lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison);
+            InsertLightAttenuation insertLightAttenuation = new InsertLightAttenuation();
+            insertLightAttenuation.setInsertResults(lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison));
+            insertLightAttenuation.setLightAttenuationComparison(lightAttenuationComparison);
+            return insertLightAttenuation;
+
         }
     }
 

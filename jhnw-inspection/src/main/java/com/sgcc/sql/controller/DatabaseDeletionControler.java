@@ -1,5 +1,7 @@
 package com.sgcc.sql.controller;
 
+import com.sgcc.common.annotation.MyLog;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchErrorService;
@@ -44,6 +46,7 @@ public class DatabaseDeletionControler {
      *
      */
     @ApiOperation("删除数据表所有数据")
+    @MyLog(title = "删除数据表所有数据", businessType = BusinessType.DELETE)
     @DeleteMapping("deleteAllTable")
     public void deleteAllTable() {
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);

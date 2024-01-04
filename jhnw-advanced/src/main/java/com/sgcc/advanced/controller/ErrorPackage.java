@@ -4,7 +4,9 @@ import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.service.IErrorRateCommandService;
 import com.sgcc.advanced.service.IErrorRateService;
 import com.sgcc.advanced.utils.ScreeningMethod;
+import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.common.enums.BusinessType;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.parametric.SwitchParameters;
@@ -34,6 +36,8 @@ public class ErrorPackage {
     private IErrorRateCommandService errorRateCommandService;
 
     /*发送命令 返回端口号信息*/
+
+    //@MyLog(title = "高级功能误码率扫描", businessType = BusinessType.OTHER)
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
 
         /*1：获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
@@ -76,7 +80,7 @@ public class ErrorPackage {
         /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
-        /*returnString = "The brief information of interface(s) under route mode:\n" +
+        returnString = "The brief information of interface(s) under route mode:\n" +
                 "Link: ADM - administratively down; Stby - standby\n" +
                 "Protocol: (s) - spoofing\n" +
                 "Interface            Link Protocol Main IP         Description\n" +
@@ -130,7 +134,7 @@ public class ErrorPackage {
                 "GE0/0/30             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
                 "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
                 "GE0/0/32             ADM  auto    A      A    200  To_HX_S7506E";
-        returnString = MyUtils.trimString(returnString);*/
+        returnString = MyUtils.trimString(returnString);
 
 
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
@@ -401,7 +405,7 @@ public class ErrorPackage {
 
             /*交换机执行命令 并返回结果*/
             String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
-            /*returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
+            returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
                     " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
                     " Description :To_ShuJuWangHuLian_G1/0/18\n" +
                     " Loopback is not set\n" +
@@ -440,7 +444,7 @@ public class ErrorPackage {
                     "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
                     " Output: 0 output errors, - underruns, - buffer failures\n" +
                     "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
-                    "         0 lost carrier, - no carrier";*/
+                    "         0 lost carrier, - no carrier";
 
             /*returnResults = "Input: 982431567 packets, 1214464892426 bytes\n" +
                     "      Unicast: 981439518, Multicast: 404\n" +
@@ -460,9 +464,8 @@ public class ErrorPackage {
                     "      Total Error: 100\n" +
                     "      Collisions: 0, ExcessiveCollisions: 0\n" +
                     "      Late Collisions: 0, Deferreds: 0\n" +
-                    "      Buffers Purged: 0";
-
-            returnResults = MyUtils.trimString(returnResults);*/
+                    "      Buffers Purged: 0";  */
+            returnResults = MyUtils.trimString(returnResults);
 
 
             if (returnResults == null){
@@ -525,7 +528,6 @@ public class ErrorPackage {
 
         return hashMap;
     }
-
 
     /**
     * @Description 根据交换机返回信息获取误码率端口号
@@ -851,7 +853,6 @@ public class ErrorPackage {
         return deviceVersion;
     }
 
-
     /**
     * @Description  当取词关键词有 Total Error 时的取词逻辑
      * 需要区分时Input的Total Error，还是Output的Total Error
@@ -931,7 +932,6 @@ public class ErrorPackage {
 
         return returnMap;
     }
-
 
     /**
      * 根据配置文件的取值信息 取参数值  根据分割数组 利用下标取词

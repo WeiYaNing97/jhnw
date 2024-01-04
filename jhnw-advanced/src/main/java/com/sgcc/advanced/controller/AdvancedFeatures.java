@@ -32,6 +32,7 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 @Component("advancedFeatures")
 public class AdvancedFeatures {
+
     @ApiOperation("高级功能接口")
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "高级功能", businessType = BusinessType.OTHER)
@@ -85,7 +86,7 @@ public class AdvancedFeatures {
 
 
     /**
-    * @Description   todo 未完成  定时任务 功能基本昨晚，参数有问题
+    * @Description  定时任务
     * @author charles
     * @createTime 2023/11/8 13:46
     * @desc

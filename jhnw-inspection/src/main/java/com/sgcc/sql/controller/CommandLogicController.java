@@ -180,9 +180,6 @@ public class CommandLogicController extends BaseController
         return true;
     }
 
-
-
-
     /**
      * @method: 修改解决问题命令List
      * @Param: [totalQuestionTableId]
@@ -200,7 +197,6 @@ public class CommandLogicController extends BaseController
         boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
         return insertModifyProblemCommand;
     }
-
 
     /**
      * @method: 删除解决问题命令List
@@ -245,5 +241,4 @@ public class CommandLogicController extends BaseController
         }
         return true;
     }
-
 }

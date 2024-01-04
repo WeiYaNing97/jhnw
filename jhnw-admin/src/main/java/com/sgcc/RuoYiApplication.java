@@ -1,5 +1,6 @@
 package com.sgcc;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.Timed;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -22,9 +23,11 @@ public class RuoYiApplication
             Constant character = new Constant();
             character.ObtainAllConfigurationFileParameters();
 
-            /*获取CPU、内存信息，改为前端请求了*/
-            /*MemoryCPU memoryCPU = new MemoryCPU();
-            memoryCPU.initSystemInfo();*/
+            Timed.atRegularTime();
+
+            String projectPath = System.getProperty("user.dir");
+            System.err.println("项目所在路径： " + projectPath);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

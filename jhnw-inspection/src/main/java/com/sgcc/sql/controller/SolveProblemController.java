@@ -61,7 +61,6 @@ public class SolveProblemController {
      */
     @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
     @ApiOperation("查询修复问题命令")
-    @MyLog(title = "查询解决问题命令", businessType = BusinessType.OTHER)
     public List<String> queryCommandListBytotalQuestionTableId(@PathVariable Long totalQuestionTableId){
         /*根据ID 查询问题数据*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -303,6 +302,7 @@ public class SolveProblemController {
                 HashMap<String, String> valueHashMap = separationParameters(switchScanResult.getDynamicInformation());
                 //执行解决问题
                 String solveProblem = solveProblem(switchParameters,switchScanResult, commandList,valueHashMap);//userName
+
                 if (solveProblem.equals("成功")){
                     switchScanResult.setIfQuestion("已解决");
                     // 根据 问题ID  查询 扫描出的问题
@@ -388,7 +388,6 @@ public class SolveProblemController {
      * @return: com.sgcc.common.core.domain.AjaxResult
      */
     @GetMapping("queryCommandSet")
-    @ApiOperation("查询修复命令集合")
     public List<CommandLogic> queryCommandSet(String commandId){
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {

@@ -1,18 +1,12 @@
 package com.sgcc.sql.thread;
 
-import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.parametric.SwitchParameters;
-import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.share.webSocket.WebSocketService;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class DirectionalScanThread extends Thread  {
 

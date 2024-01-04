@@ -33,6 +33,7 @@ public class ConnectToObtainInformation {
         //连接交换机  requestConnect：
         AjaxResult requestConnect_ajaxResult = null;
         for (int number = 0; number <1 ; number++){
+
             if (isRSA){
                 switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
                 switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
@@ -44,7 +45,10 @@ public class ConnectToObtainInformation {
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
                 break;
             }
+
         }
+
+
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
             // todo 交换机连接失败 错误代码
@@ -62,24 +66,32 @@ public class ConnectToObtainInformation {
             }
             return AjaxResult.error("交换机连接失败");
         }
+
         //解析返回参数 data
         switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
+
         //如果连接成功
         if(requestConnect_ajaxResult.get("msg").equals("操作成功")){
+
             //密码 MD5 加密
             String passwordDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getPassword());
-            switchParameters.setPassword(passwordDensificationAndSalt);//用户密码
+            //switchParameters.setPassword(passwordDensificationAndSalt);//用户密码
+
             //密码 MD5 加密
             String configureCiphersDensificationAndSalt = null;
             if (switchParameters.getConfigureCiphers() != null && !(switchParameters.getConfigureCiphers().equals("null"))){
                 configureCiphersDensificationAndSalt = EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers());
             }
-            switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
+
+            //switchParameters.setConfigureCiphers(configureCiphersDensificationAndSalt);//用户密码
+
             /**
              * 获取交换机基本信息
              */
             AjaxResult basicInformationList_ajaxResult = getBasicInformationCurrency(switchParameters);
+
             return basicInformationList_ajaxResult;
+
         }
         return AjaxResult.error("交换机连接失败");
     }
@@ -95,13 +107,17 @@ public class ConnectToObtainInformation {
         //设定连接结果 预设连接失败为 false
         boolean is_the_connection_successful =false;
         List<Object> objects = null;
+
         /*连接方式 为 SSH*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+
             //创建ssh连接方法
             SshMethod connectMethod = new SshMethod();
+
             //连接ssh 成功为 true  失败为  false
             /*为 true 时 返回 SshConnect JSCH的 使用方法类*/
             objects = connectMethod.requestConnect(switchParameters.getIp(),switchParameters.getPort(),switchParameters.getName(),switchParameters.getPassword());
+
             /* 判断交换机是否连接成功 成功*/
             if ((boolean) objects.get(0) == true){
                 /*(JSCH 使用方法类)*/
@@ -115,14 +131,17 @@ public class ConnectToObtainInformation {
                 /* 判断交换机是否连接成功 失败 */
                 /* 集合的最后一个元素 为 连接失败的原因 */
                 if (objects.get(objects.size()-1) instanceof String){
+
                     /*连接失败的原因*/
                     String sshVersion = (String) objects.get(objects.size()-1);
                     WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ sshVersion+"\r\n");
+
                     try {
                         PathHelper.writeDataToFile("风险:"+"ip:"+ sshVersion+"\r\n");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
                     /*sshVersion 是否包含 IP地址*/
                     /*if (sshVersion.indexOf(switchParameters.getIp())!=-1){
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ sshVersion+"\r\n");
@@ -146,6 +165,7 @@ public class ConnectToObtainInformation {
                 is_the_connection_successful = true;
             }
         }
+
         /* is_the_connection_successful 交换机连接成功*/
         if(is_the_connection_successful){
             //enable 配置  返回 交换机连接失败  或   交换机连接成功
@@ -164,6 +184,7 @@ public class ConnectToObtainInformation {
             ajaxResult.put("msg","交换机连接失败");
             return ajaxResult;
         }
+
     }
 
 
@@ -173,17 +194,22 @@ public class ConnectToObtainInformation {
      * @return
      */
     public String enable(SwitchParameters switchParameters) {
+
         /*交换机返回结果*/
         String returnString = null;
+
         /* 执行 回车命令 获取交换机及返回结果*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
+
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
             returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
+
         }
         if (returnString==null){
             return "交换机连接失败";
         }
+
         String trim = returnString.trim();
         /*判断 交换机返回结果给标识符 是否 以> 结尾*/
         /*思科交换机返回信息是 #  不需要发送 enable*/
@@ -387,15 +413,18 @@ public class ConnectToObtainInformation {
      * 品牌和型号应为一个单词 中间不包含空格
      */
     public HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
+
         informationService = SpringBeanUtil.getBean(IInformationService.class);
         List<String> brandList = informationService.selectDeviceBrandList();
         List<String> brands = new ArrayList<>();
         List<Information> brand_model = new ArrayList<>();
         String firmwareVersion = null;
         String subversionNo = null;
+
         /* 创建返回对象 */
         HashMap<String,String> map = new HashMap<>();
         String[] return_word = returns_String.replaceAll("\r\n"," ").split(" ");
+
         /*遍历匹配 品牌  H3C*/
         for (String brandString:brandList){
             for (String word:return_word){
@@ -405,10 +434,13 @@ public class ConnectToObtainInformation {
                 }
             }
         }
+
         if (MyUtils.isCollectionEmpty(brands)){
             return map;
         }
+
         String[] brandArray = brands.stream().toArray(String[]::new);
+
         /*匹配 型号 */
         List<Information> informationList = informationService.selectDeviceModelListByArray(brandArray);
         for (Information information:informationList){
@@ -419,6 +451,7 @@ public class ConnectToObtainInformation {
                 }
             }
         }
+
         if (MyUtils.isCollectionEmpty(brand_model)){
             for (Information information:informationList){
                 if (returns_String.toLowerCase().indexOf(information.getDeviceModel().toLowerCase())!=-1){
@@ -426,9 +459,11 @@ public class ConnectToObtainInformation {
                 }
             }
         }
+
         if (MyUtils.isCollectionEmpty(brand_model)){
             return map;
         }
+
         /** 设备版本 */
         /*yml 配置文件中 多个值之间用;隔开*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceVersion",Constant.getProfileInformation());
