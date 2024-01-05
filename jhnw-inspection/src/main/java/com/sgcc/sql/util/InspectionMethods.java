@@ -798,22 +798,26 @@ public class InspectionMethods {
         List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
         /*当错误行号不为空时 则 错误信息取出 放入 一个新的实体类 然后放入 需要返回的实体类集合 并把原实体类错误信息清空*/
         for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
+
             if (problemScanLogic.getfLine()!=null){
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
+
                 problemScanLogicf.setId(problemScanLogic.getId());
-                problemScanLogicf.setMatched(problemScanLogic.getMatched());
-                problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
+                //problemScanLogicf.setMatched(problemScanLogic.getMatched());
+                //problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
-                problemScanLogicf.setLength(problemScanLogic.getLength());
-                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
+                //problemScanLogicf.setLength(problemScanLogic.getLength());
+                //problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
+
                 problemScanLogic.setfLine(null);
                 problemScanLogic.setfNextId(null);
                 problemScanLogic.setProblemId(null);
                 problemScanLogic.setfComId(null);
                 ProblemScanLogics.add(problemScanLogicf);
             }
+
             ProblemScanLogics.add(problemScanLogic);
         }
         return ProblemScanLogics;
