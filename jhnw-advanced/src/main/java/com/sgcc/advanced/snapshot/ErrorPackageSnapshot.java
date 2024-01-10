@@ -157,7 +157,7 @@ class ErrorPackageTimed  extends TimerTask{
         }else {
 
             this.timer.cancel(); // 取消定时任务
-
+            ErrorPackageSnapshot.userMap.remove(this.loginUser.getUsername());
             /*5： 快照修改 */
             /*List<ErrorRate> errorRates = new ArrayList<>();
             Collection<List<ErrorRate>> values = this.errorRateMap.values();

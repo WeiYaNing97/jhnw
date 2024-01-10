@@ -159,6 +159,7 @@ class LuminousAttenuationTimed  extends TimerTask{
 
             this.timer.cancel(); // 取消定时任务
             System.err.println("取消定时任务");
+            LightAttenuationSnapshot.userMap.remove(this.loginUser.getUsername());
 
             /*5： 快照修改 */
             List<LightAttenuationComparison> lightAttenuationComparisons = new ArrayList<>();
@@ -183,6 +184,7 @@ class LuminousAttenuationTimed  extends TimerTask{
 }
 
 class LuminousAttenuationMethod{
+
     public void advancedFunction(List<SwitchParameters> switchParametersList, LoginUser loginUser) {//待测
         //线程池
         ParameterSet parameterSet = new ParameterSet();
@@ -190,11 +192,13 @@ class LuminousAttenuationMethod{
         parameterSet.setLoginUser(loginUser);
         parameterSet.setThreadCount(Integer.valueOf(5+"").intValue());
         try {
+
             /*高级功能线程池*/
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
             List<String> strings = new ArrayList<>();
             strings.add("光衰");
             AdvancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

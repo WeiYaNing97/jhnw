@@ -1,8 +1,6 @@
 package com.sgcc.advanced.test;
 
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * @program: jhnw
@@ -10,26 +8,28 @@ import java.util.TimerTask;
  * @author:
  * @create: 2023-12-29 11:37
  **/
-public class Test extends TimerTask {
+public class Test {
+    public static void main(String[] args) {
+        List<String> listA = new ArrayList<>();
+        listA.add("a");
+        listA.add("b");
+        listA.add("c");
 
-    private  Timer timer = null;
-    public Test(Timer timer){
-        this.timer = timer;
+        List<String> listB = new ArrayList<>();
+        listB.add("b");
+        listB.add("c");
+        listB.add("d");
+
+        List<String> result = findDifference(listA, listB);
+        System.out.println(result);
     }
 
-    @Override
-    public void run() {
-        ThreadTest.i = ThreadTest.i+1;
-        Thread thread = ThreadTest.map.get(ThreadTest.i);
-        System.out.println(ThreadTest.i +" = "+thread);
-        if (thread!=null){
-            thread.interrupt();
-        }
-        System.out.println("Test.run()" + ThreadTest.i);
-        if (thread !=null && ! thread.isInterrupted()){
-            this.timer.cancel(); // 取消定时任务
-            System.out.println("=============线程终止了================");
-        }
-    }
+    public static List<String> findDifference(List<String> listA, List<String> listB) {
+        HashSet<String> setA = new HashSet<>(listA);
+        HashSet<String> setB = new HashSet<>(listB);
 
+        setA.removeAll(setB);
+
+        return new ArrayList<>(setA);
+    }
 }

@@ -13,12 +13,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="inputErrors"    column="input_errors"    />
         <result property="outputErrors"    column="output_errors"    />
         <result property="crc"    column="crc"    />
+        <result property="link"    column="link"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
     <sql id="selectErrorRateVo">
-        select id, switch_ip,switch_id, port,description, input_errors, output_errors, crc, create_time, update_time from error_rate
+        select id, switch_ip,switch_id, port,description, input_errors, output_errors, crc, link, create_time, update_time from error_rate
     </sql>
 
     <select id="selectErrorRateList" parameterType="ErrorRate" resultMap="ErrorRateResult">
@@ -31,6 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="inputErrors != null "> and input_errors = #{inputErrors}</if>
             <if test="outputErrors != null "> and output_errors = #{outputErrors}</if>
             <if test="crc != null "> and crc = #{crc}</if>
+            <if test="link != null "> and link = #{link}</if>
         </where>
     </select>
     
@@ -55,6 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="inputErrors != null">input_errors,</if>
             <if test="outputErrors != null">output_errors,</if>
             <if test="crc != null">crc,</if>
+            <if test="link != null">link,</if>
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
          </trim>
@@ -67,6 +70,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="inputErrors != null">#{inputErrors},</if>
             <if test="outputErrors != null">#{outputErrors},</if>
             <if test="crc != null">#{crc},</if>
+            <if test="link != null">#{link},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
          </trim>
@@ -82,6 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="inputErrors != null">input_errors = #{inputErrors},</if>
             <if test="outputErrors != null">output_errors = #{outputErrors},</if>
             <if test="crc != null">crc = #{crc},</if>
+            <if test="link != null">link = #{link},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>

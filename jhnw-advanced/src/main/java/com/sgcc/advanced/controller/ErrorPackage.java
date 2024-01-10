@@ -1,6 +1,7 @@
 package com.sgcc.advanced.controller;
 import com.sgcc.advanced.domain.ErrorRate;
 import com.sgcc.advanced.domain.ErrorRateCommand;
+import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.IErrorRateCommandService;
 import com.sgcc.advanced.service.IErrorRateService;
 import com.sgcc.advanced.utils.ScreeningMethod;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Api("误码率功能")
 @RestController
@@ -187,7 +189,6 @@ public class ErrorPackage {
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能无UP状态端口号,是否需要CRT检查异常\r\n");
         }
 
-
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
         GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = errorRateCommand.getConversion();
@@ -206,7 +207,6 @@ public class ErrorPackage {
                 }
             }
         }
-
 
         /*获取误码率参数命令*/
         String errorPackageCommand = errorRateCommand.getGetParameterCommand();
@@ -234,30 +234,85 @@ public class ErrorPackage {
             return AjaxResult.error("所有端口都没有获取到误码率参数");
         }
 
+        ErrorRate selectpojo = new ErrorRate();
+        selectpojo.setSwitchIp(switchParameters.getIp());
+        /*查询误码率列表*/
+        errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
+        List<ErrorRate> list = errorRateService.selectErrorRateList(selectpojo);
+        Map<String,ErrorRate> errorRateMap = new HashMap<>();
+        for (ErrorRate pojo:list){
+            errorRateMap.put( pojo.getPort() , pojo );
+        }
+        List<String> keySet = errorRateMap.keySet().stream().collect(Collectors.toList());
+
+        /** 查看字符串集合A中存在，但字符串集合B中不存在的部分
+         * 查看 数据表中有，但是扫描后没有的端口    数据表中独有的端口号*/
+        List<String> difference = MyUtils.findDifference(keySet,portList);
+
         /*获取交换机四项基本信息ID*/
         Long switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
 
-        errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
-        /*获取误码率参数集合中的Key
-        * key值为端口号*/
-        Set<String> strings = errorPackageParameters.keySet();
+        for (String port:difference){
+            /** 修改端口号状态  */
+            ErrorRate errorRate = errorRateMap.get(port);
 
-        for (String port:strings){
+            errorRate.setLink("DOWN");
 
-            ErrorRate errorRate = new ErrorRate();
-            errorRate.setSwitchIp(switchParameters.getIp());
-            errorRate.setSwitchId(switchID);
-            errorRate.setPort(port);
-            /*查询误码率列表*/
-            List<ErrorRate> list = errorRateService.selectErrorRateList(errorRate);
+            int i = errorRateService.updateErrorRate(errorRate);
 
-            ErrorRate primaryErrorRate = new ErrorRate();
-            if (!(MyUtils.isCollectionEmpty(list))){
-                primaryErrorRate = list.get(0);
+            if (i > 0 ){
+                try {
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:误码率功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:误码率功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n"
+                            , "光衰");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }else
+            { try {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:误码率功能端口号:"+ port +"修改状态为DOWN失败\r\n");
+                PathHelper.writeDataToFileByName(
+                        "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:误码率功能端口号:"+ port +"修改状态为DOWN失败\r\n"
+                        , "光衰");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+                return AjaxResult.error();
+            }
+        }
+
+        /*获取误码率参数集合中的Key*/
+        for (String port:portList){
+
+            /** 当前扫描数据*/
+            ErrorRate errorRate = new ErrorRate();
+            errorRate.setSwitchIp(switchParameters.getIp()); /*IP*/
+            errorRate.setSwitchId(switchID); /*交换机基本信息ID*/
+            errorRate.setPort(port); /*交换机端口号*/
 
             /* 获取该端口号的 错误包参数 */
             List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
+
             for (String error:errorPackageValue){
                 if (MyUtils.containIgnoreCase(error,"input") || MyUtils.containIgnoreCase(error,"Rx") ){
                     //MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error)
@@ -301,13 +356,18 @@ public class ErrorPackage {
                 e.printStackTrace();
             }
 
-            if (primaryErrorRate.getId() == null){
+            /** 数据库数据*/
+            ErrorRate primaryErrorRate = errorRateMap.get(port);
+
+            if (primaryErrorRate == null){
                 /* 数据库中没有历史数据 可以直接插入 */
-                int i = errorRateService.insertErrorRate(errorRate);
+                errorRate.setLink("UP");
+                errorRateService.insertErrorRate(errorRate);
+
                 hashMap.put("IfQuestion","无问题");
+
                 //continue;
             }else {
-
 
                 int num = 0;
                 if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null) &&
@@ -343,13 +403,59 @@ public class ErrorPackage {
 
 
                 if (num>0){
+                    /* ======================================================== */
                     errorRate.setId(primaryErrorRate.getId());
+
+                    if ( errorRate.getLink().equals("DOWN")){
+                        try {
+                            String subversionNumber = switchParameters.getSubversionNumber();
+                            if (subversionNumber!=null){
+                                subversionNumber = "、"+subversionNumber;
+                            }
+                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
+                            PathHelper.writeDataToFileByName(
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:光衰功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n"
+                                    , "光衰");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        errorRate.setLink("UP");
+                    }
+
                     int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","有问题");
+
                 }else if (num == 0){
                     errorRate.setId(primaryErrorRate.getId());
+
+                    if ( errorRate.getLink().equals("DOWN")){
+                        try {
+                            String subversionNumber = switchParameters.getSubversionNumber();
+                            if (subversionNumber!=null){
+                                subversionNumber = "、"+subversionNumber;
+                            }
+                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能端口号:"+ port + "恢复连接\r\n");
+                            PathHelper.writeDataToFileByName(
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:光衰功能端口号:"+ port + "恢复连接\r\n"
+                                    , "光衰");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        errorRate.setLink("UP");
+                    }
                     int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","无问题");
+
                     //continue;
                 }
             }
@@ -373,6 +479,7 @@ public class ErrorPackage {
             Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
             SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
             switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+
         }
         return null;
     }

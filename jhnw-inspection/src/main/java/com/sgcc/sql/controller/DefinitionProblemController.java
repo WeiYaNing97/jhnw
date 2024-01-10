@@ -1,4 +1,5 @@
 package com.sgcc.sql.controller;
+import com.alibaba.fastjson.JSON;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -13,6 +14,7 @@ import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.share.webSocket.WebSocketService;
+import com.sgcc.sql.test;
 import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -235,6 +238,10 @@ public class DefinitionProblemController extends BaseController {
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+
+        List<String> list1 = new ArrayList<>();
+        List<String> list2 = new ArrayList<>();
+
         /*遍历数据 属于命令还是分析数据*/
         for (int number=0;number<jsonPojoList.size();number++){
             // 如果 前端传输字符串  存在 command  说明 是命令
@@ -252,30 +259,52 @@ public class DefinitionProblemController extends BaseController {
                     // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
                     if (jsonPojoList.get(number+1).indexOf("command") !=-1){
                         //本条是分析 下一条是 命令
-                        ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
-                        problemScanLogicList.add(problemScanLogic);
+                        //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
+
+                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "命令");
+                        ProblemScanLogic pojo = new ProblemScanLogic();
+                        pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
+                        problemScanLogicList.add(pojo);
+
                         continue;
                     }else {
                         //本条是分析 下一条是 分析
-                        ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
-                        problemScanLogicList.add(problemScanLogic);
+                        //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+
+                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "分析");
+                        ProblemScanLogic pojo = new ProblemScanLogic();
+                        pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
+                        problemScanLogicList.add(pojo);
+
                         continue;
                     }
 
                 }else {
 
                     //本条是分析 下一条是 问题
-                    ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
-                    problemScanLogicList.add(problemScanLogic);
+                    //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
+
+                    AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "分析");
+                    ProblemScanLogic pojo = new ProblemScanLogic();
+                    pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
+                    problemScanLogicList.add(pojo);
                     continue;
 
                 }
 
             }
         }
+        for (String str:list1){
+            System.err.println("1:"+str);
+        }
+        for (String str:list2){
+            System.err.println("2:"+str);
+        }
+
 
         //将相同ID  时间戳 的 实体类 放到一个实体
         List<ProblemScanLogic> problemScanLogics = InspectionMethods.definitionProblem(problemScanLogicList);
+
         String totalQuestionTableById = totalQuestionTableId+"";;
         String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
@@ -320,6 +349,29 @@ public class DefinitionProblemController extends BaseController {
         return true;
     }
 
+
+    public static Object copyProperties(Object source, Object target) {
+        Class<?> sourceClass = source.getClass();
+        Class<?> targetClass = target.getClass();
+
+        Field[] sourceFields = sourceClass.getDeclaredFields();
+        Field[] targetFields = targetClass.getDeclaredFields();
+
+        for (Field sourceField : sourceFields) {
+            sourceField.setAccessible(true);
+            for (Field targetField : targetFields) {
+                targetField.setAccessible(true);
+                if (sourceField.getName().equals(targetField.getName()) && sourceField.getType().equals(targetField.getType())) {
+                    try {
+                        targetField.set(target, sourceField.get(source));
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return target;
+    }
 
 
 
@@ -375,6 +427,7 @@ public class DefinitionProblemController extends BaseController {
 
         /* 获取两个实体类集合*/
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+
         HashMap<Long,String> hashMap = new HashMap<>();
         for (CommandLogic commandLogic:commandLogicList){
             /* 1=:={"onlyIndex"="1697080798279","trueFalse"="","pageIndex"="1","command"="dis cu","para"="","resultCheckId"="0","nextIndex"="1697080824879"} */
@@ -382,7 +435,9 @@ public class DefinitionProblemController extends BaseController {
             String[] commandLogicStringsplit = commandLogicString.split("=:=");
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
         }
+
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
             /*problemScanLogic 转化 Sting*/
             String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,totalQuestionTable.getId()+"");
@@ -983,5 +1038,144 @@ public class DefinitionProblemController extends BaseController {
             return true;
         }
 
+    }
+
+
+
+    /**
+    * @Description 字符串 转化为 命令与分析实体类
+    * @author charles
+    * @createTime 2024/1/10 10:19
+    * @desc
+    * @param
+     * @return
+    */
+
+    public static AnalyzeConvertJson getAnalyzeConvertJson(String information,String ifCommand) {
+        information = information.replace("\"null\"","\"\"");
+        AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(information, AnalyzeConvertJson.class);
+        analyzeConvertJson = (AnalyzeConvertJson) setNullIfEmpty(analyzeConvertJson);
+        analyzeConvertJson = deformation(analyzeConvertJson, ifCommand);
+        return analyzeConvertJson;
+    }
+
+    public static AnalyzeConvertJson deformation(AnalyzeConvertJson analyzeConvertJson,String ifCommand) {
+
+        if (analyzeConvertJson.getExhibit()!=null && analyzeConvertJson.getExhibit().equals("显示")){
+            analyzeConvertJson.setExhibit("是");
+        }else {
+            analyzeConvertJson.setExhibit("否");
+        }
+
+        if (analyzeConvertJson.getMatched() != null || (analyzeConvertJson.getAction() != null && analyzeConvertJson.getAction().indexOf("取词")!=-1)){
+            /** 相对位置 */
+            if (analyzeConvertJson.getRelative().indexOf("&")!=-1){
+                /* 位置 : 按行和全文 */
+                String[] relatives = analyzeConvertJson.getRelative().split("&");
+                analyzeConvertJson.setRelativePosition(relatives[0] +"," + analyzeConvertJson.getPosition());
+            }else {
+                analyzeConvertJson.setRelativePosition(analyzeConvertJson.getRelative() +"," + analyzeConvertJson.getPosition());
+            }
+        }
+
+        /*当 analyzeConvertJson.getCommand() 属性值为 null 时 则 下一条分析数据为命令
+         *如果下一条分析数据为命令时 则 下一条IDtNextId  要赋值给 命令ID
+         * 然后下一条ID tNextId 置空 null  */
+        if (ifCommand.equals("命令")){
+            /** true下一条命令索引 */
+            analyzeConvertJson.settComId( analyzeConvertJson.gettNextId() );
+            analyzeConvertJson.settNextId(null);
+        }
+
+        //如果动作属性不为空  且动作属性参数为 有无问题时  需要清空动作属性
+        if (analyzeConvertJson.getAction() != null && analyzeConvertJson.getAction().indexOf("问题")!=-1){
+            //problemId字段 存放 有无问题 加 问题表数据ID
+            //hashMap.get("WTNextId") 存放有无问题
+            analyzeConvertJson.setProblemId(analyzeConvertJson.gettNextId());
+            //清空动作属性
+            analyzeConvertJson.setAction(null);
+        }
+
+        /*
+         * 默认情况下 行号、下一条分析ID、下一条命令ID 是 成功对应的属性
+         * 如果 trueFalse 为 失败时
+         * 则 成功行号、成功下一条分析、成功下一条命令 都复制给 失败对应 属性
+         */
+        if (analyzeConvertJson.getTrueFalse() !=null && analyzeConvertJson.getTrueFalse() .equals("失败")){
+
+            //如果实体类是 失败 则 把默认成功数据 赋值给 失败数据
+            analyzeConvertJson.setfLine(analyzeConvertJson.getPageIndex());
+            analyzeConvertJson.setfNextId(analyzeConvertJson.getNextIndex());
+            analyzeConvertJson.setfComId(analyzeConvertJson.gettComId());
+
+            //把 默认成功数据 清除
+            analyzeConvertJson.settComId(null);
+            analyzeConvertJson.settLine(null);
+
+        }else {
+            analyzeConvertJson.settNextId(analyzeConvertJson.getNextIndex());
+            analyzeConvertJson.settLine(analyzeConvertJson.getPageIndex());
+        }
+
+
+        //如果动作属性不为空  且动作属性参数为 循环时  需要清空动作属性
+        if (analyzeConvertJson.getAction()!=null && analyzeConvertJson.getAction().equals("循环")){
+            //需要清空动作属性
+            analyzeConvertJson.setAction(null);
+            analyzeConvertJson.settNextId(null);
+        }
+        //如果动作属性不为空  且动作属性参数为 比较时  需要清空动作属性
+        if (analyzeConvertJson.getAction() !=null && analyzeConvertJson.getAction().equals("比较")){
+            //清空动作属性
+            analyzeConvertJson.setAction(null);
+        }
+
+        /** 动作 */
+        if (analyzeConvertJson.getAction()!=null && analyzeConvertJson.getAction().equals("取词") && analyzeConvertJson.getCursorRegion()!=null && analyzeConvertJson.getMatched() ==null){
+            analyzeConvertJson.setAction(analyzeConvertJson.getAction() + ( analyzeConvertJson.getCursorRegion().equals("1")?"full":""));
+        }
+
+
+
+        /** 主键索引 */
+        analyzeConvertJson.setId(analyzeConvertJson.getOnlyIndex());
+
+        /** 匹配 */
+        if (analyzeConvertJson.getMatched()!=null){
+            /*精确匹配*/
+            /*如果 relative  */
+            if (analyzeConvertJson.getRelative().indexOf("&")!=-1){
+                /* 位置 ：按行和全文*/
+                String[] relatives = analyzeConvertJson.getRelative().split("&");
+                analyzeConvertJson.setMatched(analyzeConvertJson.getMatched() + relatives[1]);
+            }
+        }
+
+
+        return analyzeConvertJson;
+    }
+
+    public static Object setNullIfEmpty(Object obj) {
+
+        Class<?> clazz = obj.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+
+        for (Field field : fields) {
+            field.setAccessible(true);
+            Object value = null;
+
+            try {
+                value = field.get(obj);
+                if (value instanceof String && ((String) value).equals("")) {
+                    field.set(obj, null);
+                }
+
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return obj;
     }
 }

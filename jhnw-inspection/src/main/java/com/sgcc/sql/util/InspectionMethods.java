@@ -535,6 +535,7 @@ public class InspectionMethods {
                     hashMap.put("id",split1);
                     break;
                 case "matched":// 匹配
+
                     if (split1.equals("null")){
                         /** 匹配 */
                         hashMap.put("matched",null);
@@ -545,6 +546,7 @@ public class InspectionMethods {
                         /** 匹配 */
                         hashMap.put("matched","模糊匹配");
                     }
+
                     break;
                 case "relative":
                     /** 相对位置 行*/
@@ -651,6 +653,8 @@ public class InspectionMethods {
             /** true下一条命令索引 */hashMap.put("tComId",null);
             /** true行号 */hashMap.put("tLine",null);
         }
+
+
         //如果动作属性不为空  且动作属性参数为 循环时  需要清空动作属性
         if (hashMap.get("action")!=null && hashMap.get("action").equals("循环")){
             //需要清空动作属性
@@ -670,6 +674,9 @@ public class InspectionMethods {
             //清空动作属性
             hashMap.put("action",null);
         }
+
+
+
         /** 主键索引 */
         problemScanLogic.setId(hashMap.get("id"));
         /** 匹配 */
@@ -688,6 +695,8 @@ public class InspectionMethods {
                 problemScanLogic.setMatched(null);
             }
         }
+
+
         /** 相对位置 */
         if (hashMap.get("relativePosition")!=null){
             problemScanLogic.setRelativePosition(hashMap.get("relativePosition"));
@@ -798,26 +807,22 @@ public class InspectionMethods {
         List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
         /*当错误行号不为空时 则 错误信息取出 放入 一个新的实体类 然后放入 需要返回的实体类集合 并把原实体类错误信息清空*/
         for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
-
             if (problemScanLogic.getfLine()!=null){
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
-
                 problemScanLogicf.setId(problemScanLogic.getId());
-                //problemScanLogicf.setMatched(problemScanLogic.getMatched());
-                //problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
+                problemScanLogicf.setMatched(problemScanLogic.getMatched());
+                problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
-                //problemScanLogicf.setLength(problemScanLogic.getLength());
-                //problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
+                problemScanLogicf.setLength(problemScanLogic.getLength());
+                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
-
                 problemScanLogic.setfLine(null);
                 problemScanLogic.setfNextId(null);
                 problemScanLogic.setProblemId(null);
                 problemScanLogic.setfComId(null);
                 ProblemScanLogics.add(problemScanLogicf);
             }
-
             ProblemScanLogics.add(problemScanLogic);
         }
         return ProblemScanLogics;

@@ -23,8 +23,6 @@ public class ErrorRate extends BaseEntity
     @Excel(name = "交换机ip")
     private String switchIp;
 
-
-
     /** 交换机四项基本信息表ID索引 */
     @Excel(name = "交换机四项基本信息表ID索引")
     private Long switchId;
@@ -48,6 +46,10 @@ public class ErrorRate extends BaseEntity
     /** crc */
     @Excel(name = "crc")
     private String crc;
+
+    /** link */
+    @Excel(name = "link")
+    private String link;
 
     public void setId(Long id) 
     {
@@ -124,6 +126,14 @@ public class ErrorRate extends BaseEntity
         this.description = description;
     }
 
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
     @Override
     public String toString() {
         return "ErrorRate{" +
@@ -135,6 +145,7 @@ public class ErrorRate extends BaseEntity
                 ", inputErrors='" + inputErrors + '\'' +
                 ", outputErrors='" + outputErrors + '\'' +
                 ", crc='" + crc + '\'' +
+                ", link='" + link + '\'' +
                 '}';
     }
 }

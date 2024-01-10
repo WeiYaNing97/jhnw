@@ -108,14 +108,14 @@ public class LuminousAttenuation {
                 "GigabitEthernet 1/18 down 1 Unknown Unknown fiber\n" +
                 "GigabitEthernet 1/19 down 1 Unknown Unknown fiber\n" +
                 "GigabitEthernet 1/20 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/21 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/22 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/23 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/24 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/21 up 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/22 up 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/23 up 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 1/24 up 1 Unknown Unknown fiber\n" +
                 "GigabitEthernet 5/1 up routed Full 1000M fiber\n" +
                 "GigabitEthernet 5/2 down 1 Unknown Unknown fiber\n" +
                 "GigabitEthernet 5/3 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/4 down 1 Unknown Unknown fiber\n" +
+                "GigabitEthernet 5/4 up 1 Unknown Unknown fiber\n" +
                 "GigabitEthernet 5/5 down 1 Unknown Unknown fiber\n" +
                 "GigabitEthernet 5/6 down 1 Unknown Unknown fiber\n" +
                 "GigabitEthernet 5/7 down 1 Unknown Unknown fiber\n" +
@@ -296,6 +296,71 @@ public class LuminousAttenuation {
 
         List<LightAttenuationComparison> pojoList = new ArrayList<>();
 
+        /** 根据交换机IP获取数据表数据 */
+        LightAttenuationComparison selectpojo = new LightAttenuationComparison();
+        selectpojo.setSwitchIp(switchParameters.getIp());
+        lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
+        List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(selectpojo);
+        /** 数据表数据 存入MAP集合中 */
+        Map<String,LightAttenuationComparison> lightAttenuationComparisonMap = new HashMap<>();
+        for (LightAttenuationComparison pojo:lightAttenuationComparisons){
+            lightAttenuationComparisonMap.put(pojo.getPort(),pojo);
+        }
+        /** 获取Map集合中KEY值数据集合*/
+        List<String> keySet = lightAttenuationComparisonMap.keySet().stream().collect(Collectors.toList());
+        /** 查看字符串集合A中存在，但字符串集合B中不存在的部分
+         * 查看 数据表中有，但是扫描后没有的端口    数据表中独有的端口号*/
+        List<String> difference = MyUtils.findDifference(keySet,port);
+
+        /**
+        * 数据表中有，扫描结果没有的 则 说明 断开了连接
+         * 断开接口提示交换机端口断开连接，端口状态为DOWN*/
+        for (String portstr:difference){
+            /** 修改端口号状态  */
+            LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
+            lightAttenuationComparisonPojo.setValueOne("DOWN");
+            int i = lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparisonPojo);
+            if (i > 0 ){
+                try {
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能端口号:"+portstr +"断开连接，端口状态为DOWN\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能端口号:"+portstr +"断开连接，端口状态为DOWN\r\n"
+                            , "光衰");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }else
+                { try {
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能端口号:"+portstr +"修改状态为DOWN失败\r\n");
+                    PathHelper.writeDataToFileByName(
+                            "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:光衰功能端口号:"+portstr +"修改状态为DOWN失败\r\n"
+                            , "光衰");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return AjaxResult.error();
+            }
+        }
+
         /*10:获取光衰参数不为空*/
         try {
             for (String portstr:port){
@@ -319,25 +384,20 @@ public class LuminousAttenuation {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
-                lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
-                /*获取交换机四项基本信息ID*/
-                lightAttenuationComparison.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
-                lightAttenuationComparison.setPort(portstr);
-                lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
-                List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
-
                 /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
                 if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
 
+
                     InsertLightAttenuation insertLightAttenuation = average(switchParameters, getparameter, portstr);
+
+
                     if (insertLightAttenuation.getInsertResults()>0){
                         pojoList.add(insertLightAttenuation.getLightAttenuationComparison());
-
                     }else {
                         /*数据库操作失败*/
                     }
+
+
                 }else {
                     continue;
                 }
@@ -345,18 +405,71 @@ public class LuminousAttenuation {
                 HashMap<String,String> hashMap = new HashMap<>();
                 hashMap.put("ProblemName","光衰");
 
-                /* 如果 lightAttenuationComparisons 为空 则光衰记录表中没有相关信息
+                /* 如果 lightAttenuationComparisonMap 对应端口号 为空 则数据库表光衰记录表中没有相关信息
                 则默认无问题*/
-
-                if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
+                if (lightAttenuationComparisonMap.get(portstr) == null){
 
                     hashMap.put("IfQuestion","无问题");
 
                 }else {
-                    lightAttenuationComparison = lightAttenuationComparisons.get(0);
+
+                    LightAttenuationComparison lightAttenuationComparison = lightAttenuationComparisonMap.get(portstr);
+
                     if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
                         //判断光衰是否有问题
-                        hashMap.put("IfQuestion",meanJudgmentProblem(lightAttenuationComparison));
+                        String meanJudgmentProblem = meanJudgmentProblem(lightAttenuationComparison);
+
+                        hashMap.put("IfQuestion",meanJudgmentProblem);
+
+                        if (meanJudgmentProblem.equals("无问题")){
+
+                            //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
+
+                            if (lightAttenuationComparison.getValueOne().equals("DOWN")){
+                                try {
+                                    String subversionNumber = switchParameters.getSubversionNumber();
+                                    if (subversionNumber!=null){
+                                        subversionNumber = "、"+subversionNumber;
+                                    }
+                                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                                            "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:光衰功能端口号:"+portstr + "恢复连接\r\n");
+                                    PathHelper.writeDataToFileByName(
+                                            "IP地址为:"+switchParameters.getIp()+","+
+                                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                    "问题为:光衰功能端口号:"+portstr + "恢复连接\r\n"
+                                            , "光衰");
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }else if (meanJudgmentProblem.equals("有问题")){
+
+                            //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
+
+                            if (lightAttenuationComparison.getValueOne().equals("DOWN")){
+                                try {
+                                    String subversionNumber = switchParameters.getSubversionNumber();
+                                    if (subversionNumber!=null){
+                                        subversionNumber = "、"+subversionNumber;
+                                    }
+                                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+                                            "IP地址为:"+switchParameters.getIp()+","+
+                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                            "问题为:光衰功能端口号:"+portstr + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
+                                    PathHelper.writeDataToFileByName(
+                                            "IP地址为:"+switchParameters.getIp()+","+
+                                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                    "问题为:光衰功能端口号:"+portstr + "恢复连接,出现正负超限告警，提示重置基准数据\r\n"
+                                            , "光衰");
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }
 
                         // todo  根据光衰参数阈值  的代码库 回显和日志
                         try {
@@ -927,6 +1040,7 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxStartValue(tx);
             lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
             lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
+            lightAttenuationComparison.setValueOne("UP");
 
             InsertLightAttenuation insertLightAttenuation = new InsertLightAttenuation();
             insertLightAttenuation.setInsertResults(lightAttenuationComparisonService.insertLightAttenuationComparison(lightAttenuationComparison));
@@ -942,6 +1056,8 @@ public class LuminousAttenuation {
             double txAverageValue = updateAverage(lightAttenuationComparison.getNumberParameters(), MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue()), MyUtils.stringToDouble(tx));
             lightAttenuationComparison.setTxAverageValue("" + txAverageValue);
             lightAttenuationComparison.setNumberParameters(lightAttenuationComparison.getNumberParameters()+1);
+
+            lightAttenuationComparison.setValueOne("UP");
 
             InsertLightAttenuation insertLightAttenuation = new InsertLightAttenuation();
             insertLightAttenuation.setInsertResults(lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison));

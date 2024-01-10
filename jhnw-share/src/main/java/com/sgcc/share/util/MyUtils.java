@@ -601,4 +601,21 @@ public class MyUtils {
         return matcher.find();
     }
 
+
+    /**
+    * @Description  查看字符串集合A中存在，但字符串集合B中不存在的部分
+    * @author charles
+    * @createTime 2024/1/4 10:48
+    * @desc
+    * @param listA
+     * @param listB
+     * @return
+    */
+    public static List<String> findDifference(List<String> listA, List<String> listB) {
+        HashSet<String> setA = new HashSet<>(listA);
+        HashSet<String> setB = new HashSet<>(listB);
+        setA.removeAll(setB);
+        return new ArrayList<>(setA);
+    }
+
 }
