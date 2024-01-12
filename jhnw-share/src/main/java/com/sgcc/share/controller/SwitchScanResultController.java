@@ -130,8 +130,8 @@ public class SwitchScanResultController extends BaseController
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
         switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));/*获取交换机四项基本信息ID*/
         switchScanResult.setSwitchName(switchParameters.getName()); //name
-        switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
-        switchScanResult.setConfigureCiphers(switchParameters.getConfigureCiphers());
+        switchScanResult.setSwitchPassword( EncryptUtil.densificationAndSalt( switchParameters.getPassword() ) ); //password
+        switchScanResult.setConfigureCiphers( switchParameters.getConfigureCiphers() == null ? null :  EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers()));
         switchScanResult.setLoginMethod(switchParameters.getMode());
         switchScanResult.setPortNumber(switchParameters.getPort());
         switchScanResult.setTypeProblem("高级功能");

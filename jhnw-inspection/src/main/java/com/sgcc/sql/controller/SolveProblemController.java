@@ -1,9 +1,11 @@
 package com.sgcc.sql.controller;
+import com.alibaba.fastjson.JSON;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.*;
 import com.sgcc.share.service.IReturnRecordService;
@@ -111,7 +113,7 @@ public class SolveProblemController {
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
     public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,
                                             @PathVariable  List<String> problemIdList,
-                                            @PathVariable  Long scanNum,
+                                            @PathVariable  String scanNum,
                                             @PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
         /*需要修复的问题*/
         Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
@@ -135,10 +137,28 @@ public class SolveProblemController {
         Iterator<String> iterator = userHashSet.iterator();
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         while(iterator.hasNext()){
-            SwitchParameters switchParameters= InspectionMethods.getUserMap(iterator.next());
+            /*SwitchParameters switchParameters= InspectionMethods.getUserMap(iterator.next());
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
             switchParameters.setScanningTime(simpleDateFormat);
+            switchParametersList.add(switchParameters);*/
+
+
+            /* 交换机登录信息 转化为 实体类 */
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(iterator.next(), SwitchLoginInformation.class);
+            // 四个参数 设默认值
+            SwitchParameters switchParameters = new SwitchParameters();
+            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
+            switchParameters.setScanningTime(simpleDateFormat);/*扫描时间*/
+            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
+
+            switchParameters.setPassword(EncryptUtil.desaltingAndDecryption(switchParameters.getPassword()));
+            switchParameters.setConfigureCiphers(EncryptUtil.desaltingAndDecryption(switchParameters.getConfigureCiphers()));
+
+            //以多线程中的格式 存放数组中
+            //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
+
         }
 
         /* 交换机问题 */

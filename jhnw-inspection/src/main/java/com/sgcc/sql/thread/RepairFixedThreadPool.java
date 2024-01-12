@@ -30,7 +30,7 @@ public class RepairFixedThreadPool {
             List<SwitchScanResult> switchScanResults = new ArrayList<>();
             for (SwitchScanResult switchScanResult:switchScanResultList){
                 // 查看 扫描出的问题 是否有问题
-                if (!(switchScanResult.getIfQuestion().equals("无问题"))){
+                if (switchScanResult.getIfQuestion().equals("有问题")){
                     switchScanResults.add(switchScanResult);
                 }
             }

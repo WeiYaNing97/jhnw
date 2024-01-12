@@ -328,6 +328,7 @@ public class SwitchInteraction {
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
+
         }
 
         /*交换机登录信息*/
@@ -1475,8 +1476,8 @@ public class SwitchInteraction {
 
         /*名字 密码 配置密码 连接方式 端口号*/
         switchScanResult.setSwitchName(switchParameters.getName()); //name
-        switchScanResult.setSwitchPassword(switchParameters.getPassword()); //password
-        switchScanResult.setConfigureCiphers(switchParameters.getConfigureCiphers());
+        switchScanResult.setSwitchPassword( EncryptUtil.densificationAndSalt( switchParameters.getPassword() )); //password
+        switchScanResult.setConfigureCiphers( switchParameters.getConfigureCiphers() == null ? null : EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers()));
         switchScanResult.setLoginMethod(switchParameters.getMode());
         switchScanResult.setPortNumber(switchParameters.getPort());
 
