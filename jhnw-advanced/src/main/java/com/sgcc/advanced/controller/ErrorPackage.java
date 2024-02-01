@@ -461,16 +461,21 @@ public class ErrorPackage {
                 }
             }
 
+            /*自定义分隔符*/
+            String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
             // =:= 是自定义分割符
-            String portNumber = "端口号=:=是=:="+port+" "+ errorRate.getDescription() +"=:=";
-            String InputErrors = primaryErrorRate.getInputErrors()!=null?"input=:=是=:=input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+"=:="
-                    :"input=:=是=:="+errorRate.getInputErrors()+"=:=";
-            String OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output=:=是=:=output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+"=:="
-                    :"output=:=是=:="+errorRate.getOutputErrors()+"=:=";
-            String Crc = primaryErrorRate.getCrc()!=null?"crc=:=是=:=crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
-                    :"crc=:=是=:="+errorRate.getCrc();
+            String portNumber = "端口号"+customDelimiter+"是"+customDelimiter+port+" "+ errorRate.getDescription() + customDelimiter;
+
+            String InputErrors = primaryErrorRate.getInputErrors()!=null?"input"+customDelimiter+"是"+customDelimiter+"input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+customDelimiter
+                    :"input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
+            String OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output"+customDelimiter+"是"+customDelimiter+"output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+customDelimiter
+                    :"output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
+            String Crc = primaryErrorRate.getCrc()!=null?"crc"+customDelimiter+"是"+customDelimiter+"crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
+                    :"crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
             String parameterString = portNumber +" "+ InputErrors+" "+OutputErrors+" "+Crc;
-            if (parameterString.endsWith("=:=")){
+
+            if (parameterString.endsWith( customDelimiter )){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
             }
 

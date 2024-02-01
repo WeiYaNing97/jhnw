@@ -81,4 +81,6 @@ public interface SwitchScanResultMapper
     int selectCountByName(@Param("username") String username);
 
     List<SwitchScanResult> selectSwitchScanResultListPages(@Param("userName") String userName,@Param("number") int number);
+
+    int updateLoginInformationByIP(SwitchScanResult pojo);
 }

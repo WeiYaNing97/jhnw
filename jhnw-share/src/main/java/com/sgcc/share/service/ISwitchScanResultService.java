@@ -80,4 +80,14 @@ public interface ISwitchScanResultService
     int selectCountByName(String username);
 
     List<SwitchScanResult> selectSwitchScanResultListPages(String userName,int number);
+
+    /**
+    * @Description 根据IP 更新最新一条 登录信息
+    * @author charles
+    * @createTime 2024/1/19 16:33
+    * @desc
+    * @param
+     * @return
+    */
+    int updateLoginInformationByIP(SwitchScanResult pojo);
 }

@@ -9,8 +9,10 @@ import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
+import com.sgcc.share.domain.Constant;
 import com.sgcc.share.domain.Information;
 import com.sgcc.share.service.IInformationService;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.IFormworkService;
@@ -504,9 +506,13 @@ public class TotalQuestionTableController extends BaseController
 
         HashSet<String> typeProblemHashSet = new HashSet();
         HashSet<String> temProNameHashSet = new HashSet();
+
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
         for (TotalQuestionTable totalQuestion:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestion.getTypeProblem());
-            temProNameHashSet.add(totalQuestion.getTypeProblem()+"=:="+totalQuestion.getTemProName());
+            temProNameHashSet.add(totalQuestion.getTypeProblem()+ customDelimiter +totalQuestion.getTemProName());
         }
 
         List<TotalQuestionTableCO> pojoCOList = new ArrayList<>();
@@ -519,7 +525,8 @@ public class TotalQuestionTableController extends BaseController
 
         for (String temProName:temProNameHashSet){
             TotalQuestionTableVO totalQuestionTableVO = new TotalQuestionTableVO();
-            String[] split = temProName.split("=:=");
+            /*自定义分隔符*/
+            String[] split = temProName.split(customDelimiter );
             totalQuestionTableVO.setTypeProblem(split[0]);
             totalQuestionTableVO.setTemProName(split[1]);
             pojoVOList.add(totalQuestionTableVO);

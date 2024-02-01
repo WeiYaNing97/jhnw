@@ -13,6 +13,7 @@ public class CommandReturn {
     private String returnResults;
     /*分析ID*/
     private String analysisID;
+
     public boolean isSuccessOrNot() {
         return successOrNot;
     }

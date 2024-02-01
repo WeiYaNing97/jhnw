@@ -1,6 +1,8 @@
 package com.sgcc.sql.util;
 
+import com.sgcc.share.domain.Constant;
 import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
@@ -227,8 +229,12 @@ public class ScanLogicMethods {
         //problemScanLogic.getWordName() 取词名称
         //problemScanLogic.getExhibit() 是否可以显示
         //wordSelection_string 取词内容
-        extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
-        current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+"=:="+problemScanLogic.getExhibit()+"=:="+ wordSelection_string+"=:=";
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        extractInformation_string = extractInformation_string +problemScanLogic.getWordName()+customDelimiter+problemScanLogic.getExhibit()+customDelimiter+ wordSelection_string+customDelimiter;
+        current_Round_Extraction_String = current_Round_Extraction_String +problemScanLogic.getWordName()+customDelimiter+problemScanLogic.getExhibit()+customDelimiter+ wordSelection_string+customDelimiter;
+
         /*成功逻辑*/
         ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
         String trueLogic = scanLogicMethods.trueLogic(switchParameters, totalQuestionTable,

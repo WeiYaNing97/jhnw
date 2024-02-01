@@ -6,13 +6,16 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import cn.hutool.core.date.DateTime;
+import com.alibaba.fastjson.JSON;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.*;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.ISwitchScanResultService;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.EncryptUtil;
 import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.MyUtils;
@@ -34,6 +37,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.common.core.page.TableDataInfo;
+import sun.security.x509.IPAddressName;
 
 /**
  * 交换机扫描结果Controller
@@ -200,7 +204,10 @@ public class SwitchScanResultController extends BaseController
                     String dynamicInformation = switchScanResult.getDynamicInformation();
                     //几个参数中间的 参数是 以  "=:=" 来分割的
                     //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-                    String[] dynamicInformationsplit = dynamicInformation.split("=:=");
+                    /*自定义分隔符*/
+                    String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+                    String[] dynamicInformationsplit = dynamicInformation.split(customDelimiter);
                     //判断提取参数 是否为空
                     if (dynamicInformationsplit.length>0){
                         //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
@@ -260,15 +267,17 @@ public class SwitchScanResultController extends BaseController
             scanResultsCOList.add(scanResultsCO);
         }
         HashSet<String> hashSet = new HashSet<>();
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
         for (SwitchProblemVO switchProblemVO:switchProblemList){
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String time = format.format(switchProblemVO.getCreateTime());
-            hashSet.add(switchProblemVO.getSwitchIp()+"=:="+time);
+            hashSet.add(switchProblemVO.getSwitchIp()+customDelimiter+time);
         }
         List<ScanResultsVO> scanResultsVOPojoList = new ArrayList<>();
         for (String hashString:hashSet){
-            String[] split = hashString.split("=:=");
+            String[] split = hashString.split(customDelimiter);
             ScanResultsVO scanResultsVO = new ScanResultsVO();
             scanResultsVO.setSwitchIp(split[0]);
             scanResultsVO.setCreateTime(split[1]);
@@ -335,5 +344,40 @@ public class SwitchScanResultController extends BaseController
             }
         }
         return scanResultsCOList;
+    }
+
+
+
+    /**
+    * @Description 更新登录信息
+    * @author charles
+    * @createTime 2024/1/19 16:18
+    * @desc
+    * @param
+     * @return
+    */
+    @PutMapping("/updateLoginInformation")
+    public void updateLoginInformation(List<String> switchInformations) {
+        // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
+        List<SwitchScanResult> switchScanResults = new ArrayList<>();
+
+        for (String information:switchInformations){
+            /* 交换机登录信息 转化为 实体类 */
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
+
+            SwitchScanResult switchScanResult = new SwitchScanResult();
+            switchScanResult.setSwitchIp(switchLoginInformation.getIp());
+            switchScanResult.setSwitchName(switchLoginInformation.getName());
+            switchScanResult.setSwitchPassword(switchLoginInformation.getPassword());
+            switchScanResult.setConfigureCiphers(switchLoginInformation.getConfigureCiphers());
+
+            switchScanResults.add(switchScanResult);
+        }
+
+        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+        for (SwitchScanResult scanResult:switchScanResults){
+            int i = switchScanResultService.updateLoginInformationByIP(scanResult);
+        }
+
     }
 }

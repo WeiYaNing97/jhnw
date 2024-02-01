@@ -45,6 +45,7 @@ public class LuminousAttenuation {
      * @return
      */
     public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
+
         /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
         LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
         lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
@@ -57,6 +58,7 @@ public class LuminousAttenuation {
 
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
+
             try {
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -74,7 +76,9 @@ public class LuminousAttenuation {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
+
         }
 
         //从 lightAttenuationCommandList 中 获取四项基本最详细的数据
@@ -87,7 +91,7 @@ public class LuminousAttenuation {
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
 
         returnString = "Interface Status Vlan Duplex Speed Type\n" +
-                "---------------------------------------- -------- ---- ------- --------- ------\n" +
+                "--------------------------------------------------------------------------\n" +
                 "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
                 "GigabitEthernet 1/2 up 1003 Full 100M copper\n" +
                 "GigabitEthernet 1/3 up 1004 Full 10M copper\n" +
@@ -196,10 +200,12 @@ public class LuminousAttenuation {
                 "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
                 "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
+
         returnString = MyUtils.trimString(returnString);
 
         // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
         if (returnString == null){
+
             try {
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -217,6 +223,7 @@ public class LuminousAttenuation {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
         }
 
@@ -381,22 +388,20 @@ public class LuminousAttenuation {
                                     "问题为:光衰功能端口号:"+portstr+
                                     " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n"
                             , "光衰");
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
                 if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
 
-
                     InsertLightAttenuation insertLightAttenuation = average(switchParameters, getparameter, portstr);
-
 
                     if (insertLightAttenuation.getInsertResults()>0){
                         pojoList.add(insertLightAttenuation.getLightAttenuationComparison());
                     }else {
                         /*数据库操作失败*/
                     }
-
 
                 }else {
                     continue;
@@ -491,9 +496,11 @@ public class LuminousAttenuation {
                     }
                 }
 
+                /*自定义分隔符*/
+                String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
-
-                hashMap.put("parameterString","端口号=:=是=:="+portstr+"=:=光衰参数=:=是=:=" +
+                hashMap.put("parameterString","端口号"+ customDelimiter +"是" + customDelimiter + portstr + customDelimiter +
+                        "光衰参数"+ customDelimiter +"是"+ customDelimiter +
                         "TX:"+getparameter.get(portstr+"TX")+
                         "  RX:"+getparameter.get(portstr+"RX"));
 

@@ -110,7 +110,10 @@ public class FunctionalMethods {
     @RequestMapping("compareVersion")
     public static boolean compareVersion(SwitchParameters switchParameters, String compare,String current_Round_Extraction_String){
         /* 提取到的词 进行分割 */
-        String[] current_Round_Extraction_split = current_Round_Extraction_String.split("=:=");
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        String[] current_Round_Extraction_split = current_Round_Extraction_String.split(customDelimiter);
         Map<String,String> value_String = new HashMap<>();
         if(!(current_Round_Extraction_String.equals(""))){
             for (int number = 0 ; number<current_Round_Extraction_split.length ; number = number +3){

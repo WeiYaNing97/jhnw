@@ -1,11 +1,9 @@
 package com.sgcc.share.switchboard;
 
 import com.sgcc.share.connectutil.SpringBeanUtil;
-import com.sgcc.share.domain.ScanResultsVO;
-import com.sgcc.share.domain.SwitchProblemCO;
-import com.sgcc.share.domain.SwitchProblemVO;
-import com.sgcc.share.domain.ValueInformationVO;
+import com.sgcc.share.domain.*;
 import com.sgcc.share.service.ISwitchScanResultService;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.EncryptUtil;
 import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.webSocket.WebSocketService;
@@ -53,7 +51,11 @@ public class SwitchIssueEcho {
                 String dynamicInformation = switchProblemCO.getDynamicInformation();
                 //几个参数中间的 参数是 以  "=:=" 来分割的
                 //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-                String[] dynamicInformationsplit = dynamicInformation.split("=:=");
+
+                /*自定义分隔符*/
+                String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+                String[] dynamicInformationsplit = dynamicInformation.split(customDelimiter);
                 //判断提取参数 是否为空
                 if (dynamicInformationsplit.length>0){
 

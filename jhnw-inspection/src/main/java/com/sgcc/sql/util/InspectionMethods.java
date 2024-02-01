@@ -1,6 +1,8 @@
 package com.sgcc.sql.util;
 
+import com.sgcc.share.domain.Constant;
 import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.EncryptUtil;
 import com.sgcc.sql.domain.*;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.*;
 
 public class InspectionMethods {
+
+    /*Inspection Completed*/
     /**
      * 筛选匹配度高的交换机问题
      * 逻辑 定义一个 map集合 key为 范式分类和范式名称 保证问题的唯一
@@ -19,77 +23,105 @@ public class InspectionMethods {
      * @return
      */
     public static List<TotalQuestionTable> ObtainPreciseEntityClasses(List<TotalQuestionTable> totalQuestionTableList) {
-        /*定义返回内容*/
-        List<TotalQuestionTable> TotalQuestionTablePojoList = new ArrayList<>();
+
         /*逻辑 定义一个 map集合 key为 范式分类和范式名称 保证问题的唯一*/
         Map<String,TotalQuestionTable> totalQuestionTableHashMap = new HashMap<>();
+
         /*遍历交换机问题集合*/
         for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
+
             /*提取范式分类和范式名称  到 map中查询 是否返回实体类*/
             String key =totalQuestionTable.getTypeProblem() + totalQuestionTable.getTemProName();
+            /* 查询map集合中 key为 范式分类+范式名称 的问题数据 */
             TotalQuestionTable pojo = totalQuestionTableHashMap.get(key);
+
             /*如果返回为空 则可以直接存入 map集合*/
             if (pojo != null){
+
                 /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-                /* 获取 两个交换机问题的 参数数量的精确度 */
-                /*map*/
+
+                /* 获取 两个交换机问题数据 四项基本信息中 * 的数量 */
+                /* pojo为现存map集合中的问题数据*/
                 int usedNumber = 0;
-                if (!(pojo.getType().equals("*"))){
+                if (pojo.getType().indexOf("*")!=-1){
                     usedNumber = usedNumber +1;
                 }
-                if (!(pojo.getFirewareVersion().equals("*"))){
+                if (pojo.getFirewareVersion().indexOf("*")!=-1){
                     usedNumber = usedNumber +1;
                 }
-                if (!(pojo.getSubVersion().equals("*"))){
+                if (pojo.getSubVersion().indexOf("*")!=-1){
                     usedNumber = usedNumber +1;
                 }
+
                 /*新*/
                 int newNumber = 0;
-                if (!(totalQuestionTable.getType().equals("*"))){
+                if (totalQuestionTable.getType().indexOf("*")!=-1){
                     newNumber = newNumber +1;
                 }
-                if (!(totalQuestionTable.getFirewareVersion().equals("*"))){
+                if (totalQuestionTable.getFirewareVersion().indexOf("*")!=-1){
                     newNumber = newNumber +1;
                 }
-                if (!(totalQuestionTable.getSubVersion().equals("*"))){
+                if (totalQuestionTable.getSubVersion().indexOf("*")!=-1){
                     newNumber = newNumber +1;
                 }
+
                 /*对比参数的数量大小
+                *因为 包含 * 的 +1 所以 数值越小的 越精确
                  * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
-                if (usedNumber < newNumber){
+                if (usedNumber > newNumber){
                     /* 新 比 map中的精确*/
                     totalQuestionTableHashMap.put(key,totalQuestionTable);
-                }else if (usedNumber == newNumber){
-                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
 
+                }else  if (usedNumber < newNumber) {
+                    /* map 中的更加精确  则 进行下一层遍历*/
+                    continue;
+                    //totalQuestionTableHashMap.put(key,pojo);
+
+                }else if (usedNumber == newNumber){
+
+                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
                     String pojotype = pojo.getType();
                     String totalQuestionTabletype = totalQuestionTable.getType();
+
                     /*比较两个属性的精确度
                      * 返回1 是第一个数属性精确 返回2 是第二个属性更精确
                      * 返回0 则精确性相等 则进行下一步分析*/
                     Integer typeinteger = filterAccurately(pojotype, totalQuestionTabletype);
+
                     if (typeinteger == 1){
                         totalQuestionTableHashMap.put(key,pojo);
+
                     }else if (typeinteger == 2){
                         totalQuestionTableHashMap.put(key,totalQuestionTable);
+
                     }else if (typeinteger == 0){
+
                         String pojofirewareVersion = pojo.getFirewareVersion();
                         String totalQuestionTablefirewareVersion = totalQuestionTable.getFirewareVersion();
+
                         /*比较两个属性的精确度*/
                         Integer firewareVersioninteger = filterAccurately(pojofirewareVersion, totalQuestionTablefirewareVersion);
+
                         if (firewareVersioninteger == 1){
                             totalQuestionTableHashMap.put(key,pojo);
+
                         }else if (firewareVersioninteger == 2){
                             totalQuestionTableHashMap.put(key,totalQuestionTable);
+
                         }else if (firewareVersioninteger == 0){
+
                             String pojosubVersion = pojo.getSubVersion();
                             String totalQuestionTablesubVersion = totalQuestionTable.getSubVersion();
+
                             /*比较两个属性的精确度*/
                             Integer subVersioninteger = filterAccurately(pojosubVersion, totalQuestionTablesubVersion);
+
                             if (subVersioninteger == 1){
                                 totalQuestionTableHashMap.put(key,pojo);
+
                             }else if (subVersioninteger == 2){
                                 totalQuestionTableHashMap.put(key,totalQuestionTable);
+
                             }else if (subVersioninteger == 0){
                                 /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
                                  * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
@@ -99,26 +131,32 @@ public class InspectionMethods {
                             }
                         }
                     }
-                }else  if (usedNumber > newNumber) {
-                    /* map 中的更加精确  则 进行下一层遍历*/
-                    continue;
-                    //totalQuestionTableHashMap.put(key,pojo);
                 }
             }else {
+
+                /*map的key值为空 则 可以直接存入 map集合*/
                 totalQuestionTableHashMap.put(key,totalQuestionTable);
             }
+
         }
+
+        /*定义返回格式*/
+        List<TotalQuestionTable> TotalQuestionTablePojoList = new ArrayList<>();
 
         /*获取 map 的value值 并更存储到集合中 返回*/
         Iterator<Map.Entry< String, TotalQuestionTable >> iterator = totalQuestionTableHashMap.entrySet().iterator();
+
         while (iterator.hasNext()) {
+
             Map.Entry< String, TotalQuestionTable > entry = iterator.next();
             TotalQuestionTablePojoList.add(entry.getValue());
-        }
-        return TotalQuestionTablePojoList;
 
+        }
+
+        return TotalQuestionTablePojoList;
     }
 
+    /*Inspection Completed*/
     /**
      * 比较两个属性的精确度
      * @param value1
@@ -129,9 +167,11 @@ public class InspectionMethods {
         /*查看是否包含 * */
         boolean value1Boolean = value1.indexOf("*")!=-1;
         boolean value2Boolean = value2.indexOf("*")!=-1;
+
         /*两项的长度*/
         int value1Length = value1.length();
         int value2Length = value2.length();
+
         if (value1Boolean && value2Boolean){
             /*如果两个都含有 * 取最长的*/
             if (value1Length<value2Length){
@@ -141,7 +181,9 @@ public class InspectionMethods {
             }else if (value1Length == value2Length){
                 return 0;
             }
+
         }else {
+
             /*两个 至少有一个没含有 * */
             if (value1Boolean || value2Boolean){
                 /*有一个含有 * 返回 没有*的*/
@@ -152,9 +194,14 @@ public class InspectionMethods {
                     return 1;
                 }
             }
+
         }
+
         return 0;
     }
+
+
+
 
 
     /**
@@ -190,7 +237,11 @@ public class InspectionMethods {
         commandLogicVO.setResultCheckId(resultCheckId);
         commandLogicVO.setNextIndex(nextIndex);
         commandLogicVO.setPageIndex(pageIndex);
-        String commandLogicVOSting =commandLogicVO.getPageIndex()+"=:="+"{"
+
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        String commandLogicVOSting =commandLogicVO.getPageIndex()+ customDelimiter +"{"
                 +"\"onlyIndex\"" +"="+ "\""+ commandLogicVO.getOnlyIndex() +"\","
                 +"\"trueFalse\"" +"="+ "\""+ commandLogicVO.getTrueFalse() +"\","
                 +"\"pageIndex\"" +"="+ "\""+ commandLogicVO.getPageIndex() +"\","
@@ -432,7 +483,11 @@ public class InspectionMethods {
             //动作属性的参数 赋值为  “循环”
             problemScanLogicVO.setAction("循环");
         }
-        String problemScanLogicVOString = problemScanLogicVO.getPageIndex()+"=:="+"{"
+
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        String problemScanLogicVOString = problemScanLogicVO.getPageIndex()+ customDelimiter +"{"
                 +"\"onlyIndex\"" +"="+ "\""+ problemScanLogicVO.getOnlyIndex() +"\","
                 +"\"trueFalse\"" +"="+ "\""+ problemScanLogicVO.getTrueFalse() +"\","
                 +"\"matched\"" +"="+ "\""+ problemScanLogicVO.getMatched() +"\","

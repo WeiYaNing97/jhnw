@@ -205,6 +205,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
+    <update id="updateLoginInformationByIP" parameterType="SwitchScanResult">
+        update switch_scan_result
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="switchName != null and switchName != ''">switch_name = #{switchName},</if>
+            <if test="switchPassword != null and switchPassword != ''">switch_password = #{switchPassword},</if>
+            <if test="configureCiphers != null and configureCiphers != ''">configureCiphers = #{configureCiphers},</if>
+        </trim>
+        where  switch_ip LIKE CONCAT(#{switchIp} , ':%') ORDER BY id DESC LIMIT 1;
+    </update>
+
     <delete id="deleteSwitchScanResultById" parameterType="Long">
         delete from switch_scan_result where id = #{id}
     </delete>

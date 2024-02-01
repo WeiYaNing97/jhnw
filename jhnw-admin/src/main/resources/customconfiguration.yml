@@ -1,5 +1,7 @@
 # 配置
 configuration:
+  #自定义分隔符
+  customDelimiter: "=:="
   # 最小超时
   minimumTimeout: 10000
   # 最大超时

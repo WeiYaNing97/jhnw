@@ -290,8 +290,11 @@ public class OSPFFeatures {
                     hashMap.put("IfQuestion","有问题");
                 }
 
+                /*自定义分隔符*/
+                String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
                 // =:= 是自定义分割符
-                hashMap.put("parameterString","功能=:=是=:=OSPF=:=参数=:=是=:=地址:"+ospf.getIp()+"状态:"+ospf.getState()+"端口号:"+ospf.getPort());
+                hashMap.put("parameterString","功能"+customDelimiter+"是"+customDelimiter+"OSPF"+customDelimiter+"参数"+customDelimiter+"是"+customDelimiter+"地址:"+ospf.getIp()+"状态:"+ospf.getState()+"端口号:"+ospf.getPort());
 
                 SwitchScanResultController switchScanResultController = new SwitchScanResultController();
 

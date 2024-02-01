@@ -1,8 +1,16 @@
 package com.sgcc.web.controller.system;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
+import com.sgcc.share.domain.SwitchLoginInformation;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -77,11 +85,18 @@ public class SysUserController extends BaseController
     @PostMapping("/importData")
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
     {
-        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
+
+        TimedTaskRetrievalFile.LocalFileImportProjectAddress(file);
+       /* ExcelUtil<SwitchLoginInformation> util = new ExcelUtil<SwitchLoginInformation>(SwitchLoginInformation.class);
+        List<SwitchLoginInformation> userList = util.importExcel(file.getInputStream());*/
+
+        return null;
+        /*ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
         List<SysUser> userList = util.importExcel(file.getInputStream());
+
         String operName = getUsername();
         String message = userService.importUser(userList, updateSupport, operName);
-        return AjaxResult.success(message);
+        return AjaxResult.success(message);*/
     }
 
     @GetMapping("/importTemplate")

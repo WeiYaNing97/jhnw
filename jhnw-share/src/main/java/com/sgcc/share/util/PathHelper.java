@@ -1,10 +1,16 @@
 package com.sgcc.share.util;
 import com.sgcc.share.domain.Constant;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 public class PathHelper {
     /* todo  日志路径*/
     static String logPath = "D:\\jhnwadminlog" ;//Configuration.logPath;
@@ -59,8 +65,6 @@ public class PathHelper {
             e.printStackTrace();
         }
     }
-
-
     /**
      * 将字符串写入文件中
      * @param str
@@ -105,5 +109,26 @@ public class PathHelper {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    /**
+    * @Description 读取文本内容
+    * @author charles
+    * @createTime 2024/1/19 14:43
+    * @desc
+    * @param path
+     * @return
+    */
+    public static List<String> ReadFileContent(String path) {
+        List<String> lines = new ArrayList<>();
+        try (FileReader fileReader = new FileReader(path);
+             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lines;
     }
 }

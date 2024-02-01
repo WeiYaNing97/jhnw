@@ -144,4 +144,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     public List<SwitchScanResult> selectSwitchScanResultListPages(String userName,int number) {
         return switchScanResultMapper.selectSwitchScanResultListPages(userName,number);
     }
+
+    @Override
+    public int updateLoginInformationByIP(SwitchScanResult pojo) {
+        return switchScanResultMapper.updateLoginInformationByIP(pojo);
+    }
 }

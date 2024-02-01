@@ -12,8 +12,9 @@ import java.util.Date;
 import java.util.concurrent.*;
 
 /**
- * 全部问题多线程
+ * 扫描功能 线程
  */
+/*Inspection Completed*/
 public class ScanThread extends Thread  {
 
     SwitchParameters switchParameters = null;
@@ -26,8 +27,10 @@ public class ScanThread extends Thread  {
                       SwitchParameters switchParameters,
                       CountDownLatch countDownLatch,ExecutorService fixedThreadPool,boolean isRSA) {
         super(threadName);
+        /* 线程计数*/
         this.countDownLatch = countDownLatch;
         this.fixedThreadPool = fixedThreadPool;
+
         this.switchParameters = switchParameters;
         this.isRSA = isRSA;
     }
@@ -35,25 +38,20 @@ public class ScanThread extends Thread  {
     @Override
     public void run() {
         try {
-            //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-            /*int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-            System.err.println("活跃线程数："+threadCount);*/
-
+            /*与交换机交互方法类*/
             SwitchInteraction switchInteraction = new SwitchInteraction();
 
             //扫描方法 logInToGetBasicInformation
             switchInteraction.logInToGetBasicInformation(switchParameters,null,null,isRSA);
+
+            /*扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转*/
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             ScanFixedThreadPool.removeThread(this.getName());
             countDownLatch.countDown();
         }
-
-        //将exes转换为ThreadPoolExecutor,ThreadPoolExecutor有方法 getActiveCount()可以得到当前活动线程数
-        /*int threadCount = ((ThreadPoolExecutor)fixedThreadPool).getActiveCount();
-        System.err.println("活跃线程数："+threadCount);*/
     }
-
 }

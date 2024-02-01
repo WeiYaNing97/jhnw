@@ -4,7 +4,13 @@ import com.sgcc.common.core.domain.model.LoginUser;
 
 import java.util.List;
 
+/**
+* @Description 交换机登录信息集合
+* @author charles
+ * @return
+*/
 public class ParameterSet {
+
     private List<SwitchParameters> switchParameters; //交换机信息
     private LoginUser loginUser;//登陆人信息
     private Integer threadCount;//线程数

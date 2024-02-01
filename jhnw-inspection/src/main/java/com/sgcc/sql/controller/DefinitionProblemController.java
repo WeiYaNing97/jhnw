@@ -56,11 +56,15 @@ public class DefinitionProblemController extends BaseController {
     public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
         custom = "["+custom+"]";
         String comands = "";
+
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
         for (int num = 0 ;num < command.length; num++){
-            comands = comands + command[num] + "=:=";
+            comands = comands + command[num] + customDelimiter ;
         }
 
-        comands = comands.substring(0,comands.length()-"=:=".length()) + custom;
+        comands = comands.substring(0,  comands.length() - customDelimiter.length()  ) + custom;
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         //创建实体类
@@ -429,10 +433,15 @@ public class DefinitionProblemController extends BaseController {
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
 
         HashMap<Long,String> hashMap = new HashMap<>();
+
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+
         for (CommandLogic commandLogic:commandLogicList){
             /* 1=:={"onlyIndex"="1697080798279","trueFalse"="","pageIndex"="1","command"="dis cu","para"="","resultCheckId"="0","nextIndex"="1697080824879"} */
             String commandLogicString = InspectionMethods.commandLogicString(commandLogic);
-            String[] commandLogicStringsplit = commandLogicString.split("=:=");
+            String[] commandLogicStringsplit = commandLogicString.split( customDelimiter );
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
         }
 
@@ -441,7 +450,8 @@ public class DefinitionProblemController extends BaseController {
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
             /*problemScanLogic 转化 Sting*/
             String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,totalQuestionTable.getId()+"");
-            String[] problemScanLogicStringsplit = problemScanLogicString.split("=:=");
+            /*自定义分隔符*/
+            String[] problemScanLogicStringsplit = problemScanLogicString.split(customDelimiter);
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
 
@@ -942,12 +952,14 @@ public class DefinitionProblemController extends BaseController {
         }
         problemScanLogicList = InspectionMethods.splitSuccessFailureLogic(problemScanLogicList);
 
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
         /*行号:实体类*/
         HashMap<Long,String> hashMap = new HashMap<>();
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){
             /*因为获取交换机基本信息，故没有 问题ID 为null*/
             String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,null);
-            String[] problemScanLogicStringsplit = problemScanLogicString.split("=:=");
+            String[] problemScanLogicStringsplit = problemScanLogicString.split(customDelimiter);
             /*problemScanLogicStringsplit[0] 行号*/
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }

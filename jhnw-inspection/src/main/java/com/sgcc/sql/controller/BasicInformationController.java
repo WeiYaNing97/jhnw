@@ -6,6 +6,8 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.page.TableDataInfo;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.poi.ExcelUtil;
+import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.sql.domain.BasicInformation;
 import com.sgcc.sql.service.IBasicInformationService;
 import io.swagger.annotations.Api;
@@ -108,13 +110,18 @@ public class BasicInformationController extends BaseController
     {
         List<BasicInformation> list = basicInformationService.selectBasicInformationList(null);
         List<BasicInformation> pojolist = new ArrayList<>();
+
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
         for (BasicInformation basicInformation:list){
             BasicInformation pojo = new BasicInformation();
             pojo.setId(basicInformation.getId());
-            pojo.setCommand(basicInformation.getCommand().replace("=:=","、").replace("\\[","\\ ["));
+            pojo.setCommand(basicInformation.getCommand().replace(customDelimiter,"、").replace("\\[","\\ ["));
             pojo.setProblemId(basicInformation.getProblemId());
             pojolist.add(pojo);
         }
+
         return pojolist;
     }
 }

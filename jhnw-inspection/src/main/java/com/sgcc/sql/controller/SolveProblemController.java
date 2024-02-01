@@ -64,13 +64,16 @@ public class SolveProblemController {
     @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
     @ApiOperation("查询修复问题命令")
     public List<String> queryCommandListBytotalQuestionTableId(@PathVariable Long totalQuestionTableId){
-        /*根据ID 查询问题数据*/
+
+        /*根据ID 查询问题表数据*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
 
         if (totalQuestionTable.getProblemSolvingId() == null){
+
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(SecurityUtils.getLoginUser().getUsername(),"错误："+"交换机问题表修复命令ID为空\r\n");
+
             try {
                 //插入问题简述及问题路径
                 PathHelper.writeDataToFile("错误："+"交换机问题表修复命令ID为空\r\n");
@@ -82,6 +85,7 @@ public class SolveProblemController {
 
         /*修复命令ID*/
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
+        /*定义命令集合*/
         List<CommandLogic> commandLogicList = new ArrayList<>();
         do {
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
@@ -91,10 +95,13 @@ public class SolveProblemController {
             problemSolvingId = commandLogic.getEndIndex();
         }while (!(problemSolvingId.equals("0")));
 
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
         List<String> commandLogicStringList = new ArrayList<>();
         for (CommandLogic commandLogic:commandLogicList){
             String string = InspectionMethods.commandLogicString(commandLogic);
-            String[] split = string.split("=:=");
+            String[] split = string.split(customDelimiter);
             commandLogicStringList.add(split[1]);
         }
         return commandLogicStringList;
@@ -111,7 +118,7 @@ public class SolveProblemController {
     @ApiOperation("修复问题接口")
     @PostMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
-    public void batchSolutionMultithreading(@RequestBody List<Object> userinformation,
+    public String batchSolutionMultithreading(@RequestBody List<Object> userinformation,
                                             @PathVariable  List<String> problemIdList,
                                             @PathVariable  String scanNum,
                                             @PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
@@ -196,6 +203,8 @@ public class SolveProblemController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return "修复结束" ;
     }
 
 
@@ -380,7 +389,10 @@ public class SolveProblemController {
     public HashMap<String,String> separationParameters(String dynamicInformation) {
         //几个参数中间的 参数是 以  "=:=" 来分割的
         //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-        String[] parameterStringsplit = dynamicInformation.split("=:=");
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        String[] parameterStringsplit = dynamicInformation.split(customDelimiter);
 
         HashMap<String,String> valueHashMap = new HashMap<>();
         //判断提取参数 是否为空
@@ -601,14 +613,18 @@ public class SolveProblemController {
                 String[] returnString_split = commandString.split("\r\n");
                 for (String string_split:returnString_split){
                     if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
+
                         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险："+switchParameters.getIp() +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
+
                         try {
                             PathHelper.writeDataToFile("风险："+switchParameters.getIp() +"问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+
                         List<Object> objectList = new ArrayList<>();
                         objectList.add(AjaxResult.error(switchParameters.getIp()+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:"+string_split));
+
                         return switchParameters.getIp()+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:"+string_split;
                     }
                 }
@@ -711,6 +727,7 @@ public class SolveProblemController {
 
         WebSocketService.sendMessage("loophole:"+loginUser.getUsername(),scanResultsVOList);
         return scanResultsVOList;
+
     }
 
 
@@ -741,9 +758,13 @@ public class SolveProblemController {
                 //提取信息 如果不为空 则有参数
                 if (switchScanResult.getDynamicInformation()!=null && !switchScanResult.getDynamicInformation().equals("")){
                     String dynamicInformation = switchScanResult.getDynamicInformation();
+
                     //几个参数中间的 参数是 以  "=:=" 来分割的
                     //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-                    String[] dynamicInformationsplit = dynamicInformation.split("=:=");
+                    /*自定义分隔符*/
+                    String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+                    String[] dynamicInformationsplit = dynamicInformation.split(customDelimiter);
+
                     //判断提取参数 是否为空
                     if (dynamicInformationsplit.length>0){
                         //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID

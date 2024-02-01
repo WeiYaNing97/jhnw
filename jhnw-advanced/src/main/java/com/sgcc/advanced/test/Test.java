@@ -1,5 +1,17 @@
 package com.sgcc.advanced.test;
 
+import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
+import com.sgcc.share.domain.SwitchLoginInformation;
+import com.sgcc.share.util.EncryptUtil;
+import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.PathHelper;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.*;
 import java.util.*;
 
 /**
@@ -10,26 +22,20 @@ import java.util.*;
  **/
 public class Test {
     public static void main(String[] args) {
-        List<String> listA = new ArrayList<>();
-        listA.add("a");
-        listA.add("b");
-        listA.add("c");
+        /*String string = "D:\\jhnwadminlog\\1706085922379角色数据.xlsx";
+        String string1 = "D:\\jhnwadminlog\\1706086856513用户数据.xlsx";
+        try {
+            FileInputStream file = new FileInputStream(new File(string));
+            Workbook workbook = new XSSFWorkbook(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
 
-        List<String> listB = new ArrayList<>();
-        listB.add("b");
-        listB.add("c");
-        listB.add("d");
 
-        List<String> result = findDifference(listA, listB);
-        System.out.println(result);
-    }
+        String excelName = "交换机信息模板";
 
-    public static List<String> findDifference(List<String> listA, List<String> listB) {
-        HashSet<String> setA = new HashSet<>(listA);
-        HashSet<String> setB = new HashSet<>(listB);
+        List<SwitchLoginInformation> switchLoginInformations = TimedTaskRetrievalFile.readCiphertextExcel(MyUtils.getProjectPath()+"\\jobExcel\\"+ excelName +".txt");
 
-        setA.removeAll(setB);
-
-        return new ArrayList<>(setA);
+        System.err.println();
     }
 }

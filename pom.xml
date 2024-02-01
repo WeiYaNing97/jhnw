@@ -123,11 +123,18 @@
             </dependency>
 
             <!-- excel工具 -->
+            <!-- 其他版本会有问题，报错：以正斜杠(/)结束错误。-->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
                 <version>${poi.version}</version>
             </dependency>
+
 
             <!-- velocity代码生成使用模板 -->
             <dependency>

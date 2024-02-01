@@ -623,7 +623,6 @@ public class MyUtils {
 
         /*开发环境：E:\ideaProject\jhnw*/
         /*部署环境：E:\ideaProject\jhnw\jhnw-admin\target*/
-
         /*if (projectPath.endsWith("\\jhnw")){
             projectPath = projectPath.substring(0,projectPath.length() - ("\\jhnw".length()) );
         }*/
