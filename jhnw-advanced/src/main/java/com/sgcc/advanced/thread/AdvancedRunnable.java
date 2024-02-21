@@ -3,6 +3,7 @@ import com.sgcc.advanced.controller.ErrorPackage;
 import com.sgcc.advanced.controller.LuminousAttenuation;
 import com.sgcc.advanced.controller.OSPFFeatures;
 import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.ConnectToObtainInformation;
@@ -75,15 +76,11 @@ public class AdvancedRunnable {
                     }
                 }
             }else {
-                try {
                     // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"基本信息",
+                            "系统信息:"+switchParameters.getIp() +"基本信息："+
                             "未定义该交换机获取基本信息命令及分析\r\n");
-                    PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"成功基本信息："+
-                            "未定义该交换机获取基本信息命令及分析\r\n","基本信息");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
             }
 
             System.err.println("run()线程结束");

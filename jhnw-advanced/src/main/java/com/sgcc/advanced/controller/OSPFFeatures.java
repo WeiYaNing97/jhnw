@@ -11,6 +11,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.CustomConfigurationUtil;
@@ -59,23 +60,17 @@ public class OSPFFeatures {
 
         /*OSPF命令集合为空  则中止OSPF高级共功能*/
         if (MyUtils.isCollectionEmpty(ospfCommandList)){
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:未定义该交换机OSPF命令\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:未定义该交换机OSPF命令\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:未定义该交换机OSPF命令\r\n");
+
             return;
         }
 
@@ -208,23 +203,17 @@ public class OSPFFeatures {
 
         /*执行命令返回结果为null 则是命令执行错误*/
         if (commandReturn == null){
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:ospf功能命令错误,请重新定义\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:ospf功能命令错误,请重新定义\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:ospf功能命令错误,请重新定义\r\n");
+
             return;
         }
 
@@ -237,23 +226,18 @@ public class OSPFFeatures {
         List<OSPFPojo> pojoList =  getOSPFPojo(commandReturn);
 
         if (pojoList.size() == 0){
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:ospf功能信息提取失败\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:ospf功能信息提取失败\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:ospf功能信息提取失败\r\n");
+
             return;
         }
 
@@ -261,25 +245,16 @@ public class OSPFFeatures {
         for (OSPFPojo ospf:pojoList){
 
             try {
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:ospf功能IP:"+ospf.getIp()+"端口号:"+ospf.getPort()+"状态:"+ospf.getState()+"\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:ospf功能IP:"+ospf.getIp()+"端口号:"+ospf.getPort()+"状态:"+ospf.getState()+"\r\n"
-                            , "ospf");
-
-                } catch (IOException e) {
-                    e.printStackTrace();
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
                 }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "ospf","系统信息:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:ospf功能IP:"+ospf.getIp()+"端口号:"+ospf.getPort()+"状态:"+ospf.getState()+"\r\n");
+
 
                 HashMap<String,String> hashMap = new HashMap<>();
                 hashMap.put("ProblemName","OSPF");

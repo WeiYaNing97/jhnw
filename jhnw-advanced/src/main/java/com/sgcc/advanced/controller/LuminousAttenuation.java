@@ -8,6 +8,7 @@ import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.*;
@@ -59,23 +60,16 @@ public class LuminousAttenuation {
         /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
 
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:光衰功能未定义获取端口号命令\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能未定义获取端口号命令\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能未定义获取端口号命令\r\n");
 
             return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
 
@@ -206,23 +200,16 @@ public class LuminousAttenuation {
         // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
         if (returnString == null){
 
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能获取端口号命令错误,需要重新定义\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
 
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
         }
@@ -234,23 +221,17 @@ public class LuminousAttenuation {
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
             // todo 关于没有端口号为UP状态 的错误代码库
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:光衰功能无UP状态端口号\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能无UP状态端口号\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能无UP状态端口号\r\n");
+
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能无UP状态端口号\r\n");
         }
 
@@ -281,23 +262,17 @@ public class LuminousAttenuation {
 
         /*9：获取光衰参数为空*/
         if (MyUtils.isMapEmpty(getparameter)){
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:光衰功能所有UP状态端口皆未获取到光衰参数\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能所有UP状态端口皆未获取到光衰参数\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志" ,
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:光衰功能所有UP状态端口皆未获取到光衰参数\r\n");
+
             return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
         }
 
@@ -328,42 +303,31 @@ public class LuminousAttenuation {
             lightAttenuationComparisonPojo.setValueOne("DOWN");
             int i = lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparisonPojo);
             if (i > 0 ){
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能端口号:"+portstr +"断开连接，端口状态为DOWN\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能端口号:"+portstr +"断开连接，端口状态为DOWN\r\n"
-                            , "光衰");
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
                 }
 
-            }else
-                { try {
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"光衰",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能端口号:"+portstr +"断开连接，端口状态为DOWN\r\n");
+
+            }else {
                     String subversionNumber = switchParameters.getSubversionNumber();
                     if (subversionNumber!=null){
                         subversionNumber = "、"+subversionNumber;
                     }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能端口号:"+portstr +"修改状态为DOWN失败\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"光衰",
+                            "系统信息:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
                                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                     "问题为:光衰功能端口号:"+portstr +"修改状态为DOWN失败\r\n"
-                            , "光衰");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                            );
+
                 return AjaxResult.error();
             }
         }
@@ -371,27 +335,24 @@ public class LuminousAttenuation {
         /*10:获取光衰参数不为空*/
         try {
             for (String portstr:port){
-                // todo  根据光衰参数阈值  的代码库 回显和日志
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能端口号:"+portstr +
-                            " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能端口号:"+portstr+
-                                    " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n"
-                            , "光衰");
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                // todo  根据光衰参数阈值  的代码库 回显和日志
+                String subversionNumber1 = switchParameters.getSubversionNumber();
+                if (subversionNumber1!=null){
+                    subversionNumber1 = "、"+subversionNumber1;
                 }
+
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"光衰",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion() + subversionNumber1 + ","+
+                                "问题为:光衰功能端口号:"+portstr +
+                                " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n");
+
+
+
                 /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
                 if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
 
@@ -431,23 +392,18 @@ public class LuminousAttenuation {
                             //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
 
                             if (lightAttenuationComparison.getValueOne().equals("DOWN")){
-                                try {
-                                    String subversionNumber = switchParameters.getSubversionNumber();
-                                    if (subversionNumber!=null){
-                                        subversionNumber = "、"+subversionNumber;
-                                    }
-                                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                                            "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能端口号:"+portstr + "恢复连接\r\n");
-                                    PathHelper.writeDataToFileByName(
-                                            "IP地址为:"+switchParameters.getIp()+","+
-                                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                    "问题为:光衰功能端口号:"+portstr + "恢复连接\r\n"
-                                            , "光衰");
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+
+                                String subversionNumber = switchParameters.getSubversionNumber();
+                                if (subversionNumber!=null){
+                                    subversionNumber = "、"+subversionNumber;
                                 }
+
+                                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"光衰",
+                                        "系统信息:" +
+                                                "IP地址为:"+switchParameters.getIp()+","+
+                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                "问题为:光衰功能端口号:"+portstr + "恢复连接\r\n");
+
                             }
 
                         }else if (meanJudgmentProblem.equals("有问题")){
@@ -455,43 +411,32 @@ public class LuminousAttenuation {
                             //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
 
                             if (lightAttenuationComparison.getValueOne().equals("DOWN")){
-                                try {
-                                    String subversionNumber = switchParameters.getSubversionNumber();
-                                    if (subversionNumber!=null){
-                                        subversionNumber = "、"+subversionNumber;
-                                    }
-                                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                                            "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能端口号:"+portstr + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
-                                    PathHelper.writeDataToFileByName(
-                                            "IP地址为:"+switchParameters.getIp()+","+
-                                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                    "问题为:光衰功能端口号:"+portstr + "恢复连接,出现正负超限告警，提示重置基准数据\r\n"
-                                            , "光衰");
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+
+                                String subversionNumber = switchParameters.getSubversionNumber();
+                                if (subversionNumber!=null){
+                                    subversionNumber = "、"+subversionNumber;
                                 }
+
+                                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"光衰",
+                                        "系统信息:" +
+                                                "IP地址为:"+switchParameters.getIp()+","+
+                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                "问题为:光衰功能端口号:"+portstr + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
+
                             }
 
                         }
 
                         // todo  根据光衰参数阈值  的代码库 回显和日志
-                        try {
-                            String subversionNumber = switchParameters.getSubversionNumber();
-                            if (subversionNumber!=null){
-                                subversionNumber = "、"+subversionNumber;
-                            }
-
-                            PathHelper.writeDataToFileByName(
-                                    "IP地址为:("+switchParameters.getIp()+"),"+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            lightAttenuationComparison.toJson() +"\r\n"
-                                    , "光衰");
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
                         }
+
+                        AbnormalAlarmInformationMethod.afferent(null,"光衰",
+                                "IP地址为:("+switchParameters.getIp()+"),"+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        lightAttenuationComparison.toJson() +"\r\n");
 
                     }
                 }
@@ -659,23 +604,17 @@ public class LuminousAttenuation {
                 "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";
 
             if (returnResults == null){
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能"+port+"端口获取光衰参数命令错误,请重新定义\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能"+port+"端口获取光衰参数命令错误,请重新定义\r\n"
-                            , "问题日志");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
                 }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        "异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能"+port+"端口获取光衰参数命令错误,请重新定义\r\n");
+
                 continue;
             }
 
@@ -687,23 +626,17 @@ public class LuminousAttenuation {
             HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
 
             if (values.size() == 0){
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能"+port+"端口号未获取到光衰参数\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能"+port+"端口号未获取到光衰参数\r\n"
-                            , "问题日志");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
                 }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        "异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能"+port+"端口号未获取到光衰参数\r\n");
+
                 continue;
             }
 
@@ -848,25 +781,18 @@ public class LuminousAttenuation {
                     if (Line_split_split.length == values.size()){
                         position = getPosition(replaceAll);
                     }else {
-                        try {
-                            String subversionNumber = switchParameters.getSubversionNumber();
-                            if (subversionNumber!=null){
-                                subversionNumber = "、"+subversionNumber;
-                            }
-                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能光衰参数取词失败," +
-                                    "光衰参数行信息:"+parameterInformation+"\r\n");
-                            PathHelper.writeDataToFileByName(
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能光衰参数取词失败," +
-                                            "光衰参数行信息:"+parameterInformation+"\r\n"
-                                    , "问题日志");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
                         }
+
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                                "异常:" +
+                                        "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:光衰功能光衰参数取词失败," +
+                                        "光衰参数行信息:"+parameterInformation+"\r\n");
+
                     }
                 }
 
@@ -935,25 +861,17 @@ public class LuminousAttenuation {
                         }
 
                     }else {
-                        try {
-                            String subversionNumber = switchParameters.getSubversionNumber();
-                            if (subversionNumber!=null){
-                                subversionNumber = "、"+subversionNumber;
-                            }
-                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
-                                    "光衰参数行信息:"+keyvalue+"\r\n");
-                            PathHelper.writeDataToFileByName(
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
-                                            "光衰参数行信息:"+keyvalue+"\r\n"
-                                    , "问题日志");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
                         }
+
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
+                                "光衰参数行信息:"+keyvalue+"\r\n");
+
                     }
                 }
 
@@ -970,25 +888,17 @@ public class LuminousAttenuation {
                             txpower = tx;
                         }
                     }else {
-                        try {
-                            String subversionNumber = switchParameters.getSubversionNumber();
-                            if (subversionNumber!=null){
-                                subversionNumber = "、"+subversionNumber;
-                            }
-                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
-                                    "光衰参数行信息:"+keyvalue+"\r\n");
-                            PathHelper.writeDataToFileByName(
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
-                                            "光衰参数行信息:"+keyvalue+"\r\n"
-                                    , "问题日志");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
                         }
+
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
+                                "光衰参数行信息:"+keyvalue+"\r\n");
+
                     }
 
                 }

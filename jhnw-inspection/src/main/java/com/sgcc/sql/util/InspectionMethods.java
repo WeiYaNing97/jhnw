@@ -249,6 +249,7 @@ public class InspectionMethods {
                 +"\"para\"" +"="+ "\""+ commandLogicVO.getPara() +"\","
                 +"\"resultCheckId\"" +"="+ "\""+ commandLogicVO.getResultCheckId() +"\","
                 +"\"nextIndex\"" +"="+ "\""+ commandLogicVO.getNextIndex() +"\"" +"}";
+
         return commandLogicVOSting;
     }
 

@@ -2,6 +2,7 @@ package com.sgcc.share.util;
 
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.ReturnRecord;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.webSocket.WebSocketService;
@@ -17,6 +18,8 @@ public class ExecuteCommand {
     private IReturnRecordService returnRecordService;
     //命令返回信息
     private String command_string = null;
+
+    /* 告警、异常信息写入 */
     /**
     * @Description  根据交换机信息类 与 具体命令，执行并返回交换机返回信息
     * @desc
@@ -33,70 +36,133 @@ public class ExecuteCommand {
 
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
+
         /*程序登录用户*/
         returnRecord.setUserName(switchParameters.getLoginUser().getUsername());
+
         /*交换机IP、品牌、型号、版本、子版本*/
         returnRecord.setSwitchIp(switchParameters.getIp());
         returnRecord.setBrand(switchParameters.getDeviceBrand());
         returnRecord.setType(switchParameters.getDeviceModel());
         returnRecord.setFirewareVersion(switchParameters.getFirmwareVersion());
         returnRecord.setSubVersion(switchParameters.getSubversionNumber());
-        returnRecord.setCurrentCommLog(command);/*交换机执行的命令*/
+
+        /*交换机执行的命令*/
+        returnRecord.setCurrentCommLog(command);
 
         /*交换机返回信息 插入数据库状态 为-1时错误 否则为交换机返回信息 在数据库中的ID*/
         int insert_id = 0;
+
         /*交换机返回信息 是否存在故障的标志 默认为 true*/
         boolean deviceBrand = true;
+
         do {
+
             deviceBrand = true;
+
+            /* ssh连接 通过SSH方法 执行命令 获得交换机返回结果 ：command_string*/
             if (switchParameters.getMode().equalsIgnoreCase("ssh")) {
+
                 /*当交换机连接协议为 SSH时*/
-                // todo 交换机发送命令的前端回显
                 WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(), switchParameters.getIp()+"发送:" + command+"\r\n");
                 try {
                     PathHelper.writeDataToFile(switchParameters.getIp()+"发送:" + command+"\r\n");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                /**
-                 * 交换机返回信息 及 超时
-                 */
+
+
+
+                /** 超时 */
+                /* 交换机返回信息*/
                 MyExecutors myExecutors = new MyExecutors();
                 ScheduledExecutorService executor = myExecutors.newScheduledThreadPool(1);
+
                 // 提交要执行的方法，并设置超时时间为2秒
                 ScheduledFuture<?> future = executor.schedule(() -> {
                     // 执行的方法逻辑
                     command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), command, null);
-                    /*command_string = "display interface brief\n" +
-                            "PHY: Physical\n" +
-                            "*down: administratively down\n" +
-                            "^down: standby\n" +
-                            "~down: LDT down\n" +
-                            "#down: LBDT down\n" + command_string;*/
                 }, 1, TimeUnit.SECONDS);
+
                 try {
                     // 等待任务执行结果，同时设置超时时间为21秒
                     future.get(21, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
-                    try {
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:命令："+ command+"未获取到交换机返回信息\r\n");
-                        PathHelper.writeDataToFileByName(
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:命令："+ command+"未获取到交换机返回信息\r\n"
-                                , "问题日志");
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
+
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
                     }
+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:命令："+ command+"未获取到交换机返回信息,ssh超时\r\n");
+
+
                     command_string = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(), switchParameters.getSshConnect(), " ", null);
                     return null;
+
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                } finally {
+
+                    /**
+                     * 在Java的try-catch-finally语句中，如果try或catch块中存在return语句，会先执行finally块中的代码，然后再返回到调用的地方。
+                     * 无论try或catch块中是否存在return语句，finally块中的代码都会被执行。
+                     * finally块通常用于清理资源、关闭文件或释放锁等操作，以确保在程序执行过程中不论是否发生异常都能正确地执行这些操作。
+                     * 需要注意的是，如果finally块中也存在return语句，它将会覆盖try或catch块中的return语句，即最终返回的结果是finally块中的return语句的返回值。
+                     */
+                    executor.shutdown();
+
+                }
+
+            }
+            else if (switchParameters.getMode().equalsIgnoreCase("telnet")) {
+
+                /* telnet连接 通过 telnet方法 执行命令*/
+
+                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(), switchParameters.getIp()+"发送:" + command+"\r\n");
+                try {
+                    PathHelper.writeDataToFile(switchParameters.getIp()+"发送:" + command+"\r\n");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+
+                /**  超时 */
+                /* 交换机返回信息*/
+                MyExecutors myExecutors = new MyExecutors();
+                ScheduledExecutorService executor = myExecutors.newScheduledThreadPool(1);
+
+                // 提交要执行的方法，并设置超时时间为2秒
+                ScheduledFuture<?> future = executor.schedule(() -> {
+                    // 执行的方法逻辑
+                    command_string = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
+
+                }, 1, TimeUnit.SECONDS);
+
+                try {
+                    // 等待任务执行结果，同时设置超时时间为21秒
+                    future.get(21, TimeUnit.SECONDS);
+                } catch (TimeoutException e) {
+
+                    /* 告警、异常信息写入 */
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:命令："+ command+"未获取到交换机返回信息,telnet超时\r\n");
+
+
+                    command_string = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
+
+                    return null;
+
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 } finally {
@@ -108,19 +174,16 @@ public class ExecuteCommand {
                      */
                     executor.shutdown();
                 }
-            } else if (switchParameters.getMode().equalsIgnoreCase("telnet")) {
-                // todo 交换机发送命令的前端回显
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(), switchParameters.getIp()+"发送:" + command+"\r\n");
-                try {
-                    PathHelper.writeDataToFile(switchParameters.getIp()+"发送:" + command+"\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                command_string = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
+
             }
+
+
             returnRecord.setCurrentReturnLog(command_string);
-            //修整返回信息
+
+            //修整返回信息  文章字段 换行符 由"\r"  "\n"  "\r\n" 规范成 "\r\n" 并且 连续多空格转化为单空格
             command_string = MyUtils.trimString(command_string);
+
+
             //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
             // 存在故障返回 false
             if (!FunctionalMethods.switchfailure(switchParameters, command_string)) {
@@ -131,27 +194,19 @@ public class ExecuteCommand {
                     /*当行信息包含 故障时 进入错误代码库*/
                     deviceBrand = FunctionalMethods.switchfailure(switchParameters, LineInformation);
                     if (!deviceBrand) {
-                        try {
-                            String subversionNumber = switchParameters.getSubversionNumber();
-                            if (subversionNumber!=null){
-                                subversionNumber = "、"+subversionNumber;
-                            }
-                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:返回结果异常\r\n"+
-                                    "命令:"+command+
-                                    "异常信息:"+LineInformation+"\r\n");
-                            PathHelper.writeDataToFileByName(
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:返回结果异常\r\n"+
-                                            "命令:"+command+
-                                            "异常信息:"+LineInformation+"\r\n"
-                                    , "问题日志");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
                         }
+
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:返回结果异常\r\n"+
+                                "命令:"+command+
+                                "异常信息:"+LineInformation+"\r\n");
+
                         returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+LineInformation+"\r\n");
                         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                             switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r ",switchParameters.getNotFinished());
@@ -162,9 +217,16 @@ public class ExecuteCommand {
                     }
                 }
             }
+
+
+
             //返回信息表，返回插入条数
             returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
             insert_id = returnRecordService.insertReturnRecord(returnRecord);
+
+
+
+
             /*如果有有故障时 deviceBrand为 false 的重新执行命令*/
         }while (!deviceBrand);
         //返回信息表，返回插入条数
@@ -219,27 +281,20 @@ public class ExecuteCommand {
             for (String string_split:LineInformation){
                 /* 按行 去查找具体错误信息*/
                 if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
-                    try {
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-                        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:返回结果异常\r\n"+
-                                "命令:"+command+
-                                "异常信息:"+command_string+"\r\n");
-                        PathHelper.writeDataToFileByName(
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:返回结果异常\r\n"+
-                                        "命令:"+command+
-                                        "异常信息:"+command_string+"\r\n"
-                                , "问题日志");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
                     }
+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:返回结果异常\r\n"+
+                            "命令:"+command+
+                            "异常信息:"+command_string+"\r\n");
+
+
                     return null;
                 }
             }

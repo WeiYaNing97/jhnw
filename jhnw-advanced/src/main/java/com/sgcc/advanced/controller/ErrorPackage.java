@@ -10,6 +10,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.*;
@@ -54,23 +55,19 @@ public class ErrorPackage {
 
         /*2：当 配置文件误码率问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(errorRateCommandList)){
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:误码率功能未定义获取端口号的命令\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                         "问题为:误码率功能未定义获取端口号的命令\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:误码率功能未定义获取端口号的命令\r\n"
+            );
+
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能未定义获取端口号的命令\r\n");
         }
 
@@ -142,23 +139,18 @@ public class ErrorPackage {
 
         /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
         if (returnString == null){
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:误码率功能获取端口号命令错误,需要重新定义\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
+
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
         }
 
@@ -169,24 +161,20 @@ public class ErrorPackage {
 
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(portList)){
+
             // todo 关于没有端口号为UP状态 的错误代码库
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:错误包功能无UP状态端口号,是否需要CRT检查异常\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能无UP状态端口号,是否需要CRT检查异常\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:错误包功能无UP状态端口号,是否需要CRT检查异常\r\n"
+            );
+
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能无UP状态端口号,是否需要CRT检查异常\r\n");
         }
 
@@ -215,23 +203,17 @@ public class ErrorPackage {
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
 
         if ( errorPackageParameters.size() == 0 ){
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:错误包功能所有UP状态端口皆未获取到错误包参数\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能所有UP状态端口皆未获取到错误包参数\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:错误包功能所有UP状态端口皆未获取到错误包参数\r\n");
+
             return AjaxResult.error("所有端口都没有获取到错误包参数");
         }
 
@@ -262,42 +244,29 @@ public class ErrorPackage {
             int i = errorRateService.updateErrorRate(errorRate);
 
             if (i > 0 ){
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:错误包功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n"
-                            , "错误包");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
-            }else
-            { try {
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"错误包",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:错误包功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n");
+
+            }else {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"错误包",
+                        "系统信息:" +
                         "IP地址为:"+switchParameters.getIp()+","+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                         "问题为:错误包功能端口号:"+ port +"修改状态为DOWN失败\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能端口号:"+ port +"修改状态为DOWN失败\r\n"
-                        , "错误包");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
                 return AjaxResult.error();
             }
         }
@@ -333,29 +302,22 @@ public class ErrorPackage {
 
             HashMap<String,String> hashMap = new HashMap<>();
             hashMap.put("ProblemName","误码率");
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        " 端口号"+port+ errorRate.getDescription() +
-                        " input:"+errorRate.getInputErrors()+" "+
-                        " output:"+errorRate.getOutputErrors()+" "+
-                        " crc:"+errorRate.getCrc()+"\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                " 端口号"+port+ errorRate.getDescription() +
-                                " input:"+errorRate.getInputErrors()+" "+
-                                " output:"+errorRate.getOutputErrors()+" "+
-                                " crc:"+errorRate.getCrc()+"\r\n"
-                        , "错误包");
-            } catch (IOException e) {
-                e.printStackTrace();
+
+
+            String subversionNumber1 = switchParameters.getSubversionNumber();
+            if (subversionNumber1!=null){
+                subversionNumber1 = "、"+subversionNumber1;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "错误包",
+                    "系统信息:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber1+","+
+                            " 端口号"+port+ errorRate.getDescription() +
+                            " input:"+errorRate.getInputErrors()+" "+
+                            " output:"+errorRate.getOutputErrors()+" "+
+                            " crc:"+errorRate.getCrc()+"\r\n");
+
 
             /** 数据库数据*/
             ErrorRate primaryErrorRate = errorRateMap.get(port);
@@ -407,23 +369,20 @@ public class ErrorPackage {
                     errorRate.setId(primaryErrorRate.getId());
                     /* 判断数据库数据 是 否为 断开状态*/
                     if ( primaryErrorRate.getLink().equals("DOWN")){
-                        try {
-                            String subversionNumber = switchParameters.getSubversionNumber();
-                            if (subversionNumber!=null){
-                                subversionNumber = "、"+subversionNumber;
-                            }
-                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:错误包功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
-                            PathHelper.writeDataToFileByName(
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n"
-                                    , "错误包");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+
+
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
                         }
+
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "错误包",
+                                "系统信息:" +
+                                        "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:错误包功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
+
+
                         errorRate.setLink("UP");
                     }
 
@@ -435,23 +394,17 @@ public class ErrorPackage {
                     errorRate.setId(primaryErrorRate.getId());
                     /*判断数据库数据是否为 断开状态*/
                     if ( primaryErrorRate.getLink().equals("DOWN")){
-                        try {
-                            String subversionNumber = switchParameters.getSubversionNumber();
-                            if (subversionNumber!=null){
-                                subversionNumber = "、"+subversionNumber;
-                            }
-                            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:错误包功能端口号:"+ port + "恢复连接\r\n");
-                            PathHelper.writeDataToFileByName(
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                            "问题为:光衰功能端口号:"+ port + "恢复连接\r\n"
-                                    , "错误包");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
                         }
+
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "错误包",
+                                "系统信息:" +
+                                        "IP地址为:"+switchParameters.getIp()+","+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        "问题为:错误包功能端口号:"+ port + "恢复连接\r\n");
+
                         errorRate.setLink("UP");
                     }
                     int i = errorRateService.updateErrorRate(errorRate);
@@ -580,23 +533,18 @@ public class ErrorPackage {
             returnResults = MyUtils.trimString(returnResults);
 
             if (returnResults == null){
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能"+port+"端口获取错误包参数命令错误,请重新定义\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:错误包功能"+port+"端口获取错误包参数命令错误,请重新定义\r\n"
-                            , "问题日志");
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
                 }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        "异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:错误包功能"+port+"端口获取错误包参数命令错误,请重新定义\r\n");
+
                 continue;
             }
 
@@ -611,23 +559,16 @@ public class ErrorPackage {
 
             if (MyUtils.isCollectionEmpty(valueList)){
                 /*  端口未获取到误码率 */
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能"+port+"端口未获取到错误包\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:错误包功能"+port+"端口未获取到错误包\r\n"
-                            , "问题日志");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
                 }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        "异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:错误包功能"+port+"端口未获取到错误包\r\n");
                 continue;
             }else {
                 hashMap.put(port,valueList);
@@ -779,23 +720,16 @@ public class ErrorPackage {
                 stringList.add(key + ":" +hashMap.get(key));
             }else {
                 /*  端口未获取到错误包 */
-                try {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能"+port+"端口,"+key+"参数取参失败\r\n");
-                    PathHelper.writeDataToFileByName(
-                            "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:错误包功能"+port+"端口,"+key+"参数取参失败\r\n"
-                            , "问题日志");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
                 }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        "异常:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:错误包功能"+port+"端口,"+key+"参数取参失败\r\n");
             }
         }
 
@@ -816,23 +750,17 @@ public class ErrorPackage {
         /*查询误码率关键词 如果返回为 null 则提示前端*/
         if (deviceVersion == null){
             /* 误码率功能未获取到配置文件关键词 */
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:错误包功能未获取到配置文件关键词\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能未获取到配置文件关键词\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:错误包功能未获取到配置文件关键词\r\n");
+
             return new HashMap<>();
         }
 
@@ -870,23 +798,17 @@ public class ErrorPackage {
         /*误码率功能未获取到品牌大类的关键词 提示前端*/
         if (deviceVersion == null){
             /* 误码率功能未获取到配置文件关键词 */
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:错误包功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
-                PathHelper.writeDataToFileByName(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能未获取到品牌为:"+brand+"配置文件关键词\r\n"
-                        , "问题日志");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:错误包功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
+
             return new HashMap<>();
         }
         keys = deviceVersion.keySet();

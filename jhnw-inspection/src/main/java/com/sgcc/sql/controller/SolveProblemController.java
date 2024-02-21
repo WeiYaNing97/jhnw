@@ -8,6 +8,7 @@ import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.*;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchInformationService;
 import com.sgcc.share.service.ISwitchScanResultService;
@@ -230,19 +231,15 @@ public class SolveProblemController {
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
-                    try {
-                        PathHelper.writeDataToFileByName(switchParameters.getIp()+"风险:"+loginErrorString+"\r\n","交换机连接");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"交换机连接",
+                            "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
-            try {
-                PathHelper.writeDataToFileByName("风险:"+switchParameters.getIp() + "交换机连接失败\r\n","交换机连接");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+
+            AbnormalAlarmInformationMethod.afferent(null,"交换机连接",
+                    "风险:"+switchParameters.getIp() + "交换机连接失败\r\n");
+
             return AjaxResult.error("交换机连接失败");
         }
 

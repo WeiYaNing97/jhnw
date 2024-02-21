@@ -144,8 +144,9 @@ public class MyUtils {
         return downloadPath;
     }
 
+    /*Inspection Completed*/
     /**
-     * 文章字段 换行夫 规范成\r\n
+     * 文章字段 换行符 由"\r"  "\n"  "\r\n" 规范成 "\r\n"   并且 连续多空格转化为单空格
      * @param article
      * @return
      */
@@ -153,13 +154,16 @@ public class MyUtils {
         //String lineSeparator = System.lineSeparator(); // 获取当前操作系统的换行符
         // 读取文章并按行存入数组
         String[] lines = article.split("\\r?\\n|\\r"); // 使用正则表达式按照任意一种换行符进行分割
+
         /*repaceWhiteSapce*/
         /*for (int num=0;num<lines.length;num++){
             lines[num] = repaceWhiteSapce(lines[num]);
         }*/
+
         /*字符串数组以\r\n拼接成字符串*/
         for (int num = 0 ;num<lines.length;num++){
 
+            /*  为了保存 ^对应命令的位置 因此不能够进行 多空格转变为单空格  */
             if (lines[num].indexOf("^")!=-1 && lines[num].indexOf("^down") ==-1){
                 continue;
             }
@@ -234,6 +238,7 @@ public class MyUtils {
 
     }
 
+    /*Inspection Completed*/
     /**
     * @Description 多个连续空格 改为 多个单空格
     * @author charles

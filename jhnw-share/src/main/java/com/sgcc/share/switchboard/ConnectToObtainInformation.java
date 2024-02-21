@@ -7,6 +7,7 @@ import com.sgcc.share.connectutil.SshConnect;
 import com.sgcc.share.connectutil.TelnetComponent;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.domain.Information;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.method.SshMethod;
 import com.sgcc.share.method.TelnetSwitchMethod;
 import com.sgcc.share.parametric.SwitchParameters;
@@ -58,15 +59,11 @@ public class ConnectToObtainInformation {
             if (loginError != null){
                 for (int number = 1;number<loginError.size();number++){
 
-                    /*告警、异常信息写入*/
-                    String loginErrorString = loginError.get(number);
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:"+switchParameters.getIp()+loginErrorString+"\r\n");
-                    try {
-                        PathHelper.writeDataToFileByName(switchParameters.getIp()+"异常:"+loginErrorString+"\r\n","交换机连接");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
 
+                    String loginErrorString = loginError.get(number);
+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),
+                            "交换机连接","异常:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
 
@@ -379,20 +376,12 @@ public class ConnectToObtainInformation {
                 hashMap.put("banben", removeSpecialSymbols(hashMap.get("banben")) );
                 hashMap.put("zibanben", removeSpecialSymbols(hashMap.get("zibanben")) );
 
-                try {
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"系统信息:"+switchParameters.getIp() +"基本信息："+
+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"基本信息","系统信息:"+switchParameters.getIp() +"基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
                             "子版本号："+hashMap.get("zibanben")+"\r\n");
-                    PathHelper.writeDataToFileByName("系统信息:"+switchParameters.getIp()+"获取基本信息成功："+
-                            "设备品牌："+hashMap.get("pinpai")+
-                            "设备型号："+hashMap.get("xinghao")+
-                            "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
                 switchParameters.setDeviceBrand(hashMap.get("pinpai"));
                 switchParameters.setDeviceModel(hashMap.get("xinghao"));
@@ -402,20 +391,11 @@ public class ConnectToObtainInformation {
 
             }else {
 
-                try {
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"异常:"+switchParameters.getIp() +"基本信息："+
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"基本信息","异常:"+switchParameters.getIp() +"基本信息："+
                             "设备品牌："+hashMap.get("pinpai")+
                             "设备型号："+hashMap.get("xinghao")+
                             "内部固件版本："+hashMap.get("banben")+
                             "子版本号："+hashMap.get("zibanben")+"\r\n");
-                    PathHelper.writeDataToFileByName("系统信息:"+ switchParameters.getIp() +"获取基本信息失败："+
-                            "设备品牌："+hashMap.get("pinpai")+
-                            "设备型号："+hashMap.get("xinghao")+
-                            "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n","基本信息");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
 
             }
         }

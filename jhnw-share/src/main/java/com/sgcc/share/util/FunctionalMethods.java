@@ -84,26 +84,31 @@ public class FunctionalMethods {
      * @return: boolean  判断命令是否故障 故障为false 正常为true
      */
     public static boolean switchfailure(SwitchParameters switchParameters, String switchInformation){
+
         SwitchFailure switchFailure = new SwitchFailure();
+
         switchFailure.setBrand(switchParameters.getDeviceBrand());
         switchFailure.setSwitchType(switchParameters.getDeviceModel());
         switchFailure.setFirewareVersion(switchParameters.getFirmwareVersion());
         switchFailure.setSubVersion(switchParameters.getSubversionNumber());
+
         SwitchFailureController switchFailureController = new SwitchFailureController();
         List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureListByPojo(switchFailure);
+
         for (SwitchFailure pojo:switchFailures){
             //包含 返回 false
             if (switchInformation.indexOf(pojo.getFailureKeyword()) !=-1){
                 return false;
             }
         }
+
         return true;
     }
 
     /**
      * 比较
-     * @param switchParameters
-     * @param compare
+     * @param switchParameters 交换机登录信息
+     * @param compare  分析表数据 比较关键词
      * @param current_Round_Extraction_String
      * @return
      */
@@ -114,6 +119,7 @@ public class FunctionalMethods {
         String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
         String[] current_Round_Extraction_split = current_Round_Extraction_String.split(customDelimiter);
+
         Map<String,String> value_String = new HashMap<>();
         if(!(current_Round_Extraction_String.equals(""))){
             for (int number = 0 ; number<current_Round_Extraction_split.length ; number = number +3){
@@ -147,11 +153,14 @@ public class FunctionalMethods {
         String getComparisonNumber = compare;
         getComparisonNumber = getComparisonNumber.replace(parameter[0],":");//参数一 替换 ：
         getComparisonNumber = getComparisonNumber.replace(parameter[1],":");//参数二 替换 ：
+
         if (parameter.length == 3){//如果参数数组长度为3 则有三个参数
             getComparisonNumber = getComparisonNumber.replace(parameter[2],":");//参数三 替换 ：
         }
+
         //假设有三个参数 ： 5.20.98<5.20.99<5.20.100 替换 “:”后 ： :<:<:  截取后 去掉了前后 得到： <:<
         getComparisonNumber = getComparisonNumber.substring(1,getComparisonNumber.length()-1);
+
         //comparisonNumber 得到 [<,<]
         String[] comparisonNumber = getComparisonNumber.split(":");
 
@@ -318,11 +327,11 @@ public class FunctionalMethods {
         return false;
     }
 
-    /**
+    /** todo Inspection Completed
      * 取词操作  按位置取词
      * @param returnString  交换机返回信息行信息
      * @param matchContent 关键词
-     * @param relativePosition_line
+     * @param relativePosition_line  相对位置行
      * @param integer 位置
      * @param length 取词数量及取词类型
      * @return
@@ -330,25 +339,33 @@ public class FunctionalMethods {
     public static String wordSelection(String returnString,String matchContent,String relativePosition_line,int integer,String length){
         // 获取 W单词、L字母、S字符串
         String substring = length.substring(length.length() - 1, length.length());//取词类型
+
         //获取取值长度
         int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();//取词长度
+
         //预设返回值
         String return_string = "";
         /*交换机返回结果 获取到的时候 就已经修改了*/
         //returnString = MyUtils.repaceWhiteSapce(returnString); // 连续空格改为 1 个空格
+
         switch (substring){
+
             // 取词和取字符串
             case "w"://单词
             case "W"://单词
+
             case "s"://字符串
             case "S"://字符串
+
                 //以matchContent 为参照  获取位置 因为后期转化为数组，关键词为 [0]
                 String get_word = "";
-                String returnString_trim = returnString.trim(); //交换机返回 信息 去除 前后空格
-                String[] split_String = returnString_trim.split(" ");
+                //String returnString_trim = returnString.trim(); //交换机返回 信息 去除 前后空格
+                String[] split_String = returnString.trim().split(" ");
+
                 if (!(relativePosition_line.equals("0"))){
                     matchContent = "";
                 }
+
                 if (!(matchContent.equals(""))){
                     int num = 0;
                     for ( ; num <split_String.length ; num++){
@@ -360,10 +377,12 @@ public class FunctionalMethods {
                 }else if (matchContent.equals("")){
                     integer = integer - 1 ;
                 }
+
                 //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度  6
                 if ((split_String.length - word_length)  <  integer || integer < 0){
                     return null;
                 }
+
                 //取词位置
                 int number = integer;
                 for (int num = 0;num<word_length;num++){
@@ -377,9 +396,12 @@ public class FunctionalMethods {
                     return null;
                 }
 
+
                 //取字母
             case "l":
             case "L":
+
+
                 String split = returnString.split(matchContent)[0];
                 Integer splitInteger =split.length();
                 int start = integer + splitInteger;
@@ -393,60 +415,11 @@ public class FunctionalMethods {
                     return null;
                 }
         }
+
         return null;
+
     }
 
-    /**
-     * @method: 匹配方法
-     *
-     * @Param:
-     *
-     * matched : 精确匹配    取词方式
-     * information_line_n：交换机返回信息行
-     * matchContent：数据库 关键词
-     * @return: boolean
-     */
-    public static boolean matchAnalysis(String matchType,String returnString,String matchString){
-
-        switch(matchType){
-            case "精确匹配" :
-
-                if ((" "+returnString+" ").indexOf(" "+matchString+" ") != -1){
-                    return true;
-                }else {
-                    return false;
-                }
-
-                /*//先模糊匹配 看是否存在
-                int indexPosition = returnString.indexOf(matchString);
-                if (indexPosition!=-1){//模糊匹配 存在
-                    if ((" "+returnString+" ").indexOf(" "+matchString+" ") != -1){
-                        return true;
-                    }else {
-                        return false;
-                    }
-                }else {
-                    return false;
-                }*/
-
-            case "模糊匹配" :
-                if (returnString.indexOf(matchString)!=-1){
-                    return true;
-                }else {
-                    return false;
-                }
-
-            case "不存在" :
-                if (returnString.indexOf(matchString)!=-1){
-                    return false;
-                }else {
-                    return true;
-                }
-
-            default :
-                return false;
-        }
-    }
 
     /**
      获取精确到毫秒的时间戳

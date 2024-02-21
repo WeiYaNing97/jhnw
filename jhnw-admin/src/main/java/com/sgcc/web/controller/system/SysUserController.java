@@ -85,18 +85,12 @@ public class SysUserController extends BaseController
     @PostMapping("/importData")
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
     {
-
-        TimedTaskRetrievalFile.LocalFileImportProjectAddress(file);
-       /* ExcelUtil<SwitchLoginInformation> util = new ExcelUtil<SwitchLoginInformation>(SwitchLoginInformation.class);
-        List<SwitchLoginInformation> userList = util.importExcel(file.getInputStream());*/
-
-        return null;
-        /*ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
+        ExcelUtil<SysUser> util = new ExcelUtil<SysUser>(SysUser.class);
         List<SysUser> userList = util.importExcel(file.getInputStream());
 
         String operName = getUsername();
         String message = userService.importUser(userList, updateSupport, operName);
-        return AjaxResult.success(message);*/
+        return AjaxResult.success(message);
     }
 
     @GetMapping("/importTemplate")
