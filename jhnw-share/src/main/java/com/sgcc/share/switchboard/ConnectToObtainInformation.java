@@ -128,12 +128,7 @@ public class ConnectToObtainInformation {
                     /*告警、异常信息写入*/
                     /*连接失败的原因*/
                     String sshVersion = (String) objects.get(objects.size()-1);
-                    WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"风险:"+"ip:"+ sshVersion+"\r\n");
-                    try {
-                        PathHelper.writeDataToFile("风险:"+"ip:"+ sshVersion+"\r\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"风险:"+"ip:"+ sshVersion+"\r\n");
 
                 }
 

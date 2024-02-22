@@ -11,6 +11,7 @@ import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.domain.Information;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.service.IInformationService;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.PathHelper;
@@ -244,14 +245,8 @@ public class TotalQuestionTableController extends BaseController
 
         if (totalQuestionTables.size() != 0){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"交换机问题已存在\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("风险："+"交换机问题已存在\r\n"
-                        +"方法com.sgcc.web.controller.sql.total_question_table.add");
-            } catch ( IOException e) {
-                e.printStackTrace();
-            }
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"交换机问题已存在\r\n");
+
             return  AjaxResult.error("问题已存在");
         }
 
@@ -270,13 +265,8 @@ public class TotalQuestionTableController extends BaseController
         }catch (Exception e){
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
                 //传输登陆人姓名 及问题简述
-                WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"SQL唯一约束异常,问题已存在\r\n");
-                try {
-                    //插入问题简述及问题路径
-                    PathHelper.writeDataToFile("风险："+"SQL唯一约束异常,问题已存在\r\n");
-                } catch ( IOException e1) {
-                    e1.printStackTrace();
-                }
+                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"SQL唯一约束异常,问题已存在\r\n");
+
                 //返回成功
                 return  AjaxResult.error("SQL唯一约束异常,问题已存在");
             }

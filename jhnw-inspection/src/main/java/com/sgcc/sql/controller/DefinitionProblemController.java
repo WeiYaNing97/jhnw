@@ -8,6 +8,7 @@ import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
@@ -78,14 +79,8 @@ public class DefinitionProblemController extends BaseController {
         //当i<=0时插入失败
         if (i<=0){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"获取交换机基本信息命令插入失败\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+"获取交换机基本信息命令插入失败\r\n"
-                        +"方法com.sgcc.web.controller.sql.DefinitionProblemController.insertInformationAnalysis");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,
+                    "错误："+"获取交换机基本信息命令插入失败\r\n");
             return false;
         }
 
@@ -102,13 +97,9 @@ public class DefinitionProblemController extends BaseController {
     public boolean insertInformationAnalysisMethod(LoginUser loginUser,@RequestBody List<String> jsonPojoList,Long basicInformationId){//@RequestBody List<String> jsonPojoList
         if (jsonPojoList.size() == 0){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"获取交换机基本信息分析数据非法为空\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+"获取交换机基本信息分析数据非法为空\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误："+"获取交换机基本信息分析数据非法为空\r\n");
+
         }
 
         System.err.println("定义获取基本信息分析数据插入\r\n");
@@ -181,13 +172,10 @@ public class DefinitionProblemController extends BaseController {
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
             if (i<=0){
-                WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"获取交换机基本信息分析数据插入失败\r\n");
-                try {
-                    PathHelper.writeDataToFile("错误："+"获取交换机基本信息分析数据插入失败\r\n"
-                            +"方法com.sgcc.web.controller.sql.DefinitionProblemController.insertInformationAnalysisMethod");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,
+                        "错误："+"获取交换机基本信息分析数据插入失败\r\n");
+
                 return false;
             }
         }
@@ -205,12 +193,9 @@ public class DefinitionProblemController extends BaseController {
         basicInformation.setProblemId(problemScanLogic.getId());
         int i = basicInformationService.updateBasicInformation(basicInformation);
         if (i<=0){
-            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"获取交换机基本信息命令的ProblemId字段失败\r\n");
-            try {
-                PathHelper.writeDataToFile("错误："+"获取交换机基本信息命令的ProblemId字段失败\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误："+"获取交换机基本信息命令的ProblemId字段失败\r\n");
+
             return false;
         }
 
@@ -246,13 +231,9 @@ public class DefinitionProblemController extends BaseController {
         // /*判断问题分析逻辑是否为空*/
        if (jsonPojoList.size() == 0){
            //传输登陆人姓名 及问题简述
-           WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"扫描分析数据非法为空\r\n");
-           try {
-               //插入问题简述及问题路径
-               PathHelper.writeDataToFile("错误："+"扫描分析数据非法为空\r\n");
-           } catch (IOException e) {
-               e.printStackTrace();
-           }
+
+           AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误："+"扫描分析数据非法为空\r\n");
+
            return false;
        }
 
@@ -658,23 +639,15 @@ public class DefinitionProblemController extends BaseController {
                     return true;
                 }else {
                     //传输登陆人姓名 及问题简述
-                    WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"扫描交换机问题表数据删除失败\r\n");
-                    try {
-                        //插入问题简述及问题路径
-                        PathHelper.writeDataToFile("风险："+"扫描交换机问题表数据删除失败\r\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
+                    AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,
+                            "风险："+"扫描交换机问题表数据删除失败\r\n");
                 }
             }else {
                 //传输登陆人姓名 及问题简述
-                WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"扫描交换机问题分析逻辑删除失败\r\n");
-                try {
-                    //插入问题简述及问题路径
-                    PathHelper.writeDataToFile("风险："+"扫描交换机问题分析逻辑删除失败\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"扫描交换机问题分析逻辑删除失败\r\n");
+
             }
         } else if (deleteCommandLogicByIds >0  && problemScanLogicId.length == 0){
             /*只有 存在命令 没有分析*/
@@ -685,26 +658,14 @@ public class DefinitionProblemController extends BaseController {
                 return true;
             }else {
                 //传输登陆人姓名 及问题简述
-                WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"扫描交换机问题表数据删除失败\r\n");
-                try {
-                    //插入问题简述及问题路径
-                    PathHelper.writeDataToFile("风险："+"扫描交换机问题表数据删除失败\r\n"
-                            +"方法com.sgcc.web.controller.sql.DefinitionProblemController.deleteScanningLogic");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"扫描交换机问题表数据删除失败\r\n");
+
             }
         } else {
             //deleteCommandLogicByIds < 0
-            //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"扫描交换机问题命令删除失败\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("风险："+"扫描交换机问题命令删除失败\r\n"
-                        +"方法com.sgcc.web.controller.sql.DefinitionProblemController.deleteScanningLogic");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"扫描交换机问题命令删除失败\r\n");
         }
 
         return false;
@@ -751,13 +712,9 @@ public class DefinitionProblemController extends BaseController {
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
                 if (problemScanLogic ==null){
                     //传输登陆人姓名 及问题简述
-                    WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"根据ID："+id+"查询分析表数据失败,未查出对应ID数据\r\n");
-                    try {
-                        //插入问题简述及问题路径
-                        PathHelper.writeDataToFile("错误："+"根据ID："+id+"查询分析表数据失败,未查出对应ID数据\r\n");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,
+                            "错误："+"根据ID："+id+"查询分析表数据失败,未查出对应ID数据\r\n");
+
                     /* 返回空集合 */
                     return new ArrayList<>();
                 }
@@ -930,13 +887,8 @@ public class DefinitionProblemController extends BaseController {
             e.printStackTrace();
         } catch (TimeoutException e) {
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"回显获取交换机基本信息逻辑数据超时\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("风险："+"回显获取交换机基本信息逻辑数据超时\r\n");
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"回显获取交换机基本信息逻辑数据超时\r\n");
+
             return AjaxResult.error("查询超时");
         }finally{
             future.cancel(true);
@@ -1010,13 +962,8 @@ public class DefinitionProblemController extends BaseController {
         String problemId = null ;
         if (basicInformation.getProblemId() == null){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"获取交换机基本信息分析逻辑未定义\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("风险："+"获取交换机基本信息分析逻辑未定义\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"获取交换机基本信息分析逻辑未定义\r\n");
+
             return false;
         }else {
             problemId = basicInformation.getProblemId();
@@ -1028,13 +975,7 @@ public class DefinitionProblemController extends BaseController {
         List<ProblemScanLogic> problemScanLogicList = definitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
         if (problemScanLogicList.size() ==0 ){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"获取交换机基本信息分析逻辑为空\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("风险："+"获取交换机基本信息分析逻辑为空\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"获取交换机基本信息分析逻辑为空\r\n");
             return false;
         }
 
@@ -1044,26 +985,16 @@ public class DefinitionProblemController extends BaseController {
         int i = problemScanLogicService.deleteProblemScanLogicByIds(arr);
         if (i<=0){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"获取交换机基本信息分析逻辑删除失败\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("风险："+"获取交换机基本信息分析逻辑删除失败\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"获取交换机基本信息分析逻辑删除失败\r\n");
 
             return false;
         }else {
             int j = basicInformationService.deleteBasicInformationById(id);
             if (j<=0){
                 //传输登陆人姓名 及问题简述
-                WebSocketService.sendMessage(loginUser.getUsername(),"风险："+"获取交换机基本信息命令删除失败\r\n");
-                try {
-                    //插入问题简述及问题路径
-                    PathHelper.writeDataToFile("风险："+"获取交换机基本信息命令删除失败\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险："+"获取交换机基本信息命令删除失败\r\n");
+
                 return false;
             }
             return true;

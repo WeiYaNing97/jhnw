@@ -9,6 +9,7 @@ import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.connectutil.SpringBeanUtil;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.CommandLogic;
 import com.sgcc.sql.domain.TotalQuestionTable;
@@ -130,13 +131,9 @@ public class CommandLogicController extends BaseController
         /*如果 修复命令集合为空  或者  交换机问题ID为0L 则 返回 false失败*/
         if (commandLogicList.size() == 0 || totalQuestionTableId == 0L){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"定义修复交换机问题逻辑数据为空\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+"定义修复交换机问题逻辑数据为空\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误："+"定义修复交换机问题逻辑数据为空\r\n");
+
             return false;
         }
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -152,13 +149,9 @@ public class CommandLogicController extends BaseController
             int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
             if (i<=0){
                 //传输登陆人姓名 及问题简述
-                WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"修复交换机问题命令插入失败\r\n");
-                try {
-                    //插入问题简述及问题路径
-                    PathHelper.writeDataToFile("错误："+"修复交换机问题命令插入失败\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误："+"修复交换机问题命令插入失败\r\n");
+
                 return false;
             }
             if (number == 0){
@@ -168,13 +161,9 @@ public class CommandLogicController extends BaseController
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
         if (i<=0){
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(loginUser.getUsername(),"错误："+"交换机问题实体类修复问题ID修改失败\r\n");
-            try {
-                //插入问题简述及问题路径
-                PathHelper.writeDataToFile("错误："+"交换机问题实体类修复问题ID修改失败\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误："+"交换机问题实体类修复问题ID修改失败\r\n");
+
             return false;
         }
         return true;

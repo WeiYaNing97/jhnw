@@ -160,9 +160,7 @@ public class WebSocketService {
     public static ConcurrentHashMap<String, WebSocketClient> getWebSocketMap() {
         return webSocketMap;
     }
-    public static void setWebSocketMap(ConcurrentHashMap<String, WebSocketClient> webSocketMap) {
-        WebSocketService.webSocketMap = webSocketMap;
-    }
+    public static void setWebSocketMap(ConcurrentHashMap<String, WebSocketClient> webSocketMap) {WebSocketService.webSocketMap = webSocketMap;}
     public Session getSession() {
         return session;
     }

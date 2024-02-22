@@ -33,7 +33,6 @@ public class ExecuteCommand {
     */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public String executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
-
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
 
@@ -57,21 +56,13 @@ public class ExecuteCommand {
         boolean deviceBrand = true;
 
         do {
-
             deviceBrand = true;
 
             /* ssh连接 通过SSH方法 执行命令 获得交换机返回结果 ：command_string*/
             if (switchParameters.getMode().equalsIgnoreCase("ssh")) {
 
                 /*当交换机连接协议为 SSH时*/
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(), switchParameters.getIp()+"发送:" + command+"\r\n");
-                try {
-                    PathHelper.writeDataToFile(switchParameters.getIp()+"发送:" + command+"\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null, switchParameters.getIp()+"发送:" + command+"\r\n");
 
                 /** 超时 */
                 /* 交换机返回信息*/
@@ -121,14 +112,7 @@ public class ExecuteCommand {
             else if (switchParameters.getMode().equalsIgnoreCase("telnet")) {
 
                 /* telnet连接 通过 telnet方法 执行命令*/
-
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(), switchParameters.getIp()+"发送:" + command+"\r\n");
-                try {
-                    PathHelper.writeDataToFile(switchParameters.getIp()+"发送:" + command+"\r\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null, switchParameters.getIp()+"发送:" + command+"\r\n");
 
                 /**  超时 */
                 /* 交换机返回信息*/
@@ -255,26 +239,22 @@ public class ExecuteCommand {
             }
             returnRecord.setCurrentReturnLog(current_return_log);
             // todo  交换机返回日志的前端回显
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
-            try {
-                PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
+
         }
         //按行切割最后一位应该是 标识符
         String current_identifier = LineInformation[LineInformation.length-1].trim();
         returnRecord.setCurrentIdentifier(current_identifier);
         // todo  交换机返回标识符的前端回显
-        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
-        try {
-            PathHelper.writeDataToFile(switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
+
+
         //返回信息表，返回插入条数
         returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);
         returnRecordService.updateReturnRecord(returnRecord);
+
         //粗略判断命令是否错误 错误为false 正确为true
         if (!(FunctionalMethods.judgmentError( switchParameters,command_string))){
             /*字段按行分割为 行信息数组 LineInformation*/
@@ -293,12 +273,13 @@ public class ExecuteCommand {
                             "问题为:返回结果异常\r\n"+
                             "命令:"+command+
                             "异常信息:"+command_string+"\r\n");
-
-
                     return null;
+
                 }
             }
         }
+
         return command_string;
     }
+
 }

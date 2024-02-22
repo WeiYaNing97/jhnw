@@ -1,6 +1,7 @@
 package com.sgcc.sql.util;
 
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
@@ -68,23 +69,15 @@ public class ScanLogicMethods {
 
             /**匹配成功*/
             /* 告警、异常信息写入 */
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+"、"+matched+matchContent+"成功\r\n");
-                PathHelper.writeDataToFile(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+"、"+matched+matchContent+"成功\r\n"
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                    "TrueAndFalse:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+"、"+matched+matchContent+"成功\r\n");
 
 
             /**扫描分析成功逻辑*/
@@ -109,25 +102,16 @@ public class ScanLogicMethods {
                 return "continue";
             }
 
-            /* 告警、异常信息写入 */
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                        "、"+matched+matchContent+"失败\r\n");
-                PathHelper.writeDataToFile(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                                "、"+matched+matchContent+"失败\r\n");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                    "TrueAndFalse:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
+                            "、"+matched+matchContent+"失败\r\n");
 
             /*失败逻辑*/
             ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
@@ -264,54 +248,33 @@ public class ScanLogicMethods {
                 return "continue";
             }
 
-            /* 告警、异常信息写入 */
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                        "、取词"+problemScanLogic.getWordName()+"失败\r\n");
-                PathHelper.writeDataToFile(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                                "、取词"+problemScanLogic.getWordName()+"失败\r\n"
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                    "TrueAndFalse:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
+                            "、取词"+problemScanLogic.getWordName()+"失败\r\n");
 
             return "取词失败!";
 
         }
 
-
-
-        try {
-
-            /* 告警、异常信息写入 */
-            String subversionNumber = switchParameters.getSubversionNumber();
-            if (subversionNumber!=null){
-                subversionNumber = "、"+subversionNumber;
-            }
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:" +
-                    "IP地址为:"+switchParameters.getIp()+","+
-                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                    "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                    "、取词"+problemScanLogic.getWordName()+"成功\r\n");
-            PathHelper.writeDataToFile(
-                    "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                            "、取词"+problemScanLogic.getWordName()+"成功\r\n"
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
+        String subversionNumber = switchParameters.getSubversionNumber();
+        if (subversionNumber!=null){
+            subversionNumber = "、"+subversionNumber;
         }
+        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                "TrueAndFalse:" +
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
+                        "、取词"+problemScanLogic.getWordName()+"成功\r\n");
+
+
 
         /*判断 字符串 最后一位 是否为 . 或者 ,  去掉*/
         wordSelection_string = FunctionalMethods.judgeResultWordSelection(wordSelection_string);
@@ -373,48 +336,29 @@ public class ScanLogicMethods {
 
         if (compare_boolean){
 
-            /* 告警、异常信息写入 */
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                        "、比较"+problemScanLogic.getCompare()+"成功\r\n");
-                PathHelper.writeDataToFile(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                                "、比较"+problemScanLogic.getCompare()+"成功\r\n"
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"TrueAndFalse:" +
+                    "IP地址为:"+switchParameters.getIp()+","+
+                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                    "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
+                    "、比较"+problemScanLogic.getCompare()+"成功\r\n");
+
+
         }else {
 
-            /* 告警、异常信息写入 */
-            try {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"TrueAndFalse:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                        "、比较"+problemScanLogic.getCompare()+"失败\r\n");
-                PathHelper.writeDataToFile(
-                        "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
-                                "、比较"+problemScanLogic.getCompare()+"失败\r\n"
-                );
-            } catch (IOException e) {
-                e.printStackTrace();
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
             }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"TrueAndFalse:" +
+                    "IP地址为:"+switchParameters.getIp()+","+
+                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                    "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
+                    "、比较"+problemScanLogic.getCompare()+"失败\r\n");
+
         }
 
 

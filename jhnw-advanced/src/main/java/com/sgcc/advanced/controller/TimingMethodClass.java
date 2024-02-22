@@ -5,6 +5,7 @@ import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.share.domain.SwitchLoginInformation;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.MyUtils;
@@ -92,12 +93,8 @@ public class TimingMethodClass {
         }
 
         System.err.println("扫描结束");
-        WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
-        try {
-            PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        AbnormalAlarmInformationMethod.afferent(parameterSet.getLoginUser().getUsername(),null,"接收："+"扫描结束\r\n");
 
         /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));
