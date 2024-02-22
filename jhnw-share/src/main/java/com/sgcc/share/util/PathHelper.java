@@ -70,7 +70,7 @@ public class PathHelper {
      * @param str
      * @throws IOException
      */
-    public static void writeDataToFileByName(String str,String name) throws IOException {
+    public static void writeDataToFileByName(String name,String str) throws IOException {
         String logPresent = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
         logPresent = "["+logPresent+"] ";
         str = logPresent + str ;
@@ -106,8 +106,10 @@ public class PathHelper {
             fw.write(str);
             fw.flush();
             fw.close();
+
         } catch (IOException e) {
             e.printStackTrace();
+
         }
     }
     /**
