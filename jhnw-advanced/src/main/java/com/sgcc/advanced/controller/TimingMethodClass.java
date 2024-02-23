@@ -94,7 +94,7 @@ public class TimingMethodClass {
 
         System.err.println("扫描结束");
 
-        AbnormalAlarmInformationMethod.afferent(parameterSet.getLoginUser().getUsername(),null,"接收："+"扫描结束\r\n");
+        AbnormalAlarmInformationMethod.afferent(parameterSet.getLoginUser().getUsername(),null,"接收:"+"扫描结束\r\n");
 
         /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));

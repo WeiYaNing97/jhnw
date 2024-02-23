@@ -16,6 +16,7 @@ public class AbnormalAlarmInformationMethod {
     public static void afferent(String name,String categories,String information) {
 
         if (name != null && categories != null){
+
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(name,information);
             try {
@@ -26,6 +27,7 @@ public class AbnormalAlarmInformationMethod {
             }
 
         }else if (name != null && categories == null){
+
             //传输登陆人姓名 及问题简述
             WebSocketService.sendMessage(name,information);
             try {
@@ -34,21 +36,29 @@ public class AbnormalAlarmInformationMethod {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }else if (name == null && categories != null){
+
             try {
                 //插入问题简述及问题路径
                 PathHelper.writeDataToFileByName(categories,information);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }else if (name == null && categories == null){
+
             try {
                 //插入问题简述及问题路径
                 PathHelper.writeDataToFile(information);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         }
+
+
+
     }
 
 }

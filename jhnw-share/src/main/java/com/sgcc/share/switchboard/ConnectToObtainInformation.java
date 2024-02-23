@@ -372,11 +372,12 @@ public class ConnectToObtainInformation {
                 hashMap.put("zibanben", removeSpecialSymbols(hashMap.get("zibanben")) );
 
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"基本信息","系统信息:"+switchParameters.getIp() +"基本信息："+
-                            "设备品牌："+hashMap.get("pinpai")+
-                            "设备型号："+hashMap.get("xinghao")+
-                            "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"基本信息",
+                            "系统信息:"+switchParameters.getIp() +"基本信息:"+
+                            "设备品牌:"+hashMap.get("pinpai")+
+                            "设备型号:"+hashMap.get("xinghao")+
+                            "内部固件版本:"+hashMap.get("banben")+
+                            "子版本号:"+hashMap.get("zibanben")+"\r\n");
 
                 switchParameters.setDeviceBrand(hashMap.get("pinpai"));
                 switchParameters.setDeviceModel(hashMap.get("xinghao"));
@@ -386,11 +387,12 @@ public class ConnectToObtainInformation {
 
             }else {
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"基本信息","异常:"+switchParameters.getIp() +"基本信息："+
-                            "设备品牌："+hashMap.get("pinpai")+
-                            "设备型号："+hashMap.get("xinghao")+
-                            "内部固件版本："+hashMap.get("banben")+
-                            "子版本号："+hashMap.get("zibanben")+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"基本信息",
+                            "异常:"+switchParameters.getIp() +"基本信息:"+
+                            "设备品牌:"+hashMap.get("pinpai")+
+                            "设备型号:"+hashMap.get("xinghao")+
+                            "内部固件版本:"+hashMap.get("banben")+
+                            "子版本号:"+hashMap.get("zibanben")+"\r\n");
 
             }
         }

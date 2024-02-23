@@ -340,7 +340,8 @@ public class ScanLogicMethods {
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"TrueAndFalse:" +
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                    "TrueAndFalse:" +
                     "IP地址为:"+switchParameters.getIp()+","+
                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                     "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
@@ -353,7 +354,8 @@ public class ScanLogicMethods {
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"TrueAndFalse:" +
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                    "TrueAndFalse:" +
                     "IP地址为:"+switchParameters.getIp()+","+
                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                     "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+

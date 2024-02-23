@@ -176,7 +176,8 @@ public class LightAttenuationTest {
                         }
 
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                                "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:光衰功能光衰参数取词失败," +
@@ -252,7 +253,8 @@ public class LightAttenuationTest {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                                "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
@@ -277,7 +279,8 @@ public class LightAttenuationTest {
                         }
 
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                                "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +

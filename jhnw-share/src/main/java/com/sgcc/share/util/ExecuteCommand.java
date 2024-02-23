@@ -85,7 +85,8 @@ public class ExecuteCommand {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                            "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                             "问题为:命令："+ command+"未获取到交换机返回信息,ssh超时\r\n");
@@ -137,7 +138,8 @@ public class ExecuteCommand {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                            "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                             "问题为:命令："+ command+"未获取到交换机返回信息,telnet超时\r\n");
@@ -184,7 +186,8 @@ public class ExecuteCommand {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志","异常:" +
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                                "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:返回结果异常\r\n"+
