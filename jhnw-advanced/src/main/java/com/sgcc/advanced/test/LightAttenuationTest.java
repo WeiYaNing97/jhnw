@@ -176,7 +176,10 @@ public class LightAttenuationTest {
                         }
 
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                "问题日志",
                                 "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -253,7 +256,10 @@ public class LightAttenuationTest {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                "问题日志",
                                 "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -279,7 +285,10 @@ public class LightAttenuationTest {
                         }
 
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                "问题日志",
                                 "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+

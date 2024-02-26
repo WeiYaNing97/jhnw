@@ -115,17 +115,28 @@ public class SwitchInteraction {
         //如果返回为 交换机连接失败 则连接交换机失败
         /*交换机连接失败 前端显示连接失败原因 写入日志*/
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
+
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
+
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
 
                     String loginErrorString = loginError.get(number);
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"交换机连接",
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            "交换机连接",
                             "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
 
                 }
             }
-            AbnormalAlarmInformationMethod.afferent(null,"交换机连接","风险:"+ switchParameters.getIp() + "交换机连接失败\r\n");
+
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    null,
+                    "交换机连接",
+                    "风险:"+ switchParameters.getIp() + "交换机连接失败\r\n");
+
             return "交换机连接失败";
         }
 
@@ -187,11 +198,19 @@ public class SwitchInteraction {
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"交换机连接","风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            "交换机连接",
+                            "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
 
-            AbnormalAlarmInformationMethod.afferent(null,"交换机连接","风险:"+switchParameters.getIp() + "交换机连接失败\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "交换机连接",
+                    "风险:"+switchParameters.getIp() + "交换机连接失败\r\n");
         }
 
         return  "交换机连接失败";
@@ -273,9 +292,14 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-
-        AbnormalAlarmInformationMethod.afferent(parameterSet.getLoginUser().getUsername(),null,"接收:"+"扫描结束\r\n");
-
+        //传输登陆人姓名 及问题简述
+        WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
+        try {
+            //插入问题简述及问题路径
+            PathHelper.writeDataToFile("接收:"+"扫描结束\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return "扫描结束";
     }
@@ -335,7 +359,14 @@ public class SwitchInteraction {
 
         // todo 扫描结束 提示前端信息
 
-        AbnormalAlarmInformationMethod.afferent(parameterSet.getLoginUser().getUsername(),null,"接收:"+"扫描结束\r\n");
+        //传输登陆人姓名 及问题简述
+        WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:扫描结束\r\n");
+        try {
+            //插入问题简述及问题路径
+            PathHelper.writeDataToFile("接收:扫描结束\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
         String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));
@@ -377,11 +408,14 @@ public class SwitchInteraction {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:"+basicInformationList_ajaxResult.get("msg")+"\r\n");
+                            "IP地址为:"+switchParameters.getIp()+"。"+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                            "问题为:"+basicInformationList_ajaxResult.get("msg")+"。\r\n");
 
             return basicInformationList_ajaxResult;
         }
@@ -472,7 +506,11 @@ public class SwitchInteraction {
                 deviceBrand = true;
                 if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                     //  WebSocket 传输 命令
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"发送:"+command+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            switchParameters.getIp()+"发送:"+command+"\r\n");
 
                     // todo command
                     /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
@@ -488,7 +526,11 @@ public class SwitchInteraction {
                     //commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,switchParameters.getNotFinished());
                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                     //  WebSocket 传输 命令
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"发送:"+command);
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            switchParameters.getIp()+"发送:"+command);
 
                     commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,switchParameters.getNotFinished());
                 }
@@ -509,7 +551,11 @@ public class SwitchInteraction {
                         // 存在故障返回 false
                         if (!deviceBrand){
 
-                            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
+                            AbnormalAlarmInformationMethod.afferent(
+                                    switchParameters.getIp(),
+                                    switchParameters.getLoginUser().getUsername(),
+                                    null,
+                                    "故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
 
                             returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
                             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
@@ -536,7 +582,11 @@ public class SwitchInteraction {
                 if (insert_Int <= 0){
 
                     //传输登陆人姓名 及问题简述
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"错误:"+"交换机返回信息插入失败\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            "错误:交换机执行"+commandtrim+"命令返回信息插入失败\r\n");
 
                 }
 
@@ -565,7 +615,11 @@ public class SwitchInteraction {
                 }
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    null,
+                    switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
             //当前标识符 如：<H3C> [H3C]
             String current_identifier = commandString_split[commandString_split.length - 1].trim();
@@ -581,7 +635,11 @@ public class SwitchInteraction {
             }
 
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    null,
+                    switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
 
 
             //存储交换机返回数据 插入数据库
@@ -594,7 +652,10 @@ public class SwitchInteraction {
                 for (String string_split:returnString_split){
                     if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                null,
                                 "风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
 
                         break;
@@ -664,15 +725,30 @@ public class SwitchInteraction {
                     stringList.add(subversionNumber);
                     WebSocketService.sendMessage("basicinformation"+userName,stringList);*/
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"系统信息:"+switchParameters.getIp()+"基本信息："+ "设备品牌："+switchParameters.getDeviceBrand()+ "设备型号："+switchParameters.getDeviceModel()+ "内部固件版本："+switchParameters.getFirmwareVersion()+ "子版本号："+switchParameters.getSubversionNumber()+"\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    null,
+                    "系统信息:"+switchParameters.getIp()+
+                            "基本信息:设备品牌:"+switchParameters.getDeviceBrand()+
+                            "设备型号:"+switchParameters.getDeviceModel()+
+                            "内部固件版本:"+switchParameters.getFirmwareVersion()+
+                            "子版本号:"+switchParameters.getSubversionNumber()+"\r\n");
 
             return AjaxResult.success(switchParameters);
         }
 
 
 
-        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                "系统信息:"+switchParameters.getIp() +"基本信息："+ "设备品牌："+switchParameters.getDeviceBrand()+ "设备型号："+switchParameters.getDeviceModel()+ "内部固件版本："+switchParameters.getFirmwareVersion()+ "子版本号："+switchParameters.getSubversionNumber()+"\r\n");
+        AbnormalAlarmInformationMethod.afferent(
+                switchParameters.getIp(),
+                switchParameters.getLoginUser().getUsername(),
+                null,
+                "系统信息:"+switchParameters.getIp() +
+                        "基本信息:设备品牌:"+switchParameters.getDeviceBrand()+
+                        "设备型号:"+switchParameters.getDeviceModel()+
+                        "内部固件版本:"+switchParameters.getFirmwareVersion()+
+                        "子版本号:"+switchParameters.getSubversionNumber()+"\r\n");
 
 
 
@@ -742,7 +818,10 @@ public class SwitchInteraction {
                     deviceBrand = true;
                     if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                         //  WebSocket 传输 命令
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                null,
                                 switchParameters.getIp()+"发送:"+command+"\r\n");
 
                         // todo command
@@ -759,7 +838,10 @@ public class SwitchInteraction {
                         //commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,switchParameters.getNotFinished());
                     }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                         //  WebSocket 传输 命令
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                null,
                                 switchParameters.getIp()+"发送:"+command);
 
                         commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,switchParameters.getNotFinished());
@@ -782,7 +864,11 @@ public class SwitchInteraction {
                             if (!deviceBrand){
                                 loop = true;
 
-                                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
+                                AbnormalAlarmInformationMethod.afferent(
+                                        switchParameters.getIp(),
+                                        switchParameters.getLoginUser().getUsername(),
+                                        null,
+                                        "故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
 
                                 returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
                                 if (switchParameters.getMode().equalsIgnoreCase("ssh")){
@@ -808,8 +894,11 @@ public class SwitchInteraction {
                     insert_Int = returnRecordService.insertReturnRecord(returnRecord);
                     if (insert_Int <= 0){
                         //传输登陆人姓名 及问题简述
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                                "错误:"+"交换机返回信息插入失败\r\n");
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                null,
+                                "错误:交换机返回信息插入失败\r\n");
 
                     }
                 }while (!deviceBrand);
@@ -852,7 +941,11 @@ public class SwitchInteraction {
                     }
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        null,
+                        switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
@@ -872,7 +965,11 @@ public class SwitchInteraction {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        null,
+                        switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
 
                 //存储交换机返回数据 插入数据库
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
@@ -885,7 +982,11 @@ public class SwitchInteraction {
                         if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
                             loop = true;
 
-                            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,"风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
+                            AbnormalAlarmInformationMethod.afferent(
+                                    switchParameters.getIp(),
+                                    switchParameters.getLoginUser().getUsername(),
+                                    null,
+                                    "风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
 
                             continue;
                         }
@@ -952,8 +1053,15 @@ public class SwitchInteraction {
                 if (!switchParameters.getDeviceBrand().equals("") && !switchParameters.getDeviceModel().equals("")
                         && !switchParameters.getFirmwareVersion().equals("") && !switchParameters.getSubversionNumber().equals("")){
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                            "系统信息:"+switchParameters.getIp() +"基本信息:"+ "设备品牌:"+switchParameters.getDeviceBrand()+ "设备型号:"+switchParameters.getDeviceModel()+ "内部固件版本:"+switchParameters.getFirmwareVersion()+ "子版本号:"+switchParameters.getSubversionNumber()+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            "系统信息:"+switchParameters.getIp() +
+                                    "基本信息:设备品牌:"+switchParameters.getDeviceBrand()+
+                                    "设备型号:"+switchParameters.getDeviceModel()+
+                                    "内部固件版本:"+switchParameters.getFirmwareVersion()+
+                                    "子版本号:"+switchParameters.getSubversionNumber()+"\r\n");
 
                     List<String> stringList = new ArrayList<>();
                     stringList.add(switchParameters.getDeviceModel());
@@ -974,8 +1082,15 @@ public class SwitchInteraction {
                 }
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                    "系统信息:"+switchParameters.getIp() +"基本信息:"+ "设备品牌:"+switchParameters.getDeviceBrand()+ "设备型号:"+switchParameters.getDeviceModel()+ "内部固件版本:"+switchParameters.getFirmwareVersion()+ "子版本号:"+switchParameters.getSubversionNumber()+"\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    null,
+                    "系统信息:"+switchParameters.getIp() +
+                            "基本信息:设备品牌:"+switchParameters.getDeviceBrand()+
+                            "设备型号:"+switchParameters.getDeviceModel()+
+                            "内部固件版本:"+switchParameters.getFirmwareVersion()+
+                            "子版本号:"+switchParameters.getSubversionNumber()+"\r\n");
 
 
         }
@@ -1130,12 +1245,14 @@ public class SwitchInteraction {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
-                        "异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "问题日志",
+                        "异常:IP地址为:"+switchParameters.getIp()+"。"+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+
-                        ",问题类型:"+totalQuestionTable.getTypeProblem()+ ",问题名称:"+totalQuestionTable.getTemProName()+
-                        ",错误:"+"循环超最大次数\r\n");
+                        "。问题类型:"+totalQuestionTable.getTypeProblem()+ "。问题名称:"+totalQuestionTable.getTemProName()+
+                        "。错误:循环超最大次数。\r\n");
 
                 return null;
             }
@@ -1186,11 +1303,13 @@ public class SwitchInteraction {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
-                            "异常:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题类型:"+totalQuestionTable.getTypeProblem()+ ",问题名称:"+totalQuestionTable.getTemProName()+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            "问题日志",
+                            "异常:IP地址为:"+switchParameters.getIp()+"。"+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                                    "问题类型:"+totalQuestionTable.getTypeProblem()+ "。问题名称:"+totalQuestionTable.getTemProName()+"。\r\n");
                 }
 
 
@@ -1204,9 +1323,11 @@ public class SwitchInteraction {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null ,
-                            "TrueAndFalse:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null ,
+                            "TrueAndFalse:IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                             "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
                             "问题数据插入失败\r\n");
@@ -1536,9 +1657,14 @@ public class SwitchInteraction {
 
             /* 告警、异常信息写入 */
             //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    null,
                     "风险:"+totalQuestionTable.getId()
-                    +totalQuestionTable.getTypeProblem()+totalQuestionTable.getTemProName()+totalQuestionTable.getProblemName()
+                    +totalQuestionTable.getTypeProblem()
+                            +totalQuestionTable.getTemProName()
+                            +totalQuestionTable.getProblemName()
                     +"未定义解决问题\r\n");
 
         }
@@ -1810,14 +1936,14 @@ public class SwitchInteraction {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
-                    "IP地址为:"+switchParameters.getIp()+","+
-                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                    "问题为:"+totalQuestionTable.getId()+ ":"
-                    +totalQuestionTable.getTypeProblem()+":"
-                    +totalQuestionTable.getProblemName()+":"
-                    +totalQuestionTable.getTemProName()+":"+"定义问题扫描命令不存在\r\n");
+                    "IP地址为:"+switchParameters.getIp()+"。"+
+                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                    "问题ID为"+totalQuestionTable.getId()+ "问题分类:" +totalQuestionTable.getTypeProblem()+"问题名称:" +totalQuestionTable.getProblemName()+":" +totalQuestionTable.getTemProName()+"，定义问题扫描命令不存在。\r\n");
 
             CommandReturn commandReturn = new CommandReturn();
             commandReturn.setSuccessOrNot(false);
@@ -1922,11 +2048,13 @@ public class SwitchInteraction {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
-                        "异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:未定义交换机问题\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "问题日志",
+                        "异常:IP地址为:"+switchParameters.getIp()+"。"+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                        "问题为:未定义交换机问题。\r\n");
 
 
                 return  AjaxResult.success("未定义交换机问题");
@@ -1971,13 +2099,16 @@ public class SwitchInteraction {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
-                        "异常:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:"+totalQuestionTable.getId()
-                        +totalQuestionTable.getTypeProblem()+totalQuestionTable.getTemProName()+totalQuestionTable.getProblemName()
-                        +"未定义解决问题\r\n"
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "问题日志",
+                        "异常:IP地址为:"+switchParameters.getIp()+"。"+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                        "问题ID为:"+totalQuestionTable.getId() +
+                                "问题分类:"+totalQuestionTable.getTypeProblem()+
+                                "问题名称为:"+totalQuestionTable.getTemProName()+":"+totalQuestionTable.getProblemName()
+                        +",未定义解决问题。\r\n"
                 );
 
             }

@@ -70,7 +70,14 @@ public class AdvancedFeatures {
 
         System.err.println("扫描结束");
 
-        AbnormalAlarmInformationMethod.afferent(parameterSet.getLoginUser().getUsername(),null,"接收:"+"扫描结束\r\n");
+        //传输登陆人姓名 及问题简述
+        WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
+        try {
+            //插入问题简述及问题路径
+            PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));

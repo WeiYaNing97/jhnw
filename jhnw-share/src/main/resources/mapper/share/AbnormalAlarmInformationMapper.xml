@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.share.mapper.AbnormalAlarmInformationMapper">
+    
+    <resultMap type="AbnormalAlarmInformation" id="AbnormalAlarmInformationResult">
+        <result property="switchIp"    column="switch_ip"    />
+        <result property="questionType"    column="question_type"    />
+        <result property="questionInformation"    column="question_information"    />
+        <result property="userName"    column="user_name"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectAbnormalAlarmInformationVo">
+        select switch_ip, question_type, question_information, user_name, create_time from abnormal_alarm_information
+    </sql>
+
+    <select id="selectAbnormalAlarmInformationList" parameterType="AbnormalAlarmInformation" resultMap="AbnormalAlarmInformationResult">
+        <include refid="selectAbnormalAlarmInformationVo"/>
+        <where>  
+            <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
+            <if test="questionType != null  and questionType != ''"> and question_type = #{questionType}</if>
+            <if test="questionInformation != null  and questionInformation != ''"> and question_information = #{questionInformation}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectAbnormalAlarmInformationBySwitchIp" parameterType="String" resultMap="AbnormalAlarmInformationResult">
+        <include refid="selectAbnormalAlarmInformationVo"/>
+        where switch_ip = #{switchIp}
+    </select>
+        
+    <insert id="insertAbnormalAlarmInformation" parameterType="AbnormalAlarmInformation">
+        insert into abnormal_alarm_information
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">switch_ip,</if>
+            <if test="questionType != null">question_type,</if>
+            <if test="questionInformation != null">question_information,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="switchIp != null and switchIp != ''">#{switchIp},</if>
+            <if test="questionType != null">#{questionType},</if>
+            <if test="questionInformation != null">#{questionInformation},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAbnormalAlarmInformation" parameterType="AbnormalAlarmInformation">
+        update abnormal_alarm_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="questionType != null">question_type = #{questionType},</if>
+            <if test="questionInformation != null">question_information = #{questionInformation},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where switch_ip = #{switchIp}
+    </update>
+
+    <delete id="deleteAbnormalAlarmInformationBySwitchIp" parameterType="String">
+        delete from abnormal_alarm_information where switch_ip = #{switchIp}
+    </delete>
+
+    <delete id="deleteAbnormalAlarmInformationBySwitchIps" parameterType="String">
+        delete from abnormal_alarm_information where switch_ip in 
+        <foreach item="switchIp" collection="array" open="(" separator="," close=")">
+            #{switchIp}
+        </foreach>
+    </delete>
+</mapper>

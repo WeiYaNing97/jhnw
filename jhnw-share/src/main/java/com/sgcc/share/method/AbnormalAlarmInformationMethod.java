@@ -1,7 +1,13 @@
 package com.sgcc.share.method;
 
+import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.share.connectutil.SpringBeanUtil;
+import com.sgcc.share.domain.AbnormalAlarmInformation;
+import com.sgcc.share.service.IAbnormalAlarmInformationService;
+import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
@@ -13,7 +19,10 @@ import java.io.IOException;
  **/
 public class AbnormalAlarmInformationMethod {
 
-    public static void afferent(String name,String categories,String information) {
+    @Autowired
+    private static IAbnormalAlarmInformationService abnormalAlarmInformationService;
+
+    public static void afferent(String ip,String name,String categories,String information) {
 
         if (name != null && categories != null){
 
@@ -57,6 +66,14 @@ public class AbnormalAlarmInformationMethod {
 
         }
 
+        AbnormalAlarmInformation abnormalAlarmInformation = new AbnormalAlarmInformation();
+        abnormalAlarmInformation.setSwitchIp(ip);
+        abnormalAlarmInformation.setUserName(name);
+        abnormalAlarmInformation.setQuestionType(categories);
+        abnormalAlarmInformation.setQuestionInformation(information);
+
+        abnormalAlarmInformationService = SpringBeanUtil.getBean(IAbnormalAlarmInformationService.class);
+        abnormalAlarmInformationService.insertAbnormalAlarmInformation(abnormalAlarmInformation);
 
 
     }

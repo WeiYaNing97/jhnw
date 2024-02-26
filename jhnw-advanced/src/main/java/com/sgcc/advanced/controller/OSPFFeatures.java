@@ -65,7 +65,10 @@ public class OSPFFeatures {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -208,7 +211,10 @@ public class OSPFFeatures {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -232,7 +238,10 @@ public class OSPFFeatures {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -250,7 +259,11 @@ public class OSPFFeatures {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "ospf","系统信息:" +
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "ospf",
+                        "系统信息:" +
                         "IP地址为:"+switchParameters.getIp()+","+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                         "问题为:ospf功能IP:"+ospf.getIp()+"端口号:"+ospf.getPort()+"状态:"+ospf.getState()+"\r\n");

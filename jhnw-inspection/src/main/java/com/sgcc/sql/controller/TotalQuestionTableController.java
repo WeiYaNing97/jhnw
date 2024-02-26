@@ -245,7 +245,11 @@ public class TotalQuestionTableController extends BaseController
 
         if (totalQuestionTables.size() != 0){
             //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险:"+"交换机问题已存在\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    null,
+                    loginUser.getUsername(),
+                    null,
+                    "风险:交换机问题已存在。\r\n");
 
             return  AjaxResult.error("问题已存在");
         }
@@ -264,8 +268,13 @@ public class TotalQuestionTableController extends BaseController
             insert = totalQuestionTableService.insertTotalQuestionTable(totalQuestionTable);
         }catch (Exception e){
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
+
                 //传输登陆人姓名 及问题简述
-                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"风险:"+"SQL唯一约束异常,问题已存在\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        null,
+                        loginUser.getUsername(),
+                        null,
+                        "风险:"+"SQL唯一约束异常,问题已存在\r\n");
 
                 //返回成功
                 return  AjaxResult.error("SQL唯一约束异常,问题已存在");

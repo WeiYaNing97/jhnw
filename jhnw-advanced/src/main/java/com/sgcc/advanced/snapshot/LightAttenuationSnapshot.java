@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- *
  * @program: jhnw
  * @description: 光纤衰耗快照功能
  * @desc
@@ -36,6 +35,7 @@ import java.util.*;
  * 三、竣工：
  * 逻辑：1、开展一次用户指定设备的监测扫描并记录，与快照数据进行比对，发现问题及时告警。其中，以快照数据作为比对依据，本次扫描数据修正仅根据快照数据进行修正。高频扫描期间的数据不参与数据修正。修正数据包括：扫描次数、平均值2项
  */
+
 @Api("光衰快照功能")
 @RestController
 @RequestMapping("/advanced/LightAttenuationSnapshot")
@@ -190,7 +190,6 @@ class LuminousAttenuationMethod{
         parameterSet.setLoginUser(loginUser);
         parameterSet.setThreadCount(Integer.valueOf(5+"").intValue());
         try {
-
             /*高级功能线程池*/
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
             List<String> strings = new ArrayList<>();
@@ -200,6 +199,7 @@ class LuminousAttenuationMethod{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
     }
 
 }

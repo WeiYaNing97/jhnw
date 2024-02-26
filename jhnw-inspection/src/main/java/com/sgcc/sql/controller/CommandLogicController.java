@@ -132,7 +132,11 @@ public class CommandLogicController extends BaseController
         if (commandLogicList.size() == 0 || totalQuestionTableId == 0L){
             //传输登陆人姓名 及问题简述
 
-            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误:"+"定义修复交换机问题逻辑数据为空\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    null,
+                    loginUser.getUsername(),
+                    null,
+                    "错误:定义修复交换机问题逻辑数据为空\r\n");
 
             return false;
         }
@@ -150,7 +154,11 @@ public class CommandLogicController extends BaseController
             if (i<=0){
                 //传输登陆人姓名 及问题简述
 
-                AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误:"+"修复交换机问题命令插入失败\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        null,
+                        loginUser.getUsername(),
+                        null,
+                        "错误:修复交换机问题命令插入失败\r\n");
 
                 return false;
             }
@@ -162,7 +170,11 @@ public class CommandLogicController extends BaseController
         if (i<=0){
             //传输登陆人姓名 及问题简述
 
-            AbnormalAlarmInformationMethod.afferent(loginUser.getUsername(),null,"错误:"+"交换机问题实体类修复问题ID修改失败\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    null,
+                    loginUser.getUsername(),
+                    null,
+                    "错误:交换机问题实体类修复问题ID修改失败\r\n");
 
             return false;
         }

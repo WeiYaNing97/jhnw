@@ -61,11 +61,13 @@ public class ErrorPackage {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
-                    "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:误码率功能未定义获取端口号的命令\r\n"
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
+                    "异常:IP地址为:"+switchParameters.getIp()+"。"+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                            "问题为:误码率功能未定义获取端口号的命令。\r\n"
             );
 
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能未定义获取端口号的命令\r\n");
@@ -145,11 +147,14 @@ public class ErrorPackage {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
+                            "IP地址为:"+switchParameters.getIp()+"。"+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                            "问题为:误码率功能获取端口号命令错误,需要重新定义。\r\n");
 
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
         }
@@ -168,7 +173,10 @@ public class ErrorPackage {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -208,7 +216,10 @@ public class ErrorPackage {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -250,7 +261,10 @@ public class ErrorPackage {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"错误包",
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "错误包",
                         "系统信息:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -262,7 +276,10 @@ public class ErrorPackage {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"错误包",
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "错误包",
                         "系统信息:" +
                         "IP地址为:"+switchParameters.getIp()+","+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -309,7 +326,10 @@ public class ErrorPackage {
                 subversionNumber1 = "、"+subversionNumber1;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "错误包",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "错误包",
                     "系统信息:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber1+","+
@@ -376,7 +396,10 @@ public class ErrorPackage {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "错误包",
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                "错误包",
                                 "系统信息:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -399,7 +422,10 @@ public class ErrorPackage {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "错误包",
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                "错误包",
                                 "系统信息:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -539,7 +565,10 @@ public class ErrorPackage {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "问题日志",
                         "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -564,7 +593,10 @@ public class ErrorPackage {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "问题日志",
                         "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -725,7 +757,10 @@ public class ErrorPackage {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        "问题日志",
                         "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -755,7 +790,10 @@ public class ErrorPackage {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -803,7 +841,10 @@ public class ErrorPackage {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(), "问题日志",
+            AbnormalAlarmInformationMethod.afferent(
+                    switchParameters.getIp(),
+                    switchParameters.getLoginUser().getUsername(),
+                    "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+

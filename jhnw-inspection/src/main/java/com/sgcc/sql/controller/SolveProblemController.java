@@ -74,7 +74,11 @@ public class SolveProblemController {
 
             //传输登陆人姓名 及问题简述
 
-            AbnormalAlarmInformationMethod.afferent(SecurityUtils.getLoginUser().getUsername(),null,"错误:"+"交换机问题表修复命令ID为空\r\n");
+            AbnormalAlarmInformationMethod.afferent(
+                    null,
+                    SecurityUtils.getLoginUser().getUsername(),
+                    null,
+                    "错误:交换机问题表修复命令ID为空\r\n");
             return new ArrayList<>();
         }
 
@@ -192,7 +196,11 @@ public class SolveProblemController {
             e.printStackTrace();
         }
 
-        AbnormalAlarmInformationMethod.afferent(parameterSet.getLoginUser().getUsername(),null,"接收:"+"修复结束\r\n");
+        AbnormalAlarmInformationMethod.afferent(
+                null,
+                parameterSet.getLoginUser().getUsername(),
+                null,
+                "接收:修复结束\r\n");
 
         return "修复结束" ;
     }
@@ -220,13 +228,19 @@ public class SolveProblemController {
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),"交换机连接",
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            "交换机连接",
                             "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
 
 
-            AbnormalAlarmInformationMethod.afferent(null,"交换机连接",
+            AbnormalAlarmInformationMethod.afferent(
+                    null,
+                    null,
+                    "交换机连接",
                     "风险:"+switchParameters.getIp() + "交换机连接失败\r\n");
 
             return AjaxResult.error("交换机连接失败");
@@ -258,7 +272,10 @@ public class SolveProblemController {
                     switchScanResultLists.add(switchScanResult);
                 }else {
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
                             "错误:"+"问题名称:" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"交换机基本信息不一致"+"\r\n");
 
                 }
@@ -287,8 +304,14 @@ public class SolveProblemController {
                         switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());
                     }else {
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                                "风险:"+"问题名称:" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                        AbnormalAlarmInformationMethod.afferent(
+                                null,
+                                switchParameters.getLoginUser().getUsername(),
+                                null,
+                                "风险:问题名称:" +switchScanResult.getTypeProblem()+
+                                        "-"+switchScanResult.getTemProName()+
+                                        "-"+switchScanResult.getProblemName()+
+                                        "未定义解决问题命令\r\n");
 
                         continue;
                     }
@@ -301,8 +324,14 @@ public class SolveProblemController {
                 List<String> commandList = commandLogics.stream().map(m -> m.getCommand()).collect(Collectors.toList());
                 if (commandList.size() == 0){
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                            "错误:"+"问题名称:" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"未定义解决问题命令\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            null,
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            "错误:问题名称:"+switchScanResult.getTypeProblem()+
+                                    "-"+switchScanResult.getTemProName()+
+                                    "-"+switchScanResult.getProblemName()+
+                                    "未定义解决问题命令\r\n");
 
                     continue;
                 }
@@ -320,16 +349,26 @@ public class SolveProblemController {
                     int i = switchScanResultService.updateSwitchScanResult(switchScanResult);
                     if (i<=0){
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                                "错误:"+"问题名称:" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                null,
+                                "错误:问题名称:"+switchScanResult.getTypeProblem()+
+                                        "-"+switchScanResult.getTemProName()+
+                                        "-"+switchScanResult.getProblemName()+"修复失败\r\n");
 
                     }
                 }
 
                 if(solveProblem.indexOf("错误") != -1){
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
-                            "错误:"+"问题名称:" +switchScanResult.getTypeProblem()+"-"+switchScanResult.getTemProName()+"-"+switchScanResult.getProblemName()+"修复失败\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            "错误:问题名称:" +switchScanResult.getTypeProblem()+
+                                    "-"+switchScanResult.getTemProName()+
+                                    "-"+switchScanResult.getProblemName()+"修复失败\r\n");
 
                 }
 
@@ -455,7 +494,11 @@ public class SolveProblemController {
                 if (switchParameters.getMode().equalsIgnoreCase("ssh")){
 
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"发送:"+command+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            switchParameters.getIp()+"发送:"+command+"\r\n");
 
                     // todo command
                     /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
@@ -472,7 +515,11 @@ public class SolveProblemController {
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
 
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"发送:"+command+"\r\n");
+                    AbnormalAlarmInformationMethod.afferent(
+                            switchParameters.getIp(),
+                            switchParameters.getLoginUser().getUsername(),
+                            null,
+                            switchParameters.getIp()+"发送:"+command+"\r\n");
 
 
                     commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,null);
@@ -489,7 +536,10 @@ public class SolveProblemController {
                     for (String returnString : commandStringSplit) {
                         deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
                         if (!deviceBrand) {
-                            AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                            AbnormalAlarmInformationMethod.afferent(
+                                    switchParameters.getIp(),
+                                    switchParameters.getLoginUser().getUsername(),
+                                    null,
                                     "故障:"+switchParameters.getIp()+":"+returnString+"\r\n");
 
                             returnRecord.setCurrentIdentifier(switchParameters.getIp()+ "出现故障:"+returnString+"\r\n");
@@ -541,7 +591,11 @@ public class SolveProblemController {
                     current_return_log = "\r\n"+current_return_log;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        null,
+                        switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString_split[commandString_split.length - 1].trim();
@@ -556,13 +610,21 @@ public class SolveProblemController {
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        null,
+                        switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
 
 
             }else if (commandString_split.length == 1){
                 returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,switchParameters.getIp()+"接收:"+commandString_split[0]+"\r\n");
+                AbnormalAlarmInformationMethod.afferent(
+                        switchParameters.getIp(),
+                        switchParameters.getLoginUser().getUsername(),
+                        null,
+                        switchParameters.getIp()+"接收:"+commandString_split[0]+"\r\n");
 
             }
 
@@ -575,7 +637,10 @@ public class SolveProblemController {
                 for (String string_split:returnString_split){
                     if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
 
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getLoginUser().getUsername(),null,
+                        AbnormalAlarmInformationMethod.afferent(
+                                switchParameters.getIp(),
+                                switchParameters.getLoginUser().getUsername(),
+                                null,
                                 "风险:"+switchParameters.getIp() +":问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
 
                         List<Object> objectList = new ArrayList<>();
