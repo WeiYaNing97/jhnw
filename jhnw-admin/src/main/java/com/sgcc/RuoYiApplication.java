@@ -1,9 +1,5 @@
 package com.sgcc;
-import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
-import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.domain.Constant;
-import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.Timed;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,8 +11,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
  * @author ruoyi
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
-public class RuoYiApplication
-{
+public class RuoYiApplication {
     public static void main(String[] args)
     {
         // System.setProperty("spring.devtools.restart.enabled", "false");
@@ -29,7 +24,7 @@ public class RuoYiApplication
             character.ObtainAllConfigurationFileParameters();
 
             Timed.atRegularTime();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }

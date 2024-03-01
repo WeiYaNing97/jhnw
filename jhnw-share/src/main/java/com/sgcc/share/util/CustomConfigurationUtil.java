@@ -12,7 +12,7 @@ public class CustomConfigurationUtil {
     @ApiOperation("读取配置文件内容到常量类")
     @PostMapping("/ObtainAllConfigurationFileParameters")
     public void ObtainAllConfigurationFileParameters() {
-        String path3 = "/customconfiguration.yml";
+        String path3 = "/application-config.yml";/*customconfiguration*/
         InputStream inputStream = this.getClass().getResourceAsStream(path3);
         Yaml yaml = new Yaml();
         Constant.setProfileInformation(yaml.load(inputStream));

@@ -13,7 +13,9 @@ import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
 import com.sgcc.share.domain.SwitchLoginInformation;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +50,7 @@ import com.sgcc.system.service.ISysUserService;
 @RequestMapping("/system/user")
 public class SysUserController extends BaseController
 {
+
     @Autowired
     private ISysUserService userService;
 

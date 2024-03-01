@@ -33,6 +33,8 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
@@ -50,7 +52,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/sql/SwitchInteraction")
 @Transactional(rollbackFor = Exception.class)
+
 public class SwitchInteraction {
+
     @Autowired
     private  ICommandLogicService commandLogicService;
     @Autowired
@@ -320,6 +324,7 @@ public class SwitchInteraction {
     @PostMapping("/multipleScans/{scanNum}")
     @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
     public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {
+
         /* 交换机登录信息集合 及 系统登录人信息 线程数 */
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());/*程序登陆人*/

@@ -11,7 +11,7 @@ public class Constant {
     /*配置文件信息*/
     private static Map<String, Object> ProfileInformation;
     public void ObtainAllConfigurationFileParameters() {
-        String path3 = "/customconfiguration.yml";
+        String path3 = "/application-config.yml";
         InputStream inputStream = this.getClass().getResourceAsStream(path3);
         Yaml yaml = new Yaml();
         ProfileInformation = yaml.load(inputStream);
