@@ -6,8 +6,8 @@
         <el-form-item label="设备信息:"></el-form-item>
         <el-form-item label="品牌" prop="brand">
           <el-select v-model="queryParams.brand" placeholder="品牌"
-                     filterable clearable allow-create @blur="customInput" @focus="general($event)"
-                     name="brand" style="width: 150px">
+                     filterable clearable allow-create @blur="customInput"
+                     @focus="general($event)" name="brand" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.brand" :value="item.brand"></el-option>
           </el-select>
@@ -22,8 +22,8 @@
         </el-form-item>
         <el-form-item label="固件版本" prop="firewareVersion">
           <el-select v-model="queryParams.firewareVersion" placeholder="固件版本"
-                     filterable clearable allow-create @blur="customInput" @focus="general($event)"
-                     name="firewareVersion" style="width: 150px">
+                     filterable clearable allow-create @blur="customInput"
+                     @focus="general($event)" name="firewareVersion" style="width: 150px">
             <el-option v-for="(item,index) in genList"
                        :key="index" :label="item.firewareVersion" :value="item.firewareVersion"></el-option>
           </el-select>
@@ -133,8 +133,8 @@
           </el-form-item>
           <el-form-item v-if="index!=0">{{index}}</el-form-item>
           <el-form-item v-if="index!=0" :label="numToStr(item.onlyIndex)" @click.native="wcycle(item,$event)"></el-form-item>
-          <div v-if="item.targetType === 'command'" :key="index"
-               style="display: inline-block">
+<!--          命令行-->
+          <div v-if="item.targetType === 'command'" :key="index" style="display: inline-block">
             <el-form-item label="命令：" class="strongW" :prop="'dynamicItem.' + index + '.command'">
               <el-input v-model="item.command" name="comone" @focus="getName($event)"></el-input>
             </el-form-item>
@@ -153,10 +153,12 @@
               <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
             </el-form-item>
           </div>
+<!--          匹配True-->
           <div v-else-if="item.targetType === 'match'" :key="index" style="display: inline-block" label="测试">
             <el-form-item label="匹配:" class="strongW"></el-form-item>
             <el-form-item label="位置">
-              <el-select v-model="item.relativeTest" @change="relType(item)" filterable allow-create placeholder="当前位置" style="width: 110px">
+              <el-select v-model="item.relativeTest" @change="relType(item)"
+                         filterable allow-create placeholder="当前位置" style="width: 110px">
                 <el-option label="当前位置" value="present"></el-option>
                 <el-option label="全文起始" value="full"></el-option>
                 <el-option label="自定义行" value="" disabled></el-option>
@@ -166,24 +168,15 @@
               <el-radio v-model="item.relativeType" label="present">按行匹配</el-radio>
               <el-radio v-model="item.relativeType" label="full">全文匹配</el-radio>
             </el-form-item>
-            <!--          <el-form-item>-->
-            <!--            <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>-->
-            <!--          </el-form-item>-->
-            <!--          <el-form-item label="全文精确匹配" :prop="'dynamicItem.' + index + '.matchContent'">-->
             <el-form-item label="内容" :prop="'dynamicItem.' + index + '.matchContent'">
               <el-input v-model="item.matchContent"></el-input>
             </el-form-item>
-            <!--          <el-form-item label="类型">-->
-            <!--            <el-select v-model="item.matched" filterable allow-create placeholder="类型" style="width: 130px">-->
-            <!--              <el-option label="精确匹配" value="精确匹配"></el-option>-->
-            <!--              <el-option label="模糊匹配" value="模糊匹配"></el-option>-->
-            <!--            </el-select>-->
-            <!--          </el-form-item>-->
             <el-form-item label="True">{{ "\xa0" }}</el-form-item>
             <el-form-item>
               <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
             </el-form-item>
           </div>
+<!--          匹配False-->
           <div v-else-if="item.targetType === 'matchfal'"
                style="display: inline-block;padding-left:549px">
             <el-form-item label="False"></el-form-item>
@@ -191,6 +184,7 @@
               <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
             </el-form-item>
           </div>
+<!--          循环-->
           <div v-else-if="item.targetType === 'wloop'" :key="index"
                style="display: inline-block">
             <el-form-item class="strongW" label="循环：" :prop="'dynamicItem.' + index + '.cycleStartId'">
@@ -202,6 +196,7 @@
               <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
             </el-form-item>
           </div>
+<!--          可能暂时不用-->
           <div v-else-if="item.targetType === 'dimmatch'" :key="index" style="display: inline-block">
             <el-form-item label="全文模糊匹配" :prop="'dynamicItem.' + index + '.matchContent'">
               <el-input v-model="item.matchContent"></el-input>
@@ -241,7 +236,6 @@
               <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
             </el-form-item>
           </div>
-
           <div v-else-if="item.targetType === 'dimpre'" :key="index" style="display: inline-block">
             <el-form-item label="按行模糊匹配" :prop="'dynamicItem.' + index + '.relative'">
               <el-input v-model="item.relative" placeholder="下几行" style="width: 80px"></el-input>
@@ -260,7 +254,7 @@
               <i class="el-icon-delete" @click="deleteItemp(item, index)"></i>
             </el-form-item>
           </div>
-
+<!--          取参-->
           <div v-else-if="item.targetType === 'takeword'" :key="index" style="display: inline-block">
             <el-form-item label="取参:" class="strongW"></el-form-item>
             <el-form-item label="位置">
@@ -293,6 +287,7 @@
               <i class="el-icon-delete" @click="deleteItem(item, index)"></i>
             </el-form-item>
           </div>
+<!--         比较 -->
           <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
             <el-form-item label="比较" v-show="bizui">
               <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
@@ -572,6 +567,51 @@ export default {
         }
     },
   methods: {
+      //无用代码⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
+      //获取名字
+      getName(e){
+          this.who = e.target.getAttribute('name')
+          console.log(this.who)
+      },
+      //无用代码⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆
+      //自定义下拉框输入通用
+      customInput(e){
+          this.who = e.target.getAttribute('name')
+          let value = e.target.value
+          for (let key in this.queryParams){
+              if (this.queryParams.hasOwnProperty(key)){
+                  if (key == this.who){
+                      if (value){
+                          this.queryParams[key] = value
+                      }
+                  }
+              }
+          }
+      },
+      //下拉框获取数据通用
+      general(e){
+          this.who = e.target.getAttribute('name')
+          // console.log('当前点击输入框' + this.who)
+          //查询对象
+          let newPar = {
+              brand:this.queryParams.brand,
+              type:this.queryParams.type,
+              firewareVersion:this.queryParams.firewareVersion,
+              subVersion:this.queryParams.subVersion
+          }
+          for (var key in newPar){
+              if (this.who == key){
+                  newPar[key] = ''
+              }
+          }
+          return request({
+              url:'/sql/total_question_table/selectPojoList',
+              method:'get',
+              params:newPar
+          }).then(response=>{
+              this.genList = this.quchong(response,this.who)
+          })
+      },
       //测试
       testOne(){
           this.help_show = true
@@ -695,7 +735,7 @@ export default {
               method:'get',
               data: newPar
           }).then(response=>{
-              console.log(response)
+              // console.log(response)
               this.genListA = this.quchong(response,this.who)
           })
       },
@@ -720,50 +760,7 @@ export default {
               })
           }
       },
-      //自定义下拉框输入通用
-      customInput(e){
-          this.who = e.target.getAttribute('name')
-          let value = e.target.value
-          for (let key in this.queryParams){
-              if (this.queryParams.hasOwnProperty(key)){
-                  if (key == this.who){
-                      if (value){
-                          this.queryParams[key] = value
-                      }
-                  }
-              }
-          }
-      },
-      //下拉框获取数据通用
-      general(e){
-          this.who = e.target.getAttribute('name')
-          console.log('当前点击输入框' + this.who)
-          //查询对象
-          let newPar = {
-              brand:this.queryParams.brand,
-              type:this.queryParams.type,
-              firewareVersion:this.queryParams.firewareVersion,
-              subVersion:this.queryParams.subVersion
-          }
-          for (var key in newPar){
-              if (this.who == key){
-                  newPar[key] = ''
-              }
-          }
-          return request({
-              url:'/sql/total_question_table/selectPojoList',
-              method:'get',
-              params:newPar
-          }).then(response=>{
-              this.genList = this.quchong(response,this.who)
-              console.log(this.genList)
-          })
-      },
-      //获取名字
-      getName(e){
-          this.who = e.target.getAttribute('name')
-          console.log(this.who)
-      },
+
       //比较选中触发
       bibi(){
           this.bizui = true
@@ -830,6 +827,113 @@ export default {
               }
           })
           console.log(this.forms.dynamicItem)
+      },
+      //New定义问题合并提交
+      subProblemNew(){
+          var subNewPro = JSON.parse(JSON.stringify(this.queryParams))
+          if (subNewPro.requiredItems === true){
+              this.$set(subNewPro,'requiredItems','1')
+          }else {
+              this.$set(subNewPro,'requiredItems','0')
+          }
+          for (let i in subNewPro){
+              if (subNewPro[i] === 'null'){
+                  subNewPro[i] = ''
+              }
+          }
+          if (subNewPro.brand != '' && subNewPro.typeProblem != '' && subNewPro.temProName != '' && this.forms.dynamicItem.length > 1){
+              return request({
+                  url:'/sql/total_question_table/add',
+                  method:'post',
+                  data:JSON.stringify(subNewPro)
+              }).then(response=>{
+                  console.log(response)
+                  this.proId = response.msg
+                  console.log(typeof this.proId)
+                  // if (typeof(this.proId) === 'number'){
+                  if (this.proId != ''){
+                      console.log('数字')
+                      const useForm = []
+                      const useLess = []
+                      this.forms.dynamicItem.forEach(e=>{
+                          if (e.test === "test"){
+                              useLess.push(e)
+                          }else {
+                              useForm.push(e)
+                          }
+                      })
+                      useForm.forEach(eeee=>{
+                          const thisIndex = useForm.indexOf(eeee)
+                          if(useForm.length != thisIndex+1){
+                              const thisNext = useForm[thisIndex+1]
+                              this.$set(eeee,'nextIndex',thisNext.onlyIndex)
+                          }
+                          // if (eeee.matched === '全文精确匹配'){
+                          //     if (eeee.cursorRegion === 'D'){
+                          //         this.$set(eeee,'cursorRegion','0')
+                          //     }else if (eeee.cursorRegion === 'Q'){
+                          //         this.$set(eeee,'cursorRegion','1')
+                          //     }else {
+                          //         console.log('我')
+                          //     }
+                          // }
+                          if (eeee.action === '取词'){
+                              eeee.length = `${eeee.length1}${eeee.classify}`
+                              if (eeee.length === 'undefinedundefined'){
+                                  eeee.length = '0'
+                              }else {
+                                  eeee.length = `${eeee.length1}${eeee.classify}`
+                              }
+                          }
+                          if (eeee.targetType == 'match'){
+                              this.$set(eeee,'relative',eeee.relativeTest + '&' + eeee.relativeType)
+                          }
+                          this.$set(eeee,'pageIndex',thisIndex+1)
+                          if (eeee.targetType == 'takeword'){
+                              const takeWordt = useForm.indexOf(eeee)
+                              var quciC = ''
+                              useForm.map((e11)=>{
+                                  const takeWl = useForm.indexOf(e11)
+                                  if(takeWl == takeWordt-1){
+                                      quciC = e11.matchContent
+                                  }
+                              })
+                              this.$set(eeee,'matchContent',quciC)
+                          }
+                          //拆分有无问题
+                          if (eeee.action === '问题'){
+                              const neid = eeee.action
+                              console.log(neid)
+                              const thisData = Date.now()
+                              console.log(thisData)
+                          }
+                      })
+                      const handForm = useForm.map(x => JSON.stringify(x))
+                      console.log(handForm)
+                      if (handForm.length < 1){
+                          this.$message.warning('分析逻辑不能为空!')
+                      }else {
+                          return request({
+                              url:`/sql/DefinitionProblemController/definitionProblemJsonPojo?totalQuestionTableId=${this.proId}`,
+                              method:'post',
+                              data:handForm
+                          }).then(response=>{
+                              console.log(response)
+                              this.$message.success('提交问题成功!')
+                              this.reload()
+                              router.push({
+                                  path:'/sql/look_test'
+                              })
+                          })
+                      }
+                  }else {
+                      this.$message.error('提交问题失败!')
+                  }
+                  this.chuxian = true
+              })
+          }else {
+              alert('品牌、范式分类、范式名称、分析逻辑不得为空!')
+          }
       },
       //定义问题合并提交
       subProblem(){
@@ -1168,8 +1272,8 @@ export default {
               }
           })
       },
-      //添加表单项
-      addItem(type,item,index){
+      //New 添加表单项
+      addItemNew(){
           const thisData = Date.now()
           const item1 = {
               targetType: type,
@@ -1181,7 +1285,7 @@ export default {
           console.log(thisIndex)
           //动态添加的样式空格问题
           // console.log(this.$refs.btn[thisIndex])
-          console.log(item)
+          // console.log(item)
           // this.$set(item,'nextIndex',thisData)
           if (type == 'command'){
               this.$set(item1,'resultCheckId','0')
@@ -1238,6 +1342,72 @@ export default {
               this.$set(item1,'position',0)
               const item2 = {
                   targetType:'dimprefal',
+                  onlyIndex:thisData
+              }
+              this.$set(item2,'trueFalse','失败')
+              this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+          }
+          if (type == 'analyse'){
+              this.forms.dynamicItem.forEach(e=>{
+                  if (e.targetType === 'takeword'){
+                      if (e.hasOwnProperty('wordName') && e.wordName != ''){
+                          this.biList.push(e.wordName)
+                          let newbiList = []
+                          for(let i = 0;i<this.biList.length;i++){
+                              if (newbiList.indexOf(this.biList[i])==-1){
+                                  newbiList.push(this.biList[i])
+                              }
+                          }
+                          this.biList = newbiList
+                      }
+                  }
+              })
+              this.$set(item1,'action','比较')
+              this.$set(item1,'trueFalse','成功')
+              const item2 = {
+                  targetType:'analysefal',
+                  onlyIndex:thisData
+              }
+              this.$set(item2,'trueFalse','失败')
+              this.forms.dynamicItem.splice(thisIndex+1,0,item2)
+          }
+          if(type == 'takeword'){
+              this.$set(item1,'action','取词')
+              this.$set(item1,'position',0)
+              this.$set(item1,'cursorRegion','0')
+          }
+          if (type == 'wloop'){
+              this.$set(item1,'action','循环')
+          }
+          if (type == 'prodes'){
+              this.$set(item1,'action','问题')
+              this.$set(item1,'problemId',this.proId)
+          }
+          this.forms.dynamicItem.splice(thisIndex+1,0,item1)
+      },
+      //添加表单项
+      addItem(type,item,index){
+          let thisData = Date.now()
+          console.log(thisData)
+          let item1 = {
+              targetType:type,
+              onlyIndex:thisData,
+              trueFalse:'',
+              checked:false
+          }
+          let thisIndex = this.forms.dynamicItem.indexOf(item)
+          console.log(thisIndex)
+          if (type == 'command'){
+              //默认校验方式：自定义校验
+              this.$set(item1,'resultCheckId','0')
+          }
+          if(type == 'match'){
+              this.$set(item1,'trueFalse','成功')
+              this.$set(item1,'matched','精确匹配')
+              this.$set(item1,'relativeTest','present')
+              this.$set(item1,'relativeType','present')
+              const item2 = {
+                  targetType:'matchfal',
                   onlyIndex:thisData
               }
               this.$set(item2,'trueFalse','失败')

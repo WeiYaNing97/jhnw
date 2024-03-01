@@ -6,30 +6,20 @@
 <!--      style="white-space: pre-wrap;"-->
 <!--      v-model="textarea" :rows="10" readonly></el-input>-->
     <el-button @click="exportFile">导出</el-button>
+<!--    //1.2添加测试-->
+    <el-input v-model="inputT" placeholder="请输入内容" @input="filterText"></el-input>
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="系统信息" name="first">
-        <el-input
-          id="webtTwo"
-          resize="none"
-          type="textarea"
-          style="white-space: pre-wrap;"
-          v-model="textareaInfo" :rows="10" readonly></el-input>
+        <el-input id="webtTwo" resize="none" type="textarea"
+                  style="white-space: pre-wrap;" v-model="textareaInfo" :rows="10" readonly></el-input>
       </el-tab-pane>
       <el-tab-pane label="发送与接收" name="second">
-        <el-input
-          resize="none"
-          id="webtOne"
-          type="textarea"
-          style="white-space: pre-wrap;"
-          v-model="textareaOne" :rows="10" readonly></el-input>
+        <el-input id="webtOne" resize="none" type="textarea"
+                  style="white-space: pre-wrap;" v-model="textareaOne" :rows="10"></el-input>
       </el-tab-pane>
       <el-tab-pane label="异常" name="third">
-        <el-input
-          id="webtThree"
-          resize="none"
-          type="textarea"
-          style="white-space: pre-wrap;"
-          v-model="textareaRisk" :rows="10" readonly></el-input>
+        <el-input id="webtThree" resize="none" type="textarea"
+                  style="white-space: pre-wrap;" v-model="textareaRisk" :rows="10" readonly></el-input>
       </el-tab-pane>
 <!--      <el-tab-pane label="扫描结束" name="four" v-show="false">-->
 <!--        <el-input-->
@@ -52,11 +42,9 @@
         name: "WebSocket",
         data() {
             return {
+                //输入框筛选
+                inputT:'',
                 activeName:'second',
-                //扫描结束
-                saoend:false,
-                //修复结束
-                repairend:false,
                 // ws是否启动
                 wsIsRun: false,
                 // 定义ws对象
@@ -67,6 +55,7 @@
                 wsTimer: null,
                 textarea:'',
                 textareaOne:'',
+                textareaOneOneOne:[],
                 textareaRisk:'',
                 textareaInfo:'',
                 textareaEnd:'',
@@ -81,26 +70,9 @@
             this.wsInit()
         },
         watch:{
-            //检测扫描结束、修复结束
-            textareaOne(){
-                if (this.textareaOne.includes('扫描结束')){
-                    this.saoend = true
-                }
-                if (this.textareaOne.includes('修复结束')){
-                    this.repairend = true
-                }
-            },
-            textareaInfo(){
-                if (this.textareaInfo.includes('扫描结束')){
-                    this.saoend = true
-                }
-            },
             saoendip(){
                 this.postendIp()
             },
-            saoend(){
-                this.postEnd()
-            }
         },
         created(){
             // const usname = Cookies.get('usName')
@@ -112,7 +84,23 @@
                 }
             },30000)
         },
+        computed:{
+
+        },
         methods: {
+            //筛选框
+            filterText(){
+                if (this.inputT){
+                    console.log('22222222222')
+                    const filteredData = this.textareaOneOneOne
+                        .filter(data => data.includes(this.inputT))
+                        .join("\n");
+                    this.textareaOne = filteredData
+                }else {
+                    this.textareaOne = this.textareaOneOneOne.join("\n");
+                }
+              // this.$forceUpdate();
+            },
             //导出
             exportFile(){
                 MessageBox.confirm('确定导出以下所有文本框内容吗？','提示').then(c=>{
@@ -133,22 +121,15 @@
                     this.$message.warning('导出取消!')
                 })
             },
-            //扫描结束传给父组件
-            postEnd(){
-                this.$emit('eventOne',this.saoend)
-            },
             //扫描完成ip传给父组件
             postendIp(){
                 this.$emit('event',this.ipEnd)
             },
-            //
+            //tab 被选中时触发
             handleClick(tab, event) {
-                // console.log(tab, event)
+                console.log(tab)
+                console.log(event)
             },
-            geifurepaired(){
-                return this.repairend
-            },
-
             /**
              * 初始化ws
              */
@@ -190,12 +171,12 @@
                 if (e.data === 'pong'){
                     console.log('00000'+e.data)
                 }else {
-                    console.log(e)
                     if (e.data.indexOf('发送') != -1 || e.data.indexOf('接收') != -1){
                         this.textareaOne = this.textareaOne + e.data
+                        this.textareaOneOneOne.push(e.data)
                         if (e.data.indexOf('扫描结束') != -1){
-                            console.log('我接收结束了')
                             this.webSocket.send('接收结束')
+                            console.log(this.textareaOneOneOne)
                         }
                     }else if (e.data.indexOf('系统信息') != -1){
                         this.textareaInfo = this.textareaInfo + e.data
@@ -216,7 +197,6 @@
                     this.ipEnd = getCaption(this.saoendip)
                     // this.textarea = this.textarea + e.data;
                     this.$nextTick(()=>{
-                        // const textarea = document.getElementById('webt')
                         const textareaOne = document.getElementById('webtOne')
                         const textareaTwo = document.getElementById('webtTwo')
                         const textareaThree = document.getElementById('webtThree')
@@ -231,7 +211,7 @@
              * ws通信发生错误
              */
             wsErrorHanler(event) {
-                console.log('错误的' + "+" + event.code + "+" + event.reason + "+" + event.wasClean)
+                console.log('错误的+' + event.code + "+" + event.reason + "+" + event.wasClean)
                 console.log(event, '通信发生错误')
                 this.wsInit()
             },

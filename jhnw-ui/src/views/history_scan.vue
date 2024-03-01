@@ -11,7 +11,7 @@
     </div>
     <!--    历史扫描-->
     <el-table v-loading="loading"
-              :data="lishiData"
+              :data="historyData"
               ref="tree"
               v-show="huisao"
               style="width: 100%"
@@ -33,13 +33,13 @@
                      type="text"
                      icon="el-icon-edit"
                      v-show="scope.row.ifQuestion==='异常'"
-                     @click="xiufuone(scope.row)">修复</el-button>
+                     @click="repairSwitch(scope.row,'proRepair')">修复</el-button>
           <el-button style="margin-left: 0" size="mini" type="text"
                      v-show="scope.row.switchIp != undefined && scope.row.noPro"
-                     @click.stop="xiuallone(scope.row)">单台修复</el-button>
+                     @click.stop="repairSwitch(scope.row,'singleRepair')">单台修复</el-button>
           <el-button style="margin-left: 0" type="warning" plain round
                      size="small" v-show="scope.row.createTime != undefined && scope.row.noPro"
-                     @click.stop="huitimeyijian(scope.row)">一键修复</el-button>
+                     @click.stop="repairSwitch(scope.row,'allRepair')">一键修复</el-button>
           <el-button style="margin-left: 0" type="success" plain round
                      size="small" v-show="scope.row.createTime != undefined && !scope.row.noPro"
                      @click.stop="allTrue(scope.row)">全部正常</el-button>
@@ -121,7 +121,7 @@
                     year:'',
                     month:''
                 },
-                lishiData:[],
+                historyData:[],
                 printData:[],
                 loading:false,
                 huisao:true,
@@ -131,9 +131,9 @@
                 isExpansion:true,
             }
         },
-        mounted:function(){
-          this.lishi()
-          this.getCook()
+        mounted(){
+            this.lishi()
+            this.getCook()
             this.allPageNums()
         },
         created(){
@@ -152,7 +152,6 @@
                     url:'/share/switch_scan_result/getPages',
                     method:'get',
                 }).then(response=>{
-                    console.log(response)
                     this.allPage  = response*10
                 })
             },
@@ -228,7 +227,75 @@
             allTrue(){
                 this.$message.success('此按钮仅供展示，无作用!')
             },
-            //回显历史扫描某次时间一键修复
+            //修复整合
+            repairSwitch(row,type){
+                let userinformation = []
+                let userinformationCopy = []
+                let problemIdList = []
+                let allProIdList = []
+                let errIpList = []
+                let scanNum = 1
+                if (type == 'singleRepair'){
+                    //单台修复
+                    console.log('单台修复')
+                    row.children.forEach(item => {
+                        item.children.forEach(child => {
+                            if (child.ifQuestion == '异常'){
+                                problemIdList.push(child.questionId)
+                                errIpList.push(row.switchIp)
+                            }
+                        })
+                    })
+                }
+                else if (type == 'proRepair'){
+                    //单个问题修复
+                    console.log('单个问题修复')
+                    problemIdList.push(row.questionId)
+                    this.historyData.forEach(item => {
+                        item.children.forEach(child => {
+                            child.children.forEach(innerChild =>{
+                                if (innerChild.children.find(node => node.hproblemId == row.hproblemId)){
+                                    errIpList.push(child.switchIp)
+                                }
+                            })
+                        })
+                    })
+                }
+                else if (type == 'allRepair'){
+                    //一键修复
+                    console.log('一键修复')
+                    row.children.forEach(item => {
+                        item.children.forEach(child => {
+                            child.children.forEach(innerChild => {
+                                if (innerChild.ifQuestion == '异常'){
+                                    problemIdList.push(innerChild.questionId)
+                                    errIpList.push(item.switchIp)
+                                }
+                            })
+                        })
+                    })
+                }
+                userinformationCopy = errIpList.flatMap(ip => this.newArr
+                    .filter(chaip => chaip['ip'] == ip).map(x => JSON.stringify(x)))
+                //去掉线程名，只保留ip
+                userinformation = userinformationCopy.map(jsonString => {
+                    const obj = JSON.parse(jsonString)
+                    const ipValue = obj.ip.split(':')[0]
+                    obj.ip = ipValue
+                    return JSON.stringify(obj)
+                })
+                console.log(userinformation)
+                console.log(problemIdList)
+                return request({
+                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
+                    // url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum,
+                    method:'post',
+                    data:userinformation
+                }).then(response=>{
+                    console.log(response)
+                })
+            },
+            //历史扫描某次时间一键修复
             huitimeyijian(row){
                 const problemIdList = []
                 //异常所对应的ip集合
@@ -271,54 +338,12 @@
                     console.log('成功')
                 })
             },
-            //历史单台一键修复
-            xiuallone(row){
-                // setInterval(this.lishi,5000)
-                const thisip = row.switchIp
-                const listAll = row.children
-                console.log(row)
-                const list1 = []
-                const errIpList = []
-                const problemIdList = []
-                for(let i = 0;i<listAll.length;i++){
-                    for (let g = 0;g<listAll[i].children.length;g++){
-                        // problemIdList.push(listAll[i].children[g].questionId)
-                        //3.16修改逻辑
-                        if (listAll[i].children[g].ifQuestion == '异常'){
-                            problemIdList.push(listAll[i].children[g].questionId)
-                            errIpList.push(row.switchIp)
-                        }
-                    }
-                }
-                for (let i = 0;i<this.newArr.length;i++){
-                    const chaip = this.newArr[i]
-                    for(let g = 0;g<errIpList.length;g++){
-                        if (chaip['ip'] == errIpList[g]){
-                            list1.push(chaip)
-                        }
-                    }
-                }
-                const allProIdList = []
-                const userinformation = list1.map(x=>JSON.stringify(x))
-                const scanNum = this.num
-                console.log(userinformation)
-                console.log(problemIdList)
-                console.log(allProIdList)
-                return request({
-                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
-                    method:'post',
-                    data:userinformation
-                }).then(response=>{
-                    console.log('成功')
-                    this.$message.success('修复请求以提交!')
-                })
-            },
             //历史修复单个问题
             xiufuone(row){
                 console.log(row)
                 const thisid = row.hproblemId
                 let thisparip = ''
-                const allwenti = this.lishiData
+                const allwenti = this.historyData
                 for(let i = 0;i<allwenti.length;i++){
                     for (let g = 0;g<allwenti[i].children.length;g++){
                         for (let m = 0;m<allwenti[i].children[g].children.length;m++){
@@ -358,6 +383,46 @@
                     this.$message.success('修复请求以提交!')
                 })
             },
+            //历史单台一键修复
+            xiuallone(row){
+                const thisip = row.switchIp
+                const listAll = row.children
+                console.log(row)
+                const list1 = []
+                const errIpList = []
+                const problemIdList = []
+                for(let i = 0;i<listAll.length;i++){
+                    for (let g = 0;g<listAll[i].children.length;g++){
+                        //3.16修改逻辑
+                        if (listAll[i].children[g].ifQuestion == '异常'){
+                            problemIdList.push(listAll[i].children[g].questionId)
+                            errIpList.push(row.switchIp)
+                        }
+                    }
+                }
+                for (let i = 0;i<this.newArr.length;i++){
+                    const chaip = this.newArr[i]
+                    for(let g = 0;g<errIpList.length;g++){
+                        if (chaip['ip'] == errIpList[g]){
+                            list1.push(chaip)
+                        }
+                    }
+                }
+                const allProIdList = []
+                const userinformation = list1.map(x=>JSON.stringify(x))
+                const scanNum = this.num
+                console.log(userinformation)
+                console.log(problemIdList)
+                console.log(allProIdList)
+                return request({
+                    url:'/sql/SolveProblemController/batchSolutionMultithreading/'+problemIdList+'/'+scanNum+'/'+allProIdList,
+                    method:'post',
+                    data:userinformation
+                }).then(response=>{
+                    console.log('成功')
+                    this.$message.success('修复请求以提交!')
+                })
+            },
             //历史扫描合并列
             arraySpanMethodTwo({ row, column, rowIndex, columnIndex }) {
                 if(row.createTime != null){
@@ -375,8 +440,8 @@
                     }
                 }
             },
-            //历史扫描
-            lishi(){
+            //历史扫描--备份
+            lishiNew(){
                 this.huisao = true
                 return request({
                     url:'/share/switch_scan_result/getUnresolvedProblemInformationByUserName/' + this.pageNumber,
@@ -391,9 +456,9 @@
                     response = changeTreeDate(response,'scanResultsVOList','children')
                     response = changeTreeDate(response,'switchProblemVOList','children')
                     response = changeTreeDate(response,'switchProblemCOList','children')
-                    this.lishiData = response
-                    const jiaid = this.lishiData
-                    const jiaid1 = this.lishiData
+                    this.historyData = response
+                    const jiaid = this.historyData
+                    const jiaid1 = this.historyData
                     //合并信息
                     for(let i = 0;i<jiaid.length;i++){
                         for (let g = 0;g<jiaid[i].children.length;g++){
@@ -456,6 +521,120 @@
                                 }
                             }
                         }
+                    }
+                    //获取返回ip、用户名、密码五条信息,添加了配置密码
+                    const allxinxi = []
+                    for(let i = 0;i<jiaid.length;i++){
+                        for (let g = 0;g<jiaid[i].children.length;g++){
+                            for (let m = 0;m<jiaid[i].children[g].children.length;m++){
+                                const allinfo = {}
+                                if(jiaid[i].children[g].children[m].switchName != undefined){
+                                    this.$set(allinfo,'ip',jiaid[i].children[g].switchIp)
+                                    this.$set(allinfo,'name',jiaid[i].children[g].children[m].switchName)
+                                    this.$set(allinfo,'password',jiaid[i].children[g].children[m].switchPassword)
+                                    this.$set(allinfo,'mode',jiaid[i].children[g].children[m].loginMethod)
+                                    this.$set(allinfo,'port',jiaid[i].children[g].children[m].portNumber)
+                                    this.$set(allinfo,'configureCiphers',jiaid[i].children[g].children[m].configureCiphers)
+                                    allxinxi.push(allinfo)
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    //所有交换机信息去重
+                    let lishiobj = {}
+                    for(let i = 0;i<allxinxi.length;i++){
+                        if (!lishiobj[allxinxi[i].ip]){
+                            this.newArr.push(allxinxi[i])
+                            lishiobj[allxinxi[i].ip] = true
+                        }
+                    }
+                    console.log(this.newArr)
+                    console.log(jiaid)
+                })
+            },
+            //历史扫描
+            lishi(){
+                this.huisao = true
+                return request({
+                    url:'/share/switch_scan_result/getUnresolvedProblemInformationByUserName/' + this.pageNumber,
+                    method:'get'
+                }).then(response=>{
+                    // 递归函数，用于替换键名
+                    function replaceKeys(obj){
+                        if (typeof obj !== 'object' || obj === null){
+                            return obj
+                        }
+                        for (let key in obj){
+                            if (key === 'scanResultsVOList' || key === 'switchProblemVOList' || key === 'switchProblemCOList'){
+                                obj['children'] = replaceKeys(obj[key])
+                                delete obj[key]
+                            }else {
+                                // 递归处理嵌套对象
+                                obj[key] = replaceKeys(obj[key])
+                            }
+                        }
+                        return obj
+                    }
+                    //替换键名
+                    this.historyData = replaceKeys(response)
+                    let jiaid = this.historyData
+                    //优化后
+                    for (let i = 0; i < jiaid.length; i++) {
+                        for (let j = 0; j < jiaid[i].children.length; j++) {
+                            // 合并信息,使用解构赋值简化代码
+                            let { switchIp, showBasicInfo } = jiaid[i].children[j]
+                            let hebingInfo = switchIp.split(':')[0] + ' ' + showBasicInfo
+                            this.$set(jiaid[i].children[j], 'hebing', hebingInfo)
+                            for (let k = 0; k < jiaid[i].children[j].children.length; k++) {
+                                for (let l = 0; l < jiaid[i].children[j].children[k].children.length; l++) {
+                                    this.$set(jiaid[i].children[j].children[k].children[l],'createTime',null)
+                                    //查找是否有问题
+                                    if (jiaid[i].children[j].children[k].children[l].ifQuestion == '异常'){
+                                        this.$set(jiaid[i].children[j],'noPro',true)
+                                        this.$set(jiaid[i],'noPro',true)
+                                    }
+                                    ///////////历史扫描问题添加用户名
+                                    //7.14修改历史扫描
+                                    if (jiaid[i].children[j].children[k].typeProblem == "高级功能"){
+                                        let str = jiaid[i].children[j].children[k].children[l].dynamicInformation
+                                        let startStr = "=:=是=:="
+                                        let endStr = "=:="
+                                        var startIndex = str.indexOf(startStr) + 1
+                                        var endIndex = str.indexOf(endStr)
+                                        var result = str.substring(startIndex, endIndex)
+                                        console.log(result)
+                                    }
+                                    if (jiaid[i].children[j].children[k].children[l].valueInformationVOList.length>0){
+                                        let yongone = ''
+                                        let endyong = ''
+                                        for (let m = 0;m<jiaid[i].children[j].children[k].children[l].valueInformationVOList.length;m++){
+                                            if (jiaid[i].children[j].children[k].children[l].valueInformationVOList[m].exhibit === '是'){
+                                                yongone = jiaid[i].children[j].children[k].children[l].valueInformationVOList[m].dynamicInformation
+                                                endyong = endyong + ' ' +yongone
+                                            }
+                                        }
+                                        const wenti = jiaid[i].children[j].children[k].children[l].problemName
+                                        const zuihou = endyong +" "+ wenti
+                                        this.$set(jiaid[i].children[j].children[k].children[l],'problemName',zuihou)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // 递归 给每个节点添加 hproblemId
+                    function addHproblemId(node) {
+                        this.$set(node, 'hproblemId', Math.floor(Math.random() * (999999999999999 - 1) + 1));
+                        // 递归处理子节点
+                        if (node.children && node.children.length > 0) {
+                            for (let i = 0; i < node.children.length; i++) {
+                                addHproblemId.call(this, node.children[i]);
+                            }
+                        }
+                    }
+                    // 遍历 jiaid 数组，调用递归函数处理每个节点
+                    for (let i = 0; i < jiaid.length; i++) {
+                        addHproblemId.call(this, jiaid[i]);
                     }
                     //获取返回ip、用户名、密码五条信息,添加了配置密码
                     const allxinxi = []

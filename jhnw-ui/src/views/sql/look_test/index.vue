@@ -76,6 +76,9 @@
           <el-form-item>
             <el-button type="danger" @click="shanchutest" icon="el-icon-delete" size="small" plain>删除</el-button>
           </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="chongzhi" icon="el-icon-delete" size="small" plain>重置</el-button>
+          </el-form-item>
 <!--          <el-form-item>-->
 <!--            <el-button type="danger" @click.native="tuichu" icon="el-icon-delete" size="small" plain>退出</el-button>-->
 <!--          </el-form-item>-->
@@ -411,13 +414,6 @@ export default {
       open: false,
       // 查询参数
       queryParams: {
-        // problemName:'',
-        // temProName:'',
-        // typeProblem:'',
-        // brand:'',
-        // type:'',
-        // firewareVersion:'',
-        // subVersion:''
           brand:'',
           type:'',
           firewareVersion:'',
@@ -430,7 +426,7 @@ export default {
       // 表单参数
       form: {},
       isChange:false,
-        huichasss:[],
+      huichasss:[],
       formss:{
         dynamicItemss:[
            {
@@ -654,23 +650,32 @@ export default {
               this.lieNum = response.length
               this.proId = response[0].id
               console.log(this.proId)
-
               this.lookLists = []
               //转化为树结构
               for (let i = 0;i<response.length;i++){
-                  if (response[i].firewareVersion != null
-                      && response[i].subVersion != null
-                      && response[i].typeProblem != null && response[i].typeProblem != null){
-                      let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
-                      let loser = {
-                          label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
-                          children: [{
-                              label:response[i].problemName,
-                              id:response[i].id
-                          }]
-                      }
-                      this.lookLists.push(loser)
+                  // if (response[i].firewareVersion != null
+                  //     && response[i].subVersion != null
+                  //     && response[i].typeProblem != null && response[i].typeProblem != null){
+                  //     let xinall = response[i].brand + ' ' + response[i].type + ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
+                  //     let loser = {
+                  //         label:xinall+'>'+response[i].typeProblem+'>'+response[i].temProName,
+                  //         children: [{
+                  //             label:response[i].problemName,
+                  //             id:response[i].id
+                  //         }]
+                  //     }
+                  //     this.lookLists.push(loser)
+                  // }
+                  let basicInfoJoint = response[i].brand + ' ' + response[i].type +
+                      ' ' + response[i].firewareVersion + ' ' + response[i].subVersion
+                  let loser = {
+                      label: basicInfoJoint + '>' + response[i].typeProblem + '>' + response[i].temProName,
+                      children: [{
+                          label:response[i].problemName,
+                          id: response[i].id
+                      }]
                   }
+                  this.lookLists.push(loser)
               }
           })
       },
@@ -678,11 +683,10 @@ export default {
       generalOne(e){
           this.who = e.target.getAttribute('name')
           let newPar = {}
-
-          for (var key in this.queryParams){
+          for (let key in this.queryParams){
               newPar[key] = this.queryParams[key]
           }
-          for (var key in newPar){
+          for (let key in newPar){
               if (this.who == key){
                   newPar[key] = ''
               }
@@ -695,10 +699,6 @@ export default {
           }).then(response=>{
               console.log(response)
               this.genList = this.quchong(response,this.who)
-              // let kong = {
-              //     [this.who] : 'null'
-              // }
-              // this.genList.push(kong)
           })
       },
       //筛选条件
@@ -1022,6 +1022,11 @@ export default {
                   this.$message.warning('取消删除!')
               })
           }
+      },
+      //重置操作
+      chongzhi(){
+          this.reload()
+          console.log('重置')
       },
       //全选
       handleCheckAllChange() {
