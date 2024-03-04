@@ -15,10 +15,7 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.*;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.ISwitchScanResultService;
-import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.EncryptUtil;
-import com.sgcc.share.util.FunctionalMethods;
-import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -357,7 +354,7 @@ public class SwitchScanResultController extends BaseController
      * @return
     */
     @PutMapping("/updateLoginInformation")
-    public void updateLoginInformation(List<String> switchInformations) {
+    public void updateLoginInformation(@RequestBody List<String> switchInformations) {
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchScanResult> switchScanResults = new ArrayList<>();
 
@@ -368,10 +365,17 @@ public class SwitchScanResultController extends BaseController
             SwitchScanResult switchScanResult = new SwitchScanResult();
             switchScanResult.setSwitchIp(switchLoginInformation.getIp());
             switchScanResult.setSwitchName(switchLoginInformation.getName());
-            switchScanResult.setSwitchPassword(switchLoginInformation.getPassword());
-            switchScanResult.setConfigureCiphers(switchLoginInformation.getConfigureCiphers());
+            /*先解密前端加密 后加密*/
+            String password = RSAUtils.decryptFrontEndCiphertext(switchLoginInformation.getPassword());
+            switchScanResult.setSwitchPassword(EncryptUtil.densificationAndSalt(password));/*EncryptUtil.densificationAndSalt( switchParameters.getPassword() )*/
+
+            if (switchLoginInformation.getConfigureCiphers() != null){
+                String ConfigureCiphers = RSAUtils.decryptFrontEndCiphertext(switchLoginInformation.getConfigureCiphers());
+                switchScanResult.setConfigureCiphers(ConfigureCiphers == null? null : EncryptUtil.densificationAndSalt(ConfigureCiphers));
+            }
 
             switchScanResults.add(switchScanResult);
+
         }
 
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);

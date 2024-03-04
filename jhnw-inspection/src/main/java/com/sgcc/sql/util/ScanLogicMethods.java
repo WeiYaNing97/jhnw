@@ -461,19 +461,17 @@ public class ScanLogicMethods {
                     line_n,firstID,problemScanLogicList,problemScanLogic.gettNextId(),insertsInteger, loop, numberOfCycles);
 
             //如果返回信息为null
-            if ( ProblemScanLogic_returnstring != null){
-
+            /*if ( ProblemScanLogic_returnstring != null){
                 //内分析传到上一层
                 //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
                 //extractInformation_string = ProblemScanLogic_returnstring;
-
                 return ProblemScanLogic_returnstring;
-
-            }
+            }*/
 
             return ProblemScanLogic_returnstring;
 
         }
+
         return null;
     }
 
@@ -534,12 +532,12 @@ public class ScanLogicMethods {
                     insertsInteger, loop, numberOfCycles);
 
             //如果返回信息为null
-            if (ProblemScanLogic_returnstring!=null){
+            /*if (ProblemScanLogic_returnstring!=null){
                 //内分析传到上一层
                 //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
                 // extractInformation_string = ProblemScanLogic_returnstring;
                 return ProblemScanLogic_returnstring;
-            }
+            }*/
 
             return ProblemScanLogic_returnstring;
         }

@@ -94,6 +94,7 @@ public class SwitchInteraction {
     @MyLog(title = "测试获取交换机基本信息逻辑执行结果", businessType = BusinessType.OTHER)
     public String testToObtainBasicInformation(@PathVariable String ip,@PathVariable String name,@PathVariable String password,@PathVariable String port,@PathVariable String mode,
                                                @PathVariable String configureCiphers, @PathVariable String[] command,@RequestBody List<String> pojoList) {
+
         /*交换机信息类  为了减少方法调用间传的参数*/
         SwitchParameters switchParameters = new SwitchParameters();
         switchParameters.setMode(mode);
@@ -479,6 +480,7 @@ public class SwitchInteraction {
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      */
     public AjaxResult getBasicInformationTest(SwitchParameters switchParameters,String[] commands ,List<ProblemScanLogic> problemScanLogicList) {
+
         if (commands.length == 0){
             return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
         }
@@ -1278,6 +1280,7 @@ public class SwitchInteraction {
                     insertsInteger, /*问题插入数据库次数*/
                     loop, /*循环次数*/
                     numberOfCycles);/*最大循环次数*/
+
             return loop_string;
 
         }
@@ -1361,6 +1364,7 @@ public class SwitchInteraction {
                             line_n,firstID,problemScanLogicList,
                             problemScanLogic.gettNextId(), /*currentID = problemScanLogic.gettNextId();*/
                             insertsInteger, loop, numberOfCycles);
+
                     return loop_string;
 
                 }
