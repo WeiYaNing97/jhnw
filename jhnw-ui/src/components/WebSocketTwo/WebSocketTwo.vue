@@ -554,7 +554,7 @@
                 console.log(problemIdList)
                 console.log(userinformation)
                 return request({
-                    // url: '/sql/SolveProblemController/batchSolutionMultithreading/' + problemIdList + '/' + scanNum + '/' + allProIdList,
+                    url: '/sql/SolveProblemController/batchSolutionMultithreading/' + problemIdList + '/' + scanNum + '/' + allProIdList,
                     method: 'post',
                     data: userinformation
                 }).then(response => {
@@ -741,7 +741,7 @@
                 clearInterval(this.wsTimer)
                 this.wsTimer = setInterval(() => {
                     if (this.webSocket.readyState === 1) {
-                        console.log('连接中')
+                        // console.log('连接中')
                         clearInterval(this.wsTimer)
                     } else {
                         console.log('ws建立连接失败')

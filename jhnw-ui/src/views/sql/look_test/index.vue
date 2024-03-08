@@ -77,7 +77,7 @@
             <el-button type="danger" @click="shanchutest" icon="el-icon-delete" size="small" plain>删除</el-button>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="chongzhi" icon="el-icon-delete" size="small" plain>重置</el-button>
+            <el-button type="primary" @click="chongzhi" icon="el-icon-delete" size="small" plain>刷新</el-button>
           </el-form-item>
 <!--          <el-form-item>-->
 <!--            <el-button type="danger" @click.native="tuichu" icon="el-icon-delete" size="small" plain>退出</el-button>-->
@@ -228,7 +228,7 @@
               </el-form-item>
               <el-form-item :prop="'dynamicItem.' + index + '.takeword'">
                 <el-input v-model="item.relative" style="width: 55px;padding: 0 5px" placeholder="行偏移"></el-input> --
-                <el-input v-model="item.rPosition" style="width: 55px;padding: 0 5px" placeholder="列偏移"></el-input> --
+                <el-input v-model="item.rPosition" style="width: 60px;padding: 0 5px" placeholder="列偏移"></el-input> --
                 <el-input v-model="item.length1" style="width: 55px;padding: 0 5px" placeholder="取几个"></el-input>
                 <el-select v-model="item.classify" placeholder="单词/行" style="width: 80px">
                   <el-option label="词汇" value="W"></el-option>
@@ -538,7 +538,7 @@ export default {
           })
           this.bixiala = false
       },
-      //比较输入框为空后
+      //比较输入框清空后
       bihou(){
           this.forms.dynamicItem.forEach(e=>{
               if (e.targetType === 'analyse'){
@@ -701,128 +701,6 @@ export default {
               this.genList = this.quchong(response,this.who)
           })
       },
-      //筛选条件
-      filterNode(value, data){
-          if (!value) return true;
-          return data.label.indexOf(value) !== -1;
-      },
-      //循环项获取index
-      wcycle(item,event){
-          const cycleId = item.onlyIndex
-          console.log(item)
-          this.forms.dynamicItem.forEach(cy=>{
-              if (cy.hasOwnProperty('cycleStartId') != true && cy.targetType == 'wloop'){
-                  if (item.relativeTest == 'full'){
-                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
-                          confirmButtonText: '确定',
-                          cancelButtonText: '取消',
-                          type: 'warning'
-                      }).then(() => {}).catch(() => {});
-                  }
-                  this.$set(cy,'cycleStartId',cycleId)
-              }else if (cy.cycleStartId == ''){
-                  if (item.relativeTest == 'full'){
-                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
-                          confirmButtonText: '确定',
-                          cancelButtonText: '取消',
-                          type: 'warning'
-                      }).then(() => {}).catch(() => {});
-                  }
-                  this.$set(cy,'cycleStartId',cycleId)
-              }
-          })
-      },
-      //回显定义问题
-      chaxun(){
-          console.log(this.queryParams)
-          console.log(this.lookLists)
-          if (this.lookLists.length != 1 && this.cdy != true){
-              alert('查找条件过于模糊,请完善')
-          }else {
-              this.forms.dynamicItem = this.formss.dynamicItemss
-              this.huichasss = []
-              this.showNo= true
-              this.zhidu = true
-              return request({
-                  url:'/sql/DefinitionProblemController/getAnalysisList',
-                  method:'get',
-                  // data:JSON.stringify(this.queryParams)
-                  params:this.queryParams
-              }).then(response=>{
-                  console.log(response)
-                  this.fDa = []
-                  response.data.forEach(l=>{
-                      const wei = l.replace(/"=/g,'":')
-                      this.fDa.push(JSON.parse(wei))
-                      // const weizai = eval(wei)
-                      // this.fDa.push(JSON.parse(weizai))
-                      // this.fDa.push(eval(wei))
-                  })
-                  this.fDa.forEach(chae=>{
-                      if (chae.hasOwnProperty('command') == true){
-                          this.$set(chae,'targetType','command')
-                          this.huichasss.push(chae)
-                      }else if (chae.matched === '全文精确匹配'){
-                          this.$set(chae,'targetType','match')
-                          this.huichasss.push(chae)
-                          this.allOne.push(chae.onlyIndex)
-                      }else if (chae.matched === '全文模糊匹配'){
-                          this.$set(chae,'targetType','dimmatch')
-                          this.huichasss.push(chae)
-                          this.allOne.push(chae.onlyIndex)
-                      }else if (chae.matched === '按行精确匹配'){
-                          this.$set(chae,'targetType','lipre')
-                          this.huichasss.push(chae)
-                          this.allTwo.push(chae.onlyIndex)
-                      }else if (chae.matched === '按行模糊匹配'){
-                          this.$set(chae,'targetType','dimpre')
-                          this.huichasss.push(chae)
-                          this.allTwo.push(chae.onlyIndex)
-                      }else if (chae.action === '比较'){
-                          this.$set(chae,'targetType','analyse')
-                          // bixiala bizui
-                          this.bizui = true
-                          this.bixiala = false
-                          this.huichasss.push(chae)
-                      }else if(chae.trueFalse === '失败'){
-                          if (this.allOne.includes(chae.onlyIndex)){
-                              this.$set(chae,'targetType','failed')
-                          }else if (this.allTwo.includes(chae.onlyIndex)){
-                              this.$set(chae,'targetType','failedH')
-                          }else {
-                              this.$set(chae,'targetType','failedB')
-                          }
-                          this.huichasss.push(chae)
-                      }else if (chae.action === '取词'){
-                          this.$set(chae,'targetType','takeword')
-                          if (chae.length.slice(chae.length.length-1) === 'W'){
-                              this.$set(chae,'classify','单词')
-                          }else  if (chae.length.slice(chae.length.length-1) === 'S'){
-                              this.$set(chae,'classify','字符串')
-                          }else if (chae.length.slice(chae.length.length-1) === 'L'){
-                              this.$set(chae,'classify','字母')
-                          }
-                          chae.length1 = chae.length.slice(0,chae.length.length-1)
-                          this.huichasss.push(chae)
-                      }else if (chae.action === '问题'){
-                          this.$set(chae,'targetType','prodes')
-                          if (chae.tNextId === '异常'){
-                              this.$set(chae,'tNextId','有问题')
-                          }else if (chae.tNextId === '安全'){
-                              this.$set(chae,'tNextId','无问题')
-                          }
-                          this.huichasss.push(chae)
-                      }else if (chae.action === '循环'){
-                          this.$set(chae,'targetType','wloop')
-                          this.huichasss.push(chae)
-                      }
-                  })
-                  this.huichasss.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
-                  this.forms.dynamicItem = this.forms.dynamicItem.concat(this.huichasss)
-                  this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
-              })
-          }
-      },
       //列表展示树结构-回显定义问题
       handleNodeClick(lookLists) {
           this.proId = lookLists.id
@@ -936,6 +814,127 @@ export default {
               })
           }
       },
+      //筛选条件
+      filterNode(value, data){
+          if (!value) return true;
+          return data.label.indexOf(value) !== -1;
+      },
+      //循环项获取index
+      wcycle(item,event){
+          const cycleId = item.onlyIndex
+          console.log(item)
+          this.forms.dynamicItem.forEach(cy=>{
+              if (cy.hasOwnProperty('cycleStartId') != true && cy.targetType == 'wloop'){
+                  if (item.relativeTest == 'full'){
+                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
+                          confirmButtonText: '确定',
+                          cancelButtonText: '取消',
+                          type: 'warning'
+                      }).then(() => {}).catch(() => {});
+                  }
+                  this.$set(cy,'cycleStartId',cycleId)
+              }else if (cy.cycleStartId == ''){
+                  if (item.relativeTest == 'full'){
+                      this.$confirm('此循环行涉及全文起始，应修改为当前位置!', '提示', {
+                          confirmButtonText: '确定',
+                          cancelButtonText: '取消',
+                          type: 'warning'
+                      }).then(() => {}).catch(() => {});
+                  }
+                  this.$set(cy,'cycleStartId',cycleId)
+              }
+          })
+      },
+      //回显定义问题
+      chaxun(){
+          console.log(this.queryParams)
+          console.log(this.lookLists)
+          if (this.lookLists.length != 1 && this.cdy != true){
+              alert('查找条件过于模糊,请完善')
+          }else {
+              this.forms.dynamicItem = this.formss.dynamicItemss
+              this.huichasss = []
+              this.showNo= true
+              this.zhidu = true
+              return request({
+                  url:'/sql/DefinitionProblemController/getAnalysisList',
+                  method:'get',
+                  // data:JSON.stringify(this.queryParams)
+                  params:this.queryParams
+              }).then(response=>{
+                  console.log(response)
+                  this.fDa = []
+                  response.data.forEach(l=>{
+                      const wei = l.replace(/"=/g,'":')
+                      this.fDa.push(JSON.parse(wei))
+                      // const weizai = eval(wei)
+                      // this.fDa.push(JSON.parse(weizai))
+                      // this.fDa.push(eval(wei))
+                  })
+                  this.fDa.forEach(chae=>{
+                      if (chae.hasOwnProperty('command') == true){
+                          this.$set(chae,'targetType','command')
+                          this.huichasss.push(chae)
+                      }else if (chae.matched === '全文精确匹配'){
+                          this.$set(chae,'targetType','match')
+                          this.huichasss.push(chae)
+                          this.allOne.push(chae.onlyIndex)
+                      }else if (chae.matched === '全文模糊匹配'){
+                          this.$set(chae,'targetType','dimmatch')
+                          this.huichasss.push(chae)
+                          this.allOne.push(chae.onlyIndex)
+                      }else if (chae.matched === '按行精确匹配'){
+                          this.$set(chae,'targetType','lipre')
+                          this.huichasss.push(chae)
+                          this.allTwo.push(chae.onlyIndex)
+                      }else if (chae.matched === '按行模糊匹配'){
+                          this.$set(chae,'targetType','dimpre')
+                          this.huichasss.push(chae)
+                          this.allTwo.push(chae.onlyIndex)
+                      }else if (chae.action === '比较'){
+                          this.$set(chae,'targetType','analyse')
+                          this.bizui = true
+                          this.bixiala = false
+                          this.huichasss.push(chae)
+                      }else if(chae.trueFalse === '失败'){
+                          if (this.allOne.includes(chae.onlyIndex)){
+                              this.$set(chae,'targetType','failed')
+                          }else if (this.allTwo.includes(chae.onlyIndex)){
+                              this.$set(chae,'targetType','failedH')
+                          }else {
+                              this.$set(chae,'targetType','failedB')
+                          }
+                          this.huichasss.push(chae)
+                      }else if (chae.action === '取词'){
+                          this.$set(chae,'targetType','takeword')
+                          if (chae.length.slice(chae.length.length-1) === 'W'){
+                              this.$set(chae,'classify','单词')
+                          }else  if (chae.length.slice(chae.length.length-1) === 'S'){
+                              this.$set(chae,'classify','字符串')
+                          }else if (chae.length.slice(chae.length.length-1) === 'L'){
+                              this.$set(chae,'classify','字母')
+                          }
+                          chae.length1 = chae.length.slice(0,chae.length.length-1)
+                          this.huichasss.push(chae)
+                      }else if (chae.action === '问题'){
+                          this.$set(chae,'targetType','prodes')
+                          if (chae.tNextId === '异常'){
+                              this.$set(chae,'tNextId','有问题')
+                          }else if (chae.tNextId === '安全'){
+                              this.$set(chae,'tNextId','无问题')
+                          }
+                          this.huichasss.push(chae)
+                      }else if (chae.action === '循环'){
+                          this.$set(chae,'targetType','wloop')
+                          this.huichasss.push(chae)
+                      }
+                  })
+                  this.huichasss.sort(function (a, b) { return a.pageIndex - b.pageIndex; })
+                  this.forms.dynamicItem = this.forms.dynamicItem.concat(this.huichasss)
+                  this.oldValue = JSON.parse(JSON.stringify(this.forms.dynamicItem))
+              })
+          }
+      },
       //获取问题ID
       cproId(){
           // this.$delete(this.queryParams,'commandId')
@@ -970,7 +969,7 @@ export default {
       },
       //编辑
       xiugai(){
-          MessageBox.confirm('确定去修改吗？','提示').then(c=>{
+          MessageBox.confirm('确定进行修改？','提示').then(c=>{
               this.zhidu = false
           }).catch(ee=>{
               this.$message.warning('取消修改!')
@@ -1026,7 +1025,7 @@ export default {
       //重置操作
       chongzhi(){
           this.reload()
-          console.log('重置')
+          console.log('刷新')
       },
       //全选
       handleCheckAllChange() {

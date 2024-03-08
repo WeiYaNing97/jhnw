@@ -289,12 +289,12 @@
           </div>
 <!--         比较 -->
           <div v-else-if="item.targetType === 'analyse'" :key="index" style="display:inline-block">
-            <el-form-item label="比较" v-show="bizui">
-              <el-input v-model="item.compare" style="width: 217px" v-show="bizui" @input="bihou"></el-input>
+            <el-form-item label="比较" v-show="getVisibilityState(index, 'bizui')">
+              <el-input v-model="item.compare" clearable style="width: 217px" @input="bihou(index)"></el-input>
             </el-form-item>
-            <el-form-item label="比较" v-show="bixiala">
-              <el-select v-model="item.bi" filterable @change="bibi"
-                         v-show="bixiala" placeholder="例如:品牌<5.20.99">
+            <el-form-item label="比较" v-show="getVisibilityState(index, 'bixiala')">
+              <el-select v-model="item.bi" filterable @change="bibi(index)"
+                         placeholder="例如:品牌<5.20.99">
                 <el-option v-for="(item,index) in biList"
                            :label="item.valueOf(index)" :value="item.valueOf(index)"></el-option>
               </el-select>
@@ -495,6 +495,16 @@ export default {
         showha:false,
         bizui:false,
         bixiala:true,
+        visibilityStates:{
+            bizui_1:false,
+            bixiala_1: true,
+            bizui_2:false,
+            bixiala_2: true,
+            bizui_3:false,
+            bixiala_3: true,
+            bizui_4:false,
+            bixiala_4: true,
+        },
         radio:'1',
         //通用基本信息下拉集合
         genList:[],
@@ -591,7 +601,6 @@ export default {
       //下拉框获取数据通用
       general(e){
           this.who = e.target.getAttribute('name')
-          // console.log('当前点击输入框' + this.who)
           //查询对象
           let newPar = {
               brand:this.queryParams.brand,
@@ -611,6 +620,113 @@ export default {
           }).then(response=>{
               this.genList = this.quchong(response,this.who)
           })
+      },
+      //定义问题合并提交
+      subProblem(){
+          var subNewPro = JSON.parse(JSON.stringify(this.queryParams))
+          if (subNewPro.requiredItems === true){
+              this.$set(subNewPro,'requiredItems','1')
+          }else {
+              this.$set(subNewPro,'requiredItems','0')
+          }
+          for (let i in subNewPro){
+              if (subNewPro[i] === 'null'){
+                  subNewPro[i] = ''
+              }
+          }
+          if (subNewPro.brand != '' && subNewPro.typeProblem != '' && subNewPro.temProName != '' && this.forms.dynamicItem.length > 1){
+              return request({
+                  url:'/sql/total_question_table/add',
+                  method:'post',
+                  data:JSON.stringify(subNewPro)
+              }).then(response=>{
+                  console.log(response)
+                  this.proId = response.msg
+                  console.log(typeof this.proId)
+                  // if (typeof(this.proId) === 'number'){
+                  if (this.proId != ''){
+                      console.log('数字')
+                      const useForm = []
+                      const useLess = []
+                      this.forms.dynamicItem.forEach(e=>{
+                          if (e.test === "test"){
+                              useLess.push(e)
+                          }else {
+                              useForm.push(e)
+                          }
+                      })
+                      useForm.forEach(eeee=>{
+                          const thisIndex = useForm.indexOf(eeee)
+                          if(useForm.length != thisIndex+1){
+                              const thisNext = useForm[thisIndex+1]
+                              this.$set(eeee,'nextIndex',thisNext.onlyIndex)
+                          }
+                          // if (eeee.matched === '全文精确匹配'){
+                          //     if (eeee.cursorRegion === 'D'){
+                          //         this.$set(eeee,'cursorRegion','0')
+                          //     }else if (eeee.cursorRegion === 'Q'){
+                          //         this.$set(eeee,'cursorRegion','1')
+                          //     }else {
+                          //         console.log('我')
+                          //     }
+                          // }
+                          if (eeee.action === '取词'){
+                              eeee.length = `${eeee.length1}${eeee.classify}`
+                              if (eeee.length === 'undefinedundefined'){
+                                  eeee.length = '0'
+                              }else {
+                                  eeee.length = `${eeee.length1}${eeee.classify}`
+                              }
+                          }
+                          if (eeee.targetType == 'match'){
+                              this.$set(eeee,'relative',eeee.relativeTest + '&' + eeee.relativeType)
+                          }
+                          this.$set(eeee,'pageIndex',thisIndex+1)
+                          if (eeee.targetType == 'takeword'){
+                              const takeWordt = useForm.indexOf(eeee)
+                              var quciC = ''
+                              useForm.map((e11)=>{
+                                  const takeWl = useForm.indexOf(e11)
+                                  if(takeWl == takeWordt-1){
+                                      quciC = e11.matchContent
+                                  }
+                              })
+                              this.$set(eeee,'matchContent',quciC)
+                          }
+                          //拆分有无问题
+                          if (eeee.action === '问题'){
+                              const neid = eeee.action
+                              console.log(neid)
+                              const thisData = Date.now()
+                              console.log(thisData)
+                          }
+                      })
+                      const handForm = useForm.map(x => JSON.stringify(x))
+                      console.log(handForm)
+                      if (handForm.length < 1){
+                          this.$message.warning('分析逻辑不能为空!')
+                      }else {
+                          return request({
+                              url:`/sql/DefinitionProblemController/definitionProblemJsonPojo?totalQuestionTableId=${this.proId}`,
+                              method:'post',
+                              data:handForm
+                          }).then(response=>{
+                              console.log(response)
+                              this.$message.success('提交问题成功!')
+                              this.reload()
+                              router.push({
+                                  path:'/sql/look_test'
+                              })
+                          })
+                      }
+                  }else {
+                      this.$message.error('提交问题失败!')
+                  }
+                  this.chuxian = true
+              })
+          }else {
+              alert('品牌、范式分类、范式名称、分析逻辑不得为空!')
+          }
       },
       //测试
       testOne(){
@@ -762,23 +878,34 @@ export default {
       },
 
       //比较选中触发
-      bibi(){
-          this.bizui = true
+      bibi(index){
+          console.log(index+'aaaaaaa')
+          // this.bizui = true
+          this.$set(this.visibilityStates, `bizui_${index}`, true);
+          console.log(this.visibilityStates)
           this.forms.dynamicItem.forEach(e=>{
               if (e.targetType === 'analyse'){
                   const bixuan = e.bi
                   this.$set(e,'compare',bixuan)
               }
           })
-          this.bixiala = false
+          // this.bixiala = false
+          this.$set(this.visibilityStates, `bixiala_${index}`, false);
+      },
+      //
+      getVisibilityState(index,propertyName){
+          return this.visibilityStates[`${propertyName}_${index}`]
       },
       //比较输入框为空后
-      bihou(){
+      bihou(index){
         this.forms.dynamicItem.forEach(e=>{
             if (e.targetType === 'analyse'){
                 if (e.compare === ''){
-                    this.bixiala = true
-                    this.bizui = false
+                    // this.bixiala = true
+                    // this.bizui = false
+                    this.$set(this.visibilityStates, `bixiala_${index}`, true)
+                    this.$set(this.visibilityStates, `bizui_${index}`, false)
+                    console.log(index+'bbbbbbbbb')
                 }
             }
         })
@@ -935,113 +1062,7 @@ export default {
               alert('品牌、范式分类、范式名称、分析逻辑不得为空!')
           }
       },
-      //定义问题合并提交
-      subProblem(){
-          var subNewPro = JSON.parse(JSON.stringify(this.queryParams))
-          if (subNewPro.requiredItems === true){
-              this.$set(subNewPro,'requiredItems','1')
-          }else {
-              this.$set(subNewPro,'requiredItems','0')
-          }
-          for (let i in subNewPro){
-              if (subNewPro[i] === 'null'){
-                  subNewPro[i] = ''
-              }
-          }
-          if (subNewPro.brand != '' && subNewPro.typeProblem != '' && subNewPro.temProName != '' && this.forms.dynamicItem.length > 1){
-              return request({
-                  url:'/sql/total_question_table/add',
-                  method:'post',
-                  data:JSON.stringify(subNewPro)
-              }).then(response=>{
-                  console.log(response)
-                  this.proId = response.msg
-                  console.log(typeof this.proId)
-                  // if (typeof(this.proId) === 'number'){
-                  if (this.proId != ''){
-                      console.log('数字')
-                      const useForm = []
-                      const useLess = []
-                      this.forms.dynamicItem.forEach(e=>{
-                          if (e.test === "test"){
-                              useLess.push(e)
-                          }else {
-                              useForm.push(e)
-                          }
-                      })
-                      useForm.forEach(eeee=>{
-                          const thisIndex = useForm.indexOf(eeee)
-                          if(useForm.length != thisIndex+1){
-                              const thisNext = useForm[thisIndex+1]
-                              this.$set(eeee,'nextIndex',thisNext.onlyIndex)
-                          }
-                          // if (eeee.matched === '全文精确匹配'){
-                          //     if (eeee.cursorRegion === 'D'){
-                          //         this.$set(eeee,'cursorRegion','0')
-                          //     }else if (eeee.cursorRegion === 'Q'){
-                          //         this.$set(eeee,'cursorRegion','1')
-                          //     }else {
-                          //         console.log('我')
-                          //     }
-                          // }
-                          if (eeee.action === '取词'){
-                              eeee.length = `${eeee.length1}${eeee.classify}`
-                              if (eeee.length === 'undefinedundefined'){
-                                  eeee.length = '0'
-                              }else {
-                                  eeee.length = `${eeee.length1}${eeee.classify}`
-                              }
-                          }
-                          if (eeee.targetType == 'match'){
-                              this.$set(eeee,'relative',eeee.relativeTest + '&' + eeee.relativeType)
-                          }
-                          this.$set(eeee,'pageIndex',thisIndex+1)
-                          if (eeee.targetType == 'takeword'){
-                              const takeWordt = useForm.indexOf(eeee)
-                              var quciC = ''
-                              useForm.map((e11)=>{
-                                  const takeWl = useForm.indexOf(e11)
-                                  if(takeWl == takeWordt-1){
-                                      quciC = e11.matchContent
-                                  }
-                              })
-                              this.$set(eeee,'matchContent',quciC)
-                          }
-                          //拆分有无问题
-                          if (eeee.action === '问题'){
-                              const neid = eeee.action
-                              console.log(neid)
-                              const thisData = Date.now()
-                              console.log(thisData)
-                          }
-                      })
-                      const handForm = useForm.map(x => JSON.stringify(x))
-                      console.log(handForm)
-                      if (handForm.length < 1){
-                          this.$message.warning('分析逻辑不能为空!')
-                      }else {
-                          return request({
-                              url:`/sql/DefinitionProblemController/definitionProblemJsonPojo?totalQuestionTableId=${this.proId}`,
-                              method:'post',
-                              data:handForm
-                          }).then(response=>{
-                              console.log(response)
-                              this.$message.success('提交问题成功!')
-                              this.reload()
-                              router.push({
-                                  path:'/sql/look_test'
-                              })
-                          })
-                      }
-                  }else {
-                      this.$message.error('提交问题失败!')
-                  }
-                  this.chuxian = true
-              })
-          }else {
-              alert('品牌、范式分类、范式名称、分析逻辑不得为空!')
-          }
-      },
+
       //合并按钮新的
       hebingnew(){
           var shasha = JSON.parse(JSON.stringify(this.queryParams))
@@ -1114,9 +1135,7 @@ export default {
       },
       //定义问题详情
       xiangqing(){
-
           this.partShow = true
-
           let form = new FormData();
           for (var key in this.queryParams){
               // if (key != 'notFinished'&&key != 'requiredItems'&&key != 'commandId'&&key != 'remarks'){

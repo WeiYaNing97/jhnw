@@ -5,9 +5,9 @@
 <!--      type="textarea"-->
 <!--      style="white-space: pre-wrap;"-->
 <!--      v-model="textarea" :rows="10" readonly></el-input>-->
-    <el-button @click="exportFile">导出</el-button>
+    <el-button @click="exportFile" type="primary" plain style="margin-right: 20px">导出</el-button>
 <!--    //1.2添加测试-->
-    <el-input v-model="inputT" placeholder="请输入内容" @input="filterText"></el-input>
+    <el-input v-model="inputT" placeholder="请输入内容" style="width:500px" @input="filterText"></el-input>
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="系统信息" name="first">
         <el-input id="webtTwo" resize="none" type="textarea"
@@ -15,7 +15,7 @@
       </el-tab-pane>
       <el-tab-pane label="发送与接收" name="second">
         <el-input id="webtOne" resize="none" type="textarea"
-                  style="white-space: pre-wrap;" v-model="textareaOne" :rows="10"></el-input>
+                  style="white-space: pre-wrap;" v-model="textareaOne" :rows="10" readonly></el-input>
       </el-tab-pane>
       <el-tab-pane label="异常" name="third">
         <el-input id="webtThree" resize="none" type="textarea"
@@ -200,10 +200,15 @@
                         const textareaOne = document.getElementById('webtOne')
                         const textareaTwo = document.getElementById('webtTwo')
                         const textareaThree = document.getElementById('webtThree')
-                        // textarea.scrollTop = textarea.scrollHeight
-                        textareaOne.scrollTop = textareaOne.scrollHeight
-                        textareaTwo.scrollTop = textareaTwo.scrollHeight
-                        textareaThree.scrollTop = textareaThree.scrollHeight
+                        if (textareaOne) {
+                            textareaOne.scrollTop = textareaOne.scrollHeight
+                        }
+                        if (textareaTwo) {
+                            textareaTwo.scrollTop = textareaTwo.scrollHeight
+                        }
+                        if (textareaThree) {
+                            textareaThree.scrollTop = textareaThree.scrollHeight
+                        }
                     })
                 }
             },

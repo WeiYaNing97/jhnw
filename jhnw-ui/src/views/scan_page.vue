@@ -19,7 +19,7 @@
           </el-dropdown-menu>
         </el-dropdown>
 
-        <el-button type="primary" @click="xiugai" style="margin-left: 20px">修改ip密码</el-button>
+<!--        <el-button type="primary" @click="changeIpPass" size="small" style="margin-left: 20px">修改ip密码</el-button>-->
 
         <el-dropdown style="padding-left: 20px" trigger="click" size="small"
                      split-button type="success" v-show="this.scanButtonShow" @command="scanHandleCommand" @click="fullScan">
@@ -28,6 +28,7 @@
             <el-dropdown-item icon="el-icon-search" command="specialSearch">专项扫描</el-dropdown-item>
             <el-dropdown-item icon="el-icon-search" command="specialSearchAdv">高级功能扫描</el-dropdown-item>
             <el-dropdown-item icon="el-icon-search" command="modelScan">模板扫描</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-edit" command="changeIpPass">修改IP密码</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
 
@@ -109,8 +110,8 @@
 <!--          </el-scrollbar>-->
         </div>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="specialSearchStart" v-show="!showButton">开始扫描专项</el-button>
-          <el-button type="primary" @click="specialSearchStartAdv" v-show="showButton">开始扫描高级</el-button>
+          <el-button type="primary" @click="specialSearchStart" v-show="!showButton">专项扫描</el-button>
+          <el-button type="primary" @click="specialSearchStartAdv" v-show="showButton">高级扫描</el-button>
           <el-button @click="dialogVisibleSpecial = false">取 消</el-button>
 <!--          <el-button type="primary" @click="dialogVisibleSpecial = false">确 定</el-button>-->
         </span>
@@ -178,17 +179,6 @@
           </el-table-column>
         </el-table>
       </div>
-
-      <el-dialog
-        title="提示"
-        :visible.sync="dialogVisibleXiu"
-        width="30%"
-        :before-close="handleClose">
-        <span>修复已结束!</span>
-        <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="lishiend">确 定</el-button>
-        </span>
-      </el-dialog>
     </el-form>
 
     <el-divider></el-divider>
@@ -208,33 +198,6 @@
 <!--        v-show="this.webTwoShow"-->
       </el-row>
     </div>
-    <!-- 添加或修改测试对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="ip" prop="ip">
-          <el-input v-model="form.ip" placeholder="请输入ip" />
-        </el-form-item>
-        <el-form-item label="名字" prop="name">
-          <el-input v-model="form.name" placeholder="请输入名字" />
-        </el-form-item>
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="form.type" placeholder="请选择类型">
-            <el-option label="请选择字典生成" value="" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="端口号" prop="port">
-          <el-input v-model="form.port" placeholder="请输入端口号" />
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
-      </div>
-    </el-dialog>
-
 <!--    模板扫描-->
     <el-dialog title="模板选择" class="modelDia" :visible.sync="dialogFormVisibleOne">
       <el-form :model="formScan">
@@ -272,6 +235,8 @@
         inject:["reload"],
         data() {
             return {
+                //
+                bangding:'',
                 //最终扫描设备
                 finalScanIps:[],
                 //高级功能选择项
@@ -294,6 +259,7 @@
                 oneClickShow:false,
                 //扫描结束
                 scanFinish:false,
+                //获取选择的模板ID
                 formworkId:'',
                 dialogFormVisibleOne:false,
                 genList:[],
@@ -301,12 +267,8 @@
                 endIp:'',
                 //是否圆圈
                 loadingOne:true,
-                //定时接收true或者false
-                torf:false,
-                torfOne:false,
                 //查询树
                 deptName:'',
-                shuru:false,
                 //设备数组
                 tableData: [],
                 //表格上传的设备信息
@@ -341,20 +303,13 @@
                 num:1,
                 maxValue:20,
                 dialogVisible:false,
-                dialogVisibleXiu:false,
                 dialogVisibleSpecial:false,
-                //多台隐身
-                duoShow:true,
                 // 遮罩层
                 loading: false,
                 // 导出遮罩层
                 exportLoading: false,
                 // 选中数组
                 ids: [],
-                // 非单个禁用
-                single: true,
-                // 非多个禁用
-                multiple: true,
                 // 显示搜索条件
                 showSearch: true,
                 cancelShow:false,
@@ -362,12 +317,8 @@
                 rStartShow:false,
                 // 总条数
                 total: 0,
-                // 嘉豪测试表格数据
-                jh_testList: [],
                 // 弹出层标题
                 title: "",
-                // 是否显示弹出层
-                open: false,
                 // 查询参数
                 queryParams: {
                     ip: '192.168.1.1',
@@ -378,7 +329,6 @@
                 },
                 //新添加的
                 textarea:'',
-                // switchIp typeProblem problemName ifQuestion problemId
                 // 表单参数
                 form: {},
                 // 表单校验
@@ -437,7 +387,6 @@
         created() {
             // let us = Cookies.get("userInfo")
             // console.log(us)
-            // this.getList();
         },
         methods: {
             //无用代码⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
@@ -455,10 +404,6 @@
                 }else if (this.advcancedChoose == '光纤衰耗'){
                     console.log('光纤衰耗')
                 }
-            },
-            //
-            lishiend(){
-
             },
             // //模板扫描获取下拉数据
             // general(e){
@@ -481,43 +426,6 @@
                 }else {
                     item.port=22;
                 }
-            },
-            /** 新增按钮操作 */
-            handleAdd() {
-                this.reset();
-                this.open = true;
-                this.title = "添加嘉豪测试";
-            },
-            /** 修改按钮操作 */
-            handleUpdate(row) {
-                this.reset();
-                const id = row.id || this.ids
-                getJh_test(id).then(response => {
-                    this.form = response.data;
-                    this.open = true;
-                    this.title = "修改嘉豪测试";
-                });
-            },
-            /** 删除按钮操作 */
-            handleDelete(row) {
-                const ids = row.id || this.ids;
-                this.$modal.confirm('是否确认删除嘉豪测试编号为"' + ids + '"的数据项？').then(function() {
-                    return delJh_test(ids);
-                }).then(() => {
-                    this.getList();
-                    this.$modal.msgSuccess("删除成功");
-                }).catch(() => {});
-            },
-            /** 导出按钮操作 */
-            handleExport() {
-                const queryParams = this.queryParams;
-                this.$modal.confirm('是否确认导出所有嘉豪测试数据项？').then(() => {
-                    this.exportLoading = true;
-                    return exportJh_test(queryParams);
-                }).then(response => {
-                    this.$download.name(response.msg);
-                    this.exportLoading = false;
-                }).catch(() => {});
             },
             //无用代码⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆⬆
             ////////////测试按钮⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇⬇
@@ -581,12 +489,12 @@
             //添加扫描IP
             addScanIp(){
                 this.tableData.push({
-                    ip: '192.168.1.100',
-                    name: 'admin',
-                    password:'admin',
-                    // ip: '',
-                    // name: '',
-                    // password:'',
+                    // ip: '192.168.1.100',
+                    // name: 'admin',
+                    // password:'admin',
+                    ip: '',
+                    name: '',
+                    password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
@@ -611,6 +519,8 @@
                     this.specialSearchAdv()
                 }else if (command === 'modelScan'){
                     this.modelScan()
+                }else if (command === 'changeIpPass'){
+                    this.changeIpPass()
                 }
             },
             /////////////////////扫描块
@@ -665,10 +575,16 @@
                 })
             },
             //修改ip的密码
-            xiugai(){
+            changeIpPass(){
                 //扫描设备
                 const extractedValues = this.tableData.map(({ ip, name, password }) => ({ ip, name, password }))
-                console.log(extractedValues)
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<extractedValues.length;i++){
+                    //给密码加密
+                    let passMi = encrypt.encrypt(extractedValues[i].password)
+                    this.$set(extractedValues[i],'password',passMi)
+                }
                 this.finalScanIps = extractedValues.map(item => JSON.stringify(item))
                 console.log(this.finalScanIps)
                 return request({
@@ -676,7 +592,7 @@
                     method:'put',
                     data:this.finalScanIps
                 }).then(response=>{
-                    console.log(response)
+                    console.log('密码修改成功')
                 })
             },
             //专项扫描获取tree
@@ -826,7 +742,7 @@
                     })
                 }
             },
-            //高级功能开始扫描以前的备份
+            //高级功能开始扫描的备份
             specialSearchStartAdvSSSSS(){
                 this.cancelShow = true
                 //最终扫描设备
@@ -922,7 +838,7 @@
                     const scanNum = this.num
                     console.log(this.formworkId)
                     return request({
-                        // url:'/sql/SwitchInteraction/formworkScann/' + this.formworkId + '/' + scanNum,
+                        url:'/sql/SwitchInteraction/formworkScann/' + this.formworkId + '/' + scanNum,
                         method:'post',
                         data:this.finalScanIps
                     }).then(response=>{
@@ -1121,21 +1037,6 @@
                     })
                 }
             },
-            /** 查询嘉豪测试列表 */
-            getList() {
-                this.loading = true;
-                listJh_test(this.queryParams).then(response => {
-                    this.jh_testList = response.rows;
-                    // console.log(this.jh_testList);
-                    this.total = response.total;
-                    this.loading = false;
-                });
-            },
-            // 取消按钮
-            cancel() {
-                this.open = false;
-                this.reset();
-            },
             // 表单重置
             reset() {
                 this.form = {
@@ -1146,53 +1047,6 @@
                     port: 22,
                 };
                 this.resetForm("form");
-            },
-            /** 搜索按钮操作 */
-            handleQuery() {
-                this.queryParams.pageNum = 1;
-                this.getList();
-            },
-            /** 重置按钮操作 */
-            resetQuery() {
-                this.resetForm("queryForm");
-                this.handleQuery();
-            },
-            //指定端口号
-            chooseT(){
-                var val=this.queryParams.mode;
-                if (val=='telnet'){
-                    this.queryParams.port=23;
-                }else if (val=='ssh'){
-                    this.queryParams.port=22;
-                }else {
-                    this.queryParams.port=22;
-                }
-            },
-            // 多选框选中数据
-            handleSelectionChange(selection) {
-                this.ids = selection.map(item => item.id)
-                this.single = selection.length!==1
-                this.multiple = !selection.length
-            },
-            /** 提交按钮 */
-            submitForm() {
-                this.$refs["form"].validate(valid => {
-                    if (valid) {
-                        if (this.form.id != null) {
-                            updateJh_test(this.form).then(response => {
-                                this.$modal.msgSuccess("修改成功");
-                                this.open = false;
-                                this.getList();
-                            });
-                        } else {
-                            addJh_test(this.form).then(response => {
-                                this.$modal.msgSuccess("新增成功");
-                                this.open = false;
-                                this.getList();
-                            });
-                        }
-                    }
-                });
             }
         }
     };
