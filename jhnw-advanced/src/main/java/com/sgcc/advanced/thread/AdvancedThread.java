@@ -89,6 +89,10 @@ public class AdvancedThread extends Thread {
             }
         }
 
+        /** 高级功能扫描 及 快照功能 旋转的圆圈，用于取消圆圈旋转 */
+        /*扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转*/
+        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
+
         AdvancedThreadPool.removeThread(this.getName());
         countDownLatch.countDown();
 
