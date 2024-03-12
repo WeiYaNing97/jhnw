@@ -11,6 +11,16 @@
 <!--        <el-button type="primary" @click="errotEnd">错误包结束</el-button>-->
 
 <!--        2023.12.22-->
+
+
+        <el-button type="primary" @click="guangshuaikuaizhao">光衰快照</el-button>
+        <el-button type="primary" @click="guangshuaikuaizhaojungong">光衰快照竣工</el-button>
+
+        <el-button type="primary" @click="cuowubaokuaizhao">错误包快照</el-button>
+        <el-button type="primary" @click="cuowubaokuaizhaojungong">错误包快照竣工</el-button>
+
+
+
         <el-dropdown trigger="click" size="small" v-show="this.addButtonShow"
                      split-button type="primary" @command="addHandleCommand" @click="addScanIp">
           <i class="el-icon-plus"></i>  添加设备
@@ -489,12 +499,12 @@
             //添加扫描IP
             addScanIp(){
                 this.tableData.push({
-                    // ip: '192.168.1.100',
-                    // name: 'admin',
-                    // password:'admin',
-                    ip: '',
+                    ip: '192.168.1.100',
+                    name: 'admin',
+                    password:'admin',
+                    /*ip: '',
                     name: '',
-                    password:'',
+                    password:'',*/
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
@@ -887,7 +897,8 @@
                     this.num = this.maxValue
                 }
             },
-            ///////////////////////导入模块
+
+            /////////////////////// 导入模块 /////////////////////////////////
             //关闭导入弹窗
             handleClose(done) {
                 this.dialogVisibleSpecial = false
@@ -1047,7 +1058,88 @@
                     port: 22,
                 };
                 this.resetForm("form");
+            },
+
+            // 光衰快照
+            guangshuaikuaizhao(){
+
+                /*var encrypt = new JSEncrypt();
+                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+                for (let i = 0;i<this.tableData.length;i++){
+                    //给用户密码加密
+                    this.$set(this.tableData[i],'password',encrypt.encrypt(this.tableData[i].password))
+                    this.$set(this.tableData[i],'configureCiphers',encrypt.encrypt(this.tableData[i].configureCiphers))
+                }
+                let selectScanIps = JSON.parse(JSON.stringify(this.tableData))
+                this.finalScanIps = selectScanIps.map(item => JSON.stringify(item))
+                console.log(this.finalScanIps)*/
+
+                this.finalScanMethod()
+
+                return request({
+
+                    url:'/advanced/LightAttenuationSnapshot/startSnapshot',
+                    method:'post',
+                    data: this.finalScanIps
+                }).then(response=>{
+
+                    /*console.log(response)
+                    if (response == '扫描结束'){
+                        this.scanFinish = true
+                    }*/
+
+                })
+            },
+
+            guangshuaikuaizhaojungong(){
+                return request({
+
+                    url:'/advanced/LightAttenuationSnapshot/threadInterrupt',
+                    method:'post',
+
+                }).then(response=>{
+
+                    /*console.log(response)
+                    if (response == '扫描结束'){
+                        this.scanFinish = true
+                    }*/
+
+                })
+            },
+
+            // 错误包快照
+            cuowubaokuaizhao(){
+
+                this.finalScanMethod()
+                return request({
+                    url:'/advanced/ErrorPackageSnapshot/startSnapshot',
+                    method:'post',
+                    data: this.finalScanIps
+                }).then(response=>{
+
+                    /*console.log(response)
+                    if (response == '扫描结束'){
+                        this.scanFinish = true
+                    }*/
+
+                })
+            },
+            cuowubaokuaizhaojungong(){
+                return request({
+
+                    url:'/advanced/ErrorPackageSnapshot/threadInterrupt',
+                    method:'post',
+
+                }).then(response=>{
+
+                    /*console.log(response)
+                    if (response == '扫描结束'){
+                        this.scanFinish = true
+                    }*/
+
+                })
             }
+
         }
     };
 </script>

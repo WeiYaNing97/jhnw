@@ -25,7 +25,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
 
     /**
      * 查询误码率命令
-     * 
+     *
      * @param id 误码率命令主键
      * @return 误码率命令
      */
@@ -44,6 +44,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
     @Override
     public List<ErrorRateCommand> selectErrorRateCommandList(ErrorRateCommand errorRateCommand)
     {
+
         List<ErrorRateCommand> pojo =new ArrayList<>();
         pojo.addAll(errorRateCommandMapper.selectErrorRateCommandList(errorRateCommand));
 
@@ -54,6 +55,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
         }
 
         return pojo;
+
     }
 
     /**

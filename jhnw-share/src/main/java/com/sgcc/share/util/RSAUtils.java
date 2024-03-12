@@ -352,8 +352,12 @@ public class RSAUtils {
 	}
 
 	public static String decryptFrontEndCiphertext(String ciphertext) {
+
+		/*R4bliyPssIhGM1VkhllKVnWPaBCH/xupJWNWKZ47KmmYhAeESUPyETJ2tz2SRj6Sx3QU3CpNYWGLUtbmUpWJmZLtt9frHFV+Aslh3uiD0/rsn6C57f8G6xHvM+9OHN3SY11k2PO0+IINYkAPcZWUC4bfn7P15LhherQ1icuArQg=*/
+
 		String plaintext= null;
 		try {
+
 			//java后端进行解密（公钥和私钥本案例中有改动，项目中按照实际公钥和私钥进行替换）：
 			//设置私钥
 			PrivateKey prikey = RSAUtils.restorePrivateKey(RSAUtils.base64Decode("MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAIsu+M09+gSNshTIYVwgUjbkCqGO" +
@@ -368,7 +372,11 @@ public class RSAUtils {
 					"YNPrwqTu3URAlZ374W2V3Lxn6un8JvIsCYafgNIPGINqpWgGDtG6RFAWO9dTeTpmTSaDecLQwwJB" +
 					"AIt+TRTz5up2Hq6H4N3vwAJnxFAvVtBSUFOVH8Jt2G0VClmMEazW+6DUAmVBkKvtxMusLTBzid47" +
 					"2ZqnOCudzmY="));
-			plaintext = rsaDecrypt(prikey, RSAUtils.base64Decode(ciphertext));
+
+			byte[] bytes = RSAUtils.base64Decode(ciphertext);
+
+			plaintext = rsaDecrypt(prikey, bytes);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

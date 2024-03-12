@@ -13,6 +13,7 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.RSAUtils;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.text.SimpleDateFormat;
@@ -54,12 +55,7 @@ public class LightAttenuationSnapshot {
      * @return
     */
     @RequestMapping("/startSnapshot")
-    public static void startSnapshot() {
-
-        List<String> switchInformation = new ArrayList<>();
-        switchInformation.add("{\"name\":\"admin\",\"password\":\"gFB+qFKgv/NlL92xvFOMzqLj2o6g6c0ahZhlYouwNkKJbszahQbbPvrewvItlfWESOqJZvmUKZlT5JzY9SahTJ6KNimhF1UbHi+uYjtWJxp/3Wn1EjgiLbuQiKnldMWi5PPgVcwHJU3nR3FoAI63evOVS/VW7XvEVhxgY4cBgwU=\",\"ip\":\"192.168.1.100\",\"mode\":\"ssh\",\"port\":\"22\",\"configureCiphers\":\"VnRkCznb9y5pquzRnURhQQIZMHdkdbZlXFxnxnHC5AnoJuoTgNy2YGuTeBUz3wCHRrGXQmP+aypZPUbdH+hUhl4Yevri52Zg4BGl6tnmIB1Bh8oYtHfqmWEanAVNBuaJdw8IUsCohRkTW4G0wtAQT4pDV1EsZChBTv1r8sGCxgk=\",\"row_index\":0}");
-        Integer time = 1;
-
+    public static void startSnapshot(@RequestBody List<String> switchInformation) {
 
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
@@ -80,8 +76,10 @@ public class LightAttenuationSnapshot {
             ips.add(switchParameters.getIp());
 
             /*RSA解密*/
-            switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
-            switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
+            String password = RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword());
+            switchParameters.setPassword(password);
+            String ConfigureCiphers = RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers());
+            switchParameters.setConfigureCiphers(ConfigureCiphers);
 
             switchParametersList.add(switchParameters);
         }
@@ -97,11 +95,21 @@ public class LightAttenuationSnapshot {
 
         LightAttenuationSnapshot.userMap.put(loginUser.getUsername(), true);
 
+
+        Set<String> keySet = LightAttenuationSnapshot.userMap.keySet();
+        for (String key:keySet){
+            System.err.println("LightAttenuationSnapshot.userMap == "+key);
+        }
+
+
         Timer timer = new Timer();
         LuminousAttenuationTimed task = new LuminousAttenuationTimed(switchParametersList, timer, loginUser,LightAttenuationComparisonsMap);/*交换机登录方式*/
-        long delay = 0; // 延迟时间，单位为毫秒
-        long period = time * 60 * 1000; // 执行间隔，单位为毫秒
-        timer.schedule(task, delay, period);
+
+        Integer time = 1;
+
+        /*long delay = 0; // 延迟时间，单位为毫秒
+        long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
+        timer.schedule(task, 0, time * 60 * 1000);
 
     }
 
@@ -116,9 +124,16 @@ public class LightAttenuationSnapshot {
 
     /*4： 终止线程(竣工) */
     @RequestMapping("/threadInterrupt")
-    public static void threadInterrupt() {
+    public static String threadInterrupt() {
         LoginUser loginUser = SecurityUtils.getLoginUser();
         LightAttenuationSnapshot.userMap.put(loginUser.getUsername(),false);
+
+        Set<String> keySet = LightAttenuationSnapshot.userMap.keySet();
+        for (String key:keySet){
+            System.err.println("LightAttenuationSnapshot.userMap == "+key);
+        }
+
+        return "扫描结束";
     }
 
 }

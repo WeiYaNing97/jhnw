@@ -14,14 +14,15 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.RSAUtils;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
+ * @description: 错误包快照功能
  * @program: jhnw
- * @description: 光纤衰耗快照功能
  * @desc
  * @author:
  * @create: 2023-12-28 15:19
@@ -39,14 +40,19 @@ import java.util.*;
 @RestController
 @RequestMapping("/advanced/ErrorPackageSnapshot")
 public class ErrorPackageSnapshot {
+
     @Autowired
     private static IErrorRateService errorRateService;
     public static Map<String,Boolean> userMap = new HashMap<>();
+
     public static void main(String[] args) {
+
         /*前端传入交换机登录信息*/
         List<String> switchInformation = new ArrayList<>();
         switchInformation.add("{\"name\":\"admin\",\"password\":\"gFB+qFKgv/NlL92xvFOMzqLj2o6g6c0ahZhlYouwNkKJbszahQbbPvrewvItlfWESOqJZvmUKZlT5JzY9SahTJ6KNimhF1UbHi+uYjtWJxp/3Wn1EjgiLbuQiKnldMWi5PPgVcwHJU3nR3FoAI63evOVS/VW7XvEVhxgY4cBgwU=\",\"ip\":\"192.168.1.100\",\"mode\":\"ssh\",\"port\":\"22\",\"configureCiphers\":\"VnRkCznb9y5pquzRnURhQQIZMHdkdbZlXFxnxnHC5AnoJuoTgNy2YGuTeBUz3wCHRrGXQmP+aypZPUbdH+hUhl4Yevri52Zg4BGl6tnmIB1Bh8oYtHfqmWEanAVNBuaJdw8IUsCohRkTW4G0wtAQT4pDV1EsZChBTv1r8sGCxgk=\",\"row_index\":0}");
+
         /*startSnapshot(switchInformation , 5 );*/
+
     }
 
     /**
@@ -58,11 +64,7 @@ public class ErrorPackageSnapshot {
      * @return
     */
     @RequestMapping("/startSnapshot")
-    public static void startSnapshot() {/*List<String> switchInformation,Integer time*/
-        List<String> switchInformation = new ArrayList<>();
-        switchInformation.add("{\"name\":\"admin\",\"password\":\"gFB+qFKgv/NlL92xvFOMzqLj2o6g6c0ahZhlYouwNkKJbszahQbbPvrewvItlfWESOqJZvmUKZlT5JzY9SahTJ6KNimhF1UbHi+uYjtWJxp/3Wn1EjgiLbuQiKnldMWi5PPgVcwHJU3nR3FoAI63evOVS/VW7XvEVhxgY4cBgwU=\",\"ip\":\"192.168.1.100\",\"mode\":\"ssh\",\"port\":\"22\",\"configureCiphers\":\"VnRkCznb9y5pquzRnURhQQIZMHdkdbZlXFxnxnHC5AnoJuoTgNy2YGuTeBUz3wCHRrGXQmP+aypZPUbdH+hUhl4Yevri52Zg4BGl6tnmIB1Bh8oYtHfqmWEanAVNBuaJdw8IUsCohRkTW4G0wtAQT4pDV1EsZChBTv1r8sGCxgk=\",\"row_index\":0}");
-
-        Integer time = 1 ;
+    public static void startSnapshot(@RequestBody List<String> switchInformation) {/*List<String> switchInformation,Integer time*/
 
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
@@ -72,6 +74,7 @@ public class ErrorPackageSnapshot {
 
         /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
         for (String information:switchInformation){
+
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser( SecurityUtils.getLoginUser() );/*SecurityUtils.getLoginUser()*/
@@ -86,25 +89,27 @@ public class ErrorPackageSnapshot {
             /*RSA解密*/
             switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
             switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
-
             switchParametersList.add(switchParameters);
+
         }
 
         /*1： 数据库查询光衰信息 存放如全局变量*/
         HashMap<String, List<ErrorRate>> errorRateMap =  getErrorRateMap(ips);
 
         /*3： 启动线程 */
-            /*1: 启动定时任务 */
-            /*3： 连接交换机 */
-            /*4： 高级功能 */
+            /*a: 启动定时任务 */
+            /*b： 连接交换机 */
+            /*c： 高级功能 */
         LoginUser loginUser = SecurityUtils.getLoginUser();
         ErrorPackageSnapshot.userMap.put(loginUser.getUsername(),true);
 
         Timer timer = new Timer();
         ErrorPackageTimed task = new ErrorPackageTimed( switchParametersList, timer, loginUser ,errorRateMap);/*交换机登录方式*/
-        long delay = 0; // 延迟时间，单位为毫秒
-        long period = time * 60 * 1000; // 执行间隔，单位为毫秒
-        timer.schedule(task, delay, period);
+
+        Integer time = 1 ;
+        /*long delay = 0; // 延迟时间，单位为毫秒
+        long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
+        timer.schedule(task, 0, time * 60 * 1000);
 
     }
 
