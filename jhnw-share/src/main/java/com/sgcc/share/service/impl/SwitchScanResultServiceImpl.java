@@ -34,6 +34,16 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     }
 
     /**
+     * @Description 根据IP查询交换机扫描结果表最新数据
+     * @param ip	 交换机IP
+     * @return
+     */
+    @Override
+    public SwitchScanResult getTheLatestDataByIP(String ip) {
+        return switchScanResultMapper.getTheLatestDataByIP(ip);
+    }
+
+    /**
      * 查询交换机扫描结果列表
      * 
      * @param switchScanResult 交换机扫描结果

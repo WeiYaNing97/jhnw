@@ -407,7 +407,8 @@ public class SwitchInteraction {
 
         /* 告警、异常信息写入 */
         if (basicInformationList_ajaxResult.get("msg").equals("交换机连接失败")
-                || basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
+                || basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")
+                || basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败")){
 
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){

@@ -7,11 +7,13 @@ import com.sgcc.share.connectutil.SshConnect;
 import com.sgcc.share.connectutil.TelnetComponent;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.domain.Information;
+import com.sgcc.share.domain.SwitchScanResult;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.method.SshMethod;
 import com.sgcc.share.method.TelnetSwitchMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IInformationService;
+import com.sgcc.share.service.ISwitchScanResultService;
 import com.sgcc.share.util.*;
 import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.ApiOperation;
@@ -25,6 +27,8 @@ import java.util.List;
 public class ConnectToObtainInformation {
     @Autowired
     private IInformationService informationService;
+    @Autowired
+    private ISwitchScanResultService switchScanResultService;
 
     /*Inspection Completed*/
     /**
@@ -35,24 +39,42 @@ public class ConnectToObtainInformation {
     public AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters,boolean isRSA) {
         //连接交换机  requestConnect：
         AjaxResult requestConnect_ajaxResult = null;
-        for (int number = 0; number <1 ; number++){
 
-            /* 判断 交换机信息 是否经过了RSA加密 */
-            if (isRSA){
-                /* RSA 解密 */
-                switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
-                switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
+        /* 判断 交换机信息 是否经过了RSA加密 */
+        if (isRSA && switchParameters.getName() != null && switchParameters.getPassword() != null){
+            /* RSA 解密 */
+            switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
+            switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
+        }
+
+        /* 前端提交交换机用户名、密码 有一项 为空，按扫描结果表的登录信息登录交换机*/
+        if (switchParameters.getName() != null || switchParameters.getPassword() != null
+            || switchParameters.getName().equals("") || switchParameters.getPassword().equals("")){
+
+            switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+            SwitchScanResult theLatestDataByIP = switchScanResultService.getTheLatestDataByIP(switchParameters.getIp());
+
+            if(theLatestDataByIP == null){
+                return AjaxResult.error("交换机登录信息获取失败");
             }
 
-            requestConnect_ajaxResult = requestConnect(switchParameters);
-            if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
-                break;
+            switchParameters.setName(theLatestDataByIP.getSwitchName());
+            switchParameters.setPassword(EncryptUtil.desaltingAndDecryption(theLatestDataByIP.getSwitchPassword()));
+
+            if (theLatestDataByIP.getConfigureCiphers()!=null){
+                switchParameters.setConfigureCiphers(EncryptUtil.desaltingAndDecryption(theLatestDataByIP.getConfigureCiphers()));
             }
 
         }
 
+        for (int number = 0; number <1 ; number++){
+            requestConnect_ajaxResult = requestConnect(switchParameters);
+            if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
+                break;
+            }
+        }
 
-        //如果返回为 交换机连接失败 则连接交换机失败
+            //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
 
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");

@@ -22,6 +22,13 @@ public interface ISwitchScanResultService
     public SwitchScanResult selectSwitchScanResultById(Long id);
 
     /**
+    * @Description 根据IP查询交换机扫描结果表最新数据
+    * @param ip	 交换机IP
+     * @return
+    */
+    SwitchScanResult getTheLatestDataByIP(String ip);
+
+    /**
      * 查询交换机扫描结果列表
      * 
      * @param switchScanResult 交换机扫描结果

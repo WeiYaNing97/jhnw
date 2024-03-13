@@ -46,7 +46,9 @@ public class AdvancedThread extends Thread {
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters,isRSA);
 
         if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))
-        && !(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))) {
+        && !(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
+        && !(basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))) {
+
             this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
             for (String function:functionName){
 
@@ -77,7 +79,7 @@ public class AdvancedThread extends Thread {
                         "基本信息",
                         "系统信息:"+switchParameters.getIp() +
                                 "基本信息:"+
-                        "未定义该交换机获取基本信息命令及分析\r\n");
+                                basicInformationList_ajaxResult.get("msg")+"\r\n");
         }
 
         if (!(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))){
