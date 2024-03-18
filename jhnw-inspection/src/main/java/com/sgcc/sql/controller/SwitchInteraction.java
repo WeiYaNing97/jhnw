@@ -400,12 +400,12 @@ public class SwitchInteraction {
      */
     @GetMapping("logInToGetBasicInformation")
     public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) {
-        /*连接交换机 获取交换机基本信息*/
 
+        /*连接交换机 获取交换机基本信息*/
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters,isRSA);
 
-        /* 告警、异常信息写入 */
+        /* 告警、异常信息写入*/
         if (basicInformationList_ajaxResult.get("msg").equals("交换机连接失败")
                 || basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")
                 || basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败")){

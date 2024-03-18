@@ -19,8 +19,6 @@
         <el-button type="primary" @click="cuowubaokuaizhao">错误包快照</el-button>
         <el-button type="primary" @click="cuowubaokuaizhaojungong">错误包快照竣工</el-button>
 
-
-
         <el-dropdown trigger="click" size="small" v-show="this.addButtonShow"
                      split-button type="primary" @command="addHandleCommand" @click="addScanIp">
           <i class="el-icon-plus"></i>  添加设备
@@ -138,7 +136,7 @@
           <el-table-column type="selection" width="45"></el-table-column>
           <el-table-column prop="ip" label="设备IP">
             <template slot-scope="{ row }">
-              <el-input v-if="row.isEdit" v-model="row.ip"
+              <el-input v-if="row.isEdit" v-model="row.ip" @blur="handleBlur"
                         placeholder="请输入ip" size="small"></el-input>
               <span v-else>{{ row.ip }}</span>
             </template>
@@ -146,8 +144,9 @@
           <el-table-column prop="name" label="用户名">
             <template slot-scope="{ row }">
               <el-input v-if="row.isEdit" v-model="row.name"
-                        placeholder="请输入用户名" size="small"></el-input>
-              <span v-else>{{ row.name }}</span>
+                        placeholder="请输入用户名" size="small"
+                        :style="{ color: row.isExist ? 'red' : '' }"></el-input>
+              <span v-else :style="{ color: row.isExist ? 'red' : '' }">{{ row.name }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="password" label="密码">
@@ -499,16 +498,17 @@
             //添加扫描IP
             addScanIp(){
                 this.tableData.push({
-                    ip: '192.168.1.100',
+                    /*ip: '192.168.1.100',
                     name: 'admin',
-                    password:'admin',
-                    /*ip: '',
+                    password:'admin',*/
+                    ip: '',
                     name: '',
-                    password:'',*/
+                    password:'',
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
                     isEdit:true,
+                    isExist: false,
                     conCip:'********',
                     configureCiphers:''
                 })
@@ -536,16 +536,32 @@
             /////////////////////扫描块
             //最终扫描设备
             finalScanMethod(){
+
                 this.finalScanIps = []
                 let selectScanIps = []
                 if(this.chooseIp.length > 0){
                     console.log('扫描选中设备如下')
                     selectScanIps = JSON.parse(JSON.stringify(this.chooseIp))
+                    /*for (let i=0 ; i < this.chooseIp ;i++){
+                        if(this.chooseIp[i].name == null || this.chooseIp[i].name == ""){
+                            var results = this.queryLoginInformation(this.chooseIp[i]);
+                        }
+                    }*/
                 }else {
+
                     selectScanIps = JSON.parse(JSON.stringify(this.tableData))
+                    /*for (let i=0 ; i < this.tableData.length ;i++){
+                        if(this.tableData[i].name == null || this.tableData[i].name == ""){
+                            var results = this.queryLoginInformation(this.tableData[i])
+                        }
+                    }*/
                 }
+
+
                 var encrypt = new JSEncrypt();
                 encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
+
+
                 for (let i = 0;i<selectScanIps.length;i++){
                     this.$delete(selectScanIps[i],'isEdit')
                     this.$delete(selectScanIps[i],'passmi')
@@ -558,9 +574,62 @@
                     this.$set(selectScanIps[i],'configureCiphers',passConCip)
                 }
                 this.finalScanIps = selectScanIps.map(item => JSON.stringify(item))
+
                 console.log('最终扫描设备')
                 console.log(this.finalScanIps)
             },
+
+            //根据交换机IP地址查询交换机扫描结果是否存在相关登录信息。
+            async queryLoginInformation(pojo) {
+                return request({
+                    url: '/share/switch_scan_result/getTheLatestDataByIP/',
+                    method: 'get',
+                    params: pojo.ip
+                }).then(response=>{
+                    if(response == "不存在"){
+                        pojo.isExist = true
+                        pojo.name = "请输入用户名"
+                    }
+                    return response;
+                })
+            },
+
+
+
+            handleBlur(event){
+                if (event.target.value === '') {
+                    return;
+                }
+
+                let ip = event.target.value
+                return request({
+
+                    url: '/share/switch_scan_result/getTheLatestData/'+ ip,
+                    method: 'get'
+
+                }).then(response=>{
+
+                    /*console.log((JSON.parse(JSON.stringify(response.data))).problemName)*/
+
+                    for (let i =0 ; i < this.tableData.length ; i++){
+                        if ( this.tableData[i].ip == ip ){
+
+                            if(response.data === undefined){
+                                this.tableData[i].isExist = true
+                                this.tableData[i].name = "请输入用户名"
+                            }else {
+                                this.tableData[i].isExist = false
+                                this.tableData[i].name = JSON.parse(JSON.stringify(response.data.switchName))
+                            }
+
+                        }
+                    }
+
+                })
+            },
+
+
+
             //全面扫描
             fullScan(){
                 //扫描设备
@@ -605,6 +674,7 @@
                     console.log('密码修改成功')
                 })
             },
+
             //专项扫描获取tree
             specialSearch(){
                 this.showButton = false
@@ -653,6 +723,7 @@
                     console.log(this.specialItems)
                 })
             },
+
             //专项开始扫描
             specialSearchStart(){
                 //WebSocketTwo显示
@@ -898,7 +969,7 @@
                 }
             },
 
-            /////////////////////// 导入模块 /////////////////////////////////
+            /////////////////////// 导入模块 /////////////////////////////////////////
             //关闭导入弹窗
             handleClose(done) {
                 this.dialogVisibleSpecial = false

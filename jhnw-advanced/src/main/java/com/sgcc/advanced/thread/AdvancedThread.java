@@ -82,7 +82,8 @@ public class AdvancedThread extends Thread {
                                 basicInformationList_ajaxResult.get("msg")+"\r\n");
         }
 
-        if (!(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))){
+        if (!(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
+                && !(basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))){
             /*关闭连接交换机*/
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());

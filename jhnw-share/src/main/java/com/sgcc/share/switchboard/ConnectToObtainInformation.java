@@ -48,7 +48,7 @@ public class ConnectToObtainInformation {
         }
 
         /* 前端提交交换机用户名、密码 有一项 为空，按扫描结果表的登录信息登录交换机*/
-        if (switchParameters.getName() != null || switchParameters.getPassword() != null
+        if (switchParameters.getName() == null || switchParameters.getPassword() == null
             || switchParameters.getName().equals("") || switchParameters.getPassword().equals("")){
 
             switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
