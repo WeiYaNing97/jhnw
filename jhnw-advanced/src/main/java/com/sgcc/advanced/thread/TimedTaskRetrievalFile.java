@@ -8,9 +8,7 @@ import com.sgcc.share.util.PathHelper;
 import io.swagger.annotations.Api;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.lang.reflect.Field;
@@ -31,8 +29,14 @@ import java.util.UUID;
  **/
 @Api("定时任务文件上传")
 @RestController
-@RequestMapping("/timedTaskRetrievalFile")
+@RequestMapping("/advanced/timedTaskRetrievalFile")
 public class TimedTaskRetrievalFile {
+
+    @GetMapping("/getFileNames")
+    public List<String> getFileNames() {
+        /*查看文件夹中 是否有该名称文件*/
+        return getACollectionOfFileNames(MyUtils.getProjectPath() + "\\jobExcel");
+    }
 
     /** todo 测试加入了 用户管理模块 需要删除 */
     /**
@@ -43,8 +47,9 @@ public class TimedTaskRetrievalFile {
     * @param file
      * @return
     */
-    @RequestMapping("/localFileImportProjectAddress")
-    public static boolean LocalFileImportProjectAddress(MultipartFile file) throws Exception {
+    @PostMapping("/localFileImportProjectAddress")
+    public static boolean LocalFileImportProjectAddress(@RequestParam("file") MultipartFile file) throws Exception {
+
         /*查看文件夹中 是否有该名称文件*/
         List<String> aCollectionOfFileNames = getACollectionOfFileNames(MyUtils.getProjectPath() + "\\jobExcel");
         if (aCollectionOfFileNames.indexOf( file.getOriginalFilename().split("\\.")[0] ) != -1){

@@ -81,16 +81,6 @@ public class SwitchScanResultController extends BaseController
         return AjaxResult.success(switchScanResultService.selectSwitchScanResultById(id));
     }
 
-    /**
-     * 根据IP查询交换机扫描结果表最新数据
-     */
-    @GetMapping(value = "/getTheLatestDataByIP")/*/{ip}*/
-    public String getTheLatestDataByIP(String ip) {/*@PathVariable*/
-        SwitchScanResult theLatestDataByIP = switchScanResultService.getTheLatestDataByIP(ip);
-        if (theLatestDataByIP == null)
-            return "不存在";
-        return "存在";
-    }
 
     /**
      * 根据IP查询交换机扫描结果表最新数据

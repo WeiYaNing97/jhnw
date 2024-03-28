@@ -11,13 +11,13 @@
 <!--        <el-button type="primary" @click="errotEnd">错误包结束</el-button>-->
 
 <!--        2023.12.22-->
-
-
-        <el-button type="primary" @click="guangshuaikuaizhao">光衰快照</el-button>
-        <el-button type="primary" @click="guangshuaikuaizhaojungong">光衰快照竣工</el-button>
-
-        <el-button type="primary" @click="cuowubaokuaizhao">错误包快照</el-button>
-        <el-button type="primary" @click="cuowubaokuaizhaojungong">错误包快照竣工</el-button>
+        <div>
+          <el-button type="primary" @click="guangshuaikuaizhao">光衰快照</el-button>
+          <el-button type="primary" @click="guangshuaikuaizhaojungong">光衰快照竣工</el-button>
+          <el-button type="primary" @click="cuowubaokuaizhao">错误包快照</el-button>
+          <el-button type="primary" @click="cuowubaokuaizhaojungong">错误包快照竣工</el-button>
+          <el-button type="primary" @click="ExcelUpload">上传交换机登录信息表</el-button>
+        </div>
 
         <el-dropdown trigger="click" size="small" v-show="this.addButtonShow"
                      split-button type="primary" @command="addHandleCommand" @click="addScanIp">
@@ -131,61 +131,77 @@
         <p style="margin: 0;text-align: center">扫描设备信息</p>
         <el-table :data="tableData" style="width: 100%"
                   max-height="300" ref="tableData"
-                  :row-class-name="tableRowClassName" @row-click="currentLine" @selection-change="selectLine">
+                  :row-class-name="tableRowClassName" @row-click="currentLine" @selection-change="selectLine" >
           <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
           <el-table-column type="selection" width="45"></el-table-column>
+
           <el-table-column prop="ip" label="设备IP">
             <template slot-scope="{ row }">
-              <el-input v-if="row.isEdit" v-model="row.ip" @blur="handleBlur"
-                        placeholder="请输入ip" size="small"></el-input>
-              <span v-else>{{ row.ip }}</span>
+              <!-- v-if="row.ipIsEdit" -->
+              <el-input v-if="row.isEdit" v-model="row.ip" @blur="handleBlur(row)" placeholder="请输入ip" size="small" :style="{ color: row.iPIsExist ? '' : 'red' }" />
+              <!-- @mouseenter="queding(row)" -->
+              <!-- iPIsExist 没有查询到信息 校验IP地址合法性 -->
+              <span v-else :style="{ color: row.iPIsExist ? '' : 'red' }">{{ row.ip }}</span><!-- @mouseenter="queding(row)" -->
             </template>
           </el-table-column>
+
           <el-table-column prop="name" label="用户名">
             <template slot-scope="{ row }">
-              <el-input v-if="row.isEdit" v-model="row.name"
-                        placeholder="请输入用户名" size="small"
-                        :style="{ color: row.isExist ? 'red' : '' }"></el-input>
-              <span v-else :style="{ color: row.isExist ? 'red' : '' }">{{ row.name }}</span>
+              <!-- @blur="nameVerification(tableData)" @mouseenter="queding(row),blank(row)" v-on:click="blank(row)"-->
+              <el-input v-if="row.isEdit" v-model="row.name" placeholder="请输入用户名" size="small" :style="{ color: row.isExist ? '' : 'red' }" @row-click="blank(row)" />
+              <!-- isExist 是否查询到交换机用户信息-->
+              <!-- @mouseenter="queding(row),blank(row)" v-on:click="blank(row)" -->
+              <span v-else :style="{ color: row.isExist ? '' : 'red' }" @row-click="blank(row)" >{{ row.name }}</span>
             </template>
           </el-table-column>
+
           <el-table-column prop="password" label="密码">
             <template slot-scope="{ row }">
-              <el-input v-if="row.isEdit" v-model="row.password" type="password"
-                        placeholder="请输入密码" size="small"></el-input>
-              <span v-else>{{ row.passmi }}</span>
+              <!-- @mouseenter="queding(row)"  @blur="nameVerification(tableData)" -->
+              <el-input v-if="row.isEdit" v-model="row.password" type="password" placeholder="请输入密码" size="small" />
+              <!-- @mouseenter="queding(row)" -->
+              <span v-else >{{ row.passmi }}</span>
             </template>
           </el-table-column>
+
           <el-table-column prop="mode" label="连接方式">
             <template slot-scope="{ row }">
+              <!-- @mouseenter="queding(row)"  @blur="nameVerification(tableData)" -->
               <el-select v-if="row.isEdit" v-model="row.mode" size="small" placeholder="连接方式">
                 <el-option label="ssh" value="ssh"/>
                 <el-option label="telnet" value="telnet"/>
               </el-select>
+              <!-- @mouseenter="queding(row)" -->
               <span v-else>{{ row.mode }}</span>
             </template>
           </el-table-column>
+
           <el-table-column prop="port" label="端口号">
             <template slot-scope="{ row }">
-              <el-input v-if="row.isEdit" v-model="row.port"
-                        placeholder="端口" size="small"></el-input>
+              <!--  @mouseenter="queding(row)"  @blur="nameVerification(tableData)"  -->
+              <el-input v-if="row.isEdit" v-model="row.port" placeholder="端口" size="small" />
+              <!-- @mouseenter="queding(row)" -->
               <span v-else>{{ row.port }}</span>
             </template>
           </el-table-column>
+
           <el-table-column prop="configureCiphers" label="配置密码">
             <template slot-scope="{ row }">
-              <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password"
-                        placeholder="配置密码" size="small"></el-input>
+              <!-- @mouseenter="queding(row)"  @blur="nameVerification(tableData)" -->
+              <el-input v-if="row.isEdit" v-model="row.configureCiphers" type="password" placeholder="配置密码" size="small" />
+              <!--  @mouseenter="queding(row)"  -->
               <span v-else>{{ row.conCip }}</span>
             </template>
           </el-table-column>
+
           <el-table-column label="操作">
             <template slot-scope="{ row }">
-              <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
-              <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
+              <!--<el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
+              <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>-->
               <el-button @click.native.prevent="deleteRow(row.row_index)" type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
+
         </el-table>
       </div>
     </el-form>
@@ -223,6 +239,37 @@
         <el-button type="primary" @click="modelScanStart">模板扫描</el-button>
       </div>
     </el-dialog>
+
+    <!-- 上传交换机登录信息表 -->
+    <el-dialog title="交换机登录信息表上传" :visible.sync="isItVisible" width="400px" @close="someMethod" append-to-body>
+
+      <el-upload
+        ref="upload"
+         :limit=limitNum
+         :auto-upload="false"
+         accept=".xlsx, .xls"
+         :action="UploadUrl()"
+         :before-upload="beforeUploadFile"
+         :on-change="fileChange"
+         :on-exceed="exceedFile"
+         :on-success="handleSuccess"
+         :on-error="handleError"
+         :file-list="fileList"
+        :on-remove="handleRemove"
+        drag>
+        <i class="el-icon-upload"></i>
+        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__tip text-center" slot="tip">
+          <span>仅允许导入xls、xlsx格式文件。</span>
+        </div>
+      </el-upload>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" type="primary" @click="uploadFile">立即上传</el-button>
+        <el-button size="small" @click="cancelUpload">取消</el-button>
+      </div>
+
+    </el-dialog>
   </div>
 </template>
 
@@ -244,7 +291,11 @@
         inject:["reload"],
         data() {
             return {
-                //
+                limitNum: 1,  // 上传excell时，同时允许上传的最大数
+                fileList: [],   // excel文件列表
+                isItVisible: false,
+
+
                 bangding:'',
                 //最终扫描设备
                 finalScanIps:[],
@@ -504,11 +555,20 @@
                     ip: '',
                     name: '',
                     password:'',
+
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
+
+                    /* 普通输入框是否渲染显示*/
                     isEdit:true,
-                    isExist: false,
+                    /* ip输入框是否渲染显示*/
+                    ipIsEdit:true,
+
+                    /*是否异常字体颜色显示*/
+                    isExist: true,
+                    iPIsExist:true,
+
                     conCip:'********',
                     configureCiphers:''
                 })
@@ -536,32 +596,16 @@
             /////////////////////扫描块
             //最终扫描设备
             finalScanMethod(){
-
                 this.finalScanIps = []
                 let selectScanIps = []
                 if(this.chooseIp.length > 0){
                     console.log('扫描选中设备如下')
                     selectScanIps = JSON.parse(JSON.stringify(this.chooseIp))
-                    /*for (let i=0 ; i < this.chooseIp ;i++){
-                        if(this.chooseIp[i].name == null || this.chooseIp[i].name == ""){
-                            var results = this.queryLoginInformation(this.chooseIp[i]);
-                        }
-                    }*/
                 }else {
-
                     selectScanIps = JSON.parse(JSON.stringify(this.tableData))
-                    /*for (let i=0 ; i < this.tableData.length ;i++){
-                        if(this.tableData[i].name == null || this.tableData[i].name == ""){
-                            var results = this.queryLoginInformation(this.tableData[i])
-                        }
-                    }*/
                 }
-
-
                 var encrypt = new JSEncrypt();
                 encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-
-
                 for (let i = 0;i<selectScanIps.length;i++){
                     this.$delete(selectScanIps[i],'isEdit')
                     this.$delete(selectScanIps[i],'passmi')
@@ -574,61 +618,70 @@
                     this.$set(selectScanIps[i],'configureCiphers',passConCip)
                 }
                 this.finalScanIps = selectScanIps.map(item => JSON.stringify(item))
-
                 console.log('最终扫描设备')
                 console.log(this.finalScanIps)
             },
 
-            //根据交换机IP地址查询交换机扫描结果是否存在相关登录信息。
-            async queryLoginInformation(pojo) {
-                return request({
-                    url: '/share/switch_scan_result/getTheLatestDataByIP/',
-                    method: 'get',
-                    params: pojo.ip
-                }).then(response=>{
-                    if(response == "不存在"){
-                        pojo.isExist = true
-                        pojo.name = "请输入用户名"
-                    }
-                    return response;
-                })
+
+            handleBlur(row){
+                /*this.handleBlur1(row)*/
+                this.handleBlur2(row)
             },
+            handleBlur1(row){
+                row.ipIsEdit = false
+            },
+            /* 查看数据库问题扫描结果表是否有登录信息*/
+            handleBlur2(row){
 
-
-
-            handleBlur(event){
-                if (event.target.value === '') {
+                /* 判断是否输入IP，如果未输入IP则直接返回终止方法 */
+                if (row.ip === '') {
                     return;
                 }
 
-                let ip = event.target.value
-                return request({
+                let ip = row.ip
 
+                return request({
                     url: '/share/switch_scan_result/getTheLatestData/'+ ip,
                     method: 'get'
-
                 }).then(response=>{
-
-                    /*console.log((JSON.parse(JSON.stringify(response.data))).problemName)*/
-
+                    /*console.log(ip)
+                    console.log((JSON.parse(JSON.stringify(response.data))))*/
                     for (let i =0 ; i < this.tableData.length ; i++){
                         if ( this.tableData[i].ip == ip ){
 
-                            if(response.data === undefined){
-                                this.tableData[i].isExist = true
-                                this.tableData[i].name = "请输入用户名"
-                            }else {
-                                this.tableData[i].isExist = false
-                                this.tableData[i].name = JSON.parse(JSON.stringify(response.data.switchName))
-                            }
+                            /* 没有查询到信息 校验IP地址合法性 */
+                            const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                            this.tableData[i].iPIsExist = regex.test(row.ip);
 
+                            if(response.data === undefined){
+
+                                /*if (this.tableData[i].name == ""){
+                                    console.log(this.tableData[i].row_index + "= 请输入用户名  handleBlur方法")
+
+                                    this.tableData[i].isExist = false
+                                    this.tableData[i].name = "请输入用户名"
+                                }*/
+
+                            }else {
+
+                                this.tableData[i].isExist = true
+                                this.tableData[i].name = JSON.parse(JSON.stringify(response.data.switchName))
+
+                            }
                         }
                     }
-
                 })
             },
 
-
+            /*请输入用户名置空 如果用户名为：请输入用户名时置空*/
+            blank(row){
+                console.log(row.name)
+                if (row.name == "请输入用户名"){
+                    console.log(row.row_index + "= ")
+                    row.isExist = true
+                    row.name = ""
+                }
+            },
 
             //全面扫描
             fullScan(){
@@ -940,15 +993,45 @@
             tableRowClassName({row, rowIndex}) {
                 row.row_index = rowIndex;
             },
+
             //点击当前行操作
             currentLine(row){
+
+                /* 鼠标点击行 */
                 let lineNum = row.row_index
+
+                /*点击行获得渲染 其余行失去渲染*/
                 this.tableData.forEach((row,index)=>{
                     if (lineNum != index){
+                        /* true 时 输入框失去光标时，为可改修改状态 */
+                        /* false 时 输入框失去光标时，为可改修改状态 */
                         row.isEdit = false
+                    }else if (lineNum == index){
+                        /* 选择当前行添加渲染*/
+                        row.isEdit = true
                     }
                 })
+
+                this.handleBlur2(row)
+
+                /* 判断数组用户名 */
+                this.tableData.forEach((row,index)=>{
+                    if ( row.name == "" && lineNum != index){
+                        console.log(index + "= 请输入用户名  currentLine方法")
+                        row.isExist = false
+                        row.name = "请输入用户名"
+                    }else if ( row.name == "请输入用户名" && lineNum == index){
+                        console.log(index + "= ")
+                        row.isExist = true
+                        row.name = ''
+                    }else if ( row.name != "请输入用户名" && row.name != ""){
+                        row.isExist = true
+                    }
+                })
+
             },
+
+
             //删除扫描设备
             deleteRow(index) {
                 this.tableData.splice(index,1)
@@ -958,6 +1041,7 @@
                 console.log(row)
                 row.isEdit = !row.isEdit
             },
+
             //专项扫描
             handleNodeClick(specialItems) {
 
@@ -1133,84 +1217,130 @@
 
             // 光衰快照
             guangshuaikuaizhao(){
-
-                /*var encrypt = new JSEncrypt();
-                encrypt.setPublicKey('MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCLLvjNPfoEjbIUyGFcIFI25Aqhjgazq0dabk/w1DUiUiREmMLRbWY4lEukZjK04e2VWPvKjb1K6LWpKTMS0dOs5WbFZioYsgx+OHD/DV7L40PHLjDYkd4ZWV2EDlS8qcpx6DYw1eXr6nHYZS1e9EoEBWojDUcolzyBXU3r+LDjUQIDAQAB')
-                for (let i = 0;i<this.tableData.length;i++){
-                    //给用户密码加密
-                    this.$set(this.tableData[i],'password',encrypt.encrypt(this.tableData[i].password))
-                    this.$set(this.tableData[i],'configureCiphers',encrypt.encrypt(this.tableData[i].configureCiphers))
-                }
-                let selectScanIps = JSON.parse(JSON.stringify(this.tableData))
-                this.finalScanIps = selectScanIps.map(item => JSON.stringify(item))
-                console.log(this.finalScanIps)*/
-
                 this.finalScanMethod()
-
                 return request({
-
                     url:'/advanced/LightAttenuationSnapshot/startSnapshot',
                     method:'post',
                     data: this.finalScanIps
                 }).then(response=>{
-
                     /*console.log(response)
                     if (response == '扫描结束'){
                         this.scanFinish = true
                     }*/
-
                 })
             },
-
             guangshuaikuaizhaojungong(){
                 return request({
-
                     url:'/advanced/LightAttenuationSnapshot/threadInterrupt',
                     method:'post',
-
                 }).then(response=>{
-
                     /*console.log(response)
                     if (response == '扫描结束'){
                         this.scanFinish = true
                     }*/
-
                 })
             },
 
             // 错误包快照
             cuowubaokuaizhao(){
-
                 this.finalScanMethod()
                 return request({
                     url:'/advanced/ErrorPackageSnapshot/startSnapshot',
                     method:'post',
                     data: this.finalScanIps
                 }).then(response=>{
-
                     /*console.log(response)
                     if (response == '扫描结束'){
                         this.scanFinish = true
                     }*/
-
                 })
             },
             cuowubaokuaizhaojungong(){
                 return request({
-
                     url:'/advanced/ErrorPackageSnapshot/threadInterrupt',
                     method:'post',
-
                 }).then(response=>{
-
                     /*console.log(response)
                     if (response == '扫描结束'){
                         this.scanFinish = true
                     }*/
-
                 })
-            }
+            },
 
+
+            ExcelUpload(){
+                this.isItVisible = true
+            },
+            cancelUpload(){
+                this.fileList = []
+                this.isItVisible = false
+            },
+            someMethod(){
+                console.log("点击了X")
+                this.fileList = []
+                this.isItVisible = false
+            },
+            // 文件超出个数限制时的钩子
+            exceedFile(files, fileList) {
+                this.$message.warning(`只能选择 ${this.limitNum} 个文件，当前共选择了 ${files.length + fileList.length} 个`);
+            },
+            // 文件状态改变时的钩子
+            fileChange(file, fileList) {
+                this.fileList = []
+                console.log(file.raw);
+                this.fileList.push(file.raw) ;
+                console.log(this.fileList);
+            },
+            handleRemove(file) {
+                // 获取文件对象的索引
+                const index = this.fileList.indexOf(file);
+                // 根据索引移除文件对象
+                if (index !== -1) {
+                    this.fileList.splice(index, 1);
+                }
+            },
+            // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
+            beforeUploadFile(file) {
+                let extension = file.name.substring(file.name.lastIndexOf('.')+1);
+                let size = file.size / 1024 / 1024;
+                if(extension !== 'xlsx') {
+                    this.$message.warning('只能上传后缀是.xlsx的文件');
+                }
+                if(size > 10) {
+                    this.$message.warning('文件大小不得超过10M');
+                }
+            },
+            // 文件上传成功时的钩子
+            handleSuccess(res, file, fileList) {
+                this.$message.success('文件上传成功');
+            },
+            // 文件上传失败时的钩子
+            handleError(err, file, fileList) {
+                this.$message.error('文件上传失败');
+            },
+            UploadUrl:function(){
+                // 因为action参数是必填项，我们使用二次确认进行文件上传时，直接填上传文件的url会因为没有参数导致api报404，所以这里将action设置为一个返回为空的方法就行，避免抛错
+                return ""
+            },
+            uploadFile() {
+                if (this.fileList.length === 0){
+                    this.$message.warning('请上传文件');
+                } else {
+                    let form = new FormData();
+                    form.append('file', this.fileList[0]);
+                    return request({
+                        method:"post",
+                        url: "/advanced/timedTaskRetrievalFile/localFileImportProjectAddress",
+                        headers:{
+                            'Content-type': 'multipart/form-data'
+                        },
+                        data: form
+                    }).then(
+                        res=>{},
+                        err=>{}
+                    )
+                }
+            }
         }
     };
 </script>
@@ -1255,4 +1385,20 @@
   .el-dropdown-menu{
     left:220px;
   }
+
+  .upload-demo {
+    width: 300px;
+    height: 180px;
+    text-align: center;
+    line-height: 160px;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #f5f7fa;
+  }
+  .upload-demo i {
+    font-size: 28px;
+    color: #99a9bf;
+  }
+
 </style>

@@ -36,6 +36,25 @@
       </el-form-item>
     </el-form>
 
+
+
+    <!-- 查询定时任务登录交换机信息表 -->
+    <el-row :gutter="10">
+      <el-col :span="2.5">查询定时任务登录交换机信息表</el-col>
+      <el-col :span="7">
+        <el-select v-model="value" filterable placeholder="请输入关键词"  @focus ="handleClick">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-col>
+    </el-row>
+
+
+
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -297,6 +316,7 @@
 <script>
 import { listJob, getJob, delJob, addJob, updateJob, exportJob, runJob, changeJobStatus } from "@/api/monitor/job";
 import Crontab from '@/components/Crontab'
+import request from '@/utils/request'
 
 export default {
   components: { Crontab },
@@ -304,6 +324,15 @@ export default {
   dicts: ['sys_job_group', 'sys_job_status'],
   data() {
     return {
+        /** 查询定时任务登录交换机信息表*/
+        //输入关键词
+        value: '',
+        //查询到的结果
+        options: [],
+
+
+
+
       // 遮罩层
       loading: true,
       // 导出遮罩层
@@ -358,6 +387,32 @@ export default {
     this.getList();
   },
   methods: {
+      /** 关于查询定时任务登录交换机信息表的方法 */
+      handleClick() {
+          // 获取用户输入的值
+          let keyword = this.value;
+          // 使用keyword去查询数据，这里假设我们有一个名为queryData的方法可以完成这个任务
+          this.queryData(keyword).then(result => {
+              this.options = []
+              for (let i = 0 ; i <result.length;i++){
+                  this.options.push({
+                      value: i,
+                      label: result[i]
+                  })
+              }
+              console.log(this.options)
+              console.log(this.options.length)
+          });
+      },
+      queryData(keyword){
+          return request({
+              url:'/advanced/timedTaskRetrievalFile/getFileNames',
+              method:'get',
+          })
+      },
+
+
+
     /** 查询定时任务列表 */
     getList() {
       this.loading = true;
