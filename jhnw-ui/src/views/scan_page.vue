@@ -233,37 +233,6 @@
         <el-button type="primary" @click="modelScanStart">模板扫描</el-button>
       </div>
     </el-dialog>
-
-    <!-- 上传交换机登录信息表 -->
-    <el-dialog title="交换机登录信息表上传" :visible.sync="isItVisible" width="400px" @close="someMethod" append-to-body>
-
-      <el-upload
-        ref="upload"
-         :limit=limitNum
-         :auto-upload="false"
-         accept=".xlsx, .xls"
-         :action="UploadUrl()"
-         :before-upload="beforeUploadFile"
-         :on-change="fileChange"
-         :on-exceed="exceedFile"
-         :on-success="handleSuccess"
-         :on-error="handleError"
-         :file-list="fileList"
-        :on-remove="handleRemove"
-        drag>
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip text-center" slot="tip">
-          <span>仅允许导入xls、xlsx格式文件。</span>
-        </div>
-      </el-upload>
-
-      <div slot="footer" class="dialog-footer">
-        <el-button size="small" type="primary" @click="uploadFile">立即上传</el-button>
-        <el-button size="small" @click="cancelUpload">取消</el-button>
-      </div>
-
-    </el-dialog>
   </div>
 </template>
 
@@ -285,11 +254,6 @@
         inject:["reload"],
         data() {
             return {
-                limitNum: 1,  // 上传excell时，同时允许上传的最大数
-                fileList: [],   // excel文件列表
-                isItVisible: false,
-
-
                 bangding:'',
                 //最终扫描设备
                 finalScanIps:[],
@@ -1247,84 +1211,6 @@
                 }).then(response=>{}
                 )
             },
-
-            ExcelUpload(){
-                this.isItVisible = true
-            },
-            cancelUpload(){
-                this.fileList = []
-                this.isItVisible = false
-            },
-            someMethod(){
-                console.log("点击了X")
-                this.fileList = []
-                this.isItVisible = false
-            },
-            // 文件超出个数限制时的钩子
-            exceedFile(files, fileList) {
-                this.$message.warning(`只能选择 ${this.limitNum} 个文件，当前共选择了 ${files.length + fileList.length} 个`);
-            },
-            // 文件状态改变时的钩子
-            fileChange(file, fileList) {
-                this.fileList = []
-                console.log(file.raw);
-                this.fileList.push(file.raw) ;
-                console.log(this.fileList);
-            },
-            handleRemove(file) {
-                // 获取文件对象的索引
-                const index = this.fileList.indexOf(file);
-                // 根据索引移除文件对象
-                if (index !== -1) {
-                    this.fileList.splice(index, 1);
-                }
-            },
-            // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
-            beforeUploadFile(file) {
-                console.log('before upload');
-                console.log(file);
-                let extension = file.name.substring(file.name.lastIndexOf('.')+1);
-                let size = file.size / 1024 / 1024;
-                if(extension !== 'xlsx') {
-                    this.$message.warning('只能上传后缀是.xlsx的文件');
-                }
-                if(size > 10) {
-                    this.$message.warning('文件大小不得超过10M');
-                }
-            },
-            // 文件上传成功时的钩子
-            handleSuccess(res, file, fileList) {
-                this.$message.success('文件上传成功');
-            },
-            // 文件上传失败时的钩子
-            handleError(err, file, fileList) {
-                this.$message.error('文件上传失败');
-            },
-            UploadUrl:function(){
-                // 因为action参数是必填项，我们使用二次确认进行文件上传时，直接填上传文件的url会因为没有参数导致api报404，所以这里将action设置为一个返回为空的方法就行，避免抛错
-                return ""
-            },
-            uploadFile() {
-                if (this.fileList.length === 0){
-                    this.$message.warning('请上传文件');
-                } else {
-                    let form = new FormData();
-                    form.append('file', this.fileList[0]);
-                    return request({
-                        method:"post",
-                        url: "/advanced/timedTaskRetrievalFile/localFileImportProjectAddress",
-                        headers:{
-                            'Content-type': 'multipart/form-data'
-                        },
-                        data: form
-                    }).then(
-                        res=>{
-                            this.isItVisible = false
-                        },
-                        err=>{}
-                    )
-                }
-            }
         }
     };
 </script>
