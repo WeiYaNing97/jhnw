@@ -106,12 +106,12 @@ public class PathHelper {
             fw.write(str);
             fw.flush();
             fw.close();
-
         } catch (IOException e) {
             e.printStackTrace();
 
         }
     }
+
     /**
     * @Description 读取文本内容
     * @author charles
@@ -130,6 +130,7 @@ public class PathHelper {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return lines;
     }

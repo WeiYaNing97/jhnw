@@ -1,4 +1,5 @@
 package com.sgcc.advanced.controller;
+import com.sgcc.advanced.domain.TimedTask;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
 import com.sgcc.common.core.domain.entity.SysUser;
@@ -12,6 +13,9 @@ import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,7 +28,7 @@ import java.util.List;
  * @author:
  * @create: 2024-01-17 15:07
  **/
-@Component("timingMethodClass")
+@Component("/advanced/timingMethodClass")
 public class TimingMethodClass {
 
     /**
@@ -35,7 +39,7 @@ public class TimingMethodClass {
      * @param
      * @return
      */
-    public String advancedScheduledTasks(String nameList) {
+    public String advancedScheduledTasks(String nameList,String excelName) {
 
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
@@ -52,9 +56,6 @@ public class TimingMethodClass {
         user.setUserName("quartz");
         loginUser.setUser(user);
 
-
-        /*获取定时任务 获取交换机登录信息 集合*/
-        String excelName = "交换机信息模板";
 
         List<SwitchLoginInformation> switchLoginInformations = TimedTaskRetrievalFile.readCiphertextExcel(MyUtils.getProjectPath()+"\\jobExcel\\"+ excelName +".txt");
 
@@ -118,5 +119,4 @@ public class TimingMethodClass {
         return "扫描结束";
 
     }
-
 }

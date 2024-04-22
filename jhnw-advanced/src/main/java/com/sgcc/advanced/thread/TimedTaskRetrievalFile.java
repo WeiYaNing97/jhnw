@@ -1,5 +1,6 @@
 package com.sgcc.advanced.thread;
 import com.alibaba.fastjson.JSON;
+import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.util.EncryptUtil;
@@ -38,28 +39,35 @@ public class TimedTaskRetrievalFile {
         return getACollectionOfFileNames(MyUtils.getProjectPath() + "\\jobExcel");
     }
 
-    /** todo 测试加入了 用户管理模块 需要删除 */
     /**
     * @Description  前端传入明文数据 写入 项目部署文件夹 生成密文
-    * @author charles
-    * @createTime 2024/1/19 10:42
-    * @desc
     * @param file
-     * @return
+    * @return
     */
     @PostMapping("/localFileImportProjectAddress")
-    public static boolean LocalFileImportProjectAddress(@RequestParam("file") MultipartFile file) throws Exception {
-
+    public static AjaxResult LocalFileImportProjectAddress(@RequestParam("file") MultipartFile file) throws Exception {
         /*查看文件夹中 是否有该名称文件*/
         List<String> aCollectionOfFileNames = getACollectionOfFileNames(MyUtils.getProjectPath() + "\\jobExcel");
         if (aCollectionOfFileNames.indexOf( file.getOriginalFilename().split("\\.")[0] ) != -1){
-            return false;
+            return AjaxResult.error("文件名称重复，请更换文件名称");
         }
-
         List<SwitchLoginInformation> switchLoginInformations = TimedTaskRetrievalFile.readPlaintextExcel(file);
+        if (switchLoginInformations.size() == 0){
+            return AjaxResult.error("上传文件为空");
+        }else if (checkIfAllSetContentsAreNull(switchLoginInformations)){
+            return AjaxResult.error("上传文件解析失败");
+        }
         TimedTaskRetrievalFile.writeStringArrayToFile(switchLoginInformations, MyUtils.getProjectPath()+"\\jobExcel\\"+ file.getOriginalFilename().split("\\.")[0]+".txt");
-
         /*获取定时任务 获取交换机登录信息 集合*/
+        return AjaxResult.success("文件上传成功");
+    }
+
+    public static boolean checkIfAllSetContentsAreNull(List<SwitchLoginInformation> list) {
+        for (SwitchLoginInformation element : list) {
+            if (element != null) {
+                return false ;
+            }
+        }
         return true;
     }
 
@@ -126,18 +134,15 @@ public class TimedTaskRetrievalFile {
     */
     public static void writeStringArrayToFile(List<SwitchLoginInformation> switchLoginInformations, String filePath) {
         File file = new File(filePath);
-
         // 创建目录
         File dir = new File(file.getParent());
         if (!dir.exists()) {
             dir.mkdirs();
         }
-
         // 如果文件存在，删除文件
         if (file.exists()) {
             file.delete();
         }
-
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
             for (SwitchLoginInformation pojo : switchLoginInformations) {
                 pojo.setPassword(EncryptUtil.densificationAndSalt(pojo.getPassword()));
@@ -166,7 +171,9 @@ public class TimedTaskRetrievalFile {
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(pojo, SwitchLoginInformation.class);
             switchLoginInformation.setPassword(EncryptUtil.desaltingAndDecryption(switchLoginInformation.getPassword()));
             switchLoginInformation.setConfigureCiphers(EncryptUtil.desaltingAndDecryption(switchLoginInformation.getConfigureCiphers()));
-            switchLoginInformation.setRow_index(null);
+            if (switchLoginInformation.getRow_index().equals("null")){
+                switchLoginInformation.setRow_index(null);
+            }
             switchLoginInformationList.add(switchLoginInformation);
         }
         return switchLoginInformationList;

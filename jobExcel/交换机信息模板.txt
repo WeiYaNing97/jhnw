@@ -1,0 +1,1 @@
+{ip:"192.168.1.100", name:"admin", password:"ho2IP1I+1V2eV3GF0zJijYH96cQQ3zJwLy4WG+", configureCiphers:"oq2Gi7G3w23C/s4l4945xI++4My40Wpv2cCyLi", mode:"ssh", port:"22", function:"null", row_index:"null"}

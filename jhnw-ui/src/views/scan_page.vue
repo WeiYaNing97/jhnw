@@ -138,23 +138,21 @@
           <el-table-column prop="ip" label="设备IP">
             <template slot-scope="{ row }">
               <!-- v-if="row.ipIsEdit" -->
-              <el-input v-if="row.isEdit" v-model="row.ip" @blur="handleBlur(row)" placeholder="请输入ip" size="small" :style="{ color: row.iPIsExist ? '' : 'red' }" />
+              <el-input v-if="row.ipIsEdit" v-model="row.ip" @blur="handleBlur(row)" placeholder="请输入ip" size="small" :style="{ color: row.iPIsExist ? '' : 'red' }"/><!-- :style="{ color: row.iPIsExist ? '' : 'red' }"  -->
               <!-- @mouseenter="queding(row)" -->
               <!-- iPIsExist 没有查询到信息 校验IP地址合法性 -->
-              <span v-else :style="{ color: row.iPIsExist ? '' : 'red' }">{{ row.ip }}</span><!-- @mouseenter="queding(row)" -->
+              <span v-else :style="{ color: row.iPIsExist ? '' : 'red' }" @click = "obtain(row)">{{ row.ip }}</span><!-- @mouseenter="queding(row)" -->
             </template>
           </el-table-column>
-
           <el-table-column prop="name" label="用户名">
             <template slot-scope="{ row }">
               <!-- @blur="nameVerification(tableData)" @mouseenter="queding(row),blank(row)" v-on:click="blank(row)"-->
-              <el-input v-if="row.isEdit" v-model="row.name" placeholder="请输入用户名" size="small" :style="{ color: row.isExist ? '' : 'red' }" @row-click="blank(row)" />
+              <el-input v-if="row.isEdit" v-model="row.name" placeholder="请输入用户名" size="small" :style="{ color: row.isExist ? '' : 'red' }"/><!-- :style="{ color: row.isExist ? '' : 'red' }" -->
               <!-- isExist 是否查询到交换机用户信息-->
               <!-- @mouseenter="queding(row),blank(row)" v-on:click="blank(row)" -->
               <span v-else :style="{ color: row.isExist ? '' : 'red' }" @row-click="blank(row)" >{{ row.name }}</span>
             </template>
           </el-table-column>
-
           <el-table-column prop="password" label="密码">
             <template slot-scope="{ row }">
               <!-- @mouseenter="queding(row)"  @blur="nameVerification(tableData)" -->
@@ -163,7 +161,6 @@
               <span v-else >{{ row.passmi }}</span>
             </template>
           </el-table-column>
-
           <el-table-column prop="mode" label="连接方式">
             <template slot-scope="{ row }">
               <!-- @mouseenter="queding(row)"  @blur="nameVerification(tableData)" -->
@@ -175,7 +172,6 @@
               <span v-else>{{ row.mode }}</span>
             </template>
           </el-table-column>
-
           <el-table-column prop="port" label="端口号">
             <template slot-scope="{ row }">
               <!--  @mouseenter="queding(row)"  @blur="nameVerification(tableData)"  -->
@@ -184,7 +180,6 @@
               <span v-else>{{ row.port }}</span>
             </template>
           </el-table-column>
-
           <el-table-column prop="configureCiphers" label="配置密码">
             <template slot-scope="{ row }">
               <!-- @mouseenter="queding(row)"  @blur="nameVerification(tableData)" -->
@@ -193,7 +188,6 @@
               <span v-else>{{ row.conCip }}</span>
             </template>
           </el-table-column>
-
           <el-table-column label="操作">
             <template slot-scope="{ row }">
               <!--<el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
@@ -529,9 +523,6 @@
                 })
             },
             /////////////////
-            indexMethod(index) {
-                return index + 1;
-            },
             rStart(){
                 this.reload()
             },
@@ -621,68 +612,6 @@
                 console.log('最终扫描设备')
                 console.log(this.finalScanIps)
             },
-
-
-            handleBlur(row){
-                /*this.handleBlur1(row)*/
-                this.handleBlur2(row)
-            },
-            handleBlur1(row){
-                row.ipIsEdit = false
-            },
-            /* 查看数据库问题扫描结果表是否有登录信息*/
-            handleBlur2(row){
-
-                /* 判断是否输入IP，如果未输入IP则直接返回终止方法 */
-                if (row.ip === '') {
-                    return;
-                }
-
-                let ip = row.ip
-
-                return request({
-                    url: '/share/switch_scan_result/getTheLatestData/'+ ip,
-                    method: 'get'
-                }).then(response=>{
-                    /*console.log(ip)
-                    console.log((JSON.parse(JSON.stringify(response.data))))*/
-                    for (let i =0 ; i < this.tableData.length ; i++){
-                        if ( this.tableData[i].ip == ip ){
-
-                            /* 没有查询到信息 校验IP地址合法性 */
-                            const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-                            this.tableData[i].iPIsExist = regex.test(row.ip);
-
-                            if(response.data === undefined){
-
-                                /*if (this.tableData[i].name == ""){
-                                    console.log(this.tableData[i].row_index + "= 请输入用户名  handleBlur方法")
-
-                                    this.tableData[i].isExist = false
-                                    this.tableData[i].name = "请输入用户名"
-                                }*/
-
-                            }else {
-
-                                this.tableData[i].isExist = true
-                                this.tableData[i].name = JSON.parse(JSON.stringify(response.data.switchName))
-
-                            }
-                        }
-                    }
-                })
-            },
-
-            /*请输入用户名置空 如果用户名为：请输入用户名时置空*/
-            blank(row){
-                console.log(row.name)
-                if (row.name == "请输入用户名"){
-                    console.log(row.row_index + "= ")
-                    row.isExist = true
-                    row.name = ""
-                }
-            },
-
             //全面扫描
             fullScan(){
                 //扫描设备
@@ -993,19 +922,22 @@
             tableRowClassName({row, rowIndex}) {
                 row.row_index = rowIndex;
             },
+            indexMethod(index) {
+                return index + 1;
+            },
+
 
             //点击当前行操作
             currentLine(row){
-
                 /* 鼠标点击行 */
                 let lineNum = row.row_index
-
                 /*点击行获得渲染 其余行失去渲染*/
                 this.tableData.forEach((row,index)=>{
                     if (lineNum != index){
                         /* true 时 输入框失去光标时，为可改修改状态 */
                         /* false 时 输入框失去光标时，为可改修改状态 */
                         row.isEdit = false
+                        this.handleBlur1(row)
                     }else if (lineNum == index){
                         /* 选择当前行添加渲染*/
                         row.isEdit = true
@@ -1016,20 +948,87 @@
 
                 /* 判断数组用户名 */
                 this.tableData.forEach((row,index)=>{
-                    if ( row.name == "" && lineNum != index){
+                    if (lineNum != index && row.name == "" ){
                         console.log(index + "= 请输入用户名  currentLine方法")
                         row.isExist = false
                         row.name = "请输入用户名"
-                    }else if ( row.name == "请输入用户名" && lineNum == index){
+                    }else if (lineNum == index && row.name == "请输入用户名" ){
                         console.log(index + "= ")
                         row.isExist = true
                         row.name = ''
-                    }else if ( row.name != "请输入用户名" && row.name != ""){
+                    }else if (lineNum == index && row.name != "请输入用户名" && row.name != ""){
                         row.isExist = true
                     }
                 })
 
             },
+            /* 将IP输入框渲染移除 */
+            handleBlur(row){
+                this.handleBlur1(row)
+                this.handleBlur2(row)
+            },
+            /* 将IP输入框渲染移除 */
+            handleBlur1(row){
+                if (row.ip == ""){
+                    row.ip = "请输入IP"
+                }
+                row.ipIsEdit = false
+            },
+            /* 查看数据库问题扫描结果表是否有登录信息*/
+            handleBlur2(row){
+                /* 判断是否输入IP，如果未输入IP则直接返回终止方法 */
+                if (row.ip === '') {
+                    return;
+                }
+                let ip = row.ip
+                return request({
+                    url: '/share/switch_scan_result/getTheLatestData/'+ ip,
+                    method: 'get'
+                }).then(response=>{
+
+                    /*console.log(ip)
+                    console.log((JSON.parse(JSON.stringify(response.data))))*/
+                    for (let i =0 ; i < this.tableData.length ; i++){
+                        if ( this.tableData[i].ip == ip ){
+
+                            /* 没有查询到信息 校验IP地址合法性 */
+                            const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                            this.tableData[i].iPIsExist = regex.test(row.ip);
+                            if(response.data === undefined){
+                                /*if (this.tableData[i].name == ""){
+                                    console.log(this.tableData[i].row_index + "= 请输入用户名  handleBlur方法")
+                                    this.tableData[i].isExist = false
+                                    this.tableData[i].name = "请输入用户名"
+                                }*/
+                            }else {
+                                this.tableData[i].isExist = true
+                                this.tableData[i].name = JSON.parse(JSON.stringify(response.data.switchName))
+                            }
+                        }
+                    }
+
+                })
+            },
+
+
+            /*当点击用户名输入框内容时，
+            请输入用户名置空 如果用户名为：请输入用户名时置空*/
+            blank(row){
+                if (row.name == "请输入用户名"){
+                    /*console.log(row.row_index + "= ")
+                    row.isExist = true*/
+                    row.name = ""
+                }
+            },
+            /*当点击IP输入框内容时，
+            请输入IP置空 如果IP为：请输入IP时置空*/
+            obtain(row){
+                if (row.ip == "请输入IP"){
+                    row.ip = ""
+                }
+                row.ipIsEdit = true
+            },
+
 
 
             //删除扫描设备
@@ -1041,7 +1040,6 @@
                 console.log(row)
                 row.isEdit = !row.isEdit
             },
-
             //专项扫描
             handleNodeClick(specialItems) {
 
@@ -1052,7 +1050,6 @@
                     this.num = this.maxValue
                 }
             },
-
             /////////////////////// 导入模块 /////////////////////////////////////////
             //关闭导入弹窗
             handleClose(done) {
@@ -1222,23 +1219,15 @@
                     url:'/advanced/LightAttenuationSnapshot/startSnapshot',
                     method:'post',
                     data: this.finalScanIps
-                }).then(response=>{
-                    /*console.log(response)
-                    if (response == '扫描结束'){
-                        this.scanFinish = true
-                    }*/
-                })
+                }).then(response=>{}
+                )
             },
             guangshuaikuaizhaojungong(){
                 return request({
                     url:'/advanced/LightAttenuationSnapshot/threadInterrupt',
                     method:'post',
-                }).then(response=>{
-                    /*console.log(response)
-                    if (response == '扫描结束'){
-                        this.scanFinish = true
-                    }*/
-                })
+                }).then(response=>{}
+                )
             },
 
             // 错误包快照
@@ -1248,25 +1237,16 @@
                     url:'/advanced/ErrorPackageSnapshot/startSnapshot',
                     method:'post',
                     data: this.finalScanIps
-                }).then(response=>{
-                    /*console.log(response)
-                    if (response == '扫描结束'){
-                        this.scanFinish = true
-                    }*/
-                })
+                }).then(response=>{}
+                )
             },
             cuowubaokuaizhaojungong(){
                 return request({
                     url:'/advanced/ErrorPackageSnapshot/threadInterrupt',
                     method:'post',
-                }).then(response=>{
-                    /*console.log(response)
-                    if (response == '扫描结束'){
-                        this.scanFinish = true
-                    }*/
-                })
+                }).then(response=>{}
+                )
             },
-
 
             ExcelUpload(){
                 this.isItVisible = true
@@ -1301,6 +1281,8 @@
             },
             // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
             beforeUploadFile(file) {
+                console.log('before upload');
+                console.log(file);
                 let extension = file.name.substring(file.name.lastIndexOf('.')+1);
                 let size = file.size / 1024 / 1024;
                 if(extension !== 'xlsx') {
@@ -1336,7 +1318,9 @@
                         },
                         data: form
                     }).then(
-                        res=>{},
+                        res=>{
+                            this.isItVisible = false
+                        },
                         err=>{}
                     )
                 }

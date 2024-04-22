@@ -65,6 +65,7 @@ public class AdvancedThread extends Thread {
                         break;
 
                     case "误码率":
+                    case "错误包":
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
                         break;

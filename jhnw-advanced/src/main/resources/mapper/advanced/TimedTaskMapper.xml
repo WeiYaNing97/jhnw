@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.advanced.mapper.TimedTaskMapper">
+    
+    <resultMap type="TimedTask" id="TimedTaskResult">
+        <result property="id"    column="id"    />
+        <result property="timedTaskName"    column="timed_task_name"    />
+        <result property="timedTaskParameters"    column="timed_task_parameters"    />
+        <result property="timedTaskStartTime"    column="timed_task_start_time"    />
+        <result property="timedTaskIntervalTime"    column="timed_task_interval_time"    />
+
+        <result property="functionArray"    column="function_array"    />
+
+        <result property="timedTaskStatus"    column="timed_task_status"    />
+        <result property="creatorName"    column="creator_name"    />
+        <result property="createdOn"    column="created_on"    />
+    </resultMap>
+
+    <sql id="selectTimedTaskVo">
+        select id, timed_task_name, timed_task_parameters, timed_task_start_time, timed_task_interval_time,
+
+        function_array,
+
+        timed_task_status, creator_name, created_on from timed_task
+    </sql>
+
+    <select id="selectTimedTaskList" parameterType="TimedTask" resultMap="TimedTaskResult">
+        <include refid="selectTimedTaskVo"/>
+        <where>  
+            <if test="timedTaskName != null  and timedTaskName != ''"> and timed_task_name like concat('%', #{timedTaskName}, '%')</if>
+            <if test="timedTaskParameters != null  and timedTaskParameters != ''"> and timed_task_parameters = #{timedTaskParameters}</if>
+            <if test="timedTaskStartTime != null "> and timed_task_start_time = #{timedTaskStartTime}</if>
+            <if test="timedTaskIntervalTime != null "> and timed_task_interval_time = #{timedTaskIntervalTime}</if>
+
+            <if test="functionArray != null "> and function_array = #{functionArray}</if>
+
+            <if test="timedTaskStatus != null "> and timed_task_status = #{timedTaskStatus}</if>
+            <if test="creatorName != null  and creatorName != ''"> and creator_name like concat('%', #{creatorName}, '%')</if>
+            <if test="createdOn != null "> and created_on = #{createdOn}</if>
+        </where>
+    </select>
+
+    <select id="selectTimedTaskListByDataTime" parameterType="TimedTask" resultMap="TimedTaskResult">
+        <include refid="selectTimedTaskVo"/>
+        <where>
+            <if test="timedTask.timedTaskName != null  and timedTask.timedTaskName != ''"> and timed_task_name like concat('%', #{timedTask.timedTaskName}, '%')</if>
+            <if test="timedTask.timedTaskParameters != null  and timedTask.timedTaskParameters != ''"> and timed_task_parameters = #{timedTask.timedTaskParameters}</if>
+
+            <if test="timedTask.timedTaskStartTime != null "> and timed_task_start_time >= #{timedTask.timedTaskStartTime}
+                                                    and timed_task_start_time &lt;= #{dateTime} </if>
+
+            <if test="timedTask.timedTaskIntervalTime != null "> and timed_task_interval_time = #{timedTask.timedTaskIntervalTime}</if>
+
+            <if test="timedTask.functionArray != null "> and function_array = #{timedTask.functionArray}</if>
+
+            <if test="timedTask.timedTaskStatus != null "> and timed_task_status = #{timedTask.timedTaskStatus}</if>
+            <if test="timedTask.creatorName != null  and timedTask.creatorName != ''"> and creator_name like concat('%', #{timedTask.creatorName}, '%')</if>
+            <if test="timedTask.createdOn != null "> and created_on = #{timedTask.createdOn}</if>
+        </where>
+    </select>
+
+    <select id="selectTimedTaskById" parameterType="Long" resultMap="TimedTaskResult">
+        <include refid="selectTimedTaskVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertTimedTask" parameterType="TimedTask" useGeneratedKeys="true" keyProperty="id">
+        insert into timed_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="timedTaskName != null and timedTaskName != ''">timed_task_name,</if>
+            <if test="timedTaskParameters != null and timedTaskParameters != ''">timed_task_parameters,</if>
+            <if test="timedTaskStartTime != null">timed_task_start_time,</if>
+            <if test="timedTaskIntervalTime != null">timed_task_interval_time,</if>
+
+            <if test="functionArray != null">function_array,</if>
+
+            <if test="timedTaskStatus != null">timed_task_status,</if>
+            <if test="creatorName != null and creatorName != ''">creator_name,</if>
+            <if test="createdOn != null">created_on,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="timedTaskName != null and timedTaskName != ''">#{timedTaskName},</if>
+            <if test="timedTaskParameters != null and timedTaskParameters != ''">#{timedTaskParameters},</if>
+            <if test="timedTaskStartTime != null">#{timedTaskStartTime},</if>
+            <if test="timedTaskIntervalTime != null">#{timedTaskIntervalTime},</if>
+
+            <if test="functionArray != null">#{functionArray},</if>
+
+            <if test="timedTaskStatus != null">#{timedTaskStatus},</if>
+            <if test="creatorName != null and creatorName != ''">#{creatorName},</if>
+            <if test="createdOn != null">#{createdOn},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTimedTask" parameterType="TimedTask">
+        update timed_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="timedTaskName != null and timedTaskName != ''">timed_task_name = #{timedTaskName},</if>
+            <if test="timedTaskParameters != null and timedTaskParameters != ''">timed_task_parameters = #{timedTaskParameters},</if>
+            <if test="timedTaskStartTime != null">timed_task_start_time = #{timedTaskStartTime},</if>
+            <if test="timedTaskIntervalTime != null">timed_task_interval_time = #{timedTaskIntervalTime},</if>
+
+            <if test="functionArray != null">function_array = #{functionArray},</if>
+
+            <if test="timedTaskStatus != null">timed_task_status = #{timedTaskStatus},</if>
+            <if test="creatorName != null and creatorName != ''">creator_name = #{creatorName},</if>
+            <if test="createdOn != null">created_on = #{createdOn},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTimedTaskById" parameterType="Long">
+        delete from timed_task where id = #{id}
+    </delete>
+
+    <delete id="deleteTimedTaskByIds" parameterType="String">
+        delete from timed_task where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="queryAllEnabledTimedTasks" parameterType="TimedTask" resultMap="TimedTaskResult">
+        <include refid="selectTimedTaskVo"/> where timed_task_status = '0'
+    </select>
+
+</mapper>

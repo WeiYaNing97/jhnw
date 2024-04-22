@@ -105,4 +105,5 @@ public class SwitchLoginInformation extends BaseEntity {
                 ", row_index:\"" + row_index + '\"' +
                 '}';
     }
+
 }

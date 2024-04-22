@@ -1,5 +1,9 @@
 package com.sgcc.advanced.test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @program: jhnw
  * @description:
@@ -8,4 +12,6 @@ package com.sgcc.advanced.test;
  **/
 
 public class Test {
+    public static void main(String[] args) {
+    }
 }

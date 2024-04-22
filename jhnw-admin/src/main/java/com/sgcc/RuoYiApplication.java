@@ -4,6 +4,7 @@ import com.sgcc.share.util.Timed;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import sun.plugin2.gluegen.runtime.CPU;
 
 /**
  * 启动程序
@@ -20,11 +21,12 @@ public class RuoYiApplication {
 
         try {
             /*获取配置文件信息*/
-            Constant character = new Constant();
-            character.ObtainAllConfigurationFileParameters();
-
-            Timed.atRegularTime();
-
+            /*Constant character = new Constant();
+            character.ObtainAllConfigurationFileParameters();*/
+            /* CPU 内存 */
+            /*Timed*/
+            /* 开启定时任务 开启状态*/
+            /*InitiateOpenStateTasks*/
         } catch (Exception e) {
             e.printStackTrace();
         }

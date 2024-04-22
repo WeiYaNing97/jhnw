@@ -313,7 +313,7 @@ public class RSAUtils {
 	public static void main(String[] args) {
 		try{
 			//文档中第二步骤生成公钥和私钥：
-			/*KeyPair kp = getRsaKP();
+			KeyPair kp = getRsaKP();
 			PrivateKey priKey = kp.getPrivate();
 			PublicKey pubKey = kp.getPublic();
 			System.out.println("公钥:\r\n");
@@ -321,7 +321,9 @@ public class RSAUtils {
 			System.out.println(pubKeyString);
 			System.out.println("秘钥:\r\n");
 			String priKeyString = base64Encode(priKey.getEncoded());
-			System.out.println(priKeyString);*/
+			System.out.println(priKeyString);
+
+
 			String jiami= "测试";
 			System.err.println("\r\n加密前："+jiami);
 			//java后端方式实现RSA加密，公钥和私钥本案例中有改动，项目中按照实际公钥和私钥进行替换

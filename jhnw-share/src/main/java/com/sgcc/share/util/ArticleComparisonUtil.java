@@ -1,57 +1,398 @@
 package com.sgcc.share.util;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @program: jhnw
- * @description: 文章比较
+ * @description: 文章比较 文本比较
  * @author:
  * @create: 2023-11-29 11:56
  **/
+@RestController
+@RequestMapping("/share/ArticleComparisonUtil")
 public class ArticleComparisonUtil {
 
     /**
     * @Description 后端测试方法
     * @desc
-    * @param args
      * @return
     */
-    public static void main(String[] args) {
-        String theOriginal = "[1364] 24 Nov 09:22:29.306 * Background saving terminated with success\r\n" +
-                "[1364] 27 Nov 09:29:49.475 * 1 changes in 900 seconds. Saving...\r\n" +
-                "[1364] 27 Nov 09:29:49.655 * Background saving started by pid 29832\r\n" +
-                "[1364] 27 Nov 09:29:55.312 # fork operation complete\r\n" +
-                "[1364] 27 Nov 09:29:55.312 * Background saving terminated with success\r\n" +
-                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...";
-        String newarticle = "[1364] 24 Nov 09:22:29.306 * Background saving terminated with success\r\n" +
-                "[1364] 27 Nov 09:29:49.475 * 1 changes in 900 seconds. Saving...\r\n" +
-                "[1364] 27 Nov 09:29:49.655 * Background saving started by pid 29832\r\n" +
-                "[1364] 27 Nov 09:29:55.312 # fork operation complete\r\n" +
-                "[1364] 27 Nov 09:29:55.312 * Background saving terminated with success\r\n" +
-                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...\r\n"+
-                "[1364] 27 Nov 09:34:56.091 * 10 changes in 300 seconds. Saving...";
+    @GetMapping("/fuwenbentest")
+    public static List<String> fuwenbentest() {
+        /* 原来 */
+        String theOriginal = "#\n" +
+                " version 5.20.99, Release 1106\n" +
+                "#\n" +
+                " sysname H3C-S2152-1\n" +
+                "#\n" +
+                " domain default enable system\n" +
+                "#\n" +
+                " ipv6\n" +
+                "#\n" +
+                " telnet server enable\n" +
+                "#\n" +
+                " password-recovery enable\n" +
+                "#\n" +
+                "vlan 1\n" +
+                "#\n" +
+                "domain system\n" +
+                " access-limit disable\n" +
+                " state active\n" +
+                " idle-cut disable\n" +
+                " self-service-url disable\n" +
+                "#\n" +
+                "user-group system\n" +
+                " group-attribute allow-guest\n" +
+                "#\n" +
+                "local-user admin\n" +
+                " password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g\n" +
+                " authorization-attribute level 3\n" +
+                " service-type ssh telnet\n" +
+                "local-user user1\n" +
+                " password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg==\n" +
+                " authorization-attribute level 3\n" +
+                " service-type ssh telnet\n" +
+                "local-user user2\n" +
+                " password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw==\n" +
+                " authorization-attribute level 3\n" +
+                " service-type ssh telnet\n" +
+                "#\n" +
+                "interface NULL0\n" +
+                "#\n" +
+                "interface Vlan-interface1\n" +
+                " ip address 192.168.1.100 255.255.255.0\n" +
+                "#\n" +
+                "interface Ethernet1/0/1\n" +
+                "#\n" +
+                "interface Ethernet1/0/2\n" +
+                "#\n" +
+                "interface Ethernet1/0/3\n" +
+                "#\n" +
+                "interface Ethernet1/0/4\n" +
+                "#\n" +
+                "interface Ethernet1/0/5\n" +
+                "#\n" +
+                "interface Ethernet1/0/6\n" +
+                "#\n" +
+                "interface Ethernet1/0/7\n" +
+                "#\n" +
+                "interface Ethernet1/0/8\n" +
+                "#\n" +
+                "interface Ethernet1/0/9\n" +
+                "#\n" +
+                "interface Ethernet1/0/10\n" +
+                "#\n" +
+                "interface Ethernet1/0/11\n" +
+                "#\n" +
+                "interface Ethernet1/0/12\n" +
+                "#\n" +
+                "interface Ethernet1/0/13\n" +
+                "#\n" +
+                "interface Ethernet1/0/14\n" +
+                "#\n" +
+                "interface Ethernet1/0/15\n" +
+                "#\n" +
+                "interface Ethernet1/0/16\n" +
+                "#\n" +
+                "interface Ethernet1/0/17\n" +
+                "#\n" +
+                "interface Ethernet1/0/18\n" +
+                "#\n" +
+                "interface Ethernet1/0/19\n" +
+                "#\n" +
+                "interface Ethernet1/0/20\n" +
+                "#\n" +
+                "interface Ethernet1/0/21\n" +
+                "#\n" +
+                "interface Ethernet1/0/22\n" +
+                "#\n" +
+                "interface Ethernet1/0/23\n" +
+                "#\n" +
+                "interface Ethernet1/0/24\n" +
+                "#\n" +
+                "interface Ethernet1/0/25\n" +
+                "#\n" +
+                "interface Ethernet1/0/26\n" +
+                "#\n" +
+                "interface Ethernet1/0/27\n" +
+                "#\n" +
+                "interface Ethernet1/0/28\n" +
+                "#\n" +
+                "interface Ethernet1/0/29\n" +
+                "#\n" +
+                "interface Ethernet1/0/30\n" +
+                "#\n" +
+                "interface Ethernet1/0/31\n" +
+                "#\n" +
+                "interface Ethernet1/0/32\n" +
+                "#\n" +
+                "interface Ethernet1/0/33\n" +
+                "#\n" +
+                "interface Ethernet1/0/34\n" +
+                "#\n" +
+                "interface Ethernet1/0/35\n" +
+                "#\n" +
+                "interface Ethernet1/0/36\n" +
+                "#\n" +
+                "interface Ethernet1/0/37\n" +
+                "#\n" +
+                "interface Ethernet1/0/38\n" +
+                "#\n" +
+                "interface Ethernet1/0/39\n" +
+                "#\n" +
+                "interface Ethernet1/0/40\n" +
+                "#\n" +
+                "interface Ethernet1/0/41\n" +
+                "#\n" +
+                "interface Ethernet1/0/42\n" +
+                "#\n" +
+                "interface Ethernet1/0/43\n" +
+                "#\n" +
+                "interface Ethernet1/0/44\n" +
+                "#\n" +
+                "interface Ethernet1/0/45\n" +
+                "#\n" +
+                "interface Ethernet1/0/46\n" +
+                "#\n" +
+                "interface Ethernet1/0/47\n" +
+                "#\n" +
+                "interface Ethernet1/0/48\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/49\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/50\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/51\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/52\n" +
+                "#\n" +
+                " undo info-center logfile enable\n" +
+                "#\n" +
+                " ssh server enable\n" +
+                " ssh user admin service-type stelnet authentication-type password\n" +
+                "#\n" +
+                " load xml-configuration\n" +
+                "#\n" +
+                " load tr069-configuration\n" +
+                "#\n" +
+                "user-interface aux 0\n" +
+                "user-interface vty 0 4\n" +
+                " authentication-mode scheme\n" +
+                " user privilege level 3\n" +
+                " set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ==\n" +
+                "user-interface vty 5 15\n" +
+                " authentication-mode scheme\n" +
+                "#\n" +
+                "return";
+        /* 现在 */
+        String newarticle = "#\n" +
+                " version 5.20.99, Release 1106\n" +
+                "#\n" +
+                " sysname H3C-S2152-1\n" +
+                "#\n" +
+                " domain default enable system\n" +
+                "#\n" +
+                " ipv6\n" +
+                "#\n" +
+                " telnet server enable\n" +
+                "#\n" +
+                " password-recovery enable\n" +
+                "#\n" +
+                "vlan 1\n" +
+                "#\n" +
+                "domain system\n" +
+                " access-limit disable\n" +
+                " state active\n" +
+                " idle-cut disable\n" +
+                " self-service-url disable\n" +
+                "#\n" +
+                "user-group system\n" +
+                " group-attribute allow-guest\n" +
+                "#\n" +
+                "local-user admin\n" +
+                " password cipher $c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g\n" +
+                " authorization-attribute level 3\n" +
+                " service-type ssh telnet\n" +
+                "local-user test1\n" +
+                " password cipher $c$3$mqJiTUkb52XrTxIHDpIhz9Mw/T7PerRL\n" +
+                "local-user test2\n" +
+                " password cipher $c$3$K9jfMXEqmhnWb8/LAjwe53WxtARUxACh\n" +
+                "local-user user1\n" +
+                " password cipher $c$3$OY0X1/eznU7U82j2WUcCwjfhsCh25Nqoeg==\n" +
+                " authorization-attribute level 3\n" +
+                " service-type ssh telnet\n" +
+                "local-user user2\n" +
+                " password cipher $c$3$fWohTnscKZVRlfAhH7KwKK+ZA4+Jaw==\n" +
+                " authorization-attribute level 3\n" +
+                " service-type ssh telnet\n" +
+                "#\n" +
+                "interface NULL0\n" +
+                "#\n" +
+                "interface Vlan-interface1\n" +
+                " ip address 192.168.1.100 255.255.255.0\n" +
+                "#\n" +
+                "interface Ethernet1/0/1\n" +
+                "#\n" +
+                "interface Ethernet1/0/2\n" +
+                "#\n" +
+                "interface Ethernet1/0/3\n" +
+                "#\n" +
+                "interface Ethernet1/0/4\n" +
+                "#\n" +
+                "interface Ethernet1/0/5\n" +
+                "#\n" +
+                "interface Ethernet1/0/6\n" +
+                "#\n" +
+                "interface Ethernet1/0/7\n" +
+                "#\n" +
+                "interface Ethernet1/0/8\n" +
+                "#\n" +
+                "interface Ethernet1/0/9\n" +
+                "#\n" +
+                "interface Ethernet1/0/10\n" +
+                "#\n" +
+                "interface Ethernet1/0/11\n" +
+                "#\n" +
+                "interface Ethernet1/0/12\n" +
+                "#\n" +
+                "interface Ethernet1/0/13\n" +
+                "#\n" +
+                "interface Ethernet1/0/14\n" +
+                "#\n" +
+                "interface Ethernet1/0/15\n" +
+                "#\n" +
+                "interface Ethernet1/0/16\n" +
+                "#\n" +
+                "interface Ethernet1/0/17\n" +
+                "#\n" +
+                "interface Ethernet1/0/18\n" +
+                "#\n" +
+                "interface Ethernet1/0/19\n" +
+                "#\n" +
+                "interface Ethernet1/0/20\n" +
+                "#\n" +
+                "interface Ethernet1/0/21\n" +
+                "#\n" +
+                "interface Ethernet1/0/22\n" +
+                "#\n" +
+                "interface Ethernet1/0/23\n" +
+                "#\n" +
+                "interface Ethernet1/0/24\n" +
+                "#\n" +
+                "interface Ethernet1/0/25\n" +
+                "#\n" +
+                "interface Ethernet1/0/26\n" +
+                "#\n" +
+                "interface Ethernet1/0/27\n" +
+                "#\n" +
+                "interface Ethernet1/0/28\n" +
+                "#\n" +
+                "interface Ethernet1/0/29\n" +
+                "#\n" +
+                "interface Ethernet1/0/30\n" +
+                "#\n" +
+                "interface Ethernet1/0/31\n" +
+                "#\n" +
+                "interface Ethernet1/0/32\n" +
+                "#\n" +
+                "interface Ethernet1/0/33\n" +
+                "#\n" +
+                "interface Ethernet1/0/34\n" +
+                "#\n" +
+                "interface Ethernet1/0/35\n" +
+                "#\n" +
+                "interface Ethernet1/0/36\n" +
+                "#\n" +
+                "interface Ethernet1/0/37\n" +
+                "#\n" +
+                "interface Ethernet1/0/38\n" +
+                "#\n" +
+                "interface Ethernet1/0/39\n" +
+                "#\n" +
+                "interface Ethernet1/0/40\n" +
+                "#\n" +
+                "interface Ethernet1/0/41\n" +
+                "#\n" +
+                "interface Ethernet1/0/42\n" +
+                "#\n" +
+                "interface Ethernet1/0/43\n" +
+                "#\n" +
+                "interface Ethernet1/0/44\n" +
+                "#\n" +
+                "interface Ethernet1/0/45\n" +
+                "#\n" +
+                "interface Ethernet1/0/46\n" +
+                "#\n" +
+                "interface Ethernet1/0/47\n" +
+                "#\n" +
+                "interface Ethernet1/0/48\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/49\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/50\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/51\n" +
+                "#\n" +
+                "interface GigabitEthernet1/0/52\n" +
+                "#\n" +
+                " undo info-center logfile enable\n" +
+                "#\n" +
+                " ssh server enable\n" +
+                " ssh user admin service-type stelnet authentication-type password\n" +
+                "#\n" +
+                " load xml-configuration\n" +
+                "#\n" +
+                " load tr069-configuration\n" +
+                "#\n" +
+                "user-interface aux 0\n" +
+                "user-interface vty 0 4\n" +
+                " authentication-mode scheme\n" +
+                " user privilege level 3\n" +
+                " set authentication password cipher $c$3$sh7XRFVfwCOzWj8YhTw3f7lXKjY8yKhuIQ==\n" +
+                "user-interface vty 5 15\n" +
+                " authentication-mode scheme\n" +
+                "#\n" +
+                "return";
+
+        theOriginal = MyUtils.trimString(theOriginal);
+        newarticle = MyUtils.trimString(newarticle);
+
         HashMap<String, List<Integer>> stringListHashMap = GetProblemLines(theOriginal, newarticle);
         List<Integer> newarticleRowlist = stringListHashMap.get("newarticle");
         List<Integer> theOriginalRowlist = stringListHashMap.get("theOriginal");
 
+        StringBuilder stringBuildernew = new StringBuilder();
+
         String[] newarticlesplit = newarticle.split("\r\n");
         for (int i = 0 ; i< newarticlesplit.length ; i++ ){
             if (newarticleRowlist.contains(i)){
-                System.err.println(i +"newarticle"+newarticlesplit[i]);
+                stringBuildernew.append("<p style=\"background-color: yellow;\">"+newarticlesplit[i]+"</p>\r");
             }else {
-                System.out.println(i +"newarticle"+newarticlesplit[i]);
+                stringBuildernew.append("<p>"+newarticlesplit[i]+"</p>\r");
             }
         }
 
+        StringBuilder stringBuilderthe = new StringBuilder();
         String[] theOriginalsplit = theOriginal.split("\r\n");
         for (int i = 0 ; i< theOriginalsplit.length ; i++ ){
             if (theOriginalRowlist.contains(i)){
-                System.err.println(i +"theOriginal"+theOriginalsplit[i]);
+                stringBuilderthe.append("<p style=\"background-color: yellow;\">"+theOriginalsplit[i]+"</p>\r");
             }else {
-                System.out.println(i +"theOriginal"+theOriginalsplit[i]);
+                stringBuilderthe.append("<p>"+theOriginalsplit[i]+"</p>\r");
             }
         }
+
+        List<String> strings = new ArrayList<>();
+        /* 现在 */
+        strings.add(stringBuildernew.toString());
+        /* 原来 */
+        strings.add(stringBuilderthe.toString());
+        return strings;
     }
 
 
