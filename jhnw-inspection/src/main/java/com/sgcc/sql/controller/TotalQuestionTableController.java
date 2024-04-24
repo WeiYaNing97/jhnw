@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 问题及命令Controller
@@ -245,10 +246,7 @@ public class TotalQuestionTableController extends BaseController
 
         if (totalQuestionTables.size() != 0){
             //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:交换机问题已存在。\r\n");
 
             return  AjaxResult.error("问题已存在");
@@ -270,10 +268,7 @@ public class TotalQuestionTableController extends BaseController
             if(e.getCause() instanceof SQLIntegrityConstraintViolationException) {
 
                 //传输登陆人姓名 及问题简述
-                AbnormalAlarmInformationMethod.afferent(
-                        null,
-                        loginUser.getUsername(),
-                        null,
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                         "风险:"+"SQL唯一约束异常,问题已存在\r\n");
 
                 //返回成功
@@ -621,6 +616,44 @@ public class TotalQuestionTableController extends BaseController
             return AjaxResult.error();
         }
         return AjaxResult.success();
+    }
+
+    @GetMapping("/getFunction")
+    public List<FunctionVO> getFunction() {
+
+        List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
+        Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
+
+        HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
+
+        for (String typeProblem:collect){
+
+            functionNameListMap.put(typeProblem,new ArrayList<>());
+        }
+
+        for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
+            List<FunctionName> functionNames = functionNameListMap.get(totalQuestionTable.getTypeProblem());
+
+            FunctionName functionName = new FunctionName();
+            functionName.setId(totalQuestionTable.getId());
+            functionName.setTemProNameProblemName(totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
+
+            functionNames.add(functionName);
+
+            functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
+        }
+        List<FunctionVO> functionVOList = new ArrayList<>();
+        for (String typeProblem:collect){
+            List<FunctionName> functionNames = functionNameListMap.get(typeProblem);
+
+            FunctionVO functionVO = new FunctionVO();
+            functionVO.setTypeProblem(typeProblem);
+            functionVO.setFunctionNames(functionNames);
+            functionVOList.add(functionVO);
+
+        }
+
+        return functionVOList;
     }
 
 }

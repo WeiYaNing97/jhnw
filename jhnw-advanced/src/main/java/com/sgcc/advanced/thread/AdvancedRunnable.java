@@ -81,10 +81,7 @@ public class AdvancedRunnable {
                 }
             }else {
                     // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "基本信息",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
                             "系统信息:"+switchParameters.getIp() +
                                     "基本信息："+
                                     basicInformationList_ajaxResult.get("msg")+"\r\n");

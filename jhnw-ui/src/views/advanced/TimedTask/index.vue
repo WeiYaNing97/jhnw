@@ -109,6 +109,53 @@
       </el-dialog>
     </div>
 
+    <!-- 获取并选择需要扫描的功能 -->
+    <div>
+
+      <template>
+        <div>
+          <div v-if="selectFunctions.length === 0 " @click="FunctionPopUp">请选功能</div>
+          <div v-if="selectFunctions.length !== 0 " @click="FunctionPopUp">增加功能</div>
+          <ul>
+            <li v-for="(item, index) in selectFunctions" :key="index">
+              {{ item.label }}
+              <button @click="removeItem(item.id)">×</button>
+            </li>
+          </ul>
+        </div>
+      </template>
+
+      <!-- 可隐藏功能框 -->
+      <el-dialog
+        title="扫描项目选择"
+        :visible.sync="selectFunctionWindow"
+        width="50%"
+        :before-close="FunctionPopDown">
+        <div style="overflow: auto;height: 340px">
+
+          <el-tree
+            ref="tree"
+            :data="functions"
+            show-checkbox
+            node-key="id"
+            :props="defaultProps"
+            @check-change="handleCheckChange"
+          >
+            <!-- :default-expanded-keys="[2, 3]"
+            :default-checked-keys="[5]" -->
+          </el-tree>
+
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="getCheckedInfo">确定</el-button>
+          <el-button @click="FunctionPopDown">取 消</el-button>
+        </span>
+      </el-dialog>
+
+    </div>
+
+
+
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -300,8 +347,6 @@
       </div>
     </el-dialog>
 
-
-
     <template>
       <el-row type="flex">
         <el-col :span="24">
@@ -330,6 +375,14 @@ export default {
   name: "TimedTask",
   data() {
     return {
+        selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
+        functions: [], /* 属性功能表 */
+        selectFunctions: [],/* 选择的功能*/
+        defaultProps: {
+            children: 'children',
+            label: 'label'
+        },
+
         /* Excel表格上传 */
         limitNum: 1,  // 上传excell时，同时允许上传的最大数
         fileList: [],   // excel文件列表
@@ -548,7 +601,6 @@ export default {
                       label: result[i]
                   })
               }
-
           });
       },
       queryData(keyword){
@@ -559,20 +611,13 @@ export default {
       },
 
       handleChange(row){
-
           let text = row.timedTaskStatus === "1" ? "关闭" : "开启";
           this.$modal.confirm('确认要"' + text + '""' + row.timedTaskName + '"任务吗？').then(function() {
-
-              /*JSON.parse(JSON.stringify( ))*/
-              console.log(JSON.stringify(row))
-              console.log(JSON.parse(JSON.stringify(row)))
-
               return request({
                   url:'/advanced/TimedTask/performScheduledTasks',
                   method:'put',
                   data: row
               })
-
           }).then(() => {
               this.$modal.msgSuccess(text + "成功");
           }).catch(function() {
@@ -601,9 +646,7 @@ export default {
       // 文件状态改变时的钩子
       fileChange(file, fileList) {
           this.fileList = []
-          console.log(file.raw);
           this.fileList.push(file.raw) ;
-          console.log(this.fileList);
       },
       handleRemove(file) {
           // 获取文件对象的索引
@@ -615,8 +658,6 @@ export default {
       },
       // 上传文件之前的钩子, 参数为上传的文件,若返回 false 或者返回 Promise 且被 reject，则停止上传
       beforeUploadFile(file) {
-          console.log('before upload');
-          console.log(file);
           let extension = file.name.substring(file.name.lastIndexOf('.')+1);
           let size = file.size / 1024 / 1024;
           if(extension !== 'xlsx') {
@@ -672,6 +713,68 @@ export default {
               this.newarticle = list[0];
               this.theOriginal = list[1];
           })
+      },
+
+      //开启弹窗
+      FunctionPopUp(){
+          this.selectFunctionWindow = true
+          if (this.functions.length === 0){
+              this.getFunction().then(response => {
+                  for (let i = 0; i < response.length; i++){
+                      let secondLevel = response[i].functionNames;
+                      let childrenArray = []
+                      for (let j = 0 ; j < secondLevel.length ;j++){
+                          childrenArray.push({
+                              id: secondLevel[j].id,
+                              level:2,
+                              label: secondLevel[j].temProNameProblemName
+                          })
+                      }
+                      this.functions.push({
+                          id: i,
+                          level:1,
+                          label: response[i].typeProblem,
+                          children: childrenArray
+                      })
+                  }
+
+              })
+          }
+      },
+      // 获取功能
+      getFunction(){
+          return request({
+              url:'/sql/total_question_table/getFunction',
+              method:'get',
+          })
+      },
+
+      //关闭、取消 弹窗
+      FunctionPopDown(done) {
+          this.selectFunctionWindow = false,
+          this.functions= [],
+          this.selectFunctions= []
+      },
+      //确定
+      getCheckedInfo(){
+          this.selectFunctionWindow = false
+      },
+      handleCheckChange() {
+          // 判断选中节点是否为二级节点
+          const tree = this.$refs.tree;
+          const selectedNodes = tree.getCheckedNodes();
+          this.selectFunctions = [];
+          for (let i = 0 ; i < selectedNodes.length ; i++){
+              const nodeid = selectedNodes[i].id;
+              const nodelabel = selectedNodes[i].label;
+              if (selectedNodes[i].level === 2){
+                this.selectFunctions.push({
+                    id : nodeid,
+                    label : nodelabel
+                })
+              }
+          }
+          console.log(this.selectFunctions)
       },
   }
 };

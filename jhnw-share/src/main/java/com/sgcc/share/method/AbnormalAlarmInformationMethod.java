@@ -22,6 +22,17 @@ public class AbnormalAlarmInformationMethod {
     @Autowired
     private static IAbnormalAlarmInformationService abnormalAlarmInformationService;
 
+    /**
+    * @Description
+    * @author charles
+    * @createTime 2024/4/23 10:09
+    * @desc
+    * @param ip	 交换机IP
+     * @param name	系统登录用户名
+     * @param categories	问题名
+     * @param information	问题参数
+     * @return
+    */
     public static void afferent(String ip,String name,String categories,String information) {
 
         if (name != null && categories != null){

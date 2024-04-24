@@ -10,6 +10,7 @@ import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchLoginInformation;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.system.service.ISysUserService;
 import org.springframework.beans.BeanUtils;
@@ -214,6 +215,9 @@ public class TimedTaskController extends BaseController
     @PutMapping("/performScheduledTasks")
     @MyLog(title = "定时任务", businessType = BusinessType.UPDATE)
     public void performScheduledTasks(@RequestBody TimedTaskVO timedTaskVO) {
+        /* 开启定时任务的用户信息*/
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
         /*将TimedTaskVO 转为 TimedTask ，将扫描功能集合拼接成字符串*/
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
@@ -224,6 +228,10 @@ public class TimedTaskController extends BaseController
         /* 插入 */
         timedTaskService = SpringBeanUtil.getBean(ITimedTaskService.class);
         int i = timedTaskService.updateTimedTask(timedTask);
+        if (i<0){
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), "问题日志",
+                    timedTaskVO.getTimedTaskName() + "定时任务状态修改失败");
+        }
 
         /* 任务状态为 1  则是关闭定时任务*/
         if (timedTask.getTimedTaskStatus() == 1){
@@ -236,6 +244,7 @@ public class TimedTaskController extends BaseController
             return;
         }
 
+
         /* 根据定时任务模板  获取交换机登录信息 */
         List<SwitchLoginInformation> switchLoginInformations = TimedTaskRetrievalFile.readCiphertextExcel(MyUtils.getProjectPath()+"\\jobExcel\\"+ timedTask.getTimedTaskParameters() +".txt");
         if (MyUtils.isCollectionEmpty(switchLoginInformations)){
@@ -244,40 +253,36 @@ public class TimedTaskController extends BaseController
 
         /* 任务间隔时间 以秒为单位 */
         Integer intervalSecond = convertToSeconds(timedTaskVO.getTimedTaskIntervalTime());
-        /* 开启定时任务的用户信息*/
-        LoginUser loginUser = SecurityUtils.getLoginUser();
 
-        if (i>0){
-            if (timedTaskVO.getTimedTaskStartTime()!=null){
+        if (timedTaskVO.getTimedTaskStartTime()!=null){
 
-                /* 为根据固定时间开始扫描*/
-                /* 根据当前时间开始扫描*/
-                Timer timer = new Timer();
+            /* 为根据固定时间开始扫描*/
+            /* 根据当前时间开始扫描*/
+            Timer timer = new Timer();
 
-                timerStorage.put(timedTaskVO.getId(),timer);
+            timerStorage.put(timedTaskVO.getId(),timer);
 
-                TemplateScheduledTasks task = new TemplateScheduledTasks( switchLoginInformations, timer,  timedTaskVO,loginUser);/*交换机登录方式*/
+            TemplateScheduledTasks task = new TemplateScheduledTasks( switchLoginInformations, timer,  timedTaskVO,loginUser);/*交换机登录方式*/
 
-                Date date = timedTaskVO.getTimedTaskStartTime();
+            Date date = timedTaskVO.getTimedTaskStartTime();
 
-                // 使用Calendar类获取年、月、日、时、分、秒
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                Date startTime = calendar.getTime();
+            // 使用Calendar类获取年、月、日、时、分、秒
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            Date startTime = calendar.getTime();
 
-                /* long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
-                timer.schedule(task, startTime, intervalSecond * 1000);
+            /* long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
+            timer.schedule(task, startTime, intervalSecond * 1000);
 
-            }else {
-                /* 根据当前时间开始扫描*/
-                Timer timer = new Timer();
-                timerStorage.put(timedTaskVO.getId(),timer);
+        }else {
+            /* 根据当前时间开始扫描*/
+            Timer timer = new Timer();
+            timerStorage.put(timedTaskVO.getId(),timer);
 
-                TemplateScheduledTasks task = new TemplateScheduledTasks( switchLoginInformations, timer,  timedTaskVO,loginUser);/*交换机登录方式*/
+            TemplateScheduledTasks task = new TemplateScheduledTasks( switchLoginInformations, timer,  timedTaskVO,loginUser);/*交换机登录方式*/
                 /*long delay = 0; // 延迟时间，单位为毫秒
                 long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
-                timer.schedule(task, 0, intervalSecond * 1000);
-            }
+            timer.schedule(task, 0, intervalSecond * 1000);
         }
 
     }

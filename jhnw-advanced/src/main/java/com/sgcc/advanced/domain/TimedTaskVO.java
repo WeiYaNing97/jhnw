@@ -57,73 +57,41 @@ public class TimedTaskVO extends BaseEntity
     @Excel(name = "定时任务创建时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date createdOn;
 
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-    public void setTimedTaskName(String timedTaskName)
-    {
-        this.timedTaskName = timedTaskName;
-    }
-
-    public String getTimedTaskName()
-    {
-        return timedTaskName;
-    }
-    public void setTimedTaskParameters(String timedTaskParameters)
-    {
-        this.timedTaskParameters = timedTaskParameters;
-    }
-
-    public String getTimedTaskParameters()
-    {
-        return timedTaskParameters;
-    }
-    public void setTimedTaskStartTime(Date timedTaskStartTime)
-    {
-        this.timedTaskStartTime = timedTaskStartTime;
-    }
-
-    public Date getTimedTaskStartTime()
-    {
-        return timedTaskStartTime;
-    }
-
-    public void setTimedTaskStatus(Integer timedTaskStatus)
-    {
-        this.timedTaskStatus = timedTaskStatus;
-    }
-
-    public Integer getTimedTaskStatus()
-    {
-        return timedTaskStatus;
-    }
-    public void setCreatorName(String creatorName)
-    {
-        this.creatorName = creatorName;
-    }
-
-    public String getCreatorName()
-    {
-        return creatorName;
-    }
-    public void setCreatedOn(Date createdOn)
-    {
-        this.createdOn = createdOn;
-    }
-
-    public Date getCreatedOn()
-    {
-        return createdOn;
-    }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTimedTaskName() {
+        return timedTaskName;
+    }
+
+    public void setTimedTaskName(String timedTaskName) {
+        this.timedTaskName = timedTaskName;
+    }
+
+    public String getTimedTaskParameters() {
+        return timedTaskParameters;
+    }
+
+    public void setTimedTaskParameters(String timedTaskParameters) {
+        this.timedTaskParameters = timedTaskParameters;
+    }
+
+    public Date getTimedTaskStartTime() {
+        return timedTaskStartTime;
+    }
+
+    public void setTimedTaskStartTime(Date timedTaskStartTime) {
+        this.timedTaskStartTime = timedTaskStartTime;
     }
 
     public String getTimedTaskIntervalTime() {
@@ -142,6 +110,29 @@ public class TimedTaskVO extends BaseEntity
         this.function = function;
     }
 
+    public Integer getTimedTaskStatus() {
+        return timedTaskStatus;
+    }
+
+    public void setTimedTaskStatus(Integer timedTaskStatus) {
+        this.timedTaskStatus = timedTaskStatus;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
 
     @Override
     public String toString() {

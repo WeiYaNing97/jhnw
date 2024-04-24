@@ -73,10 +73,7 @@ public class ScanLogicMethods {
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     "TrueAndFalse:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -110,10 +107,7 @@ public class ScanLogicMethods {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     "TrueAndFalse:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -259,10 +253,7 @@ public class ScanLogicMethods {
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     "TrueAndFalse:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -278,10 +269,7 @@ public class ScanLogicMethods {
             subversionNumber = "、"+subversionNumber;
         }
 
-        AbnormalAlarmInformationMethod.afferent(
-                switchParameters.getIp(),
-                switchParameters.getLoginUser().getUsername(),
-                null,
+        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                 "TrueAndFalse:" +
                         "IP地址为:"+switchParameters.getIp()+","+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -354,10 +342,7 @@ public class ScanLogicMethods {
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     "TrueAndFalse:" +
                     "IP地址为:"+switchParameters.getIp()+","+
                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -371,10 +356,7 @@ public class ScanLogicMethods {
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     "TrueAndFalse:" +
                     "IP地址为:"+switchParameters.getIp()+","+
                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+

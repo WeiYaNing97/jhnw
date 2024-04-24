@@ -1,23 +1,19 @@
 <template>
   <div class="app-container">
+
+    <div>
+      <el-button type="primary" @click="guangshuaikuaizhao">光衰快照</el-button>
+      <el-button type="primary" @click="guangshuaikuaizhaojungong">光衰快照竣工</el-button>
+      <el-button type="primary" @click="cuowubaokuaizhao">错误包快照</el-button>
+      <el-button type="primary" @click="cuowubaokuaizhaojungong">错误包快照竣工</el-button>
+    </div>
+
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true"
              v-show="showSearch" label-width="40px" :show-message="false">
 
       <el-form-item style="margin-left: 15px;width: 100%">
 
-<!--        <el-button type="primary" @click="guangStart">光衰开始</el-button>-->
-<!--        <el-button type="primary" @click="guangEnd">光衰结束</el-button>-->
-<!--        <el-button type="primary" @click="errorStart">错误包开始</el-button>-->
-<!--        <el-button type="primary" @click="errotEnd">错误包结束</el-button>-->
-
 <!--        2023.12.22-->
-        <div>
-          <el-button type="primary" @click="guangshuaikuaizhao">光衰快照</el-button>
-          <el-button type="primary" @click="guangshuaikuaizhaojungong">光衰快照竣工</el-button>
-          <el-button type="primary" @click="cuowubaokuaizhao">错误包快照</el-button>
-          <el-button type="primary" @click="cuowubaokuaizhaojungong">错误包快照竣工</el-button>
-          <el-button type="primary" @click="ExcelUpload">上传交换机登录信息表</el-button>
-        </div>
 
         <el-dropdown trigger="click" size="small" v-show="this.addButtonShow"
                      split-button type="primary" @command="addHandleCommand" @click="addScanIp">
@@ -119,6 +115,7 @@
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="specialSearchStart" v-show="!showButton">专项扫描</el-button>
+
           <el-button type="primary" @click="specialSearchStartAdv" v-show="showButton">高级扫描</el-button>
           <el-button @click="dialogVisibleSpecial = false">取 消</el-button>
 <!--          <el-button type="primary" @click="dialogVisibleSpecial = false">确 定</el-button>-->
@@ -707,6 +704,7 @@
                     })
                 }
             },
+
             //高级功能扫描获取tree
             specialSearchAdv(){
                 this.showButton = true

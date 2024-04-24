@@ -79,10 +79,7 @@ public class DefinitionProblemController extends BaseController {
         //当i<=0时插入失败
         if (i<=0){
             //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:"+"获取交换机基本信息命令插入失败\r\n");
             return false;
         }
@@ -101,10 +98,7 @@ public class DefinitionProblemController extends BaseController {
         if (jsonPojoList.size() == 0){
             //传输登陆人姓名 及问题简述
 
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:获取交换机基本信息分析数据非法为空\r\n");
 
         }
@@ -180,10 +174,7 @@ public class DefinitionProblemController extends BaseController {
             int i = problemScanLogicService.insertProblemScanLogic(problemScanLogic);
             if (i<=0){
 
-                AbnormalAlarmInformationMethod.afferent(
-                        null,
-                        loginUser.getUsername(),
-                        null,
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                         "错误:获取交换机基本信息分析数据插入失败\r\n");
 
                 return false;
@@ -204,10 +195,7 @@ public class DefinitionProblemController extends BaseController {
         int i = basicInformationService.updateBasicInformation(basicInformation);
         if (i<=0){
 
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:获取交换机基本信息命令的ProblemId字段失败\r\n");
 
             return false;
@@ -246,10 +234,7 @@ public class DefinitionProblemController extends BaseController {
        if (jsonPojoList.size() == 0){
            //传输登陆人姓名 及问题简述
 
-           AbnormalAlarmInformationMethod.afferent(
-                   null,
-                   loginUser.getUsername(),
-                   null,
+           AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                    "错误:扫描分析数据非法为空\r\n");
 
            return false;
@@ -658,19 +643,14 @@ public class DefinitionProblemController extends BaseController {
                 }else {
                     //传输登陆人姓名 及问题简述
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            null,
-                            loginUser.getUsername(),
-                            null,
+                    AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                             "风险:扫描交换机问题表数据删除失败\r\n");
                 }
             }else {
                 //传输登陆人姓名 及问题简述
 
-                AbnormalAlarmInformationMethod.afferent(
-                        null,
-                        loginUser.getUsername(),
-                        null,"风险:扫描交换机问题分析逻辑删除失败\r\n");
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                        "风险:扫描交换机问题分析逻辑删除失败\r\n");
 
             }
         } else if (deleteCommandLogicByIds >0  && problemScanLogicId.length == 0){
@@ -683,20 +663,14 @@ public class DefinitionProblemController extends BaseController {
             }else {
                 //传输登陆人姓名 及问题简述
 
-                AbnormalAlarmInformationMethod.afferent(
-                        null,
-                        loginUser.getUsername(),
-                        null,
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                         "风险:扫描交换机问题表数据删除失败\r\n");
 
             }
         } else {
             //deleteCommandLogicByIds < 0
 
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:扫描交换机问题命令删除失败\r\n");
         }
 
@@ -744,10 +718,7 @@ public class DefinitionProblemController extends BaseController {
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
                 if (problemScanLogic ==null){
                     //传输登陆人姓名 及问题简述
-                    AbnormalAlarmInformationMethod.afferent(
-                            null,
-                            loginUser.getUsername(),
-                            null,
+                    AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                             "错误:根据ID："+id+"查询分析表数据失败,未查出对应ID数据\r\n");
 
                     /* 返回空集合 */
@@ -922,10 +893,7 @@ public class DefinitionProblemController extends BaseController {
             e.printStackTrace();
         } catch (TimeoutException e) {
             //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:回显获取交换机基本信息逻辑数据超时\r\n");
 
             return AjaxResult.error("查询超时");
@@ -1001,10 +969,7 @@ public class DefinitionProblemController extends BaseController {
         String problemId = null ;
         if (basicInformation.getProblemId() == null){
             //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:获取交换机基本信息分析逻辑未定义\r\n");
 
             return false;
@@ -1018,10 +983,7 @@ public class DefinitionProblemController extends BaseController {
         List<ProblemScanLogic> problemScanLogicList = definitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
         if (problemScanLogicList.size() ==0 ){
             //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:获取交换机基本信息分析逻辑为空\r\n");
             return false;
         }
@@ -1033,10 +995,7 @@ public class DefinitionProblemController extends BaseController {
         if (i<=0){
             //传输登陆人姓名 及问题简述
 
-            AbnormalAlarmInformationMethod.afferent(
-                    null,
-                    loginUser.getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:获取交换机基本信息分析逻辑删除失败\r\n");
 
             return false;
@@ -1044,10 +1003,7 @@ public class DefinitionProblemController extends BaseController {
             int j = basicInformationService.deleteBasicInformationById(id);
             if (j<=0){
                 //传输登陆人姓名 及问题简述
-                AbnormalAlarmInformationMethod.afferent(
-                        null,
-                        loginUser.getUsername(),
-                        null,
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                         "风险:获取交换机基本信息命令删除失败\r\n");
 
                 return false;

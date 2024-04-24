@@ -65,10 +65,7 @@ public class LuminousAttenuation {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    "问题日志",
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -208,10 +205,7 @@ public class LuminousAttenuation {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    "问题日志",
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -232,10 +226,7 @@ public class LuminousAttenuation {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    "问题日志",
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -276,10 +267,7 @@ public class LuminousAttenuation {
                 subversionNumber = "、"+subversionNumber;
             }
 
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    "问题日志",
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -321,10 +309,7 @@ public class LuminousAttenuation {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(
-                        switchParameters.getIp(),
-                        switchParameters.getLoginUser().getUsername(),
-                        "光衰",
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
                         "系统信息:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -336,10 +321,7 @@ public class LuminousAttenuation {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "光衰",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
                             "系统信息:" +
                                     "IP地址为:"+switchParameters.getIp()+","+
                                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -362,10 +344,7 @@ public class LuminousAttenuation {
                 }
 
 
-                AbnormalAlarmInformationMethod.afferent(
-                        switchParameters.getIp(),
-                        switchParameters.getLoginUser().getUsername(),
-                        "光衰",
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
                         "系统信息:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion() + subversionNumber1 + ","+
@@ -419,10 +398,7 @@ public class LuminousAttenuation {
                                     subversionNumber = "、"+subversionNumber;
                                 }
 
-                                AbnormalAlarmInformationMethod.afferent(
-                                        switchParameters.getIp(),
-                                        switchParameters.getLoginUser().getUsername(),
-                                        "光衰",
+                                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
                                         "系统信息:" +
                                                 "IP地址为:"+switchParameters.getIp()+","+
                                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -441,10 +417,7 @@ public class LuminousAttenuation {
                                     subversionNumber = "、"+subversionNumber;
                                 }
 
-                                AbnormalAlarmInformationMethod.afferent(
-                                        switchParameters.getIp(),
-                                        switchParameters.getLoginUser().getUsername(),
-                                        "光衰",
+                                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
                                         "系统信息:" +
                                                 "IP地址为:"+switchParameters.getIp()+","+
                                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -460,10 +433,7 @@ public class LuminousAttenuation {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(
-                                switchParameters.getIp(),
-                                null,
-                                "光衰",
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), null, "光衰",
                                 "IP地址为:("+switchParameters.getIp()+"),"+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                         lightAttenuationComparison.toJson() +"\r\n");
@@ -639,10 +609,7 @@ public class LuminousAttenuation {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(
-                        switchParameters.getIp(),
-                        switchParameters.getLoginUser().getUsername(),
-                        "问题日志",
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -664,10 +631,7 @@ public class LuminousAttenuation {
                     subversionNumber = "、"+subversionNumber;
                 }
 
-                AbnormalAlarmInformationMethod.afferent(
-                        switchParameters.getIp(),
-                        switchParameters.getLoginUser().getUsername(),
-                        "问题日志",
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -822,10 +786,7 @@ public class LuminousAttenuation {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(
-                                switchParameters.getIp(),
-                                switchParameters.getLoginUser().getUsername(),
-                                "问题日志",
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                                 "异常:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -905,10 +866,7 @@ public class LuminousAttenuation {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(
-                                switchParameters.getIp(),
-                                switchParameters.getLoginUser().getUsername(),
-                                "问题日志",
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                                 "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -936,10 +894,7 @@ public class LuminousAttenuation {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(
-                                switchParameters.getIp(),
-                                switchParameters.getLoginUser().getUsername(),
-                                "问题日志",
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                                 "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+

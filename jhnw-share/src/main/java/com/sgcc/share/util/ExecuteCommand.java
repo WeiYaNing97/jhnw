@@ -62,10 +62,7 @@ public class ExecuteCommand {
             if (switchParameters.getMode().equalsIgnoreCase("ssh")) {
 
                 /*当交换机连接协议为 SSH时*/
-                AbnormalAlarmInformationMethod.afferent(
-                        switchParameters.getIp(),
-                        switchParameters.getLoginUser().getUsername(),
-                        null,
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                         switchParameters.getIp() + "发送:" + command+"\r\n");
 
                 /** 超时 */
@@ -89,10 +86,7 @@ public class ExecuteCommand {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "问题日志",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                             "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -120,10 +114,7 @@ public class ExecuteCommand {
             else if (switchParameters.getMode().equalsIgnoreCase("telnet")) {
 
                 /* telnet连接 通过 telnet方法 执行命令*/
-                AbnormalAlarmInformationMethod.afferent(
-                        switchParameters.getIp(),
-                        switchParameters.getLoginUser().getUsername(),
-                        null,
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                         switchParameters.getIp()+"发送:" + command+"\r\n");
 
                 /**  超时 */
@@ -149,10 +140,7 @@ public class ExecuteCommand {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "问题日志",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                             "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -200,9 +188,7 @@ public class ExecuteCommand {
                             subversionNumber = "、"+subversionNumber;
                         }
 
-                        AbnormalAlarmInformationMethod.afferent(
-                                switchParameters.getIp(),
-                                switchParameters.getLoginUser().getUsername(), "问题日志",
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                                 "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
@@ -258,10 +244,7 @@ public class ExecuteCommand {
             }
             returnRecord.setCurrentReturnLog(current_return_log);
             // todo  交换机返回日志的前端回显
-            AbnormalAlarmInformationMethod.afferent(
-                    switchParameters.getIp(),
-                    switchParameters.getLoginUser().getUsername(),
-                    null,
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
         }
@@ -270,10 +253,7 @@ public class ExecuteCommand {
         returnRecord.setCurrentIdentifier(current_identifier);
         // todo  交换机返回标识符的前端回显
 
-        AbnormalAlarmInformationMethod.afferent(
-                switchParameters.getIp(),
-                switchParameters.getLoginUser().getUsername(),
-                null,
+        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                 switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
 
 
@@ -293,10 +273,7 @@ public class ExecuteCommand {
                         subversionNumber = "、"+subversionNumber;
                     }
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "问题日志",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                             "异常:" +
                             "IP地址为:"+switchParameters.getIp()+"。"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+

@@ -84,10 +84,7 @@ public class ConnectToObtainInformation {
 
                     String loginErrorString = loginError.get(number);
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "交换机连接",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "交换机连接",
                             "异常:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
@@ -153,10 +150,7 @@ public class ConnectToObtainInformation {
                     /*告警、异常信息写入*/
                     /*连接失败的原因*/
                     String sshVersion = (String) objects.get(objects.size()-1);
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            null,
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                             "风险:"+"ip:"+ sshVersion+"\r\n");
 
                 }
@@ -401,10 +395,7 @@ public class ConnectToObtainInformation {
                 hashMap.put("zibanben", removeSpecialSymbols(hashMap.get("zibanben")) );
 
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "基本信息",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
                             "系统信息:"+switchParameters.getIp() +
                                     "基本信息:"+
                             "设备品牌:"+hashMap.get("pinpai")+
@@ -420,10 +411,7 @@ public class ConnectToObtainInformation {
 
             }else {
 
-                    AbnormalAlarmInformationMethod.afferent(
-                            switchParameters.getIp(),
-                            switchParameters.getLoginUser().getUsername(),
-                            "基本信息",
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
                             "异常:"+switchParameters.getIp() +
                                     "基本信息:"+
                             "设备品牌:"+hashMap.get("pinpai")+
