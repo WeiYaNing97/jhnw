@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询定时任务列表
 export function listTimedTask(query) {
   return request({
-    url: '/advanced/TimedTask/list',
+    url: '/sql/TimedTask/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,7 @@ export function listTimedTask(query) {
 // 查询定时任务详细
 export function getTimedTask(id) {
   return request({
-    url: '/advanced/TimedTask/' + id,
+    url: '/sql/TimedTask/' + id,
     method: 'get'
   })
 }
@@ -20,7 +20,7 @@ export function getTimedTask(id) {
 // 新增定时任务
 export function addTimedTask(data) {
   return request({
-    url: '/advanced/TimedTask',
+    url: '/sql/TimedTask',
     method: 'post',
     data: data
   })
@@ -29,7 +29,7 @@ export function addTimedTask(data) {
 // 修改定时任务
 export function updateTimedTask(data) {
   return request({
-    url: '/advanced/TimedTask',
+    url: '/sql/TimedTask',
     method: 'put',
     data: data
   })
@@ -38,7 +38,7 @@ export function updateTimedTask(data) {
 // 删除定时任务
 export function delTimedTask(id) {
   return request({
-    url: '/advanced/TimedTask/' + id,
+    url: '/sql/TimedTask/' + id,
     method: 'delete'
   })
 }
@@ -46,7 +46,7 @@ export function delTimedTask(id) {
 // 导出定时任务
 export function exportTimedTask(query) {
   return request({
-    url: '/advanced/TimedTask/export',
+    url: '/sql/TimedTask/export',
     method: 'get',
     params: query
   })

@@ -1,8 +1,8 @@
-package com.sgcc.advanced.controller;
+package com.sgcc.sql.controller;
 
 import java.util.*;
-import com.sgcc.advanced.domain.TimedTaskVO;
-import com.sgcc.advanced.snapshot.TemplateScheduledTasks;
+import java.util.stream.Collectors;
+
 import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.entity.SysUser;
@@ -12,6 +12,9 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.util.MyUtils;
+import com.sgcc.sql.domain.*;
+import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.sql.util.TemplateScheduledTasks;
 import com.sgcc.system.service.ISysUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,51 +42,20 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @date 2024-04-03
  */
 @RestController
-@RequestMapping("/advanced/TimedTask")
+@RequestMapping("/sql/TimedTask")
 public class TimedTaskController extends BaseController
 {
     @Autowired
     private ITimedTaskService timedTaskService;
     @Autowired
     private ISysUserService sysUserService;
-
+    @Autowired
+    private ITotalQuestionTableService totalQuestionTableService;
     public static HashMap<Long,Timer> timerStorage = new HashMap<>();
-
-    /**
-     * 查询定时任务列表
-     */
-    @PreAuthorize("@ss.hasPermi('advanced:TimedTask:list')")
-    @GetMapping("/list")
-    public TableDataInfo list(TimedTaskVO timedTaskVO) {
-        TimedTask timedTask = new TimedTask();
-        BeanUtils.copyProperties(timedTaskVO , timedTask);
-        if (timedTaskVO.getFunction() != null){
-            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunction()));
-        }
-
-        startPage();
-        List<TimedTask> list = timedTaskService.selectTimedTaskList(timedTask);
-
-        List<TimedTaskVO> timedTaskVOS = new ArrayList<>();
-        for (TimedTask pojo:list){
-            TimedTaskVO pojoVO = new TimedTaskVO();
-            BeanUtils.copyProperties(pojo,pojoVO);
-
-            if (pojo.getFunctionArray()!=null){
-                String[] functionArray = pojo.getFunctionArray().split(",");
-                pojoVO.setFunction(Arrays.asList(functionArray));
-            }
-
-            timedTaskVOS.add(pojoVO);
-        }
-
-        return getDataTable(timedTaskVOS);
-    }
-
     /**
      * 导出定时任务列表
      */
-    @PreAuthorize("@ss.hasPermi('advanced:TimedTask:export')")
+    @PreAuthorize("@ss.hasPermi('sql:TimedTask:export')")
     @MyLog(title = "定时任务", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(TimedTask timedTask)
@@ -93,27 +65,10 @@ public class TimedTaskController extends BaseController
         return util.exportExcel(list, "定时任务数据");
     }
 
-    /** 获取定时任务详细信息 */
-    @PreAuthorize("@ss.hasPermi('advanced:TimedTask:query')")
-    @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {   TimedTask timedTask = timedTaskService.selectTimedTaskById(id);
-
-        TimedTaskVO timedTaskVO = new TimedTaskVO();
-        BeanUtils.copyProperties(timedTask,timedTaskVO);
-
-        if (timedTask.getFunctionArray()!=null){
-            String[] functionArray = timedTask.getFunctionArray().split(",");
-            timedTaskVO.setFunction(Arrays.asList(functionArray));
-        }
-
-        return AjaxResult.success(timedTaskVO);
-    }
-
     /**
      * 新增定时任务
      */
-    @PreAuthorize("@ss.hasPermi('advanced:TimedTask:add')")
+    @PreAuthorize("@ss.hasPermi('sql:TimedTask:add')")
     @MyLog(title = "定时任务", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody TimedTaskVO timedTaskVO)
@@ -132,7 +87,7 @@ public class TimedTaskController extends BaseController
     /**
      * 修改定时任务
      */
-    @PreAuthorize("@ss.hasPermi('advanced:TimedTask:edit')")
+    @PreAuthorize("@ss.hasPermi('sql:TimedTask:edit')")
     @MyLog(title = "定时任务", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody TimedTaskVO timedTaskVO)
@@ -149,7 +104,7 @@ public class TimedTaskController extends BaseController
     /**
      * 删除定时任务
      */
-    @PreAuthorize("@ss.hasPermi('advanced:TimedTask:remove')")
+    @PreAuthorize("@ss.hasPermi('sql:TimedTask:remove')")
     @MyLog(title = "定时任务", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids){
@@ -314,4 +269,175 @@ public class TimedTaskController extends BaseController
         return second;
     }
 
+    public static <K, V> K getKeyByValue(Map<K, V> map, V value) {
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 查询定时任务列表
+     */
+    @PreAuthorize("@ss.hasPermi('sql:TimedTask:list')")
+    @GetMapping("/list")
+    public TableDataInfo list(TimedTaskVO timedTaskVO) {
+        TimedTask timedTask = new TimedTask();
+        BeanUtils.copyProperties(timedTaskVO , timedTask);
+        if (timedTaskVO.getFunction() != null){
+            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunction()));
+        }
+
+        startPage();
+        /* 所有定时任务 */
+        List<TimedTask> list = timedTaskService.selectTimedTaskList(timedTask);
+
+        List<TimedTaskVO> timedTaskVOS = new ArrayList<>();
+        for (TimedTask pojo:list){
+            TimedTaskVO pojoVO = new TimedTaskVO();
+            BeanUtils.copyProperties(pojo,pojoVO);
+
+            if (pojo.getFunctionArray()!=null){
+                String[] functionArray = pojo.getFunctionArray().split(",");
+                pojoVO.setFunction(Arrays.asList(functionArray));
+
+            }
+
+            timedTaskVOS.add(pojoVO);
+        }
+
+        return getDataTable(timedTaskVOS);
+    }
+
+
+    @GetMapping("/getFunction")
+    public List<FunctionVO> getFunction() {
+        List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
+        Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
+        HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
+
+        for (String typeProblem:collect){
+            functionNameListMap.put(typeProblem,new ArrayList<>());
+        }
+
+        for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
+            List<FunctionName> functionNames = functionNameListMap.get(totalQuestionTable.getTypeProblem());
+
+            FunctionName functionName = new FunctionName();
+            functionName.setId(totalQuestionTable.getId());
+            functionName.setLabel(totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
+
+            functionNames.add(functionName);
+            functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
+        }
+        List<FunctionVO> functionVOList = new ArrayList<>();
+        for (String typeProblem:collect){
+            List<FunctionName> functionNames = functionNameListMap.get(typeProblem);
+
+            FunctionVO functionVO = new FunctionVO();
+            functionVO.setLabel(typeProblem);
+            functionVO.setChildren(functionNames);
+            functionVOList.add(functionVO);
+
+        }
+
+        return functionVOList;
+    }
+
+
+    /** 获取定时任务详细信息 */
+    @PreAuthorize("@ss.hasPermi('sql:TimedTask:query')")
+    @GetMapping(value = "/{id}")
+    public AjaxResult getInfo(@PathVariable("id") Long id)
+    {   TimedTask timedTask = timedTaskService.selectTimedTaskById(id);
+
+        TimedTaskVO timedTaskVO = new TimedTaskVO();
+        BeanUtils.copyProperties(timedTask,timedTaskVO);
+
+        if (timedTask.getFunctionArray()!=null){
+            String[] functionArray = timedTask.getFunctionArray().split(",");
+            List<String> functions = Arrays.asList(functionArray);
+            timedTaskVO.setFunction(functions);
+
+            /* 所有 自定义问题 */
+            List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
+            List<Object> function = getFunctionListAndID(totalQuestionTableList);
+
+
+            List<FunctionVO> functionAll = (List<FunctionVO>) function.get(0);
+            Map<Long, String> TemProNameProblemNameMap =  (Map<Long, String>) function.get(1);
+            timedTaskVO.setFunctions(functionAll);
+
+
+            List<Long> selectFunction = new ArrayList<>();
+            for (String functionName:functions){
+                Long keyByValue = getKeyByValue(TemProNameProblemNameMap, functionName);
+                selectFunction.add(keyByValue);
+            }
+
+            timedTaskVO.setSelectFunctions(selectFunction);
+
+        }
+
+        timedTaskVO.setSelectFunctionWindow(false);
+        return AjaxResult.success(timedTaskVO);
+    }
+
+    /**
+    * @Description 获取全部问题集合树型结构  及  获取全部问题集合
+    * @author charles
+    * @createTime 2024/4/28 15:33
+    * @desc
+    * @param totalQuestionTableList
+     * @return
+    */
+    public List<Object> getFunctionListAndID(List<TotalQuestionTable> totalQuestionTableList) {
+        /* 定义返回 问题信息
+        map集合 key为问题ID  value为问题名称*/
+        Map<Long, String> TemProNameProblemNameMap = new HashMap<>();
+        /* 筛选范式分类 重新创建一个范式分类SET集合*/
+        Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
+
+        /* map集合 用于存储 范式分类下的 问题名称和ID*/
+        HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
+
+        for (String typeProblem:collect){
+            functionNameListMap.put(typeProblem,new ArrayList<>());
+        }
+
+        for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
+
+            List<FunctionName> functionNames = functionNameListMap.get(totalQuestionTable.getTypeProblem());
+            FunctionName functionName = new FunctionName();
+            functionName.setId(totalQuestionTable.getId());
+            functionName.setLabel(totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
+            functionName.setLevel(2);
+
+            TemProNameProblemNameMap.put(totalQuestionTable.getId(),totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
+            functionNames.add(functionName);
+
+            functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
+        }
+
+
+        List<FunctionVO> functionVOList = new ArrayList<>();
+        Long i = 0l;
+        for (String typeProblem:collect){
+            List<FunctionName> functionNames = functionNameListMap.get(typeProblem);
+            FunctionVO functionVO = new FunctionVO();
+            functionVO.setId(i++);
+            functionVO.setLevel(1);
+            functionVO.setLabel(typeProblem);
+            functionVO.setChildren(functionNames);
+            functionVOList.add(functionVO);
+        }
+
+        List<Object> objectList = new ArrayList<>();
+        objectList.add(functionVOList);
+        objectList.add(TemProNameProblemNameMap);
+
+        return objectList;
+    }
 }

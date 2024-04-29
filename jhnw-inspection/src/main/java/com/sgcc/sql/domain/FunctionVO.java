@@ -1,8 +1,5 @@
 package com.sgcc.sql.domain;
 
-import com.sgcc.common.annotation.Excel;
-import io.swagger.annotations.ApiModelProperty;
-
 import java.util.List;
 
 /**
@@ -13,22 +10,40 @@ import java.util.List;
  **/
 public class FunctionVO {
     /** 范式种类 */
-    private String typeProblem;
-    private List<FunctionName> functionNames;
+    private Long id;
+    private String label;
+    private Integer level;
+    private List<FunctionName> children;
 
-    public String getTypeProblem() {
-        return typeProblem;
+    public Long getId() {
+        return id;
     }
 
-    public void setTypeProblem(String typeProblem) {
-        this.typeProblem = typeProblem;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public List<FunctionName> getFunctionNames() {
-        return functionNames;
+    public String getLabel() {
+        return label;
     }
 
-    public void setFunctionNames(List<FunctionName> functionNames) {
-        this.functionNames = functionNames;
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
+    }
+
+    public List<FunctionName> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<FunctionName> children) {
+        this.children = children;
     }
 }

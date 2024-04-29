@@ -98,6 +98,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY id DESC
     </select>
 
+    <select id="selectTotalQuestionTableByName" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
+        <include refid="selectTotalQuestionTableVo"/>
+        <where>
+            <if test="temProName != null  and temProName != ''"> and tem_pro_name = #{temProName}</if>
+            <if test="problemName != null  and problemName != ''"> and problem_name = #{problemName}</if>
+        </where>
+        ORDER BY id DESC
+    </select>
+
     <select id="queryScannableQuestionsList" parameterType="com.sgcc.sql.domain.TotalQuestionTable" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
         <where>

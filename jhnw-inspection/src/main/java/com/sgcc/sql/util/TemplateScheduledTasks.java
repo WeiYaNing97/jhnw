@@ -1,16 +1,14 @@
-package com.sgcc.advanced.snapshot;
+package com.sgcc.sql.util;
 
-import com.sgcc.advanced.domain.TimedTask;
-import com.sgcc.advanced.domain.TimedTaskVO;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.common.core.domain.model.LoginUser;
-import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
+import com.sgcc.sql.domain.TimedTaskVO;
 import org.apache.poi.ss.formula.functions.T;
 
 import java.io.IOException;

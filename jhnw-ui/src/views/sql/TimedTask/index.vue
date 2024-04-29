@@ -31,7 +31,6 @@
                         placeholder="选择开始时间">
         </el-date-picker>
       </el-form-item>
-
       <el-form-item label="间隔时间" prop="timedTaskIntervalTime">
         <el-input
           v-model="queryParams.timedTaskIntervalTime"
@@ -42,7 +41,6 @@
         />
       </el-form-item>
       <el-form-item label="任务状态" prop="timedTaskStatus">
-
         <el-select v-model="queryParams.timedTaskStatus" placeholder="请选择任务状态">
           <el-option
             v-for="item in status"
@@ -51,7 +49,6 @@
             :value="item.value">
           </el-option>
         </el-select>
-
       </el-form-item>
       <el-form-item label="创建人姓名" prop="creatorName">
         <el-input
@@ -62,14 +59,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <!--<el-form-item label="创建时间" prop="createdOn">
-        <el-date-picker clearable size="small"
-          v-model="queryParams.createdOn"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="创建时间">
-        </el-date-picker>
-      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -81,7 +70,6 @@
     <div>
       <el-button type="primary" @click="ExcelUpload">上传交换机登录信息表</el-button>
       <el-dialog title="交换机登录信息表上传" :visible.sync="isItVisible" width="400px" @close="someMethod" append-to-body>
-
         <el-upload
           ref="upload"
           :limit=limitNum
@@ -109,53 +97,6 @@
       </el-dialog>
     </div>
 
-    <!-- 获取并选择需要扫描的功能 -->
-    <div>
-
-      <template>
-        <div>
-          <div v-if="selectFunctions.length === 0 " @click="FunctionPopUp">请选功能</div>
-          <div v-if="selectFunctions.length !== 0 " @click="FunctionPopUp">增加功能</div>
-          <ul>
-            <li v-for="(item, index) in selectFunctions" :key="index">
-              {{ item.label }}
-              <button @click="removeItem(item.id)">×</button>
-            </li>
-          </ul>
-        </div>
-      </template>
-
-      <!-- 可隐藏功能框 -->
-      <el-dialog
-        title="扫描项目选择"
-        :visible.sync="selectFunctionWindow"
-        width="50%"
-        :before-close="FunctionPopDown">
-        <div style="overflow: auto;height: 340px">
-
-          <el-tree
-            ref="tree"
-            :data="functions"
-            show-checkbox
-            node-key="id"
-            :props="defaultProps"
-            @check-change="handleCheckChange"
-          >
-            <!-- :default-expanded-keys="[2, 3]"
-            :default-checked-keys="[5]" -->
-          </el-tree>
-
-        </div>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="getCheckedInfo">确定</el-button>
-          <el-button @click="FunctionPopDown">取 消</el-button>
-        </span>
-      </el-dialog>
-
-    </div>
-
-
-
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
@@ -164,7 +105,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['advanced:TimedTask:add']"
+          v-hasPermi="['sql:TimedTask:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -175,7 +116,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['advanced:TimedTask:edit']"
+          v-hasPermi="['sql:TimedTask:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -186,7 +127,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['advanced:TimedTask:remove']"
+          v-hasPermi="['sql:TimedTask:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -197,14 +138,19 @@
           size="mini"
           :loading="exportLoading"
           @click="handleExport"
-          v-hasPermi="['advanced:TimedTask:export']"
+          v-hasPermi="['sql:TimedTask:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <!-- 列表展示数据表信息-->
-    <el-table v-loading="loading" :data="TimedTaskList" @selection-change="handleSelectionChange">
+    <el-table  ref="timedTaskTable"
+               v-loading="loading" :data="TimedTaskList"
+               @selection-change="handleSelectionChange"
+               :row-class-name="tableRowClassName" @row-click="currentLine" >
+      <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
+
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="任务编号" align="center" prop="id"/>
       <el-table-column label="任务名称" align="center" prop="timedTaskName" />
@@ -217,27 +163,15 @@
       <el-table-column label="间隔时间" align="center" prop="timedTaskIntervalTime" />
       <el-table-column label="功能" align="center" prop="function" width="200">
         <template slot-scope="scope">
-          <el-select v-model="scope.row.function" multiple >
-            <el-option
-              v-for="item in functionvalue"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label">
-            </el-option>
-          </el-select>
+          <ul>
+            <li v-for="(item, index) in scope.row.function" :key="index">
+              {{ item }}
+            </li>
+          </ul>
         </template>
       </el-table-column>
       <el-table-column label="任务状态" align="center" prop="timedTaskStatus" >
         <template slot-scope="scope">
-          <!--<el-switch
-            v-model="scope.row.timedTaskStatus"
-            active-value="0"
-            inactive-value="1"
-            @change="handleChange(scope.row)"
-          >
-          </el-switch>-->
-
-
           <el-select v-model="scope.row.timedTaskStatus" @change="handleChange(scope.row)">
             <el-option
               v-for="(item, index) in status"
@@ -246,8 +180,6 @@
               :value="item.value"
             />
           </el-select>
-
-
         </template>
       </el-table-column>
       <el-table-column label="创建人姓名" align="center" prop="creatorName" />
@@ -263,14 +195,14 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['advanced:TimedTask:edit']"
+            v-hasPermi="['sql:TimedTask:edit']"
           >修改</el-button>
           <el-button
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['advanced:TimedTask:remove']"
+            v-hasPermi="['sql:TimedTask:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -287,11 +219,12 @@
     <!-- 添加或修改定时任务对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        {{form.selectFunctionWindow}}
+
         <el-form-item label="任务名称" prop="timedTaskName">
           <el-input v-model="form.timedTaskName" placeholder="请输入任务名称" />
         </el-form-item>
         <el-form-item label="模板" prop="timedTaskParameters">
-          <!--<el-input v-model="form.timedTaskParameters" placeholder="请输入定时任务参数" />-->
           <el-select v-model="form.timedTaskParameters" filterable placeholder="请选择模板"  @focus ="handleClick(form)" @keyup.enter.native="handleQuery">
             <el-option
               v-for="item in options"
@@ -303,12 +236,6 @@
         </el-form-item>
 
         <el-form-item label="开始时间" prop="timedTaskStartTime">
-          <!--<el-date-picker clearable size="small"
-                          v-model="form.timedTaskStartTime"
-                          type="date"
-                          value-format="yyyy-MM-dd"
-                          placeholder="选择定时开始时间">
-          </el-date-picker>-->
           <el-date-picker
             v-model="form.timedTaskStartTime"
             type="datetime"
@@ -321,25 +248,53 @@
         </el-form-item>
 
         <el-form-item label="功能" prop="function">
-          <el-select v-model="form.function" multiple placeholder="请选择功能">
-            <el-option
-              v-for="item in functionvalue"
-              :key="item.value"
-              :label="item.label"
-              :value="item.label">
-            </el-option>
-          </el-select>
+          <el-button  @click="FunctionPopUp()" > 重新选择 </el-button>
+
+          <ul>
+            <li v-for="(item, index) in form.functions" :key="index">
+              {{ item }}
+            </li>
+          </ul>
+
+          <ul>
+            <li v-for="(item, index) in form.function" :key="index">
+              {{ item }}
+            </li>
+          </ul>
+
+          <ul>
+            <li v-for="(item, index) in form.selectFunctions" :key="index">
+              {{ item }}
+            </li>
+          </ul>
+
+          <!-- 可隐藏功能框 -->
+          <el-dialog
+            title="扫描项目选择"
+            :visible.sync="form.selectFunctionWindow"
+            :modal = false
+            width="50%"
+            :before-close="FunctionPopDown"
+            @opened="setFunctionKeys()"
+          ><!--@opened="autoCallMethod(form)"-->
+            <div style="overflow: auto;height: 340px">
+              <el-tree
+                ref="tree"
+                :data="form.functions"
+                show-checkbox
+                node-key="id"
+                :props="form.defaultProps"
+                @check-change="handleCheckChange()"
+              ></el-tree>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="getCheckedInfo()">确定</el-button>
+                <el-button  @click="FunctionPopDown()">取 消</el-button>
+              </span>
+          </el-dialog>
+
+
         </el-form-item>
-
-        <!--<el-form-item label="任务状态">
-          <el-switch
-            v-model="form.timedTaskStatus"
-            active-value="0"
-            inactive-value="1"
-          >
-          </el-switch>
-        </el-form-item>-->
-
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -368,20 +323,13 @@
 </template>
 
 <script>
-import { listTimedTask, getTimedTask, delTimedTask, addTimedTask, updateTimedTask, exportTimedTask } from "@/api/advanced/TimedTask";
+import { listTimedTask, getTimedTask, delTimedTask, addTimedTask, updateTimedTask, exportTimedTask } from "@/api/sql/TimedTask";
 import request from '@/utils/request'
 
 export default {
   name: "TimedTask",
   data() {
     return {
-        selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
-        functions: [], /* 属性功能表 */
-        selectFunctions: [],/* 选择的功能*/
-        defaultProps: {
-            children: 'children',
-            label: 'label'
-        },
 
         /* Excel表格上传 */
         limitNum: 1,  // 上传excell时，同时允许上传的最大数
@@ -432,7 +380,15 @@ export default {
         timedTaskParameters: null,
         timedTaskStartTime: '',
         timedTaskIntervalTime: null,
-          function:[],
+          function: [], /*选择的功能名称*/
+          selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
+          selectFunctions: [],/* 选择的功能实体类*/
+          functions: [], /* 所有属性功能表 */
+          defaultProps: {
+              children: 'children',
+              label: 'label'
+          },
+
         timedTaskStatus: null,
         creatorName: null,
         createdOn: null
@@ -474,9 +430,6 @@ export default {
       this.loading = true;
       listTimedTask(this.queryParams).then(response => {
         this.TimedTaskList = response.rows;
-        for (let i = 0; i < this.TimedTaskList.length; i++){
-
-        }
         this.total = response.total;
         this.loading = false;
       });
@@ -494,7 +447,15 @@ export default {
         timedTaskParameters: null,
         timedTaskStartTime: '',
         timedTaskIntervalTime: null,
-        function: [],
+          function: [], /* 选择的功能名称 */
+          selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
+          selectFunctions: [],/* 选择的功能*/
+          functions: [], /* 属性功能表 */
+          defaultProps: {
+              children: 'children',
+              label: 'label'
+          },
+
         timedTaskStatus: null,
         creatorName: null,
         createdOn: null
@@ -516,7 +477,20 @@ export default {
       this.ids = selection.map(item => item.id)
       this.single = selection.length!==1
       this.multiple = !selection.length
+
     },
+      //获取当前表格行index
+      tableRowClassName({row, rowIndex}) {
+          row.row_index = rowIndex;
+      },
+      indexMethod(index) {
+          return index + 1;
+      },
+      //点击当前行操作
+      currentLine(row){
+          /* 鼠标点击行 */
+          let lineNum = row.row_index
+      },
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
@@ -605,7 +579,7 @@ export default {
       },
       queryData(keyword){
           return request({
-              url:'/advanced/timedTaskRetrievalFile/getFileNames',
+              url:'/sql/timedTaskRetrievalFile/getFileNames',
               method:'get',
           })
       },
@@ -614,7 +588,7 @@ export default {
           let text = row.timedTaskStatus === "1" ? "关闭" : "开启";
           this.$modal.confirm('确认要"' + text + '""' + row.timedTaskName + '"任务吗？').then(function() {
               return request({
-                  url:'/advanced/TimedTask/performScheduledTasks',
+                  url:'/sql/TimedTask/performScheduledTasks',
                   method:'put',
                   data: row
               })
@@ -687,7 +661,7 @@ export default {
               form.append('file', this.fileList[0]);
               return request({
                   method:"post",
-                  url: "/advanced/timedTaskRetrievalFile/localFileImportProjectAddress",
+                  url: "/sql/timedTaskRetrievalFile/localFileImportProjectAddress",
                   headers:{
                       'Content-type': 'multipart/form-data'
                   },
@@ -700,8 +674,6 @@ export default {
               )
           }
       },
-
-
 
       /** 文章对比*/
       handleButtonClick() {
@@ -717,23 +689,24 @@ export default {
 
       //开启弹窗
       FunctionPopUp(){
-          this.selectFunctionWindow = true
-          if (this.functions.length === 0){
+
+          this.form.selectFunctionWindow = true
+          if (this.form.functions.length === 0){
               this.getFunction().then(response => {
                   for (let i = 0; i < response.length; i++){
-                      let secondLevel = response[i].functionNames;
+                      let secondLevel = response[i].children;
                       let childrenArray = []
                       for (let j = 0 ; j < secondLevel.length ;j++){
                           childrenArray.push({
                               id: secondLevel[j].id,
                               level:2,
-                              label: secondLevel[j].temProNameProblemName
+                              label: secondLevel[j].label
                           })
                       }
-                      this.functions.push({
+                      this.form.functions.push({
                           id: i,
                           level:1,
-                          label: response[i].typeProblem,
+                          label: response[i].label,
                           children: childrenArray
                       })
                   }
@@ -741,40 +714,45 @@ export default {
               })
           }
       },
-      // 获取功能
+
+      // 获取全部功能
       getFunction(){
           return request({
-              url:'/sql/total_question_table/getFunction',
+              url:'/sql/TimedTask/getFunction',
               method:'get',
           })
       },
 
+      setFunctionKeys(){
+          // 获取树型组件实例
+          const tree = this.$refs.tree;
+          // 调用setCheckedKeys方法
+          tree.setCheckedKeys(this.form.selectFunctions);
+      },
+
+
       //关闭、取消 弹窗
-      FunctionPopDown(done) {
-          this.selectFunctionWindow = false,
-          this.functions= [],
-          this.selectFunctions= []
+      FunctionPopDown() {
+          this.form.selectFunctionWindow = false
       },
       //确定
       getCheckedInfo(){
-          this.selectFunctionWindow = false
+          this.form.selectFunctionWindow = false
       },
       handleCheckChange() {
           // 判断选中节点是否为二级节点
           const tree = this.$refs.tree;
           const selectedNodes = tree.getCheckedNodes();
-          this.selectFunctions = [];
+          this.form.selectFunctions = [];
+          this.form.function = [];
           for (let i = 0 ; i < selectedNodes.length ; i++){
               const nodeid = selectedNodes[i].id;
               const nodelabel = selectedNodes[i].label;
               if (selectedNodes[i].level === 2){
-                this.selectFunctions.push({
-                    id : nodeid,
-                    label : nodelabel
-                })
+                  this.form.selectFunctions.push(nodeid)
+                  this.form.function.push(nodelabel)
               }
           }
-          console.log(this.selectFunctions)
       },
   }
 };

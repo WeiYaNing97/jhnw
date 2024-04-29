@@ -118,4 +118,7 @@ public interface TotalQuestionTableMapper
     List<TotalQuestionTable> selectTotalQuestionTableListInsert(TotalQuestionTable pojo);
     /*删除数据表所有数据*/
     int deleteTotalQuestionTable();
+
+    /* 根据范式名称 、 自定义名称获取 temProName;problemName 问题表数据 */
+    List<TotalQuestionTable> selectTotalQuestionTableByName(@Param("temProName") String temProName,@Param("problemName") String problemName);
 }

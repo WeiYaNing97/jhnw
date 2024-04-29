@@ -14,11 +14,9 @@ import com.sgcc.share.domain.Information;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.service.IInformationService;
 import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.IFormworkService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
-import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.system.service.ISysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,10 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 问题及命令Controller
@@ -297,89 +293,6 @@ public class TotalQuestionTableController extends BaseController
         return AjaxResult.success(totalQuestionTable.getId()+"");
     }
 
-    /**
-     * @method: 查询所有品牌
-     * @Param: [totalQuestionTable]
-     * @return: java.util.List<java.lang.String>
-     */
-    /*@GetMapping("/brandlist")
-    @ApiOperation("查询所有品牌")
-    public List<String> brandlist() {
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setLogicalID(null);
-        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablebrandList(totalQuestionTable);
-        if (typeProblemlist.size() == 0){
-            return new ArrayList<>();
-        }
-        List<String> stringList = new ArrayList<>();
-        for (TotalQuestionTable pojo:typeProblemlist){
-            stringList.add(pojo.getBrand());
-        }
-        return stringList;
-    }*/
-
-    /**
-     * @method: 根据所选品牌 查询所有型号
-     * @Param: [totalQuestionTable]
-     * @return: java.util.List<java.lang.String>
-     */
-    /*@GetMapping("/typelist")
-    @ApiOperation("根据实体类查询品牌")
-    public List<String> typelist(TotalQuestionTable totalQuestionTable)
-    {
-        totalQuestionTable.setLogicalID(null);
-        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTabletypelist(totalQuestionTable);
-        if (typeProblemlist.size() == 0){
-            return new ArrayList<>();
-        }
-        List<String> stringList = new ArrayList<>();
-        for (TotalQuestionTable pojo:typeProblemlist){
-            stringList.add(pojo.getType());
-        }
-        return stringList;
-    }*/
-
-    /**
-     * @method: 根据所选品牌、型号   查询所有内部固件版本
-     * @Param: [totalQuestionTable]
-     * @return: java.util.List<java.lang.String>
-     */
-    /*@GetMapping("/firewareVersionlist")
-    @ApiOperation("根据实体类查询内部固件版本")
-    public List<String> firewareVersionlist(TotalQuestionTable totalQuestionTable)
-    {
-        totalQuestionTable.setLogicalID(null);
-        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablefirewareVersionlist(totalQuestionTable);
-        if (typeProblemlist.size() == 0){
-        return new ArrayList<>();
-        }
-        List<String> stringList = new ArrayList<>();
-        for (TotalQuestionTable pojo:typeProblemlist){
-            stringList.add(pojo.getFirewareVersion());
-        }
-        return stringList;
-    }*/
-
-    /**
-     * @method: 根据所选品牌、型号、内部固件版本   查询所有子版本号
-     * @Param: [totalQuestionTable]
-     * @return: java.util.List<java.lang.String>
-     */
-    /*@GetMapping("/subVersionlist")
-    @ApiOperation("根据实体类查询子版本号")
-    public List<String> subVersionlist(TotalQuestionTable totalQuestionTable)
-    {
-        totalQuestionTable.setLogicalID(null);
-        List<TotalQuestionTable> typeProblemlist = totalQuestionTableService.selectTotalQuestionTablesubVersionlist(totalQuestionTable);
-        if (typeProblemlist.size() == 0){
-        return new ArrayList<>();
-        }
-        List<String> stringList = new ArrayList<>();
-        for (TotalQuestionTable pojo:typeProblemlist){
-            stringList.add(pojo.getSubVersion());
-        }
-        return stringList;
-    }*/
 
     /**
     * @method: 查询所有问题种类
@@ -617,43 +530,4 @@ public class TotalQuestionTableController extends BaseController
         }
         return AjaxResult.success();
     }
-
-    @GetMapping("/getFunction")
-    public List<FunctionVO> getFunction() {
-
-        List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
-        Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
-
-        HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
-
-        for (String typeProblem:collect){
-
-            functionNameListMap.put(typeProblem,new ArrayList<>());
-        }
-
-        for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
-            List<FunctionName> functionNames = functionNameListMap.get(totalQuestionTable.getTypeProblem());
-
-            FunctionName functionName = new FunctionName();
-            functionName.setId(totalQuestionTable.getId());
-            functionName.setTemProNameProblemName(totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
-
-            functionNames.add(functionName);
-
-            functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
-        }
-        List<FunctionVO> functionVOList = new ArrayList<>();
-        for (String typeProblem:collect){
-            List<FunctionName> functionNames = functionNameListMap.get(typeProblem);
-
-            FunctionVO functionVO = new FunctionVO();
-            functionVO.setTypeProblem(typeProblem);
-            functionVO.setFunctionNames(functionNames);
-            functionVOList.add(functionVO);
-
-        }
-
-        return functionVOList;
-    }
-
 }

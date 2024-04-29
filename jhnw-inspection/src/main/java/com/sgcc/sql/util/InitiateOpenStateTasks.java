@@ -1,13 +1,13 @@
-package com.sgcc.advanced.utils;
+package com.sgcc.sql.util;
 
-import com.sgcc.advanced.controller.TimedTaskController;
 import com.sgcc.advanced.domain.TimedTask;
-import com.sgcc.advanced.domain.TimedTaskVO;
 import com.sgcc.advanced.service.ITimedTaskService;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.util.MemoryCPU;
+import com.sgcc.sql.controller.TimedTaskController;
+import com.sgcc.sql.domain.TimedTaskVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

@@ -1,19 +1,17 @@
 package com.sgcc.sql.domain;
 
+import java.util.List;
+
 /**
  * @program: jhnw
- * @description:
+ * @description: 呈现给前端的勾选的定时任务名称
  * @author:
- * @create: 2024-04-23 17:08
+ * @create: 2024-04-25 10:48
  **/
-public class FunctionName {
-    /** 问题ID */
+public class TaskNameVO {
     private Long id;
-
-    /** 范式名称 */
     private String label;
-
-    private Integer level;
+    private List<TaskNameVO> children;
 
     public Long getId() {
         return id;
@@ -31,11 +29,13 @@ public class FunctionName {
         this.label = label;
     }
 
-    public Integer getLevel() {
-        return level;
+    public List<TaskNameVO> getChildren() {
+        return children;
     }
 
-    public void setLevel(Integer level) {
-        this.level = level;
+    public void setChildren(List<TaskNameVO> children) {
+        this.children = children;
     }
+
+
 }

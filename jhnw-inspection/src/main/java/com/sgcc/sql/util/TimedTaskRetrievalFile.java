@@ -30,7 +30,7 @@ import java.util.UUID;
  **/
 @Api("定时任务文件上传")
 @RestController
-@RequestMapping("/advanced/timedTaskRetrievalFile")
+@RequestMapping("/sql/timedTaskRetrievalFile")
 public class TimedTaskRetrievalFile {
 
     @GetMapping("/getFileNames")

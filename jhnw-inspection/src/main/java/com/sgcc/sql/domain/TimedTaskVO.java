@@ -1,11 +1,10 @@
-package com.sgcc.advanced.domain;
+package com.sgcc.sql.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sgcc.advanced.utils.CustomDateDeserializer;
 import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.core.domain.BaseEntity;
-
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +39,15 @@ public class TimedTaskVO extends BaseEntity
     @Excel(name = "定时任务间隔时间")
     private String timedTaskIntervalTime;
 
+
+    /** 所有功能集合 */
+    @Excel(name = "所有功能集合")
+    private List<FunctionVO> functions;
+
+    /** 选择功能集合 */
+    @Excel(name = "选择功能集合")
+    private List<Long> selectFunctions;
+
     /** 功能集合 */
     @Excel(name = "功能集合")
     private List<String> function;
@@ -56,6 +64,9 @@ public class TimedTaskVO extends BaseEntity
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "定时任务创建时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date createdOn;
+
+
+    private boolean selectFunctionWindow;
 
 
     public static long getSerialVersionUID() {
@@ -134,18 +145,27 @@ public class TimedTaskVO extends BaseEntity
         this.createdOn = createdOn;
     }
 
-    @Override
-    public String toString() {
-        return "TimedTaskVO{" +
-                "id=" + id +
-                ", timedTaskName='" + timedTaskName + '\'' +
-                ", timedTaskParameters='" + timedTaskParameters + '\'' +
-                ", timedTaskStartTime=" + timedTaskStartTime +
-                ", timedTaskIntervalTime='" + timedTaskIntervalTime + '\'' +
-                ", function=" + function +
-                ", timedTaskStatus=" + timedTaskStatus +
-                ", creatorName='" + creatorName + '\'' +
-                ", createdOn=" + createdOn +
-                '}';
+    public List<Long> getSelectFunctions() {
+        return selectFunctions;
+    }
+
+    public void setSelectFunctions(List<Long> selectFunctions) {
+        this.selectFunctions = selectFunctions;
+    }
+
+    public List<FunctionVO> getFunctions() {
+        return functions;
+    }
+
+    public void setFunctions(List<FunctionVO> functions) {
+        this.functions = functions;
+    }
+
+    public boolean isSelectFunctionWindow() {
+        return selectFunctionWindow;
+    }
+
+    public void setSelectFunctionWindow(boolean selectFunctionWindow) {
+        this.selectFunctionWindow = selectFunctionWindow;
     }
 }

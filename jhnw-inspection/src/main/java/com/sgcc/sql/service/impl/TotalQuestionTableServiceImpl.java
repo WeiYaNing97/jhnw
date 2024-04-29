@@ -98,10 +98,6 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
         return totalQuestionTableMapper.selectPojoByproblemDescribeId(id);
     }
 
-
-
-
-
     /**
      * @method: 查询问题及命令列表
      * @Param: [totalQuestionTable]
@@ -517,6 +513,12 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     @Override
     public int deleteTotalQuestionTable() {
         return totalQuestionTableMapper.deleteTotalQuestionTable();
+    }
+
+    /* 根据范式名称 、 自定义名称获取 temProName;problemName 问题表数据 */
+    @Override
+    public List<TotalQuestionTable> selectTotalQuestionTableByName(String temProName, String problemName) {
+        return totalQuestionTableMapper.selectTotalQuestionTableByName(temProName,  problemName);
     }
 
     /**
