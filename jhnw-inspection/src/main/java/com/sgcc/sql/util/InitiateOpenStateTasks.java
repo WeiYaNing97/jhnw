@@ -50,7 +50,7 @@ public class InitiateOpenStateTasks implements ApplicationListener<ApplicationRe
             BeanUtils.copyProperties(pojo,pojoVO);
             if (pojo.getFunctionArray()!=null){
                 String[] functionArray = pojo.getFunctionArray().split(",");
-                pojoVO.setFunction(Arrays.asList(functionArray));
+                pojoVO.setFunctionName(Arrays.asList(functionArray));
             }
             timedTaskController.InitiateOpenStateTasks(pojoVO);
         }

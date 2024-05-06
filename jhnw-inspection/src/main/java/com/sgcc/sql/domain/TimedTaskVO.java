@@ -42,15 +42,15 @@ public class TimedTaskVO extends BaseEntity
 
     /** 所有功能集合 */
     @Excel(name = "所有功能集合")
-    private List<FunctionVO> functions;
+    private List<FunctionVO> functionalTree;
 
     /** 选择功能集合 */
     @Excel(name = "选择功能集合")
-    private List<Long> selectFunctions;
+    private List<String> selectFunctions;
 
     /** 功能集合 */
     @Excel(name = "功能集合")
-    private List<String> function;
+    private List<String> functionName;
 
     /** 定时任务开启状态 */
     @Excel(name = "定时任务开启状态")
@@ -113,14 +113,6 @@ public class TimedTaskVO extends BaseEntity
         this.timedTaskIntervalTime = timedTaskIntervalTime;
     }
 
-    public List<String> getFunction() {
-        return function;
-    }
-
-    public void setFunction(List<String> function) {
-        this.function = function;
-    }
-
     public Integer getTimedTaskStatus() {
         return timedTaskStatus;
     }
@@ -145,20 +137,12 @@ public class TimedTaskVO extends BaseEntity
         this.createdOn = createdOn;
     }
 
-    public List<Long> getSelectFunctions() {
+    public List<String> getSelectFunctions() {
         return selectFunctions;
     }
 
-    public void setSelectFunctions(List<Long> selectFunctions) {
+    public void setSelectFunctions(List<String> selectFunctions) {
         this.selectFunctions = selectFunctions;
-    }
-
-    public List<FunctionVO> getFunctions() {
-        return functions;
-    }
-
-    public void setFunctions(List<FunctionVO> functions) {
-        this.functions = functions;
     }
 
     public boolean isSelectFunctionWindow() {
@@ -167,5 +151,21 @@ public class TimedTaskVO extends BaseEntity
 
     public void setSelectFunctionWindow(boolean selectFunctionWindow) {
         this.selectFunctionWindow = selectFunctionWindow;
+    }
+
+    public List<FunctionVO> getFunctionalTree() {
+        return functionalTree;
+    }
+
+    public void setFunctionalTree(List<FunctionVO> functionalTree) {
+        this.functionalTree = functionalTree;
+    }
+
+    public List<String> getFunctionName() {
+        return functionName;
+    }
+
+    public void setFunctionName(List<String> functionName) {
+        this.functionName = functionName;
     }
 }

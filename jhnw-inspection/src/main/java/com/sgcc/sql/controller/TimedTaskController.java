@@ -75,8 +75,8 @@ public class TimedTaskController extends BaseController
     {
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
-        if (timedTaskVO.getFunction() != null){
-            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunction()));
+        if (timedTaskVO.getSelectFunctions() != null){
+            timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
 
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -94,10 +94,15 @@ public class TimedTaskController extends BaseController
     {
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
-        if (timedTaskVO.getFunction() != null){
-            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunction()));
-        }
 
+        if (timedTaskVO.getSelectFunctions() != null){
+            List<String> selectFunctions = new ArrayList<>();
+            for (int i = 0 ; i <timedTaskVO.getSelectFunctions().size();i++){
+                selectFunctions.add(timedTaskVO.getSelectFunctions().get(i).trim());
+            }
+
+            timedTask.setFunctionArray(String.join(",",selectFunctions));
+        }
         return toAjax(timedTaskService.updateTimedTask(timedTask));
     }
 
@@ -116,8 +121,8 @@ public class TimedTaskController extends BaseController
 
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
-        if (timedTaskVO.getFunction() != null){
-            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunction()));
+        if (timedTaskVO.getFunctionName() != null){
+            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunctionName()));
         }
 
         /** 开启定时任务*/
@@ -176,8 +181,8 @@ public class TimedTaskController extends BaseController
         /*将TimedTaskVO 转为 TimedTask ，将扫描功能集合拼接成字符串*/
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
-        if (timedTaskVO.getFunction() != null){
-            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunction()));
+        if (timedTaskVO.getFunctionName() != null){
+            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunctionName()));
         }
 
         /* 插入 */
@@ -286,8 +291,8 @@ public class TimedTaskController extends BaseController
     public TableDataInfo list(TimedTaskVO timedTaskVO) {
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
-        if (timedTaskVO.getFunction() != null){
-            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunction()));
+        if (timedTaskVO.getFunctionName() != null){
+            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunctionName()));
         }
 
         startPage();
@@ -301,7 +306,33 @@ public class TimedTaskController extends BaseController
 
             if (pojo.getFunctionArray()!=null){
                 String[] functionArray = pojo.getFunctionArray().split(",");
-                pojoVO.setFunction(Arrays.asList(functionArray));
+
+                List<String> functionIDList = new ArrayList<>();
+                List<String> functionNameList = new ArrayList<>();
+                List<String> selectFunctions = new ArrayList<>();
+                for (String function:functionArray){
+                    function = function.trim();
+                    selectFunctions.add(function);
+                    boolean isAPureNumber = MyUtils.determineWhetherAStringIsAPureNumber(function);
+                    if (isAPureNumber){
+                        functionIDList.add(function);
+                    }else {
+                        functionNameList.add(function);
+                    }
+                }
+                pojoVO.setSelectFunctions(selectFunctions);
+
+                /* 安全配置问题ID*/
+                Long[] functionlongs = functionIDList.stream().map(Long::parseLong).toArray(Long[]::new);
+                List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(functionlongs);
+
+                /* 安全配置问题 名称*/
+                List<String> functionsName = totalQuestionTables.stream().map(x -> x.getTemProName() + "-" + x.getProblemName()).collect(Collectors.toList());
+
+                /* 添加日常巡检和高级功能问题名称*/
+                functionsName.addAll(functionNameList);
+
+                pojoVO.setFunctionName( functionsName);
 
             }
 
@@ -357,31 +388,48 @@ public class TimedTaskController extends BaseController
         BeanUtils.copyProperties(timedTask,timedTaskVO);
 
         if (timedTask.getFunctionArray()!=null){
+
             String[] functionArray = timedTask.getFunctionArray().split(",");
-            List<String> functions = Arrays.asList(functionArray);
-            timedTaskVO.setFunction(functions);
+
+
+            List<String> functionIDList = new ArrayList<>();
+            List<String> functionNameList = new ArrayList<>();
+            List<String> selectFunctions = new ArrayList<>();
+            for (String function:functionArray){
+                function = function.trim();
+                selectFunctions.add(function);
+                boolean isAPureNumber = MyUtils.determineWhetherAStringIsAPureNumber(function);
+                if (isAPureNumber){
+                    functionIDList.add(function);
+                }else {
+                    functionNameList.add(function);
+                }
+            }
+            timedTaskVO.setSelectFunctions(selectFunctions);
+
+            /* 安全配置问题ID*/
+            Long[] functionlongs = functionIDList.stream().map(Long::parseLong).toArray(Long[]::new);
+            List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(functionlongs);
+            /* 安全配置问题 名称*/
+            List<String> functions = totalQuestionTables.stream().map(pojo -> pojo.getTemProName() + "-" + pojo.getProblemName()).collect(Collectors.toList());
+            /* 添加日常巡检和高级功能问题名称*/
+            functions.addAll(functionNameList);
 
             /* 所有 自定义问题 */
             List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
+            /* 获取问题树型 和 问题Map*/
             List<Object> function = getFunctionListAndID(totalQuestionTableList);
+            List<FunctionVO> functionalTree = (List<FunctionVO>) function.get(0);
+            //Map<Long, String> TemProNameProblemNameMap =  (Map<Long, String>) function.get(1);
 
+            /* 功能树型 */
+            timedTaskVO.setFunctionalTree(functionalTree);
 
-            List<FunctionVO> functionAll = (List<FunctionVO>) function.get(0);
-            Map<Long, String> TemProNameProblemNameMap =  (Map<Long, String>) function.get(1);
-            timedTaskVO.setFunctions(functionAll);
-
-
-            List<Long> selectFunction = new ArrayList<>();
-            for (String functionName:functions){
-                Long keyByValue = getKeyByValue(TemProNameProblemNameMap, functionName);
-                selectFunction.add(keyByValue);
-            }
-
-            timedTaskVO.setSelectFunctions(selectFunction);
-
+            timedTaskVO.setFunctionName(functions);
         }
 
         timedTaskVO.setSelectFunctionWindow(false);
+
         return AjaxResult.success(timedTaskVO);
     }
 

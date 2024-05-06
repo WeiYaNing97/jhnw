@@ -35,7 +35,7 @@ public class TemplateScheduledTasks extends TimerTask {
     }
     @Override
     public void run() {
-        Tasks.method(this.switchLoginInformations,this.timedTaskVO.getFunction(),this.loginUser);
+        Tasks.method(this.switchLoginInformations,this.timedTaskVO.getFunctionName(),this.loginUser);
     }
 }
 

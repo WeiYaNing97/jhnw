@@ -164,7 +164,7 @@
       <el-table-column label="功能" align="center" prop="function" width="200">
         <template slot-scope="scope">
           <ul>
-            <li v-for="(item, index) in scope.row.function" :key="index">
+            <li v-for="(item, index) in scope.row.functionName" :key="index">
               {{ item }}
             </li>
           </ul>
@@ -219,8 +219,6 @@
     <!-- 添加或修改定时任务对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        {{form.selectFunctionWindow}}
-
         <el-form-item label="任务名称" prop="timedTaskName">
           <el-input v-model="form.timedTaskName" placeholder="请输入任务名称" />
         </el-form-item>
@@ -251,19 +249,7 @@
           <el-button  @click="FunctionPopUp()" > 重新选择 </el-button>
 
           <ul>
-            <li v-for="(item, index) in form.functions" :key="index">
-              {{ item }}
-            </li>
-          </ul>
-
-          <ul>
-            <li v-for="(item, index) in form.function" :key="index">
-              {{ item }}
-            </li>
-          </ul>
-
-          <ul>
-            <li v-for="(item, index) in form.selectFunctions" :key="index">
+            <li v-for="(item, index) in form.functionName" :key="index">
               {{ item }}
             </li>
           </ul>
@@ -280,7 +266,7 @@
             <div style="overflow: auto;height: 340px">
               <el-tree
                 ref="tree"
-                :data="form.functions"
+                :data="form.functionalTree"
                 show-checkbox
                 node-key="id"
                 :props="form.defaultProps"
@@ -380,10 +366,10 @@ export default {
         timedTaskParameters: null,
         timedTaskStartTime: '',
         timedTaskIntervalTime: null,
-          function: [], /*选择的功能名称*/
           selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
+          functionalTree: [], /* 所有属性功能表 */
+          functionName: [], /*选择的功能名称*/
           selectFunctions: [],/* 选择的功能实体类*/
-          functions: [], /* 所有属性功能表 */
           defaultProps: {
               children: 'children',
               label: 'label'
@@ -403,7 +389,7 @@ export default {
         timedTaskParameters: [
           { required: true, message: "定时任务参数不能为空", trigger: "blur" }
         ],
-        function: [
+          functionName: [
             { required: true, message: "定时任务功能不能为空", trigger: "blur" }
         ],
         timedTaskIntervalTime: [
@@ -447,10 +433,11 @@ export default {
         timedTaskParameters: null,
         timedTaskStartTime: '',
         timedTaskIntervalTime: null,
-          function: [], /* 选择的功能名称 */
+
           selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
+          functionalTree: [], /* 属性功能表 */
+          functionName: [], /* 选择的功能名称 */
           selectFunctions: [],/* 选择的功能*/
-          functions: [], /* 属性功能表 */
           defaultProps: {
               children: 'children',
               label: 'label'
@@ -691,7 +678,7 @@ export default {
       FunctionPopUp(){
 
           this.form.selectFunctionWindow = true
-          if (this.form.functions.length === 0){
+          if (this.form.functionalTree.length === 0){
               this.getFunction().then(response => {
                   for (let i = 0; i < response.length; i++){
                       let secondLevel = response[i].children;
@@ -703,7 +690,7 @@ export default {
                               label: secondLevel[j].label
                           })
                       }
-                      this.form.functions.push({
+                      this.form.functionalTree.push({
                           id: i,
                           level:1,
                           label: response[i].label,
@@ -744,13 +731,13 @@ export default {
           const tree = this.$refs.tree;
           const selectedNodes = tree.getCheckedNodes();
           this.form.selectFunctions = [];
-          this.form.function = [];
+          this.form.functionName = [];
           for (let i = 0 ; i < selectedNodes.length ; i++){
               const nodeid = selectedNodes[i].id;
               const nodelabel = selectedNodes[i].label;
               if (selectedNodes[i].level === 2){
                   this.form.selectFunctions.push(nodeid)
-                  this.form.function.push(nodelabel)
+                  this.form.functionName.push(nodelabel)
               }
           }
       },
