@@ -246,9 +246,10 @@ public class SwitchInteraction {
             switchParametersList.add(switchParameters);
         }
 
-        /*高级功能集合*/
-        List<Long> idScan = new ArrayList<>();
         /*交换机问题表集合*/
+        List<Long> idScan = new ArrayList<>();
+
+        /*高级功能集合*/
         List<String> advancedName = new ArrayList<>();
         /* 遍历专项扫描问题集合*/
         for (String id:totalQuestionTableId){

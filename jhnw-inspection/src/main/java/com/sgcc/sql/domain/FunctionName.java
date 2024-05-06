@@ -8,20 +8,12 @@ package com.sgcc.sql.domain;
  **/
 public class FunctionName {
     /** 问题ID */
-    private Long id;
+    private String id;
 
     /** 范式名称 */
     private String label;
 
     private Integer level;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getLabel() {
         return label;
@@ -37,5 +29,13 @@ public class FunctionName {
 
     public void setLevel(Integer level) {
         this.level = level;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

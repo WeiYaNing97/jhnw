@@ -41,7 +41,7 @@ public class ConnectToObtainInformation {
         AjaxResult requestConnect_ajaxResult = null;
 
         /* 判断 交换机信息 是否经过了RSA加密 */
-        if (isRSA && switchParameters.getName() != null && switchParameters.getPassword() != null){
+        if ( isRSA && switchParameters.getName() != null && switchParameters.getPassword() != null){
             /* RSA 解密 */
             switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
             switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));

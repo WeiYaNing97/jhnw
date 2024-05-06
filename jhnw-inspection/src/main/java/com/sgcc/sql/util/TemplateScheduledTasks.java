@@ -3,15 +3,17 @@ package com.sgcc.sql.util;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.bean.BeanUtils;
+import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
-import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.sql.domain.TimedTaskVO;
-import org.apache.poi.ss.formula.functions.T;
-
-import java.io.IOException;
+import com.sgcc.sql.domain.TotalQuestionTable;
+import com.sgcc.sql.service.ITotalQuestionTableService;
+import com.sgcc.sql.thread.DirectionalScanThreadPool;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -31,18 +33,22 @@ public class TemplateScheduledTasks extends TimerTask {
         this.timer = timer;
         this.timedTaskVO = timedTaskVO;
         this.loginUser = loginUser;
-        System.err.println(timedTaskVO);
     }
     @Override
     public void run() {
-        Tasks.method(this.switchLoginInformations,this.timedTaskVO.getFunctionName(),this.loginUser);
+        Tasks.method(this.switchLoginInformations,this.timedTaskVO.getSelectFunctions(),this.loginUser);
     }
 }
 
 class Tasks{
-    public static void method(List<SwitchLoginInformation> switchLoginInformations,List<String> functionName,LoginUser loginUser) {
+
+    @Autowired
+    private static ITotalQuestionTableService totalQuestionTableService;
+
+    public static void method(List<SwitchLoginInformation> switchLoginInformations,List<String> selectFunctions,LoginUser loginUser) {
 
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
@@ -64,10 +70,35 @@ class Tasks{
         parameterSet.setLoginUser(loginUser);
         parameterSet.setThreadCount( 5 );
 
+        /* 高级功能集合 */
+        List<String> advancedFeatureName = new ArrayList<>();
+        /* 自定义问题 集合 */
+        List<Long> customQuestionCollection = new ArrayList<>();
+
+        for (String function:selectFunctions){
+            if (MyUtils.determineWhetherAStringIsAPureNumber(function)){
+                customQuestionCollection.add(Long.valueOf(function).longValue());
+            }else {
+                advancedFeatureName.add(function);
+            }
+        }
+
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        if (customQuestionCollection.size() != 0 ){
+
+            Long[] customQuestionArray = customQuestionCollection.toArray(new Long[customQuestionCollection.size()]);
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
+            totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(customQuestionArray);
+
+        }else if (advancedFeatureName.size() == 0 && customQuestionCollection.size() == 0){
+
+            WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
+
+        }
+
         try {
-            /*高级功能线程池*/
-            //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
-            AdvancedThreadPool.switchLoginInformations(parameterSet, functionName,false);
+            //boolean isRSA = true; 密码是否 RSA加密
+            DirectionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedFeatureName,false);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

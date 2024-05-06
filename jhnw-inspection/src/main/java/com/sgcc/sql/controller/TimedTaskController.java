@@ -17,6 +17,7 @@ import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.util.TemplateScheduledTasks;
 import com.sgcc.system.service.ISysUserService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +53,9 @@ public class TimedTaskController extends BaseController
     @Autowired
     private ITotalQuestionTableService totalQuestionTableService;
     public static HashMap<Long,Timer> timerStorage = new HashMap<>();
+
+    @Value("${TimedTasks}")
+    public String TimedTasks;
     /**
      * 导出定时任务列表
      */
@@ -75,6 +79,7 @@ public class TimedTaskController extends BaseController
     {
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
+
         if (timedTaskVO.getSelectFunctions() != null){
             timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
@@ -96,13 +101,12 @@ public class TimedTaskController extends BaseController
         BeanUtils.copyProperties(timedTaskVO , timedTask);
 
         if (timedTaskVO.getSelectFunctions() != null){
-            List<String> selectFunctions = new ArrayList<>();
-            for (int i = 0 ; i <timedTaskVO.getSelectFunctions().size();i++){
-                selectFunctions.add(timedTaskVO.getSelectFunctions().get(i).trim());
-            }
-
-            timedTask.setFunctionArray(String.join(",",selectFunctions));
+            timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
+
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        timedTask.setCreatorName(loginUser.getUsername());
+
         return toAjax(timedTaskService.updateTimedTask(timedTask));
     }
 
@@ -181,13 +185,17 @@ public class TimedTaskController extends BaseController
         /*将TimedTaskVO 转为 TimedTask ，将扫描功能集合拼接成字符串*/
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
-        if (timedTaskVO.getFunctionName() != null){
-            timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunctionName()));
+
+        if (timedTaskVO.getSelectFunctions() != null){
+            timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
+
+        timedTask.setCreatorName(loginUser.getUsername());
 
         /* 插入 */
         timedTaskService = SpringBeanUtil.getBean(ITimedTaskService.class);
         int i = timedTaskService.updateTimedTask(timedTask);
+
         if (i<0){
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), "问题日志",
                     timedTaskVO.getTimedTaskName() + "定时任务状态修改失败");
@@ -289,6 +297,7 @@ public class TimedTaskController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:list')")
     @GetMapping("/list")
     public TableDataInfo list(TimedTaskVO timedTaskVO) {
+
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
         if (timedTaskVO.getFunctionName() != null){
@@ -345,24 +354,41 @@ public class TimedTaskController extends BaseController
 
     @GetMapping("/getFunction")
     public List<FunctionVO> getFunction() {
+        /*获取问题集合 及 范式分类集合 */
         List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
         Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
-        HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
+        collect.add("高级功能");
 
+        /* 创建一个范式分类为key的 map集合*/
+        HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
         for (String typeProblem:collect){
             functionNameListMap.put(typeProblem,new ArrayList<>());
         }
 
+        /* 将 问题表数据加入 树型插件*/
         for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
             List<FunctionName> functionNames = functionNameListMap.get(totalQuestionTable.getTypeProblem());
 
             FunctionName functionName = new FunctionName();
-            functionName.setId(totalQuestionTable.getId());
+            functionName.setId(totalQuestionTable.getId()+"");
             functionName.setLabel(totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
 
             functionNames.add(functionName);
             functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
         }
+        /* 将 高级功能加入 树型插件*/
+        String[] TimedTasksSplit = TimedTasks.split(" ");
+        for (String timedTask:TimedTasksSplit){
+            List<FunctionName> functionNames = functionNameListMap.get("高级功能");
+
+            FunctionName functionName = new FunctionName();
+            functionName.setId(timedTask);
+            functionName.setLabel(timedTask);
+
+            functionNames.add(functionName);
+            functionNameListMap.put("高级功能",functionNames);
+        }
+
         List<FunctionVO> functionVOList = new ArrayList<>();
         for (String typeProblem:collect){
             List<FunctionName> functionNames = functionNameListMap.get(typeProblem);
@@ -370,6 +396,7 @@ public class TimedTaskController extends BaseController
             FunctionVO functionVO = new FunctionVO();
             functionVO.setLabel(typeProblem);
             functionVO.setChildren(functionNames);
+
             functionVOList.add(functionVO);
 
         }
@@ -447,19 +474,20 @@ public class TimedTaskController extends BaseController
         Map<Long, String> TemProNameProblemNameMap = new HashMap<>();
         /* 筛选范式分类 重新创建一个范式分类SET集合*/
         Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
+        collect.add("高级功能");
 
         /* map集合 用于存储 范式分类下的 问题名称和ID*/
         HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
-
         for (String typeProblem:collect){
             functionNameListMap.put(typeProblem,new ArrayList<>());
         }
 
+        /* 将 问题表数据加入 树型插件*/
         for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
 
             List<FunctionName> functionNames = functionNameListMap.get(totalQuestionTable.getTypeProblem());
             FunctionName functionName = new FunctionName();
-            functionName.setId(totalQuestionTable.getId());
+            functionName.setId(totalQuestionTable.getId()+"");
             functionName.setLabel(totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
             functionName.setLevel(2);
 
@@ -469,6 +497,19 @@ public class TimedTaskController extends BaseController
             functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
         }
 
+        /* 将 高级功能加入 树型插件*/
+        String[] TimedTasksSplit = TimedTasks.split(" ");
+        for (String timedTask:TimedTasksSplit){
+            List<FunctionName> functionNames = functionNameListMap.get("高级功能");
+
+            FunctionName functionName = new FunctionName();
+            functionName.setId(timedTask);
+            functionName.setLabel(timedTask);
+            functionName.setLevel(2);
+
+            functionNames.add(functionName);
+            functionNameListMap.put("高级功能",functionNames);
+        }
 
         List<FunctionVO> functionVOList = new ArrayList<>();
         Long i = 0l;

@@ -9,7 +9,7 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
- * 专项扫描多线程
+ * 专项扫描 及 定时任务 多线程
  */
 public class DirectionalScanThreadPool {
 

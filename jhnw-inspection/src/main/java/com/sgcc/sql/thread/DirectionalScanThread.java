@@ -8,6 +8,13 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 
+/**
+* @Description 专项扫描 及 定时任务 多线程
+* @author charles
+* @createTime 2024/5/6 15:12
+* @desc
+ * @return
+*/
 public class DirectionalScanThread extends Thread  {
 
     SwitchParameters switchParameters = null;
@@ -19,7 +26,9 @@ public class DirectionalScanThread extends Thread  {
 
     // 为线程命名
     public DirectionalScanThread(String threadName,
-                                 SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,
+                                 SwitchParameters switchParameters,
+                                 List<TotalQuestionTable> totalQuestionTables,
+                                 List<String> advancedName,
                                  CountDownLatch countDownLatch, ExecutorService fixedThreadPool,boolean isRSA) {
         super(threadName);
         this.switchParameters = switchParameters;

@@ -100,3 +100,9 @@ obtainPortNumber:
   Cisco:
     Input: $ input errors
     Output: $ output errors
+
+# 定时任务
+TimedTasks:
+  OSPF
+  光衰
+  错误包
