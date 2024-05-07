@@ -1,4 +1,5 @@
-package com.sgcc.advanced.thread;
+package com.sgcc.sql.util;
+
 import com.alibaba.fastjson.JSON;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.utils.poi.ExcelUtil;
@@ -6,21 +7,15 @@ import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.util.EncryptUtil;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
+import com.sgcc.sql.domain.TimedTask;
+import com.sgcc.sql.service.ITimedTaskService;
 import io.swagger.annotations.Api;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
-import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @program: jhnw
@@ -32,6 +27,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/sql/timedTaskRetrievalFile")
 public class TimedTaskRetrievalFile {
+
+    @Autowired
+    private ITimedTaskService timedTaskService;
 
     @GetMapping("/getFileNames")
     public List<String> getFileNames() {
@@ -181,7 +179,16 @@ public class TimedTaskRetrievalFile {
 
 
     @DeleteMapping("/deleteFileBasedOnFileName/{fileName}")
-    public void deleteFileBasedOnFileName(@PathVariable String fileName) {
+    public AjaxResult deleteFileBasedOnFileName(@PathVariable String fileName) {
+
+        /** 根据定时任务模板 查询定时任务数据*/
+        TimedTask timedTask = new TimedTask();
+        timedTask.setTimedTaskParameters(fileName);
+        List<TimedTask> timedTaskList = timedTaskService.selectTimedTaskList(timedTask);
+        if (timedTaskList.size() != 0){
+            return  AjaxResult.error(fileName + " 模板正在使用不允许删除");
+        }
+
        String  filePath = MyUtils.getProjectPath() + "\\jobExcel\\"+fileName+".txt";
         // 创建一个文件对象，指定要删除的文件路径
         File file = new File(filePath);
@@ -191,9 +198,9 @@ public class TimedTaskRetrievalFile {
 
         // 判断文件是否删除成功
         if (isDeleted) {
-            System.out.println("文件删除成功");
+            return  AjaxResult.success(fileName + " 模板删除成功");
         } else {
-            System.out.println("文件删除失败");
+            return  AjaxResult.error(fileName + " 模板删除失败");
         }
     }
 }

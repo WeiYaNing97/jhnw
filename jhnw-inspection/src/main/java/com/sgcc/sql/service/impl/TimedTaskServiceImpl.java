@@ -111,4 +111,5 @@ public class TimedTaskServiceImpl implements ITimedTaskService
     public List<TimedTask> queryAllEnabledTimedTasks() {
         return timedTaskMapper.queryAllEnabledTimedTasks();
     }
+
 }

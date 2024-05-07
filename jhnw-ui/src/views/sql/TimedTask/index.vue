@@ -638,18 +638,21 @@ export default {
           });
       },
 
-      /** 文件删除*/
+      /** 删除模板*/
       ExcelDelete(){
           this.deleteisItVisible = true
       },
       deletesomeMethod(){
           this.deleteisItVisible = false
       },
+      /** 删除模板 */
       removeItem(index,item) {
-          this.loginList.splice(index, 1);
           return request({
               url:'/sql/timedTaskRetrievalFile/deleteFileBasedOnFileName/'+item,
               method:'delete'
+          }).then(result =>{
+              this.loginList.splice(index, 1);
+          }).catch(error => {
           })
       },
 

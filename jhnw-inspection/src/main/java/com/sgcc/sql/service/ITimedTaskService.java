@@ -61,4 +61,5 @@ public interface ITimedTaskService
 
     /** 查询所有开启状态定时任务 */
     List<TimedTask> queryAllEnabledTimedTasks();
+
 }

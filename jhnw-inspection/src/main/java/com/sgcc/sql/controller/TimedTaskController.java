@@ -3,7 +3,6 @@ package com.sgcc.sql.controller;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -15,6 +14,7 @@ import com.sgcc.share.util.MyUtils;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.util.TemplateScheduledTasks;
+import com.sgcc.sql.util.TimedTaskRetrievalFile;
 import com.sgcc.system.service.ISysUserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;

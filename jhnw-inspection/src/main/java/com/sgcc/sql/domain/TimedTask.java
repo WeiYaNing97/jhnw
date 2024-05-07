@@ -24,8 +24,8 @@ public class TimedTask extends BaseEntity
     @Excel(name = "定时任务名称")
     private String timedTaskName;
 
-    /** 定时任务参数 */
-    @Excel(name = "定时任务参数")
+    /** 定时任务模板 */
+    @Excel(name = "定时任务模板")
     private String timedTaskParameters;
 
     /** 定时任务开始时间 */
