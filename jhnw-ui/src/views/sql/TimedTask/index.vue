@@ -69,7 +69,7 @@
     <!-- 上传交换机登录信息表 -->
     <div>
       <el-button type="primary" @click="ExcelUpload">上传交换机登录信息表</el-button>
-      <el-dialog title="交换机登录信息表上传" :visible.sync="isItVisible" width="400px" @close="someMethod" append-to-body>
+      <el-dialog title="交换机登录信息表上传" :visible.sync="addisItVisible" width="400px" @close="addsomeMethod" append-to-body>
         <el-upload
           ref="upload"
           :limit=limitNum
@@ -96,6 +96,35 @@
         </div>
       </el-dialog>
     </div>
+
+    <!-- 上传交换机登录信息表 -->
+    <div>
+      <el-button type="primary" @click="ExcelDelete">删除交换机登录信息表</el-button>
+      <el-dialog title="交换机登录信息表"
+                 :visible.sync="deleteisItVisible" width="400px"
+                 @close="deletesomeMethod"
+                 @opened="getSwitchLoginList"
+                 append-to-body><!-- loginList -->
+
+        <ul>
+          <li v-for="(item, index) in loginList" :key="index" style="list-style-type: none;">
+            {{ index + 1 }}. {{ item }}
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-delete"
+              @click="removeItem(index,item)"
+            >删除</el-button>
+          </li>
+        </ul>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button size="small" @click="deletesomeMethod">关闭</el-button>
+        </div>
+
+      </el-dialog>
+    </div>
+
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -324,7 +353,10 @@ export default {
         /* Excel表格上传 */
         limitNum: 1,  // 上传excell时，同时允许上传的最大数
         fileList: [],   // excel文件列表
-        isItVisible: false, // 上传窗口是否显示
+        addisItVisible: false, // 上传窗口是否显示
+
+        deleteisItVisible: false, // 交换机登陆信息表删除 窗口可见
+        loginList: [],// 交换机登录列表
 
         /* 富文本 */
         theOriginal: '',
@@ -575,6 +607,22 @@ export default {
           })
       },
 
+      getSwitchLoginList(){
+          return request({
+              url:'/sql/timedTaskRetrievalFile/getFileNames',
+              method:'get',
+          }).then(result =>{
+              this.loginList = result
+              /*for (let i = 0 ; i <result.length;i++){
+                  this.loginList.push({
+                      value: i,
+                      label: result[i]
+                  })
+              }*/
+          })
+      },
+
+
       handleChange(row){
           let text = row.timedTaskStatus === "1" ? "关闭" : "开启";
           this.$modal.confirm('确认要"' + text + '""' + row.timedTaskName + '"任务吗？').then(function() {
@@ -590,19 +638,33 @@ export default {
           });
       },
 
+      /** 文件删除*/
+      ExcelDelete(){
+          this.deleteisItVisible = true
+      },
+      deletesomeMethod(){
+          this.deleteisItVisible = false
+      },
+      removeItem(index,item) {
+          this.loginList.splice(index, 1);
+          return request({
+              url:'/sql/timedTaskRetrievalFile/deleteFileBasedOnFileName/'+item,
+              method:'delete'
+          })
+      },
 
 
       /** 文件上传*/
       ExcelUpload(){
-          this.isItVisible = true
+          this.addisItVisible = true
       },
       cancelUpload(){
           this.fileList = []
-          this.isItVisible = false
+          this.addisItVisible = false
       },
-      someMethod(){
+      addsomeMethod(){
           this.fileList = []
-          this.isItVisible = false
+          this.addisItVisible = false
       },
       // 文件超出个数限制时的钩子
       exceedFile(files, fileList) {
@@ -659,7 +721,7 @@ export default {
                   data: form
               }).then(
                   res=>{
-                      this.isItVisible = false
+                      this.addisItVisible = false
                   },
                   err=>{}
               )

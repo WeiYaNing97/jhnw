@@ -1,23 +1,16 @@
-package com.sgcc.advanced.service.impl;
+package com.sgcc.sql.service.impl;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.sgcc.advanced.mapper.TimedTaskMapper;
-import com.sgcc.advanced.domain.TimedTask;
-import com.sgcc.advanced.service.ITimedTaskService;
+import com.sgcc.sql.mapper.TimedTaskMapper;
+import com.sgcc.sql.domain.TimedTask;
+import com.sgcc.sql.service.ITimedTaskService;
 
 /**
  * 定时任务Service业务层处理

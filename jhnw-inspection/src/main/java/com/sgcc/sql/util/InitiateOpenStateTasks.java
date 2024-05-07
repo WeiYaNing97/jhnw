@@ -1,7 +1,7 @@
 package com.sgcc.sql.util;
 
-import com.sgcc.advanced.domain.TimedTask;
-import com.sgcc.advanced.service.ITimedTaskService;
+import com.sgcc.sql.domain.TimedTask;
+import com.sgcc.sql.service.ITimedTaskService;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.sql.controller.TimedTaskController;
 import com.sgcc.sql.domain.TimedTaskVO;

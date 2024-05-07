@@ -178,4 +178,22 @@ public class TimedTaskRetrievalFile {
         }
         return switchLoginInformationList;
     }
+
+
+    @DeleteMapping("/deleteFileBasedOnFileName/{fileName}")
+    public void deleteFileBasedOnFileName(@PathVariable String fileName) {
+       String  filePath = MyUtils.getProjectPath() + "\\jobExcel\\"+fileName+".txt";
+        // 创建一个文件对象，指定要删除的文件路径
+        File file = new File(filePath);
+
+        // 调用delete()方法删除文件
+        boolean isDeleted = file.delete();
+
+        // 判断文件是否删除成功
+        if (isDeleted) {
+            System.out.println("文件删除成功");
+        } else {
+            System.out.println("文件删除失败");
+        }
+    }
 }

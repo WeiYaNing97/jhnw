@@ -1,4 +1,4 @@
-package com.sgcc.advanced.domain;
+package com.sgcc.sql.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;

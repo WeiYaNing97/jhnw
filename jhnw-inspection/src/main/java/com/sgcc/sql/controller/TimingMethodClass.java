@@ -1,21 +1,16 @@
-package com.sgcc.advanced.controller;
-import com.sgcc.advanced.domain.TimedTask;
+package com.sgcc.sql.controller;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.advanced.thread.TimedTaskRetrievalFile;
 import com.sgcc.common.core.domain.entity.SysUser;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.share.domain.SwitchLoginInformation;
-import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.PathHelper;
 import com.sgcc.share.webSocket.WebSocketService;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

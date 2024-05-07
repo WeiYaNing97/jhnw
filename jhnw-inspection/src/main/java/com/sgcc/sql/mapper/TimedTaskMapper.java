@@ -1,8 +1,8 @@
-package com.sgcc.advanced.mapper;
+package com.sgcc.sql.mapper;
 
 import java.util.Date;
 import java.util.List;
-import com.sgcc.advanced.domain.TimedTask;
+import com.sgcc.sql.domain.TimedTask;
 import org.apache.ibatis.annotations.Param;
 
 /**

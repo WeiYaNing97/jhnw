@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sgcc.common.core.controller.BaseController;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
-import com.sgcc.advanced.domain.TimedTask;
-import com.sgcc.advanced.service.ITimedTaskService;
+import com.sgcc.sql.domain.TimedTask;
+import com.sgcc.sql.service.ITimedTaskService;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.common.core.page.TableDataInfo;
 

@@ -1,7 +1,7 @@
-package com.sgcc.advanced.service;
+package com.sgcc.sql.service;
 
 import java.util.List;
-import com.sgcc.advanced.domain.TimedTask;
+import com.sgcc.sql.domain.TimedTask;
 
 /**
  * 定时任务Service接口
