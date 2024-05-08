@@ -83,7 +83,7 @@ public class TimedTaskController extends BaseController
         if (timedTaskVO.getSelectFunctions() != null){
             timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
-
+        timedTask.setTimedTaskIntervalTime(timedTask.getTimedTaskIntervalTime().replace("：",":"));
         LoginUser loginUser = SecurityUtils.getLoginUser();
         timedTask.setCreatorName(loginUser.getUsername());
         return toAjax(timedTaskService.insertTimedTask(timedTask));
@@ -99,7 +99,7 @@ public class TimedTaskController extends BaseController
     {
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
-
+        timedTask.setTimedTaskIntervalTime(timedTask.getTimedTaskIntervalTime().replace("：",":"));
         if (timedTaskVO.getSelectFunctions() != null){
             timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
@@ -297,7 +297,7 @@ public class TimedTaskController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:list')")
     @GetMapping("/list")
     public TableDataInfo list(TimedTaskVO timedTaskVO) {
-
+        /* 前端VO转化为数据库实体类*/
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
         if (timedTaskVO.getFunctionName() != null){
@@ -417,7 +417,6 @@ public class TimedTaskController extends BaseController
         if (timedTask.getFunctionArray()!=null){
 
             String[] functionArray = timedTask.getFunctionArray().split(",");
-
 
             List<String> functionIDList = new ArrayList<>();
             List<String> functionNameList = new ArrayList<>();

@@ -92,12 +92,13 @@
         </el-upload>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" type="primary" @click="uploadFile">立即上传</el-button>
+          <el-button size="small" @click="downloadTemp">下载模板</el-button>
           <el-button size="small" @click="cancelUpload">取消</el-button>
         </div>
       </el-dialog>
     </div>
 
-    <!-- 上传交换机登录信息表 -->
+    <!-- 删除交换机登录信息表 -->
     <div>
       <el-button type="primary" @click="ExcelDelete">删除交换机登录信息表</el-button>
       <el-dialog title="交换机登录信息表"
@@ -106,7 +107,7 @@
                  @opened="getSwitchLoginList"
                  append-to-body><!-- loginList -->
 
-        <ul>
+        <ul style="text-align: left;">
           <li v-for="(item, index) in loginList" :key="index" style="list-style-type: none;">
             {{ index + 1 }}. {{ item }}
             <el-button
@@ -176,12 +177,9 @@
     <!-- 列表展示数据表信息-->
     <el-table  ref="timedTaskTable"
                v-loading="loading" :data="TimedTaskList"
-               @selection-change="handleSelectionChange"
-               :row-class-name="tableRowClassName" @row-click="currentLine" >
-      <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
-
+               @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="任务编号" align="center" prop="id"/>
+      <!--<el-table-column label="任务编号" align="center" prop="id"/>-->
       <el-table-column label="任务名称" align="center" prop="timedTaskName" />
       <el-table-column label="模板" align="center" prop="timedTaskParameters" />
       <el-table-column label="开始时间" align="center" prop="timedTaskStartTime">
@@ -190,11 +188,12 @@
         </template>
       </el-table-column>
       <el-table-column label="间隔时间" align="center" prop="timedTaskIntervalTime" />
-      <el-table-column label="功能" align="center" prop="function" width="200">
+      <el-table-column label="功能" align="center" prop="function" width="400">
         <template slot-scope="scope">
-          <ul>
-            <li v-for="(item, index) in scope.row.functionName" :key="index">
-              {{ item }}
+
+          <ul style="text-align: left;">
+            <li v-for="(item, index) in scope.row.functionName" :key="index" style="list-style-type: none;">
+              {{ index + 1 }}. {{ item }}
             </li>
           </ul>
         </template>
@@ -281,9 +280,9 @@
         <el-form-item label="功能" prop="function">
           <el-button  @click="FunctionPopUp()" > 重新选择 </el-button>
 
-          <ul>
-            <li v-for="(item, index) in form.functionName" :key="index">
-              {{ item }}
+          <ul  style="text-align: left;">
+            <li v-for="(item, index) in form.functionName" :key="index"  style="list-style-type: none;">
+              {{ index + 1 }}. {{ item }}
             </li>
           </ul>
 
@@ -502,18 +501,7 @@ export default {
       this.multiple = !selection.length
 
     },
-      //获取当前表格行index
-      tableRowClassName({row, rowIndex}) {
-          row.row_index = rowIndex;
-      },
-      indexMethod(index) {
-          return index + 1;
-      },
-      //点击当前行操作
-      currentLine(row){
-          /* 鼠标点击行 */
-          let lineNum = row.row_index
-      },
+
     /** 新增按钮操作 */
     handleAdd() {
       this.reset();
@@ -600,13 +588,14 @@ export default {
               }
           });
       },
+      /*查询所有交换机登录信息表*/
       queryData(keyword){
           return request({
               url:'/sql/timedTaskRetrievalFile/getFileNames',
               method:'get',
           })
       },
-
+      /* 删除交换机登录信息表功能中 获取表数组 并组织给data属性 */
       getSwitchLoginList(){
           return request({
               url:'/sql/timedTaskRetrievalFile/getFileNames',
@@ -622,7 +611,7 @@ export default {
           })
       },
 
-
+      /** 启动 或 关闭 定时任务状态*/
       handleChange(row){
           let text = row.timedTaskStatus === "1" ? "关闭" : "开启";
           this.$modal.confirm('确认要"' + text + '""' + row.timedTaskName + '"任务吗？').then(function() {
@@ -731,6 +720,12 @@ export default {
           }
       },
 
+      //下载模板
+      downloadTemp(){
+          window.location.href = '/交换机信息模板.xlsx'
+          this.addisItVisible = false
+      },
+
       /** 文章对比*/
       handleButtonClick() {
           return request({
@@ -795,6 +790,7 @@ export default {
       getCheckedInfo(){
           this.form.selectFunctionWindow = false
       },
+      /* 获取 树型组件中 被选择的 节点*/
       handleCheckChange() {
           // 判断选中节点是否为二级节点
           const tree = this.$refs.tree;
