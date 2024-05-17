@@ -274,7 +274,15 @@
         </el-form-item>
 
         <el-form-item label="间隔时间" prop="timedTaskIntervalTime">
-          <el-input v-model="form.timedTaskIntervalTime" placeholder="请选择间隔时间" />
+
+          <el-input v-model="form.timedTaskIntervalTime"
+                    placeholder="请输入间隔时间，例如：00:00:00"
+                    :class="{ 'red-border': form.isInputTimeRed }"
+                    type="text"
+                    @blur="checkInputFormat(form)" />
+
+          <p v-show=" form.isInputTimeRed " style="font-size: 5px;" :class="{ 'red-font': form.isInputTimeRed }" > 输入内容不符合 00:00:00 格式 </p>
+
         </el-form-item>
 
         <el-form-item label="功能" prop="function">
@@ -401,6 +409,8 @@ export default {
         timedTaskParameters: null,
         timedTaskStartTime: '',
         timedTaskIntervalTime: null,
+          isInputTimeRed:false,
+
           selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
           functionalTree: [], /* 所有属性功能表 */
           functionName: [], /*选择的功能名称*/
@@ -468,6 +478,7 @@ export default {
         timedTaskParameters: null,
         timedTaskStartTime: '',
         timedTaskIntervalTime: null,
+          isInputTimeRed:false,
 
           selectFunctionWindow: false, /* 选择功能窗口是否隐层 属性  */
           functionalTree: [], /* 属性功能表 */
@@ -766,6 +777,17 @@ export default {
           }
       },
 
+      checkInputFormat(form) {
+          const regex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+          if (form.timedTaskIntervalTime != null
+              &&form.timedTaskIntervalTime != ''
+              && !regex.test(form.timedTaskIntervalTime)) {
+              form.isInputTimeRed = true
+          }else {
+              form.isInputTimeRed = false
+          }
+      },
+
       // 获取全部功能
       getFunction(){
           return request({
@@ -809,3 +831,14 @@ export default {
   }
 };
 </script>
+<style scoped>
+  .red-font {
+    line-height: 1;
+    font-weight: 300;
+    color: red;
+    position: fixed;
+  }
+  .red-border {
+    border: 1px solid red;
+  }
+</style>

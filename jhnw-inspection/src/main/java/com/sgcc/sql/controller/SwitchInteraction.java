@@ -249,7 +249,7 @@ public class SwitchInteraction {
         /*交换机问题表集合*/
         List<Long> idScan = new ArrayList<>();
 
-        /*高级功能集合*/
+        /*运行分析集合*/
         List<String> advancedName = new ArrayList<>();
         /* 遍历专项扫描问题集合*/
         for (String id:totalQuestionTableId){
@@ -258,7 +258,7 @@ public class SwitchInteraction {
                 /*交换机问题表*/
                 idScan.add(Long.valueOf(id).longValue());
             }else {
-                /*高级功能*/
+                /*运行分析*/
                 advancedName.add(id);
             }
         }
@@ -417,7 +417,7 @@ public class SwitchInteraction {
         switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
 
 
-        /** 普通扫描是否含有高级功能 ， 如果含有高级功能在接下来先扫描高级功能 */
+        /** 普通扫描是否含有运行分析 ， 如果含有运行分析在接下来先扫描运行分析 */
         if (advancedName != null && advancedName.size() != 0){
 
             for (String function:advancedName){
@@ -430,7 +430,7 @@ public class SwitchInteraction {
                         LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
                         luminousAttenuation.obtainLightDecay(switchParameters);
                         break;
-                    case "误码率":
+                    case "错误包":
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
                         break;

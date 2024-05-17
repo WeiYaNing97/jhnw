@@ -101,7 +101,7 @@
 
     <el-table v-loading="loading" :data="errorrateList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="误码率主键" align="center" prop="id" />
+      <el-table-column label="错误包主键" align="center" prop="id" />
       <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />
       <el-table-column label="端口号" align="center" prop="port" />
       <el-table-column label="input errors" align="center" prop="inputErrors" />
@@ -126,7 +126,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -135,7 +135,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改误码率对话框 -->
+    <!-- 添加或修改错误包对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="交换机四项基本信息表ID索引" prop="switchId">
@@ -183,7 +183,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 误码率表格数据
+      // 错误包表格数据
       errorrateList: [],
       // 弹出层标题
       title: "",
@@ -216,7 +216,7 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询误码率列表 */
+    /** 查询错误包列表 */
     getList() {
       this.loading = true;
       listErrorrate(this.queryParams).then(response => {
@@ -264,7 +264,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加误码率";
+      this.title = "添加错误包";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -273,7 +273,7 @@ export default {
       getErrorrate(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改误码率";
+        this.title = "修改错误包";
       });
     },
     /** 提交按钮 */
@@ -299,7 +299,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除误码率编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除错误包编号为"' + ids + '"的数据项？').then(function() {
         return delErrorrate(ids);
       }).then(() => {
         this.getList();
@@ -309,7 +309,7 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$modal.confirm('是否确认导出所有误码率数据项？').then(() => {
+      this.$modal.confirm('是否确认导出所有错误包数据项？').then(() => {
         this.exportLoading = true;
         return exportErrorrate(queryParams);
       }).then(response => {

@@ -329,20 +329,24 @@ public class TimedTaskController extends BaseController
                         functionNameList.add(function);
                     }
                 }
+
                 pojoVO.setSelectFunctions(selectFunctions);
 
-                /* 安全配置问题ID*/
-                Long[] functionlongs = functionIDList.stream().map(Long::parseLong).toArray(Long[]::new);
-                List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(functionlongs);
+                if (functionIDList.size() != 0){
 
-                /* 安全配置问题 名称*/
-                List<String> functionsName = totalQuestionTables.stream().map(x -> x.getTemProName() + "-" + x.getProblemName()).collect(Collectors.toList());
+                    /* 安全配置问题ID*/
+                    Long[] functionlongs = functionIDList.stream().map(Long::parseLong).toArray(Long[]::new);
+                    List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(functionlongs);
 
-                /* 添加日常巡检和高级功能问题名称*/
-                functionsName.addAll(functionNameList);
+                    /* 安全配置问题 名称*/
+                    List<String> functionsName = totalQuestionTables.stream().map(x -> x.getTemProName() + "-" + x.getProblemName()).collect(Collectors.toList());
 
-                pojoVO.setFunctionName( functionsName);
+                    /* 添加日常巡检和 运行分析 问题名称*/
+                    functionNameList.addAll(functionsName);
 
+                }
+
+                pojoVO.setFunctionName( functionNameList);
             }
 
             timedTaskVOS.add(pojoVO);
@@ -357,7 +361,7 @@ public class TimedTaskController extends BaseController
         /*获取问题集合 及 范式分类集合 */
         List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
         Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
-        collect.add("高级功能");
+        collect.add("运行分析");
 
         /* 创建一个范式分类为key的 map集合*/
         HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
@@ -376,17 +380,17 @@ public class TimedTaskController extends BaseController
             functionNames.add(functionName);
             functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
         }
-        /* 将 高级功能加入 树型插件*/
+        /* 将 运行分析加入 树型插件*/
         String[] TimedTasksSplit = TimedTasks.split(" ");
         for (String timedTask:TimedTasksSplit){
-            List<FunctionName> functionNames = functionNameListMap.get("高级功能");
+            List<FunctionName> functionNames = functionNameListMap.get("运行分析");
 
             FunctionName functionName = new FunctionName();
             functionName.setId(timedTask);
             functionName.setLabel(timedTask);
 
             functionNames.add(functionName);
-            functionNameListMap.put("高级功能",functionNames);
+            functionNameListMap.put("运行分析",functionNames);
         }
 
         List<FunctionVO> functionVOList = new ArrayList<>();
@@ -433,13 +437,16 @@ public class TimedTaskController extends BaseController
             }
             timedTaskVO.setSelectFunctions(selectFunctions);
 
-            /* 安全配置问题ID*/
-            Long[] functionlongs = functionIDList.stream().map(Long::parseLong).toArray(Long[]::new);
-            List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(functionlongs);
-            /* 安全配置问题 名称*/
-            List<String> functions = totalQuestionTables.stream().map(pojo -> pojo.getTemProName() + "-" + pojo.getProblemName()).collect(Collectors.toList());
-            /* 添加日常巡检和高级功能问题名称*/
-            functions.addAll(functionNameList);
+            if (functionIDList.size() != 0){
+                /* 安全配置问题ID*/
+                Long[] functionlongs = functionIDList.stream().map(Long::parseLong).toArray(Long[]::new);
+                List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(functionlongs);
+                /* 安全配置问题 名称*/
+                List<String> functions = totalQuestionTables.stream().map(pojo -> pojo.getTemProName() + "-" + pojo.getProblemName()).collect(Collectors.toList());
+                /* 添加日常巡检和运行分析问题名称*/
+                functionNameList.addAll(functions);
+            }
+
 
             /* 所有 自定义问题 */
             List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.scanningSQLselectTotalQuestionTableList();
@@ -451,7 +458,8 @@ public class TimedTaskController extends BaseController
             /* 功能树型 */
             timedTaskVO.setFunctionalTree(functionalTree);
 
-            timedTaskVO.setFunctionName(functions);
+            timedTaskVO.setFunctionName(functionNameList);
+
         }
 
         timedTaskVO.setSelectFunctionWindow(false);
@@ -473,7 +481,7 @@ public class TimedTaskController extends BaseController
         Map<Long, String> TemProNameProblemNameMap = new HashMap<>();
         /* 筛选范式分类 重新创建一个范式分类SET集合*/
         Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
-        collect.add("高级功能");
+        collect.add("运行分析");
 
         /* map集合 用于存储 范式分类下的 问题名称和ID*/
         HashMap<String,List<FunctionName>> functionNameListMap = new HashMap<>();
@@ -496,10 +504,10 @@ public class TimedTaskController extends BaseController
             functionNameListMap.put(totalQuestionTable.getTypeProblem(),functionNames);
         }
 
-        /* 将 高级功能加入 树型插件*/
+        /* 将 运行分析加入 树型插件*/
         String[] TimedTasksSplit = TimedTasks.split(" ");
         for (String timedTask:TimedTasksSplit){
-            List<FunctionName> functionNames = functionNameListMap.get("高级功能");
+            List<FunctionName> functionNames = functionNameListMap.get("运行分析");
 
             FunctionName functionName = new FunctionName();
             functionName.setId(timedTask);
@@ -507,7 +515,7 @@ public class TimedTaskController extends BaseController
             functionName.setLevel(2);
 
             functionNames.add(functionName);
-            functionNameListMap.put("高级功能",functionNames);
+            functionNameListMap.put("运行分析",functionNames);
         }
 
         List<FunctionVO> functionVOList = new ArrayList<>();

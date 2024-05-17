@@ -159,4 +159,20 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     public int updateLoginInformationByIP(SwitchScanResult pojo) {
         return switchScanResultMapper.updateLoginInformationByIP(pojo);
     }
+
+    /**
+    * @Description 根据IP 范式名称 和 开始时间、结束时间 删除数据
+    * @author charles
+    * @createTime 2024/5/14 15:57
+    * @desc
+    * @param ip
+     * @param temProName
+     * @param startTime
+     * @param endTime
+     * @return
+    */
+    @Override
+    public int deleteSwitchScanResultByIPAndTime(String ip, String temProName, String startTime, String endTime) {
+        return switchScanResultMapper.deleteSwitchScanResultByIPAndTime( ip,  temProName,  startTime,  endTime);
+    }
 }

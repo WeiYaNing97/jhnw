@@ -25,6 +25,20 @@ public class RepairFixedThread extends Thread {
     CountDownLatch countDownLatch = null;
     ExecutorService fixedThreadPool = null;
     // 为线程命名
+
+    /**
+    * @Description 修复交换机线程
+    * @author charles
+    * @createTime 2024/5/8 15:48
+    * @desc
+    * @param threadName	线程名
+     * @param SwitchParameters	交换机登录信息
+     * @param switchScanResults	 交换机问题集合
+     * @param problemIds	所有问题ID
+     * @param countDownLatch	线程池计数器
+     * @param fixedThreadPool	线程池
+     * @return
+    */
     public RepairFixedThread(String threadName,
                              SwitchParameters SwitchParameters,
                              List<SwitchScanResult> switchScanResults,List<String> problemIds,
@@ -40,8 +54,16 @@ public class RepairFixedThread extends Thread {
     @Override
     public void run() {
         try {
+
+            /** 修复交换机问题方法*/
             SolveProblemController solveProblemController = new SolveProblemController();
+            /**
+             * @param SwitchParameters	交换机登录信息
+             * @param switchScanResults	 交换机问题集合
+             * @param problemIds	所有问题ID
+            */
             solveProblemController.batchSolution(switchParameters,switchScanResults,problemIds);
+
             WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
         } catch (Exception e) {
             e.printStackTrace();

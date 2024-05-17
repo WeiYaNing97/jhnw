@@ -2,10 +2,17 @@
   <div class="app-container">
 
     <div>
-      <el-button type="primary" @click="guangshuaikuaizhao">光衰快照</el-button>
-      <el-button type="primary" @click="guangshuaikuaizhaojungong">光衰快照竣工</el-button>
-      <el-button type="primary" @click="cuowubaokuaizhao">错误包快照</el-button>
-      <el-button type="primary" @click="cuowubaokuaizhaojungong">错误包快照竣工</el-button>
+      <el-button type="primary" @click="startSnapshot">快照开始</el-button>
+      <el-button type="primary" @click="closeSnapshot">快照竣工</el-button>
+
+      <el-dialog
+        title=" 快照竣工 "
+        :visible.sync="completionWindow"><!-- width="50%" -->
+        <h6>是否删除快照扫描数据</h6>
+        <el-button type="primary" @click="deleteData">删除快照扫描数据</el-button>
+        <!--<el-button type="primary" @click="preserveData">保留快照扫描数据</el-button>-->
+      </el-dialog>
+
     </div>
 
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true"
@@ -83,7 +90,7 @@
 <!--                     @focus="advacedNull" @change="openAdvanced" style="padding-right: 10px">-->
 <!--            <el-option label="OSPF" value="OSPF"></el-option>-->
 <!--            <el-option label="光纤衰耗" value="光纤衰耗"></el-option>-->
-<!--            <el-option label="误码率" value="误码率"></el-option>-->
+<!--            <el-option label="错误包" value="错误包"></el-option>-->
 <!--          </el-select>-->
           <el-button @click="avTest" type="primary" style="margin-right: 10px">高级配置</el-button>
           <p style="display: inline-block;margin: 0">扫描线程数:</p>
@@ -251,6 +258,13 @@
         inject:["reload"],
         data() {
             return {
+
+                //竣工弹窗
+                completionWindow: false,
+                //竣工路径
+                completionUrl: '',
+                ifDeleteData: false,
+
                 bangding:'',
                 //最终扫描设备
                 finalScanIps:[],
@@ -305,8 +319,8 @@
                             id:'光衰'
                         },
                         {
-                            label:"误码率",
-                            id:'误码率'
+                            label:"错误包",
+                            id:'错误包'
                         }
                     ],
                 },
@@ -414,8 +428,8 @@
             openAdvanced(){
                 if (this.advcancedChoose == 'OSPF'){
                     console.log('ospf')
-                }else if(this.advcancedChoose == '误码率'){
-                    console.log('误码率')
+                }else if(this.advcancedChoose == '错误包'){
+                    console.log('错误包')
                 }else if (this.advcancedChoose == '光纤衰耗'){
                     console.log('光纤衰耗')
                 }
@@ -660,7 +674,7 @@
                             return item.label != '高级功能'
                         })
                     }
-                    //添加自定义的高级功能(高级功能传递 ：OSPF,误码率)
+                    //添加自定义的高级功能(高级功能传递 ：OSPF,错误包)
                     this.specialItems.push(this.advancedScan)
                     console.log('专项扫描分类修改后:')
                     console.log(this.specialItems)
@@ -722,8 +736,8 @@
                                 id:'光衰'
                             },
                             {
-                                label:"误码率",
-                                id:'误码率'
+                                label:"错误包",
+                                id:'错误包'
                             }
                         ]
                     }
@@ -1174,41 +1188,47 @@
                 this.resetForm("form");
             },
 
-            // 光衰快照
-            guangshuaikuaizhao(){
+            /** 快照 */
+            startSnapshot() {
                 this.finalScanMethod()
                 return request({
-                    url:'/advanced/LightAttenuationSnapshot/startSnapshot',
+                    url:'/advanced/SnapshotFunction/startSnapshot',
                     method:'post',
                     data: this.finalScanIps
-                }).then(response=>{}
-                )
-            },
-            guangshuaikuaizhaojungong(){
-                return request({
-                    url:'/advanced/LightAttenuationSnapshot/threadInterrupt',
-                    method:'post',
-                }).then(response=>{}
-                )
+                }).then(response=>{
+
+                })
             },
 
-            // 错误包快照
-            cuowubaokuaizhao(){
-                this.finalScanMethod()
-                return request({
-                    url:'/advanced/ErrorPackageSnapshot/startSnapshot',
-                    method:'post',
-                    data: this.finalScanIps
-                }).then(response=>{}
-                )
+            closeSnapshot(){
+                //竣工弹窗
+                this.completionWindow= true
             },
-            cuowubaokuaizhaojungong(){
-                return request({
-                    url:'/advanced/ErrorPackageSnapshot/threadInterrupt',
-                    method:'post',
-                }).then(response=>{}
-                )
+
+            preserveData(){
+                this.ifDeleteData = false,
+                this.jungong(),
+                //竣工弹窗
+                this.completionWindow= false,
+                //竣工路径
+                this.completionUrl= ''
             },
+            deleteData(){
+                this.ifDeleteData = true,
+                this.jungong(),
+
+                //竣工弹窗
+                this.completionWindow= false,
+                //竣工路径
+                this.completionUrl= ''
+            },
+
+            jungong(){
+                return request({
+                    url: '/advanced/SnapshotFunction/threadInterrupt/' + this.ifDeleteData ,
+                    method:'post',
+                })
+            }
         }
     };
 </script>

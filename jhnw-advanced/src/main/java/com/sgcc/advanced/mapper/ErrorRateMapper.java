@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * 误码率Mapper接口
+ * 错误包 Mapper接口
  * 
  * @author ruoyi
  * @date 2023-05-09
@@ -15,47 +15,47 @@ import java.util.List;
 public interface ErrorRateMapper 
 {
     /**
-     * 查询误码率
+     * 查询 错误包
      * 
-     * @param id 误码率主键
-     * @return 误码率
+     * @param id 错误包 主键
+     * @return 错误包
      */
     public ErrorRate selectErrorRateById(Long id);
 
     /**
-     * 查询误码率列表
+     * 查询 错误包 列表
      * 
-     * @param errorRate 误码率
-     * @return 误码率集合
+     * @param errorRate 错误包
+     * @return 错误包 集合
      */
     public List<ErrorRate> selectErrorRateList(ErrorRate errorRate);
 
     /**
-     * 新增误码率
+     * 新增 错误包
      * 
-     * @param errorRate 误码率
+     * @param errorRate 错误包
      * @return 结果
      */
     public int insertErrorRate(ErrorRate errorRate);
 
     /**
-     * 修改误码率
+     * 修改 错误包
      * 
-     * @param errorRate 误码率
+     * @param errorRate 错误包
      * @return 结果
      */
     public int updateErrorRate(ErrorRate errorRate);
 
     /**
-     * 删除误码率
+     * 删除 错误包
      * 
-     * @param id 误码率主键
+     * @param id 错误包 主键
      * @return 结果
      */
     public int deleteErrorRateById(Long id);
 
     /**
-     * 批量删除误码率
+     * 批量删除 错误包
      * 
      * @param ids 需要删除的数据主键集合
      * @return 结果

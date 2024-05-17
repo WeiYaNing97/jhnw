@@ -17,7 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 public class AdvancedThread extends Thread {
-    //高级功能名称列表
+    //运行分析名称列表
     List<String> functionName = null;
     SwitchParameters switchParameters = null;
     // 用于计数线程是否执行完成
@@ -64,7 +64,6 @@ public class AdvancedThread extends Thread {
                         luminousAttenuation.obtainLightDecay(switchParameters);
                         break;
 
-                    case "误码率":
                     case "错误包":
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
@@ -73,7 +72,7 @@ public class AdvancedThread extends Thread {
             }
 
         }else {
-                // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
+                // todo 运行分析线程 未定义该交换机获取基本信息命令及分析
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
                         "系统信息:"+switchParameters.getIp() +
                                 "基本信息:"+
@@ -90,7 +89,7 @@ public class AdvancedThread extends Thread {
             }
         }
 
-        /** 高级功能扫描 及 快照功能 旋转的圆圈，用于取消圆圈旋转 */
+        /** 运行分析扫描 及 快照功能 旋转的圆圈，用于取消圆圈旋转 */
         /*扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转*/
         WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
 

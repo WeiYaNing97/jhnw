@@ -16,7 +16,7 @@ public class AdvancedThreadPool {
     // 用来存储线程名称的map
     public static Map threadNameMap = new HashMap();
     /**
-     * 高级功能线程池
+     * 运行分析线程池
      *
      */
     public static void switchLoginInformations(ParameterSet parameterSet, List<String> functionName,boolean isRSA) throws InterruptedException {

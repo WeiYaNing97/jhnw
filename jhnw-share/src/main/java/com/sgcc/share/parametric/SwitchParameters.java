@@ -6,6 +6,10 @@ import com.sgcc.share.connectutil.TelnetComponent;
 import com.sgcc.share.method.SshMethod;
 import com.sgcc.share.method.TelnetSwitchMethod;
 
+/**
+* @Description 贯穿整个扫描过程的集合
+*/
+
 public class SwitchParameters {
     private LoginUser loginUser;//登陆人信息
     private String threadName;//线程名
@@ -19,7 +23,7 @@ public class SwitchParameters {
     private String password; //密码
     private String configureCiphers;//配置密码
     private String mode;//连接方式
-    private Integer port;
+    private Integer port;//连接端口号
     /**
      * 交换机属性信息
      */

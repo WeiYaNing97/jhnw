@@ -6,7 +6,7 @@ import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.core.domain.BaseEntity;
 
 /**
- * 误码率对象 error_rate
+ * 错误包 对象 error_rate
  * 
  * @author ruoyi
  * @date 2023-05-09
@@ -15,7 +15,7 @@ public class ErrorRate extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 误码率主键 */
+    /** 错误包 主键 */
     private Long id;
 
 

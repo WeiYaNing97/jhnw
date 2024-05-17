@@ -73,14 +73,14 @@ public class AdvancedRunnable {
                             LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
                             luminousAttenuation.obtainLightDecay(switchParameters);
                             break;
-                        case "误码率":
+                        case "错误包":
                             ErrorPackage errorPackage = new ErrorPackage();
                             errorPackage.getErrorPackage(switchParameters);
                             break;
                     }
                 }
             }else {
-                    // todo 高级功能线程 未定义该交换机获取基本信息命令及分析
+                    // todo 运行分析 线程 未定义该交换机获取基本信息命令及分析
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
                             "系统信息:"+switchParameters.getIp() +
                                     "基本信息："+

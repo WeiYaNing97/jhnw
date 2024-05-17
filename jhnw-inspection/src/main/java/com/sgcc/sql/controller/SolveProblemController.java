@@ -26,7 +26,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -105,12 +104,16 @@ public class SolveProblemController {
 
 
     /**
-     *
-     * @param userinformation  交换机登录信息
+    * @Description 根据提交信息，修复交换机问题  前后端交互接口
+    * @author charles
+    * @createTime 2024/5/8 14:23
+    * @desc
+    * @param userinformation  交换机登录信息
      * @param problemIdList  交换机扫描结果ID
      * @param scanNum  线程数
      * @param allProIdList  交换机所有扫描结果ID
-     */
+     * @return
+    */
     @ApiOperation("修复问题接口")
     @PostMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
@@ -118,43 +121,30 @@ public class SolveProblemController {
                                             @PathVariable  List<String> problemIdList,
                                             @PathVariable  String scanNum,
                                             @PathVariable(value = "allProIdList",required = false)  List<String> allProIdList) {
-        /*需要修复的问题*/
-        Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
 
-        // 根据 问题ID  查询 扫描出的问题
-        /*根据ID集合 查询所有 扫描结果SwitchProblem 数据*/
-        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
-        List<SwitchScanResult> switchScanResultList = switchScanResultService.selectSwitchScanResultByIds(ids);
-
-        /*交换机 用户信息 String 格式    去重*/
-        /*HashSet<String> userHashSet = new HashSet<>();
-        for (int number = 0 ; number <userinformation.size() ; number++){
-            userHashSet.add((String) userinformation.get(number));
-        }*/
+        /**交换机用户信息String 格式
+            set集合去重 */
         Set<String> userHashSet = userinformation.stream().map(Object::toString).collect(Collectors.toSet());
 
-        /* 装换成 Json 格式*/
+        /** 交换机登录信息 装换成 Json格式 并存储实体类集合*/
         List<SwitchParameters> switchParametersList = new ArrayList<>();
-
-        // 迭代器遍历HashSet：
+        /** 创建一个 交换机IP和交换机问题一一对应的map集合*/
+        HashMap<String,List<SwitchScanResult>> switchScanResultMap = new HashMap<>();
+        // 迭代器遍历交换机用户信息HashSet
         Iterator<String> iterator = userHashSet.iterator();
-        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());/*扫描时间*/
         while(iterator.hasNext()){
-            /*SwitchParameters switchParameters= InspectionMethods.getUserMap(iterator.next());
-            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
-            switchParameters.setScanningTime(simpleDateFormat);
-            switchParametersList.add(switchParameters);*/
-
-
-            /* 交换机登录信息 转化为 实体类 */
+            /* 交换机登录信息 转化为 交换机登录信息实体类 */
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(iterator.next(), SwitchLoginInformation.class);
             // 四个参数 设默认值
             SwitchParameters switchParameters = new SwitchParameters();
-            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
+            switchParameters.setLoginUser(SecurityUtils.getLoginUser());/*系统登录用户信息*/
             switchParameters.setScanningTime(simpleDateFormat);/*扫描时间*/
-            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
-            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
 
+            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());//连接端口号
+
+            /*交换机密码 配置密码*/
             switchParameters.setPassword(EncryptUtil.desaltingAndDecryption(switchParameters.getPassword()));
             switchParameters.setConfigureCiphers(EncryptUtil.desaltingAndDecryption(switchParameters.getConfigureCiphers()));
 
@@ -162,20 +152,28 @@ public class SolveProblemController {
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
 
+            /** 将交换机IP 存入 map集合*/
+            switchScanResultMap.put(switchParameters.getIp(),new ArrayList<>());
         }
 
+
+        /** 需要修复的问题ID数组
+          目前可以修复的只有自定义问题，即安全配置*/
+        /* 交换机扫描结果ID 转变为 Long类型*/
+        Long[] ids = problemIdList.stream().map(m ->Integer.valueOf(m).longValue()).toArray(Long[]::new);
+
+        /*
+         * 根据 需要修复的问题ID数组  查询 扫描出的问题
+         * 根据ID集合 查询所有 扫描结果SwitchProblem 数据*/
+        switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+        List<SwitchScanResult> switchScanResultList = switchScanResultService.selectSwitchScanResultByIds(ids);
+
         /* 交换机问题 */
-        List<List<SwitchScanResult>> problemIdListList = new ArrayList<>();
         /* 遍历 交换机基本信息 */
-        for (SwitchParameters switchParameters:switchParametersList){
-            List<SwitchScanResult>  problemIdPojoList = new ArrayList<>();
-            /* 遍历交换机问题 插入问题集合 */
-            for (SwitchScanResult switchScanResult:switchScanResultList){
-                if (switchParameters.getIp().equals( switchScanResult.getSwitchIp().split(":")[0]) ){
-                    problemIdPojoList.add(switchScanResult);
-                }
-            }
-            problemIdListList.add(problemIdPojoList);
+        for (SwitchScanResult switchScanResult:switchScanResultList){
+            List<SwitchScanResult> switchScanResults = switchScanResultMap.get(switchScanResult.getSwitchIp().split(":")[0]);
+            switchScanResults.add(switchScanResult);
+            switchScanResultMap.put(switchScanResult.getSwitchIp().split(":")[0] , switchScanResults );
         }
 
         ParameterSet parameterSet = new ParameterSet();
@@ -188,7 +186,7 @@ public class SolveProblemController {
             if (allProIdList != null || allProIdList.size() != 0){
                 problemIdList = allProIdList;
             }
-            RepairFixedThreadPool.Solution(parameterSet, problemIdListList, problemIdList);//scanNum
+            RepairFixedThreadPool.Solution(parameterSet, switchScanResultMap, problemIdList);//scanNum
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -201,14 +199,19 @@ public class SolveProblemController {
 
 
 
-    /***
-     * @method: 修复问题
-     * @Param: []
-     * @return: com.sgcc.common.core.domain.AjaxResult
-     */
-
+    /**
+    * @Description
+    * @author charles
+    * @createTime 2024/5/8 15:52
+    * @desc
+     * @param switchParameters	交换机登录信息
+     * @param switchScanResultList	 交换机问题集合
+     * @param problemIds	所有问题ID
+     * @return
+    */
     public AjaxResult batchSolution(SwitchParameters switchParameters, List<SwitchScanResult> switchScanResultList , List<String> problemIds){
-        /* requestConnect方法：
+
+        /* 连接交换机 requestConnect 方法：
         传入参数：[mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
             connectMethod ssh连接方法, telnetSwitchMethod telnet连接方法]
         返回信息为：[是否连接成功,mode 连接方式, ip IP地址, name 用户名, password 密码, port 端口号,
@@ -216,8 +219,10 @@ public class SolveProblemController {
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult requestConnect_ajaxResult = connectToObtainInformation.requestConnect( switchParameters );
 
+
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
+
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
@@ -226,7 +231,6 @@ public class SolveProblemController {
                             "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
-
 
             AbnormalAlarmInformationMethod.afferent(null, null, "交换机连接",
                     "风险:"+switchParameters.getIp() + "交换机连接失败\r\n");

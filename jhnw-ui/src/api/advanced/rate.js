@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询误码率列表
+// 查询错误包列表
 export function listRate(query) {
   return request({
     url: '/advanced/rate/list',
@@ -9,7 +9,7 @@ export function listRate(query) {
   })
 }
 
-// 查询误码率详细
+// 查询错误包详细
 export function getRate(id) {
   return request({
     url: '/advanced/rate/' + id,
@@ -17,7 +17,7 @@ export function getRate(id) {
   })
 }
 
-// 新增误码率
+// 新增错误包
 export function addRate(data) {
   return request({
     url: '/advanced/rate',
@@ -26,7 +26,7 @@ export function addRate(data) {
   })
 }
 
-// 修改误码率
+// 修改错误包
 export function updateRate(data) {
   return request({
     url: '/advanced/rate',
@@ -35,7 +35,7 @@ export function updateRate(data) {
   })
 }
 
-// 删除误码率
+// 删除错误包
 export function delRate(id) {
   return request({
     url: '/advanced/rate/' + id,
@@ -43,7 +43,7 @@ export function delRate(id) {
   })
 }
 
-// 导出误码率
+// 导出错误包
 export function exportRate(query) {
   return request({
     url: '/advanced/rate/export',

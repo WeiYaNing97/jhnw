@@ -20,7 +20,7 @@ import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.common.core.page.TableDataInfo;
 
 /**
- * 误码率命令Controller
+ * 错误包命令Controller
  * 
  * @author ruoyi
  * @date 2023-05-19
@@ -32,7 +32,7 @@ public class ErrorRateCommandController extends BaseController
     @Autowired
     private IErrorRateCommandService errorRateCommandService;
     /**
-     * 查询误码率命令列表
+     * 查询错误包命令列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:list')")
     @GetMapping("/list")
@@ -43,19 +43,19 @@ public class ErrorRateCommandController extends BaseController
         return getDataTable(list);
     }
     /**
-     * 导出误码率命令列表
+     * 导出错误包命令列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:export')")
-    @MyLog(title = "误码率命令", businessType = BusinessType.EXPORT)
+    @MyLog(title = "错误包命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ErrorRateCommand errorRateCommand)
     {
         List<ErrorRateCommand> list = errorRateCommandService.selectErrorRateCommandList(errorRateCommand);
         ExcelUtil<ErrorRateCommand> util = new ExcelUtil<ErrorRateCommand>(ErrorRateCommand.class);
-        return util.exportExcel(list, "误码率命令数据");
+        return util.exportExcel(list, "错误包命令数据");
     }
     /**
-     * 获取误码率命令详细信息
+     * 获取错误包命令详细信息
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:query')")
     @GetMapping(value = "/{id}")
@@ -64,10 +64,10 @@ public class ErrorRateCommandController extends BaseController
         return AjaxResult.success(errorRateCommandService.selectErrorRateCommandById(id));
     }
     /**
-     * 新增误码率命令
+     * 新增错误包命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:add')")
-    @MyLog(title = "误码率命令", businessType = BusinessType.INSERT)
+    @MyLog(title = "错误包命令", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ErrorRateCommand errorRateCommand)
     {
@@ -77,20 +77,20 @@ public class ErrorRateCommandController extends BaseController
         return toAjax(errorRateCommandService.insertErrorRateCommand(errorRateCommand));
     }
     /**
-     * 修改误码率命令
+     * 修改错误包命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:edit')")
-    @MyLog(title = "误码率命令", businessType = BusinessType.UPDATE)
+    @MyLog(title = "错误包命令", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ErrorRateCommand errorRateCommand)
     {
         return toAjax(errorRateCommandService.updateErrorRateCommand(errorRateCommand));
     }
     /**
-     * 删除误码率命令
+     * 删除错误包命令
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:remove')")
-    @MyLog(title = "误码率命令", businessType = BusinessType.DELETE)
+    @MyLog(title = "错误包命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

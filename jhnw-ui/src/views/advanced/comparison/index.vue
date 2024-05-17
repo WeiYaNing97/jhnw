@@ -180,6 +180,10 @@
       <el-table-column label="RX基准功率" align="center" prop="rxStartValue" />
       <el-table-column label="TX额定偏差" align="center" prop="txRatedDeviation" />
       <el-table-column label="RX额定偏差" align="center" prop="rxRatedDeviation" />
+
+      <el-table-column label="TX即时偏差" align="center" prop="txImmediateDeviation" />
+      <el-table-column label="RX即时偏差" align="center" prop="rxImmediateDeviation" />
+
 <!--      <el-table-column label="交换机四项基本信息表ID索引" align="center" prop="switchId" />-->
 <!--      <el-table-column label="参数数量" align="center" prop="numberParameters" />-->
       <el-table-column label="TX平均功率" align="center" prop="txAverageValue" />
@@ -231,27 +235,43 @@
 <!--        <el-form-item label="端口号" prop="port">-->
 <!--          <el-input v-model="form.port" placeholder="请输入端口号" />-->
 <!--        </el-form-item>-->
-        <el-form-item label="TX基准功率" prop="txStartValue">
-          <el-input v-model="form.txStartValue" placeholder="请输入TX起始值(基准)" />
-        </el-form-item>
-        <el-form-item label="RX基准功率" prop="rxStartValue">
-          <el-input v-model="form.rxStartValue" placeholder="请输入RX起始值(基准)" />
-        </el-form-item>
-        <el-form-item label="TX平均功率" prop="txAverageValue">
-          <el-input v-model="form.txAverageValue" placeholder="请输入TX平均值" />
-        </el-form-item>
-        <el-form-item label="RX平均功率" prop="rxAverageValue">
-          <el-input v-model="form.rxAverageValue" placeholder="请输入RX平均值" />
-        </el-form-item>
-        <el-form-item label="TX当前功率" prop="txLatestNumber">
-          <el-input v-model="form.txLatestNumber" placeholder="请输入TX最新参数" />
-        </el-form-item>
-        <el-form-item label="RX当前功率" prop="rxLatestNumber">
-          <el-input v-model="form.rxLatestNumber" placeholder="请输入RX最新参数" />
-        </el-form-item>
-        <el-form-item label="额定衰耗偏差" prop="ratedDeviation">
-          <el-input v-model="form.ratedDeviation" placeholder="请输入额定偏差" />
-        </el-form-item>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="TX基准功率" prop="txStartValue">
+              <el-input v-model="form.txStartValue" placeholder="请输入TX起始值(基准)" />
+            </el-form-item>
+            <el-form-item label="TX平均功率" prop="txAverageValue">
+              <el-input v-model="form.txAverageValue" placeholder="请输入TX平均值" />
+            </el-form-item>
+            <el-form-item label="TX当前功率" prop="txLatestNumber">
+              <el-input v-model="form.txLatestNumber" placeholder="请输入TX最新参数" />
+            </el-form-item>
+            <el-form-item label="TX额定衰耗偏差" prop="txRatedDeviation">
+              <el-input v-model="form.txRatedDeviation" placeholder="TX额定衰耗偏差" />
+            </el-form-item>
+            <el-form-item label="TX即时衰耗偏差" prop="txImmediateDeviation">
+              <el-input v-model="form.txImmediateDeviation" placeholder="TX即时衰耗偏差" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="RX基准功率" prop="rxStartValue">
+              <el-input v-model="form.rxStartValue" placeholder="请输入RX起始值(基准)" />
+            </el-form-item>
+            <el-form-item label="RX平均功率" prop="rxAverageValue">
+              <el-input v-model="form.rxAverageValue" placeholder="请输入RX平均值" />
+            </el-form-item>
+            <el-form-item label="RX当前功率" prop="rxLatestNumber">
+              <el-input v-model="form.rxLatestNumber" placeholder="请输入RX最新参数" />
+            </el-form-item>
+            <el-form-item label="RX额定衰耗偏差" prop="rxRatedDeviation">
+              <el-input v-model="form.rxRatedDeviation" placeholder="RX额定衰耗偏差" />
+            </el-form-item>
+            <el-form-item label="RX即时衰耗偏差" prop="rxImmediateDeviation">
+              <el-input v-model="form.rxImmediateDeviation" placeholder="RX即时衰耗偏差" />
+            </el-form-item>
+          </el-col>
+        </el-row>
 <!--        <el-form-item label="保留字段一" prop="valueOne">-->
 <!--          <el-input v-model="form.valueOne" placeholder="请输入保留字段一" />-->
 <!--        </el-form-item>-->
@@ -308,7 +328,12 @@ export default {
         rxLatestNumber: null,
         txStartValue: null,
         rxStartValue: null,
-        ratedDeviation: null,
+
+        txRatedDeviation: null,
+        rxRatedDeviation: null,
+          rxImmediateDeviation: null,
+          txImmediateDeviation: null,
+
         valueOne: null,
         valueTwo: null
       },
@@ -381,7 +406,13 @@ export default {
         rxLatestNumber: null,
         txStartValue: null,
         rxStartValue: null,
-        ratedDeviation: null,
+
+        txRatedDeviation: null,
+        rxRatedDeviation: null,
+          rxImmediateDeviation: null,
+          txImmediateDeviation: null,
+
+
         valueOne: null,
         valueTwo: null
       };

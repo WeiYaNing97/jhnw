@@ -54,6 +54,7 @@ OSPF:
   rxRatedDeviation: 1
   # TX默认额定偏差
   txRatedDeviation: 0.5
+
   # RX即时偏差
   rxImmediateDeviation: 0.5
   # TX即时偏差
@@ -77,9 +78,9 @@ obtainPortNumber:
     SFP
     USB
 
-# 误码率
+# 错误包
 # 截取参数关键字应注意精确度，防止提取到多个数值，导致提取失败或提取数值错误
-误码率:
+错误包:
   # 两个关键字之间以;分隔
   描述: Description
   H3C:

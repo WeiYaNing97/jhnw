@@ -66,6 +66,14 @@ public class LightAttenuationComparison extends BaseEntity
     @Excel(name = "tx额定偏差")
     private String txRatedDeviation;
 
+    /** rx 即时偏差 */
+    @Excel(name = "rx 即时偏差")
+    private String rxImmediateDeviation;
+
+    /** tx 即时偏差 */
+    @Excel(name = "tx 即时偏差")
+    private String txImmediateDeviation;
+
     /** 保留字段一 */
     @Excel(name = "保留字段一")
     private String valueOne;
@@ -214,6 +222,22 @@ public class LightAttenuationComparison extends BaseEntity
     }
 
 
+    public String getRxImmediateDeviation() {
+        return rxImmediateDeviation;
+    }
+
+    public void setRxImmediateDeviation(String rxImmediateDeviation) {
+        this.rxImmediateDeviation = rxImmediateDeviation;
+    }
+
+    public String getTxImmediateDeviation() {
+        return txImmediateDeviation;
+    }
+
+    public void setTxImmediateDeviation(String txImmediateDeviation) {
+        this.txImmediateDeviation = txImmediateDeviation;
+    }
+
     @Override
     public String toString() {
         return "LightAttenuationComparison{" +
@@ -230,6 +254,10 @@ public class LightAttenuationComparison extends BaseEntity
                 ", rxStartValue='" + rxStartValue + '\'' +
                 ", rxRatedDeviation='" + rxRatedDeviation + '\'' +
                 ", txRatedDeviation='" + txRatedDeviation + '\'' +
+
+                ", rxImmediateDeviation='" + rxImmediateDeviation + '\'' +
+                ", txImmediateDeviation='" + txImmediateDeviation + '\'' +
+
                 ", valueOne='" + valueOne + '\'' +
                 ", valueTwo='" + valueTwo + '\'' +
                 '}';
@@ -250,6 +278,10 @@ public class LightAttenuationComparison extends BaseEntity
                 ", rxStartValue:'" + rxStartValue + '\'' +
                 ", rxRatedDeviation:'" + rxRatedDeviation + '\'' +
                 ", txRatedDeviation:'" + txRatedDeviation + '\'' +
+
+                ", rxImmediateDeviation:'" + rxImmediateDeviation + '\'' +
+                ", txImmediateDeviation:'" + txImmediateDeviation + '\'' +
+
                 ", valueOne:'" + valueOne + '\'' +
                 ", valueTwo:'" + valueTwo + '\'' +
                 '}';

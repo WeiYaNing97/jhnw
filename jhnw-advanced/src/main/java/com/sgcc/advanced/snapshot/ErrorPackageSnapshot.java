@@ -2,7 +2,10 @@ package com.sgcc.advanced.snapshot;
 
 import com.alibaba.fastjson.JSON;
 import com.sgcc.advanced.domain.ErrorRate;
+import com.sgcc.advanced.domain.LightAttenuationComparison;
+import com.sgcc.advanced.domain.SnapshotTaskTime;
 import com.sgcc.advanced.service.IErrorRateService;
+import com.sgcc.advanced.service.ILightAttenuationComparisonService;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
@@ -11,12 +14,12 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.service.ISwitchScanResultService;
 import com.sgcc.share.util.RSAUtils;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -44,16 +47,7 @@ public class ErrorPackageSnapshot {
     @Autowired
     private static IErrorRateService errorRateService;
     public static Map<String,Boolean> userMap = new HashMap<>();
-
-    public static void main(String[] args) {
-
-        /*前端传入交换机登录信息*/
-        List<String> switchInformation = new ArrayList<>();
-        switchInformation.add("{\"name\":\"admin\",\"password\":\"gFB+qFKgv/NlL92xvFOMzqLj2o6g6c0ahZhlYouwNkKJbszahQbbPvrewvItlfWESOqJZvmUKZlT5JzY9SahTJ6KNimhF1UbHi+uYjtWJxp/3Wn1EjgiLbuQiKnldMWi5PPgVcwHJU3nR3FoAI63evOVS/VW7XvEVhxgY4cBgwU=\",\"ip\":\"192.168.1.100\",\"mode\":\"ssh\",\"port\":\"22\",\"configureCiphers\":\"VnRkCznb9y5pquzRnURhQQIZMHdkdbZlXFxnxnHC5AnoJuoTgNy2YGuTeBUz3wCHRrGXQmP+aypZPUbdH+hUhl4Yevri52Zg4BGl6tnmIB1Bh8oYtHfqmWEanAVNBuaJdw8IUsCohRkTW4G0wtAQT4pDV1EsZChBTv1r8sGCxgk=\",\"row_index\":0}");
-
-        /*startSnapshot(switchInformation , 5 );*/
-
-    }
+    public static Map<String, SnapshotTaskTime> snapshotTaskTimeMap = new HashMap<>();
 
     /**
     * @Description 开始快照
@@ -66,7 +60,6 @@ public class ErrorPackageSnapshot {
     @RequestMapping("/startSnapshot")
     public static void startSnapshot(@RequestBody List<String> switchInformation) {/*List<String> switchInformation,Integer time*/
 
-        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
@@ -78,7 +71,7 @@ public class ErrorPackageSnapshot {
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser( SecurityUtils.getLoginUser() );/*SecurityUtils.getLoginUser()*/
-            switchParameters.setScanningTime(simpleDateFormat);
+
             BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
 
@@ -89,6 +82,7 @@ public class ErrorPackageSnapshot {
             /*RSA解密*/
             switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
             switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
+
             switchParametersList.add(switchParameters);
 
         }
@@ -99,12 +93,18 @@ public class ErrorPackageSnapshot {
         /*3： 启动线程 */
             /*a: 启动定时任务 */
             /*b： 连接交换机 */
-            /*c： 高级功能 */
+            /*c： 运行分析 */
         LoginUser loginUser = SecurityUtils.getLoginUser();
         ErrorPackageSnapshot.userMap.put(loginUser.getUsername(),true);
 
+        SnapshotTaskTime snapshotTaskTime = new SnapshotTaskTime();
+        snapshotTaskTime.setSwitchParametersList(switchParametersList);
+        String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        snapshotTaskTime.setStartTime(startTime);
+        ErrorPackageSnapshot.snapshotTaskTimeMap.put(loginUser.getUsername(),snapshotTaskTime);
+
         Timer timer = new Timer();
-        ErrorPackageTimed task = new ErrorPackageTimed( switchParametersList, timer, loginUser ,errorRateMap);/*交换机登录方式*/
+        ErrorPackageTimed task = new ErrorPackageTimed(startTime, switchParametersList, timer, loginUser ,errorRateMap);/*交换机登录方式*/
 
         Integer time = 1 ;
         /*long delay = 0; // 延迟时间，单位为毫秒
@@ -123,11 +123,28 @@ public class ErrorPackageSnapshot {
     }
 
     /*4： 终止线程(竣工) */
-    @RequestMapping("/threadInterrupt")
-    public static void threadInterrupt() {
+    @PostMapping("/threadInterrupt/{isDelete}")
+    public static void threadInterrupt(@PathVariable boolean isDelete) {
+
         LoginUser loginUser = SecurityUtils.getLoginUser();
         ErrorPackageSnapshot.userMap.put(loginUser.getUsername(),false);
+
+        SnapshotTaskTime snapshotTaskTime = ErrorPackageSnapshot.snapshotTaskTimeMap.get(loginUser.getUsername());
+        ErrorPackageSnapshot.snapshotTaskTimeMap.remove(loginUser.getUsername());
+        if (isDelete){
+            String startTime = snapshotTaskTime.getStartTime();
+            String endTime =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            ISwitchScanResultService switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+            String temProName = "错误包";
+            for (SwitchParameters pojo:snapshotTaskTime.getSwitchParametersList()){
+                /* 根据IP 范式名称 和 开始时间、结束时间 删除数据 */
+                int number = switchScanResultService.deleteSwitchScanResultByIPAndTime(pojo.getIp(),temProName,startTime,endTime);
+                System.err.println(number);
+            }
+        }
     }
+
+
 }
 
 class ErrorPackageTimed  extends TimerTask{
@@ -135,12 +152,14 @@ class ErrorPackageTimed  extends TimerTask{
     @Autowired
     private static IErrorRateService errorRateService;
 
+    private String startTime = null;
     private List<SwitchParameters> switchParametersList = null;
     private  Timer timer = null;
     private LoginUser loginUser = null;
     private HashMap<String, List<ErrorRate>> errorRateMap = null;
 
-    public  ErrorPackageTimed(List<SwitchParameters> switchParametersList, Timer timer, LoginUser loginUser,HashMap<String, List<ErrorRate>> errorRateMap) {
+    public  ErrorPackageTimed(String startTime,List<SwitchParameters> switchParametersList, Timer timer, LoginUser loginUser,HashMap<String, List<ErrorRate>> errorRateMap) {
+        this.startTime = startTime;
         this.switchParametersList = switchParametersList;
         this.timer = timer;
         this.loginUser = loginUser;
@@ -150,7 +169,10 @@ class ErrorPackageTimed  extends TimerTask{
     @Override
     public void run() {
 
-        boolean thread = ErrorPackageSnapshot.userMap.get(this.loginUser.getUsername());
+        boolean thread = false;
+        if (ErrorPackageSnapshot.userMap.containsKey(this.loginUser.getUsername()) && ErrorPackageSnapshot.userMap.get(this.loginUser.getUsername()) != null) {
+            thread = (boolean) ErrorPackageSnapshot.userMap.get(this.loginUser.getUsername());
+        }
 
         if (thread){
 
@@ -161,22 +183,51 @@ class ErrorPackageTimed  extends TimerTask{
 
             this.timer.cancel(); // 取消定时任务
             ErrorPackageSnapshot.userMap.remove(this.loginUser.getUsername());
-            /*5： 快照修改 */
-            /*List<ErrorRate> errorRates = new ArrayList<>();
+
+            String startTime = this.startTime;
+            String endTime =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            System.err.println("开始时间 "+startTime);
+            System.err.println("结束时间 "+endTime);
+
+            /** 5： 快照修改
+             * 获取快照前数据 及 Id数据 */
+            List<ErrorRate> errorRateList = new ArrayList<>();
             Collection<List<ErrorRate>> values = this.errorRateMap.values();
-            for (List<ErrorRate> pojoList:values){
-                errorRates.addAll(pojoList);
-            }*/
-            /**
-             * @Description  遍历修改快照信息
-             */
-            /*errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);
-            for (ErrorRate pojo:errorRates){
-                errorRateService.updateErrorRate(pojo);
-            }*/
+            List<Long> errorRateIds = new ArrayList<>();
+            for (List<ErrorRate> errorRates:values){
+                errorRateList.addAll(errorRates);
+                for (ErrorRate errorRate:errorRates){
+                    errorRateIds.add(errorRate.getId());
+                }
+            }
+
+            /**6 获取竣工后的数据 及 ID集合*/
+            List<String> ipList = new ArrayList<>();
+            for (SwitchParameters pojo:switchParametersList){
+                ipList.add( pojo.getIp() );
+            }
+            HashMap<String, List<ErrorRate>> newMap =  ErrorPackageSnapshot.getErrorRateMap(ipList);
+            Collection<List<ErrorRate>> newValues = newMap.values();
+            List<Long> pojoIds = new ArrayList<>();
+            for (List<ErrorRate> pojoList:newValues){
+                for (ErrorRate pojo:pojoList){
+                    pojoIds.add(pojo.getId());
+                }
+            }
+
+            /**7 获取 竣工后新增的数据 */
+            pojoIds.removeAll(errorRateIds);
+            if (pojoIds.size()!=0){
+                System.err.println("/**7 获取 竣工后新增的数据 */ : "+pojoIds);
+                errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);
+                errorRateService.deleteErrorRateByIds(pojoIds.toArray(new Long[pojoIds.size()]));
+            }
+
+
             /*6： 重新扫描并提交扫描结果 */
             ErrorPackageMethod errorPackageMethod = new ErrorPackageMethod();
             errorPackageMethod.advancedFunction(switchParametersList,loginUser);
+
         }
     }
 
@@ -185,16 +236,22 @@ class ErrorPackageTimed  extends TimerTask{
 class ErrorPackageMethod{
 
     public void advancedFunction(List<SwitchParameters> switchParametersList, LoginUser loginUser) {//待测
+
+        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        for (SwitchParameters pojo:switchParametersList){
+            pojo.setScanningTime(simpleDateFormat);
+        }
+
         //线程池
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(loginUser);
         parameterSet.setThreadCount(Integer.valueOf(5+"").intValue());
         try {
-            /*高级功能线程池*/
+            /*运行分析线程池*/
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
             List<String> strings = new ArrayList<>();
-            strings.add("误码率");
+            strings.add("错误包");
             AdvancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
         } catch (InterruptedException e) {
             e.printStackTrace();

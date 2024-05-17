@@ -124,7 +124,7 @@
       <el-table-column label="内部固件版本" align="center" prop="firewareVersion" width="120px" />
       <el-table-column label="子版本号" align="center" prop="subVersion" width="120px" />
       <el-table-column label="获取up端口号命令" align="center" prop="getPortCommand" />
-      <el-table-column label="获取误码率命令" align="center" prop="getParameterCommand" />
+      <el-table-column label="获取错误包命令" align="center" prop="getParameterCommand" />
       <el-table-column label="转译字符" align="center" prop="conversion" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width"  width="180px">
         <template slot-scope="scope">
@@ -161,7 +161,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改误码率命令对话框 -->
+    <!-- 添加或修改错误包命令对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="品牌" prop="brand">
@@ -179,8 +179,8 @@
         <el-form-item label="获取up端口号命令" prop="getPortCommand">
           <el-input v-model="form.getPortCommand" placeholder="请输入获取up端口号命令" />
         </el-form-item>
-        <el-form-item label="获取误码率命令" prop="getParameterCommand">
-          <el-input v-model="form.getParameterCommand" placeholder="请输入获取误码率命令" />
+        <el-form-item label="获取错误包命令" prop="getParameterCommand">
+          <el-input v-model="form.getParameterCommand" placeholder="请输入获取错误包命令" />
         </el-form-item>
         <el-form-item label="转译字符" prop="conversion">
           <el-input v-model="form.conversion" placeholder="请输入转译字符" />
@@ -215,7 +215,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 误码率命令表格数据
+      // 错误包命令表格数据
       error_rate_commandList: [],
       // 弹出层标题
       title: "",
@@ -253,7 +253,7 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询误码率命令列表 */
+    /** 查询错误包命令列表 */
     getList() {
       this.loading = true;
       listError_rate_command(this.queryParams).then(response => {
@@ -301,7 +301,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加误码率命令";
+      this.title = "添加错误包命令";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -310,7 +310,7 @@ export default {
       getError_rate_command(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改误码率命令";
+        this.title = "修改错误包命令";
       });
     },
     /** 提交按钮 */
@@ -336,7 +336,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除误码率命令编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除错误包命令编号为"' + ids + '"的数据项？').then(function() {
         return delError_rate_command(ids);
       }).then(() => {
         this.getList();
@@ -346,7 +346,7 @@ export default {
     /** 导出按钮操作 */
     handleExport() {
       const queryParams = this.queryParams;
-      this.$modal.confirm('是否确认导出所有误码率命令数据项？').then(() => {
+      this.$modal.confirm('是否确认导出所有错误包命令数据项？').then(() => {
         this.exportLoading = true;
         return exportError_rate_command(queryParams);
       }).then(response => {

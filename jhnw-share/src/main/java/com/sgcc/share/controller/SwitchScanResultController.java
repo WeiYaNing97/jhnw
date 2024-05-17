@@ -144,9 +144,11 @@ public class SwitchScanResultController extends BaseController
         switchScanResult.setIfQuestion(hashMap.get("IfQuestion")); //是否有问题
         switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
         switchScanResult.setPhonenumber(switchParameters.getLoginUser().getUser().getPhonenumber()); //登录手机号
+
         //插入 扫描时间
         DateTime dateTime = new DateTime(switchParameters.getScanningTime(), "yyyy-MM-dd HH:mm:ss");
         switchScanResult.setCreateTime(dateTime);
+
         //插入问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         int i = switchScanResultService.insertSwitchScanResult(switchScanResult);

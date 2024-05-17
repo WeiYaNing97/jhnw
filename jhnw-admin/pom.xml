@@ -83,7 +83,7 @@
             <version>3.7.0</version>
         </dependency>
 
-        <!-- 高级功能-->
+        <!-- 运行分析-->
         <dependency>
             <groupId>com.sgcc</groupId>
             <artifactId>jhnw-advanced</artifactId>

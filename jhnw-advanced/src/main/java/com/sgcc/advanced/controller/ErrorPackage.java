@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Api("误码率功能")
+@Api("错误包功能")
 @RestController
 @RequestMapping("/advanced/ErrorPackage")
 @Transactional(rollbackFor = Exception.class)
@@ -40,10 +40,10 @@ public class ErrorPackage {
 
     /*发送命令 返回端口号信息*/
 
-    //@MyLog(title = "高级功能误码率扫描", businessType = BusinessType.OTHER)
+    //@MyLog(title = "高级功能错误包扫描", businessType = BusinessType.OTHER)
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
 
-        /*1：获取配置文件关于 误码率问题的 符合交换机品牌的命令的 配置信息*/
+        /*1：获取配置文件关于 错误包问题的 符合交换机品牌的命令的 配置信息*/
         ErrorRateCommand errorRateCommand = new ErrorRateCommand();
         errorRateCommand.setBrand(switchParameters.getDeviceBrand());
         errorRateCommand.setSwitchType(switchParameters.getDeviceModel());
@@ -53,7 +53,7 @@ public class ErrorPackage {
         errorRateCommandService = SpringBeanUtil.getBean(IErrorRateCommandService.class);
         List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandListBySQL(errorRateCommand);
 
-        /*2：当 配置文件误码率问题的命令 为空时 进行 日志写入*/
+        /*2：当 配置文件错误包问题的命令 为空时 进行 日志写入*/
         if (MyUtils.isCollectionEmpty(errorRateCommandList)){
 
             String subversionNumber = switchParameters.getSubversionNumber();
@@ -64,10 +64,10 @@ public class ErrorPackage {
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:IP地址为:"+switchParameters.getIp()+"。"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
-                            "问题为:误码率功能未定义获取端口号的命令。\r\n"
+                            "问题为:错误包功能未定义获取端口号的命令。\r\n"
             );
 
-            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能未定义获取端口号的命令\r\n");
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能未定义获取端口号的命令\r\n");
         }
 
         /*从errorRateCommandList中 获取四项基本最详细的数据*/
@@ -75,7 +75,7 @@ public class ErrorPackage {
         /*获取up端口号命令*/
         String portNumberCommand = errorRateCommand.getGetPortCommand();
 
-        /*3：配置文件误码率问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        /*3：配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
         returnString = "The brief information of interface(s) under route mode:\n" +
@@ -148,14 +148,14 @@ public class ErrorPackage {
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+"。"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
-                            "问题为:误码率功能获取端口号命令错误,需要重新定义。\r\n");
+                            "问题为:错误包功能获取端口号命令错误,需要重新定义。\r\n");
 
-            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:误码率功能获取端口号命令错误,需要重新定义\r\n");
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能获取端口号命令错误,需要重新定义\r\n");
         }
 
 
         /*5：如果交换机返回信息不为 null 说明命令执行正常,
-        则继续 根据交换机返回信息获取误码率端口号*/
+        则继续 根据交换机返回信息获取错误包端口号*/
         List<String> portList = ObtainUPStatusPortNumber(returnString);
 
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
@@ -300,7 +300,7 @@ public class ErrorPackage {
             }
 
             HashMap<String,String> hashMap = new HashMap<>();
-            hashMap.put("ProblemName","误码率");
+            hashMap.put("ProblemName","错误包");
 
 
             String subversionNumber1 = switchParameters.getSubversionNumber();
@@ -557,7 +557,7 @@ public class ErrorPackage {
             }
 
             if (MyUtils.isCollectionEmpty(valueList)){
-                /*  端口未获取到误码率 */
+                /*  端口未获取到错误包 */
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
@@ -745,10 +745,10 @@ public class ErrorPackage {
     */
     public Map<String, Object> getKeywords (SwitchParameters switchParameters) {
         /* 获取配置文件 关于 错误包 的配置信息*/
-        Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率",Constant.getProfileInformation());
-        /*查询误码率关键词 如果返回为 null 则提示前端*/
+        Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包",Constant.getProfileInformation());
+        /*查询错误包关键词 如果返回为 null 则提示前端*/
         if (deviceVersion == null){
-            /* 误码率功能未获取到配置文件关键词 */
+            /* 错误包功能未获取到配置文件关键词 */
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
@@ -793,10 +793,10 @@ public class ErrorPackage {
         }
 
         /*根据 交换机品牌名 获取交换机错误包信息 */
-        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand,Constant.getProfileInformation());
-        /*误码率功能未获取到品牌大类的关键词 提示前端*/
+        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包."+brand,Constant.getProfileInformation());
+        /*错误包功能未获取到品牌大类的关键词 提示前端*/
         if (deviceVersion == null){
-            /* 误码率功能未获取到配置文件关键词 */
+            /* 错误包功能未获取到配置文件关键词 */
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
@@ -832,10 +832,10 @@ public class ErrorPackage {
         /*如果 配置文件中型号model 不为 null
          * 则可以根据 品牌和型号 获取 错误包信息*/
         if ( model!=null ){
-            deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model,Constant.getProfileInformation());
+            deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包."+brand+"."+ model,Constant.getProfileInformation());
             keys = deviceVersion.keySet();
 
-            /*遍历 误码率 品牌、型号 下的 key*/
+            /*遍历 错误包 品牌、型号 下的 key*/
             for (String key:keys){
                 /*如果 交换机型号switchParameters.getFirmwareVersion() 与 配置文件中 key匹配
                  * 则 配置文件key 赋值 型号 firmwareVersion */
@@ -846,11 +846,11 @@ public class ErrorPackage {
             }
 
             /*如果 配置文件中型号 firmwareVersion 不为 null
-             * 则可以根据 品牌和型号 获取 误码率信息*/
+             * 则可以根据 品牌和型号 获取 错误包信息*/
             if (firmwareVersion!=null){
-                deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率."+brand+"."+ model+"."+firmwareVersion,Constant.getProfileInformation());
+                deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包."+brand+"."+ model+"."+firmwareVersion,Constant.getProfileInformation());
                 keys = deviceVersion.keySet();
-                /*遍历 误码率 品牌、型号、版本 下的 key*/
+                /*遍历 错误包 品牌、型号、版本 下的 key*/
                 for (String key:keys){
                     /*如果 交换机型号switchParameters.getSubversionNumber() 与 配置文件中 key匹配
                      * 则 配置文件key 赋值 型号 subversionNumber */
@@ -866,7 +866,7 @@ public class ErrorPackage {
          *  一定有 品牌 brand
          * 型号、版本、子版本 如果为 null的 则为""空字符， 如果不为 null 则为  "."+属性值 */
         String condition = "."+brand +(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
-        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("误码率"+condition,Constant.getProfileInformation());
+        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包"+condition,Constant.getProfileInformation());
 
         return deviceVersion;
     }
@@ -1219,7 +1219,7 @@ public class ErrorPackage {
     public static String getDescription(String information) {
         /* 配置文件中 获取 Description 关键词
         * 关键词 根据 ； 转化为 关键词 字符串 数组*/
-        String descriptionValue = (String) CustomConfigurationUtil.getValue("误码率.描述", Constant.getProfileInformation());
+        String descriptionValue = (String) CustomConfigurationUtil.getValue("错误包.描述", Constant.getProfileInformation());
         if (descriptionValue == null){
             return null;
         }

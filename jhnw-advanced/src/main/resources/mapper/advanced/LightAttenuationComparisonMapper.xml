@@ -18,6 +18,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="rxStartValue"    column="rx_start_value"    />
         <result property="rxRatedDeviation"    column="rx_rated_deviation"    />
         <result property="txRatedDeviation"    column="tx_rated_deviation"    />
+
+        <result property="rxImmediateDeviation"    column="rx_immediate_deviation"    />
+        <result property="txImmediateDeviation"    column="tx_immediate_deviation"    />
+
         <result property="valueOne"    column="value_one"    />
         <result property="valueTwo"    column="value_two"    />
     </resultMap>
@@ -28,6 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         rx_average_value, rx_latest_number,
         tx_start_value, rx_start_value,
         rx_rated_deviation, tx_rated_deviation,
+        rx_immediate_deviation,tx_immediate_deviation,
         value_one, value_two from light_attenuation_comparison
     </sql>
 
@@ -46,6 +51,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxStartValue != null  and rxStartValue != ''"> and rx_start_value = #{rxStartValue}</if>
             <if test="rxRatedDeviation != null  and rxRatedDeviation != ''"> and rx_rated_deviation = #{rxRatedDeviation}</if>
             <if test="txRatedDeviation != null  and txRatedDeviation != ''"> and tx_rated_deviation = #{txRatedDeviation}</if>
+
+            <if test="rxImmediateDeviation != null  and rxImmediateDeviation != ''"> and rx_immediate_deviation = #{rxImmediateDeviation}</if>
+            <if test="txImmediateDeviation != null  and txImmediateDeviation != ''"> and tx_immediate_deviation = #{txImmediateDeviation}</if>
+
             <if test="valueOne != null  and valueOne != ''"> and value_one = #{valueOne}</if>
             <if test="valueTwo != null  and valueTwo != ''"> and value_two = #{valueTwo}</if>
         </where>
@@ -76,6 +85,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxStartValue != null and rxStartValue != ''">rx_start_value,</if>
             <if test="rxRatedDeviation != null">rx_rated_deviation,</if>
             <if test="txRatedDeviation != null">tx_rated_deviation,</if>
+
+            <if test="rxImmediateDeviation != null">rx_immediate_deviation,</if>
+            <if test="txImmediateDeviation != null">tx_immediate_deviation,</if>
+
             <if test="valueOne != null">value_one,</if>
             <if test="valueTwo != null">value_two,</if>
          </trim>
@@ -92,6 +105,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxStartValue != null and rxStartValue != ''">#{rxStartValue},</if>
             <if test="rxRatedDeviation != null">#{rxRatedDeviation},</if>
             <if test="txRatedDeviation != null">#{txRatedDeviation},</if>
+
+            <if test="rxImmediateDeviation != null">#{rxImmediateDeviation},</if>
+            <if test="txImmediateDeviation != null">#{txImmediateDeviation},</if>
+
             <if test="valueOne != null">#{valueOne},</if>
             <if test="valueTwo != null">#{valueTwo},</if>
          </trim>
@@ -112,6 +129,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="rxStartValue != null and rxStartValue != ''">rx_start_value = #{rxStartValue},</if>
             <if test="rxRatedDeviation != null">rx_rated_deviation = #{rxRatedDeviation},</if>
             <if test="txRatedDeviation != null">tx_rated_deviation = #{txRatedDeviation},</if>
+
+            <if test="rxImmediateDeviation != null">rx_immediate_deviation = #{rxImmediateDeviation},</if>
+            <if test="txImmediateDeviation != null">tx_immediate_deviation = #{txImmediateDeviation},</if>
+
             <if test="valueOne != null">value_one = #{valueOne},</if>
             <if test="valueTwo != null">value_two = #{valueTwo},</if>
         </trim>

@@ -4,7 +4,7 @@ import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.core.domain.BaseEntity;
 
 /**
- * 交换机登录信息 实体类
+ * 交换机登录信息实体类
  * 用于交换机扫描时 交换机登录信息的转换
  */
 public class SwitchLoginInformation extends BaseEntity {

@@ -1,10 +1,7 @@
 package com.sgcc;
-import com.sgcc.share.domain.Constant;
-import com.sgcc.share.util.Timed;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import sun.plugin2.gluegen.runtime.CPU;
 
 /**
  * 启动程序

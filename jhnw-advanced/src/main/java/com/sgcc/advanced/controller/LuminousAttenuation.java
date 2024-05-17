@@ -298,6 +298,7 @@ public class LuminousAttenuation {
         * 数据表中有，扫描结果没有的 则 说明 断开了连接
          * 断开接口提示交换机端口断开连接，端口状态为DOWN*/
         for (String portstr:difference){
+
             /** 修改端口号状态  */
             LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
             lightAttenuationComparisonPojo.setValueOne("DOWN");
@@ -479,41 +480,49 @@ public class LuminousAttenuation {
         double rxLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getRxLatestNumber());
         //TX最新参数
         double txLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getTxLatestNumber());
+
         //RX起始值(基准)
         double rxStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxStartValue());
         //TX起始值(基准)
         double txStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxStartValue());
+
         //RX平均值
         double rxAverageValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxAverageValue());
         //TX平均值
         double txAverageValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue());
+
         /*RX即时偏差*/
-        double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
+        //double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
         /*TX即时偏差*/
-        double txImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
+        //double txImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
 
         DecimalFormat df = new DecimalFormat("#.0000");
+
         //额定绝对值   |最新参数 - 起始值|
         Double rxfiberAttenuation = Math.abs(rxLatestNumber - rxStartValue);
         Double txfiberAttenuation = Math.abs(txLatestNumber - txStartValue);
         rxfiberAttenuation = MyUtils.stringToDouble(df.format(rxfiberAttenuation));
         txfiberAttenuation = MyUtils.stringToDouble(df.format(txfiberAttenuation));
+
         //即时绝对值   |最新参数 - 平均值|
         Double rxImmediateLightDecay  = Math.abs(rxLatestNumber - rxAverageValue);
         Double txImmediateLightDecay  = Math.abs(txLatestNumber - txAverageValue);
         rxImmediateLightDecay = MyUtils.stringToDouble(df.format(rxImmediateLightDecay));
         txImmediateLightDecay = MyUtils.stringToDouble(df.format(txImmediateLightDecay));
-        if (rxImmediateLightDecay > rxImmediateDeviation
-        || txImmediateLightDecay > txImmediateDeviation){
-            return "有问题";
-        }
-        // 绝对值>额定偏差
-        if (rxfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getRxRatedDeviation())
-                || txfiberAttenuation>MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
-            return "有问题";
-        }
-        return "无问题";
 
+        /* 即时绝对值 >  即时偏差*/
+        if (rxImmediateLightDecay > MyUtils.stringToDouble(lightAttenuationComparison.getTxImmediateDeviation())
+        || txImmediateLightDecay > MyUtils.stringToDouble(lightAttenuationComparison.getRxImmediateDeviation())){
+            return "有问题";
+        }
+
+        // 绝对值>额定偏差
+        if (rxfiberAttenuation > MyUtils.stringToDouble(lightAttenuationComparison.getRxRatedDeviation())
+                || txfiberAttenuation > MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
+            return "有问题";
+        }
+
+        return "无问题";
     }
 
     /**
@@ -957,8 +966,14 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxLatestNumber(tx);
             lightAttenuationComparison.setTxAverageValue(tx);
             lightAttenuationComparison.setTxStartValue(tx);
+            /* 插入 默认 额定偏差*/
             lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
             lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
+            /* 插入 默认 即时偏差*/
+            lightAttenuationComparison.setRxImmediateDeviation(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
+            lightAttenuationComparison.setTxImmediateDeviation(""+ CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
+
+
             lightAttenuationComparison.setValueOne("UP");
 
             InsertLightAttenuation insertLightAttenuation = new InsertLightAttenuation();

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * 误码率Service业务层处理
+ * 错误包 Service业务层处理
  * 
  * @author ruoyi
  * @date 2023-05-09
@@ -22,10 +22,10 @@ public class ErrorRateServiceImpl implements IErrorRateService
     private ErrorRateMapper errorRateMapper;
 
     /**
-     * 查询误码率
+     * 查询 错误包
      * 
-     * @param id 误码率主键
-     * @return 误码率
+     * @param id 错误包 主键
+     * @return 错误包
      */
     @Override
     public ErrorRate selectErrorRateById(Long id)
@@ -34,10 +34,10 @@ public class ErrorRateServiceImpl implements IErrorRateService
     }
 
     /**
-     * 查询误码率列表
+     * 查询 错误包 列表
      * 
-     * @param errorRate 误码率
-     * @return 误码率
+     * @param errorRate 错误包
+     * @return 错误包
      */
     @Override
     public List<ErrorRate> selectErrorRateList(ErrorRate errorRate)
@@ -46,9 +46,9 @@ public class ErrorRateServiceImpl implements IErrorRateService
     }
 
     /**
-     * 新增误码率
+     * 新增 错误包
      * 
-     * @param errorRate 误码率
+     * @param errorRate 错误包
      * @return 结果
      */
     @Override
@@ -59,9 +59,9 @@ public class ErrorRateServiceImpl implements IErrorRateService
     }
 
     /**
-     * 修改误码率
+     * 修改 错误包
      * 
-     * @param errorRate 误码率
+     * @param errorRate 错误包
      * @return 结果
      */
     @Override
@@ -72,9 +72,9 @@ public class ErrorRateServiceImpl implements IErrorRateService
     }
 
     /**
-     * 批量删除误码率
+     * 批量删除 错误包
      * 
-     * @param ids 需要删除的误码率主键
+     * @param ids 需要删除的 错误包 主键
      * @return 结果
      */
     @Override
@@ -84,9 +84,9 @@ public class ErrorRateServiceImpl implements IErrorRateService
     }
 
     /**
-     * 删除误码率信息
+     * 删除 错误包 信息
      * 
-     * @param id 误码率主键
+     * @param id 错误包 主键
      * @return 结果
      */
     @Override

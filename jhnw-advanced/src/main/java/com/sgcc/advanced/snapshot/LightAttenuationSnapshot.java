@@ -1,6 +1,7 @@
 package com.sgcc.advanced.snapshot;
 import com.alibaba.fastjson.JSON;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
+import com.sgcc.advanced.domain.SnapshotTaskTime;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -10,9 +11,12 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.service.ISwitchScanResultService;
+import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.RSAUtils;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +49,7 @@ public class LightAttenuationSnapshot {
     @Autowired
     private static ILightAttenuationComparisonService lightAttenuationComparisonService;
     public static Map<String,Boolean> userMap = new HashMap<>();
+    public static Map<String, SnapshotTaskTime> snapshotTaskTimeMap = new HashMap<>();
 
     /**
     * @Description 开始快照
@@ -57,7 +62,6 @@ public class LightAttenuationSnapshot {
     @RequestMapping("/startSnapshot")
     public static void startSnapshot(@RequestBody List<String> switchInformation) {
 
-        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
@@ -68,7 +72,7 @@ public class LightAttenuationSnapshot {
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
-            switchParameters.setScanningTime(simpleDateFormat);
+
             BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
             //以多线程中的格式 存放数组中
@@ -90,20 +94,24 @@ public class LightAttenuationSnapshot {
         /*3： 启动线程 */
             /*1: 启动定时任务 */
             /*3： 连接交换机 */
-            /*4： 高级功能 */
+            /*4： 运行分析 */
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
         LightAttenuationSnapshot.userMap.put(loginUser.getUsername(), true);
 
+        SnapshotTaskTime snapshotTaskTime = new SnapshotTaskTime();
+        snapshotTaskTime.setSwitchParametersList(switchParametersList);
+        String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        snapshotTaskTime.setStartTime(startTime);
+        LightAttenuationSnapshot.snapshotTaskTimeMap.put(loginUser.getUsername(),snapshotTaskTime);
 
         Set<String> keySet = LightAttenuationSnapshot.userMap.keySet();
         for (String key:keySet){
             System.err.println("LightAttenuationSnapshot.userMap == "+key);
         }
 
-
         Timer timer = new Timer();
-        LuminousAttenuationTimed task = new LuminousAttenuationTimed(switchParametersList, timer, loginUser,LightAttenuationComparisonsMap);/*交换机登录方式*/
+        LuminousAttenuationTimed task = new LuminousAttenuationTimed(startTime,switchParametersList, timer, loginUser,LightAttenuationComparisonsMap);/*交换机登录方式*/
 
         Integer time = 1;
 
@@ -123,17 +131,27 @@ public class LightAttenuationSnapshot {
     }
 
     /*4： 终止线程(竣工) */
-    @RequestMapping("/threadInterrupt")
-    public static String threadInterrupt() {
+    @RequestMapping("/threadInterrupt/{isDelete}")
+    public static void threadInterrupt(@PathVariable boolean isDelete) {
         LoginUser loginUser = SecurityUtils.getLoginUser();
         LightAttenuationSnapshot.userMap.put(loginUser.getUsername(),false);
-
-        Set<String> keySet = LightAttenuationSnapshot.userMap.keySet();
-        for (String key:keySet){
-            System.err.println("LightAttenuationSnapshot.userMap == "+key);
+        SnapshotTaskTime snapshotTaskTime = LightAttenuationSnapshot.snapshotTaskTimeMap.get(loginUser.getUsername());
+        if (snapshotTaskTime == null){
+            return;
+        }
+        LightAttenuationSnapshot.snapshotTaskTimeMap.remove(loginUser.getUsername());
+        if (isDelete){
+            String startTime = snapshotTaskTime.getStartTime();
+            String endTime =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            ISwitchScanResultService switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+            String temProName = "光衰";
+            for (SwitchParameters pojo:snapshotTaskTime.getSwitchParametersList()){
+                /* 根据IP 范式名称 和 开始时间、结束时间 删除数据 */
+                int number = switchScanResultService.deleteSwitchScanResultByIPAndTime(pojo.getIp(),temProName,startTime,endTime);
+                System.err.println(number);
+            }
         }
 
-        return "扫描结束";
     }
 
 }
@@ -143,14 +161,17 @@ class LuminousAttenuationTimed  extends TimerTask{
     @Autowired
     private static ILightAttenuationComparisonService lightAttenuationComparisonService;
 
+    private String startTime = null;
     private List<SwitchParameters> switchParametersList = null;
     private  Timer timer = null;
     private LoginUser loginUser = null;
+    /**  开启快照前数据 */
     private HashMap<String, List<LightAttenuationComparison>> LightAttenuationComparisonsMap = null;
 
-    public  LuminousAttenuationTimed(List<SwitchParameters> switchParametersList,
+    public  LuminousAttenuationTimed(String startTime,List<SwitchParameters> switchParametersList,
                                      Timer timer, LoginUser loginUser,
                                      HashMap<String, List<LightAttenuationComparison>> LightAttenuationComparisonsMap) {
+        this.startTime = startTime;
         this.switchParametersList = switchParametersList;
         this.timer = timer;
         this.loginUser = loginUser;
@@ -160,26 +181,59 @@ class LuminousAttenuationTimed  extends TimerTask{
     @Override
     public void run() {
 
-        boolean thread = LightAttenuationSnapshot.userMap.get(this.loginUser.getUsername());
+        boolean thread = false;
+        if (LightAttenuationSnapshot.userMap.containsKey(this.loginUser.getUsername()) && LightAttenuationSnapshot.userMap.get(this.loginUser.getUsername()) != null) {
+            thread = (boolean) LightAttenuationSnapshot.userMap.get(this.loginUser.getUsername());
+        }
 
         if (thread){
 
-            System.err.println("进行定时任务");
+            System.err.println("光衰功能进行定时任务");
             LuminousAttenuationMethod luminousAttenuationMethod = new LuminousAttenuationMethod();
             luminousAttenuationMethod.advancedFunction(switchParametersList,loginUser);
 
         }else {
 
             this.timer.cancel(); // 取消定时任务
-            System.err.println("取消定时任务");
+
+            System.err.println("光衰功能取消定时任务");
             LightAttenuationSnapshot.userMap.remove(this.loginUser.getUsername());
 
-            /*5： 快照修改 */
+            /** 5： 快照修改
+             * 获取快照前数据 及 Id数据 */
             List<LightAttenuationComparison> lightAttenuationComparisons = new ArrayList<>();
+            List<Long> lightAttenuationComparisonIds = new ArrayList<>();
             Collection<List<LightAttenuationComparison>> values = this.LightAttenuationComparisonsMap.values();
             for (List<LightAttenuationComparison> pojoList:values){
                 lightAttenuationComparisons.addAll(pojoList);
+                for (LightAttenuationComparison pojo:pojoList){
+                    lightAttenuationComparisonIds.add(pojo.getId());
+                }
             }
+
+
+            /**6 获取竣工后的数据 及 ID集合*/
+            List<String> ipList = new ArrayList<>();
+            for (SwitchParameters pojo:switchParametersList){
+                ipList.add( pojo.getIp() );
+            }
+            HashMap<String, List<LightAttenuationComparison>> newMap = LightAttenuationSnapshot.getLightAttenuationComparisonMap( ipList );
+            Collection<List<LightAttenuationComparison>> newValues = newMap.values();
+            List<Long> pojoIds = new ArrayList<>();
+            for (List<LightAttenuationComparison> pojoList:newValues){
+                for (LightAttenuationComparison pojo:pojoList){
+                    pojoIds.add(pojo.getId());
+                }
+            }
+
+            /**7 获取 竣工后新增的数据 */
+            pojoIds.removeAll(lightAttenuationComparisonIds);
+            if (pojoIds.size()!=0){
+                System.err.println("/**7 获取 竣工后新增的数据 */ : "+pojoIds);
+                lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
+                lightAttenuationComparisonService.deleteLightAttenuationComparisonByIds(pojoIds.toArray(new Long[pojoIds.size()]));
+            }
+
 
             /**
              * @Description  遍历修改快照信息*/
@@ -199,13 +253,19 @@ class LuminousAttenuationTimed  extends TimerTask{
 class LuminousAttenuationMethod{
 
     public void advancedFunction(List<SwitchParameters> switchParametersList, LoginUser loginUser) {//待测
+
+        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        for (SwitchParameters pojo:switchParametersList){
+            pojo.setScanningTime(simpleDateFormat);
+        }
+
         //线程池
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(loginUser);
         parameterSet.setThreadCount(Integer.valueOf(5+"").intValue());
         try {
-            /*高级功能线程池*/
+            /*运行分析线程池*/
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
             List<String> strings = new ArrayList<>();
             strings.add("光衰");

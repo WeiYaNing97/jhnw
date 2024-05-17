@@ -6,7 +6,7 @@ import com.sgcc.common.annotation.Excel;
 import com.sgcc.common.core.domain.BaseEntity;
 
 /**
- * 误码率命令对象 error_rate_command
+ * 错误包 命令对象 error_rate_command
  * 
  * @author ruoyi
  * @date 2023-05-19
@@ -38,8 +38,8 @@ public class ErrorRateCommand extends BaseEntity
     @Excel(name = "获取up端口号命令")
     private String getPortCommand;
 
-    /** 获取误码率参数命令 */
-    @Excel(name = "获取误码率参数命令")
+    /** 获取 错误包 参数命令 */
+    @Excel(name = "获取 错误包 参数命令")
     private String getParameterCommand;
 
     /** 转译 */

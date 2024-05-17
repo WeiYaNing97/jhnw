@@ -22,7 +22,7 @@ import com.sgcc.common.core.page.TableDataInfo;
 import java.util.List;
 
 /**
- * 误码率Controller
+ * 错误包Controller
  * @author ruoyi
  * @date 2023-05-09
  */
@@ -33,7 +33,7 @@ public class ErrorRateController extends BaseController
     @Autowired
     private IErrorRateService errorRateService;
     /**
-     * 查询误码率列表
+     * 查询错误包列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:list')")
     @GetMapping("/list")
@@ -44,20 +44,20 @@ public class ErrorRateController extends BaseController
         return getDataTable(list);
     }
     /**
-     * 导出误码率列表
+     * 导出错误包列表
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:export')")
-    @MyLog(title = "误码率", businessType = BusinessType.EXPORT)
+    @MyLog(title = "错误包", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ErrorRate errorRate)
     {
         List<ErrorRate> list = errorRateService.selectErrorRateList(errorRate);
         ExcelUtil<ErrorRate> util = new ExcelUtil<ErrorRate>(ErrorRate.class);
-        return util.exportExcel(list, "误码率数据");
+        return util.exportExcel(list, "错误包数据");
     }
 
     /**
-     * 获取误码率详细信息
+     * 获取错误包详细信息
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:query')")
     @GetMapping(value = "/{id}")
@@ -67,10 +67,10 @@ public class ErrorRateController extends BaseController
     }
 
     /**
-     * 新增误码率
+     * 新增错误包
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:add')")
-    @MyLog(title = "误码率", businessType = BusinessType.INSERT)
+    @MyLog(title = "错误包", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ErrorRate errorRate)
     {
@@ -78,10 +78,10 @@ public class ErrorRateController extends BaseController
     }
 
     /**
-     * 修改误码率
+     * 修改错误包
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:edit')")
-    @MyLog(title = "误码率", businessType = BusinessType.UPDATE)
+    @MyLog(title = "错误包", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ErrorRate errorRate)
     {
@@ -89,10 +89,10 @@ public class ErrorRateController extends BaseController
     }
 
     /**
-     * 删除误码率
+     * 删除错误包
      */
     @PreAuthorize("@ss.hasPermi('advanced:rate:remove')")
-    @MyLog(title = "误码率", businessType = BusinessType.DELETE)
+    @MyLog(title = "错误包", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

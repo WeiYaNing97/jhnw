@@ -171,7 +171,7 @@
     </div>
 
     <div v-show="wuShow">
-      <h2>误码率功能定义:</h2>
+      <h2>错误包功能定义:</h2>
       <errorRate></errorRate>
     </div>
 
@@ -245,8 +245,8 @@ export default {
                 value:'光纤衰耗',
                 label:'光纤衰耗'
             },{
-                value:'误码率',
-                label:'误码率'
+                value:'错误包',
+                label:'错误包'
             }
         ],
         value: '',
@@ -284,7 +284,7 @@ export default {
               this.guangShow = true
               this.wuShow = false
               this.ospfShow = false
-          }else if (this.value == '误码率'){
+          }else if (this.value == '错误包'){
               this.wuShow = true
               this.guangShow = false
               this.ospfShow = false

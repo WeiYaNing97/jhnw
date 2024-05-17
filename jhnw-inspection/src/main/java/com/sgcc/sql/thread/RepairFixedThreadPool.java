@@ -17,16 +17,29 @@ public class RepairFixedThreadPool {
     // 用来存储线程名称的map
     public static Map threadNameMap = new HashMap();
     /**
-     * newFixedThreadPool submit submit
-     */
-    public static void Solution(ParameterSet parameterSet, List<List<SwitchScanResult>> problemList, List<String> problemIdStrings) throws InterruptedException {
+    * @Description
+    * @author charles
+    * @createTime 2024/5/8 15:36
+    * @desc
+    * @param parameterSet	交换机登录信息集合
+     * @param switchScanResultMap	 交换机IP 和 问题集合对应的 map集合
+     * @param problemIdStrings	交换机所有扫描结果ID
+     * @return
+    */
+    public static void Solution(ParameterSet parameterSet, HashMap<String,List<SwitchScanResult>> switchScanResultMap  , List<String> problemIdStrings) throws InterruptedException {
+
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
 
+        /** 遍历交换机登录集合 */
         for (int i = 0 ; i<parameterSet.getSwitchParameters().size() ; i++){
 
-            List<SwitchScanResult> switchScanResultList = problemList.get(i);
+            /* 根据交换机登录集合中的 登录信息 的 登录IP
+            * 获取map集合中的 交换机问题集合*/
+            List<SwitchScanResult> switchScanResultList = switchScanResultMap.get( parameterSet.getSwitchParameters().get(i).getIp() );
+
+            /* 筛选交换机问题集合中 有问题、异常 的实体类数据 */
             List<SwitchScanResult> switchScanResults = new ArrayList<>();
             for (SwitchScanResult switchScanResult:switchScanResultList){
                 // 查看 扫描出的问题 是否有问题
@@ -35,15 +48,34 @@ public class RepairFixedThreadPool {
                 }
             }
 
+            /** 如果 异常交换机问题集合 元素长度不为0
+             * 则进行修复逻辑*/
             if (switchScanResults.size() != 0){
-                // 如果有问题 查询对应交换机登录信息
+
+                // 交换机登录集合中的 登录信息
                 SwitchParameters SwitchParameters = parameterSet.getSwitchParameters().get(i);
-                // 所有问题
+
+                // 交换机所有扫描结果ID
                 List<String> problemIds = problemIdStrings;
+
+                /* 设置线程名*/
                 String threadName = getThreadName(i);
+
                 /*加入map*/
                 threadNameMap.put(threadName, threadName);
+
                 SwitchParameters.setThreadName(threadName);
+
+                /**
+                 * @Description 修复交换机线程
+                 * @param threadName	线程名
+                 * @param SwitchParameters	交换机登录信息
+                 * @param switchScanResults	 交换机问题集合
+                 * @param problemIds	所有问题ID
+                 * @param countDownLatch	线程池计数器
+                 * @param fixedThreadPool	线程池
+                 * @return
+                 */
                 fixedThreadPool.execute(new RepairFixedThread(threadName,SwitchParameters,switchScanResults,problemIds,countDownLatch,fixedThreadPool));
 
             }

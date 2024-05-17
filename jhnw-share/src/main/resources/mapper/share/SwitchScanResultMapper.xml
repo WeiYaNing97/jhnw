@@ -228,6 +228,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from switch_scan_result
     </delete>
 
+    <delete id="deleteSwitchScanResultByIPAndTime" parameterType="String">
+        delete from switch_scan_result
+        where  switch_ip LIKE CONCAT(#{ip} , ':%')
+        and tem_pro_name = #{temProName}
+        and #{endTime} >= create_time
+        and create_time > #{startTime}
+    </delete>
+
     <delete id="deleteSwitchScanResultByIds" parameterType="String">
         delete from switch_scan_result where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
