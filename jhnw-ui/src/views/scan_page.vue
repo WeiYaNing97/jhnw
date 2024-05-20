@@ -1188,7 +1188,7 @@
                 this.resetForm("form");
             },
 
-            /** 快照 */
+            /** 开启快照功能 */
             startSnapshot() {
                 this.finalScanMethod()
                 return request({
@@ -1200,30 +1200,23 @@
                 })
             },
 
+            /** 点击竣工 开启弹窗*/
             closeSnapshot(){
                 //竣工弹窗
                 this.completionWindow= true
             },
 
-            preserveData(){
-                this.ifDeleteData = false,
-                this.jungong(),
-                //竣工弹窗
-                this.completionWindow= false,
-                //竣工路径
-                this.completionUrl= ''
-            },
+
             deleteData(){
                 this.ifDeleteData = true,
-                this.jungong(),
+                this.completion(),
 
                 //竣工弹窗
                 this.completionWindow= false,
                 //竣工路径
                 this.completionUrl= ''
             },
-
-            jungong(){
+            completion(){
                 return request({
                     url: '/advanced/SnapshotFunction/threadInterrupt/' + this.ifDeleteData ,
                     method:'post',

@@ -283,6 +283,7 @@ class SnapshotTimed  extends TimerTask{
             if ( SnapshotFunction.deleteOrSave.get(loginUser.getUsername()) ){
                 String startTime = snapshotTaskTime.getStartTime();
                 String endTime =  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                System.err.println("开始时间："+startTime + "结束时间："+ endTime);
                 ISwitchScanResultService switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
 
                 String temProName = "光衰";

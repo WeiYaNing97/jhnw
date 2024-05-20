@@ -233,7 +233,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where  switch_ip LIKE CONCAT(#{ip} , ':%')
         and tem_pro_name = #{temProName}
         and #{endTime} >= create_time
-        and create_time > #{startTime}
+        and create_time >= #{startTime}
     </delete>
 
     <delete id="deleteSwitchScanResultByIds" parameterType="String">
