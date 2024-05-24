@@ -137,7 +137,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectSwitchScanResultVo"/>
         where  switch_ip LIKE CONCAT(#{switchIp} , ':%') ORDER BY id DESC LIMIT 1;
     </select>
-        
+
+    <select id="getPojoListByIP" parameterType="String" resultMap="SwitchScanResultResult">
+        <include refid="selectSwitchScanResultVo"/>
+        where  switch_ip LIKE CONCAT(#{switchIp} , ':%');
+    </select>
+
     <insert id="insertSwitchScanResult" parameterType="SwitchScanResult" useGeneratedKeys="true" keyProperty="id">
         insert into switch_scan_result
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -236,6 +241,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         and create_time >= #{startTime}
     </delete>
 
+    <select id="selectSwitchScanResultByIPAndTime" parameterType="SwitchScanResult" resultMap="SwitchScanResultResult">
+        <include refid="selectSwitchScanResultVo"/>
+        where  switch_ip LIKE CONCAT(#{ip} , ':%')
+        and tem_pro_name = #{temProName}
+        and #{endTime} >= create_time
+        and create_time >= #{startTime}
+    </select>
+
     <delete id="deleteSwitchScanResultByIds" parameterType="String">
         delete from switch_scan_result where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
@@ -257,6 +270,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </select>
+    <select id="selectDynamicInformation" resultType="java.util.List">
+        SELECT dynamic_information FROM switch_scan_result
     </select>
 
     <select id="selectSwitchScanResultListByIds" resultMap="SwitchProblemVO">

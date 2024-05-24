@@ -92,12 +92,39 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("查询交换机问题列表")
     public List<TotalQuestionTable> selectPojoList(TotalQuestionTable totalQuestionTable)
     {
-        Information information = new Information();
-        information.setDeviceBrand(totalQuestionTable.getBrand());
-        information.setDeviceModel(totalQuestionTable.getType());
+        /** 品牌 型号 版本 子版本 */
+        if (totalQuestionTable.getBrand()!=null){
+            totalQuestionTable.setBrand(totalQuestionTable.getBrand().equals("")?null:totalQuestionTable.getBrand());
+        }
+        if (totalQuestionTable.getType()!=null){
+            totalQuestionTable.setType(totalQuestionTable.getType().equals("")?null:totalQuestionTable.getType());
+        }
+        if (totalQuestionTable.getFirewareVersion()!=null){
+            totalQuestionTable.setFirewareVersion(totalQuestionTable.getFirewareVersion().equals("")?null:totalQuestionTable.getFirewareVersion());
+        }
+        if (totalQuestionTable.getSubVersion()!=null){
+            totalQuestionTable.setSubVersion(totalQuestionTable.getSubVersion().equals("")?null:totalQuestionTable.getSubVersion());
+        }
+        /** 分类 名称 自定义名称*/
+        if (totalQuestionTable.getTemProName()!=null){
+            totalQuestionTable.setTemProName(totalQuestionTable.getTemProName().equals("")?null:totalQuestionTable.getTemProName());
+        }
+        if (totalQuestionTable.getTypeProblem()!=null){
+            totalQuestionTable.setTypeProblem(totalQuestionTable.getTypeProblem().equals("")?null:totalQuestionTable.getTypeProblem());
+        }
+        if (totalQuestionTable.getProblemName()!=null){
+            totalQuestionTable.setProblemName(totalQuestionTable.getProblemName().equals("")?null:totalQuestionTable.getProblemName());
+        }
 
-        List<Information> informationlist = informationService.selectInformationList(information);
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
+        /** 交换机问题回显 右侧显示。
+         * 不记得为什么要显示只有 品牌型号的数据 所以先注销*/
+        /*Information information = new Information();
+        information.setDeviceBrand(totalQuestionTable.getBrand().equals("")?null:totalQuestionTable.getBrand());
+        information.setDeviceModel(totalQuestionTable.getType().equals("")?null:totalQuestionTable.getType());
+        List<Information> informationlist = informationService.selectInformationList(information);
+
         if (informationlist.size()!=0){
             for (Information pojo:informationlist){
                 TotalQuestionTable totalQuestionTablePjo = new TotalQuestionTable();
@@ -105,7 +132,8 @@ public class TotalQuestionTableController extends BaseController
                 totalQuestionTablePjo.setType(pojo.getDeviceModel());
                 list.add(totalQuestionTablePjo);
             }
-        }
+        }*/
+
         return list;
     }
 

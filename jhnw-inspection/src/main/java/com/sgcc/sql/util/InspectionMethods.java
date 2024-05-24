@@ -386,12 +386,20 @@ public class InspectionMethods {
             problemScanLogicVO.setMatchContent(matchContent);
         }
         if (problemScanLogic.getAction()!=null){
+
             String action = problemScanLogic.getAction();
+
             if (action.indexOf("full")!=-1){
                 problemScanLogicVO.setCursorRegion("1");
                 action=action.replace("full","");
                 problemScanLogic.setAction(action);
             }
+            if (action.indexOf("all")!=-1){
+                problemScanLogicVO.setCursorRegion("2");
+                action=action.replace("all","");
+                problemScanLogic.setAction(action);
+            }
+
             problemScanLogicVO.setAction(action);
             if (!(problemScanLogic.getRelativePosition().equals("null"))){
                 String relativePosition = problemScanLogic.getRelativePosition();
@@ -897,6 +905,7 @@ public class InspectionMethods {
      * @return
      */
     public static List<ProblemScanLogic> definitionProblem(List<ProblemScanLogic> pojoList){
+
         //根据 set 特性 获取分析ID、不重复
         HashSet<String> hashSet = new HashSet<>();
         for (ProblemScanLogic problemScanLogic:pojoList){
@@ -926,7 +935,7 @@ public class InspectionMethods {
             String relativePosition = pojo.getRelativePosition();
             String matchContent = pojo.getMatchContent();
             /* 2023.10.12 前端数据传入 出现问题 false数据与 true数据不一致*/
-            if (relativePosition != null && matchContent != null) {
+            if (relativePosition != null ) {/* && matchContent != null   匹配内容  */
                 problemScanLogic.setRelativePosition(relativePosition);
             }
             if (matchContent != null) {

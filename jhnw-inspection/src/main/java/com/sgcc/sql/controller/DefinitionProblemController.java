@@ -264,9 +264,28 @@ public class DefinitionProblemController extends BaseController {
                 /*当数据不为集合的最后一个元素时
                 * 需要判断 下一条数据是否为 命令 如果是命令 则 分析数据应该标明下一条为命令表数据*/
                 if (number+1<jsonPojoList.size()){
+                    boolean isCommand = false;
+                    /** 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
+                     * 获取下一ID 判断下一ID对应的数据 是否包含 command
+                     * 如果此方法不能实现，则获取下一元素 判断是否包含 command  但是此方法有风险。因为下一条要执行的数据 不一定是集合的下一个元素。*/
+                    String[] split = jsonPojoList.get(number).split("\"nextIndex\":");
+                    if (split.length == 2){
 
-                    // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
-                    if (jsonPojoList.get(number+1).indexOf("command") !=-1){
+                        String firstNumberFromString = MyUtils.getFirstNumberFromString(split[1]);
+                        for (String jsonPojo:jsonPojoList){
+                            if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
+                                    &&jsonPojo.indexOf("command") !=-1){
+                                isCommand = true;
+                                System.err.println(" id符合，且包含 command");
+                            }
+                        }
+                    }else if (jsonPojoList.get(number+1).indexOf("command") !=-1){
+                        System.err.println(" id符合，且包含 command");
+                        isCommand = true;
+                    }
+
+
+                    if (isCommand){
                         //本条是分析 下一条是 命令
                         //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
 
@@ -797,7 +816,8 @@ public class DefinitionProblemController extends BaseController {
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
 
-        /*根据 交换机问题实体类 获得命令集合和分析实体类集合*/
+        /** 根据 交换机问题实体类
+        获得命令集合和分析实体类集合*/
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
         if (scanLogicalEntityClass.size() == 0){
             return false;
@@ -805,6 +825,7 @@ public class DefinitionProblemController extends BaseController {
 
         /* 获取两个实体类集合*/
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+
         /* 获取两个实体类ID集合 */
         Set<String> problemScanLogicSet = problemScanLogics.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
         for (String id:problemScanLogicSet){
@@ -813,12 +834,19 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
+
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
         Set<String> commandLogicSet = commandLogicList.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
         for (String id:commandLogicSet){
             int i = commandLogicService.deleteCommandLogicById(id);
             if (i<=0){
                 return false;
+            }
+        }
+
+        for (int i=0 ;i<pojoList.size();i++){
+            if (pojoList.get(i).indexOf("undefined") != -1){
+                pojoList.set(i,pojoList.get(i).replace("undefined","null"));
             }
         }
 
@@ -1029,35 +1057,52 @@ public class DefinitionProblemController extends BaseController {
 
         analyzeConvertJson = (AnalyzeConvertJson) setNullIfEmpty(analyzeConvertJson);
 
+        /** 如果ifCommand是命令 则下一ID为命令 */
         analyzeConvertJson = deformation(analyzeConvertJson, ifCommand);
 
         return analyzeConvertJson;
     }
 
     public static AnalyzeConvertJson deformation(AnalyzeConvertJson analyzeConvertJson,String ifCommand) {
+
+        /** 行,列偏移
+         * RelativePosition */
+        /* 列偏移 目前无用 默认为0*/
         if (analyzeConvertJson.getPosition() == null){
             analyzeConvertJson.setPosition("0");
         }
+        /* 行偏移
+        * 当前行
+        * 全文起始
+        * 自定义行  相对于上一行来说*/
         if (analyzeConvertJson.getRelative() == null){
             analyzeConvertJson.setRelative("0");
         }
 
-
+        /** 取词逻辑*/
+        /* 取值逻辑中 取出的值是否可以显示 */
         if (analyzeConvertJson.getExhibit()!=null && analyzeConvertJson.getExhibit().equals("显示")){
             analyzeConvertJson.setExhibit("是");
         }else {
             analyzeConvertJson.setExhibit("否");
         }
 
-
-        if (analyzeConvertJson.getMatched() != null || (analyzeConvertJson.getAction() != null && analyzeConvertJson.getAction().indexOf("取词")!=-1)){
-            /** 相对位置 */
+        /** 匹配 、 取词 逻辑*/
+        if (analyzeConvertJson.getMatched() != null
+                || (analyzeConvertJson.getAction() != null && analyzeConvertJson.getAction().indexOf("取词")!=-1)){
+            /** 行,列偏移 相对位置 */
             if (analyzeConvertJson.getRelative().indexOf("&")!=-1){
-                /* 位置 : 按行和全文 */
+                /** present&full
+                 * 位置 : 按行和全文
+                 * 第一个参数为 从当前行匹配
+                 * 第二个参数为 进行全文匹配*/
                 String[] relatives = analyzeConvertJson.getRelative().split("&");
                 analyzeConvertJson.setRelativePosition(relatives[0] +"," + analyzeConvertJson.getPosition());
             }else {
+
+                /* 行偏移 */
                 analyzeConvertJson.setRelativePosition(analyzeConvertJson.getRelative() +"," + analyzeConvertJson.getPosition());
+
             }
         }
 
@@ -1065,10 +1110,14 @@ public class DefinitionProblemController extends BaseController {
         /*当 analyzeConvertJson.getCommand() 属性值为 null 时 则 下一条分析数据为命令
          *如果下一条分析数据为命令时 则 下一条IDtNextId  要赋值给 命令ID
          * 然后下一条ID tNextId 置空 null  */
-        if (ifCommand.equals("命令")){
+        if (analyzeConvertJson.getTrueFalse() !=null && analyzeConvertJson.getTrueFalse() .equals("失败") && ifCommand.equals("命令")){
             /** true下一条命令索引 */
-            analyzeConvertJson.settComId( analyzeConvertJson.gettNextId() );
-            analyzeConvertJson.settNextId(null);
+            analyzeConvertJson.setfComId( analyzeConvertJson.getNextIndex() );
+            analyzeConvertJson.setfLine(analyzeConvertJson.getPageIndex());
+        }else if (ifCommand.equals("命令")){
+            /** true下一条命令索引 */
+            analyzeConvertJson.settComId( analyzeConvertJson.getNextIndex() );
+            analyzeConvertJson.settLine(analyzeConvertJson.getPageIndex());
         }
 
         //如果动作属性不为空  且动作属性参数为 有无问题时  需要清空动作属性
@@ -1085,7 +1134,7 @@ public class DefinitionProblemController extends BaseController {
          * 如果 trueFalse 为 失败时
          * 则 成功行号、成功下一条分析、成功下一条命令 都复制给 失败对应 属性
          */
-        if (analyzeConvertJson.getTrueFalse() !=null && analyzeConvertJson.getTrueFalse() .equals("失败")){
+        if (analyzeConvertJson.getTrueFalse() !=null && analyzeConvertJson.getTrueFalse() .equals("失败") && ifCommand.equals("分析")){
 
             //如果实体类是 失败 则 把默认成功数据 赋值给 失败数据
             analyzeConvertJson.setfLine(analyzeConvertJson.getPageIndex());
@@ -1096,7 +1145,7 @@ public class DefinitionProblemController extends BaseController {
             analyzeConvertJson.settComId(null);
             analyzeConvertJson.settLine(null);
 
-        }else {
+        }else if (ifCommand.equals("分析")){
             analyzeConvertJson.settNextId(analyzeConvertJson.getNextIndex());
             analyzeConvertJson.settLine(analyzeConvertJson.getPageIndex());
         }
@@ -1115,8 +1164,20 @@ public class DefinitionProblemController extends BaseController {
         }
 
         /** 动作 */
-        if (analyzeConvertJson.getAction()!=null && analyzeConvertJson.getAction().equals("取词") && analyzeConvertJson.getCursorRegion()!=null && analyzeConvertJson.getMatched() ==null){
-            analyzeConvertJson.setAction(analyzeConvertJson.getAction() + ( analyzeConvertJson.getCursorRegion().equals("1")?"full":""));
+        if (analyzeConvertJson.getAction()!=null
+                && analyzeConvertJson.getAction().equals("取词")
+                && analyzeConvertJson.getCursorRegion()!=null
+                && analyzeConvertJson.getMatched() ==null){
+            switch (analyzeConvertJson.getCursorRegion()){
+                case "1":
+                    analyzeConvertJson.setAction(analyzeConvertJson.getAction() + "full");
+                    break;
+                case "0":
+                    analyzeConvertJson.setAction(analyzeConvertJson.getAction());
+                    break;
+                case "2":
+                    analyzeConvertJson.setAction(analyzeConvertJson.getAction()+"all");
+            }
         }
 
 

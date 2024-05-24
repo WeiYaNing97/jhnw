@@ -19,12 +19,34 @@ public interface ReturnRecordMapper
     public ReturnRecord selectReturnRecordById(Long id);
 
     /**
+     * 查询返回信息表 单表数据
+     *
+     * @param id 返回信息主键
+     * @return 返回信息
+     */
+    ReturnRecord selectPojoSingleTableById(Long id);
+
+    /**
+     * 查询返回信息表 单表数据集合
+     *
+     * @param ids 返回信息主键数组
+     * @return 返回信息
+     */
+    List<ReturnRecord> selectPojoSingleTableListById(Long[] ids);
+
+    /**
      * 查询返回信息列表
      * 
      * @param returnRecord 返回信息
      * @return 返回信息集合
      */
     public List<ReturnRecord> selectReturnRecordList(ReturnRecord returnRecord);
+
+
+    /** 查询数据表所有信息 */
+    List<ReturnRecord> selectReturnRecordAllList();
+
+
 
     /**
      * 新增返回信息
@@ -64,6 +86,7 @@ public interface ReturnRecordMapper
     * @return: java.util.List<com.sgcc.sql.domain.ReturnRecord>
     */
     List<ReturnRecord> selectReturnRecordListByDataTime(String data);
+    List<ReturnRecord> seletReturnRecordByDate(@Param("stringData") String stringData);
 
     int deleteReturnRecordByDate(@Param("stringData") String stringData);
 

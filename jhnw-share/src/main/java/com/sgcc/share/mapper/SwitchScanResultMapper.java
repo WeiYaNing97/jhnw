@@ -28,6 +28,14 @@ public interface SwitchScanResultMapper
      * @return
      */
     SwitchScanResult getTheLatestDataByIP(String ip);
+
+    /**
+     * @Description 根据IP查询交换机扫描结果 集合
+     * @param ip	 交换机IP
+     * @return
+     */
+    public List<SwitchScanResult> getPojoListByIP(String ip);
+
     /**
      * 查询交换机扫描结果列表
      * 
@@ -105,4 +113,12 @@ public interface SwitchScanResultMapper
                                           @Param("temProName") String temProName,
                                           @Param("startTime") String startTime,
                                           @Param("endTime") String endTime);
+
+    /* 查询交换机扫描结果表 取词参数字段所有数据 */
+    List<String> selectDynamicInformation();
+
+    List<SwitchScanResult> selectSwitchScanResultByIPAndTime(@Param("ip") String ip,
+                                                             @Param("temProName") String temProName,
+                                                             @Param("startTime") String startTime,
+                                                             @Param("endTime") String endTime);
 }

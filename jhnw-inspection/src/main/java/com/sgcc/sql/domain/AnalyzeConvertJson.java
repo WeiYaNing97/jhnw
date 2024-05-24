@@ -18,10 +18,10 @@ public class AnalyzeConvertJson {
     private String resultCheckId;/*返回结果验证id*/
     private String matched;/*匹配*/
 
-    private String relative;/*相对位置*/
+    private String relative;/*相对位置  行偏移*/
     private String position;
     private String relativePosition;
-    private String cursorRegion;
+    private String cursorRegion; /*0：当前位置  ，  1：全文起始     */
 
 
     private String matchContent;/*匹配内容*/

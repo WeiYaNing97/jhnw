@@ -236,15 +236,21 @@ public class ScanLogicMethods {
         }*/
 
         //取词操作
-        String wordSelection_string = FunctionalMethods.wordSelection(
-                information_line_n,matchContent, //返回信息的一行     matchContent.trim() 提取关键字
-                relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
+        String wordSelection_string = null;
+        if (action.indexOf("all") != -1){
+            wordSelection_string = String.join("\r\n",return_information_array);
+        }else {
+            //取词操作
+            wordSelection_string = FunctionalMethods.wordSelection(
+                    information_line_n,matchContent, //返回信息的一行     matchContent.trim() 提取关键字
+                    relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
+        }
 
         /** 取词逻辑只有成功，但是如果取出为空 则为 取词失败 */
         if (wordSelection_string == null){
 
             /* action.indexOf("full") != -1 取词包含 full  则 说明是全文取词 */
-            /* action 可能为 ： 取词、取词full*/
+            /* action 可能为 ： 取词、取词full、取词all*/
             if (action.indexOf("full") != -1){
                 return "continue";
             }
@@ -264,11 +270,11 @@ public class ScanLogicMethods {
 
         }
 
+        /* 提示前端 或 写入日志文件*/
         String subversionNumber = switchParameters.getSubversionNumber();
         if (subversionNumber!=null){
             subversionNumber = "、"+subversionNumber;
         }
-
         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                 "TrueAndFalse:" +
                         "IP地址为:"+switchParameters.getIp()+","+

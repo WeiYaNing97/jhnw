@@ -261,6 +261,7 @@
               <el-select v-model="item.cursorRegion" placeholder="当前位置" style="width: 110px">
                 <el-option label="当前位置" value="0"></el-option>
                 <el-option label="全文起始" value="1"></el-option>
+                <el-option label="取全文" value="2"></el-option>
                 <!--              <el-option label="自定义行" value="ding" disabled></el-option>-->
               </el-select>
             </el-form-item>

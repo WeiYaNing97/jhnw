@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.share.mapper.NonRelationalDataTableMapper">
+    
+    <resultMap type="NonRelationalDataTable" id="NonRelationalDataTableResult">
+        <result property="nonRelationalId"    column="non_relational_id"    />
+        <result property="nonRelationalData"    column="non_relational_data"    />
+    </resultMap>
+
+    <sql id="selectNonRelationalDataTableVo">
+        select non_relational_id, non_relational_data from non_relational_data_table
+    </sql>
+
+    <select id="selectNonRelationalDataTableList" parameterType="NonRelationalDataTable" resultMap="NonRelationalDataTableResult">
+        <include refid="selectNonRelationalDataTableVo"/>
+        <where>  
+            <if test="nonRelationalId != null  and nonRelationalId != ''"> and non_relational_id = #{nonRelationalId}</if>
+            <if test="nonRelationalData != null  and nonRelationalData != ''"> and non_relational_data = #{nonRelationalData}</if>
+        </where>
+    </select>
+    
+    <select id="selectNonRelationalDataTableByNonRelationalId" parameterType="String" resultMap="NonRelationalDataTableResult">
+        <include refid="selectNonRelationalDataTableVo"/>
+        where non_relational_id = #{nonRelationalId}
+    </select>
+        
+    <insert id="insertNonRelationalDataTable" parameterType="NonRelationalDataTable">
+        insert into non_relational_data_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="nonRelationalId != null and nonRelationalId != ''">non_relational_id,</if>
+            <if test="nonRelationalData != null and nonRelationalData != ''">non_relational_data,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="nonRelationalId != null and nonRelationalId != ''">#{nonRelationalId},</if>
+            <if test="nonRelationalData != null and nonRelationalData != ''">#{nonRelationalData},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNonRelationalDataTable" parameterType="NonRelationalDataTable">
+        update non_relational_data_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="nonRelationalData != null and nonRelationalData != ''">non_relational_data = #{nonRelationalData},</if>
+        </trim>
+        where non_relational_id = #{nonRelationalId}
+    </update>
+
+    <delete id="deleteNonRelationalDataTableByNonRelationalId" parameterType="String">
+        delete from non_relational_data_table where non_relational_id = #{nonRelationalId}
+    </delete>
+
+    <delete id="deleteNonRelationalDataTableByNonRelationalIds" parameterType="String">
+        delete from non_relational_data_table where non_relational_id in 
+        <foreach item="nonRelationalId" collection="array" open="(" separator="," close=")">
+            #{nonRelationalId}
+        </foreach>
+    </delete>
+</mapper>

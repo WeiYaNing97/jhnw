@@ -1,5 +1,7 @@
 # 配置
 configuration:
+  #地区编码
+  regionalCode: HS0001
   #自定义分隔符
   customDelimiter: "=:="
   # 最小超时

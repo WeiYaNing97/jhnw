@@ -23,29 +23,100 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 
     <select id="selectReturnRecordList" parameterType="ReturnRecord" resultMap="ReturnRecordResult">
-        <include refid="selectReturnRecordVo"/>
-        <where>
-            <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
-            <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
+        SELECT
+            rr.id,
+            rr.user_name,
+            rr.switch_ip,
+            rr.brand,
+            rr.type,
+            rr.fireware_version,
+            rr.sub_version,
+            rr.current_comm_log,
+            nrdt.non_relational_data AS current_return_log,
+            rr.current_identifier,
+            rr.create_time
+        FROM
+            (SELECT
+            id,
+            user_name,
+            switch_ip,
+            brand,
+            type,
+            fireware_version,
+            sub_version,
+            current_comm_log,
+            current_return_log,
+            current_identifier,
+            create_time
+            FROM
+            `return_record`
+            <where>
+                <if test="userName != null  and userName != ''"> and user_name = #{userName}</if>
+                <if test="switchIp != null  and switchIp != ''"> and switch_ip = #{switchIp}</if>
 
-            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
-            <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
+                <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+                <if test="type != null  and type != ''"> and LOWER(type) = LOWER(#{type})</if>
 
-            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
-            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
-            <if test="currentCommLog != null  and currentCommLog != ''"> and current_comm_log = #{currentCommLog}</if>
-            <if test="currentReturnLog != null  and currentReturnLog != ''"> and current_return_log = #{currentReturnLog}</if>
-            <if test="currentIdentifier != null  and currentIdentifier != ''"> and current_identifier = #{currentIdentifier}</if>
-        </where>
+                <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+                <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+                <if test="currentCommLog != null  and currentCommLog != ''"> and current_comm_log = #{currentCommLog}</if>
+                <if test="currentReturnLog != null  and currentReturnLog != ''"> and current_return_log = #{currentReturnLog}</if>
+                <if test="currentIdentifier != null  and currentIdentifier != ''"> and current_identifier = #{currentIdentifier}</if>
+            </where>
+            ) rr
+            LEFT JOIN non_relational_data_table nrdt
+        ON nrdt.non_relational_id = rr.current_return_log
         ORDER BY
-        create_time DESC
+        rr.create_time DESC
     </select>
     
     <select id="selectReturnRecordById" parameterType="Long" resultMap="ReturnRecordResult">
+        SELECT
+            rr.id,
+            rr.user_name,
+            rr.switch_ip,
+            rr.brand,
+            rr.type,
+            rr.fireware_version,
+            rr.sub_version,
+            rr.current_comm_log,
+            nrdt.non_relational_data AS current_return_log,
+            rr.current_identifier,
+            rr.create_time
+        FROM
+            (SELECT
+                id,
+                user_name,
+                switch_ip,
+                brand,
+                type,
+                fireware_version,
+                sub_version,
+                current_comm_log,
+                current_return_log,
+                current_identifier,
+                create_time
+            FROM
+                `return_record`
+            WHERE
+                id = #{id}
+            ) rr
+            LEFT JOIN non_relational_data_table nrdt
+        ON nrdt.non_relational_id = rr.current_return_log
+    </select>
+    <select id="selectPojoSingleTableById" parameterType="Long" resultMap="ReturnRecordResult">
         <include refid="selectReturnRecordVo"/>
         where id = #{id}
     </select>
-        
+
+    <select id="selectPojoSingleTableListById" resultMap="ReturnRecordResult">
+        <include refid="selectReturnRecordVo"/>
+        WHERE id IN
+        <foreach item="id" index="index" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <insert id="insertReturnRecord" parameterType="ReturnRecord" useGeneratedKeys="true" keyProperty="id">
     insert into return_record
     <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -107,11 +178,51 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <select id="selectReturnRecordListByDataTime" resultMap="ReturnRecordResult">
-        <include refid="selectReturnRecordVo"/>
+        SELECT
+            rr.id,
+            rr.user_name,
+            rr.switch_ip,
+            rr.brand,
+            rr.type,
+            rr.fireware_version,
+            rr.sub_version,
+            rr.current_comm_log,
+            nrdt.non_relational_data AS current_return_log,
+            rr.current_identifier,
+            rr.create_time
+        FROM
+            (SELECT
+            id,
+            user_name,
+            switch_ip,
+            brand,
+            type,
+            fireware_version,
+            sub_version,
+            current_comm_log,
+            current_return_log,
+            current_identifier,
+            create_time
+            FROM
+            `return_record`
+            WHERE
         where create_time like CONCAT(#{data}, '%')
+            ) rr
+            LEFT JOIN non_relational_data_table nrdt
+        ON nrdt.non_relational_id = rr.current_return_log
     </select>
 
     <delete id="deleteReturnRecordByDate" parameterType="String">
         delete from return_record where ${stringData}
     </delete>
+
+    <select id="seletReturnRecordByDate" resultMap="ReturnRecordResult">
+        <include refid="selectReturnRecordVo"/>
+        where ${stringData}
+    </select>
+
+    <select id="selectReturnRecordAllList" resultMap="ReturnRecordResult">
+        <include refid="selectReturnRecordVo"/>
+    </select>
+
 </mapper>
