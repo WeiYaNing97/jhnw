@@ -61,7 +61,7 @@ public class SshConnect implements Runnable {
         sshInformation.setIp(this.ip);
         sshInformation.setPort(22);
         sshInformation.setEndEcho("#,?,>,:,]");
-        // todo --More--
+        //交换机命令返回结果未结束的关键字 例如： --More--
         sshInformation.setMoreEcho("---- More ----");//"---- More ----"
         sshInformation.setMoreCmd(sshInformation.getBLANKSPACE());
         sshInformation.setJsch(null);
@@ -327,7 +327,7 @@ public class SshConnect implements Runnable {
                     //private String moreEcho = "---- More ----";
                     //接收交换机返回信息的最后信息 lineStrs[lineStrs.length - 1]
                     //接收交换机返回信息的最后信息 是否是 MoreEcho 是 则没有返回完全
-                    // todo --More--
+                    //交换机命令返回结果未结束的关键字 例如：  --More--
                     boolean iftrue = false;
 
                     String moreEcho = sshInformation.getMoreEcho();

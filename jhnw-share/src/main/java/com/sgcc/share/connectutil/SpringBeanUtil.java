@@ -14,7 +14,6 @@ public class SpringBeanUtil implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws
             BeansException {
-        // TODO Auto-generated method stub
         SpringBeanUtil.applicationContext = applicationContext;
     }
 

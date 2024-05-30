@@ -90,39 +90,77 @@ public class DefinitionProblemController extends BaseController {
     }
 
     /**
-     * @method: 定义获取基本信息分析数据插入
-     * @Param: [jsonPojoList]
-     * @return: void
-     */
+    * @Description  定义获取基本信息分析数据插入
+    * @author charles
+    * @createTime 2024/5/30 16:03
+    * @desc
+    * @param loginUser	 程序登录信息
+     * @param jsonPojoList	命令及分析逻辑 字符串集合
+     * @param basicInformationId	问题表数据ID
+     * @return
+    */
     public boolean insertInformationAnalysisMethod(LoginUser loginUser,@RequestBody List<String> jsonPojoList,Long basicInformationId){//@RequestBody List<String> jsonPojoList
+
         if (jsonPojoList.size() == 0){
             //传输登陆人姓名 及问题简述
-
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:获取交换机基本信息分析数据非法为空\r\n");
-
         }
 
-        System.err.println("定义获取基本信息分析数据插入\r\n");
+        System.err.println("定义获取基本信息分析数据插入:\r\n");
         for (String jsonPojo:jsonPojoList){
             System.err.println(jsonPojo);
         }
 
+        // 命令集合 和 分析逻辑集合
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
-
+        // 问题表数据ID  截取前8位 四位问题编码和四位地区编码
         String problem_area_code = (basicInformationId + "").substring(0, 8);
 
         /*遍历分析数据
         * 如果分析数据中含有command 则 是命令 则 进入 String 转 命令实体类方法
         * 如果分析数据中不含有command 则 是分析 则 进入 String 转 分析实体类方法*/
-        for (int number=0;number<jsonPojoList.size();number++){
+        for (int number = 0; number < jsonPojoList.size(); number++){
 
-            // 如果 前端传输字符串  存在 command  说明 是命令
+            boolean isCommand = false;
+            /** 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
+             * 获取下一ID 判断下一ID对应的数据 是否包含 command
+             * 如果此方法不能实现，则获取下一元素 判断是否包含 command  但是此方法有风险。因为下一条要执行的数据 不一定是集合的下一个元素。*/
+            String[] split = jsonPojoList.get(number).split("\"nextIndex\":");
+            if (split.length == 2){
+                String firstNumberFromString = MyUtils.getEncodingID(split[1]);
+                for (String jsonPojo:jsonPojoList){
+                    if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
+                            &&jsonPojo.indexOf("command") !=-1){
+                        isCommand = true;
+                        System.err.println(" id符合，且包含 command");
+                    }
+                }
+            }else if (number+1<jsonPojoList.size() && jsonPojoList.get(number+1).indexOf("command") !=-1){
+                System.err.println(" 集合下一元素 包含 command ");
+                isCommand = true;
+            }
+
+
+
+            // 如果 前端传输字符串  存在 command  说明 是命令数据
             if (jsonPojoList.get(number).indexOf("command")!=-1){
-                CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code, jsonPojoList.get(number));
-                commandLogicList.add(commandLogic);
-                continue;
+
+                if ( isCommand  ){
+                    // 命令数据解析才成为命令实体 并添加到命令集合中
+                    CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code, jsonPojoList.get(number),"命令");
+                    commandLogicList.add(commandLogic);
+                    continue;
+                }else {
+                    // 命令数据解析才成为命令实体 并添加到命令集合中
+                    CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code, jsonPojoList.get(number),"分析");
+                    commandLogicList.add(commandLogic);
+                    continue;
+                }
+
+
+
             }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
                 /*如果分析数据中不含有command 则 是分析 则 进入 String 转 分析实体类方法
                 * 如果当前集合元素是分析 则 需要考虑下一集合元素是 命令 还是分析
@@ -130,8 +168,9 @@ public class DefinitionProblemController extends BaseController {
                 * 如果是分析 则 在 Sting 转 分析实体类中 传入 分析属性值
                 * 这会影响到 前端数据传入的 下一ID 的 赋值问题*/
                 if (number+1<jsonPojoList.size()){
+
                     // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
-                    if (jsonPojoList.get(number+1).indexOf("command") !=-1){
+                    if ( isCommand  ){
                         //本条是分析 下一条是 命令
                         /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
                         problemScanLogicList.add(problemScanLogic);*/
@@ -257,43 +296,48 @@ public class DefinitionProblemController extends BaseController {
 
         /*遍历数据 属于命令还是分析数据*/
         for (int number=0;number<jsonPojoList.size();number++){
+
+            boolean isCommand = false;
+            /** 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
+             * 获取下一ID 判断下一ID对应的数据 是否包含 command
+             * 如果此方法不能实现，则获取下一元素 判断是否包含 command  但是此方法有风险。因为下一条要执行的数据 不一定是集合的下一个元素。*/
+            String[] split = jsonPojoList.get(number).split("\"nextIndex\":");
+            if (split.length == 2){
+
+                String firstNumberFromString = MyUtils.getEncodingID(split[1]);
+                for (String jsonPojo:jsonPojoList){
+                    if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
+                            &&jsonPojo.indexOf("command") !=-1){
+                        isCommand = true;
+                        System.err.println(" id符合，且包含 command");
+                    }
+                }
+            }else if ( number+1<jsonPojoList.size() && jsonPojoList.get(number+1).indexOf("command") !=-1){
+                System.err.println(" 集合下一元素 包含 command ");
+                isCommand = true;
+            }
+
             // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
-
-                CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,jsonPojoList.get(number));
-                commandLogicList.add(commandLogic);
-                continue;
+                if (isCommand){
+                    CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,jsonPojoList.get(number),"命令");
+                    commandLogicList.add(commandLogic);
+                    continue;
+                }else {
+                    CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,jsonPojoList.get(number),"分析");
+                    commandLogicList.add(commandLogic);
+                    continue;
+                }
 
             }else if (!(jsonPojoList.get(number).indexOf("command") !=-1) && !(jsonPojoList.get(number).indexOf("method") !=-1)){
 
                 /*当数据不为集合的最后一个元素时
                 * 需要判断 下一条数据是否为 命令 如果是命令 则 分析数据应该标明下一条为命令表数据*/
                 if (number+1<jsonPojoList.size()){
-                    boolean isCommand = false;
-                    /** 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
-                     * 获取下一ID 判断下一ID对应的数据 是否包含 command
-                     * 如果此方法不能实现，则获取下一元素 判断是否包含 command  但是此方法有风险。因为下一条要执行的数据 不一定是集合的下一个元素。*/
-                    String[] split = jsonPojoList.get(number).split("\"nextIndex\":");
-                    if (split.length == 2){
-
-                        String firstNumberFromString = MyUtils.getEncodingID(split[1]);
-                        for (String jsonPojo:jsonPojoList){
-                            if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
-                                    &&jsonPojo.indexOf("command") !=-1){
-                                isCommand = true;
-                                System.err.println(" id符合，且包含 command");
-                            }
-                        }
-                    }else if (jsonPojoList.get(number+1).indexOf("command") !=-1){
-                        System.err.println(" id符合，且包含 command");
-                        isCommand = true;
-                    }
-
 
                     if (isCommand){
                         //本条是分析 下一条是 命令
                         //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
-
                         AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code,jsonPojoList.get(number), "命令");
                         ProblemScanLogic pojo = new ProblemScanLogic();
                         pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
@@ -595,7 +639,7 @@ public class DefinitionProblemController extends BaseController {
                     commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
                     CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandid);
 
-                    if (commandLogic == null || commandLogic.getProblemId() == null){
+                    if (commandLogic == null || (commandLogic.getProblemId() == null && commandLogic.getEndIndex() == null )){
                         HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
                         ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
                         ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
@@ -1057,40 +1101,36 @@ public class DefinitionProblemController extends BaseController {
 
 
     /**
-    * @Description 字符串 转化为 分析实体类
+    * @Description @Description 字符串 转化为 分析实体类
     * @author charles
-    * @createTime 2024/1/10 10:19
+    * @createTime 2024/5/30 15:56
     * @desc
-    * @param
+    * @param problem_area_code	问题编码 + 区域编码
+     * @param information	分析数据
+     * @param ifCommand	 "命令" || "分析"
      * @return
     */
     public static AnalyzeConvertJson getAnalyzeConvertJson(String problem_area_code,String information,String ifCommand) {
-
-        /*
-
-        {"targetType":"takeword","onlyIndex":1716950612245,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"1","nextIndex":"SCRT00011716946238058","length":"nullnull","pageIndex":2}
-        {"targetType":"takeword","onlyIndex":1716950619965,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"2","nextIndex":"SCRT00011716946250825","length":"nullnull","pageIndex":4}
-
+        /**
+        TODO 修改分析逻辑，前端提交的数据有问题  "length":"nullnull"
+            {"targetType":"takeword","onlyIndex":1716950612245,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"1","nextIndex":"SCRT00011716946238058","length":"nullnull","pageIndex":2}
+            {"targetType":"takeword","onlyIndex":1716950619965,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"2","nextIndex":"SCRT00011716946250825","length":"nullnull","pageIndex":4}
         */
-
-        information = information.replace("\"null\"","\"\"");
+        //information = information.replace("\"null\"","\"\"");
         information = information.replace("null","");
-
+        // 提交的分析数据，由Json格式 转化为实体类
         AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(information, AnalyzeConvertJson.class);
-
-        analyzeConvertJson = (AnalyzeConvertJson) setNullIfEmpty(analyzeConvertJson);
-
-        /** 如果ifCommand是命令 则下一ID为命令 */
+        // 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+        analyzeConvertJson = (AnalyzeConvertJson) MyUtils.setNullIfEmpty(analyzeConvertJson);
+        // 如果ifCommand是命令 则下一ID为命令
         analyzeConvertJson = deformation(problem_area_code,analyzeConvertJson, ifCommand);
-
         return analyzeConvertJson;
     }
 
     public static AnalyzeConvertJson deformation(String problem_area_code,AnalyzeConvertJson analyzeConvertJson,String ifCommand) {
 
-        /** 行,列偏移
-         * RelativePosition */
-        /* 列偏移 目前无用 默认为0*/
+        // 行,列偏移   RelativePosition
+        // 列偏移 目前无用 默认为0
         if (analyzeConvertJson.getPosition() == null){
             analyzeConvertJson.setPosition("0");
         }
@@ -1231,39 +1271,5 @@ public class DefinitionProblemController extends BaseController {
 
 
         return analyzeConvertJson;
-    }
-
-
-
-    /**
-    * @Description 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
-    * @author charles
-    * @createTime 2024/5/26 11:11
-    * @desc
-    * @param obj
-     * @return
-    */
-    public static Object setNullIfEmpty(Object obj) {
-
-        Class<?> clazz = obj.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Object value = null;
-
-            try {
-                value = field.get(obj);
-                if (value instanceof String && ((String) value).equals("")) {
-                    field.set(obj, null);
-                }
-
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        return obj;
     }
 }

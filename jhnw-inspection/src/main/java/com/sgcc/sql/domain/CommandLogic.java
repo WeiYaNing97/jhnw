@@ -16,28 +16,21 @@ public class CommandLogic extends BaseEntity
     /** 主键索引 */
     @Excel(name = "主键")
     private String id;
-
     /** 状态 */
     @Excel(name = "状态")
     private String state;
-
     /** 命令行号 */
     @Excel(name = "命令行号")
     private String cLine;
-
-
     /** 命令 */
     @Excel(name = "命令")
     private String command;
-
     /** 返回结果验证id */
     @Excel(name = "验证类型")
     private String resultCheckId;
-
     /** 返回分析id */
     @Excel(name = "分析索引")
     private String problemId;
-
     /** 命令结束索引 */
     @Excel(name = "下一命令")
     private String endIndex;

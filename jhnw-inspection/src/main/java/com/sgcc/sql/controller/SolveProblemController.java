@@ -306,7 +306,7 @@ public class SolveProblemController {
                 //传参 修复问题命令ID
                 //返回 命令集合 和 参数集合
                 List<CommandLogic> commandLogics = queryCommandSet(switchScanResult.getComId() + "");
-                // todo JDK8新特性测试
+                //JDK8新特性测试
                 List<String> commandList = commandLogics.stream().map(m -> m.getCommand()).collect(Collectors.toList());
                 if (commandList.size() == 0){
 
@@ -474,7 +474,7 @@ public class SolveProblemController {
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                             switchParameters.getIp()+"发送:"+command+"\r\n");
 
-                    // todo command
+                    //command
                     /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
                      * 返回结果
                      * 如果交换机返回信息错误，则返回信息为 null*/
@@ -512,7 +512,7 @@ public class SolveProblemController {
 
                             returnRecord.setCurrentIdentifier(switchParameters.getIp()+ "出现故障:"+returnString+"\r\n");
                             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                                // todo command
+                                //command
                                 /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
                                  * 返回结果
                                  * 如果交换机返回信息错误，则返回信息为 null*/

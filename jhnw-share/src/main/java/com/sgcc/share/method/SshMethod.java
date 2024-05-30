@@ -103,7 +103,7 @@ public class SshMethod {
             }
             string = "\n" + string.trim();
         }
-        //  todo  --More--
+        //  交换机命令返回结果未返回结束的标志：  --More--
         if (notFinished == null || notFinished == ""){
             string = MyUtils.trimString(string);
             String[] stringSplit = string.split("\r\n");

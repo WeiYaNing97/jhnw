@@ -21,7 +21,7 @@ public class TelnetSwitchMethod {
     //public String moreEcho = "---- More ----";
     /**
      * @Author MRC
-     * @Description //TODO 打开telnet连接
+     * @Description  打开telnet连接
      * @Date 23:33 2019/12/27
      * @Param [ip, port]
      * @return com.alibaba.fastjson.JSONObject

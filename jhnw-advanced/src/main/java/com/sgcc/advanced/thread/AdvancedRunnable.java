@@ -80,16 +80,14 @@ public class AdvancedRunnable {
                     }
                 }
             }else {
-                    // todo 运行分析 线程 未定义该交换机获取基本信息命令及分析
+                    //运行分析未定义该交换机获取基本信息命令及分析
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
                             "系统信息:"+switchParameters.getIp() +
                                     "基本信息："+
                                     basicInformationList_ajaxResult.get("msg")+"\r\n");
 
             }
-
-            System.err.println("run()线程结束");
-
+            /*System.err.println("run()线程结束");*/
         }
     }
     /*线程命名*/

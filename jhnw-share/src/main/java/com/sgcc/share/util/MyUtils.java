@@ -679,7 +679,29 @@ public class MyUtils {
         return str.substring(0, index + 1);
     }
 
-
-
-
+    /**
+     * @Description 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+     * @author charles
+     * @createTime 2024/5/26 11:11
+     * @desc
+     * @param obj
+     * @return
+     */
+    public static Object setNullIfEmpty(Object obj) {
+        Class<?> clazz = obj.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            Object value = null;
+            try {
+                value = field.get(obj);
+                if (value instanceof String && ((String) value).equals("")) {
+                    field.set(obj, null);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return obj;
+    }
 }

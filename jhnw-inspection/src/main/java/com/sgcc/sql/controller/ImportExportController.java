@@ -63,14 +63,16 @@ public class ImportExportController {
         List<String> fileName = new ArrayList<>();
         /*问题表*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        /* todo 交换机问题表*/
+
+        /*交换机问题表*/
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-        /* todo 命令表 */
+        /*命令表 */
         List<CommandLogic> commandLogicList = new ArrayList<>();
-        /* todo 命令表 */
+        /*命令表 修复命令集合 */
         List<CommandLogic> repaircommandLogicList = new ArrayList<>();
-        /* todo 分析表 */
+        /*分析表 */
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+
         if (totalQuestionTableId != null){
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(totalQuestionTableIds);
         }else {
@@ -98,6 +100,7 @@ public class ImportExportController {
             }
             if(totalQuestionTable.getProblemSolvingId() != null){
                 SolveProblemController solveProblemController = new SolveProblemController();
+                /** 根据修复命令ID 获取修复命令 */
                 List<CommandLogic> commandPojoList = solveProblemController.queryCommandSet(totalQuestionTable.getProblemSolvingId());
                 if (commandPojoList.size() != 0){
                     for (CommandLogic pojo:commandPojoList){

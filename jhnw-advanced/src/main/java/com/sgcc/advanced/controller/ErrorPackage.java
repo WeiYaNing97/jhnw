@@ -161,7 +161,7 @@ public class ErrorPackage {
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(portList)){
 
-            // todo 关于没有端口号为UP状态 的错误代码库
+            //关于没有端口号为UP状态 的错误代码库
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
@@ -175,6 +175,7 @@ public class ErrorPackage {
             );
 
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能无UP状态端口号,是否需要CRT检查异常\r\n");
+
         }
 
         /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：

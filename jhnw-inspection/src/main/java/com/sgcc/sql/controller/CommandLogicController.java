@@ -145,7 +145,7 @@ public class CommandLogicController extends BaseController
 
         for (int number=0;number<commandLogicList.size();number++){
             //CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
-            CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,commandLogicList.get(number));
+            CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,commandLogicList.get(number),"命令");
             commandLogics.add(commandLogic);
         }
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);

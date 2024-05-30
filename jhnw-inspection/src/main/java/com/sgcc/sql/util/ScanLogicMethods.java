@@ -223,7 +223,6 @@ public class ScanLogicMethods {
             wordSelection_string = switchParameters.getDeviceBrand();
         }else if (action.equals("型号")){
             wordSelection_string = switchParameters.getDeviceModel();
-            // todo 内部固件版本
         }else if (action.equals("内部固件版本")){
             wordSelection_string = switchParameters.getFirmwareVersion();
         }else if (action.equals("子版本号")){

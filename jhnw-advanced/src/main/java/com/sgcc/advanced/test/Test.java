@@ -2,6 +2,7 @@ package com.sgcc.advanced.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -13,7 +14,5 @@ import java.util.List;
 
 public class Test {
     public static void main(String[] args) {
-        String str = "var";
-        System.err.println("va1234".startsWith(str));
     }
 }

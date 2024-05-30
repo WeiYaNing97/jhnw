@@ -549,10 +549,11 @@ public class ArticleComparisonUtil {
         String[] newarticlesplit = newarticle.split("\r\n");
         String[] theOriginalsplit = theOriginal.split("\r\n");
 
-        // todo 都存 但是存在的个数不一样
         for (String differentKey:ExistingAndDifferent){
+
             List<String> theOriginalstrings = new ArrayList<>(Arrays.asList(theOriginalHashMap.get(differentKey).split(";")));
             List<String> newarticleStrings = new ArrayList<>(Arrays.asList(newarticleHashMap.get(differentKey).split(";")));
+
             /*如果行号为 0 或者 最后一行 ，则 判断是否相等 */
             if (theOriginalstrings.contains("0") && newarticleStrings.contains("0")){
                 theOriginalstrings.remove("0");

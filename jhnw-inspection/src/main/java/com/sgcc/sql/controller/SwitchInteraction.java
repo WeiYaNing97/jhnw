@@ -353,8 +353,7 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
-        // todo 扫描结束 提示前端信息
-
+        //  扫描结束 提示前端信息
         //传输登陆人姓名 及问题简述
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:扫描结束\r\n");
         try {
@@ -504,7 +503,7 @@ public class SwitchInteraction {
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                             switchParameters.getIp()+"发送:"+command+"\r\n");
 
-                    // todo command
+                    //command
                     /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
                      * 返回结果
                      * 如果交换机返回信息错误，则返回信息为 null*/
@@ -545,7 +544,7 @@ public class SwitchInteraction {
 
                             returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
                             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                                // todo command
+                                //command
                                 /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
                                  * 返回结果
                                  * 如果交换机返回信息错误，则返回信息为 null*/
@@ -789,7 +788,7 @@ public class SwitchInteraction {
                         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                 switchParameters.getIp()+"发送:"+command+"\r\n");
 
-                        // todo command
+                        //command
                         /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
                          * 返回结果
                          * 如果交换机返回信息错误，则返回信息为 null*/
@@ -831,7 +830,7 @@ public class SwitchInteraction {
 
                                 returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
                                 if (switchParameters.getMode().equalsIgnoreCase("ssh")){
-                                    // todo command
+                                    //command
                                     /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
                                      * 返回结果
                                      * 如果交换机返回信息错误，则返回信息为 null*/
@@ -883,7 +882,7 @@ public class SwitchInteraction {
                     current_return_log = commandString.substring(0, commandString.length() - commandString_split[commandString_split.length - 1].length() - 2).trim();
                     returnRecord.setCurrentReturnLog(current_return_log);
                     //返回日志前后都有\r\n 可以改为 current_return_log.endsWith("\r\n");
-                    // todo 测试一下endsWith() startsWith()方法
+                    //测试一下endsWith() startsWith()方法
                     //返回日志前后都有\r\n 可以改为 current_return_log.endsWith("\r\n");
                     //endsWith() 方法用于测试字符串是否以指定的后缀结束。
                     //startsWith() 前缀
@@ -905,7 +904,7 @@ public class SwitchInteraction {
                 returnRecord.setCurrentIdentifier(current_identifier);
 
                 //当前标识符前后都没有\r\n
-                // todo 测试一下endsWith() startsWith()方法
+                //测试一下endsWith() startsWith()方法
                 //返回日志前后都有\r\n 可以改为 current_return_log.endsWith("\r\n");
                 //endsWith() 方法用于测试字符串是否以指定的后缀结束。
                 //startsWith() 前缀
@@ -1311,7 +1310,7 @@ public class SwitchInteraction {
             }
 
 
-            // TODO insertsInteger 关于扫描结果插入条数逻辑分析
+            //insertsInteger 关于扫描结果插入条数逻辑分析
             // ProblemId 包含完成 且 插入条数insertsInteger 为0
             // 分析执行 完成
             /*完成有程序分析结束  也可能是 获取基本信息 结束*/
@@ -1402,7 +1401,8 @@ public class SwitchInteraction {
             * present&full    不记录位置 只在全文进行当前行匹配  无意义
             * full&N          记录位置 到第N行 开始全文扫描  N 是全文
             * present&N       不记录位置 只在当前行进行匹配  N 是相对前光标
-            todo 注意  缺少 从之前光标相对位置进行全文匹配 */
+
+            注意  缺少 从之前光标相对位置进行全文匹配 */
 
             /*光标位置*/
             switch(matching_logic){

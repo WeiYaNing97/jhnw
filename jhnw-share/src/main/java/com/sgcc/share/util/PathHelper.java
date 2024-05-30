@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class PathHelper {
-    /* todo  日志路径*/
+    /*日志路径*/
     static String logPath = "D:\\jhnwadminlog" ;//Configuration.logPath;
     static String logTime = MyUtils.getDate("yyyy-MM-dd");
     /**

@@ -1,5 +1,6 @@
 package com.sgcc.sql.util;
 
+import com.alibaba.fastjson.JSON;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.CustomConfigurationUtil;
@@ -259,82 +260,61 @@ public class InspectionMethods {
      * @Param: [jsonPojo]
      * @return: com.sgcc.sql.domain.CommandLogic
      */
-    public static CommandLogic analysisCommandLogic(String problem_area_code, String jsonPojo){
-        /*第一步：去掉“{”“}”，然后以“，”分割（扫描逻辑中命令是否有带“，”的，会有影响）*/
-        CommandLogic commandLogic = new CommandLogic();
-        jsonPojo = jsonPojo.replace("{","");
-        jsonPojo = jsonPojo.replace("}","");
-        String[]  jsonPojo_split = jsonPojo.split(",");
-        HashMap<String,String> hashMap = new HashMap<>();
-        hashMap.put("onlyIndex",null);
-        hashMap.put("resultCheckId","0");
-        hashMap.put("command",null);
-        hashMap.put("nextIndex","0");
-        hashMap.put("pageIndex",null);
-        hashMap.put("endIndex","0");
-        hashMap.put("para",null);
-        hashMap.put("objective",null);
-            /*遍历属性数组，以“：”分割为[“属性名”，“属性值”]的数组
-                ，使用 属性名 匹配 hashmap中的key值，给key值赋值*/
-        for (String pojo:jsonPojo_split){
-            String[] split = pojo.split(":");
-            String split0 = split[0].replace("\"","");
-            String split1 = split[1].replace("\"","");
-            switch (split0){
-                case "onlyIndex"://本层ID 主键ID
-                    hashMap.put("onlyIndex",  MyUtils.encodeID( split1 )?split1: problem_area_code + split1);
-                    break;
-                case "resultCheckId":// 常规校验1 自定义校验0
-                    hashMap.put("resultCheckId",split1);
-                    break;
-                case "objective":// 命令目的
-                    hashMap.put("objective",split1);
-                    break;
-                case "command":// 命令
-                    hashMap.put("command",split1);
-                    break;
-                case "nextIndex"://下一分析ID 也是 首分析ID
-                    hashMap.put("nextIndex", MyUtils.encodeID( split1 )?split1:problem_area_code + split1);
-                    break;
-                case "pageIndex"://命令行号
-                    hashMap.put("pageIndex",split1);
-                    break;
-                case "para"://参数
-                    hashMap.put("para",split1);
-                    break;
-            }
-        }
+    public static CommandLogic analysisCommandLogic(String problem_area_code, String jsonPojo,String ifCommand){
 
-        //如果 常规检验 的话 下一ID  应是 下一命令ID
-        //下一分析ID  应是  0
-        /*如果为常规校验的话，resultCheckId = 1；则分析数据的下一条ID为下一命令ID。则nextIndex属性值 应赋值给 实体类endIndex字段。*/
-        if (hashMap.get("resultCheckId").equals("1")){
-            hashMap.put("endIndex",hashMap.get("nextIndex"));
-            hashMap.put("nextIndex","0");
-        }
-        /** 主键索引 */
-        commandLogic.setId(hashMap.get("onlyIndex"));
-        /** 状态 */
-        commandLogic.setState(null);
+        // 提交的分析数据，由Json格式 转化为实体类
+        AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(jsonPojo, AnalyzeConvertJson.class);
+        // 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+        analyzeConvertJson = (AnalyzeConvertJson) MyUtils.setNullIfEmpty(analyzeConvertJson);
 
-        /** 命令 */
-        if (hashMap.get("para") != null && !(hashMap.get("para").equals(""))){
-            hashMap.put("command",hashMap.get("command")+":"+hashMap.get("para"));
-        }
-        commandLogic.setCommand(hashMap.get("command"));
-        /** 返回结果验证id */
-        commandLogic.setResultCheckId(hashMap.get("resultCheckId"));
-        /** 返回分析id */
-        commandLogic.setProblemId(hashMap.get("nextIndex"));
-        /** 命令结束索引 */
-        commandLogic.setEndIndex(hashMap.get("endIndex"));
-        /** 命令行号 */
-        commandLogic.setcLine(hashMap.get("pageIndex"));
-
-        /*插入数据库*/
-        //int i = commandLogicService.insertCommandLogic(commandLogic);
+        CommandLogic commandLogic = trimCommandTable(analyzeConvertJson, problem_area_code,ifCommand);
         return commandLogic;
     }
+
+
+    public static CommandLogic trimCommandTable(AnalyzeConvertJson analyzeConvertJson, String problem_area_code,String ifCommand) {
+
+        analyzeConvertJson.setOnlyIndex(MyUtils.encodeID( analyzeConvertJson.getOnlyIndex() )?
+                analyzeConvertJson.getOnlyIndex() : problem_area_code + analyzeConvertJson.getOnlyIndex());
+
+        analyzeConvertJson.setNextIndex(MyUtils.encodeID( analyzeConvertJson.getNextIndex() )?
+                analyzeConvertJson.getNextIndex() : problem_area_code + analyzeConvertJson.getNextIndex());
+
+        if (analyzeConvertJson.getPara() != null){
+            analyzeConvertJson.setCommand( analyzeConvertJson.getCommand() +":"+ analyzeConvertJson.getPara());
+        }
+
+        CommandLogic commandLogic = new CommandLogic();
+        commandLogic.setId(analyzeConvertJson.getOnlyIndex());
+        commandLogic.setCommand(analyzeConvertJson.getCommand());
+
+        //commandLogic.setResultCheckId( analyzeConvertJson.getResultCheckId() );
+        /** 该字段本想由前端传入，后发现前端传入数据始终为0
+         * 记得之前实现过，后来可能前端有修改
+         * 现由后端分析下一条数据是否为命令决定*/
+        if (ifCommand.equals("命令")){
+            commandLogic.setResultCheckId("1");
+        }else if (ifCommand.equals("分析")){
+            commandLogic.setResultCheckId("0");
+        }
+
+        /*结果检查
+        属性值(0:分析逻辑表ID 1:本表ID )
+        分析逻辑表：problem_scan_logic*/
+        if (commandLogic.getResultCheckId().equals("1")){
+            /** 命令结束索引 */
+            commandLogic.setEndIndex(analyzeConvertJson.getNextIndex());
+        }else if (commandLogic.getResultCheckId().equals("0")){
+            /** 命令结束索引 */
+            commandLogic.setProblemId(analyzeConvertJson.getNextIndex());
+        }
+
+        /** 命令行号 */
+        commandLogic.setcLine(analyzeConvertJson.getPageIndex());
+
+        return commandLogic;
+    }
+
 
     /**
      * @method: problemScanLogic 实体类转化  Sting
@@ -371,7 +351,6 @@ public class InspectionMethods {
             String relativePosition = problemScanLogic.getRelativePosition();
             String[] relativePositionSplit = relativePosition.split(",");
             relative = relativePositionSplit[0];
-            // todo
             if (problemScanLogic.getMatched()!=null && problemScanLogic.getMatched().indexOf("present")!=-1){
                 relative = relative +"&present";
             }

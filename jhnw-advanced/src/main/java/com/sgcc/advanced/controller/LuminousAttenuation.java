@@ -220,7 +220,7 @@ public class LuminousAttenuation {
 
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
-            // todo 关于没有端口号为UP状态 的错误代码库
+            //关于没有端口号为UP状态 的错误代码库
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
@@ -338,7 +338,7 @@ public class LuminousAttenuation {
             for (String portstr:port){
 
 
-                // todo  根据光衰参数阈值  的代码库 回显和日志
+                //根据光衰参数阈值的代码库回显和日志
                 String subversionNumber1 = switchParameters.getSubversionNumber();
                 if (subversionNumber1!=null){
                     subversionNumber1 = "、"+subversionNumber1;
@@ -428,7 +428,7 @@ public class LuminousAttenuation {
 
                         }
 
-                        // todo  根据光衰参数阈值  的代码库 回显和日志
+                        //根据光衰参数阈值的代码库回显和日志
                         String subversionNumber = switchParameters.getSubversionNumber();
                         if (subversionNumber!=null){
                             subversionNumber = "、"+subversionNumber;
@@ -438,6 +438,7 @@ public class LuminousAttenuation {
                                 "IP地址为:("+switchParameters.getIp()+"),"+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                         lightAttenuationComparison.toJson() +"\r\n");
+
 
                     }
                 }

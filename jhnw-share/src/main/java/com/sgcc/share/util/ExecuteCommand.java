@@ -230,7 +230,7 @@ public class ExecuteCommand {
             /*获取返回日志 去除 标识符
              * 标识符为 最后一个元素  注意要删除 \r\n  所以-2*/
             String current_return_log = command_string.substring(0,command_string.length()-LineInformation[LineInformation.length-1].length()-2);
-            // TODO 去掉^之前的 \r\n
+            // 去掉^之前的 \r\n
             /* 不包含 ： ^down
             * 原因:交换机正确返回信息也包含：
                 PHY: Physical
@@ -243,7 +243,7 @@ public class ExecuteCommand {
                 current_return_log = current_return_log.substring(2 + LineInformation[LineInformation.length-1].trim().length(),current_return_log.length());
             }
             returnRecord.setCurrentReturnLog(current_return_log);
-            // todo  交换机返回日志的前端回显
+            //交换机返回日志的前端回显
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
@@ -251,7 +251,7 @@ public class ExecuteCommand {
         //按行切割最后一位应该是 标识符
         String current_identifier = LineInformation[LineInformation.length-1].trim();
         returnRecord.setCurrentIdentifier(current_identifier);
-        // todo  交换机返回标识符的前端回显
+        //交换机返回标识符的前端回显
 
         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                 switchParameters.getIp()+"接收:"+current_identifier+"\r\n");

@@ -57,7 +57,7 @@ public class FunctionalMethods {
 
 
     /**
-     * TODO 判断是否为错误命令
+     * 判断是否为错误命令
      * @method: 判断是否为错误命令 或是否执行成功  简单判断
      * @Param: [str] 交换机返回信息
      * @return: boolean  判断命令是否错误 错误为false 正确为true
@@ -327,7 +327,7 @@ public class FunctionalMethods {
         return false;
     }
 
-    /** todo Inspection Completed
+    /**
      * 取词操作  按位置取词
      * @param returnString  交换机返回信息行信息
      * @param matchContent 关键词
@@ -436,10 +436,7 @@ public class FunctionalMethods {
 
 
     /**
-     * todo 去除登录信息
-     *
-     * a
-     *
+     *去除登录信息
      * @method: 去除登录信息
      * @Param: [switchInformation]
      * @return: java.lang.String

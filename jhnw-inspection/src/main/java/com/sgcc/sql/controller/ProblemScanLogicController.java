@@ -98,7 +98,7 @@ public class ProblemScanLogicController extends BaseController {
 
 
     /**
-     *  todo 定义修复问题命令时 获取定义的参数名的方法  由getParameterNameCollectionNo方法优化得到
+     * 定义修复问题命令时 获取定义的参数名的方法  由getParameterNameCollectionNo方法优化得到
      * @method: getParameterNameCollection    命令ID 没有带ID之前的 方法
      * @Param: [totalQuestionTableId]
      * @return: java.util.List<java.lang.String>
