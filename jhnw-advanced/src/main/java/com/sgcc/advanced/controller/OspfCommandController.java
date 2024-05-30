@@ -64,7 +64,7 @@ public class OspfCommandController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(ospfCommandService.selectOspfCommandById(id));
     }
@@ -97,7 +97,7 @@ public class OspfCommandController extends BaseController
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:remove')")
     @MyLog(title = "OSPF命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable String[] ids)
     {
         return toAjax(ospfCommandService.deleteOspfCommandByIds(ids));
     }

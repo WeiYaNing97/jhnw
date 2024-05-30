@@ -708,7 +708,7 @@ export default {
           this.lieNum = 1
           console.log(this.proId)
           let id = this.proId
-          if(typeof(id) === 'number'){
+          if(typeof(id) !== 'number'){
               this.forms.dynamicItem = this.formss.dynamicItemss
               this.huichasss = []
               this.showNo= true

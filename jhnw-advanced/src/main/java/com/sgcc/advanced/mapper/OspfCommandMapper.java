@@ -18,7 +18,7 @@ public interface OspfCommandMapper
      * @param id OSPF命令主键
      * @return OSPF命令
      */
-    public OspfCommand selectOspfCommandById(Long id);
+    public OspfCommand selectOspfCommandById(String id);
 
     /**
      * 查询OSPF命令列表
@@ -50,7 +50,7 @@ public interface OspfCommandMapper
      * @param id OSPF命令主键
      * @return 结果
      */
-    public int deleteOspfCommandById(Long id);
+    public int deleteOspfCommandById(String id);
 
     /**
      * 批量删除OSPF命令
@@ -58,7 +58,7 @@ public interface OspfCommandMapper
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteOspfCommandByIds(Long[] ids);
+    public int deleteOspfCommandByIds(String[] ids);
 
     List<OspfCommand> selectOspfCommandListBySQL(@Param("fuzzySQL") String fuzzySQL);
 }

@@ -36,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ${fuzzySQL}
     </select>
     
-    <select id="selectErrorRateCommandById" parameterType="Long" resultMap="ErrorRateCommandResult">
+    <select id="selectErrorRateCommandById" parameterType="string" resultMap="ErrorRateCommandResult">
         <include refid="selectErrorRateCommandVo"/>
         where id = #{id}
     </select>
@@ -44,6 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertErrorRateCommand" parameterType="ErrorRateCommand" useGeneratedKeys="true" keyProperty="id">
         insert into error_rate_command
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
             <if test="brand != null and brand != ''">brand,</if>
             <if test="switchType != null">switch_type,</if>
             <if test="firewareVersion != null">fireware_version,</if>
@@ -53,6 +54,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="conversion != null">conversion,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
             <if test="brand != null and brand != ''">#{brand},</if>
             <if test="switchType != null">#{switchType},</if>
             <if test="firewareVersion != null">#{firewareVersion},</if>
@@ -77,11 +79,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteErrorRateCommandById" parameterType="Long">
+    <delete id="deleteErrorRateCommandById" parameterType="string">
         delete from error_rate_command where id = #{id}
     </delete>
 
-    <delete id="deleteErrorRateCommandByIds" parameterType="String">
+    <delete id="deleteErrorRateCommandByIds" parameterType="string">
         delete from error_rate_command where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}

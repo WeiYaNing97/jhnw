@@ -16,7 +16,7 @@ public interface TotalQuestionTableMapper
      * @param id 问题及命令主键
      * @return 问题及命令
      */
-    public TotalQuestionTable selectTotalQuestionTableById(Long id);
+    public TotalQuestionTable selectTotalQuestionTableById(String id);
 
     /**
      * 查询问题及命令列表
@@ -49,7 +49,7 @@ public interface TotalQuestionTableMapper
      * @param id 问题及命令主键
      * @return 结果
      */
-    public int deleteTotalQuestionTableById(@Param("id") Long id);
+    public int deleteTotalQuestionTableById(@Param("id") String id);
 
     /**
      * 批量删除问题及命令

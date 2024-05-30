@@ -15,7 +15,7 @@ public interface ITotalQuestionTableService
      * @param id 问题及命令主键
      * @return 问题及命令
      */
-    public TotalQuestionTable selectTotalQuestionTableById(Long id);
+    public TotalQuestionTable selectTotalQuestionTableById(String id);
 
     /**
      * 查询问题及命令列表
@@ -42,6 +42,14 @@ public interface ITotalQuestionTableService
      * @return 结果
      */
     public int insertTotalQuestionTable(TotalQuestionTable totalQuestionTable);
+    /**
+    * @Description 导入插入数据库
+    * @author charles
+    * @createTime 2024/5/24 16:06
+    * @desc
+    * @param
+     * @return
+    */
     int insertTotalQuestionTableImport(TotalQuestionTable totalQuestionTable);
 
     /**
@@ -66,7 +74,7 @@ public interface ITotalQuestionTableService
      * @param id 问题及命令主键
      * @return 结果
      */
-    public int deleteTotalQuestionTableById(Long id);
+    public int deleteTotalQuestionTableById(String id);
 
 
     /**

@@ -1,10 +1,13 @@
 package com.sgcc.share.service.impl;
 
 
+import com.sgcc.share.domain.Constant;
 import com.sgcc.share.domain.SwitchError;
 import com.sgcc.share.mapper.SwitchErrorMapper;
 import com.sgcc.share.service.ISwitchErrorService;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
+import com.sgcc.share.util.MyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +33,7 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
      * @return 交换机错误
      */
     @Override
-    public SwitchError selectSwitchErrorByErrorId(Long errorId)
+    public SwitchError selectSwitchErrorByErrorId(String errorId)
     {
         return switchErrorMapper.selectSwitchErrorByErrorId(errorId);
     }
@@ -65,6 +68,10 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
     @Override
     public int insertSwitchError(SwitchError switchError)
     {
+
+        String id = MyUtils.getID("CMER", null);
+        switchError.setErrorId(id);
+
         return switchErrorMapper.insertSwitchError(switchError);
     }
 
@@ -87,7 +94,7 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
      * @return 结果
      */
     @Override
-    public int deleteSwitchErrorByErrorIds(Long[] errorIds)
+    public int deleteSwitchErrorByErrorIds(String[] errorIds)
     {
         return switchErrorMapper.deleteSwitchErrorByErrorIds(errorIds);
     }
@@ -99,7 +106,7 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
      * @return 结果
      */
     @Override
-    public int deleteSwitchErrorByErrorId(Long errorId)
+    public int deleteSwitchErrorByErrorId(String errorId)
     {
         return switchErrorMapper.deleteSwitchErrorByErrorId(errorId);
     }

@@ -18,7 +18,7 @@ public interface LightAttenuationCommandMapper
      * @param id 光衰命令主键
      * @return 光衰命令
      */
-    public LightAttenuationCommand selectLightAttenuationCommandById(Long id);
+    public LightAttenuationCommand selectLightAttenuationCommandById(String id);
 
     /**
      * 查询光衰命令列表
@@ -50,7 +50,7 @@ public interface LightAttenuationCommandMapper
      * @param id 光衰命令主键
      * @return 结果
      */
-    public int deleteLightAttenuationCommandById(Long id);
+    public int deleteLightAttenuationCommandById(String id);
 
     /**
      * 批量删除光衰命令
@@ -58,7 +58,7 @@ public interface LightAttenuationCommandMapper
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteLightAttenuationCommandByIds(Long[] ids);
+    public int deleteLightAttenuationCommandByIds(String[] ids);
 
     List<LightAttenuationCommand> selectLightAttenuationCommandListBySQL(@Param("fuzzySQL") String fuzzySQL);
 }

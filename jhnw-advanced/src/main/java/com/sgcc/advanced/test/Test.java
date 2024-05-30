@@ -12,5 +12,8 @@ import java.util.List;
  **/
 
 public class Test {
-
+    public static void main(String[] args) {
+        String str = "var";
+        System.err.println("va1234".startsWith(str));
+    }
 }

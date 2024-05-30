@@ -19,7 +19,7 @@ public interface IErrorRateCommandService
      * @param id 错误包 命令主键
      * @return 错误包 命令
      */
-    public ErrorRateCommand selectErrorRateCommandById(Long id);
+    public ErrorRateCommand selectErrorRateCommandById(String id);
 
     /**
      * 查询 错误包 命令列表
@@ -51,7 +51,7 @@ public interface IErrorRateCommandService
      * @param ids 需要删除的 错误包 命令主键集合
      * @return 结果
      */
-    public int deleteErrorRateCommandByIds(Long[] ids);
+    public int deleteErrorRateCommandByIds(String[] ids);
 
     /**
      * 删除 错误包 命令信息
@@ -59,7 +59,7 @@ public interface IErrorRateCommandService
      * @param id 错误包 命令主键
      * @return 结果
      */
-    public int deleteErrorRateCommandById(Long id);
+    public int deleteErrorRateCommandById(String id);
 
     List<ErrorRateCommand> selectErrorRateCommandListBySQL(ErrorRateCommand errorRateCommand);
 

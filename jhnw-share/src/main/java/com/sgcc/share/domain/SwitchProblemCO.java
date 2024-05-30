@@ -18,6 +18,7 @@ public class SwitchProblemCO
     /*交换机扫描结果表 ID*/
     public Long questionId;
 
+    public Integer pointer;
     /*参数*/
     public String dynamicInformation;
 
@@ -152,6 +153,14 @@ public class SwitchProblemCO
 
     public void setDynamicInformation(String dynamicInformation) {
         this.dynamicInformation = dynamicInformation;
+    }
+
+    public Integer getPointer() {
+        return pointer;
+    }
+
+    public void setPointer(Integer pointer) {
+        this.pointer = pointer;
     }
 
     @Override

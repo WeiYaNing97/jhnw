@@ -125,11 +125,11 @@ public class CommandLogicController extends BaseController
     //@PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
     @PostMapping("insertModifyProblemCommandSet")
     @MyLog(title = "修复问题集合插入", businessType = BusinessType.INSERT)
-    public boolean insertModifyProblemCommandSet(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogicList){
+    public boolean insertModifyProblemCommandSet(@RequestParam String totalQuestionTableId,@RequestBody List<String> commandLogicList){
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         /*如果 修复命令集合为空  或者  交换机问题ID为0L 则 返回 false失败*/
-        if (commandLogicList.size() == 0 || totalQuestionTableId == 0L){
+        if (commandLogicList.size() == 0 ){/*  || totalQuestionTableId == 0L   */
             //传输登陆人姓名 及问题简述
 
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
@@ -140,9 +140,12 @@ public class CommandLogicController extends BaseController
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         List<CommandLogic> commandLogics = new ArrayList<>();
+
+        String problem_area_code = totalQuestionTableId.substring(0, 8);
+
         for (int number=0;number<commandLogicList.size();number++){
             //CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
-            CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(commandLogicList.get(number));
+            CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,commandLogicList.get(number));
             commandLogics.add(commandLogic);
         }
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
@@ -180,7 +183,7 @@ public class CommandLogicController extends BaseController
     @ApiOperation("修改修复问题命令")
     @PutMapping("updateProblemSolvingCommand")
     @MyLog(title = "修改修复问题命令", businessType = BusinessType.UPDATE)
-    public boolean updateProblemSolvingCommand(@RequestParam Long totalQuestionTableId,@RequestBody List<String> commandLogics){
+    public boolean updateProblemSolvingCommand(@RequestParam String totalQuestionTableId,@RequestBody List<String> commandLogics){
         boolean deleteProblemSolvingCommand = deleteProblemSolvingCommand(totalQuestionTableId);
         if (!deleteProblemSolvingCommand){
             return false;
@@ -198,7 +201,7 @@ public class CommandLogicController extends BaseController
     @ApiOperation("删除修复问题命令")
     @DeleteMapping("deleteProblemSolvingCommand")
     @MyLog(title = "删除修复问题命令", businessType = BusinessType.UPDATE)
-    public boolean deleteProblemSolvingCommand(@RequestBody Long totalQuestionTableId){
+    public boolean deleteProblemSolvingCommand(@RequestBody String totalQuestionTableId){
         //根据 问题表 问题ID 查询 问题数据
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);

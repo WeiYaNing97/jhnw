@@ -36,7 +36,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ${fuzzySQL}
     </select>
     
-    <select id="selectLightAttenuationCommandById" parameterType="Long" resultMap="LightAttenuationCommandResult">
+    <select id="selectLightAttenuationCommandById" parameterType="string" resultMap="LightAttenuationCommandResult">
         <include refid="selectLightAttenuationCommandVo"/>
         where id = #{id}
     </select>
@@ -44,6 +44,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertLightAttenuationCommand" parameterType="LightAttenuationCommand" useGeneratedKeys="true" keyProperty="id">
         insert into light_attenuation_command
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
             <if test="brand != null and brand != ''">brand,</if>
             <if test="switchType != null">switch_type,</if>
             <if test="firewareVersion != null">fireware_version,</if>
@@ -53,6 +54,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="conversion != null">conversion,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
             <if test="brand != null and brand != ''">#{brand},</if>
             <if test="switchType != null">#{switchType},</if>
             <if test="firewareVersion != null">#{firewareVersion},</if>
@@ -77,11 +79,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteLightAttenuationCommandById" parameterType="Long">
+    <delete id="deleteLightAttenuationCommandById" parameterType="string">
         delete from light_attenuation_command where id = #{id}
     </delete>
 
-    <delete id="deleteLightAttenuationCommandByIds" parameterType="String">
+    <delete id="deleteLightAttenuationCommandByIds" parameterType="string">
         delete from light_attenuation_command where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}

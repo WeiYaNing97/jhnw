@@ -21,6 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <collection property="switchProblemCOList"  ofType="com.sgcc.share.domain.SwitchProblemCO"
                     javaType="java.util.ArrayList">
             <result property="questionId"    column="question_id"    />
+            <result property="pointer"    column="pointer"    />
             <result property="dynamicInformation"    column="dynamic_information"    />
             <result property="problemId"    column="problem_id"    />
             <result property="ifQuestion"    column="if_question"    />
@@ -50,6 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="problemDescribeId"    column="problem_describe_id"    />
         <result property="ifQuestion"    column="if_question"    />
         <result property="comId"    column="com_id"    />
+        <result property="pointer"    column="pointer"    />
         <result property="dynamicInformation"    column="dynamic_information"    />
         <result property="createTime"    column="create_time"    />
         <result property="userName"    column="user_name"    />
@@ -57,11 +59,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectSwitchScanResultVo">
-        select id, switch_ip, switch_id, switch_name, switch_password,configureCiphers, login_method, port_number, problem_id, type_problem, tem_pro_name, problem_name, remarks, problem_describe_id, if_question, com_id,  dynamic_information,  create_time, user_name, phonenumber from switch_scan_result
+        select id, switch_ip, switch_id, switch_name, switch_password,configureCiphers, login_method, port_number, problem_id, type_problem, tem_pro_name, problem_name, remarks, problem_describe_id, if_question, com_id, pointer, dynamic_information,  create_time, user_name, phonenumber from switch_scan_result
     </sql>
     <sql id="pojoVo">
         SELECT
             ssrt.id question_id,
+            ssrt.pointer pointer,
             ssrt.dynamic_information dynamic_information,
             ssrt.switch_ip switch_ip,
             information.brand brand,
@@ -88,6 +91,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     '已解决' ELSE ssrt.if_question
                 END if_question,
                 ssrt.com_id com_id,
+                ssrt.pointer,
                 ssrt.dynamic_information,
                 ssrt.problem_name problem_name,
                 ssrt.problem_describe_id problem_describe_id,
@@ -118,6 +122,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null "> and problem_describe_id = #{problemDescribeId}</if>
             <if test="ifQuestion != null  and ifQuestion != ''"> and if_question = #{ifQuestion}</if>
             <if test="comId != null  and comId != ''"> and com_id = #{comId}</if>
+
+            <if test="pointer != null  and pointer != ''"> and pointer = #{pointer}</if>
+
             <if test="dynamicInformation != null  and dynamicInformation != ''"> and dynamic_information = #{dynamicInformation}</if>
             <if test="userName != null  and userName != ''"> and user_name = #{userName} </if>
             <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
@@ -161,6 +168,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null">problem_describe_id,</if>
             <if test="ifQuestion != null">if_question,</if>
             <if test="comId != null">com_id,</if>
+
+            <if test="pointer != null">pointer,</if>
+
             <if test="dynamicInformation != null">dynamic_information,</if>
             <if test="createTime != null">create_time,</if>
             <if test="userName != null">user_name,</if>
@@ -182,6 +192,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null">#{problemDescribeId},</if>
             <if test="ifQuestion != null">#{ifQuestion},</if>
             <if test="comId != null">#{comId},</if>
+
+            <if test="pointer != null">#{pointer},</if>
+
             <if test="dynamicInformation != null">#{dynamicInformation},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="userName != null">#{userName},</if>
@@ -207,6 +220,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="problemDescribeId != null">problem_describe_id = #{problemDescribeId},</if>
             <if test="ifQuestion != null">if_question = #{ifQuestion},</if>
             <if test="comId != null">com_id = #{comId},</if>
+
+            <if test="pointer != null">pointer = #{pointer},</if>
+
             <if test="dynamicInformation != null">dynamic_information = #{dynamicInformation},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="userName != null">user_name = #{userName},</if>
@@ -320,6 +336,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         switch_scan_result.problem_describe_id,
         switch_scan_result.if_question,
         switch_scan_result.com_id,
+        switch_scan_result.pointer,
         switch_scan_result.dynamic_information,
         switch_scan_result.create_time,
         switch_scan_result.user_name,

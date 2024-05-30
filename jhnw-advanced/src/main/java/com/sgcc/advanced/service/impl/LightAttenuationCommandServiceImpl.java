@@ -3,7 +3,10 @@ package com.sgcc.advanced.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
+import com.sgcc.share.util.MyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sgcc.advanced.mapper.LightAttenuationCommandMapper;
@@ -29,7 +32,7 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
      * @return 光衰命令
      */
     @Override
-    public LightAttenuationCommand selectLightAttenuationCommandById(Long id)
+    public LightAttenuationCommand selectLightAttenuationCommandById(String id)
     {
         return lightAttenuationCommandMapper.selectLightAttenuationCommandById(id);
     }
@@ -64,6 +67,11 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
     @Override
     public int insertLightAttenuationCommand(LightAttenuationCommand lightAttenuationCommand)
     {
+        String regionalCode = (CustomConfigurationUtil.getValue("configuration.problemCode.日常巡检", Constant.getProfileInformation())).toString();
+        String id = MyUtils.getID(regionalCode, null);
+
+        lightAttenuationCommand.setId(id);
+
         return lightAttenuationCommandMapper.insertLightAttenuationCommand(lightAttenuationCommand);
     }
 
@@ -86,7 +94,7 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
      * @return 结果
      */
     @Override
-    public int deleteLightAttenuationCommandByIds(Long[] ids)
+    public int deleteLightAttenuationCommandByIds(String[] ids)
     {
         return lightAttenuationCommandMapper.deleteLightAttenuationCommandByIds(ids);
     }
@@ -98,7 +106,7 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
      * @return 结果
      */
     @Override
-    public int deleteLightAttenuationCommandById(Long id)
+    public int deleteLightAttenuationCommandById(String id)
     {
         return lightAttenuationCommandMapper.deleteLightAttenuationCommandById(id);
     }

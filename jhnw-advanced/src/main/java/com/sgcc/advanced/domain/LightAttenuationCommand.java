@@ -16,7 +16,7 @@ public class LightAttenuationCommand extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键 */
-    private Long id;
+    private String id;
 
     /** 品牌 */
     @Excel(name = "品牌")
@@ -46,17 +46,15 @@ public class LightAttenuationCommand extends BaseEntity
     @Excel(name = "转译")
     private String conversion;
 
+    public String getId() {
+        return id;
+    }
 
-    public void setId(Long id) 
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getId() 
-    {
-        return id;
-    }
-    public void setBrand(String brand) 
+    public void setBrand(String brand)
     {
         this.brand = brand;
     }

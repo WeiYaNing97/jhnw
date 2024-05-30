@@ -42,7 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectSwitchErrorByErrorId" parameterType="Long" resultMap="SwitchErrorResult">
+    <select id="selectSwitchErrorByErrorId" parameterType="string" resultMap="SwitchErrorResult">
         <include refid="selectSwitchErrorVo"/>
         where error_id = #{errorId}
     </select>
@@ -82,16 +82,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where error_id = #{errorId}
     </update>
 
-    <delete id="deleteSwitchErrorByErrorId" parameterType="Long">
+    <delete id="deleteSwitchErrorByErrorId" parameterType="string">
         delete from switch_error where error_id = #{errorId}
     </delete>
 
     <!--删除数据表所有数据-->
-    <delete id="deleteSwitchErrorByError" parameterType="Long">
+    <delete id="deleteSwitchErrorByError" parameterType="string">
         delete from switch_error
     </delete>
 
-    <delete id="deleteSwitchErrorByErrorIds" parameterType="String">
+    <delete id="deleteSwitchErrorByErrorIds" parameterType="string">
         delete from switch_error where error_id in 
         <foreach item="errorId" collection="array" open="(" separator="," close=")">
             #{errorId}

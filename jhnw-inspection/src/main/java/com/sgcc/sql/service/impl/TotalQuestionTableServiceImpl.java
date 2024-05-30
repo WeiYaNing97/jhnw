@@ -3,7 +3,10 @@ package com.sgcc.sql.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
+import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.ServiceImplUtils;
 import com.sgcc.sql.domain.TotalQuestionTableVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +32,7 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
      * @return 问题及命令
      */
     @Override
-    public TotalQuestionTable selectTotalQuestionTableById(Long id)
+    public TotalQuestionTable selectTotalQuestionTableById(String id)
     {
         return totalQuestionTableMapper.selectTotalQuestionTableById(id);
     }
@@ -43,6 +46,8 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     @Override
     public int insertTotalQuestionTable(TotalQuestionTable totalQuestionTable)
     {
+        String keyword = (String) CustomConfigurationUtil.getValue("configuration.problemCode.安全配置", Constant.getProfileInformation());
+        totalQuestionTable.setId(MyUtils.getID( keyword ,null));
         return totalQuestionTableMapper.insertTotalQuestionTable(totalQuestionTable);
     }
 
@@ -83,7 +88,7 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
      * @return 结果
      */
     @Override
-    public int deleteTotalQuestionTableById(Long id)
+    public int deleteTotalQuestionTableById(String id)
     {
         return totalQuestionTableMapper.deleteTotalQuestionTableById(id);
     }

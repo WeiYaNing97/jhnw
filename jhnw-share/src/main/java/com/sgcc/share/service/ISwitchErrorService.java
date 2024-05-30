@@ -18,7 +18,7 @@ public interface ISwitchErrorService
      * @param errorId 交换机错误主键
      * @return 交换机错误
      */
-    public SwitchError selectSwitchErrorByErrorId(Long errorId);
+    public SwitchError selectSwitchErrorByErrorId(String errorId);
 
     /**
      * 查询交换机错误列表
@@ -50,7 +50,7 @@ public interface ISwitchErrorService
      * @param errorIds 需要删除的交换机错误主键集合
      * @return 结果
      */
-    public int deleteSwitchErrorByErrorIds(Long[] errorIds);
+    public int deleteSwitchErrorByErrorIds(String[] errorIds);
 
     /**
      * 删除交换机错误信息
@@ -58,7 +58,7 @@ public interface ISwitchErrorService
      * @param errorId 交换机错误主键
      * @return 结果
      */
-    public int deleteSwitchErrorByErrorId(Long errorId);
+    public int deleteSwitchErrorByErrorId(String errorId);
 
     /*查询交换机错误列表*/
     List<SwitchError> selectSwitchErrorListByPojo(SwitchError switchError);

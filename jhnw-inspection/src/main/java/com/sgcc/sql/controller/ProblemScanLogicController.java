@@ -105,7 +105,7 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("获取定义的参数名")
     @GetMapping("/getParameterNameCollection/{totalQuestionTableId}")
-    public List<String> getParameterNameCollection(@PathVariable Long totalQuestionTableId){
+    public List<String> getParameterNameCollection(@PathVariable String totalQuestionTableId){
         //根据问题ID 获取问题表数据
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);

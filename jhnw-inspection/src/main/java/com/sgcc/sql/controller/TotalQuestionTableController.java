@@ -142,10 +142,12 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("查询交换机问题列表忽略扫描索引CommandId")
     @GetMapping("/select")
-    public Long select(TotalQuestionTable totalQuestionTable)
+    public String select(TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setLogicalID(null);
+
         List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
         return list.get(0).getId();
     }
 
@@ -156,7 +158,7 @@ public class TotalQuestionTableController extends BaseController
     @ApiOperation("根据ID获取交换机问题的详细信息")
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(totalQuestionTableService.selectTotalQuestionTableById(id));
     }
@@ -175,7 +177,7 @@ public class TotalQuestionTableController extends BaseController
     /**
      * 修改问题及命令 的 循环
      */
-    public AjaxResult updateTotalQuestionTable(Long id)
+    public AjaxResult updateTotalQuestionTable(String id)
     {
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
         return toAjax(totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable));
@@ -381,7 +383,7 @@ public class TotalQuestionTableController extends BaseController
      * @return: java.util.List<java.lang.Long>
      */
     @GetMapping(value = "/totalQuestionTableId")
-    public Long totalQuestionTableId( String brand, String type, String firewareVersion, String subVersion, String problemName, String typeProblem,String temProName)
+    public String totalQuestionTableId( String brand, String type, String firewareVersion, String subVersion, String problemName, String typeProblem,String temProName)
     {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setBrand(brand);
@@ -530,9 +532,9 @@ public class TotalQuestionTableController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:remove')")
     @MyLog(title = "删除交换机问题", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteTotalQuestionTable")
-    public AjaxResult deleteTotalQuestionTable(@RequestBody Long id)
+    public AjaxResult deleteTotalQuestionTable(@RequestBody String id)
     {
-        List<String> formworks = formworkService.selectFormworkByLikeFormworkIndex(id+"");
+        List<String> formworks = formworkService.selectFormworkByLikeFormworkIndex(id);
         if (formworks.size() != 0){
             return AjaxResult.error("删除失败,该问题加入模板",formworks);
         }

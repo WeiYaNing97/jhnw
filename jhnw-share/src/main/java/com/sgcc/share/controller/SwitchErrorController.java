@@ -72,7 +72,7 @@ public class SwitchErrorController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_error:query')")
     @GetMapping(value = "/{errorId}")
-    public AjaxResult getInfo(@PathVariable("errorId") Long errorId)
+    public AjaxResult getInfo(@PathVariable("errorId") String errorId)
     {
         return AjaxResult.success(switchErrorService.selectSwitchErrorByErrorId(errorId));
     }
@@ -105,7 +105,7 @@ public class SwitchErrorController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:switch_error:remove')")
     @MyLog(title = "交换机错误", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{errorIds}")
-    public AjaxResult remove(@PathVariable Long[] errorIds)
+    public AjaxResult remove(@PathVariable String[] errorIds)
     {
         return toAjax(switchErrorService.deleteSwitchErrorByErrorIds(errorIds));
     }

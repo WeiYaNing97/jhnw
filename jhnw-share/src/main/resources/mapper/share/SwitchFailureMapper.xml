@@ -55,6 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         
     <insert id="insertSwitchFailure" parameterType="SwitchFailure">
         insert into switch_failure
+
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="failureId != null">failure_id,</if>
             <if test="brand != null">brand,</if>

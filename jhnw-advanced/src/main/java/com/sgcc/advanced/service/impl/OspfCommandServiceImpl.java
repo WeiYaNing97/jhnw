@@ -3,7 +3,10 @@ package com.sgcc.advanced.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
+import com.sgcc.share.util.MyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sgcc.advanced.mapper.OspfCommandMapper;
@@ -29,7 +32,7 @@ public class OspfCommandServiceImpl implements IOspfCommandService
      * @return OSPF命令
      */
     @Override
-    public OspfCommand selectOspfCommandById(Long id)
+    public OspfCommand selectOspfCommandById(String id)
     {
         return ospfCommandMapper.selectOspfCommandById(id);
     }
@@ -64,6 +67,11 @@ public class OspfCommandServiceImpl implements IOspfCommandService
     @Override
     public int insertOspfCommand(OspfCommand ospfCommand)
     {
+        String regionalCode = (CustomConfigurationUtil.getValue("configuration.problemCode.日常巡检", Constant.getProfileInformation())).toString();
+        String id = MyUtils.getID(regionalCode, null);
+
+        ospfCommand.setId(id);
+
         return ospfCommandMapper.insertOspfCommand(ospfCommand);
     }
 
@@ -86,7 +94,7 @@ public class OspfCommandServiceImpl implements IOspfCommandService
      * @return 结果
      */
     @Override
-    public int deleteOspfCommandByIds(Long[] ids)
+    public int deleteOspfCommandByIds(String[] ids)
     {
         return ospfCommandMapper.deleteOspfCommandByIds(ids);
     }
@@ -98,7 +106,7 @@ public class OspfCommandServiceImpl implements IOspfCommandService
      * @return 结果
      */
     @Override
-    public int deleteOspfCommandById(Long id)
+    public int deleteOspfCommandById(String id)
     {
         return ospfCommandMapper.deleteOspfCommandById(id);
     }

@@ -59,7 +59,7 @@ public class ErrorRateCommandController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(errorRateCommandService.selectErrorRateCommandById(id));
     }
@@ -92,7 +92,7 @@ public class ErrorRateCommandController extends BaseController
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:remove')")
     @MyLog(title = "错误包命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable String[] ids)
     {
         return toAjax(errorRateCommandService.deleteErrorRateCommandByIds(ids));
     }

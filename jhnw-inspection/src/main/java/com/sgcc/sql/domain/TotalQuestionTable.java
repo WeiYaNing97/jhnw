@@ -17,7 +17,7 @@ public class TotalQuestionTable extends BaseEntity
     /** 主键索引 */
     @Excel(name = "主键")
     @ApiModelProperty("主键")
-    private Long id;
+    private String id;
 
     /** 品牌 */
     @Excel(name = "品牌")
@@ -70,7 +70,7 @@ public class TotalQuestionTable extends BaseEntity
     /** 问题详细说明和指导索引 */
     @Excel(name = "问题详细说明和指导索引")
     @ApiModelProperty("问题详细说明和指导索引")
-    private Long problemDescribeId;
+    private String problemDescribeId;
 
     /** 解决问题命令ID */
     @Excel(name = "解决问题命令索引")
@@ -91,11 +91,11 @@ public class TotalQuestionTable extends BaseEntity
         return serialVersionUID;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -155,14 +155,6 @@ public class TotalQuestionTable extends BaseEntity
         this.typeProblem = typeProblem;
     }
 
-    public Long getProblemDescribeId() {
-        return problemDescribeId;
-    }
-
-    public void setProblemDescribeId(Long problemDescribeId) {
-        this.problemDescribeId = problemDescribeId;
-    }
-
     public String getProblemSolvingId() {
         return problemSolvingId;
     }
@@ -203,6 +195,13 @@ public class TotalQuestionTable extends BaseEntity
         this.logicalID = logicalID;
     }
 
+    public String getProblemDescribeId() {
+        return problemDescribeId;
+    }
+
+    public void setProblemDescribeId(String problemDescribeId) {
+        this.problemDescribeId = problemDescribeId;
+    }
 
     @Override
     public String toString() {

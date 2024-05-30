@@ -4,6 +4,7 @@ import com.sgcc.share.domain.Constant;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.EncryptUtil;
+import com.sgcc.share.util.MyUtils;
 import com.sgcc.sql.domain.*;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -258,7 +259,7 @@ public class InspectionMethods {
      * @Param: [jsonPojo]
      * @return: com.sgcc.sql.domain.CommandLogic
      */
-    public static CommandLogic analysisCommandLogic(@RequestBody String jsonPojo){
+    public static CommandLogic analysisCommandLogic(String problem_area_code, String jsonPojo){
         /*第一步：去掉“{”“}”，然后以“，”分割（扫描逻辑中命令是否有带“，”的，会有影响）*/
         CommandLogic commandLogic = new CommandLogic();
         jsonPojo = jsonPojo.replace("{","");
@@ -281,7 +282,7 @@ public class InspectionMethods {
             String split1 = split[1].replace("\"","");
             switch (split0){
                 case "onlyIndex"://本层ID 主键ID
-                    hashMap.put("onlyIndex",split1);
+                    hashMap.put("onlyIndex",  MyUtils.encodeID( split1 )?split1: problem_area_code + split1);
                     break;
                 case "resultCheckId":// 常规校验1 自定义校验0
                     hashMap.put("resultCheckId",split1);
@@ -293,7 +294,7 @@ public class InspectionMethods {
                     hashMap.put("command",split1);
                     break;
                 case "nextIndex"://下一分析ID 也是 首分析ID
-                    hashMap.put("nextIndex",split1);
+                    hashMap.put("nextIndex", MyUtils.encodeID( split1 )?split1:problem_area_code + split1);
                     break;
                 case "pageIndex"://命令行号
                     hashMap.put("pageIndex",split1);

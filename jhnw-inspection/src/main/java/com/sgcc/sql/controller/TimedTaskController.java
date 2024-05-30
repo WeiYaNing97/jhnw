@@ -477,8 +477,9 @@ public class TimedTaskController extends BaseController
     */
     public List<Object> getFunctionListAndID(List<TotalQuestionTable> totalQuestionTableList) {
         /* 定义返回 问题信息
-        map集合 key为问题ID  value为问题名称*/
-        Map<Long, String> TemProNameProblemNameMap = new HashMap<>();
+        map集合 key为 问题ID  value为问题名称*/
+        Map<String, String> TemProNameProblemNameMap = new HashMap<>();
+
         /* 筛选范式分类 重新创建一个范式分类SET集合*/
         Set<String> collect = totalQuestionTableList.stream().map(TotalQuestionTable::getTypeProblem).collect(Collectors.toSet());
         collect.add("运行分析");
@@ -494,7 +495,7 @@ public class TimedTaskController extends BaseController
 
             List<FunctionName> functionNames = functionNameListMap.get(totalQuestionTable.getTypeProblem());
             FunctionName functionName = new FunctionName();
-            functionName.setId(totalQuestionTable.getId()+"");
+            functionName.setId(totalQuestionTable.getId());
             functionName.setLabel(totalQuestionTable.getTemProName()+"-"+totalQuestionTable.getProblemName());
             functionName.setLevel(2);
 

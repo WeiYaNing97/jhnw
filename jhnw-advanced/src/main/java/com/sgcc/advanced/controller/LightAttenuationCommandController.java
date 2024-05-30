@@ -62,7 +62,7 @@ public class LightAttenuationCommandController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(lightAttenuationCommandService.selectLightAttenuationCommandById(id));
     }
@@ -98,7 +98,7 @@ public class LightAttenuationCommandController extends BaseController
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:remove')")
     @MyLog(title = "光衰命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable String[] ids)
     {
         return toAjax(lightAttenuationCommandService.deleteLightAttenuationCommandByIds(ids));
     }

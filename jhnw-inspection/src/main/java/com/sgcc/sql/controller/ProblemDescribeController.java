@@ -37,11 +37,48 @@ public class ProblemDescribeController extends BaseController
     /**
      * 新增问题描述
      */
-    @ApiOperation("新增/修改问题详细说明和指导索引")
-    @PutMapping("/insertProblemDescribe")
+    @ApiOperation("新增问题详细说明和指导索引")
     @PostMapping("/insertProblemDescribe")
     @MyLog(title = "新增问题详细说明和指导索引", businessType = BusinessType.INSERT)
-    public AjaxResult insertProblemDescribe(@RequestParam Long totalQuestionTableId,@RequestBody String problemDescribe)
+    public AjaxResult insertProblemDescribe(@RequestParam String totalQuestionTableId,@RequestBody String problemDescribe)
+    {
+        //根据问题ID 查询问题表问题信息
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
+        //创建新的 问题描述表实体类
+        ProblemDescribe pojo = new ProblemDescribe();
+        //问题描述放入实体类
+        pojo.setProblemDescribe(problemDescribe);
+
+        //如果问题表 问题描述ID 不为0时 说明有问题描述，修改，只修改问题描述表描述字段
+        if (!(totalQuestionTable.getProblemDescribeId().equals(0L))){
+            pojo.setId(totalQuestionTable.getProblemDescribeId());
+            int i = problemDescribeService.updateProblemDescribe(pojo);
+            if (i>0){
+                return AjaxResult.success("成功！");
+            }
+        }else if (totalQuestionTable.getProblemDescribeId().equals(0L)){
+            //如果问题表 问题描述ID 为0时 则插入问题描述信息
+            int i = problemDescribeService.insertProblemDescribe(pojo);
+            //插入成功后 ID添加到问题表 问题描述ID字段
+            if (i>0){
+                totalQuestionTable.setProblemDescribeId(pojo.getId());
+                i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+                if (i>0){
+                    return AjaxResult.success("成功！");
+                }
+            }
+        }
+
+        return AjaxResult.error("失败！");
+    }
+    /**
+     * 新增问题描述
+     */
+    @ApiOperation("修改问题详细说明和指导索引")
+    @PutMapping("/insertProblemDescribe")
+    @MyLog(title = "修改问题详细说明和指导索引", businessType = BusinessType.INSERT)
+    public AjaxResult updateProblemDescribe(@RequestParam String totalQuestionTableId,@RequestBody String problemDescribe)
     {
         //根据问题ID 查询问题表问题信息
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
@@ -75,6 +112,10 @@ public class ProblemDescribeController extends BaseController
     }
 
 
+
+
+
+
     /**
      * 删除问题描述
      */
@@ -86,7 +127,7 @@ public class ProblemDescribeController extends BaseController
             //根据 问题描述表ID  查询 问题表实体类
             TotalQuestionTable totalQuestionTable =  totalQuestionTableService.selectPojoByproblemDescribeId(id);
             /*默认为0L  删除描述后则   清0L*/
-            totalQuestionTable.setProblemDescribeId(0L);
+            totalQuestionTable.setProblemDescribeId(null);
             int updateTotalQuestionTable = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
             return toAjax(updateTotalQuestionTable);
         }

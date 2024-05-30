@@ -63,7 +63,7 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
         /** 交换机返回结果 数据放入 非关系型数据表*/
         NonRelationalDataTable nonRelationalDataTable = new NonRelationalDataTable();
 
-        nonRelationalDataTable.setNonRelationalId(new MyUtils().getID( (returnRecord.getId() +"").substring(0,4)));
+        nonRelationalDataTable.setNonRelationalId(new MyUtils().getID( (returnRecord.getId() +"").substring(0,4) , null));
         nonRelationalDataTable.setNonRelationalData( returnRecord.getCurrentReturnLog() );
         int i1 = nonRelationalDataTableMapper.insertNonRelationalDataTable(nonRelationalDataTable);
         if (i1<0){

@@ -75,7 +75,7 @@ public class SwitchFailureController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:query')")
     @GetMapping(value = "/{failureId}")
-    public AjaxResult getInfo(@PathVariable("failureId") Long failureId)
+    public AjaxResult getInfo(@PathVariable("failureId") String failureId)
     {
         return AjaxResult.success(switchFailureService.selectSwitchFailureByFailureId(failureId));
     }
@@ -108,7 +108,7 @@ public class SwitchFailureController extends BaseController
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:remove')")
     @MyLog(title = "交换机故障", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{failureIds}")
-    public AjaxResult remove(@PathVariable Long[] failureIds)
+    public AjaxResult remove(@PathVariable String[] failureIds)
     {
         return toAjax(switchFailureService.deleteSwitchFailureByFailureIds(failureIds));
     }

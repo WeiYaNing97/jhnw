@@ -16,7 +16,7 @@ public class SwitchError extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 错误主键 */
-    private Long errorId;
+    private String errorId;
 
     /** 交换机品牌 */
     @Excel(name = "交换机品牌")
@@ -42,16 +42,19 @@ public class SwitchError extends BaseEntity
     @Excel(name = "错误名称")
     private String errorName;
 
-    public void setErrorId(Long errorId) 
-    {
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getErrorId() {
+        return errorId;
+    }
+
+    public void setErrorId(String errorId) {
         this.errorId = errorId;
     }
 
-    public Long getErrorId() 
-    {
-        return errorId;
-    }
-    public void setBrand(String brand) 
+    public void setBrand(String brand)
     {
         this.brand = brand;
     }

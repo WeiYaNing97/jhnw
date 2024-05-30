@@ -13,7 +13,7 @@ public class SwitchFailure extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 故障主键 */
-    private Long failureId;
+    private String failureId;
 
     /** 交换机品牌 */
     @Excel(name = "交换机品牌")
@@ -39,16 +39,15 @@ public class SwitchFailure extends BaseEntity
     @Excel(name = "故障名称")
     private String failureName;
 
-    public void setFailureId(Long failureId) 
-    {
+    public String getFailureId() {
+        return failureId;
+    }
+
+    public void setFailureId(String failureId) {
         this.failureId = failureId;
     }
 
-    public Long getFailureId() 
-    {
-        return failureId;
-    }
-    public void setBrand(String brand) 
+    public void setBrand(String brand)
     {
         this.brand = brand;
     }

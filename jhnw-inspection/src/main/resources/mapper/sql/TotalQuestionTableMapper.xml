@@ -335,7 +335,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectTotalQuestionTableById" parameterType="Long" resultMap="TotalQuestionTableResult">
+    <select id="selectTotalQuestionTableById" parameterType="String" resultMap="TotalQuestionTableResult">
         <include refid="selectTotalQuestionTableVo"/>
         where id = #{id}
     </select>
@@ -344,6 +344,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertTotalQuestionTable" parameterType="com.sgcc.sql.domain.TotalQuestionTable" useGeneratedKeys="true" keyProperty="id">
         insert into total_question_table
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+
             <if test="brand != null">brand,</if>
             <if test="type != null">type,</if>
             <if test="firewareVersion != null">fireware_version,</if>
@@ -362,6 +364,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="requiredItems != null">required_items,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+
             <if test="brand != null">#{brand},</if>
             <if test="type != null">#{type},</if>
             <if test="firewareVersion != null">#{firewareVersion},</if>
@@ -384,6 +388,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertTotalQuestionTableImport" parameterType="com.sgcc.sql.domain.TotalQuestionTable" useGeneratedKeys="true" keyProperty="id">
         insert into total_question_table
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != '' ">id,</if>
+
             <if test="brand != null and brand != '' ">brand,</if>
             <if test="type != null and type != '' ">type,</if>
             <if test="firewareVersion != null and firewareVersion != '' ">fireware_version,</if>
@@ -402,6 +408,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="requiredItems != null and requiredItems != ''">required_items,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != '' ">#{id},</if>
+
             <if test="brand != null and brand != '' ">#{brand},</if>
             <if test="type != null and type != '' ">#{type},</if>
             <if test="firewareVersion != null and firewareVersion != '' ">#{firewareVersion},</if>
@@ -445,7 +453,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteTotalQuestionTableById" parameterType="Long">
+    <delete id="deleteTotalQuestionTableById" parameterType="string">
         delete from total_question_table where id = #{id}
     </delete>
 

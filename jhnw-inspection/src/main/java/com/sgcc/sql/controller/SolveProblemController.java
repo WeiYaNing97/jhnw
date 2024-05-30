@@ -63,7 +63,7 @@ public class SolveProblemController {
      */
     @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
     @ApiOperation("查询修复问题命令")
-    public List<String> queryCommandListBytotalQuestionTableId(@PathVariable Long totalQuestionTableId){
+    public List<String> queryCommandListBytotalQuestionTableId(@PathVariable String totalQuestionTableId){
 
         /*根据ID 查询问题表数据*/
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -288,7 +288,7 @@ public class SolveProblemController {
                 /*如果交换机扫描结果中 未定义 修复问题 则 去交换机问题表中查询 并赋值*/
                 if (switchScanResult.getComId() == null || switchScanResult.getComId().equals("null")){
                     totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-                    TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Long.valueOf(switchScanResult.getProblemId()).longValue());
+                    TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(switchScanResult.getProblemId());
                     if (totalQuestionTable.getProblemSolvingId() != null){
                         switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());
                     }else {

@@ -16,7 +16,7 @@ public class OspfCommand extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键 */
-    private Long id;
+    private String id;
 
     /** 品牌 */
     @Excel(name = "品牌")
@@ -38,16 +38,19 @@ public class OspfCommand extends BaseEntity
     @Excel(name = "获取OSPF参数命令")
     private String getParameterCommand;
 
-    public void setId(Long id) 
-    {
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getId() 
-    {
-        return id;
-    }
-    public void setBrand(String brand) 
+    public void setBrand(String brand)
     {
         this.brand = brand;
     }

@@ -19,7 +19,7 @@ public interface ISwitchFailureService
      * @param failureId 交换机故障主键
      * @return 交换机故障
      */
-    public SwitchFailure selectSwitchFailureByFailureId(Long failureId);
+    public SwitchFailure selectSwitchFailureByFailureId(String failureId);
 
     /**
      * 查询交换机故障列表
@@ -54,7 +54,7 @@ public interface ISwitchFailureService
      * @param failureIds 需要删除的交换机故障主键集合
      * @return 结果
      */
-    public int deleteSwitchFailureByFailureIds(Long[] failureIds);
+    public int deleteSwitchFailureByFailureIds(String[] failureIds);
 
     /**
      * 删除交换机故障信息
@@ -62,7 +62,7 @@ public interface ISwitchFailureService
      * @param failureId 交换机故障主键
      * @return 结果
      */
-    public int deleteSwitchFailureByFailureId(Long failureId);
+    public int deleteSwitchFailureByFailureId(String failureId);
 
     /*删除数据表所有数据*/
     int deleteSwitchFailureByFailure();

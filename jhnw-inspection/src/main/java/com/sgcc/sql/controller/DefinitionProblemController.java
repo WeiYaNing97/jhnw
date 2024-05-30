@@ -111,6 +111,8 @@ public class DefinitionProblemController extends BaseController {
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
 
+        String problem_area_code = (basicInformationId + "").substring(0, 8);
+
         /*遍历分析数据
         * 如果分析数据中含有command 则 是命令 则 进入 String 转 命令实体类方法
         * 如果分析数据中不含有command 则 是分析 则 进入 String 转 分析实体类方法*/
@@ -118,7 +120,7 @@ public class DefinitionProblemController extends BaseController {
 
             // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
-                CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(jsonPojoList.get(number));
+                CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code, jsonPojoList.get(number));
                 commandLogicList.add(commandLogic);
                 continue;
             }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
@@ -134,7 +136,7 @@ public class DefinitionProblemController extends BaseController {
                         /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
                         problemScanLogicList.add(problemScanLogic);*/
 
-                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "命令");
+                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code, jsonPojoList.get(number), "命令");
                         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
                         problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
                         problemScanLogicList.add(problemScanLogic);
@@ -144,7 +146,7 @@ public class DefinitionProblemController extends BaseController {
                         //本条是分析 下一条是 分析
                         /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
                         problemScanLogicList.add(problemScanLogic);*/
-                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "分析");
+                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code, jsonPojoList.get(number), "分析");
                         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
                         problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
                         problemScanLogicList.add(problemScanLogic);
@@ -155,7 +157,7 @@ public class DefinitionProblemController extends BaseController {
                     //本条是分析 下一条是 问题
                     /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
                     problemScanLogicList.add(problemScanLogic);*/
-                    AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "分析");
+                    AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code, jsonPojoList.get(number), "分析");
                     ProblemScanLogic problemScanLogic = new ProblemScanLogic();
                     problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
                     problemScanLogicList.add(problemScanLogic);
@@ -186,7 +188,7 @@ public class DefinitionProblemController extends BaseController {
 
 
         /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoOne, "分析");*/
-        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoOne, "分析");
+        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson( problem_area_code , jsonPojoOne, "分析");
         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
         problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
 
@@ -213,7 +215,7 @@ public class DefinitionProblemController extends BaseController {
     @PostMapping("definitionProblemJsonPojo")
     @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
     @ApiOperation("定义分析问题数据")
-    public boolean definitionProblemJson(@RequestParam Long totalQuestionTableId,@RequestBody List<String> jsonPojoList){
+    public boolean definitionProblemJson(@RequestParam String totalQuestionTableId,@RequestBody List<String> jsonPojoList){
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         boolean definitionProblemJsonboolean = definitionProblemJsonPojo(totalQuestionTableId,jsonPojoList,loginUser);
@@ -228,7 +230,7 @@ public class DefinitionProblemController extends BaseController {
      * @param loginUser
      * @return
     */
-    public boolean definitionProblemJsonPojo(Long totalQuestionTableId,@RequestBody List<String> jsonPojoList,LoginUser loginUser){
+    public boolean definitionProblemJsonPojo(String totalQuestionTableId,@RequestBody List<String> jsonPojoList,LoginUser loginUser){
         //@RequestBody List<String> jsonPojoList
         // /*判断问题分析逻辑是否为空*/
        if (jsonPojoList.size() == 0){
@@ -251,16 +253,19 @@ public class DefinitionProblemController extends BaseController {
         List<String> list1 = new ArrayList<>();
         List<String> list2 = new ArrayList<>();
 
+        String problem_area_code = totalQuestionTableId.substring(0, 8);
+
         /*遍历数据 属于命令还是分析数据*/
         for (int number=0;number<jsonPojoList.size();number++){
             // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
 
-                CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(jsonPojoList.get(number));
+                CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,jsonPojoList.get(number));
                 commandLogicList.add(commandLogic);
                 continue;
 
             }else if (!(jsonPojoList.get(number).indexOf("command") !=-1) && !(jsonPojoList.get(number).indexOf("method") !=-1)){
+
                 /*当数据不为集合的最后一个元素时
                 * 需要判断 下一条数据是否为 命令 如果是命令 则 分析数据应该标明下一条为命令表数据*/
                 if (number+1<jsonPojoList.size()){
@@ -271,7 +276,7 @@ public class DefinitionProblemController extends BaseController {
                     String[] split = jsonPojoList.get(number).split("\"nextIndex\":");
                     if (split.length == 2){
 
-                        String firstNumberFromString = MyUtils.getFirstNumberFromString(split[1]);
+                        String firstNumberFromString = MyUtils.getEncodingID(split[1]);
                         for (String jsonPojo:jsonPojoList){
                             if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
                                     &&jsonPojo.indexOf("command") !=-1){
@@ -289,7 +294,7 @@ public class DefinitionProblemController extends BaseController {
                         //本条是分析 下一条是 命令
                         //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
 
-                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "命令");
+                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code,jsonPojoList.get(number), "命令");
                         ProblemScanLogic pojo = new ProblemScanLogic();
                         pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
                         problemScanLogicList.add(pojo);
@@ -299,7 +304,7 @@ public class DefinitionProblemController extends BaseController {
                         //本条是分析 下一条是 分析
                         //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
 
-                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "分析");
+                        AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code,jsonPojoList.get(number), "分析");
                         ProblemScanLogic pojo = new ProblemScanLogic();
                         pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
                         problemScanLogicList.add(pojo);
@@ -312,7 +317,7 @@ public class DefinitionProblemController extends BaseController {
                     //本条是分析 下一条是 问题
                     //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
 
-                    AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(jsonPojoList.get(number), "分析");
+                    AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code,jsonPojoList.get(number), "分析");
                     ProblemScanLogic pojo = new ProblemScanLogic();
                     pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
                     problemScanLogicList.add(pojo);
@@ -322,18 +327,11 @@ public class DefinitionProblemController extends BaseController {
 
             }
         }
-        for (String str:list1){
-            System.err.println("1:"+str);
-        }
-        for (String str:list2){
-            System.err.println("2:"+str);
-        }
-
 
         //将相同ID  时间戳 的 实体类 放到一个实体
         List<ProblemScanLogic> problemScanLogics = InspectionMethods.definitionProblem(problemScanLogicList);
 
-        String totalQuestionTableById = totalQuestionTableId+"";;
+
         String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
@@ -341,8 +339,8 @@ public class DefinitionProblemController extends BaseController {
             if (i<=0){
                 return false;
             }
-
         }
+
 
         /* 如果命令 为 第一个参数 则 问题数据的下一条ID 添加命令*/
         for (CommandLogic commandLogic:commandLogicList){
@@ -366,9 +364,14 @@ public class DefinitionProblemController extends BaseController {
         }
 
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(Integer.valueOf(totalQuestionTableById).longValue());
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         /*赋值问题表数据的 逻辑ID  此时为命令ID*/
         totalQuestionTable.setLogicalID(commandId);
+
+        /*String logicalID = totalQuestionTable.getLogicalID();
+        String logic = logicalID.substring(0, 2);
+        String id = logicalID.replace(logic, "");
+        totalQuestionTable.setLogicalID(logic+MyUtils.getID(totalQuestionTableId.substring(0,4),id));*/
 
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
         if (i<=0){
@@ -489,6 +492,11 @@ public class DefinitionProblemController extends BaseController {
 
         Collection<String> values = hashMap.values();
         List<String> stringList = new ArrayList<>(values);
+
+        for (String str:stringList){
+            System.err.println(str);
+        }
+
         return stringList;
     }
 
@@ -583,20 +591,25 @@ public class DefinitionProblemController extends BaseController {
                 /*命令ID 清空 */
                 commandIDs = new ArrayList<>();
                 for (String commandid:commandIDList){
+
                     commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
                     CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandid);
+
                     if (commandLogic == null || commandLogic.getProblemId() == null){
                         HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
                         ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
                         ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
                         return ScanLogicalEntityMap;
                     }
+
                     commandLogicList.add(commandLogic);
+
                     if (hashMappojo.get(commandLogic.getcLine()) != null){
                         continue;
                     }else {
                         hashMappojo.put(commandLogic.getcLine(),commandLogic);
                     }
+
                     /*根据命令实体类 ResultCheckId 值  考虑 是否走 分析表
                      * ResultCheckId 为 0 时，则 进行分析
                      * ResultCheckId 为 1 时，则 进行命令 */
@@ -605,6 +618,7 @@ public class DefinitionProblemController extends BaseController {
                     }else {
                         commandIDs.add(commandLogic.getEndIndex());
                     }
+
                 }
             }
         }while (commandIDs.size() != 0 || problemIds.size() != 0);
@@ -623,7 +637,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @DeleteMapping("deleteScanningLogic")
     @ApiOperation("删除扫描逻辑数据")
-    public boolean deleteScanningLogic(@RequestBody Long id) {
+    public boolean deleteScanningLogic(@RequestBody String id) {
 
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
@@ -725,7 +739,7 @@ public class DefinitionProblemController extends BaseController {
                 * 需要进行 分析ID数组的 下一项 查询  。
                 * 结束本次循环 进行下一循环 用 continue */
                 ProblemScanLogic pojo = problemScanLogicHashMap.get(id);
-                if (pojo!=null){
+                if (pojo != null){
                     problemScanLogicHashMap.put(id,pojo);
                     continue;
                 }
@@ -809,7 +823,7 @@ public class DefinitionProblemController extends BaseController {
     @ApiOperation("分析问题数据修改")
     @PutMapping("updateAnalysis")
     @MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
-    public boolean updateAnalysis(@RequestParam Long totalQuestionTableId,@RequestBody List<String> pojoList){
+    public boolean updateAnalysis(@RequestParam String totalQuestionTableId,@RequestBody List<String> pojoList){
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
@@ -1009,7 +1023,7 @@ public class DefinitionProblemController extends BaseController {
         /*根据分析ID 获取 分析实体类集合 不用拆分 true false*/
         DefinitionProblemController definitionProblemController = new DefinitionProblemController();
         List<ProblemScanLogic> problemScanLogicList = definitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
-        if (problemScanLogicList.size() ==0 ){
+        if (problemScanLogicList.size() == 0 ){
             //传输登陆人姓名 及问题简述
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:获取交换机基本信息分析逻辑为空\r\n");
@@ -1050,20 +1064,29 @@ public class DefinitionProblemController extends BaseController {
     * @param
      * @return
     */
-    public static AnalyzeConvertJson getAnalyzeConvertJson(String information,String ifCommand) {
+    public static AnalyzeConvertJson getAnalyzeConvertJson(String problem_area_code,String information,String ifCommand) {
+
+        /*
+
+        {"targetType":"takeword","onlyIndex":1716950612245,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"1","nextIndex":"SCRT00011716946238058","length":"nullnull","pageIndex":2}
+        {"targetType":"takeword","onlyIndex":1716950619965,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"2","nextIndex":"SCRT00011716946250825","length":"nullnull","pageIndex":4}
+
+        */
 
         information = information.replace("\"null\"","\"\"");
+        information = information.replace("null","");
+
         AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(information, AnalyzeConvertJson.class);
 
         analyzeConvertJson = (AnalyzeConvertJson) setNullIfEmpty(analyzeConvertJson);
 
         /** 如果ifCommand是命令 则下一ID为命令 */
-        analyzeConvertJson = deformation(analyzeConvertJson, ifCommand);
+        analyzeConvertJson = deformation(problem_area_code,analyzeConvertJson, ifCommand);
 
         return analyzeConvertJson;
     }
 
-    public static AnalyzeConvertJson deformation(AnalyzeConvertJson analyzeConvertJson,String ifCommand) {
+    public static AnalyzeConvertJson deformation(String problem_area_code,AnalyzeConvertJson analyzeConvertJson,String ifCommand) {
 
         /** 行,列偏移
          * RelativePosition */
@@ -1071,6 +1094,7 @@ public class DefinitionProblemController extends BaseController {
         if (analyzeConvertJson.getPosition() == null){
             analyzeConvertJson.setPosition("0");
         }
+
         /* 行偏移
         * 当前行
         * 全文起始
@@ -1111,12 +1135,14 @@ public class DefinitionProblemController extends BaseController {
          *如果下一条分析数据为命令时 则 下一条IDtNextId  要赋值给 命令ID
          * 然后下一条ID tNextId 置空 null  */
         if (analyzeConvertJson.getTrueFalse() !=null && analyzeConvertJson.getTrueFalse() .equals("失败") && ifCommand.equals("命令")){
+
             /** true下一条命令索引 */
-            analyzeConvertJson.setfComId( analyzeConvertJson.getNextIndex() );
+            analyzeConvertJson.setfComId(MyUtils.encodeID( analyzeConvertJson.getNextIndex())?analyzeConvertJson.getNextIndex() : problem_area_code + analyzeConvertJson.getNextIndex() );
             analyzeConvertJson.setfLine(analyzeConvertJson.getPageIndex());
+
         }else if (ifCommand.equals("命令")){
             /** true下一条命令索引 */
-            analyzeConvertJson.settComId( analyzeConvertJson.getNextIndex() );
+            analyzeConvertJson.settComId(MyUtils.encodeID( analyzeConvertJson.getNextIndex() )?analyzeConvertJson.getNextIndex() :  problem_area_code + analyzeConvertJson.getNextIndex() );
             analyzeConvertJson.settLine(analyzeConvertJson.getPageIndex());
         }
 
@@ -1124,7 +1150,7 @@ public class DefinitionProblemController extends BaseController {
         if (analyzeConvertJson.getAction() != null && analyzeConvertJson.getAction().indexOf("问题")!=-1){
             //problemId字段 存放 有无问题 加 问题表数据ID
             //hashMap.get("WTNextId") 存放有无问题
-            analyzeConvertJson.setProblemId(analyzeConvertJson.gettNextId());
+            analyzeConvertJson.setProblemId( analyzeConvertJson.gettNextId());
             //清空动作属性
             analyzeConvertJson.setAction(null);
         }
@@ -1138,16 +1164,20 @@ public class DefinitionProblemController extends BaseController {
 
             //如果实体类是 失败 则 把默认成功数据 赋值给 失败数据
             analyzeConvertJson.setfLine(analyzeConvertJson.getPageIndex());
-            analyzeConvertJson.setfNextId(analyzeConvertJson.getNextIndex());
-            analyzeConvertJson.setfComId(analyzeConvertJson.gettComId());
+            analyzeConvertJson.setfNextId(MyUtils.encodeID( analyzeConvertJson.getNextIndex()) ? analyzeConvertJson.getNextIndex(): problem_area_code + analyzeConvertJson.getNextIndex());
 
             //把 默认成功数据 清除
             analyzeConvertJson.settComId(null);
             analyzeConvertJson.settLine(null);
 
         }else if (ifCommand.equals("分析")){
-            analyzeConvertJson.settNextId(analyzeConvertJson.getNextIndex());
+            analyzeConvertJson.settNextId(analyzeConvertJson.getNextIndex() == null? null : (MyUtils.encodeID( analyzeConvertJson.getNextIndex() )? analyzeConvertJson.getNextIndex() :  problem_area_code + analyzeConvertJson.getNextIndex()));
             analyzeConvertJson.settLine(analyzeConvertJson.getPageIndex());
+
+            //把 默认成功数据 清除
+            analyzeConvertJson.setfComId(null);
+            analyzeConvertJson.setfLine(null);
+
         }
 
 
@@ -1181,9 +1211,8 @@ public class DefinitionProblemController extends BaseController {
         }
 
 
-
         /** 主键索引 */
-        analyzeConvertJson.setId(analyzeConvertJson.getOnlyIndex());
+        analyzeConvertJson.setId( MyUtils.encodeID(analyzeConvertJson.getOnlyIndex() )? analyzeConvertJson.getOnlyIndex() : problem_area_code + analyzeConvertJson.getOnlyIndex());
 
         /** 匹配 */
         if (analyzeConvertJson.getMatched()!=null){
@@ -1196,10 +1225,24 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
+        if (analyzeConvertJson.getCycleStartId()!=null){
+            analyzeConvertJson.setCycleStartId(MyUtils.encodeID( analyzeConvertJson.getCycleStartId() )? analyzeConvertJson.getCycleStartId() : problem_area_code + analyzeConvertJson.getCycleStartId());
+        }
+
 
         return analyzeConvertJson;
     }
 
+
+
+    /**
+    * @Description 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+    * @author charles
+    * @createTime 2024/5/26 11:11
+    * @desc
+    * @param obj
+     * @return
+    */
     public static Object setNullIfEmpty(Object obj) {
 
         Class<?> clazz = obj.getClass();

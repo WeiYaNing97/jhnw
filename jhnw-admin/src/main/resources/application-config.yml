@@ -1,7 +1,17 @@
 # 配置
 configuration:
+
+  #问题编码
+  problemCode:
+    #安全配置
+    安全配置: SCRT
+    #运行分析
+    运行分析: OPSA
+    #日常巡检
+    日常巡检: DICA
   #地区编码
-  regionalCode: HS0001
+  regionalCode: 0001
+
   #自定义分隔符
   customDelimiter: "=:="
   # 最小超时

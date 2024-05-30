@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @date 2022年08月02日 14:42
@@ -172,15 +173,16 @@ public class MyUtils {
     }
     /**
      * 要在Java中获取字符串第一个数值数字部分，可以使用正则表达式。 */
-    public static String getFirstNumberFromString(String input) {
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(input);
-
-        if (matcher.find()) {
-            return matcher.group();
-        } else {
-            return ""; // 如果没有找到数字，返回-1或其他默认值
+    public static String getEncodingID(String input) {
+        String[] split = input.split(",");
+        String str = split[0];
+        if (str.startsWith("\'") || str.startsWith("\"")){
+            str = str.substring(1,str.length());
         }
+        if (str.endsWith("\'") || str.endsWith("\"")){
+            str = str.substring(0,str.length()-1);
+        }
+        return str;
     }
     /* ============================== 数字 结束 ==============================*/
     /* ============================== 实体类 开始 ==============================*/
@@ -526,12 +528,53 @@ public class MyUtils {
     /* ============================== IP 结束 ==============================*/
 
 
-    public static String getID(String problemCode) {
-        String regionalCode = (String) CustomConfigurationUtil.getValue("configuration.regionalCode", Constant.getProfileInformation());
-        String re = problemCode + regionalCode +System.currentTimeMillis();
+
+
+
+    public static String getID(String problemCode,String id) {
+        String regionalCode = (CustomConfigurationUtil.getValue("configuration.regionalCode", Constant.getProfileInformation())).toString();
+
+        switch (regionalCode.length()){
+            case 1:
+                regionalCode ="000"+regionalCode;
+                break;
+            case 2:
+                regionalCode ="00"+regionalCode;
+                break;
+            case 3:
+                regionalCode ="0"+regionalCode;
+                break;
+        }
+
+        String re = "";
+        if (id == null){
+            re = problemCode + regionalCode +System.currentTimeMillis();
+        }else {
+            re = problemCode + regionalCode + id;
+        }
         return re;
     }
 
+    /** 判断Id 是否为 */
+    public static boolean encodeID(String id) {
+        if (id.length() != 21){
+            return false;
+        }else {
+            return true;
+        }
+
+        /*自定义分隔符*/
+        /*Map<String, Object> customDelimiter = (Map<String, Object>) CustomConfigurationUtil.getValue("configuration.problemCode", Constant.getProfileInformation());
+        Collection<Object> customDelimitervalues = customDelimiter.values();
+        List<String> values = customDelimitervalues.stream().map(Object::toString).collect(Collectors.toList());
+
+        for (String value:values){
+            if (id.startsWith( value )){
+                return true;
+            }
+        }
+        return false;*/
+    }
 
 
 
@@ -635,4 +678,8 @@ public class MyUtils {
         }
         return str.substring(0, index + 1);
     }
+
+
+
+
 }

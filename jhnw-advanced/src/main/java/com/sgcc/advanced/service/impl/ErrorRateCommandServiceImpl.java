@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sgcc.advanced.controller.ErrorPackage;
+import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
+import com.sgcc.share.util.MyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sgcc.advanced.mapper.ErrorRateCommandMapper;
@@ -30,7 +33,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
      * @return 错误包 命令
      */
     @Override
-    public ErrorRateCommand selectErrorRateCommandById(Long id)
+    public ErrorRateCommand selectErrorRateCommandById(String id)
     {
         return errorRateCommandMapper.selectErrorRateCommandById(id);
     }
@@ -67,6 +70,11 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
     @Override
     public int insertErrorRateCommand(ErrorRateCommand errorRateCommand)
     {
+        String regionalCode = (CustomConfigurationUtil.getValue("configuration.problemCode.日常巡检", Constant.getProfileInformation())).toString();
+        String id = MyUtils.getID(regionalCode, null);
+
+        errorRateCommand.setId(id);
+
         return errorRateCommandMapper.insertErrorRateCommand(errorRateCommand);
     }
 
@@ -89,7 +97,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
      * @return 结果
      */
     @Override
-    public int deleteErrorRateCommandByIds(Long[] ids)
+    public int deleteErrorRateCommandByIds(String[] ids)
     {
         return errorRateCommandMapper.deleteErrorRateCommandByIds(ids);
     }
@@ -101,7 +109,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
      * @return 结果
      */
     @Override
-    public int deleteErrorRateCommandById(Long id)
+    public int deleteErrorRateCommandById(String id)
     {
         return errorRateCommandMapper.deleteErrorRateCommandById(id);
     }

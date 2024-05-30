@@ -39,9 +39,8 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     {
         SwitchScanResult switchScanResult = switchScanResultMapper.selectSwitchScanResultById(id);
 
-        String dynamicInformation = switchScanResult.getDynamicInformation();
-        if (dynamicInformation.length() == 23){
-            NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+        if ( switchScanResult.getPointer() == 1 ){
+            NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(switchScanResult.getDynamicInformation());
             if ( nonRelationalDataTable != null){
                 switchScanResult.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
             }
@@ -57,11 +56,16 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
      */
     @Override
     public SwitchScanResult getTheLatestDataByIP(String ip) {
+        /* 根据IP查询交换机扫描结果表最新数据 */
         SwitchScanResult theLatestDataByIP = switchScanResultMapper.getTheLatestDataByIP(ip);
+        /* 如果查询结果为 null 则直接返回 null*/
+        if (theLatestDataByIP == null){
+            return theLatestDataByIP;
+        }
 
-        String dynamicInformation = theLatestDataByIP.getDynamicInformation();
-        if (dynamicInformation.length() == 23){
-            NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+        /* 如果 参数长度为23 则可能是非关系型数据表ID，则查询数据*/
+        if ( theLatestDataByIP.getPointer() == 1 ){
+            NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(theLatestDataByIP.getDynamicInformation());
             if ( nonRelationalDataTable != null){
                 theLatestDataByIP.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
             }
@@ -81,9 +85,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     {
         List<SwitchScanResult> switchScanResults = switchScanResultMapper.selectSwitchScanResultList(switchScanResult);
         for (SwitchScanResult pojo:switchScanResults){
-            String dynamicInformation = pojo.getDynamicInformation();
-            if (dynamicInformation.length() == 23){
-                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+
+            if ( switchScanResult.getPointer() == 1 ){
+                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(pojo.getDynamicInformation());
                 if ( nonRelationalDataTable != null){
                     pojo.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                 }
@@ -105,9 +109,11 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
         if (switchScanResult.getDynamicInformation().length() >= 255){
             NonRelationalDataTable nonRelationalDataTable = new NonRelationalDataTable();
             MyUtils myUtils = new MyUtils();
-            nonRelationalDataTable.setNonRelationalId(myUtils.getID((switchScanResult.getId()+"").substring(0,4)));
+            nonRelationalDataTable.setNonRelationalId(myUtils.getID((switchScanResult.getId()+"").substring(0,4) , null));
             nonRelationalDataTable.setNonRelationalData(switchScanResult.getDynamicInformation());
             nonRelationalDataTableMapper.insertNonRelationalDataTable(nonRelationalDataTable);
+
+            switchScanResult.setPointer(1);/* 是指针 */
             switchScanResult.setDynamicInformation(nonRelationalDataTable.getNonRelationalId());
         }
 
@@ -130,12 +136,10 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     {
         SwitchScanResult switchScanResult = switchScanResultMapper.selectSwitchScanResultById(id);
 
-        String dynamicInformation = switchScanResult.getDynamicInformation();
-
-        if (dynamicInformation.length() == 23){
-            NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+        if ( switchScanResult.getPointer() == 1 ){
+            NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(switchScanResult.getDynamicInformation());
             if ( nonRelationalDataTable != null){
-                int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalId(dynamicInformation);
+                int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalId(switchScanResult.getDynamicInformation());
                 if (i>0){
                     return switchScanResultMapper.deleteSwitchScanResultById(id);
                 }
@@ -152,9 +156,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
         for (SwitchProblemVO switchProblemVO:switchProblemVOS){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-                String dynamicInformation = switchProblemCO.getDynamicInformation();
-                if (dynamicInformation.length() == 23){
-                    NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+
+                if ( switchProblemCO.getPointer() == 1 ){
+                    NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(switchProblemCO.getDynamicInformation());
                     if ( nonRelationalDataTable != null){
                         switchProblemCO.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                     }
@@ -172,9 +176,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
         for (SwitchProblemVO switchProblemVO:switchProblemVOS){
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-                String dynamicInformation = switchProblemCO.getDynamicInformation();
-                if (dynamicInformation.length() == 23){
-                    NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+
+                if ( switchProblemCO.getPointer() == 1 ){
+                    NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(switchProblemCO.getDynamicInformation());
                     if ( nonRelationalDataTable != null){
                         switchProblemCO.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                     }
@@ -189,9 +193,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     public List<SwitchScanResult> selectSwitchScanResultByIds(Long[] ids) {
         List<SwitchScanResult> switchScanResults = switchScanResultMapper.selectSwitchScanResultByIds(ids);
         for (SwitchScanResult pojo:switchScanResults){
-            String dynamicInformation = pojo.getDynamicInformation();
-            if (dynamicInformation.length() == 23){
-                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+
+            if ( pojo.getPointer() == 1 ){
+                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(pojo.getDynamicInformation());
                 if ( nonRelationalDataTable != null){
                     pojo.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                 }
@@ -208,9 +212,8 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
             List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
             for (SwitchProblemCO switchProblemCO:switchProblemCOList){
 
-                String dynamicInformation = switchProblemCO.getDynamicInformation();
-                if (dynamicInformation.length() == 23){
-                    NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+                if ( switchProblemCO.getPointer() == 1 ){
+                    NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(switchProblemCO.getDynamicInformation());
                     if ( nonRelationalDataTable != null){
                         switchProblemCO.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                     }
@@ -226,9 +229,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
         SwitchProblemVO switchProblemVO = switchScanResultMapper.selectSwitchScanResultListById(longId);
         List<SwitchProblemCO> switchProblemCOList = switchProblemVO.getSwitchProblemCOList();
         for (SwitchProblemCO switchProblemCO:switchProblemCOList){
-            String dynamicInformation = switchProblemCO.getDynamicInformation();
-            if (dynamicInformation.length() == 23){
-                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+
+            if ( switchProblemCO.getPointer() == 1 ){
+                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(switchProblemCO.getDynamicInformation());
                 if ( nonRelationalDataTable != null){
                     switchProblemCO.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                 }
@@ -241,9 +244,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     public List<SwitchScanResult> selectSwitchScanResultByDataAndUserName(String loginTime, String loginName) {
         List<SwitchScanResult> switchScanResults = switchScanResultMapper.selectSwitchScanResultByDataAndUserName(loginTime, loginName);
         for (SwitchScanResult pojo:switchScanResults){
-            String dynamicInformation = pojo.getDynamicInformation();
-            if (dynamicInformation.length() == 23){
-                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+
+            if ( pojo.getPointer() == 1 ){
+                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(pojo.getDynamicInformation());
                 if ( nonRelationalDataTable != null){
                     pojo.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                 }
@@ -274,9 +277,9 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     public List<SwitchScanResult> selectSwitchScanResultListPages(String userName,int number) {
         List<SwitchScanResult> switchScanResults = switchScanResultMapper.selectSwitchScanResultListPages(userName, number);
         for (SwitchScanResult pojo:switchScanResults){
-            String dynamicInformation = pojo.getDynamicInformation();
-            if (dynamicInformation.length() == 23){
-                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(dynamicInformation);
+
+            if ( pojo.getPointer() == 1 ){
+                NonRelationalDataTable nonRelationalDataTable = nonRelationalDataTableMapper.selectNonRelationalDataTableByNonRelationalId(pojo.getDynamicInformation());
                 if ( nonRelationalDataTable != null){
                     pojo.setDynamicInformation(nonRelationalDataTable.getNonRelationalData());
                 }
@@ -316,12 +319,16 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     public int deleteSwitchScanResultByIds(Long[] ids)
     {
         List<SwitchScanResult> switchScanResults = switchScanResultMapper.selectSwitchScanResultByIds(ids);
+
         List<String> dynamicInformationList = new ArrayList<>();
         for (SwitchScanResult pojo:switchScanResults){
             dynamicInformationList.add(pojo.getDynamicInformation());
         }
+
         String[] dynamicInformationArray = dynamicInformationList.toArray(new String[dynamicInformationList.size()]);
+
         int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalIds(dynamicInformationArray);
+
         if (i>=0){
             return switchScanResultMapper.deleteSwitchScanResultByIds(ids);
         }

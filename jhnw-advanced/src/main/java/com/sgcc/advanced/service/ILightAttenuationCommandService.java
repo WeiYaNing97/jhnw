@@ -17,7 +17,7 @@ public interface ILightAttenuationCommandService
      * @param id 光衰命令主键
      * @return 光衰命令
      */
-    public LightAttenuationCommand selectLightAttenuationCommandById(Long id);
+    public LightAttenuationCommand selectLightAttenuationCommandById(String id);
 
     /**
      * 查询光衰命令列表
@@ -49,7 +49,7 @@ public interface ILightAttenuationCommandService
      * @param ids 需要删除的光衰命令主键集合
      * @return 结果
      */
-    public int deleteLightAttenuationCommandByIds(Long[] ids);
+    public int deleteLightAttenuationCommandByIds(String[] ids);
 
     /**
      * 删除光衰命令信息
@@ -57,7 +57,7 @@ public interface ILightAttenuationCommandService
      * @param id 光衰命令主键
      * @return 结果
      */
-    public int deleteLightAttenuationCommandById(Long id);
+    public int deleteLightAttenuationCommandById(String id);
 
     List<LightAttenuationCommand> selectLightAttenuationCommandListBySQL(LightAttenuationCommand lightAttenuationCommand);
 }

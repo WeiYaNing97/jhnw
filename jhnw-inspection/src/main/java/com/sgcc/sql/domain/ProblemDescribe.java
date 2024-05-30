@@ -16,22 +16,25 @@ public class ProblemDescribe extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 问题描述ID */
-    private Long id;
+    private String id;
 
     /** 问题描述 */
     @Excel(name = "问题描述")
     private String problemDescribe;
 
-    public void setId(Long id) 
-    {
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Long getId() 
-    {
-        return id;
-    }
-    public void setProblemDescribe(String problemDescribe) 
+    public void setProblemDescribe(String problemDescribe)
     {
         this.problemDescribe = problemDescribe;
     }

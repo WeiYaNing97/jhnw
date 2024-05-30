@@ -5,6 +5,7 @@ import com.sgcc.share.domain.SwitchFailure;
 import com.sgcc.share.mapper.SwitchFailureMapper;
 import com.sgcc.share.service.ISwitchFailureService;
 import com.sgcc.share.util.FunctionalMethods;
+import com.sgcc.share.util.MyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class SwitchFailureServiceImpl implements ISwitchFailureService
      * @return 交换机故障
      */
     @Override
-    public SwitchFailure selectSwitchFailureByFailureId(Long failureId)
+    public SwitchFailure selectSwitchFailureByFailureId(String failureId)
     {
         return switchFailureMapper.selectSwitchFailureByFailureId(failureId);
     }
@@ -80,7 +81,11 @@ public class SwitchFailureServiceImpl implements ISwitchFailureService
     @Override
     public int insertSwitchFailure(SwitchFailure switchFailure)
     {
+        String id = MyUtils.getID("CMFA", null);
+        switchFailure.setFailureId(id);
+
         return switchFailureMapper.insertSwitchFailure(switchFailure);
+
     }
 
     /**
@@ -102,7 +107,7 @@ public class SwitchFailureServiceImpl implements ISwitchFailureService
      * @return 结果
      */
     @Override
-    public int deleteSwitchFailureByFailureIds(Long[] failureIds)
+    public int deleteSwitchFailureByFailureIds(String[] failureIds)
     {
         return switchFailureMapper.deleteSwitchFailureByFailureIds(failureIds);
     }
@@ -114,7 +119,7 @@ public class SwitchFailureServiceImpl implements ISwitchFailureService
      * @return 结果
      */
     @Override
-    public int deleteSwitchFailureByFailureId(Long failureId)
+    public int deleteSwitchFailureByFailureId(String failureId)
     {
         return switchFailureMapper.deleteSwitchFailureByFailureId(failureId);
     }

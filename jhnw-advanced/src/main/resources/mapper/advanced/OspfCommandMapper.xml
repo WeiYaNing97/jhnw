@@ -32,7 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ${fuzzySQL}
     </select>
     
-    <select id="selectOspfCommandById" parameterType="Long" resultMap="OspfCommandResult">
+    <select id="selectOspfCommandById" parameterType="string" resultMap="OspfCommandResult">
         <include refid="selectOspfCommandVo"/>
         where id = #{id}
     </select>
@@ -40,6 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertOspfCommand" parameterType="OspfCommand" useGeneratedKeys="true" keyProperty="id">
         insert into ospf_command
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
             <if test="brand != null and brand != ''">brand,</if>
             <if test="switchType != null">switch_type,</if>
             <if test="firewareVersion != null">fireware_version,</if>
@@ -47,6 +48,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="getParameterCommand != null">get_parameter_command,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
             <if test="brand != null and brand != ''">#{brand},</if>
             <if test="switchType != null">#{switchType},</if>
             <if test="firewareVersion != null">#{firewareVersion},</if>
@@ -67,11 +69,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteOspfCommandById" parameterType="Long">
+    <delete id="deleteOspfCommandById" parameterType="string">
         delete from ospf_command where id = #{id}
     </delete>
 
-    <delete id="deleteOspfCommandByIds" parameterType="String">
+    <delete id="deleteOspfCommandByIds" parameterType="string">
         delete from ospf_command where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}

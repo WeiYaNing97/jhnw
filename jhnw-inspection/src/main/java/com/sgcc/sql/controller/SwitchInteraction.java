@@ -164,7 +164,8 @@ public class SwitchInteraction {
                 /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(pojo, "分析");
                 problemScanLogicList.add(problemScanLogic);*/
 
-                AnalyzeConvertJson analyzeConvertJson = definitionProblemController.getAnalyzeConvertJson(pojo, "分析");
+                /* 预执行获取交换机基本信息 不往数据库中插数据 所以问题编码 和 地区编码 不添加*/
+                AnalyzeConvertJson analyzeConvertJson = definitionProblemController.getAnalyzeConvertJson( "" , pojo, "分析");
                 ProblemScanLogic problemScanLogic = new ProblemScanLogic();
                 problemScanLogic = (ProblemScanLogic) definitionProblemController.copyProperties( analyzeConvertJson , problemScanLogic);
                 problemScanLogicList.add(problemScanLogic);

@@ -68,7 +68,7 @@ public class SwitchScanResult extends BaseEntity
 
     /** 问题详细说明和指导索引 */
     @Excel(name = "问题详细说明和指导索引")
-    private Long problemDescribeId;
+    private String problemDescribeId;
 
     /** 是否有问题 */
     @Excel(name = "是否有问题")
@@ -78,6 +78,10 @@ public class SwitchScanResult extends BaseEntity
     @Excel(name = "命令索引")
     private String comId;
 
+
+    /** 动态信息是否为指针 */
+    @Excel(name = "动态信息是否为指针")
+    private Integer pointer;
 
     /** 动态信息 */
     @Excel(name = "动态信息")
@@ -184,11 +188,11 @@ public class SwitchScanResult extends BaseEntity
         this.remarks = remarks;
     }
 
-    public Long getProblemDescribeId() {
+    public String getProblemDescribeId() {
         return problemDescribeId;
     }
 
-    public void setProblemDescribeId(Long problemDescribeId) {
+    public void setProblemDescribeId(String problemDescribeId) {
         this.problemDescribeId = problemDescribeId;
     }
 
@@ -249,6 +253,14 @@ public class SwitchScanResult extends BaseEntity
         this.switchId = switchId;
     }
 
+    public Integer getPointer() {
+        return pointer;
+    }
+
+    public void setPointer(Integer pointer) {
+        this.pointer = pointer;
+    }
+
     @Override
     public String toString() {
         return "SwitchScanResult{" +
@@ -265,9 +277,10 @@ public class SwitchScanResult extends BaseEntity
                 ", temProName='" + temProName + '\'' +
                 ", problemName='" + problemName + '\'' +
                 ", remarks='" + remarks + '\'' +
-                ", problemDescribeId=" + problemDescribeId +
+                ", problemDescribeId='" + problemDescribeId + '\'' +
                 ", ifQuestion='" + ifQuestion + '\'' +
                 ", comId='" + comId + '\'' +
+                ", pointer='" + pointer + '\'' +
                 ", dynamicInformation='" + dynamicInformation + '\'' +
                 ", userName='" + userName + '\'' +
                 ", phonenumber='" + phonenumber + '\'' +
