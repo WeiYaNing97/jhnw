@@ -24,15 +24,27 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class AdvancedFeatures {
 
+    /**
+     * 高级功能接口
+     *
+     * @param switchInformation 用户登录信息列表
+     * @param scanNum           扫描次数
+     * @param functionName    功能名称
+     * @return 返回扫描结束字符串
+     * @throws InterruptedException 线程中断异常
+     */
     @ApiOperation("高级功能接口")
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "高级功能", businessType = BusinessType.OTHER)
-    public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {//待测
-
+    public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {
+        // 获取当前时间并格式化为字符串
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
+        // 初始化多线程参数列表
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchParameters> switchParametersList = new ArrayList<>();
+
+        // 遍历用户登录信息列表，转换为json格式的登录信息
         /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
         for (String information:switchInformation){
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
@@ -41,48 +53,56 @@ public class AdvancedFeatures {
             switchParameters.setScanningTime(simpleDateFormat);
             BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
-            //以多线程中的格式 存放数组中
+
+            // 将多线程参数添加到列表中
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
         }
 
-        //线程池
+        // 创建线程池参数对象
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setSwitchParameters(switchParametersList);
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
 
         try {
-            /*高级功能线程池*/
+            // 调用高级功能线程池执行登录信息操作
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
             AdvancedThreadPool.switchLoginInformations(parameterSet, functionName,true);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        // 打印扫描结束信息
         System.err.println("扫描结束");
 
+        // 发送WebSocket消息，传输登录人姓名和问题简述
         //传输登陆人姓名 及问题简述
         WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
+
         try {
-            //插入问题简述及问题路径
+            // 将问题简述和问题路径写入文件
             PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        // 格式化当前时间加上10分钟后的时间
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));
+
+        // 等待条件满足后返回扫描结束字符串
         while (true){
             if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
+                // 如果WebSocket连接存在，则移除连接并返回扫描结束
                 WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
                 return "扫描结束";
             }
             if (dateFormat.format(new Date(new Date().getTime())).compareTo(nowTime_10) >=0 ){
+                // 如果等待时间超过10分钟，则返回扫描结束
                 return "扫描结束";
             }
         }
-
     }
 
 }

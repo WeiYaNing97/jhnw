@@ -51,25 +51,32 @@ public class MemoryCPU extends TimerTask {
     private static int TotalCPUs;//CPU总数
     private static String CPUUtilization = null;//CPU利用率
 
+    /**
+     * 获取服务器CPU、内存大小及使用率
+     */
     @ApiOperation("获取服务器CPU、内存大小及使用率")
     //@GetMapping("/get_Memory_CPU")
     public void get_Memory_CPU() {
+        // 初始化系统信息
         initSystemInfo();
+
+        // 拼接内存和CPU信息字符串
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+
                 "内存使用率 : "+MemoryUsage+"\r\n"+
                 "CPU总数 : "+TotalCPUs+"\r\n"+
                 "CPU利用率 : "+CPUUtilization+"\r\n";
+
+        // 将内存和CPU信息通过WebSocket发送给所有客户端
         WebSocketService.sendMessageAll(Memory_CPU);
     }
 
 
     /**
-     * @description 获取系统详细参数信息
+     * 获取系统详细参数信息
+     *
      * @author Benjamin
      * @date 2022/12/8 10:02:50
      * @version 1.0.0
-     * @param
-     * @return void
      */
     public void initSystemInfo() {
         try {

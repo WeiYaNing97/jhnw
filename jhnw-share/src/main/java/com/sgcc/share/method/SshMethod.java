@@ -137,43 +137,76 @@ public class SshMethod {
         //ssh关闭连接
         sshConnect.close();
     }
-    //删除字符串中 第一个满足条件的 子字符串
+    /**
+     * 从字符串中删除第一个满足条件的子字符串
+     *
+     * @param str 需要处理的字符串
+     * @param indexStr 需要删除的子字符串
+     * @return 返回处理后的字符串，如果原字符串为null，则返回null
+     */
     public static String trimStr(String str, String indexStr){
         if(str == null){
             return null;
         }
         StringBuilder newStr = new StringBuilder(str);
+        // 如果子字符串位于原字符串的开头
         if(newStr.indexOf(indexStr) == 0){
             newStr = new StringBuilder(newStr.substring(indexStr.length()));
         }else if(newStr.indexOf(indexStr) == newStr.length() - indexStr.length()){
+            // 如果子字符串位于原字符串的末尾
             newStr = new StringBuilder(newStr.substring(0,newStr.lastIndexOf(indexStr)));
 
         }else if(newStr.indexOf(indexStr) < (newStr.length() - indexStr.length())){
+            // 如果子字符串位于原字符串的中间位置
             newStr =  new StringBuilder(newStr.substring(0,newStr.indexOf(indexStr))
                     +newStr.substring(newStr.indexOf(indexStr)+indexStr.length(),newStr.length()));
         }
         return newStr.toString();
     }
-    //查看字符串中是否存在某一字符
-    //boolean status = str.contains("a");
-    //获取字符串中 字符的 位置
+
+
+    /**
+     * 获取字符串中指定字符的位置
+     *
+     * @param str 要搜索的字符串
+     * @param specialChar 要查找的指定字符
+     * @return 返回指定字符在字符串中首次出现的位置，如果未找到则返回null
+     */
     public static Integer startChar(String str,String specialChar){
-        Matcher matcher= Pattern.compile(specialChar).matcher(str);
+        // 编译要查找的字符为正则表达式，并创建匹配器
+        Matcher matcher = Pattern.compile(specialChar).matcher(str);
+        // 如果匹配器找到匹配的字符
         if(matcher.find()){
+            // 获取匹配字符在字符串中的起始位置
             Integer start = matcher.start();
+            // 返回起始位置
             return start;
         }
+        // 如果没有找到匹配的字符，则返回null
         return null;
     }
+    /**
+     * 获取字符串中第一个字母出现的位置（从0开始计数）
+     *
+     * @param temporary 待查找的字符串
+     * @return 字符串中第一个字母出现的位置，若字符串中无字母则返回0
+     */
     public static Integer letterFirst(String temporary){
+        // 将字符串转换为字符数组
         char[] charArr = temporary.toCharArray();
+        // 遍历字符数组
         for (int i=0;i<charArr.length;i++){
+            // 判断当前字符是否为字母
             if(charArr[i] >='a' && charArr[i]<='z' ||  charArr[i] >='A' && charArr[i]<='Z'){
+                // 将当前字符转换为字符串
                 String str = charArr[i]+"";
+                // 调用startChar方法获取当前字母在字符串中的位置
                 Integer integer = startChar(temporary, str);
+                // 返回字母在字符串中的位置
                 return integer;
             }
         }
+        // 若字符串中无字母，则返回0
         return 0;
     }
 }

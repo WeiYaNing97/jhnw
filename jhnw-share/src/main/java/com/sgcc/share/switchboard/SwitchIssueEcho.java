@@ -21,9 +21,11 @@ public class SwitchIssueEcho {
     private ISwitchScanResultService switchScanResultService;
 
     /**
-     * @method: 查询扫描出的问题表 放入 websocket
-     * @Param: []
-     * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
+     * 查询当前扫描出的问题表并放入websocket
+     *
+     * @param username 用户名
+     * @param longId   交换机扫描结果ID
+     * @return void
      */
     @GetMapping("getSwitchScanResultListByData")
     @ApiOperation("查询当前扫描出的问题表放入websocket")

@@ -26,65 +26,90 @@ public class MyUtils {
 
     /* ============================== 汉字 开始 ==============================*/
     /**
-    * @Description根据正则表达式判断字符是否为汉字 */
-    public static boolean isContainChinese( String str) {
-        String regex = "[\u4e00-\u9fa5]"; //汉字的Unicode取值范围
+     * 根据正则表达式判断字符串中是否包含汉字
+     *
+     * @param str 待检查的字符串
+     * @return 如果字符串中包含汉字，则返回true；否则返回false
+     */
+    public static boolean isContainChinese(String str) {
+        // 定义汉字的正则表达式
+        String regex = "[\u4e00-\u9fa5]";
+        // 编译正则表达式，生成Pattern对象
         Pattern pattern = Pattern.compile(regex);
+        // 使用Pattern对象创建Matcher对象，用于匹配字符串
         Matcher match = pattern.matcher(str);
+        // 判断字符串中是否存在匹配项，即是否包含汉字
         return match.find();
     }
     /* ============================== 汉字 结束 ==============================*/
     /* ============================== 字母 开始 ==============================*/
     /**
-     * @Description该方法主要使用正则表达式来判断字符串中是否包含字母
+     * @Description 该方法主要使用正则表达式来判断字符串中是否包含字母
      * @author fenggaopan 2015年7月21日 上午9:49:40
      * @param cardNum 待检验的原始卡号
      * @return 返回是否包含
      */
     public static boolean judgeContainsStr(String cardNum) {
+        // 定义正则表达式，用于匹配包含字母的字符串
         String regex=".*[a-zA-Z]+.*";
+        // 编译正则表达式并创建匹配器
         Matcher m = Pattern.compile(regex).matcher(cardNum);
+        // 判断字符串是否匹配正则表达式，即是否包含字母
         return m.matches();
     }
     /**
      * 获取字符串开头字母部分
-     * @param str
-     * @return
+     *
+     * @param str 待处理的字符串
+     * @return 返回字符串开头字母部分
      */
     public static String getFirstLetters(String str) {
+        // 创建一个StringBuilder对象，用于拼接字符串
         StringBuilder sb = new StringBuilder();
+        // 遍历字符串的每个字符
         for (int i = 0; i < str.length(); i++) {
+            // 获取当前字符
             char c = str.charAt(i);
+            // 判断当前字符是否为字母
             if (Character.isLetter(c)) {
+                // 如果是字母，则将其添加到StringBuilder中
                 sb.append(c);
             } else {
+                // 如果不是字母，则跳出循环
                 break;
             }
         }
+        // 将StringBuilder对象转换为字符串，并去除字符串首尾的空格后返回
         return sb.toString().trim();
     }
     /* ============================== 字母 结束 ==============================*/
     /* ============================== 数字 开始 ==============================*/
     /**
-     * @Description查询字符串中首个数字出现的位置
+     * @Description 查询字符串中首个数字出现的位置
      * @param str 查询的字符串
      * @return 若存在，返回位置索引，否则返回-1；
      */
     public static int findFirstIndexNumberOfStr(String str){
         int i = -1;
+        // 使用正则表达式匹配字符串中的数字
         Matcher matcher = Pattern.compile("[0-9]").matcher(str);
+        // 如果找到了匹配项
         if(matcher.find()) {
+            // 将找到的匹配项的起始位置赋值给i
             i = matcher.start();
         }
+        // 返回i，即数字在字符串中的位置索引
         return i;
     }
     /**
      * @Description 判断字符串是否包含数字
-     * @param str
-     * @return
+     * @param str 待判断的字符串
+     * @return 如果包含数字则返回true，否则返回false
      */
     public static boolean isNumeric(String str) {
+        // 编译正则表达式，匹配包含数字的字符串
         Pattern pattern = Pattern.compile(".*[0-9].*");
+        // 使用正则表达式匹配字符串，并判断是否匹配成功
         return pattern.matcher(str).matches();
     }
     /**
@@ -92,17 +117,21 @@ public class MyUtils {
      * @author charles
      * @createTime 2023/12/22 8:45
      * @desc
-     * @param source
-     * @return
+     * @param source 待判断的字符串
+     * @return 如果包含数字则返回true，否则返回false
      */
     public static boolean containDigit(String source) {
         char ch;
         for(int i=0; i<source.length();i++){
+            // 获取字符串中的每个字符
             ch = source.charAt(i);
+            // 判断字符是否为数字
             if(ch >= '0' && ch <= '9') {
+                // 如果字符是数字，则返回true
                 return true;
             }
         }
+        // 如果循环结束仍未找到数字，则返回false
         return false;
     }
     /**
@@ -124,11 +153,14 @@ public class MyUtils {
      */
     public static boolean thereAreNumbersInTheSet(List<String> stringList) {
         for (String string:stringList){
+            // 遍历字符串集合中的每个字符串
             /*如果不包含数字 则返回false */
             if (!containDigit(string)){
+                // 如果当前字符串不包含数字，则返回false
                 return false;
             }
         }
+        // 如果所有字符串都包含数字，则返回true
         return true;
     }
     /* 判断字符串元素是否包含数字*/
@@ -153,22 +185,34 @@ public class MyUtils {
      * @return
      */
     public static String StringTruncationMatcherValue(String args) {
+        // 编译正则表达式，匹配0-9的数字
         Pattern pattern = Pattern.compile("[0-9]");
+        // 使用正则表达式对输入字符串进行匹配
         Matcher matcher = pattern.matcher(args);
+        // 初始化一个空字符串用于保存匹配到的数字
         String str = "";
+        // 循环查找匹配项
         while (matcher.find()) {
+            // 将匹配到的数字添加到str中
             str += matcher.group();
         }
+        // 返回截取到的数字字符串
         return str;
     }
     /**
-     * 要在Java中获取字符串开头的数字部分，可以使用正则表达式。 */
+     * 要在Java中获取字符串开头的数字部分，可以使用正则表达式。
+     */
     public static String getNumberPartAtBeginning(String input) {
+        // 编译正则表达式，匹配字符串开头的数字部分
         Pattern pattern = Pattern.compile("^\\d+");
+        // 创建匹配器对象
         Matcher matcher = pattern.matcher(input);
+        // 如果匹配器找到匹配项
         if (matcher.find()) {
+            // 返回匹配到的数字部分
             return matcher.group();
         }
+        // 如果没有找到匹配项，则返回空字符串
         return "";
     }
     /**
@@ -202,14 +246,17 @@ public class MyUtils {
                 // 输出属性名和属性值
                 String nameKey = fields[i].getName();
                 Object value = fields[i].get(object);
+                // 跳过serialVersionUID字段
                 if (nameKey.equalsIgnoreCase("serialVersionUID")){
                     continue;
                 }
+                // 拼接字段名和字段值到sumString中
                 sumString = sumString  + nameKey + ":\"" + (value == null?isEmpty:value)+"\",";
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
+        // 去除最后一个逗号并返回结果
         return sumString.substring(0,sumString.length()-1);
     }
     /* ============================== 实体类 结束 ==============================*/
@@ -242,24 +289,32 @@ public class MyUtils {
      */
     public static String repaceWhiteSapce(String original){
         StringBuilder sb = new StringBuilder();
-        boolean isFirstSpace = false;//标记是否是第一个空格
-        // original = original.trim();//如果考虑开头和结尾有空格的情形
+        // 标记是否是第一个空格
+        boolean isFirstSpace = false;
+        // 如果考虑开头和结尾有空格的情形，可以取消注释以下行
+        // original = original.trim();
         char c;
         for(int i = 0; i < original.length(); i++){
             c = original.charAt(i);
-            if(c == ' ' || c == '\t')//遇到空格字符时,先判断是不是第一个空格字符
-            {
+            // 遇到空格字符时,先判断是不是第一个空格字符
+            if(c == ' ' || c == '\t'){
                 if(!isFirstSpace)
                 {
+                    // 若是第一个空格字符，则添加到StringBuilder中
                     sb.append(c);
+                    // 标记为已添加过空格字符
                     isFirstSpace = true;
                 }
             }
-            else{//遇到非空格字符时
+            // 遇到非空格字符时
+            else{
+                // 将非空格字符添加到StringBuilder中
                 sb.append(c);
+                // 标记为非空格字符
                 isFirstSpace = false;
             }
         }
+        // 返回转换后的字符串
         return sb.toString();
     }
     /**
@@ -289,17 +344,23 @@ public class MyUtils {
      * @author charles
      * @createTime 2023/12/21 19:20
      * @desc
-     * @param parent
-     * @param child
-     * @return
+     * @param parent 父字符串
+     * @param child 子字符串
+     * @return 子字符串在父字符串中出现的所有位置列表
      */
     public static List<Integer> getSubstringPositions(String parent, String child) {
+        // 创建一个存储位置的列表
         List<Integer> positions = new ArrayList<>();
+        // 查找子字符串在父字符串中首次出现的位置
         int index = parent.indexOf(child);
+        // 当子字符串在父字符串中存在时
         while (index != -1) {
+            // 将子字符串出现的位置添加到列表中
             positions.add(index);
+            // 从上一个出现位置的后一个字符开始，继续查找子字符串的下一个出现位置
             index = parent.indexOf(child, index + 1);
         }
+        // 返回子字符串在父字符串中出现的所有位置列表
         return positions;
     }
     /**
@@ -401,14 +462,21 @@ public class MyUtils {
      * @return
      */
     public static String[] removeArrayEmptyTextBackNewArray(String[] strArray) {
+        // 将字符串数组转换为列表
         List<String> strList= Arrays.asList(strArray);
+        // 创建新的字符串列表
         List<String> strListNew=new ArrayList<>();
+        // 遍历原字符串列表
         for (int i = 0; i <strList.size(); i++) {
+            // 如果字符串不为空且不等于空字符串
             if (strList.get(i)!=null&&!strList.get(i).equals("")){
+                // 将非空字符串添加到新列表中
                 strListNew.add(strList.get(i));
             }
         }
+        // 将新列表转换为数组
         String[] strNewArray = strListNew.toArray(new String[strListNew.size()]);
+        // 返回新数组
         return   strNewArray;
     }
     /**
@@ -439,9 +507,13 @@ public class MyUtils {
      * @return
      */
     public static List<String> findDifference(List<String> listA, List<String> listB) {
+        // 将字符串集合A转换为HashSet，以便进行高效的查找和删除操作
         HashSet<String> setA = new HashSet<>(listA);
+        // 将字符串集合B也转换为HashSet
         HashSet<String> setB = new HashSet<>(listB);
+        // 从setA中移除与setB中相同的元素
         setA.removeAll(setB);
+        // 将剩余的setA转换为ArrayList并返回
         return new ArrayList<>(setA);
     }
     /**
@@ -473,17 +545,26 @@ public class MyUtils {
     }
     /**
      * 字符串截取double值
-     * @param input
-     * @return
+     *
+     * @param input 输入的字符串
+     * @return 截取到的double值列表
      */
     public static List<Double> StringTruncationDoubleValue(String input) {
         List<Double> doubleList = new ArrayList<>();
+
+        // 编译正则表达式，匹配整数或小数
         Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
         Matcher matcher = pattern.matcher(input);
+
+        // 查找匹配项
         while (matcher.find()) {
+            // 将匹配到的字符串转换为double值
             double value = Double.parseDouble(matcher.group());
+            // 将double值添加到列表中
             doubleList.add(value);
         }
+
+        // 返回截取到的double值列表
         return doubleList;
     }
     /**
@@ -500,15 +581,21 @@ public class MyUtils {
     /* ============================== Integer 开始 ==============================*/
     /**
      * 字符串截取 Integer 值
-     * @return
+     * @return 字符串中的整数列表
      */
     public static List<Integer> extractInts(String str) {
+        // 创建一个空的整数列表
         List<Integer> intList = new ArrayList<>();
+        // 编译一个正则表达式，匹配一个或多个数字
         Pattern pattern = Pattern.compile("\\d+");
+        // 使用正则表达式对字符串进行匹配
         Matcher matcher = pattern.matcher(str);
+        // 循环查找匹配项
         while (matcher.find()) {
+            // 将匹配到的数字字符串转换为整数，并添加到列表中
             intList.add(Integer.parseInt(matcher.group()));
         }
+        // 返回整数列表
         return intList;
     }
     /* ============================== Integer 结束 ==============================*/
@@ -516,13 +603,17 @@ public class MyUtils {
     /**
      * @Description 判断内容是否存在 IP特征
      * @desc
-     * @param input
-     * @return
+     * @param input 待判断的内容
+     * @return 如果存在IP特征，则返回true；否则返回false
      */
     public static boolean containsIPAddress(String input) {
-        String ipPattern = "(\\d{1,3}\\.){3}\\d{1,3}"; // IP地址的正则表达式
+        // 定义IP地址的正则表达式
+        String ipPattern = "(\\d{1,3}\\.){3}\\d{1,3}";
+        // 编译正则表达式，生成Pattern对象
         Pattern pattern = Pattern.compile(ipPattern);
+        // 使用Pattern对象创建Matcher对象
         Matcher matcher = pattern.matcher(input);
+        // 使用Matcher对象的find()方法判断是否存在IP特征
         return matcher.find();
     }
     /* ============================== IP 结束 ==============================*/
@@ -531,49 +622,73 @@ public class MyUtils {
 
 
 
+    /**
+     * 根据问题编号和ID生成一个唯一标识字符串
+     *
+     * @param problemCode 问题编号
+     * @param id          ID
+     * @return 唯一标识字符串
+     */
     public static String getID(String problemCode,String id) {
+        // 获取区域编码，并将其转换为字符串类型
         String regionalCode = (CustomConfigurationUtil.getValue("configuration.regionalCode", Constant.getProfileInformation())).toString();
 
+        // 根据区域编码的长度进行不同的处理
         switch (regionalCode.length()){
             case 1:
+                // 如果长度为1，则在前面补3个0
                 regionalCode ="000"+regionalCode;
                 break;
             case 2:
+                // 如果长度为2，则在前面补2个0
                 regionalCode ="00"+regionalCode;
                 break;
             case 3:
+                // 如果长度为3，则在前面补1个0
                 regionalCode ="0"+regionalCode;
                 break;
         }
 
         String re = "";
         if (id == null){
+            // 如果ID为空，则拼接问题编号、区域编码和当前时间戳作为唯一标识字符串
             re = problemCode + regionalCode +System.currentTimeMillis();
         }else {
+            // 如果ID不为空，则拼接问题编号、区域编码和ID作为唯一标识字符串
             re = problemCode + regionalCode + id;
         }
         return re;
     }
 
-    /** 判断Id 是否为 */
+    /** 判断Id 是否为 编码ID*/
     public static boolean encodeID(String id) {
+
+        // 判断id的长度是否不等于21
         if (id.length() != 21){
+            // 如果长度不等于21，返回false
             return false;
         }else {
+            // 如果长度等于21，返回true
             return true;
         }
 
-        /*自定义分隔符*/
-        /*Map<String, Object> customDelimiter = (Map<String, Object>) CustomConfigurationUtil.getValue("configuration.problemCode", Constant.getProfileInformation());
+        /*// 获取自定义分隔符的Map
+        Map<String, Object> customDelimiter = (Map<String, Object>) CustomConfigurationUtil.getValue("configuration.problemCode", Constant.getProfileInformation());
+        // 获取Map中的value值，并将其存储为Object集合
         Collection<Object> customDelimitervalues = customDelimiter.values();
+        // 将Object集合中的每个元素转换为String类型，并存储为List集合
         List<String> values = customDelimitervalues.stream().map(Object::toString).collect(Collectors.toList());
-
+        // 遍历List集合中的每个字符串元素
         for (String value:values){
+            // 判断传入的id是否以当前字符串元素开头
             if (id.startsWith( value )){
+                // 如果是，则返回true，表示id为编码ID
                 return true;
             }
         }
+        // 遍历完整个List集合后都没有找到以当前字符串元素开头的id，返回false，表示id不是编码ID
         return false;*/
+
     }
 
 
@@ -581,14 +696,19 @@ public class MyUtils {
 
     /**
      * 获取相对路径
+     *
      * @param filePath  文件名称
-     * @return
+     * @return 相对路径
      * @throws URISyntaxException
      */
     public static String getRelativePath(String filePath) throws URISyntaxException {
+        // 获取当前类的类加载器
         ClassLoader classLoader = FileUtil.class.getClassLoader();
+        // 获取类加载器资源路径的URL
         URL url = classLoader.getResource("");
+        // 将URL转换为URI，并创建File对象
         File file = new File(url.toURI());
+        // 返回绝对路径拼接文件名称得到的相对路径
         return file.getAbsolutePath() + "/" + filePath;
     }
     public static String getProjectPath() {
@@ -601,6 +721,13 @@ public class MyUtils {
         }*/
         return projectPath;
     }
+    /**
+     * 将文档内容写入指定名称的文本文件中
+     *
+     * @param documentContent 文档内容列表
+     * @param fileName        文本文件名称
+     * @return 文本文件完整路径
+     */
     public static String fileWrite(List<String> documentContent,String fileName) {
         String absoluteFile = getAbsoluteFile(fileName + ".txt");
         try {
@@ -628,13 +755,21 @@ public class MyUtils {
      * @return
      */
     public static String getAbsoluteFile(String filename) {
+        // 获取下载路径
         /*只适用于RuoYi  此为 配置文件配置信息*/
         String downloadPath = RuoYiConfig.getDownloadPath() + filename;
+
+        // 创建文件对象
         File desc = new File(downloadPath);
+
+        // 如果父目录不存在
         if (!desc.getParentFile().exists())
         {
+            // 创建父目录
             desc.getParentFile().mkdirs();
         }
+
+        // 返回下载路径
         return downloadPath;
     }
     /**
@@ -669,39 +804,54 @@ public class MyUtils {
      * @return
      */
     public static String removeNonNumericSuffix(String str) {
+        // 如果字符串为空或为空字符串，则直接返回原字符串
         if (str == null || str.isEmpty()) {
             return str;
         }
+        // 从字符串的最后一个字符开始遍历
         int index = str.length() - 1;
+        // 当索引大于等于0且当前字符不是数字时，继续向前遍历
         while (index >= 0 && !Character.isDigit(str.charAt(index))) {
             index--;
         }
+        // 返回从字符串开始到当前索引位置（包括当前索引位置）的子串
         return str.substring(0, index + 1);
     }
 
     /**
-     * @Description 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+     * 遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+     *
+     * @param obj 待处理的Java对象
+     * @return 处理后的Java对象
+     * @throws IllegalAccessException 如果无法访问obj对象的某个字段时，抛出此异常
      * @author charles
      * @createTime 2024/5/26 11:11
-     * @desc
-     * @param obj
-     * @return
      */
     public static Object setNullIfEmpty(Object obj) {
+        // 获取obj对象的类
         Class<?> clazz = obj.getClass();
+        // 获取clazz声明的所有字段
         Field[] fields = clazz.getDeclaredFields();
+        // 遍历所有字段
         for (Field field : fields) {
+            // 设置字段可访问
             field.setAccessible(true);
             Object value = null;
             try {
+                // 获取字段的值
                 value = field.get(obj);
+                // 判断字段的值是否为String类型且为空字符串
                 if (value instanceof String && ((String) value).equals("")) {
+                    // 将字段的值设置为null
                     field.set(obj, null);
                 }
             } catch (IllegalAccessException e) {
+                // 如果无法访问字段，则打印异常堆栈信息
                 e.printStackTrace();
             }
         }
+        // 返回处理后的Java对象
         return obj;
     }
+
 }

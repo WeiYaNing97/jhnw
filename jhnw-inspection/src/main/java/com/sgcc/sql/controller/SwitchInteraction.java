@@ -1110,6 +1110,7 @@ public class SwitchInteraction {
      * @param insertsInteger 插入数据次数
      * @param loop   记录循环次数，经过了几次循环次数
      * @param numberOfCycles 最大循环次数
+
      * @return
      */
     public String selectProblemScanLogicById(SwitchParameters switchParameters,
@@ -1136,6 +1137,7 @@ public class SwitchInteraction {
 
 
         /**判断逻辑 是通过数据表获取 还是前端传入数据*/
+        // 分析逻辑是否为空，以及是查询数据库还是使用预加载数据
         /* 判断输入参数：problemScanLogicList 分析逻辑实体类集合  是否 为空，
 
         * 不为空则，则为预取交换机基本信息功能。 分析逻辑数据通过problemScanLogicList来存储。

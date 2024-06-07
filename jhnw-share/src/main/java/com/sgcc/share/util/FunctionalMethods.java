@@ -22,33 +22,58 @@ public class FunctionalMethods {
 
     @Autowired
     private static ISwitchInformationService switchInformationService;
+
+
+
+    /**
+     * 获取交换机基本信息，如果已有记录则返回对应ID，否则插入并返回新记录的ID
+     *
+     * @param switchParameters 交换机参数对象
+     * @return 交换机基本信息记录的ID
+     */
     /*获取交换机基本信息 有返回ID 没有插入并返回ID*/
     public static Long getSwitchParametersId(SwitchParameters switchParameters) {
-        /**交换机四项基本信息对象*/
+        /**
+         * 交换机四项基本信息对象
+         */
         SwitchInformation switchInformation = new SwitchInformation();
-        /*四项基本信息*/
+
+        /**
+         * 设置四项基本信息
+         */
         switchInformation.setBrand(switchParameters.getDeviceBrand());
         switchInformation.setSwitchType(switchParameters.getDeviceModel());
         switchInformation.setFirewareVersion(switchParameters.getFirmwareVersion());
-        /*当子版本为空时，字段赋值为 null
-        * 考虑到 如果置空<null> 的话， 会查出大量前三个信息相同的数据来
-        * 例如
-        * 1： H3C S2152 5.20.99 1600
-        * 2： H3C S2152 5.20.99 <null>*/
+
+        /**
+         * 当子版本为空时，字段赋值为 "null"
+         * 考虑到如果置空为"null"的话，会查出大量前三个信息相同的数据来
+         * 例如：
+         * 1： H3C S2152 5.20.99 1600
+         * 2： H3C S2152 5.20.99 <null>
+         */
         switchInformation.setSubVersion(switchParameters.getSubversionNumber() == null?"null":switchParameters.getSubversionNumber());
 
+        // 解决多线程 service 为null问题
         switchInformationService = SpringBeanUtil.getBean(ISwitchInformationService.class);//解决 多线程 service 为null问题
+
+        // 查询交换机信息列表
         List<SwitchInformation> switchInformationList = switchInformationService.selectSwitchInformationList(switchInformation);
 
         if (MyUtils.isCollectionEmpty(switchInformationList)){
-
+            // 插入交换机信息
             int i = switchInformationService.insertSwitchInformation(switchInformation);
+
             if (i>0){
+                // 返回新插入的交换机信息的ID
                 return switchInformation.getId();
             }
+
+            // 返回插入结果的整数值
             return Long.valueOf(i).longValue();
 
         }else {
+            // 返回查询到的第一条交换机信息的ID
             return switchInformationList.get(0).getId();
         }
 
@@ -58,50 +83,79 @@ public class FunctionalMethods {
 
     /**
      * 判断是否为错误命令
-     * @method: 判断是否为错误命令 或是否执行成功  简单判断
-     * @Param: [str] 交换机返回信息
-     * @return: boolean  判断命令是否错误 错误为false 正确为true
+     *
+     * @param switchParameters 交换机参数对象
+     * @param str 交换机返回信息
+     * @return boolean 判断命令是否错误，错误为false，正确为true
      */
     public static boolean judgmentError(SwitchParameters switchParameters, String str){
+        // 创建SwitchError对象
         SwitchError switchError = new SwitchError();
+        // 设置交换机品牌
         switchError.setBrand(switchParameters.getDeviceBrand());
+        // 设置交换机型号
         switchError.setSwitchType(switchParameters.getDeviceModel());
+        // 设置固件版本
         switchError.setFirewareVersion(switchParameters.getFirmwareVersion());
+        // 设置子版本号
         switchError.setSubVersion(switchParameters.getSubversionNumber());
+
+        // 创建SwitchErrorController对象
         SwitchErrorController switchErrorController = new SwitchErrorController();
+        // 根据SwitchError对象查询错误列表
         List<SwitchError> switchErrors = switchErrorController.selectSwitchErrorListByPojo(switchError);
+
+        // 遍历错误列表
         for (SwitchError pojo:switchErrors){
+            // 判断交换机返回信息中是否包含错误关键字
             if (str.indexOf(pojo.getErrorKeyword()) != -1){
+                // 包含错误关键字，返回false
                 return false;
             }
         }
+
+        // 遍历完错误列表后，未发现错误关键字，返回true
         return true;
     }
 
+
+
     /**
-     * @method: 判断是否故障
-     * @Param: [str] 交换机返回信息
-     * @return: boolean  判断命令是否故障 故障为false 正常为true
+     * 判断是否故障
+     *
+     * @param switchParameters 交换机参数对象
+     * @param switchInformation 交换机返回信息
+     * @return boolean 判断命令是否故障，故障为false，正常为true
      */
     public static boolean switchfailure(SwitchParameters switchParameters, String switchInformation){
 
+        // 创建一个 SwitchFailure 对象
         SwitchFailure switchFailure = new SwitchFailure();
 
+        // 设置交换机的品牌
         switchFailure.setBrand(switchParameters.getDeviceBrand());
+        // 设置交换机的型号
         switchFailure.setSwitchType(switchParameters.getDeviceModel());
+        // 设置交换机的固件版本
         switchFailure.setFirewareVersion(switchParameters.getFirmwareVersion());
+        // 设置交换机的子版本号
         switchFailure.setSubVersion(switchParameters.getSubversionNumber());
 
+        // 创建一个 SwitchFailureController 对象
         SwitchFailureController switchFailureController = new SwitchFailureController();
+        // 通过 SwitchFailure 对象查询故障列表
         List<SwitchFailure> switchFailures = switchFailureController.selectSwitchFailureListByPojo(switchFailure);
 
+        // 遍历故障列表
         for (SwitchFailure pojo:switchFailures){
+            // 如果交换机返回信息中包含故障关键字，则返回 false
             //包含 返回 false
             if (switchInformation.indexOf(pojo.getFailureKeyword()) !=-1){
                 return false;
             }
         }
 
+        // 遍历完故障列表后，没有匹配到故障关键字，返回 true
         return true;
     }
 
@@ -285,11 +339,13 @@ public class FunctionalMethods {
     }
 
     /**
-     * @method: 比较系统版本号大小 参数一是否大于参数二
+     * 比较两个系统版本号的大小，判断第一个版本号是否大于第二个版本号。
+     *
+     * @param str1 第一个版本号，格式为字符串类型，例如："1.2.3"
+     * @param str2 第二个版本号，格式为字符串类型，例如："1.2.4"
+     * @return 如果第一个版本号大于第二个版本号，则返回true；否则返回false。
      * 如果 str1 > str2 返回 true
      * 如果 str1 <= str2 返回 false
-     * @Param: [str1, str2]
-     * @return: boolean
      */
     public static boolean compareVersionNumber(String str1,String str2){
         String[] split1 = str1.split("\\.");
@@ -423,14 +479,18 @@ public class FunctionalMethods {
 
     /**
      获取精确到毫秒的时间戳
-     * @param date
-     * @return
+     *
+     * @param date 日期对象
+     * @return 精确到毫秒的时间戳
      **/
     public static Long getTimestamp(Date date){
+        // 如果日期对象为null，则返回0
         if (null == date) {
             return (long) 0;
         }
+        // 将日期对象转换为毫秒时间戳的字符串形式
         String timestamp = String.valueOf(date.getTime());
+        // 将毫秒时间戳的字符串转换为Long类型并返回
         return Long.valueOf(timestamp);
     }
 
@@ -451,20 +511,25 @@ public class FunctionalMethods {
 
             String information = switchInformation_array[number];
             if (information!=null && !information.equals("")){
+                // 调用loginInformationAuthentication方法处理当前行信息
                 String loginInformationAuthentication = loginInformationAuthentication(switchInformation_array[number]);
                 if (loginInformationAuthentication.indexOf("^") !=-1 ){
+                    // 如果处理后的信息包含"^"，则直接赋值给原数组对应位置
                     switchInformation_array[number] = loginInformationAuthentication;
                 }else {
+                    // 否则去除处理后的信息两侧的空格，并赋值给原数组对应位置
                     switchInformation_array[number] = loginInformationAuthentication.trim();
                 }
 
             }
         }
 
+        // 因为之前按行分割了，所以需要将处理后的信息重新拼接成字符串返回
         //因为 之前 按行分割了
         //返回字符串
         StringBuilder stringBuilder = new StringBuilder();
         for (int number=0;number<switchInformation_array.length;number++){
+            // 拼接每一行信息，并在末尾添加换行符
             stringBuilder.append(switchInformation_array[number]);
             stringBuilder.append("\r\n");
         }
@@ -587,18 +652,26 @@ public class FunctionalMethods {
 
     /**
      * 判断 字符串 最后一位 是否为 . 或者 ,
+     *
      * @param wordSelectionResult
      * @return
      */
     public static String judgeResultWordSelection(String wordSelectionResult) {
+        // 获取字符串的最后一个字符
         String last = wordSelectionResult.substring(wordSelectionResult.length() - 1, wordSelectionResult.length());
-        String[] character = {",","."};
-        for (String judgeChar:character){
-            if (last.equals(judgeChar)){
-                wordSelectionResult = wordSelectionResult.substring(0, wordSelectionResult.length()-1);
+        // 定义包含逗号和点号的字符串数组
+        String[] character = {",", "."};
+        // 遍历数组中的每个字符
+        for (String judgeChar : character) {
+            // 如果最后一个字符与数组中的字符相等
+            if (last.equals(judgeChar)) {
+                // 截取除最后一个字符外的子字符串并赋值给原字符串
+                wordSelectionResult = wordSelectionResult.substring(0, wordSelectionResult.length() - 1);
+                // 跳出循环
                 break;
             }
         }
+        // 返回处理后的字符串
         return wordSelectionResult;
     }
 
@@ -684,28 +757,40 @@ public class FunctionalMethods {
     }
 
 
-    /**等价
+    /**
+     * 等价
      * 输入 huawei 返回等价品牌名 ： Quidway
-     * @param brand
-     * @return
+     *
+     * @param brand 品牌名
+     * @return 等价品牌名
      */
     public static String getEquivalence(String brand) {
+        // 如果品牌名为空，则返回null
         if (brand == null){
             return null;
         }
+        // 从配置中获取等价关系映射
         Map<String, Object> value = (Map<String, Object>) CustomConfigurationUtil.getValue("BasicInformation.equivalence", Constant.getProfileInformation());
+        // 如果等价关系映射为空，则返回null
         if (value == null){
             return null;
         }
+        // 获取等价关系映射的键集合
         Set<String> strings = value.keySet();
+        // 遍历键集合
         for (String key:strings){
+            // 如果输入的品牌名与键相等（忽略大小写）
             if (brand.equalsIgnoreCase(key)){
+                // 返回对应的值
                 return (String) value.get(key);
             }
+            // 如果输入的品牌名与值相等（忽略大小写）
             if (brand.equalsIgnoreCase((String) value.get(key))){
+                // 返回键
                 return key;
             }
         }
+        // 如果没有找到匹配的等价品牌名，则返回null
         return null;
     }
 

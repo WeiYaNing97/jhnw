@@ -47,45 +47,63 @@ public class DefinitionProblemController extends BaseController {
     private  IBasicInformationService basicInformationService;
 
     /**
-     * @method: 定义获取基本信息命令插入
-     * @Param: [jsonPojoList]
-     * @return: void
+     * 定义获取交换机基本信息命令插入的方法
+     *
+     * @param jsonPojoList 交换机基本信息json列表
+     * @param command      交换机基本信息命令数组
+     * @param custom       自定义参数
+     * @return 插入成功返回true，否则返回false
      */
     @ApiOperation("定义获取交换机基本信息命令")
     @PostMapping("insertInformationAnalysis/{command}/{custom}")
     @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.UPDATE)
     public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
+        // 将自定义参数转为字符串数组
         custom = "["+custom+"]";
         String comands = "";
 
-        /*自定义分隔符*/
+        // 获取自定义分隔符
         String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
+        // 拼接命令字符串
         for (int num = 0 ;num < command.length; num++){
             comands = comands + command[num] + customDelimiter ;
         }
 
+        // 去除最后一个分隔符，并添加自定义参数
         comands = comands.substring(0,  comands.length() - customDelimiter.length()  ) + custom;
-        //系统登陆人信息
+
+        // 获取系统登录人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
-        //创建实体类
+
+        // 创建BasicInformation实体类
         BasicInformation basicInformation = new BasicInformation();
-        //放入获取交换机基本信息命令
+
+        // 设置交换机基本信息命令
         basicInformation.setCommand(comands);
 
+        // 获取BasicInformationService的Bean实例
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+
+        // 调用插入交换机基本信息的方法，返回结果保存在变量i中
         int i = basicInformationService.insertBasicInformation(basicInformation);
 
-        //当i<=0时插入失败
+        // 如果插入失败（i<=0) 则返回false
         if (i<=0){
+            // 发送告警信息，包含登录人姓名和问题简述
             //传输登陆人姓名 及问题简述
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:"+"获取交换机基本信息命令插入失败\r\n");
             return false;
         }
 
+        // 获取插入的交换机基本信息的ID
         Long id = basicInformation.getId();
+
+        // 调用插入交换机信息分析的方法，返回结果保存在变量insertInformationAnalysisMethod中
         boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,jsonPojoList,id);
+
+        // 返回插入交换机信息分析的结果
         return insertInformationAnalysisMethod;
     }
 
@@ -247,17 +265,22 @@ public class DefinitionProblemController extends BaseController {
 
 
     /**
-     * @method: 插入分析问题的数据
-     * @Param: [jsonPojoList]
-     * @return: void
+     * 插入分析问题的数据
+     *
+     * @param totalQuestionTableId 交换机问题实体类的ID
+     * @param jsonPojoList         分析问题的JSON对象列表
+     * @return 插入是否成功，成功返回true，否则返回false
      */
     @PostMapping("definitionProblemJsonPojo")
     @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
     @ApiOperation("定义分析问题数据")
     public boolean definitionProblemJson(@RequestParam String totalQuestionTableId,@RequestBody List<String> jsonPojoList){
-        //系统登陆人信息
+        // 获取系统登录人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 调用definitionProblemJsonPojo方法，传入交换机问题实体类的ID、分析问题的JSON对象列表和登录人信息
+        // 并将返回的结果赋值给definitionProblemJsonboolean变量
         boolean definitionProblemJsonboolean = definitionProblemJsonPojo(totalQuestionTableId,jsonPojoList,loginUser);
+        // 返回definitionProblemJsonboolean变量的值
         return definitionProblemJsonboolean;
     }
 
@@ -425,118 +448,157 @@ public class DefinitionProblemController extends BaseController {
     }
 
 
+    /**
+     * 复制对象的属性值到另一个对象中。
+     *
+     * @param source 源对象，包含要复制的属性值。
+     * @param target 目标对象，要接收源对象的属性值。
+     * @return 返回目标对象，该对象已包含源对象的属性值。
+     * @throws IllegalAccessException 如果源对象或目标对象的属性不可访问。
+     */
     public static Object copyProperties(Object source, Object target) {
+        // 获取源对象的类
         Class<?> sourceClass = source.getClass();
+        // 获取目标对象的类
         Class<?> targetClass = target.getClass();
-
+        // 获取源对象的所有属性
         Field[] sourceFields = sourceClass.getDeclaredFields();
+        // 获取目标对象的所有属性
         Field[] targetFields = targetClass.getDeclaredFields();
-
+        // 遍历源对象的属性
         for (Field sourceField : sourceFields) {
+            // 设置源对象的属性为可访问
             sourceField.setAccessible(true);
+            // 遍历目标对象的属性
             for (Field targetField : targetFields) {
+                // 设置目标对象的属性为可访问
                 targetField.setAccessible(true);
+                // 如果源对象的属性名与目标对象的属性名相同，并且属性类型也相同
                 if (sourceField.getName().equals(targetField.getName()) && sourceField.getType().equals(targetField.getType())) {
                     try {
+                        // 将源对象的属性值复制到目标对象的属性中
                         targetField.set(target, sourceField.get(source));
                     } catch (IllegalAccessException e) {
+                        // 如果属性不可访问，则打印异常堆栈
                         e.printStackTrace();
                     }
                 }
             }
         }
+        // 返回目标对象
         return target;
     }
 
 
 
-    /***
-     * @method: 根据交换机问题实体类查询问题分析逻辑数据
-     * @Param: []
-     * @return: java.util.List<java.lang.String>
+    /**
+     * 根据交换机问题实体类查询问题分析逻辑数据
+     *
+     * @param totalQuestionTable 交换机问题实体类
+     * @return java.util.List<java.lang.String> 返回一个字符串列表，表示问题分析逻辑数据
      */
     @ApiOperation("查询定义分析问题数据")
     @GetMapping("getAnalysisList")
     @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
     public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
-        //系统登陆人信息
+        // 获取系统登录人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
+        // 创建一个单线程执行器
         ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        // 创建一个数组，用于存储返回的字符串列表
         final List<String>[] analysisList = new List[]{new ArrayList<>()};
+
+        // 创建一个异步任务，用于执行获取问题分析逻辑数据的操作
         FutureTask future = new FutureTask(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
+                // 调用获取问题分析逻辑数据的方法，并将结果存储在数组中
                 analysisList[0] = getAnalysisList(totalQuestionTable,loginUser);
                 return analysisList[0];
             }
         });
+
+        // 执行异步任务
         executor.execute(future);
 
         try {
+            // 获取最大超时时间
             Integer maximumTimeoutString = (Integer) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
+
+            // 获取异步任务的执行结果，并设置超时时间
             List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
+            // 如果发生超时异常，返回查询超时的错误结果
             return AjaxResult.error("查询超时");
-        }finally{
+        } finally {
+            // 取消异步任务
             future.cancel(true);
+
+            // 关闭执行器，释放资源
             /* 关闭连接 */
             executor.shutdown();
         }
 
+        // 返回成功的结果，并带上获取到的问题分析逻辑数据
         return AjaxResult.success(analysisList[0]);
     }
 
 
-    //@RequestMapping("getAnalysisList")
+    /**
+     * 获取分析列表
+     *
+     * @param totalQuestionTable 交换机问题实体类
+     * @param loginUser 登录用户
+     * @return 包含分析结果的字符串列表
+     */
     public  List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser){
-        /*根据 交换机问题实体类 获得命令集合和分析实体类集合*/
+        // 根据交换机问题实体类获取命令集合和分析实体类集合
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
         if (scanLogicalEntityClass.size() == 0){
             return new ArrayList<>();
         }
 
-        /* 获取两个实体类集合*/
+        // 获取命令、逻辑实体类集合
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
 
         HashMap<Long,String> hashMap = new HashMap<>();
 
-        /*自定义分隔符*/
+        // 获取配置文件自定义分隔符
         String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
-
+        // 遍历命令逻辑实体类集合，并转换为字符串存入哈希表
         for (CommandLogic commandLogic:commandLogicList){
+            // 转换命令逻辑实体类为字符串
             /* 1=:={"onlyIndex"="1697080798279","trueFalse"="","pageIndex"="1","command"="dis cu","para"="","resultCheckId"="0","nextIndex"="1697080824879"} */
             String commandLogicString = InspectionMethods.commandLogicString(commandLogic);
             String[] commandLogicStringsplit = commandLogicString.split( customDelimiter );
             hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
         }
 
+        // 获取问题扫描逻辑实体类集合
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
 
+        // 遍历问题扫描逻辑实体类集合，并转换为字符串存入哈希表
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
+            // 转换问题扫描逻辑实体类为字符串
             /*problemScanLogic 转化 Sting*/
-            String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,totalQuestionTable.getId()+"");
-            /*自定义分隔符*/
+            String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,totalQuestionTable.getId());
+            // 使用配置文件自定义分隔符进行字符串分割
             String[] problemScanLogicStringsplit = problemScanLogicString.split(customDelimiter);
             hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
         }
 
-        /*List<String> stringList = new ArrayList<>();
-        for (Long number=0L;number<hashMap.size();number++){
-            if (hashMap.get(number+1)!=null && !(hashMap.get(number+1).equals("null"))){
-                System.err.println(hashMap.get(number+1));
-                stringList.add(hashMap.get(number+1));
-            }
-        }*/
-
+        // 将哈希表的value集合转换为列表
         Collection<String> values = hashMap.values();
         List<String> stringList = new ArrayList<>(values);
 
+        // 打印转换后的字符串列表
         for (String str:stringList){
             System.err.println(str);
         }
@@ -545,12 +607,12 @@ public class DefinitionProblemController extends BaseController {
     }
 
     /**
-    * @Description  根据 交换机问题实体类 获得命令集合和分析实体类集合
-    * @desc
-    * @param totalQuestionTable
-     * @param loginUser
-     * @return
-    */
+     * 根据交换机问题实体类获取命令集合和分析实体类集合
+     *
+     * @param totalQuestionTable 交换机问题实体类
+     * @param loginUser 登录用户
+     * @return 包含命令集合和分析实体类集合的HashMap
+     */
     public  HashMap<String,Object> getScanLogicalEntityClass(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser) {
         /* 判断分析ID 是否为空
          * 如果为空 则 返回 null
@@ -676,157 +738,156 @@ public class DefinitionProblemController extends BaseController {
 
 
     /**
-     * @param id
-     * @return
+     * 删除扫描逻辑数据
+     *
+     * @param id 扫描逻辑数据的ID
+     * @return 删除是否成功，成功返回true，失败返回false
      */
     @DeleteMapping("deleteScanningLogic")
     @ApiOperation("删除扫描逻辑数据")
     public boolean deleteScanningLogic(@RequestBody String id) {
-
+        // 获取总问题表服务
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        // 根据ID查询总问题表
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
-
-        //系统登陆人信息
+        // 获取登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
-
-        /* 获取命令集合和分析逻辑集合 */
+        // 获取扫描逻辑实体类
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
-
-        /*命令集合  分析逻辑集合  */
+        // 获取命令逻辑列表
         List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        // 获取问题扫描逻辑列表
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-
-        /*命令集合、分析逻辑集合 筛选ID集合*/
+        // 提取命令逻辑ID列表
         String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
+        // 提取问题扫描逻辑ID列表
         String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
-
         int deleteCommandLogicByIds = 1;
-        /*命令集合不为空 删除命令集合*/
+        // 如果存在命令逻辑
         if (commandLogicId.length>0){
+            // 获取命令逻辑服务
             commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+            // 删除命令逻辑
             deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(commandLogicId);
         }
-
-        /*当命令删除成功 且 存在分析时 删除分析数据*/
+        // 如果命令逻辑删除成功且存在问题扫描逻辑
         if (deleteCommandLogicByIds >0 && problemScanLogicId.length >0){
+            // 获取问题扫描逻辑服务
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
+            // 删除问题扫描逻辑
             int deleteProblemScanLogicByIds = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicId);
+            // 如果问题扫描逻辑删除成功
             if (deleteProblemScanLogicByIds>0){
+                // 将总问题表的逻辑ID置为空
                 totalQuestionTable.setLogicalID(null);
+                // 更新总问题表
                 int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+                // 如果更新成功，则返回true
                 if (updateQuestionTableById>0){
-                    /*删除成功*/
                     return true;
                 }else {
-                    //传输登陆人姓名 及问题简述
-
+                    // 发送风险提示：扫描交换机问题表数据删除失败
                     AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                             "风险:扫描交换机问题表数据删除失败\r\n");
                 }
             }else {
-                //传输登陆人姓名 及问题简述
-
+                // 发送风险提示：扫描交换机问题分析逻辑删除失败
                 AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                         "风险:扫描交换机问题分析逻辑删除失败\r\n");
-
             }
+        // 只有存在命令逻辑没有分析逻辑
         } else if (deleteCommandLogicByIds >0  && problemScanLogicId.length == 0){
-            /*只有 存在命令 没有分析*/
+            // 将总问题表的逻辑ID置为空
             totalQuestionTable.setLogicalID(null);
+            // 更新总问题表
             int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+            // 如果更新成功，则返回true
             if (updateQuestionTableById>0){
-                /*删除成功*/
                 return true;
             }else {
-                //传输登陆人姓名 及问题简述
-
+                // 发送风险提示：扫描交换机问题表数据删除失败
                 AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                         "风险:扫描交换机问题表数据删除失败\r\n");
-
             }
+        // 命令逻辑删除失败
         } else {
-            //deleteCommandLogicByIds < 0
-
+            // 发送风险提示：扫描交换机问题命令删除失败
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "风险:扫描交换机问题命令删除失败\r\n");
         }
-
+        // 默认返回false
         return false;
     }
 
     /**
-     * 根据分析ID 获取 分析实体类集合
-    * @Description
-    * @desc
-    * @param problemScanLogicID
-     * @param loginUser
-     * @return  返回 集合
-    */
+     * 根据分析ID获取分析实体类集合
+     *
+     * @param problemScanLogicID 分析ID
+     * @param loginUser 登录用户信息
+     * @return 返回分析实体类集合
+     */
     //@RequestMapping("problemScanLogicList")
     public List<ProblemScanLogic> problemScanLogicList(String problemScanLogicID,LoginUser loginUser){
         /*预设跳出循环条件 为 false*/
         boolean contain = false;
-
         /*预设map key为分析表ID value为 分析表实体类*/
         Map<String,ProblemScanLogic> problemScanLogicHashMap = new HashMap<>();
-
-        do {String  problemScanID = "";
-
-            /*分析ID 根据“：” 分割 为 分析ID数组
-            * 因为分析逻辑 可能出现 true 和 false 多个ID情况*/
+        do {
+            String  problemScanID = "";
+            // 分析ID 根据“：” 分割 为 分析ID数组，
+            // 因为分析逻辑 可能出现 true 和 false 多个ID情况
             String[] problemScanLogicIDsplit = problemScanLogicID.split(":");
-
-            /*遍历分析ID数组*/
+            // 遍历分析ID数组
             for (String id:problemScanLogicIDsplit){
-                /*根据分析ID 在 map中查询 分析实体类
-                * 如果查询不为null 则 说明 map中存在 分析实体类
-                * 需要进行 分析ID数组的 下一项 查询  。
-                * 结束本次循环 进行下一循环 用 continue */
+                // 根据分析ID 在 map中查询 分析实体类
                 ProblemScanLogic pojo = problemScanLogicHashMap.get(id);
                 if (pojo != null){
+                    // 如果查询不为null
+                    // 则 说明 map中存在 分析实体类，
+                    // 需要进行 分析ID数组的 下一项 查询
                     problemScanLogicHashMap.put(id,pojo);
                     continue;
                 }
-                /*如果查询为null 则 说明 map中不存在 分析实体类
-                * 需要到数据库中查询
-                * 并放入 map中 存储
-                * 如果查询结果为 null 则返回 查询结果为null*/
+                // 如果查询为null
+                // 则 说明 map中不存在 分析实体类，
+                // 需要到数据库中查询，并放入 map中 存储
+                // 如果查询结果为 null 则返回 查询结果为null
                 problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
                 ProblemScanLogic problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
                 if (problemScanLogic ==null){
-                    //传输登陆人姓名 及问题简述
+                    // 传输登陆人姓名 及问题简述
                     AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                             "错误:根据ID："+id+"查询分析表数据失败,未查出对应ID数据\r\n");
-
-                    /* 返回空集合 */
+                    // 返回空集合
                     return new ArrayList<>();
                 }
                 problemScanLogicHashMap.put(id,problemScanLogic);
-                /*当循环ID不为空时，则查询逻辑中，分支中没有下一行ID
-                * 则 进行下一元素的分析iD*/
+                // 当循环ID不为空时，
+                // 查询逻辑中分支中没有下一行ID，
+                // 则进行下一元素的分析iD
                 if (problemScanLogic.getCycleStartId()!=null && !(problemScanLogic.getCycleStartId().equals("null"))){
                     continue;
                 }
-                /*如果 正确 下一ID 不为空 则 拼接到 分析表ID中*/
+                // 如果 正确 下一ID 不为空
+                // 则 拼接到 分析表ID中
                 if (problemScanLogic.gettNextId()!=null && !(problemScanLogic.gettNextId().equals("null"))
                         && problemScanLogic.gettNextId()!="" &&  !(MyUtils.isContainChinese(problemScanLogic.gettNextId()))){
                     problemScanID += problemScanLogic.gettNextId()+":";
                 }
-                /*如果 错误 下一ID 不为空 则 拼接到 分析表ID中*/
+                // 如果 错误 下一ID 不为空
+                // 则 拼接到 分析表ID中
                 if (problemScanLogic.getfNextId()!=null && !(problemScanLogic.getfNextId().equals("null"))
                         && problemScanLogic.getfNextId()!="" &&  !(MyUtils.isContainChinese(problemScanLogic.getfNextId()))){
                     problemScanID += problemScanLogic.getfNextId()+":";
                 }
             }
-
-            /*如果没有ID 则 视为没有下一层 分析数据 则 退出 do while*/
+            // 如果没有ID 则 视为没有下一层 分析数据，
+            // 则 退出 do while
             if (problemScanID.equals("")){
                 break;
             }
-
-            /*分割 分析ID 为数组
-            * 遍历数组 及 map
-            * 去除 map中存在的 分析ID*/
+            // 分割 分析ID 为数组，遍历数组 及 map，
+            // 去除 map中存在的 分析ID
             String[] problemScanIDsplit = problemScanID.split(":");
             problemScanID = "";
             for (String id:problemScanIDsplit){
@@ -834,33 +895,23 @@ public class DefinitionProblemController extends BaseController {
                     problemScanID += id+":";
                 }
             }
-
-            /*如果problemScanID 不为 "" 则 contain = true
-            * problemScanID 去掉 最后一个 ： */
+            // 如果problemScanID 不为 "" 则 contain = true，
+            // 并去掉 problemScanID 最后一个 ：
             if (!(problemScanID.equals(""))){
                 contain = true;
                 problemScanLogicID = problemScanID.substring(0,problemScanID.length()-1);
             }else {
                 contain = false;
             }
-
         }while (contain);
-
-        /*map中数据 存放到list集合中*/
-        /*List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>();
-        Iterator<Map.Entry<String, ProblemScanLogic>> it = problemScanLogicHashMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, ProblemScanLogic> entry = it.next();
-            ProblemScanLogicList.add(entry.getValue());
-        }*/
+        // map中数据 存放到list集合中
         Collection<ProblemScanLogic> values = problemScanLogicHashMap.values();
-
         // 将Collection转换为List
         List<ProblemScanLogic> ProblemScanLogicList = new ArrayList<>(values);
-
         /*此时查询出了  数据库存储的 信息*/
         return ProblemScanLogicList;
     }
+
 
     /*定义分析问题数据修改
     * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
@@ -1101,32 +1152,51 @@ public class DefinitionProblemController extends BaseController {
 
 
     /**
-    * @Description @Description 字符串 转化为 分析实体类
-    * @author charles
-    * @createTime 2024/5/30 15:56
-    * @desc
-    * @param problem_area_code	问题编码 + 区域编码
-     * @param information	分析数据
-     * @param ifCommand	 "命令" || "分析"
-     * @return
-    */
+     * 将给定的字符串转化为分析实体类。
+     *
+     * @param problem_area_code 问题编码与区域编码的字符串
+     * @param information       分析数据的字符串，应为JSON格式
+     * @param ifCommand         指示是命令还是分析操作的字符串，取值应为"命令"或"分析"
+     * @return 转化后的分析实体类对象
+     *
+     * @author charles
+     * @createTime 2024/5/30 15:56
+     * @note 注意，该方法在处理analysis数据时，会删除所有的"null"字符串，并将空字符串("")的字段值设为null。
+     *       此外，如果ifCommand为"命令"，则会对转化后的对象进行变形处理。
+     */
     public static AnalyzeConvertJson getAnalyzeConvertJson(String problem_area_code,String information,String ifCommand) {
+        // TODO: 修改分析逻辑，前端提交的数据有问题，例如 "length":"nullnull"
+        // 此处可能是处理前端提交数据中存在 "length":"nullnull" 的情况，但代码中并未进行实际操作
         /**
         TODO 修改分析逻辑，前端提交的数据有问题  "length":"nullnull"
             {"targetType":"takeword","onlyIndex":1716950612245,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"1","nextIndex":"SCRT00011716946238058","length":"nullnull","pageIndex":2}
             {"targetType":"takeword","onlyIndex":1716950619965,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"2","nextIndex":"SCRT00011716946250825","length":"nullnull","pageIndex":4}
         */
+        // 删除information中所有的"null"字符串
         //information = information.replace("\"null\"","\"\"");
         information = information.replace("null","");
-        // 提交的分析数据，由Json格式 转化为实体类
+
+        // 将提交的分析数据从Json格式转化为实体类对象
         AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(information, AnalyzeConvertJson.class);
-        // 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+
+        // 遍历analyzeConvertJson对象的所有字段，将空字符串("")的字段值设为null
         analyzeConvertJson = (AnalyzeConvertJson) MyUtils.setNullIfEmpty(analyzeConvertJson);
-        // 如果ifCommand是命令 则下一ID为命令
+
+        // 如果ifCommand是"命令"，则对analyzeConvertJson对象进行变形处理 下一ID为命令
         analyzeConvertJson = deformation(problem_area_code,analyzeConvertJson, ifCommand);
+
+        // 返回转化后的分析实体类对象
         return analyzeConvertJson;
     }
 
+    /**
+     * AnalyzeConvertJson对象进行变形处理。
+     *
+     * @param problem_area_code 问题编码与区域编码的字符串
+     * @param analyzeConvertJson 分析数据对应的AnalyzeConvertJson对象
+     * @param ifCommand 指示是命令还是分析操作的字符串
+     * @return 变形处理后的AnalyzeConvertJson对象
+     */
     public static AnalyzeConvertJson deformation(String problem_area_code,AnalyzeConvertJson analyzeConvertJson,String ifCommand) {
 
         // 行,列偏移   RelativePosition

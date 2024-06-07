@@ -103,25 +103,37 @@ public class BasicInformationController extends BaseController
 
     /**
      * 查询获取基本信息命令列表
+     *
+     * @return 返回包含基本信息命令列表的List对象
      */
     @ApiOperation("查询获取基本信息命令列表")
     @GetMapping("/getPojolist")
     public List<BasicInformation> getPojolist()
     {
+        // 查询基本信息列表
         List<BasicInformation> list = basicInformationService.selectBasicInformationList(null);
+        // 创建一个新的列表，用于存放转换后的基本信息对象
         List<BasicInformation> pojolist = new ArrayList<>();
 
+        // 获取自定义分隔符
         /*自定义分隔符*/
         String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
+        // 遍历查询结果列表
         for (BasicInformation basicInformation:list){
+            // 创建一个新的基本信息对象
             BasicInformation pojo = new BasicInformation();
+            // 设置ID
             pojo.setId(basicInformation.getId());
+            // 替换命令中的自定义分隔符和左方括号
             pojo.setCommand(basicInformation.getCommand().replace(customDelimiter,"、").replace("\\[","\\ ["));
+            // 设置问题ID
             pojo.setProblemId(basicInformation.getProblemId());
+            // 将转换后的基本信息对象添加到新列表中
             pojolist.add(pojo);
         }
 
+        // 返回转换后的基本信息列表
         return pojolist;
     }
 }

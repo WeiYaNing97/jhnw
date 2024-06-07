@@ -256,62 +256,92 @@ public class InspectionMethods {
     }
 
     /**
-     * @method: 字符串解析 CommandLogic 实体类 并返回
-     * @Param: [jsonPojo]
-     * @return: com.sgcc.sql.domain.CommandLogic
+     * 字符串解析CommandLogic实体类并返回
+     *
+     * @param problem_area_code 问题编码
+     * @param jsonPojo 提交的JSON格式分析数据
+     * @param ifCommand 指示是命令还是分析操作的字符串
+     * @return 解析后的CommandLogic实体类
      */
     public static CommandLogic analysisCommandLogic(String problem_area_code, String jsonPojo,String ifCommand){
 
-        // 提交的分析数据，由Json格式 转化为实体类
+        // 将提交的分析数据从Json格式转化为实体类AnalyzeConvertJson
         AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(jsonPojo, AnalyzeConvertJson.class);
-        // 方法的主要功能是遍历obj对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null。
+
+        // 遍历analyzeConvertJson对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null
         analyzeConvertJson = (AnalyzeConvertJson) MyUtils.setNullIfEmpty(analyzeConvertJson);
 
+        // 调用trimCommandTable方法，传入analyzeConvertJson、problem_area_code和ifCommand，返回解析后的CommandLogic实体类
         CommandLogic commandLogic = trimCommandTable(analyzeConvertJson, problem_area_code,ifCommand);
+
         return commandLogic;
     }
 
 
+    /**
+     * 将AnalyzeConvertJson对象转化为CommandLogic对象，并设置其相关属性。
+     *
+     * @param analyzeConvertJson 分析转换后的Json对象
+     * @param problem_area_code  问题编码
+     * @param ifCommand          指示是命令还是分析操作的字符串
+     * @return 转化后的CommandLogic对象
+     */
     public static CommandLogic trimCommandTable(AnalyzeConvertJson analyzeConvertJson, String problem_area_code,String ifCommand) {
-
+        // 设置AnalyzeConvertJson对象的onlyIndex属性
         analyzeConvertJson.setOnlyIndex(MyUtils.encodeID( analyzeConvertJson.getOnlyIndex() )?
                 analyzeConvertJson.getOnlyIndex() : problem_area_code + analyzeConvertJson.getOnlyIndex());
 
+        // 设置AnalyzeConvertJson对象的nextIndex属性
         analyzeConvertJson.setNextIndex(MyUtils.encodeID( analyzeConvertJson.getNextIndex() )?
                 analyzeConvertJson.getNextIndex() : problem_area_code + analyzeConvertJson.getNextIndex());
 
+        // 如果AnalyzeConvertJson对象的para属性不为空
         if (analyzeConvertJson.getPara() != null){
+            // 拼接AnalyzeConvertJson对象的command和para属性，并设置给command属性
             analyzeConvertJson.setCommand( analyzeConvertJson.getCommand() +":"+ analyzeConvertJson.getPara());
         }
 
+        // 创建CommandLogic对象
         CommandLogic commandLogic = new CommandLogic();
+
+        // 设置CommandLogic对象的id属性
         commandLogic.setId(analyzeConvertJson.getOnlyIndex());
+
+        // 设置CommandLogic对象的command属性
         commandLogic.setCommand(analyzeConvertJson.getCommand());
 
+        // 此处原本设置CommandLogic对象的resultCheckId属性，但已被注释掉
         //commandLogic.setResultCheckId( analyzeConvertJson.getResultCheckId() );
+
+        // 根据ifCommand的值决定CommandLogic对象的resultCheckId属性
         /** 该字段本想由前端传入，后发现前端传入数据始终为0
          * 记得之前实现过，后来可能前端有修改
          * 现由后端分析下一条数据是否为命令决定*/
         if (ifCommand.equals("命令")){
+            // 如果ifCommand等于"命令"，则设置resultCheckId为"1"
             commandLogic.setResultCheckId("1");
         }else if (ifCommand.equals("分析")){
+            // 如果ifCommand等于"分析"，则设置resultCheckId为"0"
             commandLogic.setResultCheckId("0");
         }
 
-        /*结果检查
-        属性值(0:分析逻辑表ID 1:本表ID )
-        分析逻辑表：problem_scan_logic*/
+        // 根据CommandLogic对象的resultCheckId属性值决定设置哪个属性
+        /* 属性值(0:分析逻辑表ID 1:本表ID ) 分析逻辑表：problem_scan_logic*/
         if (commandLogic.getResultCheckId().equals("1")){
+            // 如果resultCheckId等于"1"，则设置CommandLogic对象的endIndex属性
             /** 命令结束索引 */
             commandLogic.setEndIndex(analyzeConvertJson.getNextIndex());
         }else if (commandLogic.getResultCheckId().equals("0")){
+            // 如果resultCheckId等于"0"，则设置CommandLogic对象的problemId属性
             /** 命令结束索引 */
             commandLogic.setProblemId(analyzeConvertJson.getNextIndex());
         }
 
+        // 设置CommandLogic对象的cLine属性
         /** 命令行号 */
         commandLogic.setcLine(analyzeConvertJson.getPageIndex());
 
+        // 返回CommandLogic对象
         return commandLogic;
     }
 

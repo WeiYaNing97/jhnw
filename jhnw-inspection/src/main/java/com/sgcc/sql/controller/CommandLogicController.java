@@ -117,61 +117,87 @@ public class CommandLogicController extends BaseController
 
     /**
      * 修复问题命令插入
-     * @method: 修复问题集合插入及问题表数据修改
-     * @Param: [totalQuestionTableId, commandLogicList]
-     * @return: boolean
+     * 修复问题集合插入及问题表数据修改
+     * @param totalQuestionTableId 总问题表ID
+     * @param commandLogicList     命令逻辑列表
+     * @return 插入结果，成功返回true，失败返回false
      */
     @ApiOperation("修复问题命令插入")
     //@PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
     @PostMapping("insertModifyProblemCommandSet")
     @MyLog(title = "修复问题集合插入", businessType = BusinessType.INSERT)
     public boolean insertModifyProblemCommandSet(@RequestParam String totalQuestionTableId,@RequestBody List<String> commandLogicList){
+        // 获取系统登陆人信息
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
+
+        // 如果修复命令集合为空 或者 交换机问题ID为0L，则返回false失败
         /*如果 修复命令集合为空  或者  交换机问题ID为0L 则 返回 false失败*/
         if (commandLogicList.size() == 0 ){/*  || totalQuestionTableId == 0L   */
+            // 传输登陆人姓名及问题简述
             //传输登陆人姓名 及问题简述
-
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:定义修复交换机问题逻辑数据为空\r\n");
 
             return false;
         }
+
+        // 获取总问题表服务，并查询指定ID的总问题表信息
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
+        // 创建命令逻辑列表
         List<CommandLogic> commandLogics = new ArrayList<>();
 
+        // 获取问题区域编码
         String problem_area_code = totalQuestionTableId.substring(0, 8);
 
+        // 遍历命令逻辑列表，进行解析并添加到命令逻辑列表中
         for (int number=0;number<commandLogicList.size();number++){
+            // 解析命令逻辑字符串，创建命令逻辑对象
             //CommandLogic commandLogic = analysisCommandLogicString(commandLogicList.get(number));
             CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,commandLogicList.get(number),"命令");
             commandLogics.add(commandLogic);
         }
-        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-        for (int number=0;number<commandLogics.size();number++){
-            int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
-            if (i<=0){
-                //传输登陆人姓名 及问题简述
 
+        // 获取命令逻辑服务
+        commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+
+        // 遍历命令逻辑列表，插入命令逻辑
+        for (int number=0;number<commandLogics.size();number++){
+            // 插入命令逻辑，并获取插入结果
+            int i = commandLogicService.insertCommandLogic(commandLogics.get(number));
+
+            // 如果插入失败，则记录错误日志并返回false
+            if (i<=0){
+                // 传输登陆人姓名及问题简述
+                //传输登陆人姓名 及问题简述
                 AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                         "错误:修复交换机问题命令插入失败\r\n");
 
                 return false;
             }
+
+            // 如果是第一个命令逻辑，则设置总问题表的修复问题ID
             if (number == 0){
                 totalQuestionTable.setProblemSolvingId(commandLogics.get(number).getId());
             }
         }
-        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-        if (i<=0){
-            //传输登陆人姓名 及问题简述
 
+        // 更新总问题表信息
+        int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+
+        // 如果更新失败，则记录错误日志并返回false
+        if (i<=0){
+            // 传输登陆人姓名及问题简述
+            //传输登陆人姓名 及问题简述
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:交换机问题实体类修复问题ID修改失败\r\n");
 
             return false;
         }
+
+        // 插入成功，返回true
         return true;
     }
 
@@ -194,30 +220,44 @@ public class CommandLogicController extends BaseController
     }
 
     /**
-     * @method: 删除解决问题命令List
-     * @Param: [totalQuestionTableId]
-     * @return: com.sgcc.common.core.domain.AjaxResult
+     * 删除解决问题命令List
+     *
+     * @param totalQuestionTableId 问题表ID
+     * @return AjaxResult 返回结果
      */
     @ApiOperation("删除修复问题命令")
     @DeleteMapping("deleteProblemSolvingCommand")
     @MyLog(title = "删除修复问题命令", businessType = BusinessType.UPDATE)
     public boolean deleteProblemSolvingCommand(@RequestBody String totalQuestionTableId){
+        // 根据问题表ID查询问题数据
         //根据 问题表 问题ID 查询 问题数据
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
+        // 问题表解决问题ID
         //问题表 解决问题ID
         String problemSolvingId = totalQuestionTable.getProblemSolvingId();
+
         //解决问题命令集合
         List<CommandLogic> commandLogicList = new ArrayList<>();
+
         do {
+            // 根据解决问题ID查询解决问题命令
             // 根据解决问题ID 查询 解决问题命令
             CommandLogic commandLogic = commandLogicService.selectCommandLogicById(problemSolvingId);
+
+            // 加入解决问题命令集合
             // 加入 解决问题命令集合
             commandLogicList.add(commandLogic);
+
+            // 获取下一个解决问题ID
             problemSolvingId = commandLogic.getEndIndex();
+
+            // 当下一命令ID为0时结束循环
             //当下一命令ID为0 的时候  结束
         }while (!(problemSolvingId.equals("0")));
+
         //删除解决问题命令
         /*String[] ids = new String[commandLogicList.size()];
         for (int num = 0 ; num<commandLogicList.size();num++){
@@ -225,15 +265,19 @@ public class CommandLogicController extends BaseController
         }*/
         String[] ids = commandLogicList.stream().map(l ->l.getId()).toArray(String[]::new);
         int deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(ids);
+
         if (deleteCommandLogicByIds<=0){
             return false;
         }
+
         //修改解决问题命令字段
         totalQuestionTable.setProblemSolvingId(null);
         int updateTotalQuestionTable = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+
         if (updateTotalQuestionTable<=0){
             return false;
         }
+
         return true;
     }
 }

@@ -38,6 +38,125 @@ public class ErrorPackage {
     @Autowired
     private IErrorRateCommandService errorRateCommandService;
 
+    private static String switchPortReturnsResult = "The brief information of interface(s) under route mode:\n" +
+            "Link: ADM - administratively down; Stby - standby\n" +
+            "Protocol: (s) - spoofing\n" +
+            "Interface            Link Protocol Main IP         Description\n" +
+            "Loop114              UP   UP(s)    10.122.114.208\n" +
+            "M-E0/0/0             DOWN DOWN     --\n" +
+            "NULL0                UP   UP(s)    --\n" +
+            "Vlan3                UP   UP       10.98.138.147\n" +
+            "Vlan4                UP   UP       10.98.139.239\n" +
+            "Vlan6                UP   UP       10.98.138.2\n" +
+            "Vlan7                UP   UP       10.98.136.13\n" +
+            "Vlan50               UP   UP       100.1.2.252\n" +
+            "Vlan200              UP   UP       10.98.137.71\n" +
+            "Vlan2000             UP   UP       10.98.138.195   to-shiju\n" +
+            "Vlan2001             UP   UP       10.122.119.161\n" +
+            "\n" +
+            "The brief information of interface(s) under bridge mode:\n" +
+            "Link: ADM - administratively down; Stby - standby\n" +
+            "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
+            "Type: A - access; T - trunk; H - hybrid\n" +
+            "Interface            Link Speed   Duplex Type PVID Description\n" +
+            "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
+            "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
+            "Ethernet0/0/0        UP  auto    A      T    1\n" +
+            "Eth-Trunk20.2000     UP   1G(a)   F(a)   T    1\n" +
+            "GE0/0/4              ADM  auto    A      T    1\n" +
+            "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
+            "GE0/0/6              ADM  auto    A      T    1\n" +
+            "GE0/0/7              UP   1G(a)   F(a)   T    1    To_AnBeiSuo_S5720_G0/0/49\n" +
+            "GE0/0/8              ADM  auto    A      A    1\n" +
+            "GE0/0/9              ADM  auto    A      A    1\n" +
+            "GE0/0/10             ADM  auto    A      A    1\n" +
+            "GE0/0/11             DOWN 1G      F      T    1    To_ZhuLouJiFang2_XG0/0/3\n" +
+            "GE0/0/12             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+            "GE0/0/13             ADM  auto    A      A    1\n" +
+            "GE0/0/14             ADM  auto    A      A    1\n" +
+            "GE0/0/15             ADM  auto    A      A    1\n" +
+            "GE0/0/16             DOWN 1G      F      T    1    to_fajianbu_S3448\n" +
+            "GE0/0/17             ADM  auto    A      A    1\n" +
+            "GE0/0/18             ADM  auto    A      A    1\n" +
+            "GE0/0/19             ADM  auto    A      A    1\n" +
+            "GE0/0/20             ADM  auto    A      A    1\n" +
+            "GE0/0/21             ADM  auto    A      A    1\n" +
+            "GE0/0/22             ADM  auto    A      A    1\n" +
+            "GE0/0/23             ADM  auto    A      A    1\n" +
+            "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
+            "GE0/0/25             DOWN auto    A      T    1\n" +
+            "GE0/0/26             DOWN auto    A      T    1\n" +
+            "GE0/0/27             DOWN auto    A      T    1\n" +
+            "GE0/0/28             DOWN auto    A      T    1\n" +
+            "GE0/0/29             DOWN auto    A      T    1\n" +
+            "GE0/0/30             DOWN   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+            "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
+            "GE0/0/32             DOWN  auto    A      A    200  To_HX_S7506E" +
+            "GE0/0/33             UP   1G(a)   F(a)   A    2001 To_ShiJu\n";
+
+    private static String switchPortValueReturnsResult = "GigabitEthernet1/0/25 current state: UP\n" +
+            " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
+            " Description :To_ShuJuWangHuLian_G1/0/18\n" +
+            " Loopback is not set\n" +
+            " Media type is twisted pair\n" +
+            " Port hardware type is  1000_BASE_T\n" +
+            " 1000Mbps-speed mode, full-duplex mode\n" +
+            " Link speed type is autonegotiation, link duplex type is autonegotiation\n" +
+            " Flow-control is not enabled\n" +
+            " The Maximum Frame Length is 10000\n" +
+            " Broadcast MAX-ratio: 100%\n" +
+            " Unicast MAX-ratio: 100%\n" +
+            " Multicast MAX-ratio: 100%\n" +
+            " Allow jumbo frame to pass\n" +
+            " PVID: 1\n" +
+            " Mdi type: auto\n" +
+            " Port link-type: trunk\n" +
+            "  VLAN passing  : 118, 602\n" +
+            "  VLAN permitted: 118, 602\n" +
+            "  Trunk port encapsulation: IEEE 802.1q\n" +
+            " Port priority: 0\n" +
+            " Last clearing of counters:  Never\n" +
+            " Peak value of input: 207721 bytes/sec, at 2022-11-08 06:26:00\n" +
+            " Peak value of output: 33198 bytes/sec, at 2023-03-27 10:50:33\n" +
+            " Last 300 seconds input:  2 packets/sec 282 bytes/sec 0%\n" +
+            " Last 300 seconds output:  2 packets/sec 290 bytes/sec 0%\n" +
+            " Input (total):  56148368 packets, 6611001881 bytes\n" +
+            "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
+            " Input (normal):  56148368 packets, - bytes\n" +
+            "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
+            " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
+            "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
+            "         - ignored, - parity errors\n" +
+            " Output (total): 46229751 packets, 4553563599 bytes\n" +
+            "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
+            " Output (normal): 46229751 packets, - bytes\n" +
+            "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
+            " Output: 0 output errors, - underruns, - buffer failures\n" +
+            "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
+            "         0 lost carrier, - no carrier";
+
+    /* private static String switchPortValueReturnsResult = "Input: 982431567 packets, 1214464892426 bytes\n" +
+                    "      Unicast: 981439518, Multicast: 404\n" +
+                    "      Broadcast: 991644, Jumbo: 0\n" +
+                    "      Discard: 0, Pause: 0\n" +
+                    "      Frames: 0\n" +
+                    "      Total Error: 50\n" +
+                    "      CRC: 1, Giants: 0\n" +
+                    "      Jabbers: 0, Fragments: 0\n" +
+                    "      Runts: 0, DropEvents: 0\n" +
+                    "      Alignments: 0, Symbols: 1\n" +
+                    "      Ignoreds: 0\n" +
+                    "      Output: 508606045 packets, 45046419657 bytes\n" +
+                    "      Unicast: 502482495, Multicast: 6122779\n" +
+                    "      Broadcast: 771, Jumbo: 0\n" +
+                    "      Discard: 0, Pause: 0\n" +
+                    "      Total Error: 100\n" +
+                    "      Collisions: 0, ExcessiveCollisions: 0\n" +
+                    "      Late Collisions: 0, Deferreds: 0\n" +
+                    "      Buffers Purged: 0";  */
+
+
+
     /*发送命令 返回端口号信息*/
 
     //@MyLog(title = "高级功能错误包扫描", businessType = BusinessType.OTHER)
@@ -78,61 +197,7 @@ public class ErrorPackage {
         /*3：配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
-        returnString = "The brief information of interface(s) under route mode:\n" +
-                "Link: ADM - administratively down; Stby - standby\n" +
-                "Protocol: (s) - spoofing\n" +
-                "Interface            Link Protocol Main IP         Description\n" +
-                "Loop114              UP   UP(s)    10.122.114.208\n" +
-                "M-E0/0/0             DOWN DOWN     --\n" +
-                "NULL0                UP   UP(s)    --\n" +
-                "Vlan3                UP   UP       10.98.138.147\n" +
-                "Vlan4                UP   UP       10.98.139.239\n" +
-                "Vlan6                UP   UP       10.98.138.2\n" +
-                "Vlan7                UP   UP       10.98.136.13\n" +
-                "Vlan50               UP   UP       100.1.2.252\n" +
-                "Vlan200              UP   UP       10.98.137.71\n" +
-                "Vlan2000             UP   UP       10.98.138.195   to-shiju\n" +
-                "Vlan2001             UP   UP       10.122.119.161\n" +
-                "\n" +
-                "The brief information of interface(s) under bridge mode:\n" +
-                "Link: ADM - administratively down; Stby - standby\n" +
-                "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
-                "Type: A - access; T - trunk; H - hybrid\n" +
-                "Interface            Link Speed   Duplex Type PVID Description\n" +
-                "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
-                "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
-                "Ethernet0/0/0        UP  auto    A      T    1\n" +
-                "Eth-Trunk20.2000     UP   1G(a)   F(a)   T    1\n" +
-                "GE0/0/4              ADM  auto    A      T    1\n" +
-                "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
-                "GE0/0/6              ADM  auto    A      T    1\n" +
-                "GE0/0/7              UP   1G(a)   F(a)   T    1    To_AnBeiSuo_S5720_G0/0/49\n" +
-                "GE0/0/8              ADM  auto    A      A    1\n" +
-                "GE0/0/9              ADM  auto    A      A    1\n" +
-                "GE0/0/10             ADM  auto    A      A    1\n" +
-                "GE0/0/11             DOWN 1G      F      T    1    To_ZhuLouJiFang2_XG0/0/3\n" +
-                "GE0/0/12             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
-                "GE0/0/13             ADM  auto    A      A    1\n" +
-                "GE0/0/14             ADM  auto    A      A    1\n" +
-                "GE0/0/15             ADM  auto    A      A    1\n" +
-                "GE0/0/16             DOWN 1G      F      T    1    to_fajianbu_S3448\n" +
-                "GE0/0/17             ADM  auto    A      A    1\n" +
-                "GE0/0/18             ADM  auto    A      A    1\n" +
-                "GE0/0/19             ADM  auto    A      A    1\n" +
-                "GE0/0/20             ADM  auto    A      A    1\n" +
-                "GE0/0/21             ADM  auto    A      A    1\n" +
-                "GE0/0/22             ADM  auto    A      A    1\n" +
-                "GE0/0/23             ADM  auto    A      A    1\n" +
-                "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
-                "GE0/0/25             DOWN auto    A      T    1\n" +
-                "GE0/0/26             DOWN auto    A      T    1\n" +
-                "GE0/0/27             DOWN auto    A      T    1\n" +
-                "GE0/0/28             DOWN auto    A      T    1\n" +
-                "GE0/0/29             DOWN auto    A      T    1\n" +
-                "GE0/0/30             DOWN   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
-                "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
-                "GE0/0/32             DOWN  auto    A      A    200  To_HX_S7506E" +
-                "GE0/0/33             UP   1G(a)   F(a)   A    2001 To_ShiJu\n";
+        returnString = this.switchPortReturnsResult;
         returnString = MyUtils.trimString(returnString);
 
 
@@ -238,30 +303,24 @@ public class ErrorPackage {
         for (String port:difference){
             /** 修改端口号状态  */
             ErrorRate errorRate = errorRateMap.get(port);
-
             errorRate.setLink("DOWN");
-
             int i = errorRateService.updateErrorRate(errorRate);
 
             if (i > 0 ){
-
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
                         "系统信息:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:错误包功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n");
-
             }else {
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
                         "系统信息:" +
                         "IP地址为:"+switchParameters.getIp()+","+
@@ -273,16 +332,13 @@ public class ErrorPackage {
 
         /*获取错误包参数集合中的Key*/
         for (String port:portList){
-
             /** 当前扫描数据*/
             ErrorRate errorRate = new ErrorRate();
             errorRate.setSwitchIp(switchParameters.getIp()); /*IP*/
             errorRate.setSwitchId(switchID); /*交换机基本信息ID*/
             errorRate.setPort(port); /*交换机端口号*/
-
             /* 获取该端口号的 错误包参数 */
             List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
-
             for (String error:errorPackageValue){
                 if (MyUtils.containIgnoreCase(error,"input") || MyUtils.containIgnoreCase(error,"Rx") ){
                     //MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error)
@@ -299,16 +355,12 @@ public class ErrorPackage {
                     errorRate.setDescription(error);
                 }
             }
-
             HashMap<String,String> hashMap = new HashMap<>();
             hashMap.put("ProblemName","错误包");
-
-
             String subversionNumber1 = switchParameters.getSubversionNumber();
             if (subversionNumber1!=null){
                 subversionNumber1 = "、"+subversionNumber1;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
                     "系统信息:" +
                             "IP地址为:"+switchParameters.getIp()+","+
@@ -317,80 +369,58 @@ public class ErrorPackage {
                             " input:"+errorRate.getInputErrors()+" "+
                             " output:"+errorRate.getOutputErrors()+" "+
                             " crc:"+errorRate.getCrc()+"\r\n");
-
-
             /** 数据库数据*/
             ErrorRate primaryErrorRate = errorRateMap.get(port);
-
             if (primaryErrorRate == null){
                 /* 数据库中没有历史数据 可以直接插入 */
                 errorRate.setLink("UP");
                 errorRateService.insertErrorRate(errorRate);
-
                 hashMap.put("IfQuestion","无问题");
-
                 //continue;
             }else {
-
                 /*num 判断 两次扫描数值是否一致*/
                 int num = 0;
                 if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null) &&
                         (!primaryErrorRate.getInputErrors().equals(errorRate.getInputErrors()))){
                     num++;
-
                 }else if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() ==null)
                 || (primaryErrorRate.getInputErrors() ==null && errorRate.getInputErrors() !=null)){
                     /*原数据 或者 新数据 一项为空 另一项不为空*/
                     num++;
-
                 }
                 if ((primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() !=null) &&
                         (!primaryErrorRate.getOutputErrors().equals(errorRate.getOutputErrors()))){
                     num++;
-
                 }else if((primaryErrorRate.getOutputErrors() ==null && errorRate.getOutputErrors() !=null)
                 || (primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() ==null)){
                     num++;
-
                 }
                 if ((primaryErrorRate.getCrc() !=null && errorRate.getCrc() !=null) &&
                         (!primaryErrorRate.getCrc().equals(errorRate.getCrc()))){
                     num++;
-
                 }else if((primaryErrorRate.getCrc() ==null && errorRate.getCrc() !=null)
                 || (primaryErrorRate.getCrc() !=null && errorRate.getCrc() ==null)){
                     num++;
-
                 }
-
                 /*如果 num 不为0 则前后数据不一致 则有问题*/
                 if (num>0){
-
                     errorRate.setId(primaryErrorRate.getId());
                     /* 判断数据库数据 是 否为 断开状态*/
                     if ( primaryErrorRate.getLink().equals("DOWN")){
-
-
                         String subversionNumber = switchParameters.getSubversionNumber();
                         if (subversionNumber!=null){
                             subversionNumber = "、"+subversionNumber;
                         }
-
                         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
                                 "系统信息:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                         "问题为:错误包功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
-
-
                         errorRate.setLink("UP");
                     }
-
                     int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","有问题");
-
                 }else if (num == 0){
-
                     errorRate.setId(primaryErrorRate.getId());
                     /*判断数据库数据是否为 断开状态*/
                     if ( primaryErrorRate.getLink().equals("DOWN")){
@@ -398,28 +428,22 @@ public class ErrorPackage {
                         if (subversionNumber!=null){
                             subversionNumber = "、"+subversionNumber;
                         }
-
                         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
                                 "系统信息:" +
                                         "IP地址为:"+switchParameters.getIp()+","+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                         "问题为:错误包功能端口号:"+ port + "恢复连接\r\n");
-
                         errorRate.setLink("UP");
                     }
                     int i = errorRateService.updateErrorRate(errorRate);
                     hashMap.put("IfQuestion","无问题");
-
                     //continue;
                 }
             }
-
             /*自定义分隔符*/
             String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-
             // =:= 是自定义分割符
             String portNumber = "端口号"+customDelimiter+"是"+customDelimiter+port+" "+ errorRate.getDescription() + customDelimiter;
-
             String InputErrors = primaryErrorRate.getInputErrors()!=null?"input"+customDelimiter+"是"+customDelimiter+"input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+customDelimiter
                     :"input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
             String OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output"+customDelimiter+"是"+customDelimiter+"output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+customDelimiter
@@ -427,187 +451,128 @@ public class ErrorPackage {
             String Crc = primaryErrorRate.getCrc()!=null?"crc"+customDelimiter+"是"+customDelimiter+"crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
                     :"crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
             String parameterString = portNumber +" "+ InputErrors+" "+OutputErrors+" "+Crc;
-
             if (parameterString.endsWith( customDelimiter )){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
             }
-
             hashMap.put("parameterString",parameterString);
-
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
             Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
             SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
             switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-
         }
         return null;
     }
 
     /*发送命令 错误包数量信息*/
     /**
-    * @Description 获取到错误包参数
+     * 获取错误包参数
      *
-    * @author charles
-    * @createTime 2023/12/19 21:41
-    * @desc
+     * @param switchParameters 包含交换机相关参数的SwitchParameters对象
+     * @param portNumber       包含交换机端口号的列表
+     * @param errorPackageCommand 获取错误包参数的命令
+     * @return 包含错误包参数的HashMap对象，其中key为端口号，value为包含错误包参数的列表
+     * @throws Exception 执行命令或处理结果时发生的异常
      *
-    * @param switchParameters
-     * @param portNumber	          端口号
-     * @param errorPackageCommand	  获取错误包参数命令
-     * @return
-    */
+     * @author charles
+     * @createTime 2023/12/19 21:41
+     */
     public HashMap<String,Object> getErrorPackageParameters(SwitchParameters switchParameters,List<String> portNumber,String errorPackageCommand) {
-        /*创建 返回对象 List<String>*/
+        // 创建返回对象 HashMap
         HashMap<String,Object> hashMap = new HashMap<>();
         ExecuteCommand executeCommand = new ExecuteCommand();
-
-        /*端口号集合 需要检测各端口号的错误包参数*/
+        // 遍历端口号集合，检测各端口号的错误包参数
         for (String port:portNumber){
-
             List<String> valueList = new ArrayList<>();
-            /*替换端口号 得到完整的 获取端口号错误包参数命令 */
+            // 替换端口号，得到完整的获取端口号错误包参数命令
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
-
-            /*交换机执行命令 并返回结果*/
+            // 执行交换机命令，并返回结果
             String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
-            returnResults = "GigabitEthernet1/0/25 current state: UP\n" +
-                    " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
-                    " Description :To_ShuJuWangHuLian_G1/0/18\n" +
-                    " Loopback is not set\n" +
-                    " Media type is twisted pair\n" +
-                    " Port hardware type is  1000_BASE_T\n" +
-                    " 1000Mbps-speed mode, full-duplex mode\n" +
-                    " Link speed type is autonegotiation, link duplex type is autonegotiation\n" +
-                    " Flow-control is not enabled\n" +
-                    " The Maximum Frame Length is 10000\n" +
-                    " Broadcast MAX-ratio: 100%\n" +
-                    " Unicast MAX-ratio: 100%\n" +
-                    " Multicast MAX-ratio: 100%\n" +
-                    " Allow jumbo frame to pass\n" +
-                    " PVID: 1\n" +
-                    " Mdi type: auto\n" +
-                    " Port link-type: trunk\n" +
-                    "  VLAN passing  : 118, 602\n" +
-                    "  VLAN permitted: 118, 602\n" +
-                    "  Trunk port encapsulation: IEEE 802.1q\n" +
-                    " Port priority: 0\n" +
-                    " Last clearing of counters:  Never\n" +
-                    " Peak value of input: 207721 bytes/sec, at 2022-11-08 06:26:00\n" +
-                    " Peak value of output: 33198 bytes/sec, at 2023-03-27 10:50:33\n" +
-                    " Last 300 seconds input:  2 packets/sec 282 bytes/sec 0%\n" +
-                    " Last 300 seconds output:  2 packets/sec 290 bytes/sec 0%\n" +
-                    " Input (total):  56148368 packets, 6611001881 bytes\n" +
-                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input (normal):  56148368 packets, - bytes\n" +
-                    "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-                    " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
-                    "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
-                    "         - ignored, - parity errors\n" +
-                    " Output (total): 46229751 packets, 4553563599 bytes\n" +
-                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-                    " Output (normal): 46229751 packets, - bytes\n" +
-                    "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-                    " Output: 0 output errors, - underruns, - buffer failures\n" +
-                    "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
-                    "         0 lost carrier, - no carrier";
-
-            /*returnResults = "Input: 982431567 packets, 1214464892426 bytes\n" +
-                    "      Unicast: 981439518, Multicast: 404\n" +
-                    "      Broadcast: 991644, Jumbo: 0\n" +
-                    "      Discard: 0, Pause: 0\n" +
-                    "      Frames: 0\n" +
-                    "      Total Error: 50\n" +
-                    "      CRC: 1, Giants: 0\n" +
-                    "      Jabbers: 0, Fragments: 0\n" +
-                    "      Runts: 0, DropEvents: 0\n" +
-                    "      Alignments: 0, Symbols: 1\n" +
-                    "      Ignoreds: 0\n" +
-                    "      Output: 508606045 packets, 45046419657 bytes\n" +
-                    "      Unicast: 502482495, Multicast: 6122779\n" +
-                    "      Broadcast: 771, Jumbo: 0\n" +
-                    "      Discard: 0, Pause: 0\n" +
-                    "      Total Error: 100\n" +
-                    "      Collisions: 0, ExcessiveCollisions: 0\n" +
-                    "      Late Collisions: 0, Deferreds: 0\n" +
-                    "      Buffers Purged: 0";  */
+            returnResults = this.switchPortValueReturnsResult;
             returnResults = MyUtils.trimString(returnResults);
-
             if (returnResults == null){
-
+                // 如果结果为空，则进行异常处理
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
+                // 记录异常日志
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能"+port+"端口获取错误包参数命令错误,请重新定义\r\n");
-
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:错误包功能"+port+"端口获取错误包参数命令错误,请重新定义\r\n");
+                // 继续处理下一个端口号
                 continue;
             }
 
-            /*查看交换机错误包数量*/
+            // 查看交换机错误包数量
             valueList = getParameters(switchParameters,returnResults,port);
 
-            /*获取 描述：Description:*/
+            // 获取描述信息 描述：Description:*/
             String description = getDescription(returnResults);
             if (description!=null){
                 valueList.add("Description:"+description);
             }
 
             if (MyUtils.isCollectionEmpty(valueList)){
-                /*  端口未获取到错误包 */
+                // 如果获取到的错误包数量为空，则进行异常处理
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
 
+                // 记录异常日志
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能"+port+"端口未获取到错误包\r\n");
+                        "IP地址为:"+switchParameters.getIp()+","+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                        "问题为:错误包功能"+port+"端口未获取到错误包\r\n");
+                // 继续处理下一个端口号
                 continue;
             }else {
+                // 将获取到的错误包参数添加到结果HashMap中
                 hashMap.put(port,valueList);
             }
         }
+        // 返回结果HashMap
         return hashMap;
     }
 
     /**
-    * @Description 根据交换机返回信息获取错误包端口号
-    * @author charles
-    * @createTime 2023/12/19 21:36
-    * @desc
-    * @param returnString
-     * @return
-    */
+     * 根据交换机返回信息获取错误包端口号
+     *
+     * @param returnString 交换机返回的信息字符串
+     * @return 包含错误包端口号的字符串列表
+     * @author charles
+     * @createTime 2023/12/19 21:36
+     */
     public List<String> ObtainUPStatusPortNumber(String returnString) {
-        /* 按行分割 交换机返回信息行信息 字符串数组*/
+        // 按行分割 交换机返回信息行信息 字符串数组
         String[] returnStringSplit = returnString.split("\r\n");
 
-        /*遍历 交换机行信息字符串数组
-        *  判断 交换机返回行信息是否包含 UP（状态）
-        *  是 则存放入端口待取集合*/
+        // 遍历 交换机行信息字符串数组
+        // 判断 交换机返回行信息是否包含 UP（状态）
+        // 是 则存放入端口待取集合
         List<String> strings = new ArrayList<>();
 
         for (String string:returnStringSplit){
+            // 判断是否包含 " UP "
             if ((string.toUpperCase().indexOf(" UP ")!=-1)){
+                // 去除字符串两边的空格，并存入端口待取集合
                 strings.add(string.trim());
             }
         }
 
-        /*遍历端口待取集合 执行取值方法 获取端口号*/
+        // 遍历端口待取集合
+        // 执行取值方法 获取端口号
         List<String> port = new ArrayList<>();
         for (String information:strings){
 
-            /* 根据 UP 截取端口号 并 去除带"."的子端口 */
+            // 根据 UP 截取端口号，并去除带"."的子端口
             String terminalSlogan = FunctionalMethods.getTerminalSlogan(information);
 
             if (terminalSlogan != null){
+                // 将端口号添加到结果列表中
                 port.add(terminalSlogan);
             }
         }
@@ -617,8 +582,11 @@ public class ErrorPackage {
 
     /**
      * 查看交换机错误包数量
-     * @param
-     * @return
+     *
+     * @param switchParameters 包含交换机相关参数的SwitchParameters对象
+     * @param returnResults     交换机返回的结果信息
+     * @param port              需要查询的端口号
+     * @return 交换机错误包数量参数的列表，列表中的元素格式为"参数名:参数值"
      */
     public List<String> getParameters(SwitchParameters switchParameters,String returnResults,String port) {
 

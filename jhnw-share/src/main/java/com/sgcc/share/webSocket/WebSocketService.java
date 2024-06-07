@@ -29,19 +29,30 @@ public class WebSocketService {
     /**接收userName*/
     private String userName="";
     /**
-     * 连接建立成功调用的方法*/
+     * 连接建立成功调用的方法
+     */
     @OnOpen
     public void onOpen(Session session, @PathParam("userName") String userName) {
+        // 判断用户名是否存在于WebSocket连接映射中
         if(!webSocketMap.containsKey(userName)) {
+            // 如果不存在，则在线数 +1
             addOnlineCount(); // 在线数 +1
         }
+        // 将当前会话赋值给类的成员变量session
         this.session = session;
+        // 将用户名赋值给类的成员变量userName
         this.userName= userName;
+        // 创建一个WebSocketClient对象
         WebSocketClient client = new WebSocketClient();
+        // 设置WebSocketClient对象的会话
         client.setSession(session);
+        // 设置WebSocketClient对象的URI
         client.setUri(session.getRequestURI().toString());
+        // 将用户名和WebSocketClient对象添加到WebSocket连接映射中
         webSocketMap.put(userName, client);
+        // 打印日志分隔线
         log.info("----------------------------------------------------------------------------");
+        // 打印日志，显示用户连接信息和当前在线人数
         log.info("用户连接:"+userName+",当前在线人数为:" + getOnlineCount());
     }
 
@@ -50,14 +61,21 @@ public class WebSocketService {
      */
     @OnClose
     public void onClose() {
+        // 如果webSocketMap中包含当前用户的用户名
         if(webSocketMap.containsKey(userName)){
+            // 从webSocketMap中移除当前用户的WebSocket连接
             webSocketMap.remove(userName);
+
+            // 从在线人数中减去一个
             //if(webSocketMap.size()>0) {
-                //从set中删除
+                // 从set中删除
                 subOnlineCount();
             //}
         }
+
+        // 打印日志，表示调用了关闭方法onClose()
         log.info("--------------------------------调用关闭方法 onClose()--------------------------------------------");
+        // 打印日志，显示用户退出以及当前在线人数
         log.info(userName+"用户退出,当前在线人数为:" + getOnlineCount());
     }
 
@@ -105,44 +123,59 @@ public class WebSocketService {
 
     /**
      * 向指定客户端发送消息
-     * @param userName
-     * @param object
+     *
+     * @param userName 用户名
+     * @param object   要发送的消息对象
      */
     public static void sendMessage(String userName,Object object){
         try {
+            // 根据用户名从WebSocket连接映射中获取对应的WebSocketClient对象
             WebSocketClient webSocketClient = webSocketMap.get(userName);
             if(webSocketClient!=null){
+                // 对WebSocketClient对象进行同步，确保线程安全
                 synchronized(webSocketClient) {
+                    // 发送消息对象给指定的客户端
                     webSocketClient.getSession().getBasicRemote().sendObject(object);
                 }
             }
         } catch (IOException | EncodeException e) {
+            // 捕获并打印异常信息
             e.printStackTrace();
+            // 将异常信息转换为RuntimeException并抛出
             throw new RuntimeException(e.getMessage());
         }
     }
     public static void sendMessage(String userName,String string){
         try {
+            // 从WebSocket连接映射中获取指定用户名的WebSocketClient对象
             WebSocketClient webSocketClient = webSocketMap.get(userName);
             if(webSocketClient!=null){
+                // 对WebSocketClient对象进行同步，确保线程安全
                 synchronized(webSocketClient){
+                    // 发送文本消息给指定的客户端
                     webSocketClient.getSession().getBasicRemote().sendText(string);
                 }
             }
         } catch (IOException e) {
+            // 捕获并打印异常信息
             e.printStackTrace();
+            // 将异常信息转换为RuntimeException并抛出
             throw new RuntimeException(e.getMessage());
         }
     }
     public static void sendMessageAll(String string) {
+        // 获取webSocketMap中的所有WebSocketClient对象
         Collection<WebSocketClient> values = webSocketMap.values();
-            try {
-                for (WebSocketClient value:values){
+        try {
+            // 遍历所有的WebSocketClient对象
+            for (WebSocketClient value:values){
+                // 发送文本消息给每个客户端
                 value.getSession().getBasicRemote().sendText(string);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            // 捕获并打印异常信息
+            e.printStackTrace();
+        }
     }
 
     public static synchronized int getOnlineCount() {

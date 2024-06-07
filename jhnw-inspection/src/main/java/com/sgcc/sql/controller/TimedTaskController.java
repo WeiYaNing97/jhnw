@@ -77,15 +77,25 @@ public class TimedTaskController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody TimedTaskVO timedTaskVO)
     {
+        // 创建一个新的定时任务对象
         TimedTask timedTask = new TimedTask();
+        // 将前端传递的VO对象属性复制到定时任务对象中
         BeanUtils.copyProperties(timedTaskVO , timedTask);
 
+        // 如果前端传递了选中的功能列表
         if (timedTaskVO.getSelectFunctions() != null){
+            // 将选中的功能列表转换为字符串，并去掉字符串首尾的方括号，然后赋值给定时任务对象的functionArray属性
             timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
+        // 将定时任务的时间间隔字符串中的中文冒号替换为英文冒号
         timedTask.setTimedTaskIntervalTime(timedTask.getTimedTaskIntervalTime().replace("：",":"));
+
+        // 获取当前登录用户
         LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 设置定时任务对象的创建者名称为当前登录用户的用户名
         timedTask.setCreatorName(loginUser.getUsername());
+
+        // 调用服务层的插入定时任务方法，并将结果返回给前端
         return toAjax(timedTaskService.insertTimedTask(timedTask));
     }
 
@@ -97,16 +107,24 @@ public class TimedTaskController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody TimedTaskVO timedTaskVO)
     {
+        // 创建一个新的定时任务对象
         TimedTask timedTask = new TimedTask();
+        // 将前端传递的VO对象属性复制到定时任务对象中
         BeanUtils.copyProperties(timedTaskVO , timedTask);
+        // 将定时任务的时间间隔字符串中的中文冒号替换为英文冒号
         timedTask.setTimedTaskIntervalTime(timedTask.getTimedTaskIntervalTime().replace("：",":"));
+        // 如果前端传递了选中的功能列表
         if (timedTaskVO.getSelectFunctions() != null){
+            // 将选中的功能列表转换为字符串，并去掉字符串首尾的方括号，然后赋值给定时任务对象的functionArray属性
             timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
 
+        // 获取当前登录用户
         LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 设置定时任务对象的创建者名称为当前登录用户的用户名
         timedTask.setCreatorName(loginUser.getUsername());
 
+        // 调用服务层的更新定时任务方法，并将结果返回给前端
         return toAjax(timedTaskService.updateTimedTask(timedTask));
     }
 
@@ -121,55 +139,92 @@ public class TimedTaskController extends BaseController
         return toAjax(timedTaskService.deleteTimedTaskByIds(ids));
     }
 
+    /**
+     * 初始化开启状态任务
+     *
+     * @param timedTaskVO 定时任务对象VO
+     */
     public void InitiateOpenStateTasks(@RequestBody TimedTaskVO timedTaskVO) {
-
+        // 创建一个新的定时任务对象
         TimedTask timedTask = new TimedTask();
+        // 将传入的VO对象的属性复制到定时任务对象中
         BeanUtils.copyProperties(timedTaskVO , timedTask);
+
+        // 如果传入的VO对象中有函数名称
         if (timedTaskVO.getFunctionName() != null){
+            // 将函数名称以逗号分隔，并赋值给定时任务对象的functionArray属性
             timedTask.setFunctionArray( String.join(",", timedTaskVO.getFunctionName()));
         }
 
-        /** 开启定时任务*/
+        /**
+         * 开启定时任务
+         */
+        // 从指定的路径中读取加密的Excel文件，获取交换机登录信息列表
         List<SwitchLoginInformation> switchLoginInformations = TimedTaskRetrievalFile.readCiphertextExcel(MyUtils.getProjectPath()+"\\jobExcel\\"+ timedTask.getTimedTaskParameters() +".txt");
+
+        // 如果交换机登录信息列表为空
         if (MyUtils.isCollectionEmpty(switchLoginInformations)){
+            // 直接返回
             return;
         }
+
+        // 将定时任务的间隔时间转换为秒
         /* 任务间隔时间 秒 */
         Integer intervalSecond = convertToSeconds(timedTaskVO.getTimedTaskIntervalTime());
 
+        // 获取SysUserService接口的实例
         sysUserService = SpringBeanUtil.getBean(ISysUserService.class);
+        // 根据创建者名称查询SysUser对象
         SysUser sysUser = sysUserService.selectUserByUserName(timedTaskVO.getCreatorName());
 
+        // 创建一个LoginUser对象
         LoginUser loginUser = new LoginUser();
+        // 设置LoginUser对象的user属性为查询到的SysUser对象
         loginUser.setUser(sysUser);
+        // 设置LoginUser对象的userId属性为SysUser对象的userId
         loginUser.setUserId(sysUser.getUserId());
+        // 设置LoginUser对象的deptId属性为SysUser对象的deptId
         loginUser.setDeptId(sysUser.getDeptId());
 
+        // 如果传入的VO对象中有定时任务的开始时间
         if (timedTaskVO.getTimedTaskStartTime()!=null){
-
-            /* 为根据固定时间开始扫描*/
-            /* 根据当前时间开始扫描*/
+            /*
+             * 为根据固定时间开始扫描
+             * 根据当前时间开始扫描
+             */
+            // 创建一个Timer对象
             Timer timer = new Timer();
+            // 将定时任务ID和Timer对象存入timerStorage中
             timerStorage.put(timedTaskVO.getId(),timer);
 
+            // 创建一个TemplateScheduledTasks对象，并传入交换机登录信息列表、Timer对象、VO对象和LoginUser对象
             TemplateScheduledTasks task = new TemplateScheduledTasks( switchLoginInformations, timer,  timedTaskVO,loginUser);/*交换机登录方式*/
 
+            // 获取定时任务的开始时间
             Date date = timedTaskVO.getTimedTaskStartTime();
 
-            // 使用Calendar类获取年、月、日、时、分、秒
+            // 使用Calendar类获取开始时间的年、月、日、时、分、秒
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             Date startTime = calendar.getTime();
 
+            // 使用定时任务的间隔时间（秒）和1000的乘积作为执行间隔（毫秒），并启动定时任务
             /* long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
             timer.schedule(task, startTime, intervalSecond * 1000);
 
-        }else {
-            /* 根据当前时间开始扫描*/
+        } else {
+            /*
+             * 根据当前时间开始扫描
+             */
+            // 创建一个Timer对象
             Timer timer = new Timer();
+            // 将定时任务ID和Timer对象存入timerStorage中
             timerStorage.put(timedTaskVO.getId(),timer);
 
+            // 创建一个TemplateScheduledTasks对象，并传入交换机登录信息列表、Timer对象、VO对象和LoginUser对象
             TemplateScheduledTasks task = new TemplateScheduledTasks( switchLoginInformations, timer,  timedTaskVO,loginUser);/*交换机登录方式*/
+
+            // 使用定时任务的间隔时间（秒）和1000的乘积作为执行间隔（毫秒），并立即启动定时任务
                 /*long delay = 0; // 延迟时间，单位为毫秒
                 long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
             timer.schedule(task, 0, intervalSecond * 1000);
@@ -189,14 +244,15 @@ public class TimedTaskController extends BaseController
         if (timedTaskVO.getSelectFunctions() != null){
             timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
-
+        // 设置定时任务的创建者名称
         timedTask.setCreatorName(loginUser.getUsername());
-
+        // 更新定时任务
         /* 插入 */
         timedTaskService = SpringBeanUtil.getBean(ITimedTaskService.class);
         int i = timedTaskService.updateTimedTask(timedTask);
 
         if (i<0){
+            // 发送问题日志报警信息
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), "问题日志",
                     timedTaskVO.getTimedTaskName() + "定时任务状态修改失败");
         }
@@ -227,11 +283,13 @@ public class TimedTaskController extends BaseController
             /* 为根据固定时间开始扫描*/
             /* 根据当前时间开始扫描*/
             Timer timer = new Timer();
-
+            // 将定时器存入存储
             timerStorage.put(timedTaskVO.getId(),timer);
 
+            // 创建TemplateScheduledTasks对象，并设置交换机登录信息、定时器、TimedTaskVO和登录用户
             TemplateScheduledTasks task = new TemplateScheduledTasks( switchLoginInformations, timer,  timedTaskVO,loginUser);/*交换机登录方式*/
 
+            // 获取定时任务的开始时间
             Date date = timedTaskVO.getTimedTaskStartTime();
 
             // 使用Calendar类获取年、月、日、时、分、秒

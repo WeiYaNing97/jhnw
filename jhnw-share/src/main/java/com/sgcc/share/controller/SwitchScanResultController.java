@@ -123,38 +123,63 @@ public class SwitchScanResultController extends BaseController
     }
 
     /**
-     * @method: 高级功能扫描结果插入数据库
-     * @Param:
-     * @return: void
+     * 将高级功能扫描结果插入数据库
+     *
+     * @param switchParameters 交换机参数对象
+     * @param hashMap          包含问题信息的HashMap
+     * @return 返回插入数据库的行数
      */
     public Long insertSwitchScanResult (SwitchParameters switchParameters, HashMap<String,String> hashMap){
         SwitchScanResult switchScanResult = new SwitchScanResult();
-        //插入问题数据
+
+        // 设置交换机IP
         switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
+        // 设置交换机四项基本信息ID
         switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));/*获取交换机四项基本信息ID*/
+        // 设置交换机名称
         switchScanResult.setSwitchName(switchParameters.getName()); //name
+        // 设置交换机密码
         switchScanResult.setSwitchPassword( EncryptUtil.densificationAndSalt( switchParameters.getPassword() ) ); //password
+        // 设置配置密码
         switchScanResult.setConfigureCiphers( switchParameters.getConfigureCiphers() == null ? null :  EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers()));
+        // 设置登录方式
         switchScanResult.setLoginMethod(switchParameters.getMode());
+        // 设置端口号
         switchScanResult.setPortNumber(switchParameters.getPort());
+        // 设置问题类型
         switchScanResult.setTypeProblem("高级功能");
+        // 设置临时问题名称
         switchScanResult.setTemProName(hashMap.get("ProblemName"));
+        // 设置问题名称
         switchScanResult.setProblemName(hashMap.get("ProblemName"));
+        // 设置动态信息
         switchScanResult.setDynamicInformation(hashMap.get("parameterString"));
+        // 设置是否有问题
         switchScanResult.setIfQuestion(hashMap.get("IfQuestion")); //是否有问题
+        // 设置登录用户名
         switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
+        // 设置登录手机号
         switchScanResult.setPhonenumber(switchParameters.getLoginUser().getUser().getPhonenumber()); //登录手机号
 
-        //插入 扫描时间
+        // 插入扫描时间
+        // 创建扫描时间对象
         DateTime dateTime = new DateTime(switchParameters.getScanningTime(), "yyyy-MM-dd HH:mm:ss");
+        // 设置扫描时间
         switchScanResult.setCreateTime(dateTime);
 
-        //插入问题
+        // 获取ISwitchScanResultService的Bean实例
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+        // 调用insertSwitchScanResult方法插入问题，并获取插入的行数
         int i = switchScanResultService.insertSwitchScanResult(switchScanResult);
+        // 返回插入的行数
         return Long.valueOf(i).longValue();
     };
 
+    /**
+     * 获取交换机问题扫描结果页数
+     *
+     * @return 返回交换机问题扫描结果的页数
+     */
     @ApiOperation("获取交换机问题扫描结果页数")
     @GetMapping("/getPages")
     public Integer getPages() {
@@ -168,9 +193,10 @@ public class SwitchScanResultController extends BaseController
 
 
     /**
-     * 分页查询历史扫描
-     * @param pageNumber
-     * @return
+     * 分页查询历史扫描信息
+     *
+     * @param pageNumber 当前页码
+     * @return 分页查询结果列表
      */
     @ApiOperation("根据当前登录人获取以往扫描信息")
     @GetMapping("/getUnresolvedProblemInformationByUserName/{pageNumber}")///{pageNumber}
@@ -350,42 +376,49 @@ public class SwitchScanResultController extends BaseController
 
 
     /**
-    * @Description 更新登录信息
-    * @author charles
-    * @createTime 2024/1/19 16:18
-    * @desc
-    * @param
-     * @return
-    */
+     * 更新登录信息
+     *
+     * @author charles
+     * @createTime 2024/1/19 16:18
+     * @param switchInformations 包含交换机登录信息的字符串列表
+     * @return 无返回值
+     */
     @PutMapping("/updateLoginInformation")
     public void updateLoginInformation(@RequestBody List<String> switchInformations) {
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
         List<SwitchScanResult> switchScanResults = new ArrayList<>();
 
         for (String information:switchInformations){
-            /* 交换机登录信息 转化为 实体类 */
+            // 交换机登录信息 转化为 实体类
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
 
             SwitchScanResult switchScanResult = new SwitchScanResult();
+            // 设置交换机的IP地址
             switchScanResult.setSwitchIp(switchLoginInformation.getIp());
+            // 设置交换机的名称
             switchScanResult.setSwitchName(switchLoginInformation.getName());
-            /*先解密前端加密 后加密*/
+            // 先解密前端加密的密码，再进行加密处理
             String password = RSAUtils.decryptFrontEndCiphertext(switchLoginInformation.getPassword());
+            // 设置交换机的密码，先加密处理
             switchScanResult.setSwitchPassword(EncryptUtil.densificationAndSalt(password));/*EncryptUtil.densificationAndSalt( switchParameters.getPassword() )*/
 
             if (switchLoginInformation.getConfigureCiphers() != null){
+                // 解密前端加密的配置密文
                 String ConfigureCiphers = RSAUtils.decryptFrontEndCiphertext(switchLoginInformation.getConfigureCiphers());
+                // 设置交换机的配置密文，如果解密后的结果为null，则设置为null，否则进行加密处理
                 switchScanResult.setConfigureCiphers(ConfigureCiphers == null? null : EncryptUtil.densificationAndSalt(ConfigureCiphers));
             }
 
+            // 将处理后的交换机扫描结果添加到列表中
             switchScanResults.add(switchScanResult);
-
         }
 
+        // 获取ISwitchScanResultService接口的实例
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+        // 遍历交换机扫描结果列表，更新登录信息
         for (SwitchScanResult scanResult:switchScanResults){
+            // 调用服务层方法更新登录信息，并获取更新结果
             int i = switchScanResultService.updateLoginInformationByIP(scanResult);
         }
-
     }
 }

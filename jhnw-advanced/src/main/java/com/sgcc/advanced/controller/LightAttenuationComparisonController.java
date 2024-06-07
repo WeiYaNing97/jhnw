@@ -106,6 +106,12 @@ public class LightAttenuationComparisonController extends BaseController
 
     /**
      * 修改光衰平均值比较
+     *
+     * @param lightAttenuationComparison 光衰平均值比较对象
+     * @return 返回修改后的光衰平均值比较结果，封装为AjaxResult对象
+     * @preAuthorize 权限注解，表示调用该接口需要先通过权限验证，权限标识为'advanced:comparison:edit'
+     * @MyLog 自定义日志注解，用于记录业务日志，标题为"光衰平均值比较"，业务类型为更新操作
+     * @PutMapping 请求映射注解，表示该接口处理HTTP PUT请求，请求路径为"/reset"
      */
     @PreAuthorize("@ss.hasPermi('advanced:comparison:edit')")
     @MyLog(title = "光衰平均值比较", businessType = BusinessType.UPDATE)
