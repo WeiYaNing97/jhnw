@@ -2,6 +2,7 @@ package com.sgcc.share.domain;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 
 /*常量类*/
 @Component
+@Order(1)
 public class Constant  implements ApplicationListener<ApplicationReadyEvent> {
     /*配置文件信息*/
     private static Map<String, Object> ProfileInformation;

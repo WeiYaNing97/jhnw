@@ -345,7 +345,7 @@ public class LuminousAttenuation {
                 }
 
 
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "数据记录",
                         "系统信息:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion() + subversionNumber1 + ","+
@@ -438,8 +438,6 @@ public class LuminousAttenuation {
                                 "IP地址为:("+switchParameters.getIp()+"),"+
                                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                         lightAttenuationComparison.toJson() +"\r\n");
-
-
                     }
                 }
 

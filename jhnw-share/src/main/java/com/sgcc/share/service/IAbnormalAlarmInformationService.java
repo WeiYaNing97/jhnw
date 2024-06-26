@@ -58,4 +58,12 @@ public interface IAbnormalAlarmInformationService
      * @return 结果
      */
     public int deleteAbnormalAlarmInformationBySwitchIp(String switchIp);
+
+    /**
+     * 根据时间删除异常报警信息
+     *
+     * @param data 时间数据
+     * @return 删除成功的记录数
+     */
+    int deleteAbnormalAlarmInformationByTime(String data);
 }

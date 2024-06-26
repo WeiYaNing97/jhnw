@@ -55,4 +55,12 @@ public interface ISwitchOperLogService
      * @return 结果
      */
     public int deleteSwitchOperLogByOperId(Long operId);
+
+    /**
+     * 根据时间删除交换机操作日志
+     *
+     * @param data 时间数据
+     * @return 删除成功的记录数
+     */
+    int deleteSwitchOperLogByTime(String data);
 }

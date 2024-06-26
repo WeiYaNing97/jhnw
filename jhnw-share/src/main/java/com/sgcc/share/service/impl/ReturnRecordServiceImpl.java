@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 返回信息Service业务层处理
@@ -189,5 +190,39 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
         }
 
         return returnRecordMapper.deleteReturnRecord();
+    }
+
+    @Override
+    public int deleteReturnRecordByTime(String data) {
+        // 根据时间查询退货记录列表
+        List<ReturnRecord> returnRecords = returnRecordMapper.selectReturnRecordByTime(data);
+        if (returnRecords.size()==0){
+            // 如果查询结果为空，直接返回0
+            return 0;
+        }
+
+        // 存储非关系型数据表ID的列表
+        List<String> nonRelationalDataTableIds =new ArrayList<>();
+        for (ReturnRecord record:returnRecords){
+            // 将每条退货记录中的当前退货日志ID添加到列表中
+            nonRelationalDataTableIds.add(record.getCurrentReturnLog());
+        }
+        // 将非关系型数据表ID列表转换为数组
+        String[] dynamicInformationArray = nonRelationalDataTableIds.toArray(new String[nonRelationalDataTableIds.size()]);
+
+        // 根据非关系型数据表ID数组删除对应的非关系型数据表记录
+        int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalIds(dynamicInformationArray);
+        if (i<0){
+            // 如果删除失败，返回删除结果
+            return i;
+        }
+
+        // 将退货记录列表中的ID提取出来
+        List<Long> collect = returnRecords.stream().map(ReturnRecord::getId).collect(Collectors.toList());
+        // 将ID列表转换为数组
+        Long[] ids = collect.toArray(new Long[collect.size()]);
+
+        // 根据ID数组删除退货记录
+        return returnRecordMapper.deleteReturnRecordByIds(ids);
     }
 }

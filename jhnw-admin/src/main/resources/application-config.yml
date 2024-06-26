@@ -1,6 +1,5 @@
 # 配置
 configuration:
-
   #问题编码
   problemCode:
     #安全配置
@@ -11,7 +10,6 @@ configuration:
     日常巡检: DICA
   #地区编码
   regionalCode: 0001
-
   #自定义分隔符
   customDelimiter: "=:="
   # 最小超时
@@ -26,6 +24,14 @@ configuration:
   logPath: "D:\\jhnwadminlog"
   # 定时任务路径
   timedTaskPath: "D:\\jhnwadminlog\\交换机信息模板.xlsx"
+  # 空间管理
+  spaceManagement:
+    # 数据保留时长(年)
+    dataRetentionTime: 1
+    # 所用空间占比(%)
+    usedSpaceRate: 70
+    # 自动空间管理周期（天）
+    autoSpaceManagementCycle: 7
 
 #获取交换机基本信息
 BasicInformation:
@@ -45,7 +51,7 @@ OSPF:
   # 这些属性是为了区分OSPF命令返回信息中的参数值
   # 邻居ID
   neighborID: Neighbor ID;Router ID
-  # pri暂未使用，为占位列
+  # pri暂未使用，是占位列
   pri: Pri;
   # 状态
   state: State;
@@ -116,6 +122,11 @@ obtainPortNumber:
 
 # 定时任务
 TimedTasks:
+  OSPF
+  光衰
+  错误包
+# 运行分析
+运行分析:
   OSPF
   光衰
   错误包

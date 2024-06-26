@@ -110,4 +110,12 @@ public interface ISwitchScanResultService
      * @return
     */
     int deleteSwitchScanResultByIPAndTime(String ip, String temProName, String startTime, String endTime);
+
+    /**
+     * 根据时间删除交换机扫描结果
+     *
+     * @param data 时间数据
+     * @return 删除成功的记录数
+     */
+    int deleteSwitchScanResultByTime(String data);
 }

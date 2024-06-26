@@ -58,4 +58,6 @@ public interface AbnormalAlarmInformationMapper
      * @return 结果
      */
     public int deleteAbnormalAlarmInformationBySwitchIps(String[] switchIps);
+
+    int deleteAbnormalAlarmInformationByTime(String data);
 }

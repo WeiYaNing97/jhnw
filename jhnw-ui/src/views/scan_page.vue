@@ -4,7 +4,7 @@
     <div>
       <el-button type="primary" @click="startSnapshot">快照开始</el-button>
       <el-button type="primary" @click="closeSnapshot">快照竣工</el-button>
-
+      <el-button type="primary" @click="analysis">解析</el-button>
       <el-dialog
         title=" 快照竣工 "
         :visible.sync="completionWindow"><!-- width="50%" -->
@@ -979,6 +979,8 @@
                             }else {
                                 this.tableData[i].isExist = true
                                 this.tableData[i].name = JSON.parse(JSON.stringify(response.data.switchName))
+                                this.tableData[i].password = JSON.parse(JSON.stringify(response.data.switchPassword))
+                                this.tableData[i].passmi = JSON.parse(JSON.stringify(response.data.configureCiphers))
                             }
                         }
                     }
@@ -1221,6 +1223,12 @@
                     url: '/advanced/SnapshotFunction/threadInterrupt/' + this.ifDeleteData ,
                     method:'post',
                 })
+            },
+            analysis(){
+              return request({
+                url: '/GetLogInformation/getOperationalAnalysisLogData/' ,
+                method:'get',
+              })
             }
         }
     };

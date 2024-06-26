@@ -92,4 +92,9 @@ public class AbnormalAlarmInformationServiceImpl implements IAbnormalAlarmInform
     {
         return abnormalAlarmInformationMapper.deleteAbnormalAlarmInformationBySwitchIp(switchIp);
     }
+
+    @Override
+    public int deleteAbnormalAlarmInformationByTime(String data) {
+        return abnormalAlarmInformationMapper.deleteAbnormalAlarmInformationByTime(data);
+    }
 }

@@ -1,4 +1,5 @@
 package com.sgcc.sql.controller;
+
 import com.alibaba.fastjson.JSON;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.controller.BaseController;
@@ -11,22 +12,19 @@ import com.sgcc.share.domain.Constant;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
-import com.sgcc.share.util.PathHelper;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
-import com.sgcc.share.webSocket.WebSocketService;
-import com.sgcc.sql.test;
 import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+
 
 /**
  * @date 2022年03月22日 11:17
@@ -93,7 +91,7 @@ public class DefinitionProblemController extends BaseController {
             // 发送告警信息，包含登录人姓名和问题简述
             //传输登陆人姓名 及问题简述
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "错误:"+"获取交换机基本信息命令插入失败\r\n");
+                    "错误:获取交换机基本信息命令插入失败\r\n");
             return false;
         }
 
@@ -321,18 +319,18 @@ public class DefinitionProblemController extends BaseController {
         for (int number=0;number<jsonPojoList.size();number++){
 
             boolean isCommand = false;
+
             /** 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
              * 获取下一ID 判断下一ID对应的数据 是否包含 command
              * 如果此方法不能实现，则获取下一元素 判断是否包含 command  但是此方法有风险。因为下一条要执行的数据 不一定是集合的下一个元素。*/
             String[] split = jsonPojoList.get(number).split("\"nextIndex\":");
             if (split.length == 2){
-
                 String firstNumberFromString = MyUtils.getEncodingID(split[1]);
                 for (String jsonPojo:jsonPojoList){
                     if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
                             &&jsonPojo.indexOf("command") !=-1){
                         isCommand = true;
-                        System.err.println(" id符合，且包含 command");
+                        System.err.println(" id符合，且包含 command ");
                     }
                 }
             }else if ( number+1<jsonPojoList.size() && jsonPojoList.get(number+1).indexOf("command") !=-1){
@@ -342,6 +340,7 @@ public class DefinitionProblemController extends BaseController {
 
             // 如果 前端传输字符串  存在 command  说明 是命令
             if (jsonPojoList.get(number).indexOf("command")!=-1){
+
                 if (isCommand){
                     CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,jsonPojoList.get(number),"命令");
                     commandLogicList.add(commandLogic);
@@ -398,7 +397,6 @@ public class DefinitionProblemController extends BaseController {
         //将相同ID  时间戳 的 实体类 放到一个实体
         List<ProblemScanLogic> problemScanLogics = InspectionMethods.definitionProblem(problemScanLogicList);
 
-
         String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
@@ -407,7 +405,6 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
-
 
         /* 如果命令 为 第一个参数 则 问题数据的下一条ID 添加命令*/
         for (CommandLogic commandLogic:commandLogicList){

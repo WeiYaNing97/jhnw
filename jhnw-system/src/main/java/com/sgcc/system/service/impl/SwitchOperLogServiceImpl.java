@@ -93,4 +93,9 @@ public class SwitchOperLogServiceImpl implements ISwitchOperLogService
     {
         return switchOperLogMapper.deleteSwitchOperLogByOperId(operId);
     }
+
+    @Override
+    public int deleteSwitchOperLogByTime(String data) {
+        return switchOperLogMapper.deleteSwitchOperLogByTime(data);
+    }
 }

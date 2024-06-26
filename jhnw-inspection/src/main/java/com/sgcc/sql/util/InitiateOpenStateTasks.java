@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
  * @create: 2024-04-12 09:08
  **/
 @Component
+@Order(3)
 public class InitiateOpenStateTasks implements ApplicationListener<ApplicationReadyEvent> {
 
     @Autowired

@@ -98,7 +98,7 @@
       <p style="margin: 0;text-align: center">扫描设备信息</p>
       <el-table :data="tableData" style="width: 100%"
                 max-height="300" ref="tableData"
-                :row-class-name="tableRowClassName" @row-click="dianhang" @select="xuanze">
+                :row-class-name="tableRowClassName" @row-click="currentLine" @select="xuanze">
         <el-table-column type="index" :index="indexMethod" width="40"></el-table-column>
         <el-table-column type="selection" width="45"></el-table-column>
 
@@ -108,16 +108,22 @@
 
         <el-table-column prop="ip" label="设备IP">
           <template slot-scope="{ row }">
-            <el-input v-if="row.isEdit" v-model="row.ip"
-                      placeholder="请输入ip" size="small"></el-input>
-            <span v-else>{{ row.ip }}</span>
+            <el-input v-if="row.ipIsEdit" v-model="row.ip" @blur="handleBlur(row)"
+                      placeholder="请输入ip" size="small"
+                      :style="{ color: row.iPIsExist ? '' : 'red' }"></el-input>
+            <span v-else :style="{ color: row.iPIsExist ? '' : 'red' }"
+                  @click = "obtain(row)">{{ row.ip }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="用户名">
           <template slot-scope="{ row }">
-            <el-input v-if="row.isEdit" v-model="row.name"
-                      placeholder="请输入用户名" size="small"></el-input>
-            <span v-else>{{ row.name }}</span>
+            <el-input v-if="row.isEdit"
+                      v-model="row.name"
+                      placeholder="请输入用户名"
+                      size="small"
+                      :style="{ color: row.isExist ? '' : 'red' }"></el-input>
+            <span v-else :style="{ color: row.isExist ? '' : 'red' }"
+                  @row-click="blank(row)">{{ row.name }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="password" label="密码">
@@ -156,9 +162,10 @@
         </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="{ row }">
-            <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
-            <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>
-            <el-button @click.native.prevent="deleteRow(row.$index, tableData)" type="text" size="small">删除</el-button>
+<!--            <el-button type="text" v-if="row.isEdit" @click.stop="queding(row)" size="small"></el-button>
+            <el-button type="text" v-else @click.stop="queding(row)" size="small">编辑</el-button>-->
+<!--deleteRow(row.$index, tableData)            -->
+            <el-button @click.native.prevent="deleteRow(row.row_index)" type="text" size="small">删除</el-button>
             <!--                <el-button @click.native.prevent="xinzeng" type="text" size="small">增加</el-button>-->
           </template>
         </el-table-column>
@@ -728,14 +735,108 @@
                 row.row_index = rowIndex;
             },
             //
-            dianhang(row){
+            currentLine(row){
+              /* 鼠标点击行 */
                 let lineNum = row.row_index
                 this.tableData.forEach((row,index)=>{
                     if (lineNum != index){
-                        row.isEdit = false
+                      /* true 时 输入框失去光标时，为可改修改状态 */
+                      /* false 时 输入框失去光标时，为可改修改状态 */
+                      row.isEdit = false
+                      this.handleBlur1(row)
+                    }else if (lineNum == index){
+                      /* 选择当前行添加渲染*/
+                      row.isEdit = true
                     }
                 })
+
+                this.handleBlur2(row)
+
+                /* 判断数组用户名 */
+                this.tableData.forEach((row,index)=>{
+                  if (lineNum != index && row.name == "" ){
+                    console.log(index + "= 请输入用户名  currentLine方法")
+                    row.isExist = false
+                    row.name = "请输入用户名"
+                  }else if (lineNum == index && row.name == "请输入用户名" ){
+                    console.log(index + "= ")
+                    row.isExist = true
+                    row.name = ''
+                  }else if (lineNum == index && row.name != "请输入用户名" && row.name != ""){
+                    row.isExist = true
+                  }
+                })
+
             },
+
+          /* 将IP输入框渲染移除 */
+          handleBlur1(row){
+            if (row.ip == ""){
+              row.ip = "请输入IP"
+            }
+            row.ipIsEdit = false
+          },
+          /* 查看数据库问题扫描结果表是否有登录信息*/
+          handleBlur2(row){
+            /* 判断是否输入IP，如果未输入IP则直接返回终止方法 */
+            if (row.ip === '') {
+              return;
+            }
+            let ip = row.ip
+            return request({
+              url: '/share/switch_scan_result/getTheLatestData/'+ ip,
+              method: 'get'
+            }).then(response=>{
+
+              /*console.log(ip)
+              console.log((JSON.parse(JSON.stringify(response.data))))*/
+              for (let i =0 ; i < this.tableData.length ; i++){
+                if ( this.tableData[i].ip == ip ){
+
+                  /* 没有查询到信息 校验IP地址合法性 */
+                  const regex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                  this.tableData[i].iPIsExist = regex.test(row.ip);
+                  if(response.data === undefined){
+                    /*if (this.tableData[i].name == ""){
+                        console.log(this.tableData[i].row_index + "= 请输入用户名  handleBlur方法")
+                        this.tableData[i].isExist = false
+                        this.tableData[i].name = "请输入用户名"
+                    }*/
+                  }else {
+                    this.tableData[i].isExist = true
+                    this.tableData[i].name = JSON.parse(JSON.stringify(response.data.switchName))
+
+                    this.tableData[i].password = JSON.parse(JSON.stringify(response.data.switchPassword))
+                    this.tableData[i].passmi = JSON.parse(JSON.stringify(response.data.configureCiphers))
+                  }
+                }
+              }
+            })
+          },
+          /* 将IP输入框渲染移除 */
+          handleBlur(row){
+            this.handleBlur1(row)
+            this.handleBlur2(row)
+          },
+
+          /*当点击IP输入框内容时，
+            请输入IP置空 如果IP为：请输入IP时置空*/
+          obtain(row){
+            if (row.ip == "请输入IP"){
+              row.ip = ""
+            }
+            row.ipIsEdit = true
+          },
+          /*当点击用户名输入框内容时，
+                      请输入用户名置空 如果用户名为：请输入用户名时置空*/
+          blank(row){
+            if (row.name == "请输入用户名"){
+              /*console.log(row.row_index + "= ")
+              row.isExist = true*/
+              row.name = ""
+            }
+          },
+
             //新增设备
             xinzeng(){
                 this.tableData.push({
@@ -754,15 +855,30 @@
                     passmi:'********',
                     mode:'ssh',
                     port:'22',
+
+                    /* 普通输入框是否渲染显示*/
                     isEdit:true,
+                    /* ip输入框是否渲染显示*/
+                    ipIsEdit:true,
+
+                    /*是否异常字体颜色显示*/
+                    isExist: true,
+                    iPIsExist:true,
+
                     conCip:'********',
                     configureCiphers:''
                 })
             },
-            //删除扫描设备
+            /*//删除扫描设备
             deleteRow(index, rows) {
                 rows.splice(index, 1);
-            },
+            },*/
+          //删除扫描设备
+          deleteRow(index) {
+            this.tableData.splice(index,1)
+          },
+
+
             //确定
             queding(row){
                 console.log(row)

@@ -56,6 +56,7 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
      */
     @Override
     public SwitchScanResult getTheLatestDataByIP(String ip) {
+
         /* 根据IP查询交换机扫描结果表最新数据 */
         SwitchScanResult theLatestDataByIP = switchScanResultMapper.getTheLatestDataByIP(ip);
         /* 如果查询结果为 null 则直接返回 null*/
@@ -368,11 +369,43 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
     @Override
     public int updateSwitchScanResult(SwitchScanResult switchScanResult)
     {
+        // 根据交换机扫描结果的ID删除原有记录
         int i = deleteSwitchScanResultById(switchScanResult.getId());
         if (i>0){
+            // 插入新的交换机扫描结果
             int i1 = insertSwitchScanResult(switchScanResult);
+            // 返回插入结果
             return i1;
         }
+        // 返回删除结果
         return i;
+    }
+
+
+    /**
+     * 根据时间删除交换机扫描结果
+     *
+     * @param data 时间数据
+     * @return 返回删除成功的记录数
+     */
+    @Override
+    public int deleteSwitchScanResultByTime(String data) {
+        // 根据时间查询交换机扫描结果列表
+        List<SwitchScanResult> pojoList = switchScanResultMapper.selectSwitchScanResultByTime(data);
+        if (pojoList.size() == 0){
+            // 如果列表为空，则返回0
+            return 0;
+        }
+
+        // 创建一个用于存储交换机扫描结果ID的列表
+        List<Long> ids = new ArrayList<>();
+        // 遍历交换机扫描结果列表，将ID添加到列表中
+        for (SwitchScanResult switchScanResult:pojoList){
+            ids.add(switchScanResult.getId());
+        }
+        // 将ID列表转换为ID数组
+        Long[] iPArray = ids.toArray(new Long[ids.size()]);
+        // 根据ID数组删除交换机扫描结果，并返回删除成功的记录数
+        return deleteSwitchScanResultByIds(iPArray);
     }
 }

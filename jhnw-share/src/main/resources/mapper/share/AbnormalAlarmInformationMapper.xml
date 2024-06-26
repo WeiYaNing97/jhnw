@@ -70,4 +70,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{switchIp}
         </foreach>
     </delete>
+    <delete id="deleteAbnormalAlarmInformationByTime" parameterType="String">
+        delete from abnormal_alarm_information
+               where create_time &lt; #{data}
+    </delete>
 </mapper>

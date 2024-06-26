@@ -220,6 +220,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectReturnRecordVo"/>
         where ${stringData}
     </select>
+    <select id="selectReturnRecordByTime"  parameterType="String" resultMap="ReturnRecordResult">
+        <include refid="selectReturnRecordVo"/>
+        where create_time &lt; #{data}
+    </select>
 
     <select id="selectReturnRecordAllList" resultMap="ReturnRecordResult">
         <include refid="selectReturnRecordVo"/>

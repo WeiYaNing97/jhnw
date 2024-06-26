@@ -61,6 +61,12 @@ public interface IErrorRateCommandService
      */
     public int deleteErrorRateCommandById(String id);
 
+    /**
+     * 根据SQL语句查询错误率命令列表
+     *
+     * @param errorRateCommand 错误率命令对象，用于构造SQL查询条件
+     * @return 返回一个包含查询结果的错误率命令列表
+     */
     List<ErrorRateCommand> selectErrorRateCommandListBySQL(ErrorRateCommand errorRateCommand);
 
 }

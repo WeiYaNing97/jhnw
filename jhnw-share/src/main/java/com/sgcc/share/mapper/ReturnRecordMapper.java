@@ -92,4 +92,6 @@ public interface ReturnRecordMapper
 
     /*删除数据表所有数据*/
     int deleteReturnRecord();
+
+    List<ReturnRecord> selectReturnRecordByTime(String data);
 }

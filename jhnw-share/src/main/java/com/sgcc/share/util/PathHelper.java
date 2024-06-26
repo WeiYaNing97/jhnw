@@ -13,8 +13,8 @@ import java.util.List;
 
 public class PathHelper {
     /*日志路径*/
-    static String logPath = "D:\\jhnwadminlog" ;//Configuration.logPath;
-    static String logTime = MyUtils.getDate("yyyy-MM-dd");
+    public static String logPath = "D:\\jhnwadminlog" ;//Configuration.logPath;
+    public static String logTime = MyUtils.getDate("yyyy-MM-dd");
     /**
      * 将字符串写入文件中
      * @param str
@@ -143,6 +143,69 @@ public class PathHelper {
     }
 
     /**
+     * 将字符串写入文件中
+     * @param name 文件名
+     * @param str 要写入的字符串
+     * @throws IOException
+     */
+    public void writeDataToFileByAdvancedFeatureName(String name,String str) throws IOException {
+        // 获取当前时间并格式化
+        String logPresent = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
+        logPresent = "["+logPresent+"] ";
+        // 添加时间戳到字符串开头
+        str = logPresent + str ;
+
+        String path = "";
+        // 从配置中获取日志路径
+        String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
+        if (logPath != null && !logPath.equals("")){
+            // 如果日志路径不为空，则拼接文件路径
+            path = logPath + "\\" + name + ".txt";
+        } else {
+            // 如果日志路径为空，则使用默认路径
+            path = this.logPath + "\\" + name + ".txt";
+        }
+
+        // 创建文件对象
+        //文件目录
+        File writefile = new File(path);
+        if (writefile.exists() == false)   // 判断文件是否存在，不存在则生成
+        {
+            try {
+                // 获取文件所在的文件夹路径
+                String folderPath = writefile.getParent();
+                // 创建文件夹
+                File folder = new File(folderPath);
+                folder.mkdirs();
+
+                // 创建文件
+                writefile.createNewFile();
+                // 重新获取文件对象
+                writefile = new File(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        BufferedWriter bw;
+        try {
+            boolean append = true;  // 是否追加到文件末尾
+            // 创建FileWriter对象，并设置是否追加
+            FileWriter fw = new FileWriter(writefile, append);
+            // 创建BufferedWriter对象，用于缓冲写入操作
+            bw = new BufferedWriter(fw);
+            // 写入字符串到文件
+            fw.write(str);
+            // 刷新缓冲区，确保数据写入文件
+            fw.flush();
+            // 关闭流
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
     * @Description 读取文本内容
     * @author charles
     * @createTime 2024/1/19 14:43
@@ -153,7 +216,8 @@ public class PathHelper {
     public static List<String> ReadFileContent(String path) {
         // 创建一个ArrayList用于存储读取到的文本内容
         List<String> lines = new ArrayList<>();
-        try (FileReader fileReader = new FileReader(path);
+        try (
+                FileReader fileReader = new FileReader(path);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
             String line;
             // 循环读取文件中的每一行内容
@@ -162,9 +226,15 @@ public class PathHelper {
                 lines.add(line);
             }
         } catch (IOException e) {
-            // 捕获IO异常，并打印堆栈信息和错误信息
-            e.printStackTrace();
-            System.out.println(e.getMessage());
+            // 获取异常类型
+            String exceptionType = e.getClass().getSimpleName();
+            if (exceptionType.equals("FileNotFoundException")) {
+                System.out.println("文件不存在！");
+            } else {
+                // 捕获IO异常，并打印堆栈信息和错误信息
+                e.printStackTrace();
+                System.out.println(e.getMessage());
+            }
         }
         // 返回存储文本内容的列表
         return lines;

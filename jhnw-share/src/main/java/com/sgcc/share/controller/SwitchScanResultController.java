@@ -87,7 +87,16 @@ public class SwitchScanResultController extends BaseController
      */
     @GetMapping(value = "/getTheLatestData/{ip}")/*/{ip}*/
     public AjaxResult getTheLatestData(@PathVariable String ip) {/*@PathVariable*/
-        return AjaxResult.success(switchScanResultService.getTheLatestDataByIP(ip));
+        SwitchScanResult theLatestDataByIP = switchScanResultService.getTheLatestDataByIP(ip);
+        if (theLatestDataByIP == null){
+            return AjaxResult.success(theLatestDataByIP);
+        }
+
+        theLatestDataByIP.setSwitchPassword(EncryptUtil.desaltingAndDecryption(theLatestDataByIP.getSwitchPassword()));
+
+        theLatestDataByIP.setConfigureCiphers(EncryptUtil.desaltingAndDecryption(theLatestDataByIP.getConfigureCiphers()));
+
+        return AjaxResult.success(theLatestDataByIP);
     }
 
     /**
@@ -168,6 +177,7 @@ public class SwitchScanResultController extends BaseController
         switchScanResult.setCreateTime(dateTime);
 
         // 获取ISwitchScanResultService的Bean实例
+        //插入问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         // 调用insertSwitchScanResult方法插入问题，并获取插入的行数
         int i = switchScanResultService.insertSwitchScanResult(switchScanResult);

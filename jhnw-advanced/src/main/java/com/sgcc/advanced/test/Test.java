@@ -1,6 +1,9 @@
 package com.sgcc.advanced.test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @program: jhnw
@@ -11,6 +14,5 @@ import java.util.*;
 
 public class Test {
     public static void main(String[] args) {
-
     }
 }

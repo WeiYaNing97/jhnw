@@ -121,4 +121,6 @@ public interface SwitchScanResultMapper
                                                              @Param("temProName") String temProName,
                                                              @Param("startTime") String startTime,
                                                              @Param("endTime") String endTime);
+
+    List<SwitchScanResult> selectSwitchScanResultByTime(String data);
 }

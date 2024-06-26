@@ -69,4 +69,12 @@ public interface IReturnRecordService
 
     /*删除数据表所有数据*/
     int deleteReturnRecord();
+
+    /**
+     * 根据时间删除返回记录
+     *
+     * @param data 数据字符串
+     * @return 删除记录的结果，成功返回0，失败返回-1
+     */
+    int deleteReturnRecordByTime(String data);
 }
