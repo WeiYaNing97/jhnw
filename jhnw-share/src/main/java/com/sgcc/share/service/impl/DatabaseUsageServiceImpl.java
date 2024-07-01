@@ -29,7 +29,7 @@ public class DatabaseUsageServiceImpl implements DatabaseUsageService {
         DatabaseUsage databaseUsage = databaseUsageMapper.getDatabaseUsage(databaseName);
 
         // 将获取到的数据库使用情况打印到错误输出流中（通常用于调试）
-        System.err.println(databaseUsage.toString());
+        /*System.err.println(databaseUsage.toString());*/
 
         // 返回获取到的数据库使用情况对象
         return databaseUsage;

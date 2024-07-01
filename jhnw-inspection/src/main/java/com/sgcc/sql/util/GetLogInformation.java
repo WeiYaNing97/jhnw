@@ -28,6 +28,10 @@ public class GetLogInformation {
     @GetMapping("/getOperationalAnalysisLogData")
     public static void obtainOperationalAnalysisLogDataInformation() {
 
+        String ip = "192.168.1.100";
+        String port = "GigabitEthernet 1/21";
+
+
         PathHelper pathHelper = new PathHelper();
         String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
 
@@ -40,9 +44,6 @@ public class GetLogInformation {
             // 如果日志路径为空，则使用默认路径
             path = pathHelper.logPath + ".txt";
         }
-
-        String ip = "192.168.1.100";
-        String port = "GigabitEthernet 1/21";
 
         List<String> strings = pathHelper.ReadFileContent(path);
         for (String s : strings) {

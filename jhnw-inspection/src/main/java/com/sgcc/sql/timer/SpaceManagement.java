@@ -9,13 +9,18 @@ import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.system.service.ISwitchOperLogService;
 import com.sgcc.system.service.ISysOperLogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.yaml.snakeyaml.Yaml;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.Map;
 import java.util.TimerTask;
 
@@ -62,12 +67,12 @@ public class SpaceManagement extends TimerTask {
         String expirationTime = databaseManagement(dataRetentionTimeDouble);
 
         // 根据过期时间删除数据
-        Integer i = deleteDataBasedOnTime(expirationTime);
+        Integer deleteDataBasedOnTime = deleteDataBasedOnTime(expirationTime);
 
-        boolean b = obtainProportionOfMemoryUsage("D:\\");
+        boolean obtainProportionOfMemoryUsage = obtainProportionOfMemoryUsage("D:\\");
 
         // 获取数据库使用率
-        boolean b1 = obtainDatabaseUsageRatio();
+        boolean obtainDatabaseUsageRatio = obtainDatabaseUsageRatio();
     }
 
     /**
@@ -76,6 +81,7 @@ public class SpaceManagement extends TimerTask {
      * @param dataRetentionTime 数据保留时间，单位：年
      */
     public static void hardDiskManagement(Double dataRetentionTime) {
+
         // 从配置中获取日志路径
         String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
 
@@ -87,7 +93,7 @@ public class SpaceManagement extends TimerTask {
                 // 判断是否为文件夹
                 if (file.isDirectory()) {
                     // 打印文件夹名称
-                    System.err.println("Folder: " + file.getName());
+                    /*System.err.println("Folder: " + file.getName());*/
                     // 判断文件夹是否过期
                     if (isItTimeout(file.getName(),dataRetentionTime)) {
                         // 删除文件夹
@@ -96,6 +102,8 @@ public class SpaceManagement extends TimerTask {
                 // 判断是否为文件
                 } else if (file.isFile()) {
                     /** 文件不用删除，文件为运行分析日志，需要查看数据变化*/
+
+                    getFileInformation(file.getPath() , dataRetentionTime );
 
                     // 打印文件名称
                     /*System.out.println("File: " + file.getName());*/
@@ -218,7 +226,7 @@ public class SpaceManagement extends TimerTask {
         int usedSpaceRateInt = (Integer) CustomConfigurationUtil.getValue("configuration.spaceManagement.usedSpaceRate", Constant.getProfileInformation());
 
         // 输出数据库使用率
-        System.err.println("数据库使用率：" + databaseUsage.getUsedSpacePercent());
+        /*System.err.println("数据库使用率：" + databaseUsage.getUsedSpacePercent());*/
         if (databaseUsage.getUsedSpacePercent() > usedSpaceRateInt) {
             //传输登陆人姓名 及问题简述
             AbnormalAlarmInformationMethod.afferent(null, null, "问题日志",
@@ -351,4 +359,111 @@ public class SpaceManagement extends TimerTask {
 
         return 1;
     }
+
+
+    /**
+     * 根据给定的时间获取文件信息，保留过期时间之后的日志并保存到原文件。
+     *
+     * @param time 字符串类型，表示过期时间，格式为"yyyy-MM-dd HH:mm:ss"
+     * @throws IOException 如果在读取或写入文件时发生错误
+     */
+    public static void getFileInformation(String logFilePath,Double dataRetentionTime) {
+
+
+        // 获取当前日期和时间，考虑系统默认时区
+        ZonedDateTime now = ZonedDateTime.now();
+        // N个月前的日期和时间
+        int monthsBefore = (int) (dataRetentionTime * 12) ; // 例如，获取3个月之前的日期和时间
+        ZonedDateTime dateBefore = now.minusMonths(monthsBefore);
+
+        // 如果你想以某个特定时区来表示，可以这样设置：
+        // ZoneId zoneId = ZoneId.of("Asia/Shanghai");
+        // ZonedDateTime dateBeforeInShanghai = now.withZoneSameInstant(zoneId).minusMonths(monthsBefore);
+
+        // 格式化输出
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = dateBefore.format(formatter);
+        /*System.out.println("三个月前的日期和时间是: " + formattedDateTime);*/
+
+
+        // 过期时间戳
+        long expirationTimeInMillis = calculateExpirationTime(formattedDateTime); // 过期时间戳
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(logFilePath));
+             BufferedWriter writer = new BufferedWriter(new FileWriter("temp_log.log", false))) {
+
+            String line;
+            boolean isExpirationTime = false;
+            // 遍历日志文件，保留过期时间之后的日志
+            while ((line = reader.readLine()) != null) {
+                // 解析每行的日志时间戳
+                //long logTimeInMillis = parseLogTimestamp(line);
+
+                // 如果日志时间戳大于过期时间，保留该日志
+                if (isExpirationTime || parseLogTimestamp(line) > expirationTimeInMillis) {
+                    /*System.err.println(line);*/
+                    isExpirationTime = true;
+                    writer.write(line);
+                    writer.newLine();
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 删除原文件并重命名临时文件
+        try {
+            Files.delete(Paths.get(logFilePath));
+            Files.move(Paths.get("temp_log.log"), Paths.get(logFilePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 计算过期时间的时间戳
+     *
+     * @param expireTimeString 过期时间的字符串表示，格式为 "yyyy-MM-dd HH:mm:ss"
+     * @return 返回过期时间的时间戳（毫秒）
+     * @throws RuntimeException 如果解析过期时间字符串失败，则抛出此异常
+     */
+    private static long calculateExpirationTime(String expireTimeString) {
+        try {
+            // 创建一个SimpleDateFormat对象，指定日期时间格式为"yyyy-MM-dd HH:mm:ss"
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            // 使用SimpleDateFormat对象的parse方法将字符串解析为Date对象
+            Date expireDate = sdf.parse(expireTimeString);
+            // 调用Date对象的getTime方法获取时间戳（毫秒）
+            return expireDate.getTime();
+        } catch (Exception e) {
+            // 解析过期时间字符串失败时，抛出RuntimeException异常，并附带异常信息"Failed to parse expiration time"
+            throw new RuntimeException("Failed to parse expiration time", e);
+        }
+    }
+
+    /**
+     * 将日志行中的时间戳字符串解析为长整型时间戳。
+     *
+     * @param logLine 日志行字符串，其中时间戳应包含在 [ ] 之间
+     * @return 解析得到的长整型时间戳
+     * @throws RuntimeException 如果解析日志时间戳失败，则抛出此异常
+     */
+    private static long parseLogTimestamp(String logLine) {
+        try {
+            // 提取时间戳字符串
+            // 假设日志时间格式固定为 [yyyy-MM-dd HH:mm:ss]
+            String timestampStr = logLine.substring(logLine.indexOf('[') + 1, logLine.indexOf(']'));
+            // 创建SimpleDateFormat对象，设置时间格式
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            // 将时间戳字符串解析为Date对象
+            Date logDate = sdf.parse(timestampStr);
+            // 将Date对象转换为长整型时间戳
+            return logDate.getTime();
+        } catch (Exception e) {
+            // 解析失败时抛出RuntimeException异常
+            throw new RuntimeException("Failed to parse log timestamp", e);
+        }
+    }
+
 }
