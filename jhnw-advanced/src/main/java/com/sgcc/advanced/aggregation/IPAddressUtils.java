@@ -326,6 +326,14 @@ public class IPAddressUtils {
         return (int) Math.abs(l2 - l1 + 1);
     }
 
+    /**
+     * 根据给定的IP地址范围，生成该范围内的所有IP地址，并以CIDR（无类别域间路由）格式添加到列表中。
+     *
+     * @param ipAddress 包含起始IP地址和结束IP地址的对象。
+     * @return 一个字符串列表，包含给定IP地址范围内所有IP地址的CIDR表示。
+     *         如果起始和结束IP相同，则直接返回该IP的"/32"表示。
+     *         否则，通过计算最合适的子网掩码（CIDR后缀），来划分并表示该范围内的IP。
+     */
     public static List<String> getNetworkNumber(IPAddresses ipAddress) {
         List<String> ipList = new ArrayList<>();
         String sign = ipAddress.getIpStart();
@@ -336,18 +344,17 @@ public class IPAddressUtils {
             if (ipToLong(sign) == ipToLong(ipEnd)){
                 // 将起始IP以"/32"的形式添加到列表中
                 ipList.add(sign + "/32");
-
-                // 创建一个IP地址计算器对象，并输出起始IP的范围
-                /*IPCalculator calculator = IPAddressCalculator.Calculator(sign + "/32");
-                System.out.println(sign + "/32"+"范围是: ["+calculator.getFirstAvailable()+","+calculator.getFinallyAvailable()+"]");*/
-
                 // 跳出循环
                 break;
             }
             // 计算起始IP和结束IP之间的地址数量
             Integer ipNumber = numberOfAddresses(sign, ipEnd);
             Integer mask = getTheNumberOfMasks(ipNumber);
+
+            /* 标记求取到的掩码数是否需要加1，用来调整地址段首地址
+            * 默认为需要进行调整 */
             boolean isMask = true;
+            /* 聚合后的网络号 X.X.X.X/N */
             String ip = "";
             while (isMask){
                 // 将起始IP和子网掩码位数组合成IP地址字符串
@@ -356,11 +363,13 @@ public class IPAddressUtils {
                 IPCalculator calculator = IPAddressCalculator.Calculator(ip);
 
                 if (ipToLong(sign) == ipToLong(calculator.getFirstAvailable())){
-                    /*System.out.println(ip+"范围是: ["+calculator.getFirstAvailable()+","+calculator.getFinallyAvailable()+"]");*/
-                    /*System.out.println(calculator.toString());*/
+                    /* 如果宣告地址段首地址 与 求取到的聚合网络号地址段首地址一致，则跳出循环 修改标记为false*/
                     isMask = false;
-                    // 将当前IP地址范围的最后一个可用IP地址转换为长整型，并加1
-                    ///*String finallyAvailable = calculator.getFinallyAvailable();*/
+                    /*
+                    String finallyAvailable = calculator.getFinallyAvailable();  // 当前IP地址范围的最后一个IP地址
+                    将当前IP地址范围的最后一个IP地址转换为长整型，并加1
+                    * 来获取一个聚合地址段的 首地址 */
+
                     sign = longToIp(ipToLong(calculator.getFinallyAvailable()) + 1);
                 }else {
                     mask++;
@@ -371,33 +380,5 @@ public class IPAddressUtils {
             ipList.add(ip);
         }
         return ipList;
-    }
-
-
-    public static void main1(String[] args) {
-        IPAddresses ipAddress =new IPAddresses();
-
-        ipAddress.setIpStart("192.168.1.11");
-        ipAddress.setIpEnd("192.168.1.193");
-
-        System.err.println(ipAddress.getIpStart() +" ~ "+ ipAddress.getIpEnd());
-
-        List<String> networkNumber = getNetworkNumber(ipAddress);
-    }
-
-    public static void main(String[] args) {
-        String ip = "192.168.2.3";
-        // 将IP地址转换为长整型
-        long l = ipToLong(ip);
-        System.out.println("IP地址：" + ip + "，对应的整数表示为：" + l);
-
-        String ip1 = "192.168.1.3";
-        // 将IP地址转换为长整型
-        long l1 = ipToLong(ip1);
-        System.out.println("IP地址：" + ip1 + "，对应的整数表示为：" + l1);
-
-        System.err.println(Math.abs(l - l1));
-
-        System.out.println(longToIp(l));
     }
 }

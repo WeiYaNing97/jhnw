@@ -83,7 +83,7 @@ public class OSPFFeatures {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String command = ospfCommand.getGetParameterCommand();
         String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
-        /*commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
+        commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
                 "Peer Statistic Information\n" +
                 "----------------------------------------------------------------------------\n" +
                 "Area Id Interface Neighbor id State\n" +
@@ -101,7 +101,7 @@ public class OSPFFeatures {
                 "0.0.0.2 GigabitEthernet1/0/5 11.37.96.57 Full\n" +
                 "0.0.0.2 GigabitEthernet8/0/22 11.37.96.61 Full\n" +
                 "0.0.0.2 GigabitEthernet1/0/10 11.37.96.40 Full\n" +
-                "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 Full\n" +
+                "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 not\n" +
                 "----------- --------------- ----------------------- ---------------------------\n" +
                 "Total Peer(s): 15\n" +
                 "\n" +
@@ -198,7 +198,7 @@ public class OSPFFeatures {
                 "0.0.0.0 DCN-Serial1/0/0:0 128.79.235.137 Full\n" +
                 "----------------------------------------------------------------------------\n" +
                 "Total Peer(s): 1";
-        commandReturn = MyUtils.trimString(commandReturn);*/
+        commandReturn = MyUtils.trimString(commandReturn);
 
 
         /*执行命令返回结果为null 则是命令执行错误*/
@@ -504,7 +504,7 @@ public class OSPFFeatures {
         List<String> keys = new ArrayList<>();
 
         for (String key:keywords){
-            if (information.indexOf(" "+key+" ")!=-1){
+            if (MyUtils.containIgnoreCase(information,key)){
                 keys.add(key);
             }
         }
@@ -513,7 +513,7 @@ public class OSPFFeatures {
 
         for (String key:keys){
             for (int i = 0 ; i < string_split.size() ; i++){
-                if (string_split.get(i).indexOf(" "+key+" ") != -1){
+                if (MyUtils.containIgnoreCase(string_split.get(i),key+" ")){
                     string_split.set(i,string_split.get(i).replace(key+" ",key));
                 }
             }
@@ -550,8 +550,10 @@ public class OSPFFeatures {
             }
         }
 
-        /*筛选 与含有full数据长度相等的行集合
-         * 条件数 full数据 两个IP、一个端口号对应的列 数据特征要一样*/
+        /*筛选与含有full数据长度相等的行集合
+         * 条件数 full数据 IP、端口号、未知（非IP、端口、状态）对应的列 数据特征要一样
+         * 如果一样 则是OSPF数据
+         * 如果不一样 则过滤掉*/
         List<String[]> stateList = new ArrayList<>();
         for (String[] array:arrayList){
             boolean isInput = true;
@@ -577,11 +579,11 @@ public class OSPFFeatures {
                 }
 
                 else if (string.equals("未知")){
-
+                    // 未知的列 可能是IP、端口、状态
                     boolean isIp = isIP(array[i]);
                     boolean isPort = isAlphanumeric(array[i]);
                     boolean isState = array[i].toLowerCase().indexOf("full")!=-1;
-
+                    // 判断是否为IP、端口、状态
                     if ( isIp || isPort || isState ){
                         isInput = false;
                         break;
@@ -628,26 +630,42 @@ public class OSPFFeatures {
         return ipAddresses;
     }
 
-    /*获取数组各元素的意义*/
+    /**
+     * 根据Full状态的信息 获取数组中各元素的意义。
+     *
+     * <p>该方法遍历给定的字符串数组，对每个元素进行一系列检查，以确定其意义，并将结果存储在一个列表中返回。</p>
+     *
+     * <p>检查逻辑如下：</p>
+     * <ul>
+     *     <li>如果元素是IP地址（通过调用isIP方法判断），则进一步判断是否为无效IP（即包含"0.0.0."）。如果是无效IP，则将该元素的意义标记为"无效IP"；否则，标记为"IP"。</li>
+     *     <li>如果元素只包含字母和数字（通过调用isAlphanumeric方法判断，此处假设该方法能识别端口格式），则将该元素的意义标记为"端口"。</li>
+     *     <li>如果元素（不区分大小写）包含"full"，则将该元素的意义标记为"状态"。</li>
+     *     <li>如果上述条件都不满足，则将该元素的意义标记为"未知"。</li>
+     * </ul>
+     *
+     * @param values 待分析的字符串数组。
+     * @return 包含数组中所有元素意义的列表。列表中的每个元素都是对应原数组元素的意义描述（"IP"、"无效IP"、"端口"、"状态"或"未知"）。
+     */
     public static List<String> obtainParameterMeanings(String[] values) {
-        List<String> meanings = new ArrayList<>();
-        for (String value:values){
-            if (isIP(value)){
-                if ( value.indexOf("0.0.0.") != -1 ){
-                    meanings.add("无效IP");
-                }else {
-                    meanings.add("IP");
+        List<String> meanings = new ArrayList<>(); // 创建一个列表用于存储各元素的意义
+        for (String value : values) { // 遍历数组中的每个元素
+            if (isIP(value)) { // 判断元素是否为IP地址
+                if (value.indexOf("0.0.0.") != -1) { // 如果IP地址包含"0.0.0."，则视为无效IP
+                    meanings.add("无效IP"); // 将该元素的意义标记为"无效IP"
+                } else {
+                    meanings.add("IP"); // 否则，将该元素的意义标记为"IP"
                 }
-            }else if (isAlphanumeric(value)){
-                meanings.add("端口");
-            }else if (value.toLowerCase().indexOf("full")!=-1){
-                meanings.add("状态");
-            }else {
-                meanings.add("未知");
+            } else if (isAlphanumeric(value)) { // 判断元素是否 同时包含 字母和数字
+                meanings.add("端口"); // 将该元素的意义标记为"端口"（假设这里的isAlphanumeric方法能识别端口格式）
+            } else if (value.toLowerCase().indexOf("full") != -1) { // 判断元素（不区分大小写）是否包含"full"
+                meanings.add("状态"); // 将该元素的意义标记为"状态"
+            } else {
+                meanings.add("未知"); // 如果上述条件都不满足，则将该元素的意义标记为"未知"
             }
         }
-        return meanings;
+        return meanings; // 返回包含所有元素意义的列表
     }
+
 
     /*判断字符串是否是IP*/
     public static boolean isIP(String ip) {

@@ -95,6 +95,11 @@ obtainPortNumber:
     FastEthernet
     SFP
     USB
+    InLoop
+    LoopBack
+    InLoopBack
+
+
 
 # 错误包
 # 截取参数关键字应注意精确度，防止提取到多个数值，导致提取失败或提取数值错误

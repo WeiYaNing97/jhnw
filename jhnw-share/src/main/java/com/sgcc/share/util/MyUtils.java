@@ -673,6 +673,32 @@ public class MyUtils {
     }
 
     /**
+     *  判断字符串中有几个 IPCIDR 和 IP 特征数据,并返回ip数据
+     *  注意：超过255 不是ip 不会显示。测试时注意
+     * @param str
+     * @return
+     */
+    public static List<String> findIPCIDRs(String str) {
+        List<String> ips = new ArrayList<>();
+        //String regex = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+        // 使用正则表达式匹配 IPv4 和 IPv6 CIDR 格式的地址
+        Pattern pattern = Pattern.compile(
+                "(?i)\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(?:/(?:3[0-2]|[12]?[0-9]))?|" +
+                        "\\b(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}(?:::(?:3[0-2]|[12]?[0-9]))?\\b"
+        );
+
+        //Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(str);
+
+        while (matcher.find()) {
+            ips.add(matcher.group());
+        }
+
+        return ips;
+    }
+
+
+    /**
      * 根据二进制字符串获取IP地址
      *
      * @param binarySystem 二进制字符串

@@ -1,4 +1,5 @@
 package com.sgcc;
+import com.sgcc.advanced.aggregation.ExternalIPAggregation;
 import com.sgcc.sql.timer.SpaceManagementTimer;
 import com.sgcc.sql.util.GetLogInformation;
 import org.springframework.boot.SpringApplication;
