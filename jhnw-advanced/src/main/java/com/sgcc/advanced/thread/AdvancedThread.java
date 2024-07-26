@@ -2,6 +2,7 @@ package com.sgcc.advanced.thread;
 import com.sgcc.advanced.controller.ErrorPackage;
 import com.sgcc.advanced.controller.LuminousAttenuation;
 import com.sgcc.advanced.controller.OSPFFeatures;
+import com.sgcc.advanced.controller.RouteAggregation;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
@@ -68,6 +69,12 @@ public class AdvancedThread extends Thread {
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
                         break;
+
+                    case "路由聚合":
+                        RouteAggregation routeAggregation = new RouteAggregation();
+                        routeAggregation.obtainAggregationResults(switchParameters);
+                        break;
+
                 }
             }
 

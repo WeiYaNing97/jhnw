@@ -1,12 +1,10 @@
 package com.sgcc.share.service.impl;
 
-import com.sgcc.share.domain.NonRelationalDataTable;
-import com.sgcc.share.domain.SwitchProblemCO;
-import com.sgcc.share.domain.SwitchProblemVO;
-import com.sgcc.share.domain.SwitchScanResult;
+import com.sgcc.share.domain.*;
 import com.sgcc.share.mapper.NonRelationalDataTableMapper;
 import com.sgcc.share.mapper.SwitchScanResultMapper;
 import com.sgcc.share.service.ISwitchScanResultService;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,7 +108,10 @@ public class SwitchScanResultServiceImpl implements ISwitchScanResultService
         if (switchScanResult.getDynamicInformation().length() >= 255){
             NonRelationalDataTable nonRelationalDataTable = new NonRelationalDataTable();
             MyUtils myUtils = new MyUtils();
-            nonRelationalDataTable.setNonRelationalId(myUtils.getID((switchScanResult.getId()+"").substring(0,4) , null));
+
+            String keyword = (String) CustomConfigurationUtil.getValue("configuration.problemCode."+switchScanResult.getTypeProblem(), Constant.getProfileInformation());
+
+            nonRelationalDataTable.setNonRelationalId(myUtils.getID( keyword , null));  /*  (switchScanResult.getId()+"").substring(0,4)  */
             nonRelationalDataTable.setNonRelationalData(switchScanResult.getDynamicInformation());
             nonRelationalDataTableMapper.insertNonRelationalDataTable(nonRelationalDataTable);
 

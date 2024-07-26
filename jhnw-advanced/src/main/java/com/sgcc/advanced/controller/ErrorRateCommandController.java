@@ -38,6 +38,7 @@ public class ErrorRateCommandController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(ErrorRateCommand errorRateCommand)
     {
+
         startPage();
         List<ErrorRateCommand> list = errorRateCommandService.selectErrorRateCommandList(errorRateCommand);
         return getDataTable(list);

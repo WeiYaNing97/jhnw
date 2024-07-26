@@ -1963,7 +1963,8 @@ public class SwitchInteraction {
         /* 存储 可扫描交换机问题 */
         List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
 
-        /* totalQuestionTables == null 的时候 是扫描全部问题 */
+        /* totalQuestionTables == null 的时候 是扫描全部问题
+         * totalQuestionTables != null 的时候 是专项扫描*/
         if (totalQuestionTables == null){
 
             /* 根据交换机基本信息 查询 可扫描的交换机问题 */

@@ -156,7 +156,7 @@ public class SwitchScanResultController extends BaseController
         // 设置端口号
         switchScanResult.setPortNumber(switchParameters.getPort());
         // 设置问题类型
-        switchScanResult.setTypeProblem("高级功能");
+        switchScanResult.setTypeProblem("运行分析");
         // 设置临时问题名称
         switchScanResult.setTemProName(hashMap.get("ProblemName"));
         // 设置问题名称

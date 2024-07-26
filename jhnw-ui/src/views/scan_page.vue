@@ -37,7 +37,7 @@
           <i class="el-icon-search"></i>  全面扫描
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item icon="el-icon-search" command="specialSearch">专项扫描</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-search" command="specialSearchAdv">高级功能扫描</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-search" command="specialSearchAdv">运行分析扫描</el-dropdown-item>
             <el-dropdown-item icon="el-icon-search" command="modelScan">模板扫描</el-dropdown-item>
             <el-dropdown-item icon="el-icon-edit" command="changeIpPass">修改IP密码</el-dropdown-item>
           </el-dropdown-menu>
@@ -308,7 +308,7 @@
                 specialItems: [],
                 //高级扫描
                 advancedScan:{
-                    label:"高级功能",
+                    label:"运行分析",
                     children: [
                         {
                             label:"OSPF",
@@ -321,6 +321,10 @@
                         {
                             label:"错误包",
                             id:'错误包'
+                        },
+                        {
+                            label:"路由聚合",
+                            id:'路由聚合'
                         }
                     ],
                 },
@@ -725,7 +729,7 @@
                 this.dialogVisibleSpecial = true
                 this.specialItems = [
                     {
-                        label:"高级功能",
+                        label:"运行分析",
                         children: [
                             {
                                 label:"OSPF",
@@ -738,6 +742,10 @@
                             {
                                 label:"错误包",
                                 id:'错误包'
+                            },
+                            {
+                                label:"路由聚合",
+                                id:'路由聚合'
                             }
                         ]
                     }

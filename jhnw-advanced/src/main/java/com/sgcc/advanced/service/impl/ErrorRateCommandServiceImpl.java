@@ -121,7 +121,7 @@ public class ErrorRateCommandServiceImpl implements IErrorRateCommandService
         pojo.addAll(selectErrorRateCommandListByEquivalence(errorRateCommand));
 
         String equivalence = FunctionalMethods.getEquivalence(errorRateCommand.getBrand());
-        if (equivalence!=null){
+        if (equivalence != null) {
             errorRateCommand.setBrand(equivalence);
             pojo.addAll(selectErrorRateCommandListByEquivalence(errorRateCommand));
         }

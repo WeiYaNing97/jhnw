@@ -573,7 +573,7 @@
                 // var ce = {}
                 this.fenxiang = [
                     {
-                        label:"高级功能",
+                        label:"运行分析",
                         children: [
                             {
                                 label:"OSPF"
@@ -583,6 +583,9 @@
                             },
                             {
                                 label:"错误包"
+                            },
+                            {
+                                label:"路由聚合"
                             }
                         ]
                     }

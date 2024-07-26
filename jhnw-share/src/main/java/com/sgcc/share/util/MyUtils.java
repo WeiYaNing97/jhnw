@@ -386,6 +386,31 @@ public class MyUtils {
     public static boolean containIgnoreCase(String primary,String keywords) {
         return primary.toUpperCase().indexOf(keywords.toUpperCase())!=-1;
     }
+
+    /**
+     * 将给定字符串按照指定的次数进行拼接
+     *
+     * @param str 要拼接的字符串
+     * @param number 拼接的次数
+     * @return 拼接后的字符串
+     *
+     * @note 如果拼接次数为0，则返回空字符串
+     */
+    public static String splicingStringsWithTheSameCharacter(String str, int number) {
+        // 如果拼接次数为0，则返回空字符串
+        if (number == 0){
+            return "";
+        }
+        String returnStr = "";
+        // 循环拼接字符串
+        for (int i = 0 ;i < number ;i++){
+            // 将要拼接的字符串添加到返回字符串中
+            returnStr += str;
+        }
+        // 返回拼接后的字符串
+        return returnStr;
+    }
+
     /* ============================== 字符串、文章 结束 ==============================*/
     /* ============================== 时间 开始 ==============================*/
     /**
@@ -600,6 +625,113 @@ public class MyUtils {
     }
     /* ============================== Integer 结束 ==============================*/
     /* ============================== IP 开始 ==============================*/
+
+
+    /**
+     * 将IPv4地址转换为二进制字符串表示。
+     *
+     * @param ip 要转换的IPv4地址，格式为xxx.xxx.xxx.xxx
+     * @return 转换后的二进制字符串，长度为32位
+     * @throws NumberFormatException 如果输入的IP地址不符合IPv4格式
+     */
+    public static String getIPBinarySystem(String ip) {
+        // 使用点号将IP地址分割为数组
+        String[] ip_split = ip.split("\\.");
+        String ip_CIDR="";
+        // 遍历每个IP地址段
+        for (int i = 0; i < ip_split.length; i++) {
+            // 将整数转换为二进制字符串
+            String binaryString = Integer.toBinaryString(Integer.valueOf(ip_split[i]).intValue());
+            // 补全后面的零
+            String paddedBinaryString = String.format("%" + 8 + "s", binaryString).replace(' ', '0');
+            // 将补全后的二进制字符串添加到结果中
+            ip_CIDR += paddedBinaryString;
+        }
+        // 返回最终的二进制字符串
+        return ip_CIDR;
+    }
+
+
+    /**
+     *  判断字符串中有几个IP特征数据,并返回ip数据
+     *  注意：超过255 不是ip 不会显示。测试时注意
+     * @param str
+     * @return
+     */
+    public static List<String> findIPs(String str) {
+        List<String> ips = new ArrayList<>();
+        //String regex = "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+        Pattern pattern = Pattern.compile("(\\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b)");
+        //Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(str);
+
+        while (matcher.find()) {
+            ips.add(matcher.group());
+        }
+
+        return ips;
+    }
+
+    /**
+     * 根据二进制字符串获取IP地址
+     *
+     * @param binarySystem 二进制字符串
+     * @return 返回对应的IP地址
+     */
+    public static String obtainIPBasedOnBinary(String binarySystem) {
+        // 将二进制字符串按每8位插入"."分隔符，得到IP地址的二进制表示
+        String ipBinarySystem = stringInsertionInterval(binarySystem, ".", 8);
+
+        // 使用"."作为分隔符将ipBinarySystem拆分为一个字符串数组
+        String[] ipBinarySystemSplit = ipBinarySystem.split("\\.");
+
+        // 初始化IP地址字符串为空
+        String ip ="";
+
+        // 遍历字符串数组中的每个元素
+        for (String value:ipBinarySystemSplit){
+            // 将每个二进制数转换为十进制数，并添加到IP地址字符串中，同时在末尾添加"."
+            ip += Integer.parseInt(value,2) + ".";
+        }
+
+        // 去除IP地址字符串末尾的"."
+        return ip.substring(0,ip.length()-1);
+    }
+    /**
+     * 在给定字符串的每个固定间隔插入分隔符
+     *
+     * @param information 需要插入分隔符的字符串
+     * @param delimiter   分隔符
+     * @param number      每个分隔符之间的字符数
+     * @return            插入分隔符后的字符串
+     *
+     * @throws IllegalArgumentException 如果分隔符为空或者number小于1，将抛出此异常
+     */
+    public static String stringInsertionInterval(String information,String delimiter,int number) {
+        String returnStr = "";
+
+        // 当字符串长度大于等于指定的字符数时，循环处理
+        while (information.length() >= number){
+            // 截取前number个字符，并加上分隔符，然后追加到返回字符串中
+            returnStr += information.substring(0,number) + delimiter;
+
+            // 更新剩余的字符串
+            information = information.substring(number,information.length());
+        }
+
+        // 如果剩余的字符串为空，并且返回字符串以分隔符结尾，则去掉最后一个分隔符
+        if (information.length() == 0 && returnStr.endsWith(delimiter)){
+            returnStr = returnStr.substring(0,returnStr.length()-delimiter.length());
+
+            // 如果剩余的字符串不为空，则将其追加到返回字符串中
+        }else if (information.length() != 0){
+            returnStr = returnStr + information;
+        }
+
+        // 返回处理后的字符串
+        return returnStr;
+    }
+
     /**
      * @Description 判断内容是否存在 IP特征
      * @desc
@@ -616,6 +748,36 @@ public class MyUtils {
         // 使用Matcher对象的find()方法判断是否存在IP特征
         return matcher.find();
     }
+
+    /**
+     * 将IP地址和子网掩码转换为CIDR表示法的字符串。
+     *
+     * @param ipAddress IP地址，格式为xxx.xxx.xxx.xxx
+     * @param subnetMask 子网掩码，格式为xxx.xxx.xxx.xxx
+     * @return 返回CIDR表示法的IP地址，格式为xxx.xxx.xxx.xxx/xx
+     * @throws IllegalArgumentException 如果IP地址或子网掩码格式无效，则抛出此异常
+     */
+    public static String convertToCIDR(String ipAddress, String subnetMask) {
+        // 将IP地址和子网掩码分为四部分
+        String[] ipParts = ipAddress.split("\\.");
+        String[] maskParts = subnetMask.split("\\.");
+
+        // 验证IP地址和子网掩码是否有效
+        if (ipParts.length != 4 || maskParts.length != 4) {
+            throw new IllegalArgumentException("Invalid IP address or subnet mask format.");
+        }
+
+        // 计算子网掩码中'1'的个数，从而得到网络前缀的长度
+        int prefixLength = 0;
+        for (int i = 0; i < 4; i++) {
+            int maskPart = Integer.parseInt(maskParts[i]);
+            prefixLength += Integer.bitCount(maskPart);
+        }
+
+        // 返回CIDR表示法的IP地址
+        return ipAddress + "/" + prefixLength;
+    }
+
     /* ============================== IP 结束 ==============================*/
 
 
