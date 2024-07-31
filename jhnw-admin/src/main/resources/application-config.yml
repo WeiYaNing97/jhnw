@@ -110,7 +110,7 @@ obtainPortNumber:
     Input: 'Input: $ input errors'
     Output: $ output errors
     CRC: $ CRC,
-  Huawei:
+  HuaWei:
     CRC: 'CRC: $'
     Input: 'Total Error: $'
     Output: 'Total Error: $'

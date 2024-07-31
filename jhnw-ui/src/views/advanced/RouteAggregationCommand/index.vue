@@ -33,19 +33,37 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="获取宣告地址命令" prop="command">
+      <el-form-item label="获取内部宣告地址命令" prop="internalCommand">
         <el-input
-          v-model="queryParams.command"
-          placeholder="请输入获取宣告地址命令"
+          v-model="queryParams.internalCommand"
+          placeholder="请输入获取内部宣告地址命令"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="关键字" prop="keywords">
+      <el-form-item label="内部关键字" prop="internalKeywords">
         <el-input
-          v-model="queryParams.keywords"
-          placeholder="请输入关键字"
+          v-model="queryParams.internalKeywords"
+          placeholder="请输入内部关键字"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="获取外部宣告地址命令" prop="externalCommand">
+        <el-input
+          v-model="queryParams.externalCommand"
+          placeholder="请输入获取外部宣告地址命令"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="内部关键字" prop="externalKeywords">
+        <el-input
+          v-model="queryParams.externalKeywords"
+          placeholder="请输入内部关键字"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
@@ -111,8 +129,10 @@
       <el-table-column label="型号" align="center" prop="switchType" />
       <el-table-column label="内部固件版本" align="center" prop="firewareVersion" />
       <el-table-column label="子版本号" align="center" prop="subVersion" />
-      <el-table-column label="获取宣告地址命令" align="center" prop="command" />
-      <el-table-column label="关键字" align="center" prop="keywords" />
+      <el-table-column label="获取内部宣告地址命令" align="center" prop="internalCommand" />
+      <el-table-column label="内部关键字" align="center" prop="internalKeywords" />
+      <el-table-column label="获取外部宣告地址命令" align="center" prop="externalCommand" />
+      <el-table-column label="内部关键字" align="center" prop="externalKeywords" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -132,7 +152,7 @@
         </template>
       </el-table-column>
     </el-table>
-
+    
     <pagination
       v-show="total>0"
       :total="total"
@@ -158,11 +178,17 @@
         <el-form-item label="子版本号" prop="subVersion">
           <el-input v-model="form.subVersion" placeholder="请输入子版本号" />
         </el-form-item>
-        <el-form-item label="获取宣告地址命令" prop="command">
-          <el-input v-model="form.command" placeholder="请输入获取宣告地址命令" />
+        <el-form-item label="获取内部宣告地址命令" prop="internalCommand">
+          <el-input v-model="form.internalCommand" placeholder="请输入获取内部宣告地址命令" />
         </el-form-item>
-        <el-form-item label="关键字" prop="keywords">
-          <el-input v-model="form.keywords" placeholder="请输入关键字" />
+        <el-form-item label="内部关键字" prop="internalKeywords">
+          <el-input v-model="form.internalKeywords" placeholder="请输入内部关键字" />
+        </el-form-item>
+        <el-form-item label="获取外部宣告地址命令" prop="externalCommand">
+          <el-input v-model="form.externalCommand" placeholder="请输入获取外部宣告地址命令" />
+        </el-form-item>
+        <el-form-item label="内部关键字" prop="externalKeywords">
+          <el-input v-model="form.externalKeywords" placeholder="请输入内部关键字" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -208,8 +234,10 @@ export default {
         switchType: null,
         firewareVersion: null,
         subVersion: null,
-        command: null,
-        keywords: null
+        internalCommand: null,
+        internalKeywords: null,
+        externalCommand: null,
+        externalKeywords: null
       },
       // 表单参数
       form: {},
@@ -218,11 +246,17 @@ export default {
         brand: [
           { required: true, message: "品牌不能为空", trigger: "blur" }
         ],
-        command: [
-          { required: true, message: "获取宣告地址命令不能为空", trigger: "blur" }
+        internalCommand: [
+          { required: true, message: "获取内部宣告地址命令不能为空", trigger: "blur" }
         ],
-        keywords: [
-          { required: true, message: "关键字不能为空", trigger: "blur" }
+        internalKeywords: [
+          { required: true, message: "内部关键字不能为空", trigger: "blur" }
+        ],
+        externalCommand: [
+          { required: true, message: "获取外部宣告地址命令不能为空", trigger: "blur" }
+        ],
+        externalKeywords: [
+          { required: true, message: "内部关键字不能为空", trigger: "blur" }
         ]
       }
     };
@@ -253,8 +287,10 @@ export default {
         switchType: null,
         firewareVersion: null,
         subVersion: null,
-        command: null,
-        keywords: null
+        internalCommand: null,
+        internalKeywords: null,
+        externalCommand: null,
+        externalKeywords: null
       };
       this.resetForm("form");
     },

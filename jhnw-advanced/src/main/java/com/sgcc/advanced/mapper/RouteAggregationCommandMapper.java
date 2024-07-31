@@ -2,16 +2,14 @@ package com.sgcc.advanced.mapper;
 
 import java.util.Collection;
 import java.util.List;
-
-import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.domain.RouteAggregationCommand;
-import org.apache.ibatis.annotations.Param;
+import io.lettuce.core.dynamic.annotation.Param;
 
 /**
  * 路由聚合命令Mapper接口
  * 
  * @author ruoyi
- * @date 2024-07-18
+ * @date 2024-07-29
  */
 public interface RouteAggregationCommandMapper 
 {
@@ -62,6 +60,7 @@ public interface RouteAggregationCommandMapper
      * @return 结果
      */
     public int deleteRouteAggregationCommandByIds(String[] ids);
+
 
     Collection<? extends RouteAggregationCommand> selectRouteAggregationCommandListBySQL(@Param("fuzzySQL") String fuzzySQL);
 }

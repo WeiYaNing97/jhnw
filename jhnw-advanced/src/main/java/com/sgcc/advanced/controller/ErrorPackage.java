@@ -94,7 +94,7 @@ public class ErrorPackage {
             "GE0/0/32             DOWN  auto    A      A    200  To_HX_S7506E" +
             "GE0/0/33             UP   1G(a)   F(a)   A    2001 To_ShiJu\n";
 
-    private static String switchPortValueReturnsResult = "GigabitEthernet1/0/25 current state: UP\n" +
+    /*private static String switchPortValueReturnsResult = "GigabitEthernet1/0/25 current state: UP\n" +
             " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
             " Description :To_ShuJuWangHuLian_G1/0/18\n" +
             " Loopback is not set\n" +
@@ -133,9 +133,11 @@ public class ErrorPackage {
             "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
             " Output: 0 output errors, - underruns, - buffer failures\n" +
             "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
-            "         0 lost carrier, - no carrier";
+            "         0 lost carrier, - no carrier";*/
 
-    /* private static String switchPortValueReturnsResult = "Input: 982431567 packets, 1214464892426 bytes\n" +
+     private static String switchPortValueReturnsResult =
+                    " Description :To_ShuJuWangHuLian_G1/0/18\n" +
+                    "Input: 982431567 packets, 1214464892426 bytes\n" +
                     "      Unicast: 981439518, Multicast: 404\n" +
                     "      Broadcast: 991644, Jumbo: 0\n" +
                     "      Discard: 0, Pause: 0\n" +
@@ -153,7 +155,7 @@ public class ErrorPackage {
                     "      Total Error: 100\n" +
                     "      Collisions: 0, ExcessiveCollisions: 0\n" +
                     "      Late Collisions: 0, Deferreds: 0\n" +
-                    "      Buffers Purged: 0";  */
+                    "      Buffers Purged: 0";
 
 
 
@@ -761,6 +763,23 @@ public class ErrorPackage {
             }
         }
 
+        if (brand == null){
+            /* 错误包功能未获取到配置文件关键词 */
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:错误包功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
+
+            return new HashMap<>();
+        }
+
+
         /*根据 交换机品牌名 获取交换机错误包信息 */
         deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包."+brand,Constant.getProfileInformation());
         /*错误包功能未获取到品牌大类的关键词 提示前端*/
@@ -882,11 +901,13 @@ public class ErrorPackage {
         String[] informationSplit = information.split("\r\n");
 
         /* 遍历交换机返回信息 行信息
+
+        *粗略过滤 将所有"Input"、"Output" 、"Total Error" 放入list集合中
+
         *判断 行信息 包含 "Input" 则 在list集合中 存储 Input
         *判断 行信息 包含 "Output" 则 在list集合中 存储 Output
         *判断 行信息 包含 "Total Error" 则 在list集合中存储整行的信息*/
         List<String> valueList = new ArrayList<>();
-
         for (int number = 0; number<informationSplit.length; number++){
             /*判断一个字符串是否包含另一个字符串(忽略大小写)*/
             if (MyUtils.containIgnoreCase(informationSplit[number],"Input")){ //&& !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))
@@ -900,7 +921,8 @@ public class ErrorPackage {
             }
         }
 
-        /* 存储 "Total Error" 与"Input 、Output" 的map对应关系 */
+        /* 获取 "Total Error"前的元素 判断"Total Error"的参数是"Input 还是 Output"
+        存储 "Total Error" 与"Input 、Output" 的map对应关系 */
         HashMap<String,String> returnMap = new HashMap<>();
         /*循环遍历 存储包含"Total Error"、"Input"、"Output" 信息的集合 */
         for (int i = 0 ;i<valueList.size();i++){
@@ -1211,35 +1233,14 @@ public class ErrorPackage {
                 string = string.trim();
                 int i = string.toLowerCase().indexOf(description.toLowerCase());
                 if (i!=-1){
-                    /*字符串调整方法，当字符串中存在":"，且":"的前一字符不为" ",下一字符为" "时，则将":"替换成" :"。*/
-                    string = adjustColon(string);
-
-                    /* 根据 "Description :" 分割数组*/
-                    String[] strings = new String[0];
-                    if (string.indexOf(description+" : ")!=-1){
-                        strings = MyUtils.splitIgnoreCase(string, description+" : ");
-                    }else {
-                        strings = MyUtils.splitIgnoreCase(string, description );
-                    }
-                    if (strings.length == 0){
-                        return null;
-                    }
-
-                    /* 分割数组 要小于3个元素*/
-                    if (strings.length < 3){
-
-                        /* splitIgnoreCase  根据字符串 根据字符串（忽略大小写）分割为字符串数组
-                         * 但是 当分隔符为 被分割字符串的开头时，第一个元素会是: ""   例如：["","ZhiNengFuZhu"]
-
-                        * 当交换机返回信息以"Description :"开头， 即 i==0  且  第一个元素是 ""
-                        * 数组应为 ["","ZhiNengFuZhu"]
-                        * 返回第二的元素*/
-                        if (strings[0].equalsIgnoreCase("") && (i == 0)){
-                            return strings[1].trim();
-                        }else {
-                            return strings[0].trim();
+                    int i1 = string.toLowerCase().indexOf(description.toLowerCase());
+                    if (i1 !=-1){
+                        /* 获取 Description 关键词 所在行信息中 Description: 后面的内容*/
+                        String substring = string.substring(i+description.length()).trim();
+                        if (substring.startsWith(":")){
+                            substring = substring.substring(1).trim();
                         }
-
+                        return substring;
                     }
                 }
             }

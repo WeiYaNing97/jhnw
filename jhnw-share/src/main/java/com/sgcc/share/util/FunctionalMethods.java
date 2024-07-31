@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 功能方法类
@@ -817,22 +818,35 @@ public class FunctionalMethods {
          * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth
          * 根据空格分割为 关键词数组*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword",Constant.getProfileInformation());
-        String[] keywords = deviceVersion.trim().split(" ");
+        List<String> keywords = Arrays.stream(deviceVersion.trim().split(" ")).collect(Collectors.toList());
+
+        // 使用Lambda表达式和Comparator对字符串按长度从长到短排序
+        Collections.sort(keywords, Comparator.comparingInt(String::length).reversed());
+
+        String keyword = "";
+        for (String key:keywords){
+            if (information.toLowerCase().indexOf(key.toLowerCase())!=-1){
+                keyword = key ;
+                break;
+            }
+        }
 
         /*GigabitEthernet 9/1 up routed Full 1000M fiber*/
-        /*根据UP分割字符串*/
-        /*交换机信息 根据 up(忽略大小写) 分割*/
-        String[] informationSplit = MyUtils.splitIgnoreCase( information ," UP ");
+        information = caseInsensitiveReplace(information, keyword+" ", keyword);
+
+        /*GigabitEthernet9/1 up routed Full 1000M fiber*/
+
+        /*根据" "分割字符串*/
+        /*交换机信息 " "分割*/
+        String[] informationSplit = information.split(" ");
 
         /*遍历数组  包含/的为端口号 但不能确定端口号是否完全
          * 此时需要判断提取到的端口号是否包含字母
          * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
         for (String string:informationSplit){
 
-            /* 两种情况
-            * GigabitEthernet 9/1
-            * GigabitEthernet9/1 */
             String[] string_split = string.trim().split(" ");
+
             /* 遍历交换机信息数组 */
             for (int num = 0;num < string_split.length;num++){
 
@@ -840,41 +854,43 @@ public class FunctionalMethods {
                 *
                 * 查看 是否以 关键字开头
                 *
-                * 如果 以关键字开头，则判断 是否包含数字
-                * 如果包含数字 则端口号完全，
-                * 如果不包含数字则端口号不全，数值部分在下一个数组元素
-                *
                 * 端口号不能存在.情况发生。为子端口号，例如 TenGigabitEthernet 5/51.231 为 TenGigabitEthernet 5/51 子端口
                 * 子端口 不用检测*/
-                for (String keyword:keywords){
+                /*判断数组元素 是否已 关键词为 首*/
 
-                    /*判断数组元素 是否已 关键词为 首*/
-                    if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase())){
+                if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase())){
 
-                        /*判断提取到的端口号是否包含数字
-                         * 包含数字 则端口号完全 */
-                        if (MyUtils.isNumeric(string_split[num])){
-                            /*包含则为完全端口号 否则为不完全端口号*/
-                            String port = string_split[num];
-                            /* 端口号 不能存在 . 不能为子端口*/
-                            if (port.indexOf(".")!=-1){
-                                return null;
-                            }
-                            return port;
-
-                            /* 否则 端口号 不全*/
-                        }else {
-                            /*例如：  GigabitEthernet 2/1
-                             * 获取到的 不包含 2/1
-                             * 则为不完全端口号，需要加后面的GigabitEthernet*/
-                            String port = string_split[num] +" "+ string_split[num+1];
-                            /* 端口号 不能存在 . 不能为子端口*/
-                            if (port.indexOf(".")!=-1){
-                                return null;
-                            }
-                            return port;
-                        }
+                    String port = string_split[num];
+                    /* 端口号 不能存在 . 不能为子端口*/
+                    if (port.indexOf(".")!=-1){
+                        return null;
                     }
+                    return port;
+
+                    /*//判断提取到的端口号是否包含数字
+                    //包含数字 则端口号完全
+                    if (MyUtils.isNumeric(string_split[num])){
+                        //包含则为完全端口号 否则为不完全端口号
+                        String port = string_split[num];
+                        //端口号 不能存在 . 不能为子端口
+                        if (port.indexOf(".")!=-1){
+                            return null;
+                        }
+                        return port;
+
+                        //否则 端口号 不全
+                    }else {
+                        //因为之前已经去除了端口号中的空格
+                        // 例如：  GigabitEthernet 2/1
+                        // 获取到的 不包含 2/1
+                        // 则为不完全端口号，需要加后面的GigabitEthernet
+                        String port = string_split[num] +" "+ string_split[num+1];
+                        //端口号 不能存在 . 不能为子端口
+                        if (port.indexOf(".")!=-1){
+                            return null;
+                        }
+                        return port;
+                    }*/
 
                 }
 
@@ -883,4 +899,114 @@ public class FunctionalMethods {
         return null;
     }
 
+
+    /**
+     * 在给定的行数据中查找并返回第一个同时包含设备端口号关键字且包含数字的单词（按空格分隔）。
+     *
+     * <p>该方法接收两个参数：一个是要搜索的行数据（{@code lineData}），另一个是包含设备端口号关键字的字符串数组（{@code deviceVersion_split}）。
+     * 它首先遍历设备版本关键字数组，对于每个关键字，检查行数据是否包含该关键字（不区分大小写）。
+     * 如果行数据包含某个关键字，则进一步将行数据按空格拆分为单词数组，并遍历这些单词。
+     * 对于每个单词，如果它同时包含给定的设备端口号关键字（不区分大小写）且包含至少一个数字，则立即返回该单词。</p>
+     *
+     * <p>如果行数据中不包含任何给定的设备端口号关键字，或者没有找到同时满足条件的单词，则返回{@code null}。</p>
+     *
+     * @param lineData 要搜索的行数据字符串。
+     * @param deviceVersion_split 包含设备端口号关键字的字符串数组。
+     * @return 第一个同时包含设备端口号关键字且包含数字的单词（按空格分隔），如果未找到则返回{@code null}。
+     */
+    public static String includePortNumberKeywords(String lineData,String[] deviceVersion_split) {
+        for (String deviceVersion : deviceVersion_split) {
+            // 检查行数据是否包含设备端口号关键字
+            if (MyUtils.containIgnoreCase(lineData,deviceVersion)) {
+                // 将设备端口号关键字后的空格去除
+                lineData = caseInsensitiveReplace(lineData, deviceVersion+" ", deviceVersion);
+                // 将行数据按空格拆分为单词数组
+                String[] lineData_split = lineData.split(" ");
+                for (int i = 0; i < lineData_split.length; i++) {
+                    String split_i = lineData_split[i];
+                    // 检查单词是否同时包含设备端口号关键字和数字
+                    if (MyUtils.containIgnoreCase(split_i,deviceVersion) && MyUtils.containDigit(split_i)) {
+                        // 返回第一个符合条件的单词
+                        return split_i;
+                    }
+                }
+            }
+        }
+        // 如果没有找到符合条件的单词，则返回null
+        return null;
+    }
+
+    /**
+     * 不区分大小写地替换字符串中的指定子串。
+     *
+     * <p>此方法接收三个字符串参数：输入字符串（{@code input}），要查找的子串（{@code find}），以及用于替换的子串（{@code replacement}）。
+     * 它遍历输入字符串，查找所有与要查找的子串（不区分大小写）匹配的实例，并将它们替换为指定的替换子串。
+     * 替换时，会考虑原始字符串中被替换部分的大小写情况，以确保替换后的字符串尽可能保持原始字符串的大小写特征。</p>
+     *
+     * <p>如果输入参数中的任何一个为{@code null}，则抛出{@link IllegalArgumentException}异常。</p>
+     *
+     * @param input 输入的原始字符串。
+     * @param find 要在输入字符串中查找的子串（不区分大小写）。
+     * @param replacement 替换找到的子串的字符串。
+     * @return 替换后的字符串。
+     * @throws IllegalArgumentException 如果输入参数中的任何一个为{@code null}。
+     */
+    public static String caseInsensitiveReplace(String input, String find, String replacement) {
+        // 检查输入参数是否为null，如果是，则抛出异常
+        if (input == null || find == null || replacement == null) {
+            throw new IllegalArgumentException("Arguments cannot be null"); // 抛出异常，提示参数不能为空
+        }
+
+        int start = 0; // 初始化查找起始位置
+        int end = 0; // 初始化当前查找结束位置
+        StringBuilder builder = new StringBuilder(); // 使用StringBuilder来构建最终的字符串
+
+        // 循环查找并替换
+        while ((end = input.toLowerCase().indexOf(find.toLowerCase(), start)) != -1) {
+            // 将从起始位置到当前查找结束位置之前的子字符串添加到StringBuilder中
+            builder.append(input.substring(start, end));
+            // 调用capitalizeReplacement方法处理替换逻辑，考虑原始字符串中find部分的字母大小写
+            builder.append(capitalizeReplacement(input.substring(end, end + find.length()), replacement));
+            // 更新下一次查找的起始位置
+            start = end + find.length();
+        }
+        // 将最后一部分（可能没有被替换的部分）添加到StringBuilder中
+        builder.append(input.substring(start));
+
+        // 返回构建好的字符串
+        return builder.toString();
+    }
+
+    /**
+     * 根据原始字符串的首尾字符的大小写状态，调整替换字符串的首尾字符的大小写。
+     *
+     * <p>此方法首先检查原始字符串的首字符是否为大写，如果是，则将替换字符串的首字符也转换为大写。
+     * 接着，如果原始字符串的末字符存在且为小写（且替换字符串长度大于1），则将替换字符串的末字符也转换为小写。
+     * 这样做可以确保替换后的字符串在大小写方面与原始字符串的某些部分保持一致。</p>
+     *
+     * @param original 原始字符串，用于判断其首尾字符的大小写状态。
+     * @param replacement 需要被调整大小写的替换字符串。
+     * @return 调整后的替换字符串，其首尾字符的大小写状态可能与原始字符串的首尾字符保持一致。
+     */
+    private static String capitalizeReplacement(String original, String replacement) {
+        // 检查原始字符串的第一个字符是否为大写
+        boolean firstCharUpper = Character.isUpperCase(original.charAt(0));
+        // 检查原始字符串的最后一个字符（如果存在）是否为小写
+        boolean lastCharLower = original.length() > 1 && Character.isLowerCase(original.charAt(original.length() - 1));
+
+        String result = replacement; // 初始化结果为替换字符串
+
+        // 如果原始字符串的第一个字符是大写，则将替换字符串的第一个字符也转换为大写
+        if (firstCharUpper) {
+            result = Character.toUpperCase(result.charAt(0)) + result.substring(1);
+        }
+
+        // 如果原始字符串的最后一个字符是小写，并且替换字符串的长度大于1，
+        // 则将替换字符串的最后一个字符也转换为小写
+        if (lastCharLower && result.length() > 1) {
+            result = result.substring(0, result.length() - 1) + Character.toLowerCase(result.charAt(result.length() - 1));
+        }
+
+        return result; // 返回处理后的结果字符串
+    }
 }

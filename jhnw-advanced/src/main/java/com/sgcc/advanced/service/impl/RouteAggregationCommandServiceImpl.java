@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
@@ -19,7 +18,7 @@ import com.sgcc.advanced.service.IRouteAggregationCommandService;
  * 路由聚合命令Service业务层处理
  * 
  * @author ruoyi
- * @date 2024-07-18
+ * @date 2024-07-29
  */
 @Service
 public class RouteAggregationCommandServiceImpl implements IRouteAggregationCommandService 
@@ -60,12 +59,10 @@ public class RouteAggregationCommandServiceImpl implements IRouteAggregationComm
     @Override
     public int insertRouteAggregationCommand(RouteAggregationCommand routeAggregationCommand)
     {
-
         String regionalCode = (CustomConfigurationUtil.getValue("configuration.problemCode.日常巡检", Constant.getProfileInformation())).toString();
         String id = MyUtils.getID(regionalCode, null);
 
         routeAggregationCommand.setId(id);
-
 
 
         return routeAggregationCommandMapper.insertRouteAggregationCommand(routeAggregationCommand);
@@ -106,6 +103,7 @@ public class RouteAggregationCommandServiceImpl implements IRouteAggregationComm
     {
         return routeAggregationCommandMapper.deleteRouteAggregationCommandById(id);
     }
+
 
     @Override
     public List<RouteAggregationCommand> selectRouteAggregationCommandListBySQL(RouteAggregationCommand routeAggregationCommand) {

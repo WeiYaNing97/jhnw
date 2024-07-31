@@ -1,6 +1,8 @@
 package com.sgcc.advanced.domain;
 
 public class ExternalIP {
+
+    public String proto;
     public String destinationMask;
     public String NextHop;
     public String Interface;
@@ -29,10 +31,19 @@ public class ExternalIP {
         Interface = anInterface;
     }
 
+    public String getProto() {
+        return proto;
+    }
+
+    public void setProto(String proto) {
+        this.proto = proto;
+    }
+
     @Override
     public String toString() {
         return "ExternalIP{" +
-                "destinationMask='" + destinationMask + '\'' +
+                "proto='" + proto + '\'' +
+                ", destinationMask='" + destinationMask + '\'' +
                 ", NextHop='" + NextHop + '\'' +
                 ", Interface='" + Interface + '\'' +
                 '}';

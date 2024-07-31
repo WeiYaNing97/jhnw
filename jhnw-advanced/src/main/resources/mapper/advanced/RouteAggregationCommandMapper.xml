@@ -10,12 +10,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="switchType"    column="switch_type"    />
         <result property="firewareVersion"    column="fireware_version"    />
         <result property="subVersion"    column="sub_version"    />
-        <result property="command"    column="command"    />
-        <result property="keywords"    column="keywords"    />
+        <result property="internalCommand"    column="internal_command"    />
+        <result property="internalKeywords"    column="internal_keywords"    />
+        <result property="externalCommand"    column="external_command"    />
+        <result property="externalKeywords"    column="external_keywords"    />
     </resultMap>
 
     <sql id="selectRouteAggregationCommandVo">
-        select id, brand, switch_type, fireware_version, sub_version, command, keywords from route_aggregation_command
+        select id, brand, switch_type, fireware_version, sub_version, internal_command, internal_keywords, external_command, external_keywords from route_aggregation_command
     </sql>
 
     <select id="selectRouteAggregationCommandList" parameterType="RouteAggregationCommand" resultMap="RouteAggregationCommandResult">
@@ -25,8 +27,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
             <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
-            <if test="command != null  and command != ''"> and command = #{command}</if>
-            <if test="keywords != null  and keywords != ''"> and keywords = #{keywords}</if>
+            <if test="internalCommand != null  and internalCommand != ''"> and internal_command = #{internalCommand}</if>
+            <if test="internalKeywords != null  and internalKeywords != ''"> and internal_keywords = #{internalKeywords}</if>
+            <if test="externalCommand != null  and externalCommand != ''"> and external_command = #{externalCommand}</if>
+            <if test="externalKeywords != null  and externalKeywords != ''"> and external_keywords = #{externalKeywords}</if>
         </where>
     </select>
     
@@ -43,8 +47,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchType != null">switch_type,</if>
             <if test="firewareVersion != null">fireware_version,</if>
             <if test="subVersion != null">sub_version,</if>
-            <if test="command != null and command != ''">command,</if>
-            <if test="keywords != null and keywords != ''">keywords,</if>
+            <if test="internalCommand != null and internalCommand != ''">internal_command,</if>
+            <if test="internalKeywords != null and internalKeywords != ''">internal_keywords,</if>
+            <if test="externalCommand != null and externalCommand != ''">external_command,</if>
+            <if test="externalKeywords != null and externalKeywords != ''">external_keywords,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
@@ -52,8 +58,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchType != null">#{switchType},</if>
             <if test="firewareVersion != null">#{firewareVersion},</if>
             <if test="subVersion != null">#{subVersion},</if>
-            <if test="command != null and command != ''">#{command},</if>
-            <if test="keywords != null and keywords != ''">#{keywords},</if>
+            <if test="internalCommand != null and internalCommand != ''">#{internalCommand},</if>
+            <if test="internalKeywords != null and internalKeywords != ''">#{internalKeywords},</if>
+            <if test="externalCommand != null and externalCommand != ''">#{externalCommand},</if>
+            <if test="externalKeywords != null and externalKeywords != ''">#{externalKeywords},</if>
          </trim>
     </insert>
 
@@ -64,8 +72,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchType != null">switch_type = #{switchType},</if>
             <if test="firewareVersion != null">fireware_version = #{firewareVersion},</if>
             <if test="subVersion != null">sub_version = #{subVersion},</if>
-            <if test="command != null and command != ''">command = #{command},</if>
-            <if test="keywords != null and keywords != ''">keywords = #{keywords},</if>
+            <if test="internalCommand != null and internalCommand != ''">internal_command = #{internalCommand},</if>
+            <if test="internalKeywords != null and internalKeywords != ''">internal_keywords = #{internalKeywords},</if>
+            <if test="externalCommand != null and externalCommand != ''">external_command = #{externalCommand},</if>
+            <if test="externalKeywords != null and externalKeywords != ''">external_keywords = #{externalKeywords},</if>
         </trim>
         where id = #{id}
     </update>

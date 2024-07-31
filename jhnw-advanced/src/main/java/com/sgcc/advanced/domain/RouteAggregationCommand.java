@@ -9,7 +9,7 @@ import com.sgcc.common.core.domain.BaseEntity;
  * 路由聚合命令对象 route_aggregation_command
  * 
  * @author ruoyi
- * @date 2024-07-18
+ * @date 2024-07-29
  */
 public class RouteAggregationCommand extends BaseEntity
 {
@@ -34,13 +34,21 @@ public class RouteAggregationCommand extends BaseEntity
     @Excel(name = "子版本号")
     private String subVersion;
 
-    /** 获取宣告地址命令 */
-    @Excel(name = "获取宣告地址命令")
-    private String command;
+    /** 获取内部宣告地址命令 */
+    @Excel(name = "获取内部宣告地址命令")
+    private String internalCommand;
 
-    /** 关键字 */
-    @Excel(name = "关键字")
-    private String keywords;
+    /** 内部关键字 */
+    @Excel(name = "内部关键字")
+    private String internalKeywords;
+
+    /** 获取外部宣告地址命令 */
+    @Excel(name = "获取外部宣告地址命令")
+    private String externalCommand;
+
+    /** 内部关键字 */
+    @Excel(name = "内部关键字")
+    private String externalKeywords;
 
     public void setId(String id) 
     {
@@ -87,23 +95,41 @@ public class RouteAggregationCommand extends BaseEntity
     {
         return subVersion;
     }
-    public void setCommand(String command) 
+    public void setInternalCommand(String internalCommand) 
     {
-        this.command = command;
+        this.internalCommand = internalCommand;
     }
 
-    public String getCommand() 
+    public String getInternalCommand() 
     {
-        return command;
+        return internalCommand;
     }
-    public void setKeywords(String keywords) 
+    public void setInternalKeywords(String internalKeywords) 
     {
-        this.keywords = keywords;
+        this.internalKeywords = internalKeywords;
     }
 
-    public String getKeywords() 
+    public String getInternalKeywords() 
     {
-        return keywords;
+        return internalKeywords;
+    }
+    public void setExternalCommand(String externalCommand) 
+    {
+        this.externalCommand = externalCommand;
+    }
+
+    public String getExternalCommand() 
+    {
+        return externalCommand;
+    }
+    public void setExternalKeywords(String externalKeywords) 
+    {
+        this.externalKeywords = externalKeywords;
+    }
+
+    public String getExternalKeywords() 
+    {
+        return externalKeywords;
     }
 
     @Override
@@ -114,8 +140,10 @@ public class RouteAggregationCommand extends BaseEntity
             .append("switchType", getSwitchType())
             .append("firewareVersion", getFirewareVersion())
             .append("subVersion", getSubVersion())
-            .append("command", getCommand())
-            .append("keywords", getKeywords())
+            .append("internalCommand", getInternalCommand())
+            .append("internalKeywords", getInternalKeywords())
+            .append("externalCommand", getExternalCommand())
+            .append("externalKeywords", getExternalKeywords())
             .toString();
     }
 }

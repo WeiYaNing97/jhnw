@@ -147,7 +147,7 @@ public class RouteAggregation {
         /*从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
         RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod. ObtainPreciseEntityClassesRouteAggregationCommand(routeAggregationCommandList);
         /*4：当 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
-        String portNumberCommand = routeAggregationCommandPojo.getCommand();
+        String portNumberCommand = routeAggregationCommandPojo.getInternalCommand();
 
         /*3：配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();

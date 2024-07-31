@@ -1,15 +1,13 @@
 package com.sgcc.advanced.service;
 
 import java.util.List;
-
-import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.domain.RouteAggregationCommand;
 
 /**
  * 路由聚合命令Service接口
  * 
  * @author ruoyi
- * @date 2024-07-18
+ * @date 2024-07-29
  */
 public interface IRouteAggregationCommandService 
 {

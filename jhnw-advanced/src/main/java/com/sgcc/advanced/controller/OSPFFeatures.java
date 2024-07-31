@@ -87,7 +87,7 @@ public class OSPFFeatures {
                 "Peer Statistic Information\n" +
                 "----------------------------------------------------------------------------\n" +
                 "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 GigabitEthernet1/0/0 11.37.96.1 Full\n" +
+                "192.168.1.100 GigabitEthernet1/0/0 11.37.96.1 Full\n" +
                 "0.0.0.0 GigabitEthernet1/0/1 11.37.96.5 Full\n" +
                 "0.0.0.0 GigabitEthernet1/0/6 11.37.96.54 Full\n" +
                 "0.0.0.0 GigabitEthernet1/0/8 11.37.96.73 Full\n" +
@@ -494,25 +494,38 @@ public class OSPFFeatures {
     是整体类属性只有 IP 端口号 状态*/
     public static List<OSPFPojo> getOSPFPojo(String information) {
 
-        /*
+        /**
          *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
          * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth
          * 根据空格分割为 关键词数组*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
         String[] keywords = deviceVersion.trim().split(" ");
 
+        /** 遍历配置文件定义的关于交换机端口号的特征 关键词
+         * 如果 交换机返回结果包含 特征关键词 则 保存特征关键词 */
         List<String> keys = new ArrayList<>();
-
         for (String key:keywords){
             if (MyUtils.containIgnoreCase(information,key)){
                 keys.add(key);
             }
         }
 
-        List<String> string_split = Arrays.asList(information.split("\r\n"));
+        /** 如果交换机返回信息中 不包含配置文件定义的 关于交换机端口号的特征 关键词
+         * 则 返回空集合*/
+        if (keys.size() == 0){
+            return new ArrayList<>();
+        }
 
+        /**
+         * 交换机返回信息 按行分割
+         * 遍历交换机返回的信息行信息数组
+         * 遍历特征关键词
+         *  将端口号中有空格的情况 去除空格
+         *  例如： GigabitEthernet 1/0/0  替换成  GigabitEthernet1/0/0*/
+        List<String> string_split = Arrays.asList(information.split("\r\n"));
         for (String key:keys){
             for (int i = 0 ; i < string_split.size() ; i++){
+                /* 判断一个字符串是否包含另一个字符串(忽略大小写) */
                 if (MyUtils.containIgnoreCase(string_split.get(i),key+" ")){
                     string_split.set(i,string_split.get(i).replace(key+" ",key));
                 }
@@ -521,12 +534,14 @@ public class OSPFFeatures {
 
         String input = null;
         for (String str:string_split){
+            /*获取字符串中的IP集合*/
             List<String> stringList = extractIPAddresses(str);
             if (stringList.size() == 2 && str.toLowerCase().indexOf("full")!=-1){
                 input = str.trim();
             }
         }
 
+        /* todo 如果未获取到连接正常OSPF数据，则返回空集合并告警。*/
         if (input == null){
             return new ArrayList<>();
         }
@@ -560,7 +575,8 @@ public class OSPFFeatures {
             for (int i = 0 ; i < array.length ; i++){
                 String string = stringList.get(i);
 
-                if (string.equals("IP")){
+                /** 有两个IP 无效IP、IP*/
+                if (string.indexOf("IP") != -1){
                     if (isIP(array[i])){
                         continue;
                     }else {
@@ -570,7 +586,7 @@ public class OSPFFeatures {
                 }
 
                 else if (string.equals("端口")){
-                    if (isAlphanumeric(array[i])){
+                    if (isAlphanumeric(array[i],keys)){
                         continue;
                     }else {
                         isInput = false;
@@ -581,7 +597,7 @@ public class OSPFFeatures {
                 else if (string.equals("未知")){
                     // 未知的列 可能是IP、端口、状态
                     boolean isIp = isIP(array[i]);
-                    boolean isPort = isAlphanumeric(array[i]);
+                    boolean isPort = isAlphanumeric(array[i],keys);
                     boolean isState = array[i].toLowerCase().indexOf("full")!=-1;
                     // 判断是否为IP、端口、状态
                     if ( isIp || isPort || isState ){
@@ -655,7 +671,7 @@ public class OSPFFeatures {
                 } else {
                     meanings.add("IP"); // 否则，将该元素的意义标记为"IP"
                 }
-            } else if (isAlphanumeric(value)) { // 判断元素是否 同时包含 字母和数字
+            } else if (isAlphanumeric(value,null)) { // 判断元素是否 同时包含 字母和数字
                 meanings.add("端口"); // 将该元素的意义标记为"端口"（假设这里的isAlphanumeric方法能识别端口格式）
             } else if (value.toLowerCase().indexOf("full") != -1) { // 判断元素（不区分大小写）是否包含"full"
                 meanings.add("状态"); // 将该元素的意义标记为"状态"
@@ -673,11 +689,23 @@ public class OSPFFeatures {
         return Pattern.matches(regex, ip);
     }
 
-    /*判断字符串是否同时包含字母与数字*/
-    public static boolean isAlphanumeric(String str) {
+    /*判断字符串是否同时包含 端口号特征关键词 与 数字
+    * 或者 判断字符串是否同时包含 字母 与 数字*/
+    public static boolean isAlphanumeric(String str ,List<String> keys) {
 
-        return str.matches(".*[a-zA-Z].*") && str.matches(".*\\d.*");
+        if (keys!=null){
+            for (String key:keys){
+                if (str.toLowerCase().indexOf(key.toLowerCase())!=-1 && str.matches(".*\\d.*")){
+                    return true;
+                }else {
+                    continue;
+                }
+            }
+        }else {
+            return str.matches(".*[a-zA-Z].*") && str.matches(".*\\d.*");
+        }
 
+        return false;
     }
 
 }

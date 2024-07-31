@@ -283,6 +283,7 @@ public class LuminousAttenuation {
         selectpojo.setSwitchIp(switchParameters.getIp());
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
         List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(selectpojo);
+
         /** 数据表数据 存入MAP集合中 */
         Map<String,LightAttenuationComparison> lightAttenuationComparisonMap = new HashMap<>();
         for (LightAttenuationComparison pojo:lightAttenuationComparisons){
@@ -611,6 +612,8 @@ public class LuminousAttenuation {
                 "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +
                 "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";
 
+            returnResults = MyUtils.trimString(returnResults);
+
             if (returnResults == null){
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -694,6 +697,9 @@ public class LuminousAttenuation {
 
                     || ((Line_split[number].indexOf("TX") !=-1 || Line_split[number].indexOf("RX") !=-1) && Line_split[number].indexOf("DBM") !=-1)){
 
+                Line_split[number] = MyUtils.caseInsensitiveReplace(Line_split[number], "RX POWER", "RXPOWER");
+                Line_split[number] = MyUtils.caseInsensitiveReplace(Line_split[number], "TX POWER", "TXPOWER");
+
             }else {
                 continue;
             }
@@ -764,7 +770,8 @@ public class LuminousAttenuation {
                 /*错误信息预定义 用于提取数据失败返回前端显示 */
                 String nextrow = Line_split[number];
                 String parameterInformation = nextrow;
-                /*两个都包含 则 两个参数值在一行*/
+                /*两个都包含 则 两个参数值在一行
+                * 如果不包含 ： 则将*/
                 if (nextrow.indexOf( ":" ) == -1){
                     nextrow = Line_split[number+1];
                     parameterInformation = parameterInformation +"\r\n"+ nextrow;
@@ -850,7 +857,7 @@ public class LuminousAttenuation {
             for (String keyvalue:keyValueList){
 
                 /*当 行信息包含 RX 说明是 RX数据*/
-                if (MyUtils.containIgnoreCase(keyvalue,"RX")){
+                if (MyUtils.containIgnoreCase(keyvalue,"RXPOWER")){
                     /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
                     List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
 
@@ -861,7 +868,7 @@ public class LuminousAttenuation {
 
                     }else if (doubleList.size()==3){
 
-                        Double rx = getParameterValueIndex("RX", doubleList, keyvalue);
+                        Double rx = getParameterValueIndex("RXPOWER", doubleList, keyvalue);
                             /*  Rx Power:  -6.23dBm, Warning range: [-16.989,  -5.999]dBm
                                 Tx Power:  -6.16dBm, Warning range: [-9.500,  -2.999]dBm  */
                         if (rx != null){
@@ -885,14 +892,14 @@ public class LuminousAttenuation {
                 }
 
                 /*当 行信息包含 TX 说明是 TX数据*/
-                if (MyUtils.containIgnoreCase(keyvalue,"TX")){
+                if (MyUtils.containIgnoreCase(keyvalue,"TXPOWER")){
 
                     /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
                     List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
                     if (doubleList.size()==1){
                         txpower = doubleList.get(0);
                     }else if (doubleList.size()==3){
-                        Double tx = getParameterValueIndex("TX", doubleList, keyvalue);
+                        Double tx = getParameterValueIndex("TXPOWER", doubleList, keyvalue);
                         if (tx != null){
                             txpower = tx;
                         }
@@ -1023,15 +1030,15 @@ public class LuminousAttenuation {
      * @return
      */
     public static HashMap<String,Integer> getPosition(String input) {
-        String[] split = input.toLowerCase().split("\\s+");
+        String[] split = input.split("\\s+");
         HashMap<String,Integer> position = new HashMap<>();
         for (int i = 0 ; i < split.length ; i++){
-            if ( split[i].indexOf("rx")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
+            if ( split[i].indexOf("RX")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
 
-                position.put("rx",i);
-            }else if ( split[i].indexOf("tx")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
+                position.put("RX",i);
+            }else if ( split[i].indexOf("TX")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
 
-                position.put("tx",i);
+                position.put("TX",i);
             }
         }
         return position;
@@ -1039,7 +1046,24 @@ public class LuminousAttenuation {
 
     /*获取 RX或者TX后面的第一个参数*/
     public static Double getParameterValueIndex(String keyword,List<Double> values,String input) {
+        // 获取keyword在input中出现的所有位置
+        List<Integer> keywordPositions = MyUtils.getSubstringPositions(input, keyword);
 
+        if (keywordPositions.size()!=1){
+            return null;
+        }
+        // 获取keyword在input中第一次出现的位置
+        Integer keywordPosition = keywordPositions.get(0);
+        // 从keyword位置后截取字符串，并提取其中的Double类型值
+        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(input.substring(keywordPosition+keyword.length(), input.length()));
+
+        if (doubleList.size() == 0){
+            return null;
+        }else {
+            return doubleList.get(0);
+        }
+
+        /*// 子字符串在父字符串中出现的所有位置
         List<Integer> keywordPositions = MyUtils.getSubstringPositions(input, keyword);
 
         if (keywordPositions.size()!=1){
@@ -1050,24 +1074,30 @@ public class LuminousAttenuation {
 
         Set<Integer> positionList = new HashSet<>();
 
+        // 遍历values列表，获取每个值在input中的位置
         for (double value:values){
             positionList.addAll(MyUtils.getSubstringPositions(input, zero_suppression(value+"") ));
         }
+
         int i = 0;
+        // 从keywordPosition+2开始遍历，直到input的倒数第二个字符
         for (i = keywordPosition+2 ; i < input.length()-1 ; i++){
             boolean contains = positionList.contains(i);
             if (contains){
                 break;
             }
         }
+
+        // 截取从i位置到input末尾的子字符串，并提取其中的Double类型值
         List<Double> doubleList = MyUtils.StringTruncationDoubleValue(input.substring(i, input.length()));
 
         if (doubleList.size() == 0){
             return null;
         }else {
             return doubleList.get(0);
-        }
+        }*/
     }
+
 
     /*Double类型字符串去除结尾的0 或者结尾的.*/
     public static String zero_suppression(String value) {

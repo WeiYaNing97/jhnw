@@ -24,7 +24,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * 路由聚合命令Controller
  * 
  * @author ruoyi
- * @date 2024-07-18
+ * @date 2024-07-29
  */
 @RestController
 @RequestMapping("/advanced/RouteAggregationCommand")
@@ -40,7 +40,6 @@ public class RouteAggregationCommandController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(RouteAggregationCommand routeAggregationCommand)
     {
-
         startPage();
         List<RouteAggregationCommand> list = routeAggregationCommandService.selectRouteAggregationCommandList(routeAggregationCommand);
         return getDataTable(list);
