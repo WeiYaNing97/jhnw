@@ -277,8 +277,8 @@ public class MyUtils {
      * @param deviceVersion_split 包含设备端口号关键字的字符串数组。
      * @return 第一个同时包含设备端口号关键字且包含数字的单词（按空格分隔），如果未找到则返回{@code null}。
      */
-    public static String includePortNumberKeywords(String lineData,String[] deviceVersion_split) {
-        for (String deviceVersion : deviceVersion_split) {
+    public static String includePortNumberKeywords(String lineData,List<String> deviceVersionList) {
+        for (String deviceVersion : deviceVersionList) {
             // 检查行数据是否包含设备端口号关键字
             if (MyUtils.containIgnoreCase(lineData,deviceVersion)) {
                 // 将设备端口号关键字后的空格去除
@@ -1154,5 +1154,4 @@ public class MyUtils {
         // 返回处理后的Java对象
         return obj;
     }
-
 }

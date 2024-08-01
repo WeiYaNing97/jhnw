@@ -1,9 +1,7 @@
 package com.sgcc.advanced.aggregation;
 
 
-import com.sgcc.advanced.domain.IPAddresses;
-import com.sgcc.advanced.domain.IPCalculator;
-import com.sgcc.advanced.domain.IPInformation;
+import com.sgcc.advanced.domain.*;
 import com.sgcc.share.util.MyUtils;
 
 import java.net.InetAddress;
@@ -162,6 +160,7 @@ public class IPAddressUtils {
     }
 
     /**
+     * 内部
      * 将传入的IP计算器列表进行IP地址段的拼接，返回拼接后的IP地址段列表。
      *
      * @param ipCalculatorList IP计算器列表，每个IP计算器包含可用IP地址范围
@@ -224,6 +223,73 @@ public class IPAddressUtils {
         }
 
         return ipAddressesList;
+    }
+
+
+    /**
+     * 外部
+     * 将传入的IP计算器列表进行IP地址段的拼接，返回拼接后的IP地址段列表。
+     *
+     * @param ipCalculatorList IP计算器列表，每个IP计算器包含可用IP地址范围
+     * @return 拼接后的IP地址段列表
+     */
+    public static List<ExternalIPAddresses> ExternalSplicingAddressRange(List<ExternalIPCalculator> externalIPCalculatorList) {
+        List<ExternalIPAddresses> externalIPAddressesList = new ArrayList<>();
+        for (ExternalIPCalculator externalIPCalculator : externalIPCalculatorList) {
+            ExternalIPAddresses externalIPAddresses = new ExternalIPAddresses();
+            externalIPAddresses.setIpStart(externalIPCalculator.getFirstAvailable());
+            externalIPAddresses.setIpEnd(externalIPCalculator.getFinallyAvailable());
+            List<ExternalIPCalculator> externalIPCalculators = new ArrayList<>();
+            externalIPCalculators.add(externalIPCalculator);
+            externalIPAddresses.setExternalIPCalculatorList(externalIPCalculators);
+            externalIPAddressesList.add(externalIPAddresses);
+        }
+
+        // 标记是否需要继续合并IP地址段
+        boolean flag = true;
+        while (flag){
+            flag = false;
+            for (int i = externalIPAddressesList.size()-1; i >= 1; i--){
+                // 判断当前IP地址段与前一个IP地址段是否有交集或连续
+                if (isIPInRange(externalIPAddressesList.get(i-1).getIpStart(),
+                        externalIPAddressesList.get(i).getIpStart(), externalIPAddressesList.get(i).getIpEnd())
+                        || isIPInRange(externalIPAddressesList.get(i).getIpStart(),
+                        externalIPAddressesList.get(i-1).getIpStart(), externalIPAddressesList.get(i-1).getIpEnd())
+                        || determineIPContinuity(externalIPAddressesList.get(i-1).getIpEnd(), externalIPAddressesList.get(i).getIpStart())
+                        || determineIPContinuity(externalIPAddressesList.get(i).getIpEnd(), externalIPAddressesList.get(i-1).getIpStart())) {
+                    flag = true;
+
+                    // 合并IP地址段
+                    List<String> externalIpAddresses = new ArrayList<>();
+                    externalIpAddresses.add(externalIPAddressesList.get(i).getIpStart());
+                    externalIpAddresses.add(externalIPAddressesList.get(i).getIpEnd());
+                    externalIpAddresses.add(externalIPAddressesList.get(i-1).getIpStart());
+                    externalIpAddresses.add(externalIPAddressesList.get(i-1).getIpEnd());
+
+                    // 获取合并后的起始和结束IP地址
+                    String minIp = getMinIP(externalIpAddresses);
+                    String maxIp = getMaxIP(externalIpAddresses);
+
+                    // 创建新的IP地址段对象
+                    ExternalIPAddresses pojo = new ExternalIPAddresses();
+                    pojo.setIpStart(minIp);
+                    pojo.setIpEnd(maxIp);
+                    List<ExternalIPCalculator> externalipCalculators = new ArrayList<>();
+                    // 合并IP计算器列表
+                    externalipCalculators.addAll(externalIPAddressesList.get(i).getExternalIPCalculatorList());
+                    externalipCalculators.addAll(externalIPAddressesList.get(i-1).getExternalIPCalculatorList());
+                    pojo.setExternalIPCalculatorList(externalipCalculators);
+
+                    // 移除旧的IP地址段对象
+                    externalIPAddressesList.remove(externalIPAddressesList.get(i));
+                    externalIPAddressesList.remove(externalIPAddressesList.get(i-1));
+                    // 添加新的IP地址段对象
+                    externalIPAddressesList.add(pojo);
+                }
+            }
+        }
+
+        return externalIPAddressesList;
     }
 
     /**
