@@ -365,9 +365,9 @@ public class IPAddressUtils {
      * 注意：此方法假设IP地址的整数表示形式为无符号整数，并且其值在0到2^32-1之间（包含）。
      * 子网掩码位数通过计算IP地址的二进制长度并减去该长度后加1得到。
      */
-    public static Integer getTheNumberOfMasks(int num) {
-        // 将整数num转换为二进制字符串
-        String binaryString = Integer.toBinaryString(num);
+    public static Integer getTheNumberOfMasks(Long num) {
+        // 将Long num转换为二进制字符串Long.toBinaryString
+        String binaryString = Long.toBinaryString(num);
         // 返回32减去二进制字符串的长度后加1的结果，即为子网掩码的位数
         return 32 - binaryString.length() + 1;
     }
@@ -380,7 +380,7 @@ public class IPAddressUtils {
      * @return 返回起始和结束IP地址之间的地址数量（包括起始和结束IP地址），类型为Integer
      * @throws NumberFormatException 如果起始或结束IP地址的格式不正确
      */
-    public static Integer numberOfAddresses(String ip1, String ip2) {
+    public static long numberOfAddresses(String ip1, String ip2) {
         // 将起始IP地址转换为长整型
         long l1 = ipToLong(ip1);
         // 将结束IP地址转换为长整型
@@ -389,8 +389,9 @@ public class IPAddressUtils {
         // 计算起始和结束IP地址之间的地址数量（包括起始和结束IP地址）
         // 取绝对值表示无论l2比l1大还是小，结果都是正数
         // 加1表示包含起始和结束IP地址
-        return (int) Math.abs(l2 - l1 + 1);
+        return Math.abs(l2 - l1 + 1);
     }
+
 
     /**
      * 根据给定的IP地址范围，生成该范围内的所有IP地址，并以CIDR（无类别域间路由）格式添加到列表中。
@@ -400,10 +401,10 @@ public class IPAddressUtils {
      *         如果起始和结束IP相同，则直接返回该IP的"/32"表示。
      *         否则，通过计算最合适的子网掩码（CIDR后缀），来划分并表示该范围内的IP。
      */
-    public static List<String> getNetworkNumber(IPAddresses ipAddress) {
+    public static List<String> getNetworkNumber(String start, String end) {
         List<String> ipList = new ArrayList<>();
-        String sign = ipAddress.getIpStart();
-        String ipEnd = ipAddress.getIpEnd();
+        String sign = start;
+        String ipEnd = end;
         // 遍历IP地址段
         while (ipToLong(sign) <= ipToLong(ipEnd)){
             // 如果起始IP和结束IP相等
@@ -414,7 +415,7 @@ public class IPAddressUtils {
                 break;
             }
             // 计算起始IP和结束IP之间的地址数量
-            Integer ipNumber = numberOfAddresses(sign, ipEnd);
+            Long ipNumber = numberOfAddresses(sign, ipEnd);
             Integer mask = getTheNumberOfMasks(ipNumber);
 
             /* 标记求取到的掩码数是否需要加1，用来调整地址段首地址
@@ -425,6 +426,15 @@ public class IPAddressUtils {
             while (isMask){
                 // 将起始IP和子网掩码位数组合成IP地址字符串
                 ip = sign + "/" + mask;
+
+                // 如果IP地址字符串为"0.0.0.0/0"，则直接将该字符串添加到列表中，跳出循环
+                // 0.0.0.0/0表示整个IP地址空间
+                // 255.255.255.255 +1 还是 0.0.0.0  死循环
+                if (ip.equals("0.0.0.0/0")){
+                    ipList.add(ip);
+                    return ipList;
+                }
+
                 // 创建一个IP地址计算器对象
                 IPCalculator calculator = IPAddressCalculator.Calculator(ip);
 
@@ -435,7 +445,6 @@ public class IPAddressUtils {
                     String finallyAvailable = calculator.getFinallyAvailable();  // 当前IP地址范围的最后一个IP地址
                     将当前IP地址范围的最后一个IP地址转换为长整型，并加1
                     * 来获取一个聚合地址段的 首地址 */
-
                     sign = longToIp(ipToLong(calculator.getFinallyAvailable()) + 1);
                 }else {
                     mask++;
@@ -445,6 +454,7 @@ public class IPAddressUtils {
             // 将当前IP地址添加到列表中
             ipList.add(ip);
         }
+
         return ipList;
     }
 }

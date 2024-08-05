@@ -596,16 +596,16 @@ public class LuminousAttenuation {
             ExecuteCommand executeCommand = new ExecuteCommand();
             String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            /*returnResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
+            returnResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
                     "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\r\n" +
-                    "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";*/
+                    "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
 
-            /*returnResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
+            returnResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
                     "            Default Rx Power High Threshold(dBM)  :-2.00\r\n" +
                     "            Default Rx Power Low  Threshold(dBM)  :-23.98\r\n" +
                     "            Current Tx Power(dBM)                 :-2.80\r\n" +
                     "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
-                    "            Default Tx Power Low  Threshold(dBM)  :-6.00";*/
+                    "            Default Tx Power Low  Threshold(dBM)  :-6.00";
 
             returnResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
                 "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +

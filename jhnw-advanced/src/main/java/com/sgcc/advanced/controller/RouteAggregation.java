@@ -86,7 +86,7 @@ public class RouteAggregation {
             List<String> collect1 = ipAddress.getIpCalculatorList().stream()
                     .map(x -> x.getIp() + "/" + x.getMask() + "[" + x.getFirstAvailable() + " - " + x.getFinallyAvailable() + "]")
                     .collect(Collectors.toList());
-            List<String> stringList = IPAddressUtils.getNetworkNumber(ipAddress);
+            List<String> stringList = IPAddressUtils.getNetworkNumber(ipAddress.getIpStart(), ipAddress.getIpEnd());
 
             List<String> returnString = new ArrayList<>();
             returnString.add("原始网络号:");

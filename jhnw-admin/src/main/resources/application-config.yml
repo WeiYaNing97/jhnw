@@ -120,6 +120,7 @@ obtainPortNumber:
     CRC: $ CRC,
   Maip:
     Input: 'RxErrorPkts : $'
+
     Output: 'TxErrorPkts : $'
   Cisco:
     Input: $ input errors
@@ -137,3 +138,13 @@ TimedTasks:
   光衰
   错误包
   路由聚合
+
+H3C:
+  R_table:
+    TableHeader: Destination/Mask,Proto,Pre,Cost,NextHop,Interface
+    Destination/Mask: Destination/Mask
+    protocol: Proto
+    Pre_Def_priority: Pre
+    Cost: Cost
+    NextHop: NextHop
+    Interface: Interface

@@ -84,6 +84,24 @@ public class MyUtils {
     }
     /* ============================== 字母 结束 ==============================*/
     /* ============================== 数字 开始 ==============================*/
+
+    /**
+     * 使用正则表达式统计字符串中指定字符的出现次数
+     *
+     * @param str 待统计的字符串
+     * @param ch  指定字符
+     * @return 指定字符在字符串中的出现次数
+     */
+    public static int countCharWithRegex(String str, char ch) {
+        Pattern pattern = Pattern.compile(Pattern.quote(String.valueOf(ch)));
+        Matcher matcher = pattern.matcher(str);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
+    }
+
     /**
      * @Description 查询字符串中首个数字出现的位置
      * @param str 查询的字符串
@@ -262,6 +280,16 @@ public class MyUtils {
     /* ============================== 实体类 结束 ==============================*/
     /* ============================== 字符串、文章 开始 ==============================*/
 
+    /**
+     * 将字符串中的中文标点符号替换为英文标点符号
+     *
+     * @param s 输入的字符串
+     * @return 处理后的字符串
+     */
+    public static String normalizePunctuation(String s) {
+        // 使用正则表达式将中文标点替换为英文标点
+        return s.replaceAll("‘|’|“|”|、|。|，|！", "'|\"|,|.|,|!|!");
+    }
 
     /**
      * 在给定的行数据中查找并返回第一个同时包含设备端口号关键字且包含数字的单词（按空格分隔）。
@@ -428,7 +456,7 @@ public class MyUtils {
             }
         }
         // 返回转换后的字符串
-        return sb.toString();
+        return sb.toString().trim();
     }
     /**
      * @Description 多个连续的相同字符串，改为单个字符串
@@ -918,7 +946,6 @@ public class MyUtils {
     }
 
     /* ============================== IP 结束 ==============================*/
-
 
 
 

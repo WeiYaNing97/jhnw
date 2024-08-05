@@ -95,6 +95,7 @@ public class ExternalRouteAggregation {
         //String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
         String deviceVersion ="GigabitEthernet GE FastEthernet Ten-GigabitEthernet Ethernet Eth-Trunk XGigabitEthernet Trunking BAGG Eth FastEthernet SFP USB InLoop Method Vlan";
         List<String> deviceVersionList = Arrays.stream(deviceVersion.split(" ")).collect(Collectors.toList());
+        Collections.sort(deviceVersionList, Comparator.comparingInt(String::length).reversed());
 
         /** 获取路由 OSPF、直连、静态 的关键词*/
         String keyword = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
@@ -137,7 +138,10 @@ public class ExternalRouteAggregation {
                         System.err.println(externalIPAddresses.getIpStart()+" "+externalIPAddresses.getIpEnd());
                         List<ExternalIPCalculator> externalIPCalculatorList = externalIPAddresses.getExternalIPCalculatorList();
                         externalIPCalculatorList.forEach(System.err::println);
-                        System.err.println("==========================================\r\n\r\n");
+                        System.err.println("===================聚合 ：=======================");
+                        List<String> stringList = IPAddressUtils.getNetworkNumber(externalIPAddresses.getIpStart(), externalIPAddresses.getIpEnd());
+                        stringList.forEach(System.err::println);
+                        System.err.println("================================================\r\n");
                     }
                 }
             }
