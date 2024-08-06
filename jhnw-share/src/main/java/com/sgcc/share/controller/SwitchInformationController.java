@@ -39,9 +39,9 @@ public class SwitchInformationController extends BaseController
     public TableDataInfo list(SwitchInformation switchInformation)
     {
         startPage();
-        if (switchInformation.getSubVersion()==null){
+        /*if (switchInformation.getSubVersion()==null){
             switchInformation.setSubVersion("null");
-        }
+        }*/
         List<SwitchInformation> list = switchInformationService.selectSwitchInformationList(switchInformation);
         return getDataTable(list);
     }

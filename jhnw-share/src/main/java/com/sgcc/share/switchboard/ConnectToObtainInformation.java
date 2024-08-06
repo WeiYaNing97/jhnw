@@ -21,9 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class ConnectToObtainInformation {
     @Autowired
     private IInformationService informationService;
@@ -508,7 +508,8 @@ public class ConnectToObtainInformation {
 
         /*获取交换机版本关键字按;分割成关键词数组*/
         /*yml 配置文件中 多个值之间用;隔开*/
-        String[] deviceVersionSplit =deviceVersion.split(";");
+        List<String> deviceVersionSplit = Arrays.stream(deviceVersion.split(";")).collect(Collectors.toList());
+        Collections.sort(deviceVersionSplit, Comparator.comparingInt(String::length).reversed());
 
         /* 遍历获取版本关键字*/
         for (String version:deviceVersionSplit){

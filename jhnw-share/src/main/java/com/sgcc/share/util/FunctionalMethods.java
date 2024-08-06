@@ -831,6 +831,10 @@ public class FunctionalMethods {
             }
         }
 
+        if (keyword.equals("")){
+            return null;
+        }
+
         /*GigabitEthernet 9/1 up routed Full 1000M fiber*/
         information = caseInsensitiveReplace(information, keyword+" ", keyword);
 

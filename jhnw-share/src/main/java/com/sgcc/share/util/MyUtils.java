@@ -57,6 +57,7 @@ public class MyUtils {
         // 判断字符串是否匹配正则表达式，即是否包含字母
         return m.matches();
     }
+
     /**
      * 获取字符串开头字母部分
      *
@@ -84,7 +85,6 @@ public class MyUtils {
     }
     /* ============================== 字母 结束 ==============================*/
     /* ============================== 数字 开始 ==============================*/
-
     /**
      * 使用正则表达式统计字符串中指定字符的出现次数
      *
@@ -119,6 +119,7 @@ public class MyUtils {
         // 返回i，即数字在字符串中的位置索引
         return i;
     }
+
     /**
      * @Description 判断字符串是否包含数字
      * @param str 待判断的字符串
@@ -130,6 +131,7 @@ public class MyUtils {
         // 使用正则表达式匹配字符串，并判断是否匹配成功
         return pattern.matcher(str).matches();
     }
+
     /**
      * @Description 判断字符串中是否包含数字
      * @author charles
@@ -152,6 +154,7 @@ public class MyUtils {
         // 如果循环结束仍未找到数字，则返回false
         return false;
     }
+
     /**
      * @Description 判断字符串是否为全数字
      * @author charles
@@ -164,6 +167,7 @@ public class MyUtils {
         //使用正则表达式判断字符串是否全由数字组成
         return str.matches("\\d+");
     }
+
     /**
      * 判断字符串集合元素是否都包含数字
      * @param stringList
@@ -181,11 +185,13 @@ public class MyUtils {
         // 如果所有字符串都包含数字，则返回true
         return true;
     }
+
     /* 判断字符串元素是否包含数字*/
     public static boolean thereAreNumbers(String string) {
         /*如果不包含数字 则返回false */
         return containDigit(string);
     }
+
     /**
      * 判断字符串元素是否为纯数字
      * @param str
@@ -198,6 +204,7 @@ public class MyUtils {
             return false;
         }
     }
+
     /**
      * 字符串截取 数字字符串
      * @return
@@ -291,21 +298,21 @@ public class MyUtils {
         return s.replaceAll("‘|’|“|”|、|。|，|！", "'|\"|,|.|,|!|!");
     }
 
+
     /**
-     * 在给定的行数据中查找并返回第一个同时包含设备端口号关键字且包含数字的单词（按空格分隔）。
+     * 从行数据中查找并返回包含设备端口号关键字的单词
      *
-     * <p>该方法接收两个参数：一个是要搜索的行数据（{@code lineData}），另一个是包含设备端口号关键字的字符串数组（{@code deviceVersion_split}）。
-     * 它首先遍历设备版本关键字数组，对于每个关键字，检查行数据是否包含该关键字（不区分大小写）。
-     * 如果行数据包含某个关键字，则进一步将行数据按空格拆分为单词数组，并遍历这些单词。
-     * 对于每个单词，如果它同时包含给定的设备端口号关键字（不区分大小写）且包含至少一个数字，则立即返回该单词。</p>
-     *
-     * <p>如果行数据中不包含任何给定的设备端口号关键字，或者没有找到同时满足条件的单词，则返回{@code null}。</p>
-     *
-     * @param lineData 要搜索的行数据字符串。
-     * @param deviceVersion_split 包含设备端口号关键字的字符串数组。
-     * @return 第一个同时包含设备端口号关键字且包含数字的单词（按空格分隔），如果未找到则返回{@code null}。
+     * @param lineData 待查找的行数据
+     * @return 包含设备端口号关键字的单词，若未找到则返回null
      */
-    public static String includePortNumberKeywords(String lineData,List<String> deviceVersionList) {
+    public static String includePortNumberKeywords(String lineData ) {
+
+        /** 端口号特征关键字集合 */
+        //String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
+        String deviceVersionKey ="GigabitEthernet GE FastEthernet Ten-GigabitEthernet Ethernet Eth-Trunk XGigabitEthernet Trunking BAGG Eth FastEthernet SFP USB InLoop Method Vlan";
+        List<String> deviceVersionList = Arrays.stream(deviceVersionKey.split(" ")).collect(Collectors.toList());
+        Collections.sort(deviceVersionList, Comparator.comparingInt(String::length).reversed());
+
         for (String deviceVersion : deviceVersionList) {
             // 检查行数据是否包含设备端口号关键字
             if (MyUtils.containIgnoreCase(lineData,deviceVersion)) {
@@ -420,6 +427,7 @@ public class MyUtils {
         }
         return String.join("\r\n", lines);
     }
+
     /**
      * @Description 多个连续空格 改为 多个单空格
      * @author charles
@@ -458,6 +466,7 @@ public class MyUtils {
         // 返回转换后的字符串
         return sb.toString().trim();
     }
+
     /**
      * @Description 多个连续的相同字符串，改为单个字符串
      * @desc
@@ -468,6 +477,7 @@ public class MyUtils {
     public static String replaceMultipleStringsWithSingleString(String input,String string) {
         return input.replaceAll(string+"+", string);
     }
+
     /**
      * @Description   去掉字符串首尾的非数字非字母部分。
      * removeNonAlphanumeric方法使用正则表达式^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$
@@ -480,6 +490,7 @@ public class MyUtils {
     public static String removeNonAlphanumeric(String str) {
         return str.replaceAll("^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$", "");
     }
+
     /**
      * @Description 子字符串在父字符串中出现的所有位置
      * @author charles
@@ -504,6 +515,7 @@ public class MyUtils {
         // 返回子字符串在父字符串中出现的所有位置列表
         return positions;
     }
+
     /**
      * 根据字符串 根据字符串（忽略大小写）分割为字符串数组
      *
@@ -518,6 +530,7 @@ public class MyUtils {
         return string.split("(?i)"+str);
 
     }
+
     /**
      * 判断一个字符串是否包含另一个字符串(忽略大小写)
      * @param primary
@@ -571,12 +584,14 @@ public class MyUtils {
         String time = new SimpleDateFormat(type).format(new Date());
         return time;
     }
+
     /**
      * @Description 根据Date 获取时间 yyyy-MM-dd hh:mm:ss 格式字符串*/
     public static String getDatetoString(Date dateTime){
         String time = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(dateTime);
         return time;
     }
+
     /**
      * @Description 根据yyyy-MM-dd hh:mm:ss 格式字符串 获取时间Date*/
     public static Date getStringtoData(String time){
@@ -589,6 +604,7 @@ public class MyUtils {
         }
         return parse;
     }
+
     /**
      * @Description 时间排序 由大到小
      * @author charles
@@ -603,6 +619,7 @@ public class MyUtils {
         });
         return dateList;
     }
+
     /**
      * @Description 时间由大到小排序
      * @author charles
@@ -682,6 +699,7 @@ public class MyUtils {
         // 将剩余的setA转换为ArrayList并返回
         return new ArrayList<>(setA);
     }
+
     /**
      * 判断集合是否为空， 为空返回true
      * 集合判空
@@ -691,6 +709,7 @@ public class MyUtils {
     public static boolean isCollectionEmpty(Collection<?> collection) {
         return collection == null || collection.isEmpty() || collection.size() == 0;
     }
+
     /**
      * 判断Map集合是否为空， 为空返回true
      * @param map
@@ -709,6 +728,7 @@ public class MyUtils {
     public static double stringToDouble(String str) throws NumberFormatException {
         return Double.parseDouble(str);
     }
+
     /**
      * 字符串截取double值
      *
@@ -733,6 +753,7 @@ public class MyUtils {
         // 返回截取到的double值列表
         return doubleList;
     }
+
     /**
      * 判断 double值 是否在阈值内
      * @param value
@@ -766,7 +787,6 @@ public class MyUtils {
     }
     /* ============================== Integer 结束 ==============================*/
     /* ============================== IP 开始 ==============================*/
-
 
     /**
      * 将IPv4地址转换为二进制字符串表示。

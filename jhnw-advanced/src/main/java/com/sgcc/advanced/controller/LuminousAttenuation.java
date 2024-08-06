@@ -82,119 +82,9 @@ public class LuminousAttenuation {
 
         //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
         ExecuteCommand executeCommand = new ExecuteCommand();
+
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
-
-        returnString = "Interface Status Vlan Duplex Speed Type\n" +
-                "--------------------------------------------------------------------------\n" +
-                "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
-                "GigabitEthernet 1/2 up 1003 Full 100M copper\n" +
-                "GigabitEthernet 1/3 up 1004 Full 10M copper\n" +
-                "GigabitEthernet 1/4 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 1/5 down 1001 Unknown Unknown copper\n" +
-                "GigabitEthernet 1/6 up 5 Full 100M copper\n" +
-                "GigabitEthernet 1/7 up 2010 Full 100M copper\n" +
-                "GigabitEthernet 1/8 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 1/9 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 1/10 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 1/11 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 1/12 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 1/13 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/14 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/15 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/16 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/17 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/18 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/19 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/20 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/21 up 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/22 up 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/23 up 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 1/24 up 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/1 up routed Full 1000M fiber\n" +
-                "GigabitEthernet 5/2 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/3 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/4 up 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/5 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/6 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/7 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/8 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/9 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/10 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/11 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/12 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/13 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/14 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/15 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/16 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/17 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/18 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/19 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/20 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/21 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/22 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/23 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/24 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/25 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/26 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/27 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/28 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/29 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/30 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/31 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/32 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/33 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/34 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/35 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/36 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/37 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/38 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/39 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/40 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/41 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/42 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/43 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/44 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/45 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/46 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/47 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 5/48 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/1 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/2 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/3 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/4 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/5 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/6 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/7 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/8 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/9 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/10 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/11 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/12 down 1 Unknown Unknown copper\n" +
-                "GigabitEthernet 6/13 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/14 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/15 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/16 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/17 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/18 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/19 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/20 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/21 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/22 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/23 down 1 Unknown Unknown fiber\n" +
-                "GigabitEthernet 6/24 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 1/25 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 1/26 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 1/27 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 1/28 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 5/49 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 5/50 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 5/51 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 5/52 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 6/25 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
-                "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
-
+        returnString = this.returnPortString;
         returnString = MyUtils.trimString(returnString);
 
         // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
@@ -596,22 +486,7 @@ public class LuminousAttenuation {
             ExecuteCommand executeCommand = new ExecuteCommand();
             String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
 
-            returnResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
-                    "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\r\n" +
-                    "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
-
-            returnResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
-                    "            Default Rx Power High Threshold(dBM)  :-2.00\r\n" +
-                    "            Default Rx Power Low  Threshold(dBM)  :-23.98\r\n" +
-                    "            Current Tx Power(dBM)                 :-2.80\r\n" +
-                    "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
-                    "            Default Tx Power Low  Threshold(dBM)  :-6.00";
-
-            returnResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
-                "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +
-                "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +
-                "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";
-
+            returnResults = this.returnValueResults;
             returnResults = MyUtils.trimString(returnResults);
 
             if (returnResults == null){
@@ -1106,4 +981,129 @@ public class LuminousAttenuation {
         }
         return value;
     }
+
+
+    private static String returnPortString = "Interface Status Vlan Duplex Speed Type\n" +
+            "--------------------------------------------------------------------------\n" +
+            "GigabitEthernet 1/1 up 1002 Full 100M copper\n" +
+            "GigabitEthernet 1/2 up 1003 Full 100M copper\n" +
+            "GigabitEthernet 1/3 up 1004 Full 10M copper\n" +
+            "GigabitEthernet 1/4 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 1/5 down 1001 Unknown Unknown copper\n" +
+            "GigabitEthernet 1/6 up 5 Full 100M copper\n" +
+            "GigabitEthernet 1/7 up 2010 Full 100M copper\n" +
+            "GigabitEthernet 1/8 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 1/9 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 1/10 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 1/11 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 1/12 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 1/13 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/14 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/15 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/16 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/17 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/18 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/19 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/20 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/21 up 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/22 up 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/23 up 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 1/24 up 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/1 up routed Full 1000M fiber\n" +
+            "GigabitEthernet 5/2 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/3 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/4 up 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/5 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/6 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/7 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/8 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/9 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/10 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/11 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/12 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/13 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/14 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/15 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/16 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/17 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/18 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/19 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/20 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/21 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/22 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/23 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/24 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/25 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/26 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/27 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/28 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/29 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/30 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/31 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/32 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/33 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/34 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/35 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/36 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/37 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/38 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/39 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/40 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/41 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/42 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/43 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/44 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/45 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/46 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/47 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 5/48 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/1 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/2 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/3 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/4 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/5 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/6 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/7 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/8 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/9 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/10 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/11 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/12 down 1 Unknown Unknown copper\n" +
+            "GigabitEthernet 6/13 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/14 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/15 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/16 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/17 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/18 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/19 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/20 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/21 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/22 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/23 down 1 Unknown Unknown fiber\n" +
+            "GigabitEthernet 6/24 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 1/25 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 1/26 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 1/27 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 1/28 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 5/49 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 5/50 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 5/51 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 5/52 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 6/25 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
+            "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
+    private static String returnValueResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
+            "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\r\n" +
+            "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
+    /*private static String returnValueResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
+            "            Default Rx Power High Threshold(dBM)  :-2.00\r\n" +
+            "            Default Rx Power Low  Threshold(dBM)  :-23.98\r\n" +
+            "            Current Tx Power(dBM)                 :-2.80\r\n" +
+            "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
+            "            Default Tx Power Low  Threshold(dBM)  :-6.00";*/
+    /*private static String returnValueResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
+            "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +
+            "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +
+            "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";*/
 }

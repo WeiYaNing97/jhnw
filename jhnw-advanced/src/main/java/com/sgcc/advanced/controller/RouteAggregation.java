@@ -24,55 +24,14 @@ public class RouteAggregation {
     @Autowired
     private IRouteAggregationCommandService routeAggregationCommandService;
 
-    public static String H3C = "  network 10.98.136.0 0.0.0.255\n" +
-            "  network 10.98.137.0 0.0.0.255\n" +
-            "  network 10.98.138.0 0.0.0.255\n" +
-            "  network 10.98.139.0 0.0.0.255           \n" +
-            "  network 10.122.114.208 0.0.0.0\n" +
-            "  network 10.122.119.160 0.0.0.7\n" +
-            "  network 100.1.2.0 0.0.0.255\n"+
-            " network 10.122.100.0 0.0.0.255 area 0.0.0.0\n" +
-            " network 10.122.114.0 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.36 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.68 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.80 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.108 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.136 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.225 0.0.0.0 area 0.0.0.0\n" +
-            " network 10.122.119.8 0.0.0.7 area 0.0.0.0\n" +
-            " network 10.122.119.24 0.0.0.7 area 0.0.0.0\n" +
-            " network 10.122.119.56 0.0.0.7 area 0.0.0.0\n"+
-            " network 10.122.102.0 0.0.0.255 area 0.0.0.0\n" +
-            " network 10.122.106.0 0.0.0.255 area 0.0.0.0\n" +
-            " network 10.122.108.0 0.0.0.255 area 0.0.0.0\n" +
-            " network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.88 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.122.114.128 0.0.0.3 area 0.0.0.0\n" +
-            " network 10.123.239.0 0.0.0.255 area 0.0.0.0\n"+
-            "  network 10.98.152.0 0.0.0.255\n" +
-            "  network 10.98.153.0 0.0.0.255\n" +
-            "  network 10.98.154.0 0.0.0.255\n" +
-            "  network 10.98.155.0 0.0.0.255\n" +
-            "  network 10.122.114.197 0.0.0.0";
-
-    /*public static String H3C ="  network 10.98.136.0 0.0.0.255\n" +
-            "  network 10.98.137.0 0.0.0.255\n" +
-            "  network 10.98.138.0 0.0.0.255\n" +
-            "  network 10.98.139.0 0.0.0.255";*/
-
-    /*public static String H3C =
-            "network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
-            "network 10.122.114.88 0.0.0.3 area 0.0.0.0\n"+
-            "network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
-            "network 10.122.114.80 0.0.0.3 area 0.0.0.0";*/
-
     public  void obtainAggregationResults(SwitchParameters switchParameters) {
+
         String switchReturnsInformation= switchReturnsResult(switchParameters);
         /*if (switchReturnsInformation == null) {
             return AjaxResult.error("获取交换机返回信息失败");
         }*/
-        switchReturnsInformation = H3C;
+        /*switchReturnsInformation = H3C;*/
+
         // 获取IP信息列表
         List<IPInformation> ipInformationList = IPAddressUtils.getIPInformation(MyUtils.trimString(switchReturnsInformation));
         List<String> collect = ipInformationList.stream().map(ipInformation -> MyUtils.convertToCIDR(ipInformation.getIp(), ipInformation.getMask())).collect(Collectors.toList());
@@ -116,21 +75,28 @@ public class RouteAggregation {
     }
 
 
+    /**
+     * 根据SwitchParameters参数获取交换机返回信息
+     *
+     * @param switchParameters 包含交换机相关信息的参数对象
+     * @return 交换机返回信息，若路由聚合命令为空则返回null
+     */
     public  String switchReturnsResult(SwitchParameters switchParameters) {
 
-
+        // 1：获取配置文件关于路由聚合问题的符合交换机品牌的命令的配置信息
         /* SwitchParameters switchParameters */
-        /*1：获取配置文件关于 路由聚合问题的 符合交换机品牌的命令的 配置信息*/
         RouteAggregationCommand routeAggregationCommand = new RouteAggregationCommand();
         routeAggregationCommand.setBrand(switchParameters.getDeviceBrand());
         routeAggregationCommand.setSwitchType(switchParameters.getDeviceModel());
         routeAggregationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
         routeAggregationCommand.setSubVersion(switchParameters.getSubversionNumber());
 
+        // 获取IRouteAggregationCommandService的bean实例
         routeAggregationCommandService = SpringBeanUtil.getBean(IRouteAggregationCommandService.class);
+        // 查询符合配置的路由聚合命令列表
         List<RouteAggregationCommand> routeAggregationCommandList = routeAggregationCommandService.selectRouteAggregationCommandListBySQL(routeAggregationCommand);
 
-        /*2：当 配置文件路由聚合问题的命令 为空时 进行 日志写入*/
+        // 当配置文件路由聚合问题的命令为空时，进行日志写入
         if (MyUtils.isCollectionEmpty(routeAggregationCommandList)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
@@ -144,17 +110,67 @@ public class RouteAggregation {
             return null ;
         }
 
-        /*从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
-        RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod. ObtainPreciseEntityClassesRouteAggregationCommand(routeAggregationCommandList);
-        /*4：当 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        // 从routeAggregationCommandList中获取四项基本最详细的数据
+        /* 从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
+        RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesRouteAggregationCommand(routeAggregationCommandList);
+
+        // 获取路由聚合问题的内部命令
         String portNumberCommand = routeAggregationCommandPojo.getInternalCommand();
 
-        /*3：配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        // 执行交换机命令，返回交换机返回信息
+        /* 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
 
+        // 去除返回信息中的空白字符
         returnString = MyUtils.trimString(returnString);
 
+        // 返回交换机返回信息
         return returnString;
     }
+
+
+
+    public static String H3C = "  network 10.98.136.0 0.0.0.255\n" +
+            "  network 10.98.137.0 0.0.0.255\n" +
+            "  network 10.98.138.0 0.0.0.255\n" +
+            "  network 10.98.139.0 0.0.0.255           \n" +
+            "  network 10.122.114.208 0.0.0.0\n" +
+            "  network 10.122.119.160 0.0.0.7\n" +
+            "  network 100.1.2.0 0.0.0.255\n"+
+            " network 10.122.100.0 0.0.0.255 area 0.0.0.0\n" +
+            " network 10.122.114.0 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.36 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.68 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.80 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.108 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.136 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.225 0.0.0.0 area 0.0.0.0\n" +
+            " network 10.122.119.8 0.0.0.7 area 0.0.0.0\n" +
+            " network 10.122.119.24 0.0.0.7 area 0.0.0.0\n" +
+            " network 10.122.119.56 0.0.0.7 area 0.0.0.0\n"+
+            " network 10.122.102.0 0.0.0.255 area 0.0.0.0\n" +
+            " network 10.122.106.0 0.0.0.255 area 0.0.0.0\n" +
+            " network 10.122.108.0 0.0.0.255 area 0.0.0.0\n" +
+            " network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.88 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.122.114.128 0.0.0.3 area 0.0.0.0\n" +
+            " network 10.123.239.0 0.0.0.255 area 0.0.0.0\n"+
+            "  network 10.98.152.0 0.0.0.255\n" +
+            "  network 10.98.153.0 0.0.0.255\n" +
+            "  network 10.98.154.0 0.0.0.255\n" +
+            "  network 10.98.155.0 0.0.0.255\n" +
+            "  network 10.122.114.197 0.0.0.0";
+
+    /*public static String H3C ="  network 10.98.136.0 0.0.0.255\n" +
+            "  network 10.98.137.0 0.0.0.255\n" +
+            "  network 10.98.138.0 0.0.0.255\n" +
+            "  network 10.98.139.0 0.0.0.255";*/
+
+    /*public static String H3C =
+            "network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
+            "network 10.122.114.88 0.0.0.3 area 0.0.0.0\n"+
+            "network 10.122.114.84 0.0.0.3 area 0.0.0.0\n" +
+            "network 10.122.114.80 0.0.0.3 area 0.0.0.0";*/
 }

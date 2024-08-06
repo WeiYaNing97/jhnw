@@ -38,127 +38,6 @@ public class ErrorPackage {
     @Autowired
     private IErrorRateCommandService errorRateCommandService;
 
-    private static String switchPortReturnsResult = "The brief information of interface(s) under route mode:\n" +
-            "Link: ADM - administratively down; Stby - standby\n" +
-            "Protocol: (s) - spoofing\n" +
-            "Interface            Link Protocol Main IP         Description\n" +
-            "Loop114              UP   UP(s)    10.122.114.208\n" +
-            "M-E0/0/0             DOWN DOWN     --\n" +
-            "NULL0                UP   UP(s)    --\n" +
-            "Vlan3                UP   UP       10.98.138.147\n" +
-            "Vlan4                UP   UP       10.98.139.239\n" +
-            "Vlan6                UP   UP       10.98.138.2\n" +
-            "Vlan7                UP   UP       10.98.136.13\n" +
-            "Vlan50               UP   UP       100.1.2.252\n" +
-            "Vlan200              UP   UP       10.98.137.71\n" +
-            "Vlan2000             UP   UP       10.98.138.195   to-shiju\n" +
-            "Vlan2001             UP   UP       10.122.119.161\n" +
-            "\n" +
-            "The brief information of interface(s) under bridge mode:\n" +
-            "Link: ADM - administratively down; Stby - standby\n" +
-            "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
-            "Type: A - access; T - trunk; H - hybrid\n" +
-            "Interface            Link Speed   Duplex Type PVID Description\n" +
-            "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
-            "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
-            "Ethernet0/0/0        UP  auto    A      T    1\n" +
-            "Eth-Trunk20.2000     UP   1G(a)   F(a)   T    1\n" +
-            "GE0/0/4              ADM  auto    A      T    1\n" +
-            "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
-            "GE0/0/6              ADM  auto    A      T    1\n" +
-            "GE0/0/7              UP   1G(a)   F(a)   T    1    To_AnBeiSuo_S5720_G0/0/49\n" +
-            "GE0/0/8              ADM  auto    A      A    1\n" +
-            "GE0/0/9              ADM  auto    A      A    1\n" +
-            "GE0/0/10             ADM  auto    A      A    1\n" +
-            "GE0/0/11             DOWN 1G      F      T    1    To_ZhuLouJiFang2_XG0/0/3\n" +
-            "GE0/0/12             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
-            "GE0/0/13             ADM  auto    A      A    1\n" +
-            "GE0/0/14             ADM  auto    A      A    1\n" +
-            "GE0/0/15             ADM  auto    A      A    1\n" +
-            "GE0/0/16             DOWN 1G      F      T    1    to_fajianbu_S3448\n" +
-            "GE0/0/17             ADM  auto    A      A    1\n" +
-            "GE0/0/18             ADM  auto    A      A    1\n" +
-            "GE0/0/19             ADM  auto    A      A    1\n" +
-            "GE0/0/20             ADM  auto    A      A    1\n" +
-            "GE0/0/21             ADM  auto    A      A    1\n" +
-            "GE0/0/22             ADM  auto    A      A    1\n" +
-            "GE0/0/23             ADM  auto    A      A    1\n" +
-            "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
-            "GE0/0/25             DOWN auto    A      T    1\n" +
-            "GE0/0/26             DOWN auto    A      T    1\n" +
-            "GE0/0/27             DOWN auto    A      T    1\n" +
-            "GE0/0/28             DOWN auto    A      T    1\n" +
-            "GE0/0/29             DOWN auto    A      T    1\n" +
-            "GE0/0/30             DOWN   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
-            "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
-            "GE0/0/32             DOWN  auto    A      A    200  To_HX_S7506E" +
-            "GE0/0/33             UP   1G(a)   F(a)   A    2001 To_ShiJu\n";
-
-    /*private static String switchPortValueReturnsResult = "GigabitEthernet1/0/25 current state: UP\n" +
-            " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
-            " Description :To_ShuJuWangHuLian_G1/0/18\n" +
-            " Loopback is not set\n" +
-            " Media type is twisted pair\n" +
-            " Port hardware type is  1000_BASE_T\n" +
-            " 1000Mbps-speed mode, full-duplex mode\n" +
-            " Link speed type is autonegotiation, link duplex type is autonegotiation\n" +
-            " Flow-control is not enabled\n" +
-            " The Maximum Frame Length is 10000\n" +
-            " Broadcast MAX-ratio: 100%\n" +
-            " Unicast MAX-ratio: 100%\n" +
-            " Multicast MAX-ratio: 100%\n" +
-            " Allow jumbo frame to pass\n" +
-            " PVID: 1\n" +
-            " Mdi type: auto\n" +
-            " Port link-type: trunk\n" +
-            "  VLAN passing  : 118, 602\n" +
-            "  VLAN permitted: 118, 602\n" +
-            "  Trunk port encapsulation: IEEE 802.1q\n" +
-            " Port priority: 0\n" +
-            " Last clearing of counters:  Never\n" +
-            " Peak value of input: 207721 bytes/sec, at 2022-11-08 06:26:00\n" +
-            " Peak value of output: 33198 bytes/sec, at 2023-03-27 10:50:33\n" +
-            " Last 300 seconds input:  2 packets/sec 282 bytes/sec 0%\n" +
-            " Last 300 seconds output:  2 packets/sec 290 bytes/sec 0%\n" +
-            " Input (total):  56148368 packets, 6611001881 bytes\n" +
-            "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-            " Input (normal):  56148368 packets, - bytes\n" +
-            "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-            " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
-            "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
-            "         - ignored, - parity errors\n" +
-            " Output (total): 46229751 packets, 4553563599 bytes\n" +
-            "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-            " Output (normal): 46229751 packets, - bytes\n" +
-            "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-            " Output: 0 output errors, - underruns, - buffer failures\n" +
-            "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
-            "         0 lost carrier, - no carrier";*/
-
-     private static String switchPortValueReturnsResult =
-                    " Description :To_ShuJuWangHuLian_G1/0/18\n" +
-                    "Input: 982431567 packets, 1214464892426 bytes\n" +
-                    "      Unicast: 981439518, Multicast: 404\n" +
-                    "      Broadcast: 991644, Jumbo: 0\n" +
-                    "      Discard: 0, Pause: 0\n" +
-                    "      Frames: 0\n" +
-                    "      Total Error: 50\n" +
-                    "      CRC: 1, Giants: 0\n" +
-                    "      Jabbers: 0, Fragments: 0\n" +
-                    "      Runts: 0, DropEvents: 0\n" +
-                    "      Alignments: 0, Symbols: 1\n" +
-                    "      Ignoreds: 0\n" +
-                    "      Output: 508606045 packets, 45046419657 bytes\n" +
-                    "      Unicast: 502482495, Multicast: 6122779\n" +
-                    "      Broadcast: 771, Jumbo: 0\n" +
-                    "      Discard: 0, Pause: 0\n" +
-                    "      Total Error: 100\n" +
-                    "      Collisions: 0, ExcessiveCollisions: 0\n" +
-                    "      Late Collisions: 0, Deferreds: 0\n" +
-                    "      Buffers Purged: 0";
-
-
-
     /*发送命令 返回端口号信息*/
 
     //@MyLog(title = "高级功能错误包扫描", businessType = BusinessType.OTHER)
@@ -286,13 +165,15 @@ public class ErrorPackage {
 
         ErrorRate selectpojo = new ErrorRate();
         selectpojo.setSwitchIp(switchParameters.getIp());
-        /*查询错误包列表*/
+
+        /*查询数据库错误包列表*/
         errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
         List<ErrorRate> list = errorRateService.selectErrorRateList(selectpojo);
         Map<String,ErrorRate> errorRateMap = new HashMap<>();
         for (ErrorRate pojo:list){
             errorRateMap.put( pojo.getPort() , pojo );
         }
+
         List<String> keySet = errorRateMap.keySet().stream().collect(Collectors.toList());
 
         /** 查看字符串集合A中存在，但字符串集合B中不存在的部分
@@ -446,12 +327,24 @@ public class ErrorPackage {
             String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
             // =:= 是自定义分割符
             String portNumber = "端口号"+customDelimiter+"是"+customDelimiter+port+" "+ errorRate.getDescription() + customDelimiter;
-            String InputErrors = primaryErrorRate.getInputErrors()!=null?"input"+customDelimiter+"是"+customDelimiter+"input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+customDelimiter
-                    :"input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
-            String OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output"+customDelimiter+"是"+customDelimiter+"output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+customDelimiter
-                    :"output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
-            String Crc = primaryErrorRate.getCrc()!=null?"crc"+customDelimiter+"是"+customDelimiter+"crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
-                    :"crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
+            String InputErrors = "";
+            String OutputErrors = "";
+            String Crc = "";
+
+            /** 如果数据库相关数据为空 则可以直接赋值插入*/
+            if (primaryErrorRate != null){
+                InputErrors = primaryErrorRate.getInputErrors()!=null?"input"+customDelimiter+"是"+customDelimiter+"input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+customDelimiter
+                        :"input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
+                OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output"+customDelimiter+"是"+customDelimiter+"output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+customDelimiter
+                        :"output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
+                Crc = primaryErrorRate.getCrc()!=null?"crc"+customDelimiter+"是"+customDelimiter+"crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
+                        :"crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
+            }else {
+                InputErrors = "input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
+                OutputErrors = "output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
+                Crc = "crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
+            }
+
             String parameterString = portNumber +" "+ InputErrors+" "+OutputErrors+" "+Crc;
             if (parameterString.endsWith( customDelimiter )){
                 parameterString = parameterString.substring(0,parameterString.length()-3);
@@ -1248,4 +1141,123 @@ public class ErrorPackage {
         return null;
     }
 
+
+    private static String switchPortReturnsResult = "The brief information of interface(s) under route mode:\n" +
+            "Link: ADM - administratively down; Stby - standby\n" +
+            "Protocol: (s) - spoofing\n" +
+            "Interface            Link Protocol Main IP         Description\n" +
+            "Loop114              UP   UP(s)    10.122.114.208\n" +
+            "M-E0/0/0             DOWN DOWN     --\n" +
+            "NULL0                UP   UP(s)    --\n" +
+            "Vlan3                UP   UP       10.98.138.147\n" +
+            "Vlan4                UP   UP       10.98.139.239\n" +
+            "Vlan6                UP   UP       10.98.138.2\n" +
+            "Vlan7                UP   UP       10.98.136.13\n" +
+            "Vlan50               UP   UP       100.1.2.252\n" +
+            "Vlan200              UP   UP       10.98.137.71\n" +
+            "Vlan2000             UP   UP       10.98.138.195   to-shiju\n" +
+            "Vlan2001             UP   UP       10.122.119.161\n" +
+            "\n" +
+            "The brief information of interface(s) under bridge mode:\n" +
+            "Link: ADM - administratively down; Stby - standby\n" +
+            "Speed or Duplex: (a)/A - auto; H - half; F - full\n" +
+            "Type: A - access; T - trunk; H - hybrid\n" +
+            "Interface            Link Speed   Duplex Type PVID Description\n" +
+            "BAGG1                UP   2G(a)   F(a)   T    1    To_HX_S7506E\n" +
+            "GE0/0/1              UP   1G(a)   F(a)   T    1\n" +
+            "Ethernet0/0/0        UP  auto    A      T    1\n" +
+            "Eth-Trunk20.2000     UP   1G(a)   F(a)   T    1\n" +
+            "GE0/0/4              ADM  auto    A      T    1\n" +
+            "GE0/0/5              UP   1G(a)   F(a)   T    1\n" +
+            "GE0/0/6              ADM  auto    A      T    1\n" +
+            "GE0/0/7              UP   1G(a)   F(a)   T    1    To_AnBeiSuo_S5720_G0/0/49\n" +
+            "GE0/0/8              ADM  auto    A      A    1\n" +
+            "GE0/0/9              ADM  auto    A      A    1\n" +
+            "GE0/0/10             ADM  auto    A      A    1\n" +
+            "GE0/0/11             DOWN 1G      F      T    1    To_ZhuLouJiFang2_XG0/0/3\n" +
+            "GE0/0/12             UP   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+            "GE0/0/13             ADM  auto    A      A    1\n" +
+            "GE0/0/14             ADM  auto    A      A    1\n" +
+            "GE0/0/15             ADM  auto    A      A    1\n" +
+            "GE0/0/16             DOWN 1G      F      T    1    to_fajianbu_S3448\n" +
+            "GE0/0/17             ADM  auto    A      A    1\n" +
+            "GE0/0/18             ADM  auto    A      A    1\n" +
+            "GE0/0/19             ADM  auto    A      A    1\n" +
+            "GE0/0/20             ADM  auto    A      A    1\n" +
+            "GE0/0/21             ADM  auto    A      A    1\n" +
+            "GE0/0/22             ADM  auto    A      A    1\n" +
+            "GE0/0/23             ADM  auto    A      A    1\n" +
+            "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
+            "GE0/0/25             DOWN auto    A      T    1\n" +
+            "GE0/0/26             DOWN auto    A      T    1\n" +
+            "GE0/0/27             DOWN auto    A      T    1\n" +
+            "GE0/0/28             DOWN auto    A      T    1\n" +
+            "GE0/0/29             DOWN auto    A      T    1\n" +
+            "GE0/0/30             DOWN   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
+            "GE0/0/31             UP   1G(a)   F(a)   A    2001 To_ShiJu\n" +
+            "GE0/0/32             DOWN  auto    A      A    200  To_HX_S7506E\n" +
+            "GE0/0/33             UP   1G(a)   F(a)   A    2001 To_ShiJu\n";
+
+    private static String switchPortValueReturnsResult = "GigabitEthernet1/0/25 current state: UP\n" +
+            " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
+            " Description :To_ShuJuWangHuLian_G1/0/18\n" +
+            " Loopback is not set\n" +
+            " Media type is twisted pair\n" +
+            " Port hardware type is  1000_BASE_T\n" +
+            " 1000Mbps-speed mode, full-duplex mode\n" +
+            " Link speed type is autonegotiation, link duplex type is autonegotiation\n" +
+            " Flow-control is not enabled\n" +
+            " The Maximum Frame Length is 10000\n" +
+            " Broadcast MAX-ratio: 100%\n" +
+            " Unicast MAX-ratio: 100%\n" +
+            " Multicast MAX-ratio: 100%\n" +
+            " Allow jumbo frame to pass\n" +
+            " PVID: 1\n" +
+            " Mdi type: auto\n" +
+            " Port link-type: trunk\n" +
+            "  VLAN passing  : 118, 602\n" +
+            "  VLAN permitted: 118, 602\n" +
+            "  Trunk port encapsulation: IEEE 802.1q\n" +
+            " Port priority: 0\n" +
+            " Last clearing of counters:  Never\n" +
+            " Peak value of input: 207721 bytes/sec, at 2022-11-08 06:26:00\n" +
+            " Peak value of output: 33198 bytes/sec, at 2023-03-27 10:50:33\n" +
+            " Last 300 seconds input:  2 packets/sec 282 bytes/sec 0%\n" +
+            " Last 300 seconds output:  2 packets/sec 290 bytes/sec 0%\n" +
+            " Input (total):  56148368 packets, 6611001881 bytes\n" +
+            "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
+            " Input (normal):  56148368 packets, - bytes\n" +
+            "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
+            " Input:  10 input errors, 0 runts, 0 giants, 0 throttles\n" +
+            "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
+            "         - ignored, - parity errors\n" +
+            " Output (total): 46229751 packets, 4553563599 bytes\n" +
+            "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
+            " Output (normal): 46229751 packets, - bytes\n" +
+            "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
+            " Output: 20 output errors, - underruns, - buffer failures\n" +
+            "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
+            "         0 lost carrier, - no carrier";
+
+     /*private static String switchPortValueReturnsResult =
+                    " Description :To_ShuJuWangHuLian_G1/0/18\n" +
+                    "Input: 982431567 packets, 1214464892426 bytes\n" +
+                    "      Unicast: 981439518, Multicast: 404\n" +
+                    "      Broadcast: 991644, Jumbo: 0\n" +
+                    "      Discard: 0, Pause: 0\n" +
+                    "      Frames: 0\n" +
+                    "      Total Error: 50\n" +
+                    "      CRC: 1, Giants: 0\n" +
+                    "      Jabbers: 0, Fragments: 0\n" +
+                    "      Runts: 0, DropEvents: 0\n" +
+                    "      Alignments: 0, Symbols: 1\n" +
+                    "      Ignoreds: 0\n" +
+                    "      Output: 508606045 packets, 45046419657 bytes\n" +
+                    "      Unicast: 502482495, Multicast: 6122779\n" +
+                    "      Broadcast: 771, Jumbo: 0\n" +
+                    "      Discard: 0, Pause: 0\n" +
+                    "      Total Error: 100\n" +
+                    "      Collisions: 0, ExcessiveCollisions: 0\n" +
+                    "      Late Collisions: 0, Deferreds: 0\n" +
+                    "      Buffers Purged: 0";*/
 }

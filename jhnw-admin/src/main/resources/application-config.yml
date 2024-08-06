@@ -97,6 +97,8 @@ obtainPortNumber:
     USB
     InLoop
     LoopBack
+    Loop
+    Vlan
     InLoopBack
 
 

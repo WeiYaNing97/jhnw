@@ -83,121 +83,8 @@ public class OSPFFeatures {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String command = ospfCommand.getGetParameterCommand();
         String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
-        commandReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "192.168.1.100 GigabitEthernet1/0/0 11.37.96.1 Full\n" +
-                "0.0.0.0 GigabitEthernet1/0/1 11.37.96.5 Full\n" +
-                "0.0.0.0 GigabitEthernet1/0/6 11.37.96.54 Full\n" +
-                "0.0.0.0 GigabitEthernet1/0/8 11.37.96.73 Full\n" +
-                "0.0.0.0 GigabitEthernet8/0/17 11.37.96.55 Full\n" +
-                "0.0.0.0 Eth-Trunk20.2000 11.37.96.159 Full\n" +
-                "0.0.0.0 GigabitEthernet1/0/17 11.37.96.41 Full\n" +
-                "0.0.0.0 GigabitEthernet8/0/14 11.37.96.8 Full\n" +
-                "0.0.0.2 GigabitEthernet8/0/2 11.37.96.134 Full\n" +
-                "0.0.0.2 GigabitEthernet1/0/3 11.37.96.59 Full\n" +
-                "0.0.0.2 GigabitEthernet1/0/4 11.37.96.60 Full\n" +
-                "0.0.0.2 GigabitEthernet1/0/5 11.37.96.57 Full\n" +
-                "0.0.0.2 GigabitEthernet8/0/22 11.37.96.61 Full\n" +
-                "0.0.0.2 GigabitEthernet1/0/10 11.37.96.40 Full\n" +
-                "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 not\n" +
-                "----------- --------------- ----------------------- ---------------------------\n" +
-                "Total Peer(s): 15\n" +
-                "\n" +
-                "OSPF Process 11 with Router ID 30.9.98.241\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 GigabitEthernet1/0/13 30.8.1.3 Full\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 25 with Router ID 10.122.119.49\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 GigabitEthernet8/0/19 10.122.119.18 Full\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 310 with Router ID 28.36.127.5\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 Eth-Trunk20.2011 28.36.127.6 Init\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 311 with Router ID 29.36.191.5\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 Eth-Trunk20.2012 29.36.191.6 Init\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 312 with Router ID 30.9.127.5\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 0\n" +
-                "\n" +
-                "OSPF Process 313 with Router ID 27.36.127.5\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 0\n" +
-                "\n" +
-                "OSPF Process 314 with Router ID 6.40.0.45\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 Eth-Trunk20.2015 6.40.0.46 Full\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 315 with Router ID 13.40.0.45\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 Eth-Trunk20.2016 13.40.0.46 Init\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 316 with Router ID 172.16.193.45\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 Eth-Trunk20.2017 172.16.193.46 Full\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 317 with Router ID 172.16.0.45\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 Eth-Trunk20.2018 172.16.0.46 Full\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 318 with Router ID 7.36.1.45\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 Eth-Trunk20.2019 7.36.1.46 Full\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1\n" +
-                "\n" +
-                "OSPF Process 65534 with Router ID 128.75.212.73\n" +
-                "Peer Statistic Information\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Area Id Interface Neighbor id State\n" +
-                "0.0.0.0 DCN-Serial1/0/0:0 128.79.235.137 Full\n" +
-                "----------------------------------------------------------------------------\n" +
-                "Total Peer(s): 1";
+
+        commandReturn = this.commandPortReturn;
         commandReturn = MyUtils.trimString(commandReturn);
 
 
@@ -708,4 +595,119 @@ public class OSPFFeatures {
         return false;
     }
 
+    public static String commandPortReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "192.168.1.100 GigabitEthernet1/0/0 11.37.96.1 Full\n" +
+            "0.0.0.0 GigabitEthernet1/0/1 11.37.96.5 Full\n" +
+            "0.0.0.0 GigabitEthernet1/0/6 11.37.96.54 Full\n" +
+            "0.0.0.0 GigabitEthernet1/0/8 11.37.96.73 Full\n" +
+            "0.0.0.0 GigabitEthernet8/0/17 11.37.96.55 Full\n" +
+            "0.0.0.0 Eth-Trunk20.2000 11.37.96.159 Full\n" +
+            "0.0.0.0 GigabitEthernet1/0/17 11.37.96.41 Full\n" +
+            "0.0.0.0 GigabitEthernet8/0/14 11.37.96.8 Full\n" +
+            "0.0.0.2 GigabitEthernet8/0/2 11.37.96.134 Full\n" +
+            "0.0.0.2 GigabitEthernet1/0/3 11.37.96.59 Full\n" +
+            "0.0.0.2 GigabitEthernet1/0/4 11.37.96.60 Full\n" +
+            "0.0.0.2 GigabitEthernet1/0/5 11.37.96.57 Full\n" +
+            "0.0.0.2 GigabitEthernet8/0/22 11.37.96.61 Full\n" +
+            "0.0.0.2 GigabitEthernet1/0/10 11.37.96.40 Full\n" +
+            "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 not\n" +
+            "----------- --------------- ----------------------- ---------------------------\n" +
+            "Total Peer(s): 15\n" +
+            "\n" +
+            "OSPF Process 11 with Router ID 30.9.98.241\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 GigabitEthernet1/0/13 30.8.1.3 Full\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 25 with Router ID 10.122.119.49\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 GigabitEthernet8/0/19 10.122.119.18 Full\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 310 with Router ID 28.36.127.5\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 Eth-Trunk20.2011 28.36.127.6 Init\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 311 with Router ID 29.36.191.5\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 Eth-Trunk20.2012 29.36.191.6 Init\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 312 with Router ID 30.9.127.5\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 0\n" +
+            "\n" +
+            "OSPF Process 313 with Router ID 27.36.127.5\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 0\n" +
+            "\n" +
+            "OSPF Process 314 with Router ID 6.40.0.45\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 Eth-Trunk20.2015 6.40.0.46 Full\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 315 with Router ID 13.40.0.45\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 Eth-Trunk20.2016 13.40.0.46 Init\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 316 with Router ID 172.16.193.45\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 Eth-Trunk20.2017 172.16.193.46 Full\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 317 with Router ID 172.16.0.45\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 Eth-Trunk20.2018 172.16.0.46 Full\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 318 with Router ID 7.36.1.45\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 Eth-Trunk20.2019 7.36.1.46 Full\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1\n" +
+            "\n" +
+            "OSPF Process 65534 with Router ID 128.75.212.73\n" +
+            "Peer Statistic Information\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Area Id Interface Neighbor id State\n" +
+            "0.0.0.0 DCN-Serial1/0/0:0 128.79.235.137 Full\n" +
+            "----------------------------------------------------------------------------\n" +
+            "Total Peer(s): 1";
 }
