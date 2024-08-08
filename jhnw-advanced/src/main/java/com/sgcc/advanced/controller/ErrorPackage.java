@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-@Api("错误包功能")
+@Api(tags = "错误包功能管理")
 @RestController
 @RequestMapping("/advanced/ErrorPackage")
 @Transactional(rollbackFor = Exception.class)

@@ -16,6 +16,8 @@ import com.sgcc.sql.service.IProblemScanLogicService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +34,7 @@ import java.util.List;
  * @date 2022年03月22日 11:17
  * 数据库数据导入导出 相关功能
  */
-@Api("数据库导入导出管理")
+@Api(tags = "数据库导入导出管理")
 @RestController
 @RequestMapping("/sql/ImportExportController")
 @Transactional(rollbackFor = Exception.class)
@@ -132,6 +134,10 @@ public class ImportExportController {
     }
 
     @ApiOperation("数据库导入")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "file", value = "导入文件", dataType = "MultipartFile"),
+            @ApiImplicitParam(name = "updateSupport", value = "是否更新数据(NULL)",dataType = "boolean")
+    })
     @PostMapping("/importData")
     @MyLog(title = "数据库导入", businessType = BusinessType.OTHER)
     @ResponseBody

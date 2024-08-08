@@ -26,7 +26,7 @@ import java.util.List;
 @RequestMapping("/share/return_record")
 //事务
 @Transactional(rollbackFor = Exception.class)
-@Api("返回信息")
+@Api(tags = "交换机返回信息管理")
 public class ReturnRecordController extends BaseController
 {
     @Autowired

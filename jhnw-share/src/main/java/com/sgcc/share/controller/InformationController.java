@@ -7,6 +7,8 @@ import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.domain.Information;
 import com.sgcc.share.service.IInformationService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,13 @@ public class InformationController extends BaseController
      * 查询交换机信息列表
      */
     @ApiOperation("查询交换机品牌、型号列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:information:list')")
     @GetMapping("/list")
     public TableDataInfo list(Information information)
@@ -55,6 +64,13 @@ public class InformationController extends BaseController
      * 导出交换机信息列表
      */
     @ApiOperation("导出交换机品牌、型号列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:information:export')")
     @MyLog(title = "交换机信息", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -69,6 +85,9 @@ public class InformationController extends BaseController
      * 获取交换机信息详细信息
      */
     @ApiOperation("获取交换机品牌、型号详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long")
+    })
     @PreAuthorize("@ss.hasPermi('sql:information:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -80,6 +99,13 @@ public class InformationController extends BaseController
      * 新增交换机信息
      */
     @ApiOperation("新增交换机品牌、型号")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:information:add')")
     @MyLog(title = "交换机信息", businessType = BusinessType.INSERT)
     @PostMapping
@@ -92,6 +118,13 @@ public class InformationController extends BaseController
      * 修改交换机信息
      */
     @ApiOperation("修改交换机品牌、型号")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:information:edit')")
     @MyLog(title = "交换机信息", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -104,6 +137,9 @@ public class InformationController extends BaseController
      * 删除交换机信息
      */
     @ApiOperation("删除交换机品牌、型号")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ids", value = "交换机信息id",dataType = "Long[]")
+    })
     @PreAuthorize("@ss.hasPermi('sql:information:remove')")
     @MyLog(title = "交换机信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

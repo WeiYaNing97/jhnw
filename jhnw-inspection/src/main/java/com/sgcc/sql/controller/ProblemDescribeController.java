@@ -5,6 +5,9 @@ import java.util.List;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.sql.domain.TotalQuestionTable;
 import com.sgcc.sql.service.ITotalQuestionTableService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * 问题详细说明和指导索引
  * @date 2022-05-26
  */
-@ApiOperation("问题详细说明和指导索引")
+@Api(tags = "问题详细说明和指导索引")
 @RestController
 @RequestMapping("/sql/problem_describe")
 @Transactional(rollbackFor = Exception.class)
@@ -38,6 +41,10 @@ public class ProblemDescribeController extends BaseController
      * 新增问题描述
      */
     @ApiOperation("新增问题详细说明和指导索引")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataType = "String")
+    })
     @PostMapping("/insertProblemDescribe")
     @MyLog(title = "新增问题详细说明和指导索引", businessType = BusinessType.INSERT)
     public AjaxResult insertProblemDescribe(@RequestParam String totalQuestionTableId,@RequestBody String problemDescribe)
@@ -76,6 +83,10 @@ public class ProblemDescribeController extends BaseController
      * 新增问题描述
      */
     @ApiOperation("修改问题详细说明和指导索引")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataType = "String")
+    })
     @PutMapping("/insertProblemDescribe")
     @MyLog(title = "修改问题详细说明和指导索引", businessType = BusinessType.INSERT)
     public AjaxResult updateProblemDescribe(@RequestParam String totalQuestionTableId,@RequestBody String problemDescribe)
@@ -116,6 +127,9 @@ public class ProblemDescribeController extends BaseController
      * 删除问题描述
      */
     @ApiOperation("删除问题详细说明和指导索引")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "Long")
+    })
     @DeleteMapping("/deleteProblemDescribe")
     public AjaxResult deleteProblemDescribe(Long id) {
         int deleteProblemDescribeById = problemDescribeService.deleteProblemDescribeById(id);
@@ -134,8 +148,11 @@ public class ProblemDescribeController extends BaseController
      * 获取问题描述详细信息
      */
     @ApiOperation("获取问题详细说明和指导索引")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "Long")
+    })
     @GetMapping(value = "selectProblemDescribe")
-    public ProblemDescribe selectProblemDescribe(@RequestParam Long id) {
+    public ProblemDescribe selectProblemDescribe(@RequestParam String id) {
         ProblemDescribe problemDescribe = problemDescribeService.selectProblemDescribeById(id);
         if (problemDescribe == null){
             return null;
@@ -151,6 +168,10 @@ public class ProblemDescribeController extends BaseController
      * 查询问题描述列表
      */
     @ApiOperation("查询问题描述列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:list')")
     @GetMapping("/list")
     public TableDataInfo list(ProblemDescribe problemDescribe)
@@ -164,6 +185,10 @@ public class ProblemDescribeController extends BaseController
      * 导出问题描述列表
      */
     @ApiOperation("导出问题描述列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:export')")
     @MyLog(title = "导出问题描述列表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -178,9 +203,12 @@ public class ProblemDescribeController extends BaseController
      * 获取问题描述详细信息
      */
     @ApiOperation("获取问题描述详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:query')")
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(problemDescribeService.selectProblemDescribeById(id));
     }
@@ -189,6 +217,10 @@ public class ProblemDescribeController extends BaseController
      * 新增问题描述
      */
     @ApiOperation("新增问题描述详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:add')")
     @MyLog(title = "新增问题描述详细信息", businessType = BusinessType.INSERT)
     @PostMapping
@@ -201,6 +233,10 @@ public class ProblemDescribeController extends BaseController
      * 修改问题描述
      */
     @ApiOperation("修改问题描述详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:edit')")
     @MyLog(title = "修改问题描述详细信息", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -213,6 +249,9 @@ public class ProblemDescribeController extends BaseController
      * 删除问题描述
      */
     @ApiOperation("删除问题描述详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ids", value = "问题描述ID",dataType = "String[]")
+    })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:remove')")
     @MyLog(title = "删除问题描述详细信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

@@ -18,10 +18,7 @@ import com.sgcc.share.service.ISwitchScanResultService;
 import com.sgcc.share.util.RSAUtils;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -59,7 +56,7 @@ public class SnapshotFunction {
      * @author charles
      * @createTime 2023/12/29 15:51
      */
-    @RequestMapping("/startSnapshot")
+    @PostMapping("/startSnapshot")
     public static void startSnapshot(@RequestBody List<String> switchInformation) {
         // 初始化用于存放多线程参数的列表
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}

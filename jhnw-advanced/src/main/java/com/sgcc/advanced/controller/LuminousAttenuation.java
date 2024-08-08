@@ -29,7 +29,7 @@ import static org.apache.commons.lang3.StringUtils.split;
 /**
  * 光衰功能
  */
-@Api("光衰功能")
+@Api(tags = "光衰功能管理")
 @RestController
 @RequestMapping("/advanced/LuminousAttenuation")
 @Transactional(rollbackFor = Exception.class)

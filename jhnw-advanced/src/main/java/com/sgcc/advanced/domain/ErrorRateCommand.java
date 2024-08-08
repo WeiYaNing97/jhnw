@@ -38,8 +38,8 @@ public class ErrorRateCommand extends BaseEntity
     @Excel(name = "获取up端口号命令")
     private String getPortCommand;
 
-    /** 获取 错误包 参数命令 */
-    @Excel(name = "获取 错误包 参数命令")
+    /** 获取错误包参数命令 */
+    @Excel(name = "获取错误包参数命令")
     private String getParameterCommand;
 
     /** 转译 */

@@ -26,8 +26,8 @@ public class LightAttenuationComparison extends BaseEntity
     @Excel(name = "交换机四项基本信息表ID索引")
     private Long switchId;
 
-    /** 参数数量 */
-    @Excel(name = "参数数量")
+    /** 扫描次数 */
+    @Excel(name = "扫描次数")
     private Integer numberParameters;
 
     /** 端口号 */

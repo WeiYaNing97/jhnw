@@ -17,6 +17,8 @@ import com.sgcc.sql.util.TemplateScheduledTasks;
 import com.sgcc.sql.util.TimedTaskRetrievalFile;
 import com.sgcc.system.service.ISysUserService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,6 +65,17 @@ public class TimedTaskController extends BaseController
      * 导出定时任务列表
      */
     @ApiOperation(value = "导出定时任务列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "定时任务编号", dataType = "Long"),
+            @ApiImplicitParam(name = "timedTaskName", value = "定时任务名称", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskParameters", value = "定时任务模板", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskStartTime", value = "定时任务开始时间", dataType = "Date"),
+            @ApiImplicitParam(name = "timedTaskIntervalTime", value = "定时任务间隔时间", dataType = "String"),
+            @ApiImplicitParam(name = "functionArray", value = "功能数组", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskStatus", value = "定时任务开启状态", dataType = "Integer"),
+            @ApiImplicitParam(name = "creatorName", value = "定时任务创建人姓名", dataType = "String"),
+            @ApiImplicitParam(name = "createdOn", value = "定时任务创建时间", dataType = "Date")
+    })
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:export')")
     @MyLog(title = "定时任务", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -77,6 +90,20 @@ public class TimedTaskController extends BaseController
      * 新增定时任务
      */
     @ApiOperation(value = "新增定时任务")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "定时任务编号", dataType = "Long"),
+            @ApiImplicitParam(name = "timedTaskName", value = "定时任务名称", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskParameters", value = "定时任务参数", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskStartTime", value = "定时任务开始时间", dataType = "Date"),
+            @ApiImplicitParam(name = "timedTaskIntervalTime", value = "定时任务间隔时间", dataType = "String"),
+            @ApiImplicitParam(name = "functionalTree", value = "所有功能集合", dataType = "List<FunctionVO>"),
+            @ApiImplicitParam(name = "selectFunctions", value = "选择功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "functionName", value = "功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "timedTaskStatus", value = "定时任务开启状态", dataType = "Integer"),
+            @ApiImplicitParam(name = "creatorName", value = "定时任务创建人姓名", dataType = "String"),
+            @ApiImplicitParam(name = "createdOn", value = "定时任务创建时间", dataType = "Date"),
+            @ApiImplicitParam(name = "selectFunctionWindow", value = "选择功能窗口", dataType = "boolean")
+    })
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:add')")
     @MyLog(title = "定时任务", businessType = BusinessType.INSERT)
     @PostMapping
@@ -108,6 +135,20 @@ public class TimedTaskController extends BaseController
      * 修改定时任务
      */
     @ApiOperation(value = "修改定时任务")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "定时任务编号", dataType = "Long"),
+            @ApiImplicitParam(name = "timedTaskName", value = "定时任务名称", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskParameters", value = "定时任务参数", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskStartTime", value = "定时任务开始时间", dataType = "Date"),
+            @ApiImplicitParam(name = "timedTaskIntervalTime", value = "定时任务间隔时间", dataType = "String"),
+            @ApiImplicitParam(name = "functionalTree", value = "所有功能集合", dataType = "List<FunctionVO>"),
+            @ApiImplicitParam(name = "selectFunctions", value = "选择功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "functionName", value = "功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "timedTaskStatus", value = "定时任务开启状态", dataType = "Integer"),
+            @ApiImplicitParam(name = "creatorName", value = "定时任务创建人姓名", dataType = "String"),
+            @ApiImplicitParam(name = "createdOn", value = "定时任务创建时间", dataType = "Date"),
+            @ApiImplicitParam(name = "selectFunctionWindow", value = "选择功能窗口", dataType = "boolean")
+    })
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:edit')")
     @MyLog(title = "定时任务", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -138,6 +179,9 @@ public class TimedTaskController extends BaseController
      * 删除定时任务
      */
     @ApiOperation(value = "删除定时任务")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ids", value = "定时任务编号", dataType = "Long[]")
+    })
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:remove')")
     @MyLog(title = "定时任务", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -246,6 +290,20 @@ public class TimedTaskController extends BaseController
      * @return 无返回值
      */
     @ApiOperation(value = "修改定时任务状态")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "定时任务编号", dataType = "Long"),
+            @ApiImplicitParam(name = "timedTaskName", value = "定时任务名称", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskParameters", value = "定时任务参数", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskStartTime", value = "定时任务开始时间", dataType = "Date"),
+            @ApiImplicitParam(name = "timedTaskIntervalTime", value = "定时任务间隔时间", dataType = "String"),
+            @ApiImplicitParam(name = "functionalTree", value = "所有功能集合", dataType = "List<FunctionVO>"),
+            @ApiImplicitParam(name = "selectFunctions", value = "选择功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "functionName", value = "功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "timedTaskStatus", value = "定时任务开启状态", dataType = "Integer"),
+            @ApiImplicitParam(name = "creatorName", value = "定时任务创建人姓名", dataType = "String"),
+            @ApiImplicitParam(name = "createdOn", value = "定时任务创建时间", dataType = "Date"),
+            @ApiImplicitParam(name = "selectFunctionWindow", value = "选择功能窗口", dataType = "boolean")
+    })
     @PutMapping("/performScheduledTasks")
     @MyLog(title = "定时任务", businessType = BusinessType.UPDATE)
     public void performScheduledTasks(@RequestBody TimedTaskVO timedTaskVO) {
@@ -390,6 +448,20 @@ public class TimedTaskController extends BaseController
      * 查询定时任务列表
      */
     @ApiOperation(value = "查询定时任务列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "定时任务编号", dataType = "Long"),
+            @ApiImplicitParam(name = "timedTaskName", value = "定时任务名称", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskParameters", value = "定时任务参数", dataType = "String"),
+            @ApiImplicitParam(name = "timedTaskStartTime", value = "定时任务开始时间", dataType = "Date"),
+            @ApiImplicitParam(name = "timedTaskIntervalTime", value = "定时任务间隔时间", dataType = "String"),
+            @ApiImplicitParam(name = "functionalTree", value = "所有功能集合", dataType = "List<FunctionVO>"),
+            @ApiImplicitParam(name = "selectFunctions", value = "选择功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "functionName", value = "功能集合", dataType = "List<String>"),
+            @ApiImplicitParam(name = "timedTaskStatus", value = "定时任务开启状态", dataType = "Integer"),
+            @ApiImplicitParam(name = "creatorName", value = "定时任务创建人姓名", dataType = "String"),
+            @ApiImplicitParam(name = "createdOn", value = "定时任务创建时间", dataType = "Date"),
+            @ApiImplicitParam(name = "selectFunctionWindow", value = "选择功能窗口", dataType = "boolean")
+    })
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:list')")
     @GetMapping("/list")
     public TableDataInfo list(TimedTaskVO timedTaskVO) {

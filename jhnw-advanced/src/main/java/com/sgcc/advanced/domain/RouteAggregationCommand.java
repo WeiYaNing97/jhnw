@@ -46,8 +46,8 @@ public class RouteAggregationCommand extends BaseEntity
     @Excel(name = "获取外部宣告地址命令")
     private String externalCommand;
 
-    /** 内部关键字 */
-    @Excel(name = "内部关键字")
+    /** 外部关键字 */
+    @Excel(name = "外部关键字")
     private String externalKeywords;
 
     public void setId(String id) 

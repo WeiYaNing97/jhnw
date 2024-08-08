@@ -11,6 +11,8 @@ import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.sql.domain.BasicInformation;
 import com.sgcc.sql.service.IBasicInformationService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +25,7 @@ import java.util.List;
  * 获取基本信息命令Controller
  * 获取基本信息命令相关操作
  */
-@Api("获取基本信息命令管理")
+@Api(tags = "获取基本信息命令管理")
 @RestController
 @RequestMapping("/sql/basic_information")
 //事务
@@ -37,6 +39,11 @@ public class BasicInformationController extends BaseController
      * 查询获取基本信息命令列表
      */
     @ApiOperation("获取基本信息命令列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "Long"),
+            @ApiImplicitParam(name = "command", value = "命令",dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:basic_information:list')")
     @GetMapping("/list")
     public TableDataInfo list(BasicInformation basicInformation)
@@ -50,6 +57,11 @@ public class BasicInformationController extends BaseController
      * 导出获取基本信息命令列表
      */
     @ApiOperation("导出获取基本信息命令列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "Long"),
+            @ApiImplicitParam(name = "command", value = "命令",dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:basic_information:export')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -64,6 +76,9 @@ public class BasicInformationController extends BaseController
      * 获取获取基本信息命令详细信息
      */
     @ApiOperation("获取获取基本信息命令详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "Long")
+    })
     @PreAuthorize("@ss.hasPermi('sql:basic_information:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -75,6 +90,11 @@ public class BasicInformationController extends BaseController
      * 新增获取基本信息命令
      */
     @ApiOperation("新增获取基本信息命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "Long"),
+            @ApiImplicitParam(name = "command", value = "命令",dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:basic_information:add')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.INSERT)
     @PostMapping
@@ -87,6 +107,11 @@ public class BasicInformationController extends BaseController
      * 修改获取基本信息命令
      */
     @ApiOperation("修改获取基本信息命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "Long"),
+            @ApiImplicitParam(name = "command", value = "命令",dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引",dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:basic_information:edit')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -99,6 +124,9 @@ public class BasicInformationController extends BaseController
      * 删除获取基本信息命令
      */
     @ApiOperation("删除获取基本信息命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ids", value = "主键",dataType = "Long[]")
+    })
     @PreAuthorize("@ss.hasPermi('sql:basic_information:remove')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

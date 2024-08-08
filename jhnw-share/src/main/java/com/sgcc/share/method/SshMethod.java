@@ -2,6 +2,7 @@ package com.sgcc.share.method;
 
 import com.sgcc.share.connectutil.SshConnect;
 import com.sgcc.share.util.MyUtils;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +31,7 @@ public class SshMethod {
      * @param password
      * @return
     */
-    @RequestMapping("requestConnect")
+    @PostMapping("requestConnect")
     public List<Object> requestConnect(String ip, int port, String name, String password){
         //(JSCH 使用方法类) 创建连接 ip 端口号：22
         SshConnect sshConnect = new SshConnect(ip, port, null, null);
@@ -57,7 +58,6 @@ public class SshMethod {
      * @param notFinished   返回信息未结束标准
      * @return
     */
-    @RequestMapping("sendCommand")
     public String sendCommand(String ip,SshConnect sshConnect,String command,String notFinished){
         //ssh发送命令
         //将命令放到数组中，满足封装的JSCH方法的参数要求
@@ -132,7 +132,6 @@ public class SshMethod {
     * @param sshConnect	(JSCH 使用方法类)
      * @return
     */
-    @RequestMapping("closeConnect")
     public void closeConnect(SshConnect sshConnect){
         //ssh关闭连接
         sshConnect.close();

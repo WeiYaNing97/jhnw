@@ -465,7 +465,7 @@
             guangStart(){
                 return request({
                     url:'/advanced/LightAttenuationSnapshot/startSnapshot',
-                    method:'get'
+                    method:'post'
                 }).then(response=>{
                     console.log('日志')
                 })
@@ -481,7 +481,7 @@
             errorStart(){
                 return request({
                     url:'/advanced/ErrorPackageSnapshot/startSnapshot',
-                    method:'get'
+                    method:'post'
                 }).then(response=>{
                     console.log('日志')
                 })

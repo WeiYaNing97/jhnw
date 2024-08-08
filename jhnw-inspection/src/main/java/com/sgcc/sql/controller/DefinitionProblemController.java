@@ -16,6 +16,8 @@ import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
 import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * @date 2022年03月22日 11:17
  */
-@Api("定义交换机信息分析接口")
+@Api(tags = "定义交换机信息分析接口")
 @RestController
 @RequestMapping("/sql/DefinitionProblemController")
 @Transactional(rollbackFor = Exception.class)
@@ -44,6 +46,462 @@ public class DefinitionProblemController extends BaseController {
     @Autowired
     private  IBasicInformationService basicInformationService;
 
+    /**
+     * 删除扫描逻辑数据
+     *
+     * @param id 扫描逻辑数据的ID
+     * @return 删除是否成功，成功返回true，失败返回false
+     */
+    @DeleteMapping("deleteScanningLogic")
+    @ApiOperation("删除交换机问题分析逻辑数据")
+    @ApiImplicitParam(name = "id", value = "交换机问题的ID",dataType = "String")
+    @MyLog(title = "删除交换机问题分析逻辑数据", businessType = BusinessType.DELETE)
+    public boolean deleteScanningLogic(@RequestBody String id) {
+        // 获取总问题表服务
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        // 根据ID查询总问题表
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
+        // 获取登录用户信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 获取扫描逻辑实体类
+        HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
+        // 获取命令逻辑列表
+        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        // 获取问题扫描逻辑列表
+        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+        // 提取命令逻辑ID列表
+        String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
+        // 提取问题扫描逻辑ID列表
+        String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
+        int deleteCommandLogicByIds = 1;
+        // 如果存在命令逻辑
+        if (commandLogicId.length>0){
+            // 获取命令逻辑服务
+            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
+            // 删除命令逻辑
+            deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(commandLogicId);
+        }
+        // 如果命令逻辑删除成功且存在问题扫描逻辑
+        if (deleteCommandLogicByIds >0 && problemScanLogicId.length >0){
+            // 获取问题扫描逻辑服务
+            problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
+            // 删除问题扫描逻辑
+            int deleteProblemScanLogicByIds = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicId);
+            // 如果问题扫描逻辑删除成功
+            if (deleteProblemScanLogicByIds>0){
+                // 将总问题表的逻辑ID置为空
+                totalQuestionTable.setLogicalID(null);
+                // 更新总问题表
+                int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+                // 如果更新成功，则返回true
+                if (updateQuestionTableById>0){
+                    return true;
+                }else {
+                    // 发送风险提示：扫描交换机问题表数据删除失败
+                    AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                            "风险:扫描交换机问题表数据删除失败\r\n");
+                }
+            }else {
+                // 发送风险提示：扫描交换机问题分析逻辑删除失败
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                        "风险:扫描交换机问题分析逻辑删除失败\r\n");
+            }
+            // 只有存在命令逻辑没有分析逻辑
+        } else if (deleteCommandLogicByIds >0  && problemScanLogicId.length == 0){
+            // 将总问题表的逻辑ID置为空
+            totalQuestionTable.setLogicalID(null);
+            // 更新总问题表
+            int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
+            // 如果更新成功，则返回true
+            if (updateQuestionTableById>0){
+                return true;
+            }else {
+                // 发送风险提示：扫描交换机问题表数据删除失败
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                        "风险:扫描交换机问题表数据删除失败\r\n");
+            }
+            // 命令逻辑删除失败
+        } else {
+            // 发送风险提示：扫描交换机问题命令删除失败
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                    "风险:扫描交换机问题命令删除失败\r\n");
+        }
+        // 默认返回false
+        return false;
+    }
+    /*定义分析问题数据修改
+     * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
+    @ApiOperation("修改交换机问题分析逻辑数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题的ID",dataType = "String"),
+            @ApiImplicitParam(name = "pojoList", value = "交换机问题分析逻辑数据json列表",dataType = "List<String>")
+    })
+    @PutMapping("updateAnalysis")
+    @MyLog(title = "修改交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
+    public boolean updateAnalysis(@RequestParam String totalQuestionTableId,@RequestBody List<String> pojoList){
+        //系统登陆人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
+        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
+        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
+
+        /** 根据 交换机问题实体类
+         获得命令集合和分析实体类集合*/
+        HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
+        if (scanLogicalEntityClass.size() == 0){
+            return false;
+        }
+
+        /* 获取两个实体类集合*/
+        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
+
+        /* 获取两个实体类ID集合 */
+        Set<String> problemScanLogicSet = problemScanLogics.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
+        for (String id:problemScanLogicSet){
+            int j = problemScanLogicService.deleteProblemScanLogicById(id);
+            if (j<=0){
+                return false;
+            }
+        }
+
+        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        Set<String> commandLogicSet = commandLogicList.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
+        for (String id:commandLogicSet){
+            int i = commandLogicService.deleteCommandLogicById(id);
+            if (i<=0){
+                return false;
+            }
+        }
+
+        for (int i=0 ;i<pojoList.size();i++){
+            if (pojoList.get(i).indexOf("undefined") != -1){
+                pojoList.set(i,pojoList.get(i).replace("undefined","null"));
+            }
+        }
+
+        boolean definitionProblemJsonPojo = definitionProblemJsonPojo(totalQuestionTableId,pojoList,loginUser);//jsonPojoList
+        return definitionProblemJsonPojo;
+    }
+
+    /**
+     * 定义获取交换机基本信息命令插入的方法
+     *
+     * @param jsonPojoList 交换机基本信息json列表
+     * @param command      交换机基本信息命令数组
+     * @param custom       自定义参数
+     * @return 插入成功返回true，否则返回false
+     */
+    @ApiOperation("定义获取交换机基本信息命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "jsonPojoList", value = "获取交换机基本信息逻辑json列表",dataType = "List<String>"),
+            @ApiImplicitParam(name = "command", value = "交换机基本信息命令数组",dataType = "String[]"),
+            @ApiImplicitParam(name = "custom", value = "自定义参数",dataType = "String")
+    })
+    @PostMapping("insertInformationAnalysis/{command}/{custom}")
+    @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.INSERT)
+    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
+        // 将自定义参数转为字符串数组
+        custom = "["+custom+"]";
+        String comands = "";
+
+        // 获取自定义分隔符
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        // 拼接命令字符串
+        for (int num = 0 ;num < command.length; num++){
+            comands = comands + command[num] + customDelimiter ;
+        }
+
+        // 去除最后一个分隔符，并添加自定义参数
+        comands = comands.substring(0,  comands.length() - customDelimiter.length()  ) + custom;
+
+        // 获取系统登录人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
+        // 创建BasicInformation实体类
+        BasicInformation basicInformation = new BasicInformation();
+
+        // 设置交换机基本信息命令
+        basicInformation.setCommand(comands);
+
+        // 获取BasicInformationService的Bean实例
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+
+        // 调用插入交换机基本信息的方法，返回结果保存在变量i中
+        int i = basicInformationService.insertBasicInformation(basicInformation);
+
+        // 如果插入失败（i<=0) 则返回false
+        if (i<=0){
+            // 发送告警信息，包含登录人姓名和问题简述
+            //传输登陆人姓名 及问题简述
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                    "错误:获取交换机基本信息命令插入失败\r\n");
+            return false;
+        }
+
+        // 获取插入的交换机基本信息的ID
+        Long id = basicInformation.getId();
+
+        // 调用插入交换机信息分析的方法，返回结果保存在变量insertInformationAnalysisMethod中
+        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,jsonPojoList,id);
+
+        // 返回插入交换机信息分析的结果
+        return insertInformationAnalysisMethod;
+    }
+
+    /**
+     * @param basicInformationId
+     * @param pojoList
+     * @return
+     */
+    @ApiOperation("修改获取交换机基本信息逻辑")
+    @PutMapping("updatebasicAnalysis")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "basicInformationId", value = "交换机基本信息ID",dataType = "Long"),
+            @ApiImplicitParam(name = "pojoList", value = "获取交换机基本信息逻辑json列表",dataType = "List<String>")
+    })
+    @MyLog(title = "修改获取交换机基本信息逻辑", businessType = BusinessType.UPDATE)
+    public boolean updatebasicAnalysis(@RequestParam Long basicInformationId,@RequestBody List<String> pojoList){
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+        BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
+
+        /*根据分析ID 获取 分析实体类集合*/
+        /*因为是要删除 需要ID唯一 所以不需要拆分 */
+        List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(basicInformation.getProblemId(),SecurityUtils.getLoginUser());//commandLogic.getProblemId()
+
+        /* 因为ID唯一 所以不用去重 */
+        String[] ids = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
+        int j = problemScanLogicService.deleteProblemScanLogicByIds(ids);
+        if (j<=0){
+            return false;
+        }
+
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        /*调用insertInformationAnalysisMethod方法，插入新的分析数据*/
+        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,pojoList,basicInformationId);
+        if (!insertInformationAnalysisMethod){
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 回显获取交换机基本信息逻辑数据超时方法
+     * @param problemId
+     * @return
+     */
+    @ApiOperation("回显获取交换机基本信息逻辑数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "problemId", value = "分析逻辑ID",dataType = "String")
+    })
+    @GetMapping("getBasicInformationProblemScanLogic/{problemId}")
+    @MyLog(title = "回显获取交换机基本信息逻辑数据", businessType = BusinessType.OTHER)
+    public AjaxResult getBasicInformationProblemScanLogicTimeouts(@PathVariable String problemId) {
+        //系统登陆人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        final List<String>[] analysisList = new List[]{new ArrayList<>()};
+        FutureTask future = new FutureTask(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                analysisList[0] = getBasicInformationProblemScanLogic(problemId,loginUser);
+                return analysisList[0];
+            }
+        });
+
+        executor.execute(future);
+
+        try {
+            List<String> result = (List<String>) future.get(60000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            //传输登陆人姓名 及问题简述
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                    "风险:回显获取交换机基本信息逻辑数据超时\r\n");
+
+            return AjaxResult.error("查询超时");
+        }finally{
+            future.cancel(true);
+            executor.shutdown();
+        }
+
+        List<String> List = analysisList[0];
+        List<String> strings = new ArrayList<>();
+        for (String stringList:List){
+            if (stringList != null && !(stringList.equals("null"))){
+                strings.add(stringList);
+            }
+        }
+
+        return AjaxResult.success(strings);
+    }
+
+    /**
+     * 删除获取交换机基本信息逻辑数据
+     * @param id
+     * @return
+     */
+    @ApiOperation("删除获取交换机基本信息逻辑数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID",dataType = "Long")
+    })
+    @DeleteMapping("deleteBasicInformationProblemScanLogic")
+    @MyLog(title = "删除获取交换机基本信息逻辑数据", businessType = BusinessType.DELETE)
+    public boolean deleteBasicInformationProblemScanLogic(@RequestBody Long id) {
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+        BasicInformation basicInformation = basicInformationService.selectBasicInformationById(id);
+
+        //系统登陆人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        String problemId = null ;
+        if (basicInformation.getProblemId() == null){
+            //传输登陆人姓名 及问题简述
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                    "风险:获取交换机基本信息分析逻辑未定义\r\n");
+
+            return false;
+        }else {
+            problemId = basicInformation.getProblemId();
+        }
+
+        //loginUser 登陆人信息  problemId 分析ID
+        /*根据分析ID 获取 分析实体类集合 不用拆分 true false*/
+        DefinitionProblemController definitionProblemController = new DefinitionProblemController();
+        List<ProblemScanLogic> problemScanLogicList = definitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
+        if (problemScanLogicList.size() == 0 ){
+            //传输登陆人姓名 及问题简述
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                    "风险:获取交换机基本信息分析逻辑为空\r\n");
+            return false;
+        }
+
+        /*转化为数组 并 删除*/
+        String[] arr = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
+        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
+        int i = problemScanLogicService.deleteProblemScanLogicByIds(arr);
+        if (i<=0){
+            //传输登陆人姓名 及问题简述
+
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                    "风险:获取交换机基本信息分析逻辑删除失败\r\n");
+
+            return false;
+        }else {
+            int j = basicInformationService.deleteBasicInformationById(id);
+            if (j<=0){
+                //传输登陆人姓名 及问题简述
+                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                        "风险:获取交换机基本信息命令删除失败\r\n");
+
+                return false;
+            }
+            return true;
+        }
+
+    }
+
+    /**
+     * 插入分析问题的数据
+     *
+     * @param totalQuestionTableId 交换机问题实体类的ID
+     * @param jsonPojoList         分析问题的JSON对象列表
+     * @return 插入是否成功，成功返回true，否则返回false
+     */
+    @PostMapping("definitionProblemJsonPojo")
+    @MyLog(title = "新增交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
+    @ApiOperation("新增交换机问题分析逻辑数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID",dataType = "String"),
+            @ApiImplicitParam(name = "jsonPojoList", value = "问题分析逻辑的JSON对象列表",dataType = "List<String>")
+    })
+    public boolean definitionProblemJson(@RequestParam String totalQuestionTableId,@RequestBody List<String> jsonPojoList){
+        // 获取系统登录人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 调用definitionProblemJsonPojo方法，传入交换机问题实体类的ID、分析问题的JSON对象列表和登录人信息
+        // 并将返回的结果赋值给definitionProblemJsonboolean变量
+        boolean definitionProblemJsonboolean = definitionProblemJsonPojo(totalQuestionTableId,jsonPojoList,loginUser);
+        // 返回definitionProblemJsonboolean变量的值
+        return definitionProblemJsonboolean;
+    }
+
+    /**
+     * 根据交换机问题实体类查询问题分析逻辑数据
+     *
+     * @param totalQuestionTable 交换机问题实体类
+     * @return java.util.List<java.lang.String> 返回一个字符串列表，表示问题分析逻辑数据
+     */
+    @ApiOperation("查询交换机问题分析逻辑数据")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+
+    })
+    @GetMapping("getAnalysisList")
+    @MyLog(title = "查询交换机问题分析逻辑数据", businessType = BusinessType.OTHER)
+    public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
+        // 获取系统登录人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
+        // 创建一个单线程执行器
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        // 创建一个数组，用于存储返回的字符串列表
+        final List<String>[] analysisList = new List[]{new ArrayList<>()};
+
+        // 创建一个异步任务，用于执行获取问题分析逻辑数据的操作
+        FutureTask future = new FutureTask(new Callable<List<String>>() {
+            @Override
+            public List<String> call() throws Exception {
+                // 调用获取问题分析逻辑数据的方法，并将结果存储在数组中
+                analysisList[0] = getAnalysisList(totalQuestionTable,loginUser);
+                return analysisList[0];
+            }
+        });
+
+        // 执行异步任务
+        executor.execute(future);
+
+        try {
+            // 获取最大超时时间
+            Integer maximumTimeoutString = (Integer) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
+
+            // 获取异步任务的执行结果，并设置超时时间
+            List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            // 如果发生超时异常，返回查询超时的错误结果
+            return AjaxResult.error("查询超时");
+        } finally {
+            // 取消异步任务
+            future.cancel(true);
+
+            // 关闭执行器，释放资源
+            /* 关闭连接 */
+            executor.shutdown();
+        }
+
+        // 返回成功的结果，并带上获取到的问题分析逻辑数据
+        return AjaxResult.success(analysisList[0]);
+    }
 
 
     /**
@@ -200,27 +658,6 @@ public class DefinitionProblemController extends BaseController {
         }
 
         return true;
-    }
-
-
-    /**
-     * 插入分析问题的数据
-     *
-     * @param totalQuestionTableId 交换机问题实体类的ID
-     * @param jsonPojoList         分析问题的JSON对象列表
-     * @return 插入是否成功，成功返回true，否则返回false
-     */
-    @PostMapping("definitionProblemJsonPojo")
-    @MyLog(title = "新增交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
-    @ApiOperation("新增交换机问题分析逻辑数据")
-    public boolean definitionProblemJson(@RequestParam String totalQuestionTableId,@RequestBody List<String> jsonPojoList){
-        // 获取系统登录人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        // 调用definitionProblemJsonPojo方法，传入交换机问题实体类的ID、分析问题的JSON对象列表和登录人信息
-        // 并将返回的结果赋值给definitionProblemJsonboolean变量
-        boolean definitionProblemJsonboolean = definitionProblemJsonPojo(totalQuestionTableId,jsonPojoList,loginUser);
-        // 返回definitionProblemJsonboolean变量的值
-        return definitionProblemJsonboolean;
     }
 
     /**
@@ -385,7 +822,6 @@ public class DefinitionProblemController extends BaseController {
         return true;
     }
 
-
     /**
      * 复制对象的属性值到另一个对象中。
      *
@@ -426,65 +862,6 @@ public class DefinitionProblemController extends BaseController {
         // 返回目标对象
         return target;
     }
-
-    /**
-     * 根据交换机问题实体类查询问题分析逻辑数据
-     *
-     * @param totalQuestionTable 交换机问题实体类
-     * @return java.util.List<java.lang.String> 返回一个字符串列表，表示问题分析逻辑数据
-     */
-    @ApiOperation("查询交换机问题分析逻辑数据")
-    @GetMapping("getAnalysisList")
-    @MyLog(title = "查询交换机问题分析逻辑数据", businessType = BusinessType.OTHER)
-    public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
-        // 获取系统登录人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-
-        // 创建一个单线程执行器
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        // 创建一个数组，用于存储返回的字符串列表
-        final List<String>[] analysisList = new List[]{new ArrayList<>()};
-
-        // 创建一个异步任务，用于执行获取问题分析逻辑数据的操作
-        FutureTask future = new FutureTask(new Callable<List<String>>() {
-            @Override
-            public List<String> call() throws Exception {
-                // 调用获取问题分析逻辑数据的方法，并将结果存储在数组中
-                analysisList[0] = getAnalysisList(totalQuestionTable,loginUser);
-                return analysisList[0];
-            }
-        });
-
-        // 执行异步任务
-        executor.execute(future);
-
-        try {
-            // 获取最大超时时间
-            Integer maximumTimeoutString = (Integer) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
-
-            // 获取异步任务的执行结果，并设置超时时间
-            List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            // 如果发生超时异常，返回查询超时的错误结果
-            return AjaxResult.error("查询超时");
-        } finally {
-            // 取消异步任务
-            future.cancel(true);
-
-            // 关闭执行器，释放资源
-            /* 关闭连接 */
-            executor.shutdown();
-        }
-
-        // 返回成功的结果，并带上获取到的问题分析逻辑数据
-        return AjaxResult.success(analysisList[0]);
-    }
-
 
     /**
      * 获取分析列表
@@ -672,90 +1049,6 @@ public class DefinitionProblemController extends BaseController {
 
     }
 
-
-    /**
-     * 删除扫描逻辑数据
-     *
-     * @param id 扫描逻辑数据的ID
-     * @return 删除是否成功，成功返回true，失败返回false
-     */
-    @DeleteMapping("deleteScanningLogic")
-    @ApiOperation("删除交换机问题分析逻辑数据")
-    @MyLog(title = "删除交换机问题分析逻辑数据", businessType = BusinessType.DELETE)
-    public boolean deleteScanningLogic(@RequestBody String id) {
-        // 获取总问题表服务
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        // 根据ID查询总问题表
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(id);
-        // 获取登录用户信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        // 获取扫描逻辑实体类
-        HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
-        // 获取命令逻辑列表
-        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-        // 获取问题扫描逻辑列表
-        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-        // 提取命令逻辑ID列表
-        String[] commandLogicId = commandLogicList.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
-        // 提取问题扫描逻辑ID列表
-        String[] problemScanLogicId = problemScanLogics.stream().map(p -> p.getId()).distinct().toArray(String[]::new);
-        int deleteCommandLogicByIds = 1;
-        // 如果存在命令逻辑
-        if (commandLogicId.length>0){
-            // 获取命令逻辑服务
-            commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
-            // 删除命令逻辑
-            deleteCommandLogicByIds = commandLogicService.deleteCommandLogicByIds(commandLogicId);
-        }
-        // 如果命令逻辑删除成功且存在问题扫描逻辑
-        if (deleteCommandLogicByIds >0 && problemScanLogicId.length >0){
-            // 获取问题扫描逻辑服务
-            problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
-            // 删除问题扫描逻辑
-            int deleteProblemScanLogicByIds = problemScanLogicService.deleteProblemScanLogicByIds(problemScanLogicId);
-            // 如果问题扫描逻辑删除成功
-            if (deleteProblemScanLogicByIds>0){
-                // 将总问题表的逻辑ID置为空
-                totalQuestionTable.setLogicalID(null);
-                // 更新总问题表
-                int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-                // 如果更新成功，则返回true
-                if (updateQuestionTableById>0){
-                    return true;
-                }else {
-                    // 发送风险提示：扫描交换机问题表数据删除失败
-                    AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                            "风险:扫描交换机问题表数据删除失败\r\n");
-                }
-            }else {
-                // 发送风险提示：扫描交换机问题分析逻辑删除失败
-                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                        "风险:扫描交换机问题分析逻辑删除失败\r\n");
-            }
-        // 只有存在命令逻辑没有分析逻辑
-        } else if (deleteCommandLogicByIds >0  && problemScanLogicId.length == 0){
-            // 将总问题表的逻辑ID置为空
-            totalQuestionTable.setLogicalID(null);
-            // 更新总问题表
-            int updateQuestionTableById = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
-            // 如果更新成功，则返回true
-            if (updateQuestionTableById>0){
-                return true;
-            }else {
-                // 发送风险提示：扫描交换机问题表数据删除失败
-                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                        "风险:扫描交换机问题表数据删除失败\r\n");
-            }
-        // 命令逻辑删除失败
-        } else {
-            // 发送风险提示：扫描交换机问题命令删除失败
-            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "风险:扫描交换机问题命令删除失败\r\n");
-        }
-        // 默认返回false
-        return false;
-    }
-
     /**
      * 根据分析ID获取分析实体类集合
      *
@@ -849,208 +1142,6 @@ public class DefinitionProblemController extends BaseController {
         return ProblemScanLogicList;
     }
 
-
-    /*定义分析问题数据修改
-    * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
-    @ApiOperation("修改交换机问题分析逻辑数据")
-    @PutMapping("updateAnalysis")
-    @MyLog(title = "修改交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
-    public boolean updateAnalysis(@RequestParam String totalQuestionTableId,@RequestBody List<String> pojoList){
-        //系统登陆人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-
-        totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
-        TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
-
-        /** 根据 交换机问题实体类
-        获得命令集合和分析实体类集合*/
-        HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
-        if (scanLogicalEntityClass.size() == 0){
-            return false;
-        }
-
-        /* 获取两个实体类集合*/
-        List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-
-        /* 获取两个实体类ID集合 */
-        Set<String> problemScanLogicSet = problemScanLogics.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
-        for (String id:problemScanLogicSet){
-            int j = problemScanLogicService.deleteProblemScanLogicById(id);
-            if (j<=0){
-                return false;
-            }
-        }
-
-        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
-        Set<String> commandLogicSet = commandLogicList.stream().map(pojo -> pojo.getId()).collect(Collectors.toSet());
-        for (String id:commandLogicSet){
-            int i = commandLogicService.deleteCommandLogicById(id);
-            if (i<=0){
-                return false;
-            }
-        }
-
-        for (int i=0 ;i<pojoList.size();i++){
-            if (pojoList.get(i).indexOf("undefined") != -1){
-                pojoList.set(i,pojoList.get(i).replace("undefined","null"));
-            }
-        }
-
-        boolean definitionProblemJsonPojo = definitionProblemJsonPojo(totalQuestionTableId,pojoList,loginUser);//jsonPojoList
-        return definitionProblemJsonPojo;
-    }
-
-
-
-
-
-    /**
-     * 定义获取交换机基本信息命令插入的方法
-     *
-     * @param jsonPojoList 交换机基本信息json列表
-     * @param command      交换机基本信息命令数组
-     * @param custom       自定义参数
-     * @return 插入成功返回true，否则返回false
-     */
-    @ApiOperation("定义获取交换机基本信息命令")
-    @PostMapping("insertInformationAnalysis/{command}/{custom}")
-    @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.INSERT)
-    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
-        // 将自定义参数转为字符串数组
-        custom = "["+custom+"]";
-        String comands = "";
-
-        // 获取自定义分隔符
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-
-        // 拼接命令字符串
-        for (int num = 0 ;num < command.length; num++){
-            comands = comands + command[num] + customDelimiter ;
-        }
-
-        // 去除最后一个分隔符，并添加自定义参数
-        comands = comands.substring(0,  comands.length() - customDelimiter.length()  ) + custom;
-
-        // 获取系统登录人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-
-        // 创建BasicInformation实体类
-        BasicInformation basicInformation = new BasicInformation();
-
-        // 设置交换机基本信息命令
-        basicInformation.setCommand(comands);
-
-        // 获取BasicInformationService的Bean实例
-        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
-
-        // 调用插入交换机基本信息的方法，返回结果保存在变量i中
-        int i = basicInformationService.insertBasicInformation(basicInformation);
-
-        // 如果插入失败（i<=0) 则返回false
-        if (i<=0){
-            // 发送告警信息，包含登录人姓名和问题简述
-            //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "错误:获取交换机基本信息命令插入失败\r\n");
-            return false;
-        }
-
-        // 获取插入的交换机基本信息的ID
-        Long id = basicInformation.getId();
-
-        // 调用插入交换机信息分析的方法，返回结果保存在变量insertInformationAnalysisMethod中
-        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,jsonPojoList,id);
-
-        // 返回插入交换机信息分析的结果
-        return insertInformationAnalysisMethod;
-    }
-
-
-    /**
-     * @param basicInformationId
-     * @param pojoList
-     * @return
-     */
-    @ApiOperation("修改获取交换机基本信息逻辑")
-    @PutMapping("updatebasicAnalysis")
-    @MyLog(title = "修改获取交换机基本信息逻辑", businessType = BusinessType.UPDATE)
-    public boolean updatebasicAnalysis(@RequestParam Long basicInformationId,@RequestBody List<String> pojoList){
-        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
-        BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
-
-        /*根据分析ID 获取 分析实体类集合*/
-        /*因为是要删除 需要ID唯一 所以不需要拆分 */
-        List<ProblemScanLogic> problemScanLogicList = problemScanLogicList(basicInformation.getProblemId(),SecurityUtils.getLoginUser());//commandLogic.getProblemId()
-
-        /* 因为ID唯一 所以不用去重 */
-        String[] ids = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
-        int j = problemScanLogicService.deleteProblemScanLogicByIds(ids);
-        if (j<=0){
-            return false;
-        }
-
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        /*调用insertInformationAnalysisMethod方法，插入新的分析数据*/
-        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,pojoList,basicInformationId);
-        if (!insertInformationAnalysisMethod){
-            return false;
-        }
-
-        return true;
-    }
-
-
-    /**
-     * 回显获取交换机基本信息逻辑数据超时方法
-     * @param problemId
-     * @return
-     */
-    @ApiOperation("回显获取交换机基本信息逻辑数据")
-    @GetMapping("getBasicInformationProblemScanLogic/{problemId}")
-    @MyLog(title = "回显获取交换机基本信息逻辑数据", businessType = BusinessType.OTHER)
-    public AjaxResult getBasicInformationProblemScanLogicTimeouts(@PathVariable String problemId) {
-        //系统登陆人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        final List<String>[] analysisList = new List[]{new ArrayList<>()};
-        FutureTask future = new FutureTask(new Callable<List<String>>() {
-            @Override
-            public List<String> call() throws Exception {
-                analysisList[0] = getBasicInformationProblemScanLogic(problemId,loginUser);
-                return analysisList[0];
-            }
-        });
-
-        executor.execute(future);
-
-        try {
-            List<String> result = (List<String>) future.get(60000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "风险:回显获取交换机基本信息逻辑数据超时\r\n");
-
-            return AjaxResult.error("查询超时");
-        }finally{
-            future.cancel(true);
-            executor.shutdown();
-        }
-
-        List<String> List = analysisList[0];
-        List<String> strings = new ArrayList<>();
-        for (String stringList:List){
-            if (stringList != null && !(stringList.equals("null"))){
-                strings.add(stringList);
-            }
-        }
-
-        return AjaxResult.success(strings);
-    }
-
     /**
      * 回显获取交换机基本信息逻辑数据
      * @param problemId 首分析DI
@@ -1089,68 +1180,6 @@ public class DefinitionProblemController extends BaseController {
 
         return stringList;
     }
-
-    /**
-     * 删除获取交换机基本信息逻辑数据
-     * @param id
-     * @return
-     */
-    @ApiOperation("删除获取交换机基本信息逻辑数据")
-    @DeleteMapping("deleteBasicInformationProblemScanLogic")
-    @MyLog(title = "删除获取交换机基本信息逻辑数据", businessType = BusinessType.DELETE)
-    public boolean deleteBasicInformationProblemScanLogic(@RequestBody Long id) {
-        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
-        BasicInformation basicInformation = basicInformationService.selectBasicInformationById(id);
-
-        //系统登陆人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-        String problemId = null ;
-        if (basicInformation.getProblemId() == null){
-            //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "风险:获取交换机基本信息分析逻辑未定义\r\n");
-
-            return false;
-        }else {
-            problemId = basicInformation.getProblemId();
-        }
-
-        //loginUser 登陆人信息  problemId 分析ID
-        /*根据分析ID 获取 分析实体类集合 不用拆分 true false*/
-        DefinitionProblemController definitionProblemController = new DefinitionProblemController();
-        List<ProblemScanLogic> problemScanLogicList = definitionProblemController.problemScanLogicList(problemId,loginUser);//commandLogic.getProblemId()
-        if (problemScanLogicList.size() == 0 ){
-            //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "风险:获取交换机基本信息分析逻辑为空\r\n");
-            return false;
-        }
-
-        /*转化为数组 并 删除*/
-        String[] arr = problemScanLogicList.stream().map(p -> p.getId()).toArray(String[]::new);
-        problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
-        int i = problemScanLogicService.deleteProblemScanLogicByIds(arr);
-        if (i<=0){
-            //传输登陆人姓名 及问题简述
-
-            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "风险:获取交换机基本信息分析逻辑删除失败\r\n");
-
-            return false;
-        }else {
-            int j = basicInformationService.deleteBasicInformationById(id);
-            if (j<=0){
-                //传输登陆人姓名 及问题简述
-                AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                        "风险:获取交换机基本信息命令删除失败\r\n");
-
-                return false;
-            }
-            return true;
-        }
-
-    }
-
 
     /**
      * 将给定的字符串转化为分析实体类。

@@ -5,6 +5,8 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchError;
 import com.sgcc.share.service.ISwitchErrorService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,15 @@ public class SwitchErrorController extends BaseController
      * 查询交换机错误列表
      */
     @ApiOperation("模糊查询交换机错误信息列表(型号、版本、子版本 可以为*)")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "errorId", value = "错误主键", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "errorKeyword", value = "错误关键字", dataType = "String"),
+            @ApiImplicitParam(name = "errorName", value = "错误名称", dataType = "String")
+    })
     @GetMapping("/switchErrorList")
     public List<SwitchError> selectSwitchErrorListByPojo(SwitchError switchError)
     {
@@ -50,6 +61,15 @@ public class SwitchErrorController extends BaseController
      * 查询交换机错误列表
      */
     @ApiOperation("查询交换机错误信息列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "errorId", value = "错误主键", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "errorKeyword", value = "错误关键字", dataType = "String"),
+            @ApiImplicitParam(name = "errorName", value = "错误名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_error:list')")
     @GetMapping("/list")
     public TableDataInfo list(SwitchError switchError)
@@ -63,6 +83,15 @@ public class SwitchErrorController extends BaseController
      * 导出交换机错误列表
      */
     @ApiOperation("导出交换机错误信息列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "errorId", value = "错误主键", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "errorKeyword", value = "错误关键字", dataType = "String"),
+            @ApiImplicitParam(name = "errorName", value = "错误名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_error:export')")
     @MyLog(title = "导出交换机错误信息列表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -77,6 +106,9 @@ public class SwitchErrorController extends BaseController
      * 获取交换机错误详细信息
      */
     @ApiOperation("获取交换机错误详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "errorId", value = "错误主键", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_error:query')")
     @GetMapping(value = "/{errorId}")
     public AjaxResult getInfo(@PathVariable("errorId") String errorId)
@@ -88,6 +120,15 @@ public class SwitchErrorController extends BaseController
      * 新增交换机错误
      */
     @ApiOperation("新增交换机错误信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "errorId", value = "错误主键", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "errorKeyword", value = "错误关键字", dataType = "String"),
+            @ApiImplicitParam(name = "errorName", value = "错误名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_error:add')")
     @MyLog(title = "新增交换机错误信息", businessType = BusinessType.INSERT)
     @PostMapping
@@ -100,6 +141,15 @@ public class SwitchErrorController extends BaseController
      * 修改交换机错误
      */
     @ApiOperation("修改交换机错误信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "errorId", value = "错误主键", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "errorKeyword", value = "错误关键字", dataType = "String"),
+            @ApiImplicitParam(name = "errorName", value = "错误名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_error:edit')")
     @MyLog(title = "修改交换机错误信息", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -112,6 +162,9 @@ public class SwitchErrorController extends BaseController
      * 删除交换机错误
      */
     @ApiOperation("删除交换机错误信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "errorIds", value = "错误主键", dataType = "String[]")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_error:remove')")
     @MyLog(title = "删除交换机错误信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{errorIds}")

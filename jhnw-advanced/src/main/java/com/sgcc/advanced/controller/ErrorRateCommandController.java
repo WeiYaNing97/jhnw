@@ -2,6 +2,8 @@ package com.sgcc.advanced.controller;
 import java.util.List;
 import com.sgcc.common.annotation.MyLog;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2023-05-19
  */
-@Api("错误包命令管理")
+@Api(tags = "错误包命令管理")
 @RestController
 @RequestMapping("/advanced/error_rate_command")
 public class ErrorRateCommandController extends BaseController
@@ -38,6 +40,16 @@ public class ErrorRateCommandController extends BaseController
      * 查询错误包命令列表
      */
     @ApiOperation("查询错误包命令列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取错误包参数命令", dataType = "String"),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:list')")
     @GetMapping("/list")
     public TableDataInfo list(ErrorRateCommand errorRateCommand)
@@ -52,6 +64,16 @@ public class ErrorRateCommandController extends BaseController
      * 导出错误包命令列表
      */
     @ApiOperation("导出错误包命令列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取错误包参数命令", dataType = "String"),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:export')")
     @MyLog(title = "错误包命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -66,6 +88,9 @@ public class ErrorRateCommandController extends BaseController
      * 获取错误包命令详细信息
      */
     @ApiOperation("获取错误包命令详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -77,6 +102,16 @@ public class ErrorRateCommandController extends BaseController
      * 新增错误包命令
      */
     @ApiOperation("新增错误包命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取错误包参数命令", dataType = "String"),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:add')")
     @MyLog(title = "错误包命令", businessType = BusinessType.INSERT)
     @PostMapping
@@ -92,6 +127,16 @@ public class ErrorRateCommandController extends BaseController
      * 修改错误包命令
      */
     @ApiOperation("修改错误包命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取错误包参数命令", dataType = "String"),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:edit')")
     @MyLog(title = "错误包命令", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -104,6 +149,9 @@ public class ErrorRateCommandController extends BaseController
      * 删除错误包命令
      */
     @ApiOperation("删除错误包命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ids", value = "主键ID", dataType = "String[]")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:remove')")
     @MyLog(title = "错误包命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

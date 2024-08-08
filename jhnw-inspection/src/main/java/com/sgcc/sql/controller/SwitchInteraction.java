@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  *
  *
  */
-@Api("扫描相关")
+@Api(tags ="扫描相关")
 @RestController
 @RequestMapping("/sql/SwitchInteraction")
 @Transactional(rollbackFor = Exception.class)
@@ -90,9 +90,20 @@ public class SwitchInteraction {
      * @return
     */
     @ApiOperation("预执行获取交换机基本信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ip", value = "交换机IP", dataType = "String"),
+            @ApiImplicitParam(name = "name", value = "交换机用户名", dataType = "String"),
+            @ApiImplicitParam(name = "password", value = "<PASSWORD>", dataType = "String"),
+            @ApiImplicitParam(name = "port", value = "交换机端口", dataType = "String"),
+            @ApiImplicitParam(name = "mode", value = "连接方式", dataType = "String"),
+            @ApiImplicitParam(name = "configureCiphers", value = "配置密码", dataType = "String"),
+            @ApiImplicitParam(name = "command", value = "命令数组", dataType = "String"),
+            @ApiImplicitParam(name = "pojoList", value = "分析数据集合", dataType = "String")
+    })
     @PostMapping("testToObtainBasicInformation/{ip}/{name}/{password}/{port}/{mode}/{configureCiphers}/{command}")
     @MyLog(title = "测试获取交换机基本信息逻辑执行结果", businessType = BusinessType.OTHER)
-    public String testToObtainBasicInformation(@PathVariable String ip,@PathVariable String name,@PathVariable String password,@PathVariable String port,@PathVariable String mode,
+    public String testToObtainBasicInformation(@PathVariable String ip,@PathVariable String name,@PathVariable String password,
+                                               @PathVariable String port,@PathVariable String mode,
                                                @PathVariable String configureCiphers, @PathVariable String[] command,@RequestBody List<String> pojoList) {
 
         /*交换机信息类  为了减少方法调用间传的参数*/
@@ -211,6 +222,11 @@ public class SwitchInteraction {
     }
 
     @ApiOperation("模板扫描接口")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataTypeClass = List.class, paramType = "body"),
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "问题表ID集合", dataTypeClass = List.class),
+            @ApiImplicitParam(name = "scanNum", value = "线程数", dataTypeClass = Long.class)
+    })
     @PostMapping("/formworkScann/{formworkId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "模板扫描", businessType = BusinessType.OTHER)
     public String formworkScann(@RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
@@ -242,6 +258,11 @@ public class SwitchInteraction {
      * @return: void
      */
     @ApiOperation("专项扫描接口")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataTypeClass = List.class, paramType = "body"),
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "问题表ID集合", dataTypeClass = List.class),
+            @ApiImplicitParam(name = "scanNum", value = "线程数", dataTypeClass = Long.class)
+    })
     @PostMapping("/directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项扫描", businessType = BusinessType.OTHER)
     public  String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<String> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
@@ -390,15 +411,6 @@ public class SwitchInteraction {
 
         return "扫描结束";
     }
-
-
-
-
-
-
-
-
-
 
 
 

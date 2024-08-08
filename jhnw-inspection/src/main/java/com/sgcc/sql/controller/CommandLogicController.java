@@ -18,6 +18,8 @@ import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +32,7 @@ import java.util.List;
  * 命令逻辑Controller
  * 命令逻辑相关操作
  */
-@Api("交换机命令管理")
+@Api(tags = "交换机命令管理")
 @RestController
 @RequestMapping("/sql/command_logic")
 public class CommandLogicController extends BaseController
@@ -45,6 +47,15 @@ public class CommandLogicController extends BaseController
      * 查询命令逻辑列表
      */
     @ApiOperation("查询命令逻辑列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
+            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
+            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:list')")
     @GetMapping("/list")
     public TableDataInfo list(CommandLogic commandLogic)
@@ -58,6 +69,15 @@ public class CommandLogicController extends BaseController
      * 导出命令逻辑列表
      */
     @ApiOperation("导出命令逻辑列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
+            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
+            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:export')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -72,6 +92,9 @@ public class CommandLogicController extends BaseController
      * 获取命令逻辑详细信息
      */
     @ApiOperation("获取命令逻辑详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -83,6 +106,15 @@ public class CommandLogicController extends BaseController
      * 新增命令逻辑
      */
     @ApiOperation("新增命令逻辑")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
+            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
+            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:add')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.INSERT)
     @PostMapping
@@ -95,6 +127,15 @@ public class CommandLogicController extends BaseController
      * 修改命令逻辑
      */
     @ApiOperation("修改命令逻辑")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
+            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
+            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:edit')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -107,6 +148,9 @@ public class CommandLogicController extends BaseController
      * 删除命令逻辑
      */
     @ApiOperation("删除命令逻辑")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ids", value = "主键", dataType = "String[]")
+    })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:remove')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -129,6 +173,10 @@ public class CommandLogicController extends BaseController
      * @return 插入结果，成功返回true，失败返回false
      */
     @ApiOperation("新增修复异常命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataType = "String"),
+            @ApiImplicitParam(name = "commandLogicList", value = "命令逻辑列表", dataType = "List<String>")
+    })
     //@PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
     @PostMapping("insertModifyProblemCommandSet")
     @MyLog(title = "新增修复异常命令", businessType = BusinessType.INSERT)
@@ -214,6 +262,10 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("修改修复异常命令")
     @PutMapping("updateProblemSolvingCommand")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataType = "String"),
+            @ApiImplicitParam(name = "commandLogics", value = "命令逻辑列表", dataType = "List<String>")
+    })
     @MyLog(title = "修改修复异常命令", businessType = BusinessType.UPDATE)
     public boolean updateProblemSolvingCommand(@RequestParam String totalQuestionTableId,@RequestBody List<String> commandLogics){
         boolean deleteProblemSolvingCommand = deleteProblemSolvingCommand(totalQuestionTableId);
@@ -232,6 +284,9 @@ public class CommandLogicController extends BaseController
      * @return AjaxResult 返回结果
      */
     @ApiOperation("删除修复异常命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataType = "String")
+    })
     @DeleteMapping("deleteProblemSolvingCommand")
     @MyLog(title = "删除修复异常命令", businessType = BusinessType.UPDATE)
     public boolean deleteProblemSolvingCommand(@RequestBody String totalQuestionTableId){

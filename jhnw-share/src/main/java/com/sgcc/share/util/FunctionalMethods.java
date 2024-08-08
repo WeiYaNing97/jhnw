@@ -167,7 +167,6 @@ public class FunctionalMethods {
      * @param current_Round_Extraction_String
      * @return
      */
-    @RequestMapping("compareVersion")
     public static boolean compareVersion(SwitchParameters switchParameters, String compare,String current_Round_Extraction_String){
         /* 提取到的词 进行分割 */
         /*自定义分隔符*/

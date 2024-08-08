@@ -26,7 +26,7 @@ public class ProblemDescribeServiceImpl implements IProblemDescribeService
      * @return 问题描述
      */
     @Override
-    public ProblemDescribe selectProblemDescribeById(Long id)
+    public ProblemDescribe selectProblemDescribeById(String id)
     {
         return problemDescribeMapper.selectProblemDescribeById(id);
     }

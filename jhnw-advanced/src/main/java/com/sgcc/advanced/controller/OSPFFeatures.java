@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 /**
  * OSPF 功能
  */
-@Api("OSPF功能相关")
+@Api(tags = "OSPF功能管理")
 @RestController
 @RequestMapping("/advanced/OSPFFeatures")
 @Transactional(rollbackFor = Exception.class)

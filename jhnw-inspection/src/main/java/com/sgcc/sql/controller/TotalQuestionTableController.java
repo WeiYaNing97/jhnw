@@ -19,6 +19,8 @@ import com.sgcc.sql.service.IFormworkService;
 import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.system.service.ISysUserService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +36,7 @@ import java.util.*;
 @RequestMapping("/sql/total_question_table")
 //事务
 @Transactional(rollbackFor = Exception.class)
-@Api("交换机问题管理")
+@Api(tags ="交换机问题管理")
 public class TotalQuestionTableController extends BaseController
 {
     @Autowired
@@ -49,6 +51,23 @@ public class TotalQuestionTableController extends BaseController
      * 导出问题及命令列表
      */
     @ApiOperation("导出问题及命令列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+
+    })
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:export')")
     @MyLog(title = "问题及命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -64,6 +83,23 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/selectPojoList")
     @ApiOperation("查询交换机问题列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+
+    })
     public List<TotalQuestionTable> selectPojoList(TotalQuestionTable totalQuestionTable)
     {
         /** 品牌 型号 版本 子版本 */
@@ -114,6 +150,23 @@ public class TotalQuestionTableController extends BaseController
      * 获取交换机问题的详细信息
      */
     @ApiOperation("根据ID获取交换机问题的详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+
+    })
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -221,6 +274,23 @@ public class TotalQuestionTableController extends BaseController
      * @return
      */
     @ApiOperation("新增问题")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+
+    })
     @PostMapping("add")
     @MyLog(title = "新增问题", businessType = BusinessType.INSERT)
     public AjaxResult add(@RequestBody TotalQuestionTable totalQuestionTable) {
@@ -343,6 +413,10 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping("/temProNamelist")
     @ApiOperation("根据问题种类查询范本问题名称")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String")
+
+    })
     public List<String> temProNamelist(String typeProblem)
     {
         return totalQuestionTableService.selectTemProNamelistBytypeProblem(typeProblem);
@@ -355,6 +429,23 @@ public class TotalQuestionTableController extends BaseController
     */
     @GetMapping("/problemNameList")
     @ApiOperation("根据问题实体类查询问题名称")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+
+    })
     public List<String> problemNameList(TotalQuestionTable totalQuestionTable)
     {
         totalQuestionTable.setLogicalID(null);
@@ -375,7 +466,18 @@ public class TotalQuestionTableController extends BaseController
      * @return: java.util.List<java.lang.Long>
      */
     @GetMapping(value = "/totalQuestionTableId")
-    public String totalQuestionTableId( String brand, String type, String firewareVersion, String subVersion, String problemName, String typeProblem,String temProName)
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String")
+
+    })
+    public String totalQuestionTableId( String brand, String type, String firewareVersion, String subVersion,
+                                        String problemName, String typeProblem,String temProName)
     {
         TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
         totalQuestionTable.setBrand(brand);
@@ -425,6 +527,23 @@ public class TotalQuestionTableController extends BaseController
      * 根据实体类 模糊查询 实体类集合 fuzzyQueryListBymybatis
      */
     @ApiOperation("根据实体类模糊查询实体类集合")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
+            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
+            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
+            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+
+    })
     @GetMapping("/fuzzyQueryListByPojoMybatis")
     public List<TotalQuestionTableCO> fuzzyQueryListBymybatis(TotalQuestionTable totalQuestionTable)//@RequestBody TotalQuestionTable totalQuestionTable
     {
@@ -460,6 +579,10 @@ public class TotalQuestionTableController extends BaseController
      * 删除交换机问题
      */
     @ApiOperation("删除交换机问题")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键",dataType = "String")
+
+    })
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:remove')")
     @MyLog(title = "删除交换机问题", businessType = BusinessType.DELETE)
     @DeleteMapping("/deleteTotalQuestionTable")

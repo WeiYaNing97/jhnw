@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2022年03月22日 11:17
  * 数据库数据删除
  */
-@Api("数据库数据删除管理")
+@Api(tags = "数据库数据删除管理")
 @RestController
 @RequestMapping("/sql/DatabaseDeletionControler")
 @Transactional(rollbackFor = Exception.class)

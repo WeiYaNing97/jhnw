@@ -17,7 +17,7 @@ public interface IProblemDescribeService
      * @param id 问题描述主键
      * @return 问题描述
      */
-    public ProblemDescribe selectProblemDescribeById(Long id);
+    public ProblemDescribe selectProblemDescribeById(String id);
 
     /**
      * 查询问题描述列表

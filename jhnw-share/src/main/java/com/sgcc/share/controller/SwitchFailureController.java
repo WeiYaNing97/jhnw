@@ -7,6 +7,8 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchFailure;
 import com.sgcc.share.service.ISwitchFailureService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,15 @@ public class SwitchFailureController extends BaseController
      * 查询交换机故障列表
      */
     @ApiOperation("查询交换机故障信息列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "failureId", value = "故障编号", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "failureKeyword", value = "故障关键字", dataType = "String"),
+            @ApiImplicitParam(name = "failureName", value = "故障名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:list')")
     @GetMapping("/list")
     public TableDataInfo list(SwitchFailure switchFailure)
@@ -56,6 +67,15 @@ public class SwitchFailureController extends BaseController
      * 根据品牌查询交换机故障列表
      */
     @ApiOperation("模糊查询交换机故障信息列表(型号、版本、子版本 可以为*)")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "failureId", value = "故障编号", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "failureKeyword", value = "故障关键字", dataType = "String"),
+            @ApiImplicitParam(name = "failureName", value = "故障名称", dataType = "String")
+    })
     public List<SwitchFailure> selectSwitchFailureListByPojo(SwitchFailure switchFailure) {
         switchFailureService = SpringBeanUtil.getBean(ISwitchFailureService.class);
         return switchFailureService.selectSwitchFailureListByPojo(switchFailure);
@@ -66,6 +86,15 @@ public class SwitchFailureController extends BaseController
      * 导出交换机故障列表
      */
     @ApiOperation("导出交换机故障信息列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "failureId", value = "故障编号", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "failureKeyword", value = "故障关键字", dataType = "String"),
+            @ApiImplicitParam(name = "failureName", value = "故障名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:export')")
     @MyLog(title = "导出交换机故障信息列表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -80,6 +109,9 @@ public class SwitchFailureController extends BaseController
      * 获取交换机故障详细信息
      */
     @ApiOperation("获取交换机故障详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "failureId", value = "故障编号", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:query')")
     @GetMapping(value = "/{failureId}")
     public AjaxResult getInfo(@PathVariable("failureId") String failureId)
@@ -91,6 +123,15 @@ public class SwitchFailureController extends BaseController
      * 新增交换机故障
      */
     @ApiOperation("新增交换机故障信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "failureId", value = "故障编号", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "failureKeyword", value = "故障关键字", dataType = "String"),
+            @ApiImplicitParam(name = "failureName", value = "故障名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:add')")
     @MyLog(title = "新增交换机故障信息", businessType = BusinessType.INSERT)
     @PostMapping
@@ -103,6 +144,15 @@ public class SwitchFailureController extends BaseController
      * 修改交换机故障
      */
     @ApiOperation("修改交换机故障信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "failureId", value = "故障编号", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "交换机品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "failureKeyword", value = "故障关键字", dataType = "String"),
+            @ApiImplicitParam(name = "failureName", value = "故障名称", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:edit')")
     @MyLog(title = "修改交换机故障信息", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -115,6 +165,9 @@ public class SwitchFailureController extends BaseController
      * 删除交换机故障
      */
     @ApiOperation("删除交换机故障信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "failureIds", value = "故障编号", dataType = "String[]")
+    })
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:remove')")
     @MyLog(title = "删除交换机故障信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{failureIds}")

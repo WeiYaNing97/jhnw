@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.sgcc.common.annotation.MyLog;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2023-05-19
  */
-@Api("OSPF命令管理")
+@Api(tags = "OSPF命令管理")
 @RestController
 @RequestMapping("/advanced/ospf_command")
 public class OspfCommandController extends BaseController
@@ -41,6 +43,14 @@ public class OspfCommandController extends BaseController
      * 查询OSPF命令列表
      */
     @ApiOperation("查询OSPF命令列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取OSPF参数命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:list')")
     @GetMapping("/list")
     public TableDataInfo list(OspfCommand ospfCommand)
@@ -54,6 +64,14 @@ public class OspfCommandController extends BaseController
      * 导出OSPF命令列表
      */
     @ApiOperation("导出OSPF命令列表")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取OSPF参数命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:export')")
     @MyLog(title = "OSPF命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -68,6 +86,9 @@ public class OspfCommandController extends BaseController
      * 获取OSPF命令详细信息
      */
     @ApiOperation("获取OSPF命令详细信息")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -79,6 +100,14 @@ public class OspfCommandController extends BaseController
      * 新增OSPF命令
      */
     @ApiOperation("新增OSPF命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取OSPF参数命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:add')")
     @MyLog(title = "OSPF命令", businessType = BusinessType.INSERT)
     @PostMapping
@@ -91,6 +120,14 @@ public class OspfCommandController extends BaseController
      * 修改OSPF命令
      */
     @ApiOperation("修改OSPF命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取OSPF参数命令", dataType = "String")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:edit')")
     @MyLog(title = "OSPF命令", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -103,6 +140,9 @@ public class OspfCommandController extends BaseController
      * 删除OSPF命令
      */
     @ApiOperation("删除OSPF命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "ids", value = "主键ID", dataType = "String[]")
+    })
     @PreAuthorize("@ss.hasPermi('advanced:ospf_command:remove')")
     @MyLog(title = "OSPF命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

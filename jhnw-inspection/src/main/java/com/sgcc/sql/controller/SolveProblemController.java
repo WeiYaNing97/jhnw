@@ -22,6 +22,8 @@ import com.sgcc.sql.thread.RepairFixedThreadPool;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.sql.util.InspectionMethods;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +36,7 @@ import java.util.stream.Collectors;
  * 与交换机交互方法类
  * @date 2022年01月05日 14:18
  */
-@Api("修复问题管理")
+@Api(tags = "修复问题管理")
 @RestController
 @RequestMapping("/sql/SolveProblemController")
 @Transactional(rollbackFor = Exception.class)
@@ -63,6 +65,9 @@ public class SolveProblemController {
      */
     @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
     @ApiOperation("根据交换机问题ID查询修复异常命令")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "totalQuestionTableId",value = "交换机问题ID",dataType = "String")
+    })
     public List<String> queryCommandListBytotalQuestionTableId(@PathVariable String totalQuestionTableId){
 
         /*根据ID 查询问题表数据*/
@@ -115,6 +120,12 @@ public class SolveProblemController {
      * @return
     */
     @ApiOperation("修复异常接口")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "userinformation",value = "交换机登录信息",dataType = "List<Object>"),
+            @ApiImplicitParam(name = "problemIdList",value = "交换机扫描结果ID",dataType = "List<String>"),
+            @ApiImplicitParam(name = "scanNum",value = "线程数",dataType = "String"),
+            @ApiImplicitParam(name = "allProIdList",value = "交换机所有扫描结果ID",dataType = "List<String>")
+    })
     @PostMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复异常", businessType = BusinessType.OTHER)
     public String batchSolutionMultithreading(@RequestBody List<Object> userinformation,
@@ -412,6 +423,9 @@ public class SolveProblemController {
      * @return: com.sgcc.common.core.domain.AjaxResult
      */
     @ApiOperation(value = "查询修复异常命令集合")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "commandId", value = "修复命令ID", dataType = "String")
+    })
     @GetMapping("queryCommandSet")
     public List<CommandLogic> queryCommandSet(String commandId){
         List<CommandLogic> commandLogicList = new ArrayList<>();
@@ -622,6 +636,10 @@ public class SolveProblemController {
      * @return 返回一个包含转换后的扫描结果实体类的列表
      */
     @ApiOperation("根据问题ID列表获取未解决问题的信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "loginUser", value = "登录用户信息"),
+            @ApiImplicitParam(name = "problemIds", value = "问题ID列表")
+    })
     @GetMapping("getUnresolvedProblemInformationByIds")
     public List<ScanResultsVO> getUnresolvedProblemInformationByIds(LoginUser loginUser,List<String> problemIds){//待测
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
@@ -712,6 +730,10 @@ public class SolveProblemController {
      * @return 包含转换后的扫描结果实体类的列表
      */
     @ApiOperation( "根据问题ID列表获取交换机扫描结果列表" )
+    @ApiImplicitParams( {
+            @ApiImplicitParam( name = "loginUser", value = "登录用户信息" ),
+            @ApiImplicitParam( name = "problemIds", value = "问题ID列表" )
+    })
     @GetMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);

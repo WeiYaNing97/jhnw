@@ -20,7 +20,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectProblemDescribeById" parameterType="Long" resultMap="ProblemDescribeResult">
+    <select id="selectProblemDescribeById" parameterType="String" resultMap="ProblemDescribeResult">
         <include refid="selectProblemDescribeVo"/>
         where id = #{id}
     </select>

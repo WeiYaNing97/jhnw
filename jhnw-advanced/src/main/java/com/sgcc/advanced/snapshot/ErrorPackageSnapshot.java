@@ -58,7 +58,7 @@ public class ErrorPackageSnapshot {
      * @createTime 2023/12/29 15:51
      * @description 将字符串格式的交换机信息转化为SwitchParameters对象列表，并启动定时任务进行快照分析
      */
-    @RequestMapping("/startSnapshot")
+    @PostMapping("/startSnapshot")
     public static void startSnapshot(@RequestBody List<String> switchInformation) {/*List<String> switchInformation,Integer time*/
 
         // 初始化SwitchParameters对象列表和IP列表
