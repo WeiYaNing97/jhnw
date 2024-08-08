@@ -210,27 +210,40 @@ public class SwitchInteraction {
         return  "交换机连接失败";
     }
 
-    @ApiOperation("模板扫描问题")
+    @ApiOperation("模板扫描接口")
     @PostMapping("/formworkScann/{formworkId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
-    @MyLog(title = "模板扫描问题", businessType = BusinessType.OTHER)
+    @MyLog(title = "模板扫描", businessType = BusinessType.OTHER)
     public String formworkScann(@RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
+        // 获取FormworkService实例
         formworkService = SpringBeanUtil.getBean(IFormworkService.class);
+
+        // 查询问题模板
+        /* 查询问题模板 */
         Formwork formwork = formworkService.selectFormworkById(formworkId);
+
+        // 将模板索引按逗号分割成数组
         String[] formworkSplit = formwork.getFormworkIndex().split(",");
+
+        // 将数组转换为List
         List<String> totalQuestionTableId = Arrays.stream(formworkSplit).collect(Collectors.toList());
+
+        // 调用directionalScann方法进行模板扫描
         String formworkScann = directionalScann(switchInformation, totalQuestionTableId, scanNum);
+
+        // 返回扫描结果
         return formworkScann;
     }
 
 
+
     /***
-     * @method: 多线程扫描 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
+     * @method: 多线程 专项扫描问题 获取到的是字符串格式的参数 {"ip":"192.168.1.100","name":"admin","password":"admin","mode":"ssh","port":"22"}
      * @Param: [switchInformation]
      * @return: void
      */
-    @ApiOperation("专项扫描问题")
+    @ApiOperation("专项扫描接口")
     @PostMapping("/directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
-    @MyLog(title = "专项扫描问题", businessType = BusinessType.OTHER)
+    @MyLog(title = "专项扫描", businessType = BusinessType.OTHER)
     public  String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<String> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
 
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -307,13 +320,13 @@ public class SwitchInteraction {
      * @param scanNum
      * @return
     */
-    @ApiOperation("扫描全部问题")
+    @ApiOperation("全部扫描接口")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataType = "List<String>", dataTypeClass = Object.class),
             @ApiImplicitParam(name = "scanNum", value = "线程数", dataType = "Long", dataTypeClass = Long.class),
     })
     @PostMapping("/multipleScans/{scanNum}")
-    @MyLog(title = "扫描全部问题", businessType = BusinessType.OTHER)
+    @MyLog(title = "全部扫描", businessType = BusinessType.OTHER)
     public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {
 
         /* 交换机登录信息集合 及 系统登录人信息 线程数 */
@@ -379,6 +392,16 @@ public class SwitchInteraction {
     }
 
 
+
+
+
+
+
+
+
+
+
+
     /*Inspection Completed*/
     /**
      * @method: 扫描方法 logInToGetBasicInformation
@@ -387,7 +410,7 @@ public class SwitchInteraction {
      *          List<TotalQuestionTable> totalQuestionTables  用于 专项扫描
      * @return: com.sgcc.common.core.domain.AjaxResult
      */
-    @GetMapping("logInToGetBasicInformation")
+    /*@GetMapping("logInToGetBasicInformation")*/
     public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) {
 
         /*连接交换机 获取交换机基本信息*/
@@ -733,8 +756,7 @@ public class SwitchInteraction {
      * 通过返回提取的信息，给基本属性赋值
      * 成功则返回基本信息 否则 遍历下一条 交换机基本信息的命令字符串集合信息
      */
-    @GetMapping("/getBasicInformationList")
-    @MyLog(title = "获取交换机基本信息", businessType = BusinessType.OTHER)
+
     public  AjaxResult getBasicInformationList(SwitchParameters switchParameters) {
         //查询 获取基本信息命令表  中的全部命令
         //BasicInformation pojo_NULL = new BasicInformation(); //null
@@ -1529,7 +1551,6 @@ public class SwitchInteraction {
         return null;
     }
 
-
     /*Inspection Completed*/
     /**
     * @Description
@@ -1614,14 +1635,11 @@ public class SwitchInteraction {
         return Long.valueOf(insertId).longValue();
     };
 
-
     /**
      * @method: 查询扫描出的问题表 放入 websocket
      * @Param: []
      * @return: java.util.List<com.sgcc.sql.domain.SwitchProblem>
      */
-    @GetMapping("getUnresolvedProblemInformationByData")
-    @ApiOperation("查询当前扫描出的问题表放入websocket")
     public List<ScanResultsVO> getUnresolvedProblemInformationByData(Map<String,String> user_String,Map<String,Object> user_Object){
         //用户名
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
@@ -1716,8 +1734,6 @@ public class SwitchInteraction {
      * @Param: [ ]
      * @return: java.util.List < com.sgcc.sql.domain.SwitchProblem >
      */
-    @GetMapping("getSwitchScanResultListBySwitchParameters")
-    @ApiOperation("查询当前扫描出的问题表放入websocket")
     public List<ScanResultsVO> getSwitchScanResultListBySwitchParameters(SwitchParameters switchParameters){
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         List<SwitchProblemVO> switchProblemList = switchScanResultService.selectSwitchScanResultListByDataAndUserName(switchParameters.getScanningTime(),switchParameters.getLoginUser().getUsername());
@@ -1852,7 +1868,6 @@ public class SwitchInteraction {
      * @return:  返回的是 解决问题ID
      * 分析ID 连接方式 ssh和telnet连接
      */
-    @GetMapping("/executeScanCommandByCommandId")
     public CommandReturn executeScanCommandByCommandId(SwitchParameters switchParameters,
                                                       TotalQuestionTable totalQuestionTable,
                                                       String commandId) {
@@ -1918,7 +1933,6 @@ public class SwitchInteraction {
         return commandReturn;
     }
 
-
     /*Inspection Completed*/
     /**
     * @Description 执行分析
@@ -1930,7 +1944,6 @@ public class SwitchInteraction {
      * @param extractInformation_string    所有提取数据字符串
      * @return
     */
-    @GetMapping("analysisReturnResults")
     public String analysisReturnResults(SwitchParameters switchParameters,
                                         TotalQuestionTable totalQuestionTable,
                                         CommandReturn commandReturn,String current_Round_Extraction_String,String extractInformation_string){
@@ -1957,7 +1970,6 @@ public class SwitchInteraction {
      * @Param: [user_String, connectMethod, telnetSwitchMethod]
      * @return: com.sgcc.common.core.domain.AjaxResult
      */
-    @GetMapping("scanProblem")
     public AjaxResult scanProblem (SwitchParameters switchParameters,
                                   List<TotalQuestionTable> totalQuestionTables) {
         /* 存储 可扫描交换机问题 */
@@ -2079,7 +2091,6 @@ public class SwitchInteraction {
      * @Param: []
      * @return: java.util.List<java.lang.Long>
      */
-    @GetMapping(value = "/commandIdByInformation")
     public AjaxResult commandIdByInformation(SwitchParameters switchParameters) {
 
         /* 自定义交换问题表 根据四项基本信息 查询问题数据*/

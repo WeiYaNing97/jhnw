@@ -44,6 +44,7 @@ public class CommandLogicController extends BaseController
     /**
      * 查询命令逻辑列表
      */
+    @ApiOperation("查询命令逻辑列表")
     @PreAuthorize("@ss.hasPermi('sql:command_logic:list')")
     @GetMapping("/list")
     public TableDataInfo list(CommandLogic commandLogic)
@@ -56,6 +57,7 @@ public class CommandLogicController extends BaseController
     /**
      * 导出命令逻辑列表
      */
+    @ApiOperation("导出命令逻辑列表")
     @PreAuthorize("@ss.hasPermi('sql:command_logic:export')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -69,6 +71,7 @@ public class CommandLogicController extends BaseController
     /**
      * 获取命令逻辑详细信息
      */
+    @ApiOperation("获取命令逻辑详细信息")
     @PreAuthorize("@ss.hasPermi('sql:command_logic:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -79,6 +82,7 @@ public class CommandLogicController extends BaseController
     /**
      * 新增命令逻辑
      */
+    @ApiOperation("新增命令逻辑")
     @PreAuthorize("@ss.hasPermi('sql:command_logic:add')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.INSERT)
     @PostMapping
@@ -90,6 +94,7 @@ public class CommandLogicController extends BaseController
     /**
      * 修改命令逻辑
      */
+    @ApiOperation("修改命令逻辑")
     @PreAuthorize("@ss.hasPermi('sql:command_logic:edit')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -101,6 +106,7 @@ public class CommandLogicController extends BaseController
     /**
      * 删除命令逻辑
      */
+    @ApiOperation("删除命令逻辑")
     @PreAuthorize("@ss.hasPermi('sql:command_logic:remove')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -116,16 +122,16 @@ public class CommandLogicController extends BaseController
 
 
     /**
-     * 修复问题命令插入
-     * 修复问题集合插入及问题表数据修改
+     * 新增修复异常命令
+     * 新增修复异常命令及问题表数据修改
      * @param totalQuestionTableId 总问题表ID
      * @param commandLogicList     命令逻辑列表
      * @return 插入结果，成功返回true，失败返回false
      */
-    @ApiOperation("修复问题命令插入")
+    @ApiOperation("新增修复异常命令")
     //@PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
     @PostMapping("insertModifyProblemCommandSet")
-    @MyLog(title = "修复问题集合插入", businessType = BusinessType.INSERT)
+    @MyLog(title = "新增修复异常命令", businessType = BusinessType.INSERT)
     public boolean insertModifyProblemCommandSet(@RequestParam String totalQuestionTableId,@RequestBody List<String> commandLogicList){
         // 获取系统登陆人信息
         //系统登陆人信息
@@ -202,19 +208,19 @@ public class CommandLogicController extends BaseController
     }
 
     /**
-     * @method: 修改解决问题命令List
+     * @method: 修改修复异常命令List
      * @Param: [totalQuestionTableId]
      * @return: com.sgcc.common.core.domain.AjaxResult
      */
-    @ApiOperation("修改修复问题命令")
+    @ApiOperation("修改修复异常命令")
     @PutMapping("updateProblemSolvingCommand")
-    @MyLog(title = "修改修复问题命令", businessType = BusinessType.UPDATE)
+    @MyLog(title = "修改修复异常命令", businessType = BusinessType.UPDATE)
     public boolean updateProblemSolvingCommand(@RequestParam String totalQuestionTableId,@RequestBody List<String> commandLogics){
         boolean deleteProblemSolvingCommand = deleteProblemSolvingCommand(totalQuestionTableId);
         if (!deleteProblemSolvingCommand){
             return false;
         }
-        //重新插入解决问题命令
+        //重新添加修复异常命令
         boolean insertModifyProblemCommand = insertModifyProblemCommandSet(totalQuestionTableId, commandLogics);
         return insertModifyProblemCommand;
     }
@@ -225,9 +231,9 @@ public class CommandLogicController extends BaseController
      * @param totalQuestionTableId 问题表ID
      * @return AjaxResult 返回结果
      */
-    @ApiOperation("删除修复问题命令")
+    @ApiOperation("删除修复异常命令")
     @DeleteMapping("deleteProblemSolvingCommand")
-    @MyLog(title = "删除修复问题命令", businessType = BusinessType.UPDATE)
+    @MyLog(title = "删除修复异常命令", businessType = BusinessType.UPDATE)
     public boolean deleteProblemSolvingCommand(@RequestBody String totalQuestionTableId){
         // 根据问题表ID查询问题数据
         //根据 问题表 问题ID 查询 问题数据

@@ -48,7 +48,7 @@ public class DatabaseDeletionControler {
     @ApiOperation("删除数据表所有数据")
     @MyLog(title = "删除数据表所有数据", businessType = BusinessType.DELETE)
     @DeleteMapping("deleteAllTable")
-    public void deleteAllTable() {
+    public boolean deleteAllTable() {
         basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
@@ -74,5 +74,12 @@ public class DatabaseDeletionControler {
         int deleteSwitchFailureByFailure = switchFailureService.deleteSwitchFailureByFailure();
         /*交换机扫描结果表*/
         int deleteSwitchScanResult = switchScanResultService.deleteSwitchScanResult();
+        if (deleteBasicInformation > 0 && deleteTotalQuestionTable > 0
+            && deleteCommandLogic > 0 && deleteProblemScanLogic > 0
+            && deleteReturnRecord > 0 && deleteSwitchErrorByError > 0
+            && deleteSwitchFailureByFailure > 0 && deleteSwitchScanResult > 0) {
+            return true;
+        }
+        return false;
     }
 }

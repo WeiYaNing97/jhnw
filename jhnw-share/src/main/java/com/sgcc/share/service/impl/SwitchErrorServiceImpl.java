@@ -39,27 +39,6 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
     }
 
     /**
-     * 查询交换机错误列表
-     * 
-     * @param switchError 交换机错误
-     * @return 交换机错误
-     */
-    @Override
-    public List<SwitchError> selectSwitchErrorList(SwitchError switchError)
-    {
-        List<SwitchError> pojo = new ArrayList<>();
-        pojo.addAll(switchErrorMapper.selectSwitchErrorList(switchError));
-
-        String equivalence = FunctionalMethods.getEquivalence(switchError.getBrand());
-        if (equivalence!=null){
-            switchError.setBrand(equivalence);
-            pojo.addAll(switchErrorMapper.selectSwitchErrorList(switchError));
-        }
-
-        return pojo;
-    }
-
-    /**
      * 新增交换机错误
      * 
      * @param switchError 交换机错误
@@ -126,6 +105,26 @@ public class SwitchErrorServiceImpl implements ISwitchErrorService
 
         return pojo;
 
+    }
+    /**
+     * 查询交换机错误列表
+     *
+     * @param switchError 交换机错误
+     * @return 交换机错误
+     */
+    @Override
+    public List<SwitchError> selectSwitchErrorList(SwitchError switchError)
+    {
+        List<SwitchError> pojo = new ArrayList<>();
+        pojo.addAll(switchErrorMapper.selectSwitchErrorList(switchError));
+
+        String equivalence = FunctionalMethods.getEquivalence(switchError.getBrand());
+        if (equivalence!=null){
+            switchError.setBrand(equivalence);
+            pojo.addAll(switchErrorMapper.selectSwitchErrorList(switchError));
+        }
+
+        return pojo;
     }
 
     /*删除数据表所有数据*/

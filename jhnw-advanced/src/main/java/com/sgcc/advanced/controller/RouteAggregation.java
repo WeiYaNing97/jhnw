@@ -24,6 +24,12 @@ public class RouteAggregation {
     @Autowired
     private IRouteAggregationCommandService routeAggregationCommandService;
 
+    /**
+     * 获取聚合结果
+     *
+     * @param switchParameters 交换机参数
+     * @return 无返回值
+     */
     public  void obtainAggregationResults(SwitchParameters switchParameters) {
 
         String switchReturnsInformation= switchReturnsResult(switchParameters);

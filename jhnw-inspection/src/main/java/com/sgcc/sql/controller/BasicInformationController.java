@@ -36,6 +36,7 @@ public class BasicInformationController extends BaseController
     /**
      * 查询获取基本信息命令列表
      */
+    @ApiOperation("获取基本信息命令列表")
     @PreAuthorize("@ss.hasPermi('sql:basic_information:list')")
     @GetMapping("/list")
     public TableDataInfo list(BasicInformation basicInformation)
@@ -48,6 +49,7 @@ public class BasicInformationController extends BaseController
     /**
      * 导出获取基本信息命令列表
      */
+    @ApiOperation("导出获取基本信息命令列表")
     @PreAuthorize("@ss.hasPermi('sql:basic_information:export')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -61,6 +63,7 @@ public class BasicInformationController extends BaseController
     /**
      * 获取获取基本信息命令详细信息
      */
+    @ApiOperation("获取获取基本信息命令详细信息")
     @PreAuthorize("@ss.hasPermi('sql:basic_information:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -71,6 +74,7 @@ public class BasicInformationController extends BaseController
     /**
      * 新增获取基本信息命令
      */
+    @ApiOperation("新增获取基本信息命令")
     @PreAuthorize("@ss.hasPermi('sql:basic_information:add')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.INSERT)
     @PostMapping
@@ -82,6 +86,7 @@ public class BasicInformationController extends BaseController
     /**
      * 修改获取基本信息命令
      */
+    @ApiOperation("修改获取基本信息命令")
     @PreAuthorize("@ss.hasPermi('sql:basic_information:edit')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -93,6 +98,7 @@ public class BasicInformationController extends BaseController
     /**
      * 删除获取基本信息命令
      */
+    @ApiOperation("删除获取基本信息命令")
     @PreAuthorize("@ss.hasPermi('sql:basic_information:remove')")
     @MyLog(title = "获取基本信息命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -104,7 +110,7 @@ public class BasicInformationController extends BaseController
     /**
      * 查询获取基本信息命令列表
      *
-     * @return 返回包含基本信息命令列表的List对象
+     * @return 返回一个包含转换后的基本信息命令列表的List对象
      */
     @ApiOperation("查询获取基本信息命令列表")
     @GetMapping("/getPojolist")

@@ -62,7 +62,7 @@ public class SolveProblemController {
      *
      */
     @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
-    @ApiOperation("查询修复问题命令")
+    @ApiOperation("根据交换机问题ID查询修复异常命令")
     public List<String> queryCommandListBytotalQuestionTableId(@PathVariable String totalQuestionTableId){
 
         /*根据ID 查询问题表数据*/
@@ -114,9 +114,9 @@ public class SolveProblemController {
      * @param allProIdList  交换机所有扫描结果ID
      * @return
     */
-    @ApiOperation("修复问题接口")
+    @ApiOperation("修复异常接口")
     @PostMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
-    @MyLog(title = "修复问题", businessType = BusinessType.OTHER)
+    @MyLog(title = "修复异常", businessType = BusinessType.OTHER)
     public String batchSolutionMultithreading(@RequestBody List<Object> userinformation,
                                             @PathVariable  List<String> problemIdList,
                                             @PathVariable  String scanNum,
@@ -411,6 +411,7 @@ public class SolveProblemController {
      * @Param: [commandId]
      * @return: com.sgcc.common.core.domain.AjaxResult
      */
+    @ApiOperation(value = "查询修复异常命令集合")
     @GetMapping("queryCommandSet")
     public List<CommandLogic> queryCommandSet(String commandId){
         List<CommandLogic> commandLogicList = new ArrayList<>();
@@ -612,22 +613,23 @@ public class SolveProblemController {
     }
 
 
+
     /**
-     * @method: 根据用户名 和 修复问题ID 列表
-     * @Param:
-     * @return:
+     * 根据问题ID列表获取未解决问题的信息
+     *
+     * @param loginUser 登录用户信息
+     * @param problemIds 问题ID列表
+     * @return 返回一个包含转换后的扫描结果实体类的列表
      */
+    @ApiOperation("根据问题ID列表获取未解决问题的信息")
     @GetMapping("getUnresolvedProblemInformationByIds")
     public List<ScanResultsVO> getUnresolvedProblemInformationByIds(LoginUser loginUser,List<String> problemIds){//待测
-
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);
-
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
         List<SwitchProblemVO> switchProblemList = switchProblemService.selectUnresolvedProblemInformationByIds(id);
         if (switchProblemList.size() == 0){
             return new ArrayList<>();
         }
-
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(FunctionalMethods.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();
@@ -644,13 +646,11 @@ public class SolveProblemController {
                 switchProblemCO.setValueInformationVOList(valueInformationVOList);
             }
         }
-
         //将IP地址去重放入set集合中
         HashSet<String> ip_hashSet = new HashSet<>();
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             ip_hashSet.add(switchProblemVO.getSwitchIp());
         }
-
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         for (String ip_string:ip_hashSet){
@@ -660,7 +660,6 @@ public class SolveProblemController {
             scanResultsVO.hproblemId = Long.valueOf(FunctionalMethods.getTimestamp(date4)+""+ (int)(Math.random()*10000+1)).longValue();
             scanResultsVOList.add(scanResultsVO);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = new ArrayList<>();
             String pinpai = "*";
@@ -686,7 +685,6 @@ public class SolveProblemController {
                     if (!(subVersion .equals("*"))){
                         zibanben = subVersion;
                     }
-
                     switchProblemVOList.add(switchProblemVO);
                 }
             }
@@ -694,25 +692,26 @@ public class SolveProblemController {
             scanResultsVO.setShowBasicInfo("("+pinpai+" "+xinghao+" "+banben+" "+zibanben+")");
             scanResultsVO.setSwitchProblemVOList(switchProblemVOList);
         }
-
         for (ScanResultsVO scanResultsVO:scanResultsVOList){
             List<SwitchProblemVO> switchProblemVOList = scanResultsVO.getSwitchProblemVOList();
             for (SwitchProblemVO switchProblemVO:switchProblemVOList){
                 switchProblemVO.setSwitchIp(null);
             }
         }
-
         WebSocketService.sendMessage("loophole:"+loginUser.getUsername(),scanResultsVOList);
         return scanResultsVOList;
-
     }
 
 
+
     /**
-     * @method: 根据用户名 和 修复问题ID 列表
-     * @Param:
-     * @return:
+     * 根据问题ID列表获取交换机扫描结果列表
+     *
+     * @param loginUser 登录用户信息
+     * @param problemIds 问题ID列表
+     * @return 包含转换后的扫描结果实体类的列表
      */
+    @ApiOperation( "根据问题ID列表获取交换机扫描结果列表" )
     @GetMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测
         Long[] id = problemIds.stream().map(p -> Long.parseLong(p)).toArray(Long[]::new);

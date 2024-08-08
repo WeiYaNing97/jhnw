@@ -18,24 +18,26 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Api("高级功能")
+@Api("运行分析")
 @RestController
 @RequestMapping("/advanced/AdvancedFeatures")
 @Transactional(rollbackFor = Exception.class)
 public class AdvancedFeatures {
 
+
     /**
-     * 高级功能接口
+     * 调用运行分析接口，根据扫描次数和功能名称，执行相应的操作。
      *
-     * @param switchInformation 用户登录信息列表
+     * @param switchInformation 用户登录信息列表，格式为json字符串
      * @param scanNum           扫描次数
-     * @param functionName    功能名称
+     * @param functionName      功能名称列表
      * @return 返回扫描结束字符串
      * @throws InterruptedException 线程中断异常
+     * @throws IOException 文件写入异常
      */
-    @ApiOperation("高级功能接口")
+    @ApiOperation("运行分析接口")
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
-    @MyLog(title = "高级功能", businessType = BusinessType.OTHER)
+    @MyLog(title = "运行分析", businessType = BusinessType.OTHER)
     public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {
         // 获取当前时间并格式化为字符串
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());

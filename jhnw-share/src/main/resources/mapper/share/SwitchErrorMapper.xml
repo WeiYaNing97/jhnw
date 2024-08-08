@@ -18,18 +18,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select error_id, brand, switch_type, fireware_version, sub_version, error_keyword, error_name from switch_error
     </sql>
 
-    <select id="selectSwitchErrorList" parameterType="SwitchError" resultMap="SwitchErrorResult">
-        <include refid="selectSwitchErrorVo"/>
-        <where>  
-            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
-            <if test="switchType != null  and switchType != ''"> and LOWER(switch_type) = LOWER(#{switchType})</if>
-            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
-            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
-            <if test="errorKeyword != null  and errorKeyword != ''"> and error_keyword = #{errorKeyword}</if>
-            <if test="errorName != null  and errorName != ''"> and error_name like concat('%', #{errorName}, '%')</if>
-        </where>
-    </select>
-
     <select id="selectSwitchErrorListByPojo" parameterType="SwitchError" resultMap="SwitchErrorResult">
         <include refid="selectSwitchErrorVo"/>
         <where>
@@ -37,6 +25,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="switchType != null  and switchType != ''"> and ( LOWER(switch_type) = LOWER(#{switchType}) or switch_type = '*' )</if>
             <if test="firewareVersion != null  and firewareVersion != ''"> and ( fireware_version = #{firewareVersion} or fireware_version = '*' )</if>
             <if test="subVersion != null  and subVersion != ''"> and ( sub_version = #{subVersion} or sub_version = '*' )</if>
+            <if test="errorKeyword != null  and errorKeyword != ''"> and error_keyword = #{errorKeyword}</if>
+            <if test="errorName != null  and errorName != ''"> and error_name like concat('%', #{errorName}, '%')</if>
+        </where>
+    </select>
+    <select id="selectSwitchErrorList" parameterType="SwitchError" resultMap="SwitchErrorResult">
+        <include refid="selectSwitchErrorVo"/>
+        <where>
+            <if test="brand != null  and brand != ''"> and LOWER(brand) = LOWER(#{brand})</if>
+            <if test="switchType != null  and switchType != ''"> and LOWER(switch_type) = LOWER(#{switchType})</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
             <if test="errorKeyword != null  and errorKeyword != ''"> and error_keyword = #{errorKeyword}</if>
             <if test="errorName != null  and errorName != ''"> and error_name like concat('%', #{errorName}, '%')</if>
         </where>

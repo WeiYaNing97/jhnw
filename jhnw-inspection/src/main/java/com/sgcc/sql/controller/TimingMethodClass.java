@@ -23,7 +23,6 @@ import java.util.List;
  * @author:
  * @create: 2024-01-17 15:07
  **/
-@Component("/advanced/timingMethodClass")
 public class TimingMethodClass {
 
     /**

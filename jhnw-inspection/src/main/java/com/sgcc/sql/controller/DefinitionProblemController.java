@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
 /**
  * @date 2022年03月22日 11:17
  */
+@Api("定义交换机信息分析接口")
 @RestController
 @RequestMapping("/sql/DefinitionProblemController")
 @Transactional(rollbackFor = Exception.class)
-@Api("问题相关")
 public class DefinitionProblemController extends BaseController {
 
     @Autowired
@@ -44,66 +44,7 @@ public class DefinitionProblemController extends BaseController {
     @Autowired
     private  IBasicInformationService basicInformationService;
 
-    /**
-     * 定义获取交换机基本信息命令插入的方法
-     *
-     * @param jsonPojoList 交换机基本信息json列表
-     * @param command      交换机基本信息命令数组
-     * @param custom       自定义参数
-     * @return 插入成功返回true，否则返回false
-     */
-    @ApiOperation("定义获取交换机基本信息命令")
-    @PostMapping("insertInformationAnalysis/{command}/{custom}")
-    @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.UPDATE)
-    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
-        // 将自定义参数转为字符串数组
-        custom = "["+custom+"]";
-        String comands = "";
 
-        // 获取自定义分隔符
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-
-        // 拼接命令字符串
-        for (int num = 0 ;num < command.length; num++){
-            comands = comands + command[num] + customDelimiter ;
-        }
-
-        // 去除最后一个分隔符，并添加自定义参数
-        comands = comands.substring(0,  comands.length() - customDelimiter.length()  ) + custom;
-
-        // 获取系统登录人信息
-        LoginUser loginUser = SecurityUtils.getLoginUser();
-
-        // 创建BasicInformation实体类
-        BasicInformation basicInformation = new BasicInformation();
-
-        // 设置交换机基本信息命令
-        basicInformation.setCommand(comands);
-
-        // 获取BasicInformationService的Bean实例
-        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
-
-        // 调用插入交换机基本信息的方法，返回结果保存在变量i中
-        int i = basicInformationService.insertBasicInformation(basicInformation);
-
-        // 如果插入失败（i<=0) 则返回false
-        if (i<=0){
-            // 发送告警信息，包含登录人姓名和问题简述
-            //传输登陆人姓名 及问题简述
-            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
-                    "错误:获取交换机基本信息命令插入失败\r\n");
-            return false;
-        }
-
-        // 获取插入的交换机基本信息的ID
-        Long id = basicInformation.getId();
-
-        // 调用插入交换机信息分析的方法，返回结果保存在变量insertInformationAnalysisMethod中
-        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,jsonPojoList,id);
-
-        // 返回插入交换机信息分析的结果
-        return insertInformationAnalysisMethod;
-    }
 
     /**
     * @Description  定义获取基本信息分析数据插入
@@ -270,8 +211,8 @@ public class DefinitionProblemController extends BaseController {
      * @return 插入是否成功，成功返回true，否则返回false
      */
     @PostMapping("definitionProblemJsonPojo")
-    @MyLog(title = "定义分析问题数据插入", businessType = BusinessType.UPDATE)
-    @ApiOperation("定义分析问题数据")
+    @MyLog(title = "新增交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
+    @ApiOperation("新增交换机问题分析逻辑数据")
     public boolean definitionProblemJson(@RequestParam String totalQuestionTableId,@RequestBody List<String> jsonPojoList){
         // 获取系统登录人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -486,17 +427,15 @@ public class DefinitionProblemController extends BaseController {
         return target;
     }
 
-
-
     /**
      * 根据交换机问题实体类查询问题分析逻辑数据
      *
      * @param totalQuestionTable 交换机问题实体类
      * @return java.util.List<java.lang.String> 返回一个字符串列表，表示问题分析逻辑数据
      */
-    @ApiOperation("查询定义分析问题数据")
+    @ApiOperation("查询交换机问题分析逻辑数据")
     @GetMapping("getAnalysisList")
-    @MyLog(title = "查询定义分析问题数据", businessType = BusinessType.OTHER)
+    @MyLog(title = "查询交换机问题分析逻辑数据", businessType = BusinessType.OTHER)
     public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
         // 获取系统登录人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -741,7 +680,8 @@ public class DefinitionProblemController extends BaseController {
      * @return 删除是否成功，成功返回true，失败返回false
      */
     @DeleteMapping("deleteScanningLogic")
-    @ApiOperation("删除扫描逻辑数据")
+    @ApiOperation("删除交换机问题分析逻辑数据")
+    @MyLog(title = "删除交换机问题分析逻辑数据", businessType = BusinessType.DELETE)
     public boolean deleteScanningLogic(@RequestBody String id) {
         // 获取总问题表服务
         totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);
@@ -912,9 +852,9 @@ public class DefinitionProblemController extends BaseController {
 
     /*定义分析问题数据修改
     * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
-    @ApiOperation("分析问题数据修改")
+    @ApiOperation("修改交换机问题分析逻辑数据")
     @PutMapping("updateAnalysis")
-    @MyLog(title = "修改分析问题数据", businessType = BusinessType.UPDATE)
+    @MyLog(title = "修改交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
     public boolean updateAnalysis(@RequestParam String totalQuestionTableId,@RequestBody List<String> pojoList){
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -960,6 +900,70 @@ public class DefinitionProblemController extends BaseController {
         return definitionProblemJsonPojo;
     }
 
+
+
+
+
+    /**
+     * 定义获取交换机基本信息命令插入的方法
+     *
+     * @param jsonPojoList 交换机基本信息json列表
+     * @param command      交换机基本信息命令数组
+     * @param custom       自定义参数
+     * @return 插入成功返回true，否则返回false
+     */
+    @ApiOperation("定义获取交换机基本信息命令")
+    @PostMapping("insertInformationAnalysis/{command}/{custom}")
+    @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.INSERT)
+    public boolean insertInformationAnalysis(@RequestBody List<String> jsonPojoList,@PathVariable String[] command,@PathVariable String custom){
+        // 将自定义参数转为字符串数组
+        custom = "["+custom+"]";
+        String comands = "";
+
+        // 获取自定义分隔符
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        // 拼接命令字符串
+        for (int num = 0 ;num < command.length; num++){
+            comands = comands + command[num] + customDelimiter ;
+        }
+
+        // 去除最后一个分隔符，并添加自定义参数
+        comands = comands.substring(0,  comands.length() - customDelimiter.length()  ) + custom;
+
+        // 获取系统登录人信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+
+        // 创建BasicInformation实体类
+        BasicInformation basicInformation = new BasicInformation();
+
+        // 设置交换机基本信息命令
+        basicInformation.setCommand(comands);
+
+        // 获取BasicInformationService的Bean实例
+        basicInformationService = SpringBeanUtil.getBean(IBasicInformationService.class);
+
+        // 调用插入交换机基本信息的方法，返回结果保存在变量i中
+        int i = basicInformationService.insertBasicInformation(basicInformation);
+
+        // 如果插入失败（i<=0) 则返回false
+        if (i<=0){
+            // 发送告警信息，包含登录人姓名和问题简述
+            //传输登陆人姓名 及问题简述
+            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
+                    "错误:获取交换机基本信息命令插入失败\r\n");
+            return false;
+        }
+
+        // 获取插入的交换机基本信息的ID
+        Long id = basicInformation.getId();
+
+        // 调用插入交换机信息分析的方法，返回结果保存在变量insertInformationAnalysisMethod中
+        boolean insertInformationAnalysisMethod = insertInformationAnalysisMethod(loginUser,jsonPojoList,id);
+
+        // 返回插入交换机信息分析的结果
+        return insertInformationAnalysisMethod;
+    }
 
 
     /**

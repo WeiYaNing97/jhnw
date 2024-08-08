@@ -1,6 +1,9 @@
 package com.sgcc.advanced.controller;
 
 import java.util.List;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2024-07-29
  */
+@Api("路由聚合命令管理")
 @RestController
 @RequestMapping("/advanced/RouteAggregationCommand")
 public class RouteAggregationCommandController extends BaseController
@@ -36,6 +40,7 @@ public class RouteAggregationCommandController extends BaseController
     /**
      * 查询路由聚合命令列表
      */
+    @ApiOperation("查询路由聚合命令列表")
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:list')")
     @GetMapping("/list")
     public TableDataInfo list(RouteAggregationCommand routeAggregationCommand)
@@ -48,6 +53,7 @@ public class RouteAggregationCommandController extends BaseController
     /**
      * 导出路由聚合命令列表
      */
+    @ApiOperation("导出路由聚合命令列表")
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:export')")
     @Log(title = "路由聚合命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -61,6 +67,7 @@ public class RouteAggregationCommandController extends BaseController
     /**
      * 获取路由聚合命令详细信息
      */
+    @ApiOperation("获取路由聚合命令详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -71,6 +78,7 @@ public class RouteAggregationCommandController extends BaseController
     /**
      * 新增路由聚合命令
      */
+    @ApiOperation("新增路由聚合命令")
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:add')")
     @Log(title = "路由聚合命令", businessType = BusinessType.INSERT)
     @PostMapping
@@ -82,6 +90,7 @@ public class RouteAggregationCommandController extends BaseController
     /**
      * 修改路由聚合命令
      */
+    @ApiOperation("修改路由聚合命令")
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:edit')")
     @Log(title = "路由聚合命令", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -93,6 +102,7 @@ public class RouteAggregationCommandController extends BaseController
     /**
      * 删除路由聚合命令
      */
+    @ApiOperation("删除路由聚合命令")
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:remove')")
     @Log(title = "路由聚合命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

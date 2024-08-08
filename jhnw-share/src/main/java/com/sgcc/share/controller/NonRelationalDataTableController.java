@@ -26,6 +26,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2024-05-22
  */
+
 @RestController
 @RequestMapping("/share/non_relational_data_table")
 public class NonRelationalDataTableController extends BaseController

@@ -16,6 +16,7 @@ import com.sgcc.share.domain.*;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.ISwitchScanResultService;
 import com.sgcc.share.util.*;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import sun.security.x509.IPAddressName;
 /**
  * 交换机扫描结果Controller
  */
+@Api(tags = "交换机扫描结果管理")
 @RestController
 @RequestMapping("/share/switch_scan_result")
 //事务
@@ -85,6 +87,7 @@ public class SwitchScanResultController extends BaseController
     /**
      * 根据IP查询交换机扫描结果表最新数据
      */
+    @ApiOperation("根据IP查询交换机扫描结果表最新数据")
     @GetMapping(value = "/getTheLatestData/{ip}")/*/{ip}*/
     public AjaxResult getTheLatestData(@PathVariable String ip) {/*@PathVariable*/
         SwitchScanResult theLatestDataByIP = switchScanResultService.getTheLatestDataByIP(ip);
@@ -124,6 +127,7 @@ public class SwitchScanResultController extends BaseController
     /**
      * 删除交换机扫描结果
      */
+    @ApiOperation("删除交换机扫描结果")
     @PreAuthorize("@ss.hasPermi('sql:switch_scan_result:remove')")
     @MyLog(title = "交换机扫描结果", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -393,6 +397,7 @@ public class SwitchScanResultController extends BaseController
      * @param switchInformations 包含交换机登录信息的字符串列表
      * @return 无返回值
      */
+    @ApiOperation(value = "更新登录信息")
     @PutMapping("/updateLoginInformation")
     public void updateLoginInformation(@RequestBody List<String> switchInformations) {
         // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}

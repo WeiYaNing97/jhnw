@@ -9,6 +9,7 @@ import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.*;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ import java.util.*;
 /**
  * 问题扫描逻辑Controller
  */
+@Api(tags = "问题扫描逻辑管理")
 @RestController
 @RequestMapping("/sql/problem_scan_logic")
 //事务
@@ -31,6 +33,7 @@ public class ProblemScanLogicController extends BaseController {
     /**
      * 查询问题扫描逻辑列表
      */
+    @ApiOperation("查询问题扫描逻辑列表")
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:list')")
     @GetMapping("/list")
     public TableDataInfo list(ProblemScanLogic problemScanLogic)
@@ -43,6 +46,7 @@ public class ProblemScanLogicController extends BaseController {
     /**
      * 导出问题扫描逻辑列表
      */
+    @ApiOperation("导出问题扫描逻辑列表")
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:export')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -56,6 +60,7 @@ public class ProblemScanLogicController extends BaseController {
     /**
      * 获取问题扫描逻辑详细信息
      */
+    @ApiOperation("获取问题扫描逻辑详细信息")
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -66,6 +71,7 @@ public class ProblemScanLogicController extends BaseController {
     /**
      * 新增问题扫描逻辑
      */
+    @ApiOperation("新增问题扫描逻辑")
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:add')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.INSERT)
     @PostMapping
@@ -77,6 +83,7 @@ public class ProblemScanLogicController extends BaseController {
     /**
      * 修改问题扫描逻辑
      */
+    @ApiOperation("修改问题扫描逻辑")
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:edit')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -88,6 +95,7 @@ public class ProblemScanLogicController extends BaseController {
     /**
      * 删除问题扫描逻辑
      */
+    @ApiOperation("删除问题扫描逻辑")
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:remove')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")

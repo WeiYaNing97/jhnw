@@ -8,6 +8,8 @@ import com.sgcc.common.utils.DateUtils;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.sql.domain.*;
 import com.sgcc.sql.service.ISwitchProblemService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import java.util.List;
 /**
  * 交换机问题Controller
  */
+@Api(tags = "交换机问题管理(未用)")
 @RestController
 @RequestMapping("/sql/switch_problem")
 public class SwitchProblemController extends BaseController
@@ -26,6 +29,7 @@ public class SwitchProblemController extends BaseController
     /**
      * 查询交换机问题列表
      */
+    @ApiOperation(value = "查询交换机问题列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:list')")
     @GetMapping("/list")
     public TableDataInfo list(SwitchProblem switchProblem)
@@ -38,6 +42,7 @@ public class SwitchProblemController extends BaseController
     /**
      * 导出交换机问题列表
      */
+    @ApiOperation(value = "导出交换机问题列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:export')")
     @MyLog(title = "交换机问题", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -51,6 +56,7 @@ public class SwitchProblemController extends BaseController
     /**
      * 获取交换机问题详细信息
      */
+    @ApiOperation(value = "获取交换机问题详细信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -61,6 +67,7 @@ public class SwitchProblemController extends BaseController
     /**
      * 新增交换机问题
      */
+    @ApiOperation(value = "新增交换机问题")
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:add')")
     @MyLog(title = "交换机问题", businessType = BusinessType.INSERT)
     @PostMapping
@@ -73,6 +80,7 @@ public class SwitchProblemController extends BaseController
     /**
      * 修改交换机问题
      */
+    @ApiOperation(value = "修改交换机问题")
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:edit')")
     @MyLog(title = "交换机问题", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -84,6 +92,7 @@ public class SwitchProblemController extends BaseController
     /**
      * 删除交换机问题
      */
+    @ApiOperation(value = "删除交换机问题")
     @PreAuthorize("@ss.hasPermi('sql:switch_problem:remove')")
     @MyLog(title = "交换机问题", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

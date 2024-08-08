@@ -1,6 +1,9 @@
 package com.sgcc.share.controller;
 
 import java.util.List;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2024-02-26
  */
+@Api(tags = "异常告警信息管理")
 @RestController
 @RequestMapping("/share/abnormal_alarm_information")
 public class AbnormalAlarmInformationController extends BaseController
@@ -36,6 +40,7 @@ public class AbnormalAlarmInformationController extends BaseController
     /**
      * 查询异常告警信息列表
      */
+    @ApiOperation("查询异常告警信息列表")
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:list')")
     @GetMapping("/list")
     public TableDataInfo list(AbnormalAlarmInformation abnormalAlarmInformation)
@@ -48,6 +53,7 @@ public class AbnormalAlarmInformationController extends BaseController
     /**
      * 导出异常告警信息列表
      */
+    @ApiOperation("导出异常告警信息列表")
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:export')")
     @Log(title = "异常告警信息", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -61,6 +67,7 @@ public class AbnormalAlarmInformationController extends BaseController
     /**
      * 获取异常告警信息详细信息
      */
+    @ApiOperation("获取异常告警信息详细信息")
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:query')")
     @GetMapping(value = "/{switchIp}")
     public AjaxResult getInfo(@PathVariable("switchIp") String switchIp)
@@ -71,6 +78,7 @@ public class AbnormalAlarmInformationController extends BaseController
     /**
      * 新增异常告警信息
      */
+    @ApiOperation("新增异常告警信息")
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:add')")
     @Log(title = "异常告警信息", businessType = BusinessType.INSERT)
     @PostMapping
@@ -82,6 +90,7 @@ public class AbnormalAlarmInformationController extends BaseController
     /**
      * 修改异常告警信息
      */
+    @ApiOperation("修改异常告警信息")
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:edit')")
     @Log(title = "异常告警信息", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -93,6 +102,7 @@ public class AbnormalAlarmInformationController extends BaseController
     /**
      * 删除异常告警信息
      */
+    @ApiOperation("删除异常告警信息")
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:remove')")
     @Log(title = "异常告警信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{switchIps}")

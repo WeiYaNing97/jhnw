@@ -1,6 +1,8 @@
 package com.sgcc.advanced.controller;
 import java.util.List;
 import com.sgcc.common.annotation.MyLog;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2023-05-19
  */
+@Api("错误包命令管理")
 @RestController
 @RequestMapping("/advanced/error_rate_command")
 public class ErrorRateCommandController extends BaseController
@@ -34,6 +37,7 @@ public class ErrorRateCommandController extends BaseController
     /**
      * 查询错误包命令列表
      */
+    @ApiOperation("查询错误包命令列表")
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:list')")
     @GetMapping("/list")
     public TableDataInfo list(ErrorRateCommand errorRateCommand)
@@ -43,9 +47,11 @@ public class ErrorRateCommandController extends BaseController
         List<ErrorRateCommand> list = errorRateCommandService.selectErrorRateCommandList(errorRateCommand);
         return getDataTable(list);
     }
+
     /**
      * 导出错误包命令列表
      */
+    @ApiOperation("导出错误包命令列表")
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:export')")
     @MyLog(title = "错误包命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -55,18 +61,22 @@ public class ErrorRateCommandController extends BaseController
         ExcelUtil<ErrorRateCommand> util = new ExcelUtil<ErrorRateCommand>(ErrorRateCommand.class);
         return util.exportExcel(list, "错误包命令数据");
     }
+
     /**
      * 获取错误包命令详细信息
      */
+    @ApiOperation("获取错误包命令详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(errorRateCommandService.selectErrorRateCommandById(id));
     }
+
     /**
      * 新增错误包命令
      */
+    @ApiOperation("新增错误包命令")
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:add')")
     @MyLog(title = "错误包命令", businessType = BusinessType.INSERT)
     @PostMapping
@@ -77,9 +87,11 @@ public class ErrorRateCommandController extends BaseController
         }
         return toAjax(errorRateCommandService.insertErrorRateCommand(errorRateCommand));
     }
+
     /**
      * 修改错误包命令
      */
+    @ApiOperation("修改错误包命令")
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:edit')")
     @MyLog(title = "错误包命令", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -87,9 +99,11 @@ public class ErrorRateCommandController extends BaseController
     {
         return toAjax(errorRateCommandService.updateErrorRateCommand(errorRateCommand));
     }
+
     /**
      * 删除错误包命令
      */
+    @ApiOperation("删除错误包命令")
     @PreAuthorize("@ss.hasPermi('advanced:error_rate_command:remove')")
     @MyLog(title = "错误包命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

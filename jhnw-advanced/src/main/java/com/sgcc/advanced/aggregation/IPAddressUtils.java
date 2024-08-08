@@ -226,12 +226,13 @@ public class IPAddressUtils {
     }
 
 
+
     /**
-     * 外部
+     * 外部IP地址段拼接函数
      * 将传入的IP计算器列表进行IP地址段的拼接，返回拼接后的IP地址段列表。
      *
-     * @param ipCalculatorList IP计算器列表，每个IP计算器包含可用IP地址范围
-     * @return 拼接后的IP地址段列表
+     * @param externalIPCalculatorList 外部IP计算器列表
+     * @return 拼接后的外部IP地址段列表
      */
     public static List<ExternalIPAddresses> ExternalSplicingAddressRange(List<ExternalIPCalculator> externalIPCalculatorList) {
         List<ExternalIPAddresses> externalIPAddressesList = new ArrayList<>();
@@ -396,10 +397,11 @@ public class IPAddressUtils {
     /**
      * 根据给定的IP地址范围，生成该范围内的所有IP地址，并以CIDR（无类别域间路由）格式添加到列表中。
      *
-     * @param ipAddress 包含起始IP地址和结束IP地址的对象。
+     * @param start 起始IP地址
+     * @param end   结束IP地址
      * @return 一个字符串列表，包含给定IP地址范围内所有IP地址的CIDR表示。
-     *         如果起始和结束IP相同，则直接返回该IP的"/32"表示。
-     *         否则，通过计算最合适的子网掩码（CIDR后缀），来划分并表示该范围内的IP。
+     *      如果起始和结束IP相同，则直接返回该IP的"/32"表示。
+     *      否则，通过计算最合适的子网掩码（CIDR后缀），来划分并表示该范围内的IP。
      */
     public static List<String> getNetworkNumber(String start, String end) {
         List<String> ipList = new ArrayList<>();

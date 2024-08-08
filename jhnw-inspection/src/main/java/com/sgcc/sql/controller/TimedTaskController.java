@@ -16,6 +16,8 @@ import com.sgcc.sql.service.ITotalQuestionTableService;
 import com.sgcc.sql.util.TemplateScheduledTasks;
 import com.sgcc.sql.util.TimedTaskRetrievalFile;
 import com.sgcc.system.service.ISysUserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,6 +44,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2024-04-03
  */
+@Api(tags = "定时任务管理")
 @RestController
 @RequestMapping("/sql/TimedTask")
 public class TimedTaskController extends BaseController
@@ -59,6 +62,7 @@ public class TimedTaskController extends BaseController
     /**
      * 导出定时任务列表
      */
+    @ApiOperation(value = "导出定时任务列表")
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:export')")
     @MyLog(title = "定时任务", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -72,6 +76,7 @@ public class TimedTaskController extends BaseController
     /**
      * 新增定时任务
      */
+    @ApiOperation(value = "新增定时任务")
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:add')")
     @MyLog(title = "定时任务", businessType = BusinessType.INSERT)
     @PostMapping
@@ -102,6 +107,7 @@ public class TimedTaskController extends BaseController
     /**
      * 修改定时任务
      */
+    @ApiOperation(value = "修改定时任务")
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:edit')")
     @MyLog(title = "定时任务", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -131,6 +137,7 @@ public class TimedTaskController extends BaseController
     /**
      * 删除定时任务
      */
+    @ApiOperation(value = "删除定时任务")
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:remove')")
     @MyLog(title = "定时任务", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -231,58 +238,86 @@ public class TimedTaskController extends BaseController
         }
     }
 
+
+    /**
+     * 修改定时任务状态
+     *
+     * @param timedTaskVO 定时任务对象
+     * @return 无返回值
+     */
+    @ApiOperation(value = "修改定时任务状态")
     @PutMapping("/performScheduledTasks")
     @MyLog(title = "定时任务", businessType = BusinessType.UPDATE)
     public void performScheduledTasks(@RequestBody TimedTaskVO timedTaskVO) {
+        // 获取当前登录用户信息
         /* 开启定时任务的用户信息*/
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
+        // 创建一个新的TimedTask对象，并将TimedTaskVO的属性复制到TimedTask对象中
         /*将TimedTaskVO 转为 TimedTask ，将扫描功能集合拼接成字符串*/
         TimedTask timedTask = new TimedTask();
         BeanUtils.copyProperties(timedTaskVO , timedTask);
 
+        // 如果TimedTaskVO中的selectFunctions不为空，则将其转换为字符串并去除首尾的方括号，然后赋值给TimedTask的functionArray属性
         if (timedTaskVO.getSelectFunctions() != null){
             timedTask.setFunctionArray((timedTaskVO.getSelectFunctions()+"").substring(1,(timedTaskVO.getSelectFunctions()+"").length()-1));
         }
-        // 设置定时任务的创建者名称
+
+        // 设置定时任务的创建者名称为当前登录用户的用户名
         timedTask.setCreatorName(loginUser.getUsername());
+
+        // 调用timedTaskService的updateTimedTask方法更新定时任务，并将结果赋值给变量i
         // 更新定时任务
         /* 插入 */
         timedTaskService = SpringBeanUtil.getBean(ITimedTaskService.class);
         int i = timedTaskService.updateTimedTask(timedTask);
 
+        // 如果更新失败（即i小于0）
         if (i<0){
-            // 发送问题日志报警信息
+            // 发送问题日志报警信息，提示定时任务状态修改失败
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), "问题日志",
                     timedTaskVO.getTimedTaskName() + "定时任务状态修改失败");
         }
 
-        /* 任务状态为 1  则是关闭定时任务*/
+        // 如果定时任务的状态为1（即关闭状态）
         if (timedTask.getTimedTaskStatus() == 1){
+            // 获取存储中对应id的定时器
             /* 定时器获取*/
             Timer timer = timerStorage.get(timedTask.getId());
+
+            // 从存储中移除对应id的定时器
             /* 定时器移除*/
             timerStorage.remove(timedTask.getId());
+
+            // 关闭定时器
             /* 定时器关闭*/
             timer.cancel();
+
+            // 返回，不再继续执行后续代码
             return;
         }
 
-
+        // 根据定时任务参数读取交换机登录信息列表
         /* 根据定时任务模板  获取交换机登录信息 */
         List<SwitchLoginInformation> switchLoginInformations = TimedTaskRetrievalFile.readCiphertextExcel(MyUtils.getProjectPath()+"\\jobExcel\\"+ timedTask.getTimedTaskParameters() +".txt");
+
+        // 如果交换机登录信息列表为空，则直接返回，不再继续执行后续代码
         if (MyUtils.isCollectionEmpty(switchLoginInformations)){
             return;
         }
 
+        // 将定时任务的间隔时间转换为秒
         /* 任务间隔时间 以秒为单位 */
         Integer intervalSecond = convertToSeconds(timedTaskVO.getTimedTaskIntervalTime());
 
+        // 如果TimedTaskVO中的startTime不为空
         if (timedTaskVO.getTimedTaskStartTime()!=null){
-
+            // 创建一个新的Timer对象
             /* 为根据固定时间开始扫描*/
             /* 根据当前时间开始扫描*/
             Timer timer = new Timer();
+
+            // 将新创建的Timer对象存入存储中，key为定时任务的id
             // 将定时器存入存储
             timerStorage.put(timedTaskVO.getId(),timer);
 
@@ -292,11 +327,13 @@ public class TimedTaskController extends BaseController
             // 获取定时任务的开始时间
             Date date = timedTaskVO.getTimedTaskStartTime();
 
-            // 使用Calendar类获取年、月、日、时、分、秒
+            // 使用Calendar类获取开始时间的年、月、日、时、分、秒
+            // 获取定时任务的开始时间
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             Date startTime = calendar.getTime();
 
+            // 定时执行任务，间隔时间为intervalSecond * 1000毫秒（即intervalSecond秒）
             /* long period = time * 60 * 1000; // 执行间隔，单位为毫秒*/
             timer.schedule(task, startTime, intervalSecond * 1000);
 
@@ -352,6 +389,7 @@ public class TimedTaskController extends BaseController
     /**
      * 查询定时任务列表
      */
+    @ApiOperation(value = "查询定时任务列表")
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:list')")
     @GetMapping("/list")
     public TableDataInfo list(TimedTaskVO timedTaskVO) {
@@ -414,6 +452,11 @@ public class TimedTaskController extends BaseController
     }
 
 
+    /**
+     * 获取定时任务全部功能
+     * @return
+     */
+    @ApiOperation(value = "获取定时任务全部功能")
     @GetMapping("/getFunction")
     public List<FunctionVO> getFunction() {
         /*获取问题集合 及 范式分类集合 */
@@ -468,6 +511,7 @@ public class TimedTaskController extends BaseController
 
 
     /** 获取定时任务详细信息 */
+    @ApiOperation(value = "获取定时任务详细信息")
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)

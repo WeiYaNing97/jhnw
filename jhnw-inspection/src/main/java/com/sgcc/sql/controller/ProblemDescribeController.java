@@ -112,10 +112,6 @@ public class ProblemDescribeController extends BaseController
     }
 
 
-
-
-
-
     /**
      * 删除问题描述
      */
@@ -154,6 +150,7 @@ public class ProblemDescribeController extends BaseController
     /**
      * 查询问题描述列表
      */
+    @ApiOperation("查询问题描述列表")
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:list')")
     @GetMapping("/list")
     public TableDataInfo list(ProblemDescribe problemDescribe)
@@ -166,8 +163,9 @@ public class ProblemDescribeController extends BaseController
     /**
      * 导出问题描述列表
      */
+    @ApiOperation("导出问题描述列表")
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:export')")
-    @MyLog(title = "问题描述", businessType = BusinessType.EXPORT)
+    @MyLog(title = "导出问题描述列表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(ProblemDescribe problemDescribe)
     {
@@ -179,6 +177,7 @@ public class ProblemDescribeController extends BaseController
     /**
      * 获取问题描述详细信息
      */
+    @ApiOperation("获取问题描述详细信息")
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -189,8 +188,9 @@ public class ProblemDescribeController extends BaseController
     /**
      * 新增问题描述
      */
+    @ApiOperation("新增问题描述详细信息")
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:add')")
-    @MyLog(title = "问题描述", businessType = BusinessType.INSERT)
+    @MyLog(title = "新增问题描述详细信息", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ProblemDescribe problemDescribe)
     {
@@ -200,8 +200,9 @@ public class ProblemDescribeController extends BaseController
     /**
      * 修改问题描述
      */
+    @ApiOperation("修改问题描述详细信息")
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:edit')")
-    @MyLog(title = "问题描述", businessType = BusinessType.UPDATE)
+    @MyLog(title = "修改问题描述详细信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ProblemDescribe problemDescribe)
     {
@@ -211,8 +212,9 @@ public class ProblemDescribeController extends BaseController
     /**
      * 删除问题描述
      */
+    @ApiOperation("删除问题描述详细信息")
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:remove')")
-    @MyLog(title = "问题描述", businessType = BusinessType.DELETE)
+    @MyLog(title = "删除问题描述详细信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {

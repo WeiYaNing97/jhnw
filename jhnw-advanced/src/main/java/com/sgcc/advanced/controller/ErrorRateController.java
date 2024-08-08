@@ -4,6 +4,8 @@ import com.sgcc.advanced.domain.ErrorRate;
 import com.sgcc.advanced.service.IErrorRateService;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.utils.poi.ExcelUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2023-05-09
  */
+@Api("错误包Controller")
 @RestController
 @RequestMapping("/advanced/rate")
 public class ErrorRateController extends BaseController
@@ -35,6 +38,7 @@ public class ErrorRateController extends BaseController
     /**
      * 查询错误包列表
      */
+    @ApiOperation("查询错误包列表")
     @PreAuthorize("@ss.hasPermi('advanced:rate:list')")
     @GetMapping("/list")
     public TableDataInfo list(ErrorRate errorRate)
@@ -46,6 +50,7 @@ public class ErrorRateController extends BaseController
     /**
      * 导出错误包列表
      */
+    @ApiOperation("导出错误包列表")
     @PreAuthorize("@ss.hasPermi('advanced:rate:export')")
     @MyLog(title = "错误包", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -59,6 +64,7 @@ public class ErrorRateController extends BaseController
     /**
      * 获取错误包详细信息
      */
+    @ApiOperation("获取错误包详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:rate:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -69,6 +75,7 @@ public class ErrorRateController extends BaseController
     /**
      * 新增错误包
      */
+    @ApiOperation("新增错误包")
     @PreAuthorize("@ss.hasPermi('advanced:rate:add')")
     @MyLog(title = "错误包", businessType = BusinessType.INSERT)
     @PostMapping
@@ -80,6 +87,7 @@ public class ErrorRateController extends BaseController
     /**
      * 修改错误包
      */
+    @ApiOperation("修改错误包")
     @PreAuthorize("@ss.hasPermi('advanced:rate:edit')")
     @MyLog(title = "错误包", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -91,6 +99,7 @@ public class ErrorRateController extends BaseController
     /**
      * 删除错误包
      */
+    @ApiOperation("删除错误包")
     @PreAuthorize("@ss.hasPermi('advanced:rate:remove')")
     @MyLog(title = "错误包", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

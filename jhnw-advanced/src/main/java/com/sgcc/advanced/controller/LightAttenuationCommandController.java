@@ -3,6 +3,8 @@ package com.sgcc.advanced.controller;
 import java.util.List;
 
 import com.sgcc.common.annotation.MyLog;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2023-05-19
  */
+@Api("光衰命令管理")
 @RestController
 @RequestMapping("/advanced/light_attenuation_command")
 public class LightAttenuationCommandController extends BaseController
@@ -36,6 +39,7 @@ public class LightAttenuationCommandController extends BaseController
     /**
      * 查询光衰命令列表
      */
+    @ApiOperation("查询光衰命令列表")
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:list')")
     @GetMapping("/list")
     public TableDataInfo list(LightAttenuationCommand lightAttenuationCommand)
@@ -47,6 +51,7 @@ public class LightAttenuationCommandController extends BaseController
     /**
      * 导出光衰命令列表
      */
+    @ApiOperation("导出光衰命令列表")
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:export')")
     @MyLog(title = "光衰命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -60,6 +65,7 @@ public class LightAttenuationCommandController extends BaseController
     /**
      * 获取光衰命令详细信息
      */
+    @ApiOperation("获取光衰命令详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") String id)
@@ -70,6 +76,7 @@ public class LightAttenuationCommandController extends BaseController
     /**
      * 新增光衰命令
      */
+    @ApiOperation("新增光衰命令")
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:add')")
     @MyLog(title = "光衰命令", businessType = BusinessType.INSERT)
     @PostMapping
@@ -84,6 +91,7 @@ public class LightAttenuationCommandController extends BaseController
     /**
      * 修改光衰命令
      */
+    @ApiOperation("修改光衰命令")
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:edit')")
     @MyLog(title = "光衰命令", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -95,6 +103,7 @@ public class LightAttenuationCommandController extends BaseController
     /**
      * 删除光衰命令
      */
+    @ApiOperation("删除光衰命令")
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:remove')")
     @MyLog(title = "光衰命令", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

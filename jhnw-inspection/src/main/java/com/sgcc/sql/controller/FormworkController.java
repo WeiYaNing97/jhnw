@@ -2,6 +2,8 @@ package com.sgcc.sql.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.sgcc.common.annotation.MyLog;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2023-03-13
  */
+@Api(tags = "问题模板管理")
 @RestController
 @RequestMapping("/sql/formwork")
 public class FormworkController extends BaseController
@@ -35,6 +38,7 @@ public class FormworkController extends BaseController
     /**
      * 查询问题模板列表
      */
+    @ApiOperation(value = "查询问题模板列表")
     @PreAuthorize("@ss.hasPermi('sql:formwork:list')")
     @GetMapping("/list")
     public TableDataInfo list(Formwork formwork)
@@ -47,6 +51,7 @@ public class FormworkController extends BaseController
     /**
      * 查询问题模板名字列表
      */
+    @ApiOperation(value = "查询问题模板名字列表")
     @GetMapping("/getNameList")
     public List<String> getNameList(Formwork formwork)
     {
@@ -58,6 +63,7 @@ public class FormworkController extends BaseController
     /**
      * 查询问题模板列表
      */
+    @ApiOperation(value = "查询问题模板列表")
     @GetMapping("/pojoByformworkName")
     public Formwork pojoByformworkName(String formworkName)
     {
@@ -70,6 +76,7 @@ public class FormworkController extends BaseController
     /**
      * 导出问题模板列表
      */
+    @ApiOperation(value = "导出问题模板列表")
     @PreAuthorize("@ss.hasPermi('sql:formwork:export')")
     @MyLog(title = "问题模板", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -83,6 +90,7 @@ public class FormworkController extends BaseController
     /**
      * 获取问题模板详细信息
      */
+    @ApiOperation(value = "获取问题模板详细信息")
     @PreAuthorize("@ss.hasPermi('sql:formwork:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -93,6 +101,7 @@ public class FormworkController extends BaseController
     /**
      * 获取问题模板详细信息
      */
+    @ApiOperation(value = "获取问题模板详细信息")
     @PreAuthorize("@ss.hasPermi('sql:formwork:query')")
     @GetMapping(value = "/{ids}")
     public AjaxResult getInfoByIds(@PathVariable("ids") Long[] ids)
@@ -103,6 +112,7 @@ public class FormworkController extends BaseController
     /**
      * 新增问题模板
      */
+    @ApiOperation(value = "新增问题模板")
     @PreAuthorize("@ss.hasPermi('sql:formwork:add')")
     @MyLog(title = "问题模板", businessType = BusinessType.INSERT)
     @PostMapping
@@ -114,6 +124,7 @@ public class FormworkController extends BaseController
     /**
      * 修改问题模板
      */
+    @ApiOperation(value = "修改问题模板")
     @PreAuthorize("@ss.hasPermi('sql:formwork:edit')")
     @MyLog(title = "问题模板", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -125,6 +136,7 @@ public class FormworkController extends BaseController
     /**
      * 删除问题模板
      */
+    @ApiOperation(value = "删除问题模板")
     @PreAuthorize("@ss.hasPermi('sql:formwork:remove')")
     @MyLog(title = "问题模板", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")

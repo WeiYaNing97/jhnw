@@ -4,6 +4,8 @@ import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchError;
 import com.sgcc.share.service.ISwitchErrorService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +27,7 @@ import java.util.List;
 /**
  * 交换机错误Controller
  */
+@Api(tags = "交换机错误信息管理")
 @RestController
 @RequestMapping("/share/switch_error")
 public class SwitchErrorController extends BaseController
@@ -35,6 +38,7 @@ public class SwitchErrorController extends BaseController
     /**
      * 查询交换机错误列表
      */
+    @ApiOperation("模糊查询交换机错误信息列表(型号、版本、子版本 可以为*)")
     @GetMapping("/switchErrorList")
     public List<SwitchError> selectSwitchErrorListByPojo(SwitchError switchError)
     {
@@ -45,6 +49,7 @@ public class SwitchErrorController extends BaseController
     /**
      * 查询交换机错误列表
      */
+    @ApiOperation("查询交换机错误信息列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_error:list')")
     @GetMapping("/list")
     public TableDataInfo list(SwitchError switchError)
@@ -57,8 +62,9 @@ public class SwitchErrorController extends BaseController
     /**
      * 导出交换机错误列表
      */
+    @ApiOperation("导出交换机错误信息列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_error:export')")
-    @MyLog(title = "交换机错误", businessType = BusinessType.EXPORT)
+    @MyLog(title = "导出交换机错误信息列表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(SwitchError switchError)
     {
@@ -70,6 +76,7 @@ public class SwitchErrorController extends BaseController
     /**
      * 获取交换机错误详细信息
      */
+    @ApiOperation("获取交换机错误详细信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_error:query')")
     @GetMapping(value = "/{errorId}")
     public AjaxResult getInfo(@PathVariable("errorId") String errorId)
@@ -80,8 +87,9 @@ public class SwitchErrorController extends BaseController
     /**
      * 新增交换机错误
      */
+    @ApiOperation("新增交换机错误信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_error:add')")
-    @MyLog(title = "交换机错误", businessType = BusinessType.INSERT)
+    @MyLog(title = "新增交换机错误信息", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody SwitchError switchError)
     {
@@ -91,8 +99,9 @@ public class SwitchErrorController extends BaseController
     /**
      * 修改交换机错误
      */
+    @ApiOperation("修改交换机错误信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_error:edit')")
-    @MyLog(title = "交换机错误", businessType = BusinessType.UPDATE)
+    @MyLog(title = "修改交换机错误信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody SwitchError switchError)
     {
@@ -102,8 +111,9 @@ public class SwitchErrorController extends BaseController
     /**
      * 删除交换机错误
      */
+    @ApiOperation("删除交换机错误信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_error:remove')")
-    @MyLog(title = "交换机错误", businessType = BusinessType.DELETE)
+    @MyLog(title = "删除交换机错误信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{errorIds}")
     public AjaxResult remove(@PathVariable String[] errorIds)
     {

@@ -218,86 +218,148 @@ public class TotalQuestionTableServiceImpl implements ITotalQuestionTableService
     /*查询可扫描问题*/
     @Override
     public List<TotalQuestionTable> queryScannableQuestionsList(TotalQuestionTable totalQuestionTable) {
+        // 创建一个空的列表，用于存储查询结果
         List<TotalQuestionTable> pojo = new ArrayList<>();
+        // 调用总题目映射器的查询可扫描问题列表方法，并将结果添加到列表中
         pojo.addAll(totalQuestionTableMapper.queryScannableQuestionsList(totalQuestionTable));
 
+        // 获取总题目品牌的等价类
         String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+        // 如果存在等价类
         if (equivalence != null){
+            // 将总题目的品牌替换为等价类
             totalQuestionTable.setBrand(equivalence);
+            // 再次调用总题目映射器的查询可扫描问题列表方法，并将结果添加到列表中
             pojo.addAll(totalQuestionTableMapper.queryScannableQuestionsList(totalQuestionTable));
         }
+        // 返回查询结果列表
         return pojo;
     }
 
+
+    /**
+     * 根据模糊条件查询可扫描的题目列表。
+     *
+     * @param totalQuestionTable 总题目对象，用于设定模糊查询的条件。
+     * @return 可扫描的题目列表。
+     */
     @Override
     public List<TotalQuestionTable> queryVagueScannableQuestionsList(TotalQuestionTable totalQuestionTable) {
+        // 创建一个空的列表，用于存储查询结果
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+
+        // 调用queryVagueScannableQuestionsListEquivalence方法查询与totalQuestionTable相似的题目列表，并将结果添加到totalQuestionTables中
         totalQuestionTables.addAll(queryVagueScannableQuestionsListEquivalence(totalQuestionTable));
+
+        // 获取totalQuestionTable所属品牌的等价类
         String equivalence = FunctionalMethods.getEquivalence(totalQuestionTable.getBrand());
+
+        // 如果存在等价类
         if (equivalence != null){
+            // 将totalQuestionTable的品牌替换为等价类
             totalQuestionTable.setBrand(equivalence);
+
+            // 再次调用queryVagueScannableQuestionsListEquivalence方法查询与替换品牌后的totalQuestionTable相似的题目列表，并将结果添加到totalQuestionTables中
             totalQuestionTables.addAll(queryVagueScannableQuestionsListEquivalence(totalQuestionTable));
         }
+
+        // 返回查询结果
         return totalQuestionTables;
     }
 
 
+
+    /**
+     * 根据给定的TotalQuestionTable对象，查询模糊匹配的可扫描问题列表。
+     *
+     * @param totalQuestionTable TotalQuestionTable对象，包含查询条件
+     * @return 模糊匹配的可扫描问题列表
+     */
     public List<TotalQuestionTable> queryVagueScannableQuestionsListEquivalence(TotalQuestionTable totalQuestionTable) {
+        // 根据type字段构建SQL语句片段
         //and (type = #{type} or type = '*')
         String typeSQL = "";
         if (totalQuestionTable.getType() != null  && totalQuestionTable.getType() != ""){
             String type = totalQuestionTable.getType();
+            // 构造type字段的SQL片段
             typeSQL = "and (LOWER(type) = LOWER(\'" + type +"\') OR type = '*' OR ";
 
+            // 获取type的字符串集合
             List<String> stringCollection = ServiceImplUtils.getStringCollection(type);
             for (String typeString:stringCollection){
+                // 构造type字段模糊匹配的SQL片段
                 typeSQL = typeSQL + "LOWER(type) = LOWER(\'" + typeString+"*\')" +" OR ";
             }
 
+            // 去除最后多余的OR
             char[] chars = typeSQL.toCharArray();
             typeSQL = "";
             for (int i=0 ;i<chars.length-4;i++ ){
                 typeSQL = typeSQL + chars[i];
             }
+            // 闭合括号
             typeSQL = typeSQL +")";
         }
+
+        // 根据fireware_version字段构建SQL语句片段
         //and (fireware_version = #{firewareVersion} or fireware_version = '*')
         String firewareVersionSQL = "";
         if (totalQuestionTable.getFirewareVersion() != null  && totalQuestionTable.getFirewareVersion() != ""){
             String firewareVersion = totalQuestionTable.getFirewareVersion();
+            // 构造fireware_version字段的SQL片段
             firewareVersionSQL = "and (fireware_version = \'"+ firewareVersion +"\' OR fireware_version = '*' OR ";
+
+            // 获取fireware_version的字符串集合
             List<String> stringCollection = ServiceImplUtils.getStringCollection(firewareVersion);
             for (String typeString:stringCollection){
+                // 构造fireware_version字段模糊匹配的SQL片段
                 firewareVersionSQL = firewareVersionSQL + "fireware_version = "+"\'" + typeString+"*\'" +" OR ";
             }
+
+            // 去除最后多余的OR
             char[] chars = firewareVersionSQL.toCharArray();
             firewareVersionSQL = "";
             for (int i=0 ;i<chars.length-4;i++ ){
                 firewareVersionSQL = firewareVersionSQL + chars[i];
             }
+            // 闭合括号
             firewareVersionSQL = firewareVersionSQL +")";
         }
+
+        // 根据sub_version字段构建SQL语句片段
         //and (sub_version = #{subVersion} or sub_version = '*')
         String subVersionSQL = "";
         if (totalQuestionTable.getSubVersion() != null  && totalQuestionTable.getSubVersion() != ""){
             String subVersion = totalQuestionTable.getSubVersion();
+            // 构造sub_version字段的SQL片段
             subVersionSQL = "and (sub_version = \'" + subVersion + "\' OR sub_version = '*' OR ";
+
+            // 获取sub_version的字符串集合
             List<String> stringCollection = ServiceImplUtils.getStringCollection(subVersion);
             for (String typeString:stringCollection){
+                // 构造sub_version字段模糊匹配的SQL片段
                 subVersionSQL = subVersionSQL + "sub_version = "+"\'" + typeString+"*\'" +" OR ";
             }
+
+            // 去除最后多余的OR
             char[] chars = subVersionSQL.toCharArray();
             subVersionSQL = "";
             for (int i=0 ;i<chars.length-4;i++ ){
                 subVersionSQL = subVersionSQL + chars[i];
             }
+            // 闭合括号
             subVersionSQL = subVersionSQL +")";
         }
 
+        // 构造基础的SQL片段
         String sql = "where LOWER(brand) = LOWER(\'" + totalQuestionTable.getBrand() + "\')";
+
+        // 根据type字段是否非空，添加SQL片段
         if (totalQuestionTable.getType() != null && totalQuestionTable.getType() != ""){
             sql = sql + typeSQL;
         }
+
+        // 根据fireware_version字段是否非空，添加SQL片段
         if (totalQuestionTable.getFirewareVersion() != null && totalQuestionTable.getFirewareVersion() != ""){
             sql = sql + firewareVersionSQL;
         }

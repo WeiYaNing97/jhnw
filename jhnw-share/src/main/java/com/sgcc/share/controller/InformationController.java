@@ -6,6 +6,8 @@ import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.domain.Information;
 import com.sgcc.share.service.IInformationService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +30,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2023-03-07
  */
+@Api(tags = "交换机品牌、型号管理")
 @RestController
 @RequestMapping("/share/information")
 public class InformationController extends BaseController
@@ -38,6 +41,7 @@ public class InformationController extends BaseController
     /**
      * 查询交换机信息列表
      */
+    @ApiOperation("查询交换机品牌、型号列表")
     @PreAuthorize("@ss.hasPermi('sql:information:list')")
     @GetMapping("/list")
     public TableDataInfo list(Information information)
@@ -50,6 +54,7 @@ public class InformationController extends BaseController
     /**
      * 导出交换机信息列表
      */
+    @ApiOperation("导出交换机品牌、型号列表")
     @PreAuthorize("@ss.hasPermi('sql:information:export')")
     @MyLog(title = "交换机信息", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -63,6 +68,7 @@ public class InformationController extends BaseController
     /**
      * 获取交换机信息详细信息
      */
+    @ApiOperation("获取交换机品牌、型号详细信息")
     @PreAuthorize("@ss.hasPermi('sql:information:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -73,6 +79,7 @@ public class InformationController extends BaseController
     /**
      * 新增交换机信息
      */
+    @ApiOperation("新增交换机品牌、型号")
     @PreAuthorize("@ss.hasPermi('sql:information:add')")
     @MyLog(title = "交换机信息", businessType = BusinessType.INSERT)
     @PostMapping
@@ -84,6 +91,7 @@ public class InformationController extends BaseController
     /**
      * 修改交换机信息
      */
+    @ApiOperation("修改交换机品牌、型号")
     @PreAuthorize("@ss.hasPermi('sql:information:edit')")
     @MyLog(title = "交换机信息", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -95,6 +103,7 @@ public class InformationController extends BaseController
     /**
      * 删除交换机信息
      */
+    @ApiOperation("删除交换机品牌、型号")
     @PreAuthorize("@ss.hasPermi('sql:information:remove')")
     @MyLog(title = "交换机信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -107,7 +116,6 @@ public class InformationController extends BaseController
     /**
      * 查询交换机品牌信息 去重处理
      */
-    @GetMapping("/informationBrand")
     public List<String> getDeviceBrand()
     {
         return informationService.selectDeviceBrandList();
@@ -116,7 +124,6 @@ public class InformationController extends BaseController
     /**
      * 查询交换机品牌信息 去重处理
      */
-    @GetMapping("/informationModel")
     public List<String> getDeviceModel(String brand)
     {
         return informationService.selectDeviceModelList(brand);

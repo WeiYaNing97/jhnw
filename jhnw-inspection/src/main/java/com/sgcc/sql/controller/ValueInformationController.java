@@ -8,6 +8,7 @@ import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.domain.ValueInformationVO;
 import com.sgcc.sql.domain.ValueInformation;
 import com.sgcc.sql.service.IValueInformationService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2021-12-28
  */
+@Api(tags = "取值信息存储管理(未用)")
 @RestController
 @RequestMapping("/sql/value_information")
 public class ValueInformationController extends BaseController

@@ -48,6 +48,7 @@ public class TotalQuestionTableController extends BaseController
     /**
      * 导出问题及命令列表
      */
+    @ApiOperation("导出问题及命令列表")
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:export')")
     @MyLog(title = "问题及命令", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -57,33 +58,6 @@ public class TotalQuestionTableController extends BaseController
         ExcelUtil<TotalQuestionTable> util = new ExcelUtil<TotalQuestionTable>(TotalQuestionTable.class);
         return util.exportExcel(list, "问题及命令数据");
     }
-
-
-    /**
-     * @method: 根据交换机信息查询扫描问题的命令ID
-     * @Param: []
-     * @return: java.util.List<java.lang.Long>
-     */
-    @ApiOperation("根据交换机信息查询扫描问题的命令ID")
-    @GetMapping(value = "/commandIdByInformation")
-    public List<String> commandIdByInformation(String brand,String type,String firewareVersion,String subversionNumber) {
-        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
-        totalQuestionTable.setBrand(brand);
-        totalQuestionTable.setType(type);
-        totalQuestionTable.setFirewareVersion(firewareVersion);
-        totalQuestionTable.setSubVersion(subversionNumber);
-
-        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
-        List<String> longList = new ArrayList<>();
-        if (totalQuestionTables.size() != 0){
-            for (TotalQuestionTable pojo:totalQuestionTables){
-                longList.add(pojo.getLogicalID());
-            }
-        }
-
-        return longList;
-    }
-
 
     /**
      * 查询交换机问题列表PojoList
@@ -136,22 +110,6 @@ public class TotalQuestionTableController extends BaseController
 
         return list;
     }
-
-    /**
-     * 查询问题及命令列表 实体类ID
-     */
-    @ApiOperation("查询交换机问题列表忽略扫描索引CommandId")
-    @GetMapping("/select")
-    public String select(TotalQuestionTable totalQuestionTable)
-    {
-        totalQuestionTable.setLogicalID(null);
-
-        List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
-
-        return list.get(0).getId();
-    }
-
-
     /**
      * 获取交换机问题的详细信息
      */
@@ -161,6 +119,43 @@ public class TotalQuestionTableController extends BaseController
     public AjaxResult getInfo(@PathVariable("id") String id)
     {
         return AjaxResult.success(totalQuestionTableService.selectTotalQuestionTableById(id));
+    }
+
+
+    /**
+     * @method: 根据交换机信息查询扫描问题的命令ID
+     * @Param: []
+     * @return: java.util.List<java.lang.Long>
+     */
+    public List<String> commandIdByInformation(String brand,String type,String firewareVersion,String subversionNumber) {
+        TotalQuestionTable totalQuestionTable = new TotalQuestionTable();
+        totalQuestionTable.setBrand(brand);
+        totalQuestionTable.setType(type);
+        totalQuestionTable.setFirewareVersion(firewareVersion);
+        totalQuestionTable.setSubVersion(subversionNumber);
+
+        List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+        List<String> longList = new ArrayList<>();
+        if (totalQuestionTables.size() != 0){
+            for (TotalQuestionTable pojo:totalQuestionTables){
+                longList.add(pojo.getLogicalID());
+            }
+        }
+
+        return longList;
+    }
+
+
+    /**
+     * 查询问题及命令列表 实体类ID
+     */
+    public String select(TotalQuestionTable totalQuestionTable)
+    {
+        totalQuestionTable.setLogicalID(null);
+
+        List<TotalQuestionTable> list = totalQuestionTableService.selectTotalQuestionTableList(totalQuestionTable);
+
+        return list.get(0).getId();
     }
 
     /**
@@ -186,9 +181,6 @@ public class TotalQuestionTableController extends BaseController
     /**
      * 根据ID数组查询集合
      */
-    //@Log(title = "根据ID数组查询集合", businessType = BusinessType.DELETE)
-    @GetMapping("/query/{ids}")//{ids}
-    @ApiOperation("根据ID数组查询交换机问题集合")
     public List<TotalQuestionTable> query(@PathVariable Long[] ids)//@PathVariable Long[] ids
     {
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
@@ -204,8 +196,8 @@ public class TotalQuestionTableController extends BaseController
     =====================================================================================================================*/
 
     /*判断是否为 超级管理员*/
-    @GetMapping("/judgeSuperAdministrator")
     @ApiOperation("判断是否为超级管理员")
+    @GetMapping("/judgeSuperAdministrator")
     public boolean judgeSuperAdministrator() {
         Long userId = SecurityUtils.getLoginUser().getUserId();
         if (userId == 1L){
@@ -430,67 +422,6 @@ public class TotalQuestionTableController extends BaseController
     }
 
     /**
-     * 根据实体类 模糊查询 实体类集合
-     */
-    @GetMapping("/fuzzyQueryListByPojo")
-    @ApiOperation("根据实体类模糊查询 实体类集合")
-    public List<TotalQuestionTableCO> fuzzyQueryListByPojo(TotalQuestionTable totalQuestionTable)
-    {
-        List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
-        if (totalQuestionTableList.size() == 0){
-            return new ArrayList<>();
-        }
-
-        HashSet<String> typeProblemHashSet = new HashSet();
-        HashSet<String> temProNameHashSet = new HashSet();
-
-        /*自定义分隔符*/
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-
-        for (TotalQuestionTable totalQuestion:totalQuestionTableList){
-            typeProblemHashSet.add(totalQuestion.getTypeProblem());
-            temProNameHashSet.add(totalQuestion.getTypeProblem()+ customDelimiter +totalQuestion.getTemProName());
-        }
-
-        List<TotalQuestionTableCO> pojoCOList = new ArrayList<>();
-        List<TotalQuestionTableVO> pojoVOList = new ArrayList<>();
-        for (String typeProblem:typeProblemHashSet){
-            TotalQuestionTableCO totalQuestionTableCO = new TotalQuestionTableCO();
-            totalQuestionTableCO.setTypeProblem(typeProblem);
-            pojoCOList.add(totalQuestionTableCO);
-        }
-
-        for (String temProName:temProNameHashSet){
-            TotalQuestionTableVO totalQuestionTableVO = new TotalQuestionTableVO();
-            /*自定义分隔符*/
-            String[] split = temProName.split(customDelimiter );
-            totalQuestionTableVO.setTypeProblem(split[0]);
-            totalQuestionTableVO.setTemProName(split[1]);
-            pojoVOList.add(totalQuestionTableVO);
-        }
-        for (TotalQuestionTableCO totalQuestionTableCO:pojoCOList){
-            List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
-            for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
-                if (totalQuestionTableCO.getTypeProblem().equals(totalQuestionTableVO.getTypeProblem())){
-                    totalQuestionTableVOList.add(totalQuestionTableVO);
-                }
-            }
-            totalQuestionTableCO.setTotalQuestionTableVOList(totalQuestionTableVOList);
-        }
-        for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
-            List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-            for (TotalQuestionTable totalQuestion:totalQuestionTableList){
-                if (totalQuestion.getTypeProblem().equals(totalQuestionTableVO.getTypeProblem())
-                        && totalQuestion.getTemProName().equals(totalQuestionTableVO.getTemProName())){
-                    totalQuestionTables.add(totalQuestion);
-                }
-            }
-            totalQuestionTableVO.setTotalQuestionTableList(totalQuestionTables);
-        }
-        return pojoCOList;
-    }
-
-    /**
      * 根据实体类 模糊查询 实体类集合 fuzzyQueryListBymybatis
      */
     @ApiOperation("根据实体类模糊查询实体类集合")
@@ -559,5 +490,64 @@ public class TotalQuestionTableController extends BaseController
             return AjaxResult.error();
         }
         return AjaxResult.success();
+    }
+
+    /**
+     * 根据实体类 模糊查询 实体类集合
+     */
+    public List<TotalQuestionTableCO> fuzzyQueryListByPojo(TotalQuestionTable totalQuestionTable)
+    {
+        List<TotalQuestionTable> totalQuestionTableList = totalQuestionTableService.fuzzyTotalQuestionTableList(totalQuestionTable);
+        if (totalQuestionTableList.size() == 0){
+            return new ArrayList<>();
+        }
+
+        HashSet<String> typeProblemHashSet = new HashSet();
+        HashSet<String> temProNameHashSet = new HashSet();
+
+        /*自定义分隔符*/
+        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+
+        for (TotalQuestionTable totalQuestion:totalQuestionTableList){
+            typeProblemHashSet.add(totalQuestion.getTypeProblem());
+            temProNameHashSet.add(totalQuestion.getTypeProblem()+ customDelimiter +totalQuestion.getTemProName());
+        }
+
+        List<TotalQuestionTableCO> pojoCOList = new ArrayList<>();
+        List<TotalQuestionTableVO> pojoVOList = new ArrayList<>();
+        for (String typeProblem:typeProblemHashSet){
+            TotalQuestionTableCO totalQuestionTableCO = new TotalQuestionTableCO();
+            totalQuestionTableCO.setTypeProblem(typeProblem);
+            pojoCOList.add(totalQuestionTableCO);
+        }
+
+        for (String temProName:temProNameHashSet){
+            TotalQuestionTableVO totalQuestionTableVO = new TotalQuestionTableVO();
+            /*自定义分隔符*/
+            String[] split = temProName.split(customDelimiter );
+            totalQuestionTableVO.setTypeProblem(split[0]);
+            totalQuestionTableVO.setTemProName(split[1]);
+            pojoVOList.add(totalQuestionTableVO);
+        }
+        for (TotalQuestionTableCO totalQuestionTableCO:pojoCOList){
+            List<TotalQuestionTableVO> totalQuestionTableVOList = new ArrayList<>();
+            for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
+                if (totalQuestionTableCO.getTypeProblem().equals(totalQuestionTableVO.getTypeProblem())){
+                    totalQuestionTableVOList.add(totalQuestionTableVO);
+                }
+            }
+            totalQuestionTableCO.setTotalQuestionTableVOList(totalQuestionTableVOList);
+        }
+        for (TotalQuestionTableVO totalQuestionTableVO:pojoVOList){
+            List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+            for (TotalQuestionTable totalQuestion:totalQuestionTableList){
+                if (totalQuestion.getTypeProblem().equals(totalQuestionTableVO.getTypeProblem())
+                        && totalQuestion.getTemProName().equals(totalQuestionTableVO.getTemProName())){
+                    totalQuestionTables.add(totalQuestion);
+                }
+            }
+            totalQuestionTableVO.setTotalQuestionTableList(totalQuestionTables);
+        }
+        return pojoCOList;
     }
 }

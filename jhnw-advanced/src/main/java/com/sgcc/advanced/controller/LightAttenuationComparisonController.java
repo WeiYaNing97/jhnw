@@ -6,6 +6,8 @@ import com.sgcc.advanced.utils.Utils;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.connectutil.SpringBeanUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +31,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2023-05-06
  */
+@Api("光衰数据管理")
 @RestController
 @RequestMapping("/advanced/comparison")
 public class LightAttenuationComparisonController extends BaseController
@@ -37,8 +40,9 @@ public class LightAttenuationComparisonController extends BaseController
     private ILightAttenuationComparisonService lightAttenuationComparisonService;
 
     /**
-     * 查询 光衰平均值 比较列表
+     * 查询光衰平均值比较列表
      */
+    @ApiOperation("查询光衰数据列表")
     @PreAuthorize("@ss.hasPermi('advanced:comparison:list')")
     @GetMapping("/list")
     public TableDataInfo list(LightAttenuationComparison lightAttenuationComparison)
@@ -51,6 +55,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 导出光衰平均值比较列表
      */
+    @ApiOperation("导出光衰数据列表")
     @PreAuthorize("@ss.hasPermi('advanced:comparison:export')")
     @MyLog(title = "光衰平均值比较", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
@@ -64,6 +69,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 获取光衰平均值比较详细信息
      */
+    @ApiOperation("获取光衰数据详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:comparison:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -74,6 +80,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 新增光衰平均值比较
      */
+    @ApiOperation("新增光衰数据详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:comparison:add')")
     @MyLog(title = "光衰平均值比较", businessType = BusinessType.INSERT)
     @PostMapping
@@ -85,6 +92,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 修改光衰平均值比较
      */
+    @ApiOperation("修改光衰数据详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:comparison:edit')")
     @MyLog(title = "光衰平均值比较", businessType = BusinessType.UPDATE)
     @PutMapping
@@ -96,6 +104,7 @@ public class LightAttenuationComparisonController extends BaseController
     /**
      * 删除光衰平均值比较
      */
+    @ApiOperation("删除光衰数据详细信息")
     @PreAuthorize("@ss.hasPermi('advanced:comparison:remove')")
     @MyLog(title = "光衰平均值比较", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
@@ -113,6 +122,7 @@ public class LightAttenuationComparisonController extends BaseController
      * @MyLog 自定义日志注解，用于记录业务日志，标题为"光衰平均值比较"，业务类型为更新操作
      * @PutMapping 请求映射注解，表示该接口处理HTTP PUT请求，请求路径为"/reset"
      */
+    @ApiOperation("修改光衰数据详细信息（重置基准）")
     @PreAuthorize("@ss.hasPermi('advanced:comparison:edit')")
     @MyLog(title = "光衰平均值比较", businessType = BusinessType.UPDATE)
     @PutMapping("/reset")

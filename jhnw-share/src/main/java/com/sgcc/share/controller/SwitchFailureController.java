@@ -6,6 +6,8 @@ import com.sgcc.common.annotation.MyLog;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.SwitchFailure;
 import com.sgcc.share.service.ISwitchFailureService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +30,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * @author ruoyi
  * @date 2022-07-26
  */
+@Api(tags = "交换机故障信息管理")
 @RestController
 @RequestMapping("/share/switch_failure")
 public class SwitchFailureController extends BaseController
@@ -38,6 +41,7 @@ public class SwitchFailureController extends BaseController
     /**
      * 查询交换机故障列表
      */
+    @ApiOperation("查询交换机故障信息列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:list')")
     @GetMapping("/list")
     public TableDataInfo list(SwitchFailure switchFailure)
@@ -51,6 +55,7 @@ public class SwitchFailureController extends BaseController
     /**
      * 根据品牌查询交换机故障列表
      */
+    @ApiOperation("模糊查询交换机故障信息列表(型号、版本、子版本 可以为*)")
     public List<SwitchFailure> selectSwitchFailureListByPojo(SwitchFailure switchFailure) {
         switchFailureService = SpringBeanUtil.getBean(ISwitchFailureService.class);
         return switchFailureService.selectSwitchFailureListByPojo(switchFailure);
@@ -60,8 +65,9 @@ public class SwitchFailureController extends BaseController
     /**
      * 导出交换机故障列表
      */
+    @ApiOperation("导出交换机故障信息列表")
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:export')")
-    @MyLog(title = "交换机故障", businessType = BusinessType.EXPORT)
+    @MyLog(title = "导出交换机故障信息列表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public AjaxResult export(SwitchFailure switchFailure)
     {
@@ -73,6 +79,7 @@ public class SwitchFailureController extends BaseController
     /**
      * 获取交换机故障详细信息
      */
+    @ApiOperation("获取交换机故障详细信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:query')")
     @GetMapping(value = "/{failureId}")
     public AjaxResult getInfo(@PathVariable("failureId") String failureId)
@@ -83,8 +90,9 @@ public class SwitchFailureController extends BaseController
     /**
      * 新增交换机故障
      */
+    @ApiOperation("新增交换机故障信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:add')")
-    @MyLog(title = "交换机故障", businessType = BusinessType.INSERT)
+    @MyLog(title = "新增交换机故障信息", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody SwitchFailure switchFailure)
     {
@@ -94,8 +102,9 @@ public class SwitchFailureController extends BaseController
     /**
      * 修改交换机故障
      */
+    @ApiOperation("修改交换机故障信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:edit')")
-    @MyLog(title = "交换机故障", businessType = BusinessType.UPDATE)
+    @MyLog(title = "修改交换机故障信息", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody SwitchFailure switchFailure)
     {
@@ -105,8 +114,9 @@ public class SwitchFailureController extends BaseController
     /**
      * 删除交换机故障
      */
+    @ApiOperation("删除交换机故障信息")
     @PreAuthorize("@ss.hasPermi('sql:switch_failure:remove')")
-    @MyLog(title = "交换机故障", businessType = BusinessType.DELETE)
+    @MyLog(title = "删除交换机故障信息", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{failureIds}")
     public AjaxResult remove(@PathVariable String[] failureIds)
     {
