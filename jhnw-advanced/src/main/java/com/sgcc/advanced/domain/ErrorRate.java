@@ -148,4 +148,18 @@ public class ErrorRate extends BaseEntity
                 ", link='" + link + '\'' +
                 '}';
     }
+
+    public String toJson() {
+        return "ErrorRate{" +
+                "id:" + id +
+                ", switchIp:'" + switchIp + '\'' +
+                ", switchId:" + switchId +
+                ", port:'" + port + '\'' +
+                ", description:'" + description + '\'' +
+                ", inputErrors:'" + inputErrors + '\'' +
+                ", outputErrors:'" + outputErrors + '\'' +
+                ", crc:'" + crc + '\'' +
+                ", link:'" + link + '\'' +
+                '}';
+    }
 }

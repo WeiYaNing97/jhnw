@@ -18,7 +18,7 @@ public class ExternalRouteAggregation {
         protos.addAll(Arrays.stream(keyword.split("/")).collect(Collectors.toList()));
         // 使用Lambda表达式和Comparator对字符串按长度从长到短排序
         Collections.sort(protos, Comparator.comparingInt(String::length).reversed());
-        List<String> returnInformationList = Arrays.stream(returnInformation.split("\n")).collect(Collectors.toList());
+        List<String> returnInformationList = Arrays.stream(MyUtils.trimString(returnInformation).split("\n")).collect(Collectors.toList());
 
         List<ExternalIPCalculator> externalIPList = getExternalIPList(returnInformationList, protos);
 
@@ -171,7 +171,7 @@ public class ExternalRouteAggregation {
 
                 /* 其他情况默认包含两个纯数字 并且两个数字挨着*/
                 if(Pre_Cost_List.size() == 2 &&
-                        ( returnInformation_line.indexOf(Pre_Cost_List.get(0))+1  == returnInformation_line.indexOf(Pre_Cost_List.get(1)) )){
+                        ( returnInformation_split_i.indexOf(Pre_Cost_List.get(0) + " "+ Pre_Cost_List.get(1)) != -1)){
                     Pre_Cost = "["+Pre_Cost_List.get(0)+"/"+Pre_Cost_List.get(1)+"]";
                 }else if(Pre_Cost_List.size() != 0){
                     // todo 异常处理 优先级、Cost值不正确

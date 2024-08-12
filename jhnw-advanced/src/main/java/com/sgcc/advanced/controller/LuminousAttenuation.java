@@ -686,8 +686,8 @@ public class LuminousAttenuation {
                     }
                 }
 
-                txpower = values.get(position.get("tx"));
-                rxpower = values.get(position.get("rx"));
+                txpower = values.get(position.get("TX"));
+                rxpower = values.get(position.get("RX"));
 
                 break;
             }

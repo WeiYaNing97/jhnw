@@ -246,12 +246,9 @@ public class ErrorPackage {
             }
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
                     "系统信息:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
+                            "IP地址为:("+switchParameters.getIp()+"),"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber1+","+
-                            " 端口号"+port+ errorRate.getDescription() +
-                            " input:"+errorRate.getInputErrors()+" "+
-                            " output:"+errorRate.getOutputErrors()+" "+
-                            " crc:"+errorRate.getCrc()+"\r\n");
+                            errorRate.toJson()+"\r\n");
             /** 数据库数据*/
             ErrorRate primaryErrorRate = errorRateMap.get(port);
             if (primaryErrorRate == null){
