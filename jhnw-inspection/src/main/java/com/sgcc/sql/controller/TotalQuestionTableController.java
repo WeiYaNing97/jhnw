@@ -52,20 +52,20 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("导出问题及命令列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
-            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
-            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
-            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
-            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "remarks", value = "问题备注", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫", dataTypeClass = Long.class, required = true)
 
     })
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:export')")
@@ -84,20 +84,20 @@ public class TotalQuestionTableController extends BaseController
     @GetMapping("/selectPojoList")
     @ApiOperation("查询交换机问题列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
-            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
-            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
-            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
-            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "remarks", value = "问题备注", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫", dataTypeClass = Long.class, required = true)
 
     })
     public List<TotalQuestionTable> selectPojoList(TotalQuestionTable totalQuestionTable)
@@ -151,20 +151,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("根据ID获取交换机问题的详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
-            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
-            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
-            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
-            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true)
 
     })
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:query')")
@@ -275,20 +262,20 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("新增问题")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
-            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
-            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
-            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
-            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "remarks", value = "问题备注", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫", dataTypeClass = Long.class, required = true)
 
     })
     @PostMapping("add")
@@ -414,7 +401,7 @@ public class TotalQuestionTableController extends BaseController
     @GetMapping("/temProNamelist")
     @ApiOperation("根据问题种类查询范本问题名称")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String")
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true)
 
     })
     public List<String> temProNamelist(String typeProblem)
@@ -430,20 +417,20 @@ public class TotalQuestionTableController extends BaseController
     @GetMapping("/problemNameList")
     @ApiOperation("根据问题实体类查询问题名称")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
-            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
-            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
-            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
-            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "remarks", value = "问题备注", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫", dataTypeClass = Long.class, required = true)
 
     })
     public List<String> problemNameList(TotalQuestionTable totalQuestionTable)
@@ -467,14 +454,13 @@ public class TotalQuestionTableController extends BaseController
      */
     @GetMapping(value = "/totalQuestionTableId")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String")
-
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataTypeClass = String.class, required = true)
     })
     public String totalQuestionTableId( String brand, String type, String firewareVersion, String subVersion,
                                         String problemName, String typeProblem,String temProName)
@@ -528,20 +514,20 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("根据实体类模糊查询实体类集合")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
-            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
-            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
-            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
-            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "remarks", value = "问题备注", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫", dataTypeClass = Long.class, required = true)
 
     })
     @GetMapping("/fuzzyQueryListByPojoMybatis")
@@ -580,7 +566,7 @@ public class TotalQuestionTableController extends BaseController
      */
     @ApiOperation("删除交换机问题")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true)
 
     })
     @PreAuthorize("@ss.hasPermi('sql:total_question_table:remove')")

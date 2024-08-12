@@ -1,5 +1,6 @@
 package com.sgcc.advanced.controller;
 
+import java.sql.Array;
 import java.util.List;
 
 import com.sgcc.common.annotation.MyLog;
@@ -43,14 +44,14 @@ public class LightAttenuationCommandController extends BaseController
      */
     @ApiOperation("查询光衰命令列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
-            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataType = "String"),
-            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:list')")
     @GetMapping("/list")
@@ -65,14 +66,14 @@ public class LightAttenuationCommandController extends BaseController
      */
     @ApiOperation("导出光衰命令列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
-            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataType = "String"),
-            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:export')")
     @MyLog(title = "光衰命令", businessType = BusinessType.EXPORT)
@@ -89,7 +90,7 @@ public class LightAttenuationCommandController extends BaseController
      */
     @ApiOperation("获取光衰命令详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:query')")
     @GetMapping(value = "/{id}")
@@ -103,14 +104,14 @@ public class LightAttenuationCommandController extends BaseController
      */
     @ApiOperation("新增光衰命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
-            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataType = "String"),
-            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:add')")
     @MyLog(title = "光衰命令", businessType = BusinessType.INSERT)
@@ -128,14 +129,14 @@ public class LightAttenuationCommandController extends BaseController
      */
     @ApiOperation("修改光衰命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataType = "String"),
-            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataType = "String"),
-            @ApiImplicitParam(name = "conversion", value = "转译", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getPortCommand", value = "获取up端口号命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "getParameterCommand", value = "获取光衰参数命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "conversion", value = "转译", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:edit')")
     @MyLog(title = "光衰命令", businessType = BusinessType.UPDATE)
@@ -150,7 +151,7 @@ public class LightAttenuationCommandController extends BaseController
      */
     @ApiOperation("删除光衰命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "主键", dataType = "String[]")
+            @ApiImplicitParam(name = "ids", value = "主键", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:light_attenuation_command:remove')")
     @MyLog(title = "光衰命令", businessType = BusinessType.DELETE)

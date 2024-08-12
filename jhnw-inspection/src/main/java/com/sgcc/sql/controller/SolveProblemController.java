@@ -66,7 +66,7 @@ public class SolveProblemController {
     @GetMapping("/queryCommandListBytotalQuestionTableId/{totalQuestionTableId}")
     @ApiOperation("根据交换机问题ID查询修复异常命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId",value = "交换机问题ID",dataType = "String")
+            @ApiImplicitParam(name = "totalQuestionTableId",value = "交换机问题ID", dataTypeClass = String.class, required = true)
     })
     public List<String> queryCommandListBytotalQuestionTableId(@PathVariable String totalQuestionTableId){
 
@@ -121,10 +121,10 @@ public class SolveProblemController {
     */
     @ApiOperation("修复异常接口")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "userinformation",value = "交换机登录信息",dataType = "List<Object>"),
-            @ApiImplicitParam(name = "problemIdList",value = "交换机扫描结果ID",dataType = "List<String>"),
-            @ApiImplicitParam(name = "scanNum",value = "线程数",dataType = "String"),
-            @ApiImplicitParam(name = "allProIdList",value = "交换机所有扫描结果ID",dataType = "List<String>")
+            @ApiImplicitParam(name = "userinformation",value = "交换机登录信息", dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "problemIdList",value = "交换机扫描结果ID", dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "scanNum",value = "线程数", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "allProIdList",value = "交换机所有扫描结果ID", dataTypeClass = List.class, required = false)
     })
     @PostMapping(value = {"batchSolutionMultithreading/{problemIdList}/{scanNum}/{allProIdList}","batchSolutionMultithreading/{problemIdList}/{scanNum}"})
     @MyLog(title = "修复异常", businessType = BusinessType.OTHER)
@@ -424,7 +424,7 @@ public class SolveProblemController {
      */
     @ApiOperation(value = "查询修复异常命令集合")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "commandId", value = "修复命令ID", dataType = "String")
+            @ApiImplicitParam(name = "commandId", value = "修复命令ID", dataTypeClass = String.class, required = true)
     })
     @GetMapping("queryCommandSet")
     public List<CommandLogic> queryCommandSet(String commandId){
@@ -637,8 +637,8 @@ public class SolveProblemController {
      */
     @ApiOperation("根据问题ID列表获取未解决问题的信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "loginUser", value = "登录用户信息"),
-            @ApiImplicitParam(name = "problemIds", value = "问题ID列表")
+            @ApiImplicitParam(name = "loginUser", value = "登录用户信息", dataTypeClass = LoginUser.class, required = true),
+            @ApiImplicitParam(name = "problemIds", value = "问题ID列表", dataTypeClass = List.class, required = true)
     })
     @GetMapping("getUnresolvedProblemInformationByIds")
     public List<ScanResultsVO> getUnresolvedProblemInformationByIds(LoginUser loginUser,List<String> problemIds){//待测
@@ -731,8 +731,8 @@ public class SolveProblemController {
      */
     @ApiOperation( "根据问题ID列表获取交换机扫描结果列表" )
     @ApiImplicitParams( {
-            @ApiImplicitParam( name = "loginUser", value = "登录用户信息" ),
-            @ApiImplicitParam( name = "problemIds", value = "问题ID列表" )
+            @ApiImplicitParam( name = "loginUser", value = "登录用户信息", dataTypeClass = LoginUser.class, required = true ),
+            @ApiImplicitParam( name = "problemIds", value = "问题ID列表", dataTypeClass = List.class, required = true)
     })
     @GetMapping("getSwitchScanResultListByIds")
     public List<ScanResultsVO> getSwitchScanResultListByIds(LoginUser loginUser,List<String> problemIds){//待测

@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.hpsf.Array;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,11 +43,11 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "查询问题模板列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "Long"),
-            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataType = "String"),
-            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataType = "String"),
-            @ApiImplicitParam(name = "reserve", value = "预留1", dataType = "String"),
-            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve", value = "预留1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:list')")
     @GetMapping("/list")
@@ -62,11 +63,11 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "查询问题模板名字列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "Long"),
-            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataType = "String"),
-            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataType = "String"),
-            @ApiImplicitParam(name = "reserve", value = "预留1", dataType = "String"),
-            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve", value = "预留1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataTypeClass = String.class, required = true)
     })
     @GetMapping("/getNameList")
     public List<String> getNameList(Formwork formwork)
@@ -80,8 +81,7 @@ public class FormworkController extends BaseController
      * 查询问题模板列表
      */
     @ApiOperation(value = "查询问题模板列表")
-    @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataType = "String")
+    @ApiImplicitParams(value = {@ApiImplicitParam(name = "formworkName", value = "模板名称", dataTypeClass = String.class, required = true)
     })
     @GetMapping("/pojoByformworkName")
     public Formwork pojoByformworkName(String formworkName)
@@ -97,11 +97,11 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "导出问题模板列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "Long"),
-            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataType = "String"),
-            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataType = "String"),
-            @ApiImplicitParam(name = "reserve", value = "预留1", dataType = "String"),
-            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve", value = "预留1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:export')")
     @MyLog(title = "问题模板", businessType = BusinessType.EXPORT)
@@ -118,7 +118,7 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "获取问题模板详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = Long.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:query')")
     @GetMapping(value = "/{id}")
@@ -132,7 +132,7 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "获取问题模板详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "主键", dataType = "Long[]")
+            @ApiImplicitParam(name = "ids", value = "主键", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:query')")
     @GetMapping(value = "/{ids}")
@@ -146,11 +146,11 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "新增问题模板")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "Long"),
-            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataType = "String"),
-            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataType = "String"),
-            @ApiImplicitParam(name = "reserve", value = "预留1", dataType = "String"),
-            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve", value = "预留1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:add')")
     @MyLog(title = "问题模板", businessType = BusinessType.INSERT)
@@ -165,11 +165,11 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "修改问题模板")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "Long"),
-            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataType = "String"),
-            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataType = "String"),
-            @ApiImplicitParam(name = "reserve", value = "预留1", dataType = "String"),
-            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "formworkName", value = "模板名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "formworkIndex", value = "模板索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve", value = "预留1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reservetwo", value = "预留2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:edit')")
     @MyLog(title = "问题模板", businessType = BusinessType.UPDATE)
@@ -184,7 +184,7 @@ public class FormworkController extends BaseController
      */
     @ApiOperation(value = "删除问题模板")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "主键", dataType = "Long[]")
+            @ApiImplicitParam(name = "ids", value = "主键", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:remove')")
     @MyLog(title = "问题模板", businessType = BusinessType.DELETE)

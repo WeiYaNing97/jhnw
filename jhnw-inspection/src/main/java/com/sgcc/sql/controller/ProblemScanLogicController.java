@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -37,25 +39,25 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("查询问题扫描逻辑列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "matched", value = "匹配", dataType = "String"),
-            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataType = "String"),
-            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataType = "String"),
-            @ApiImplicitParam(name = "action", value = "动作", dataType = "String"),
-            @ApiImplicitParam(name = "rPosition", value = "位置", dataType = "Integer"),
-            @ApiImplicitParam(name = "length", value = "长度", dataType = "String"),
-            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataType = "String"),
-            @ApiImplicitParam(name = "wordName", value = "取词名称", dataType = "String"),
-            @ApiImplicitParam(name = "compare", value = "比较", dataType = "String"),
-            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "问题索引", dataType = "String"),
-            @ApiImplicitParam(name = "fLine", value = "false行号", dataType = "String"),
-            @ApiImplicitParam(name = "tLine", value = "true行号", dataType = "String"),
-            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataType = "Long"),
-            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matched", value = "匹配", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "action", value = "动作", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "rPosition", value = "位置", dataTypeClass = Integer.class, required = true),
+            @ApiImplicitParam(name = "length", value = "长度", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "wordName", value = "取词名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "compare", value = "比较", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "问题索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fLine", value = "false行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tLine", value = "true行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:list')")
     @GetMapping("/list")
@@ -71,25 +73,25 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("导出问题扫描逻辑列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "matched", value = "匹配", dataType = "String"),
-            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataType = "String"),
-            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataType = "String"),
-            @ApiImplicitParam(name = "action", value = "动作", dataType = "String"),
-            @ApiImplicitParam(name = "rPosition", value = "位置", dataType = "Integer"),
-            @ApiImplicitParam(name = "length", value = "长度", dataType = "String"),
-            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataType = "String"),
-            @ApiImplicitParam(name = "wordName", value = "取词名称", dataType = "String"),
-            @ApiImplicitParam(name = "compare", value = "比较", dataType = "String"),
-            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "问题索引", dataType = "String"),
-            @ApiImplicitParam(name = "fLine", value = "false行号", dataType = "String"),
-            @ApiImplicitParam(name = "tLine", value = "true行号", dataType = "String"),
-            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataType = "Long"),
-            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matched", value = "匹配", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "action", value = "动作", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "rPosition", value = "位置", dataTypeClass = Integer.class, required = true),
+            @ApiImplicitParam(name = "length", value = "长度", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "wordName", value = "取词名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "compare", value = "比较", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "问题索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fLine", value = "false行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tLine", value = "true行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:export')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.EXPORT)
@@ -106,7 +108,7 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("获取问题扫描逻辑详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:query')")
     @GetMapping(value = "/{id}")
@@ -120,25 +122,25 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("新增问题扫描逻辑")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "matched", value = "匹配", dataType = "String"),
-            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataType = "String"),
-            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataType = "String"),
-            @ApiImplicitParam(name = "action", value = "动作", dataType = "String"),
-            @ApiImplicitParam(name = "rPosition", value = "位置", dataType = "Integer"),
-            @ApiImplicitParam(name = "length", value = "长度", dataType = "String"),
-            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataType = "String"),
-            @ApiImplicitParam(name = "wordName", value = "取词名称", dataType = "String"),
-            @ApiImplicitParam(name = "compare", value = "比较", dataType = "String"),
-            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "问题索引", dataType = "String"),
-            @ApiImplicitParam(name = "fLine", value = "false行号", dataType = "String"),
-            @ApiImplicitParam(name = "tLine", value = "true行号", dataType = "String"),
-            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataType = "Long"),
-            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matched", value = "匹配", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "action", value = "动作", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "rPosition", value = "位置", dataTypeClass = Integer.class, required = true),
+            @ApiImplicitParam(name = "length", value = "长度", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "wordName", value = "取词名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "compare", value = "比较", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "问题索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fLine", value = "false行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tLine", value = "true行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:add')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.INSERT)
@@ -153,25 +155,25 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("修改问题扫描逻辑")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "matched", value = "匹配", dataType = "String"),
-            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataType = "String"),
-            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataType = "String"),
-            @ApiImplicitParam(name = "action", value = "动作", dataType = "String"),
-            @ApiImplicitParam(name = "rPosition", value = "位置", dataType = "Integer"),
-            @ApiImplicitParam(name = "length", value = "长度", dataType = "String"),
-            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataType = "String"),
-            @ApiImplicitParam(name = "wordName", value = "取词名称", dataType = "String"),
-            @ApiImplicitParam(name = "compare", value = "比较", dataType = "String"),
-            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "问题索引", dataType = "String"),
-            @ApiImplicitParam(name = "fLine", value = "false行号", dataType = "String"),
-            @ApiImplicitParam(name = "tLine", value = "true行号", dataType = "String"),
-            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataType = "String"),
-            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataType = "Long"),
-            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matched", value = "匹配", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "relativePosition", value = "相对位置", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "matchContent", value = "匹配内容", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "action", value = "动作", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "rPosition", value = "位置", dataTypeClass = Integer.class, required = true),
+            @ApiImplicitParam(name = "length", value = "长度", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "exhibit", value = "是否显示", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "wordName", value = "取词名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "compare", value = "比较", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tNextId", value = "true下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tComId", value = "true下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "问题索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fLine", value = "false行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "tLine", value = "true行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fNextId", value = "false下一条分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "fComId", value = "false下一条命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "returnCmdId", value = "返回命令", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "cycleStartId", value = "循环起始索引", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:edit')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.UPDATE)
@@ -186,7 +188,7 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("删除问题扫描逻辑")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "主键", dataType = "String[]")
+            @ApiImplicitParam(name = "ids", value = "主键", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_scan_logic:remove')")
     @MyLog(title = "问题扫描逻辑", businessType = BusinessType.DELETE)
@@ -205,7 +207,7 @@ public class ProblemScanLogicController extends BaseController {
      */
     @ApiOperation("获取定义的参数名")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataType = "String")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataTypeClass = String.class, required = true)
     })
     @GetMapping("/getParameterNameCollection/{totalQuestionTableId}")
     public List<String> getParameterNameCollection(@PathVariable String totalQuestionTableId){

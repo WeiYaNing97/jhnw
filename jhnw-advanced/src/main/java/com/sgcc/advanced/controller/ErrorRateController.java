@@ -23,6 +23,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.core.page.TableDataInfo;
 
+import java.sql.Array;
 import java.util.List;
 
 /**
@@ -42,15 +43,15 @@ public class ErrorRateController extends BaseController
      */
     @ApiOperation("查询错误包列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "Long"),
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引", dataType = "Long"),
-            @ApiImplicitParam(name = "port", value = "端口号", dataType = "String"),
-            @ApiImplicitParam(name = "description", value = "描述", dataType = "String"),
-            @ApiImplicitParam(name = "inputErrors", value = "input错误", dataType = "String"),
-            @ApiImplicitParam(name = "outputErrors", value = "output错误", dataType = "String"),
-            @ApiImplicitParam(name = "crc", value = "crc", dataType = "String"),
-            @ApiImplicitParam(name = "link", value = "link", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "port", value = "端口号",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "description", value = "描述",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "inputErrors", value = "input错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "outputErrors", value = "output错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "crc", value = "crc",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "link", value = "link",dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:rate:list')")
     @GetMapping("/list")
@@ -65,15 +66,15 @@ public class ErrorRateController extends BaseController
      */
     @ApiOperation("导出错误包列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "Long"),
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引", dataType = "Long"),
-            @ApiImplicitParam(name = "port", value = "端口号", dataType = "String"),
-            @ApiImplicitParam(name = "description", value = "描述", dataType = "String"),
-            @ApiImplicitParam(name = "inputErrors", value = "input错误", dataType = "String"),
-            @ApiImplicitParam(name = "outputErrors", value = "output错误", dataType = "String"),
-            @ApiImplicitParam(name = "crc", value = "crc", dataType = "String"),
-            @ApiImplicitParam(name = "link", value = "link", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "port", value = "端口号",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "description", value = "描述",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "inputErrors", value = "input错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "outputErrors", value = "output错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "crc", value = "crc",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "link", value = "link",dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:rate:export')")
     @MyLog(title = "错误包", businessType = BusinessType.EXPORT)
@@ -90,7 +91,7 @@ public class ErrorRateController extends BaseController
      */
     @ApiOperation("获取错误包详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键ID",dataTypeClass = Long.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:rate:query')")
     @GetMapping(value = "/{id}")
@@ -104,15 +105,15 @@ public class ErrorRateController extends BaseController
      */
     @ApiOperation("新增错误包")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "Long"),
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引", dataType = "Long"),
-            @ApiImplicitParam(name = "port", value = "端口号", dataType = "String"),
-            @ApiImplicitParam(name = "description", value = "描述", dataType = "String"),
-            @ApiImplicitParam(name = "inputErrors", value = "input错误", dataType = "String"),
-            @ApiImplicitParam(name = "outputErrors", value = "output错误", dataType = "String"),
-            @ApiImplicitParam(name = "crc", value = "crc", dataType = "String"),
-            @ApiImplicitParam(name = "link", value = "link", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "port", value = "端口号",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "description", value = "描述",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "inputErrors", value = "input错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "outputErrors", value = "output错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "crc", value = "crc",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "link", value = "link",dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:rate:add')")
     @MyLog(title = "错误包", businessType = BusinessType.INSERT)
@@ -127,15 +128,15 @@ public class ErrorRateController extends BaseController
      */
     @ApiOperation("修改错误包")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "Long"),
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引", dataType = "Long"),
-            @ApiImplicitParam(name = "port", value = "端口号", dataType = "String"),
-            @ApiImplicitParam(name = "description", value = "描述", dataType = "String"),
-            @ApiImplicitParam(name = "inputErrors", value = "input错误", dataType = "String"),
-            @ApiImplicitParam(name = "outputErrors", value = "output错误", dataType = "String"),
-            @ApiImplicitParam(name = "crc", value = "crc", dataType = "String"),
-            @ApiImplicitParam(name = "link", value = "link", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchId", value = "交换机四项基本信息表ID索引",dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "port", value = "端口号",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "description", value = "描述",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "inputErrors", value = "input错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "outputErrors", value = "output错误",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "crc", value = "crc",dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "link", value = "link",dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:rate:edit')")
     @MyLog(title = "错误包", businessType = BusinessType.UPDATE)
@@ -150,7 +151,7 @@ public class ErrorRateController extends BaseController
      */
     @ApiOperation("删除错误包")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "idS", value = "主键ID", dataType = "Long[]")
+            @ApiImplicitParam(name = "ids", value = "主键ID",dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:rate:remove')")
     @MyLog(title = "错误包", businessType = BusinessType.DELETE)

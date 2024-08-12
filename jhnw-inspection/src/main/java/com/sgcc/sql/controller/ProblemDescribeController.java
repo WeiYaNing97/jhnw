@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.hpsf.Array;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +43,8 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("新增问题详细说明和指导索引")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataType = "String")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataTypeClass = String.class, required = true)
     })
     @PostMapping("/insertProblemDescribe")
     @MyLog(title = "新增问题详细说明和指导索引", businessType = BusinessType.INSERT)
@@ -84,8 +85,8 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("修改问题详细说明和指导索引")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataType = "String")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataTypeClass = String.class, required = true)
     })
     @PutMapping("/insertProblemDescribe")
     @MyLog(title = "修改问题详细说明和指导索引", businessType = BusinessType.INSERT)
@@ -128,7 +129,7 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("删除问题详细说明和指导索引")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "问题描述ID", dataTypeClass = Long.class, required = true)
     })
     @DeleteMapping("/deleteProblemDescribe")
     public AjaxResult deleteProblemDescribe(Long id) {
@@ -149,7 +150,7 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("获取问题详细说明和指导索引")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "问题描述ID", dataTypeClass = String.class, required = true)
     })
     @GetMapping(value = "selectProblemDescribe")
     public ProblemDescribe selectProblemDescribe(@RequestParam String id) {
@@ -169,8 +170,8 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("查询问题描述列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "问题描述ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:list')")
     @GetMapping("/list")
@@ -186,8 +187,8 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("导出问题描述列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "问题描述ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:export')")
     @MyLog(title = "导出问题描述列表", businessType = BusinessType.EXPORT)
@@ -204,7 +205,7 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("获取问题描述详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "问题描述ID", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:query')")
     @GetMapping(value = "/{id}")
@@ -218,8 +219,8 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("新增问题描述详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "问题描述ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:add')")
     @MyLog(title = "新增问题描述详细信息", businessType = BusinessType.INSERT)
@@ -234,8 +235,8 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("修改问题描述详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "问题描述ID",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "问题描述ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribe", value = "问题详情描述", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:edit')")
     @MyLog(title = "修改问题描述详细信息", businessType = BusinessType.UPDATE)
@@ -250,7 +251,7 @@ public class ProblemDescribeController extends BaseController
      */
     @ApiOperation("删除问题描述详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "问题描述ID",dataType = "String[]")
+            @ApiImplicitParam(name = "ids", value = "问题描述ID", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:problem_describe:remove')")
     @MyLog(title = "删除问题描述详细信息", businessType = BusinessType.DELETE)

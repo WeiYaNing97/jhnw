@@ -22,6 +22,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.*;
@@ -54,7 +56,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @DeleteMapping("deleteScanningLogic")
     @ApiOperation("删除交换机问题分析逻辑数据")
-    @ApiImplicitParam(name = "id", value = "交换机问题的ID",dataType = "String")
+    @ApiImplicitParam(name = "id", value = "交换机问题的ID", dataTypeClass = String.class, required = true)
     @MyLog(title = "删除交换机问题分析逻辑数据", businessType = BusinessType.DELETE)
     public boolean deleteScanningLogic(@RequestBody String id) {
         // 获取总问题表服务
@@ -133,8 +135,8 @@ public class DefinitionProblemController extends BaseController {
      * 实现逻辑是，在查询功能中提取查询方法，加上删除与添加功能 实现*/
     @ApiOperation("修改交换机问题分析逻辑数据")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题的ID",dataType = "String"),
-            @ApiImplicitParam(name = "pojoList", value = "交换机问题分析逻辑数据json列表",dataType = "List<String>")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题的ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "pojoList", value = "交换机问题分析逻辑数据json列表", dataTypeClass = List.class, required = true)
     })
     @PutMapping("updateAnalysis")
     @MyLog(title = "修改交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
@@ -193,9 +195,9 @@ public class DefinitionProblemController extends BaseController {
      */
     @ApiOperation("定义获取交换机基本信息命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "jsonPojoList", value = "获取交换机基本信息逻辑json列表",dataType = "List<String>"),
-            @ApiImplicitParam(name = "command", value = "交换机基本信息命令数组",dataType = "String[]"),
-            @ApiImplicitParam(name = "custom", value = "自定义参数",dataType = "String")
+            @ApiImplicitParam(name = "jsonPojoList", value = "获取交换机基本信息逻辑json列表", dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "command", value = "交换机基本信息命令数组", dataTypeClass = Array.class, required = true),
+            @ApiImplicitParam(name = "custom", value = "自定义参数", dataTypeClass = String.class, required = true)
     })
     @PostMapping("insertInformationAnalysis/{command}/{custom}")
     @MyLog(title = "定义获取基本信息分析数据插入", businessType = BusinessType.INSERT)
@@ -257,8 +259,8 @@ public class DefinitionProblemController extends BaseController {
     @ApiOperation("修改获取交换机基本信息逻辑")
     @PutMapping("updatebasicAnalysis")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "basicInformationId", value = "交换机基本信息ID",dataType = "Long"),
-            @ApiImplicitParam(name = "pojoList", value = "获取交换机基本信息逻辑json列表",dataType = "List<String>")
+            @ApiImplicitParam(name = "basicInformationId", value = "交换机基本信息ID", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "pojoList", value = "获取交换机基本信息逻辑json列表", dataTypeClass = List.class, required = true)
     })
     @MyLog(title = "修改获取交换机基本信息逻辑", businessType = BusinessType.UPDATE)
     public boolean updatebasicAnalysis(@RequestParam Long basicInformationId,@RequestBody List<String> pojoList){
@@ -293,7 +295,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @ApiOperation("回显获取交换机基本信息逻辑数据")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "problemId", value = "分析逻辑ID",dataType = "String")
+            @ApiImplicitParam(name = "problemId", value = "分析逻辑ID", dataTypeClass = String.class, required = true)
     })
     @GetMapping("getBasicInformationProblemScanLogic/{problemId}")
     @MyLog(title = "回显获取交换机基本信息逻辑数据", businessType = BusinessType.OTHER)
@@ -347,7 +349,7 @@ public class DefinitionProblemController extends BaseController {
      */
     @ApiOperation("删除获取交换机基本信息逻辑数据")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键ID", dataTypeClass = Long.class, required = true)
     })
     @DeleteMapping("deleteBasicInformationProblemScanLogic")
     @MyLog(title = "删除获取交换机基本信息逻辑数据", businessType = BusinessType.DELETE)
@@ -415,8 +417,8 @@ public class DefinitionProblemController extends BaseController {
     @MyLog(title = "新增交换机问题分析逻辑数据", businessType = BusinessType.UPDATE)
     @ApiOperation("新增交换机问题分析逻辑数据")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID",dataType = "String"),
-            @ApiImplicitParam(name = "jsonPojoList", value = "问题分析逻辑的JSON对象列表",dataType = "List<String>")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "jsonPojoList", value = "问题分析逻辑的JSON对象列表", dataTypeClass = List.class, required = true)
     })
     public boolean definitionProblemJson(@RequestParam String totalQuestionTableId,@RequestBody List<String> jsonPojoList){
         // 获取系统登录人信息
@@ -436,20 +438,20 @@ public class DefinitionProblemController extends BaseController {
      */
     @ApiOperation("查询交换机问题分析逻辑数据")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键",dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌",dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "型号",dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本",dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号",dataType = "String"),
-            @ApiImplicitParam(name = "notFinished", value = "未完成标志",dataType = "String"),
-            @ApiImplicitParam(name = "logicalID", value = "扫描索引",dataType = "String"),
-            @ApiImplicitParam(name = "typeProblem", value = "范式分类",dataType = "String"),
-            @ApiImplicitParam(name = "temProName", value = "范式名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemName", value = "自定义名称",dataType = "String"),
-            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引",dataType = "String"),
-            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引",dataType = "String"),
-            @ApiImplicitParam(name = "remarks", value = "问题备注",dataType = "String"),
-            @ApiImplicitParam(name = "requiredItems", value = "是否必扫",dataType = "Long")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "type", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "notFinished", value = "未完成标志", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "logicalID", value = "扫描索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "typeProblem", value = "范式分类", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "temProName", value = "范式名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemName", value = "自定义名称", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemDescribeId", value = "问题详细说明和指导索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemSolvingId", value = "解决问题命令索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "remarks", value = "问题备注", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "requiredItems", value = "是否必扫", dataTypeClass = Long.class, required = true)
 
     })
     @GetMapping("getAnalysisList")

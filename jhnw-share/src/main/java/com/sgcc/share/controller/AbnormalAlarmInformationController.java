@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.hpsf.Array;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,10 +45,10 @@ public class AbnormalAlarmInformationController extends BaseController
      */
     @ApiOperation("查询异常告警信息列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "questionType", value = "问题类型", dataType = "String"),
-            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataType = "String"),
-            @ApiImplicitParam(name = "userName", value = "登录名称", dataType = "String")
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionType", value = "问题类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "userName", value = "登录名称", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:list')")
     @GetMapping("/list")
@@ -63,10 +64,10 @@ public class AbnormalAlarmInformationController extends BaseController
      */
     @ApiOperation("导出异常告警信息列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "questionType", value = "问题类型", dataType = "String"),
-            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataType = "String"),
-            @ApiImplicitParam(name = "userName", value = "登录名称", dataType = "String")
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionType", value = "问题类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "userName", value = "登录名称", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:export')")
     @Log(title = "异常告警信息", businessType = BusinessType.EXPORT)
@@ -83,7 +84,7 @@ public class AbnormalAlarmInformationController extends BaseController
      */
     @ApiOperation("获取异常告警信息详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String")
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:query')")
     @GetMapping(value = "/{switchIp}")
@@ -97,10 +98,10 @@ public class AbnormalAlarmInformationController extends BaseController
      */
     @ApiOperation("新增异常告警信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "questionType", value = "问题类型", dataType = "String"),
-            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataType = "String"),
-            @ApiImplicitParam(name = "userName", value = "登录名称", dataType = "String")
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionType", value = "问题类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "userName", value = "登录名称", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:add')")
     @Log(title = "异常告警信息", businessType = BusinessType.INSERT)
@@ -115,10 +116,10 @@ public class AbnormalAlarmInformationController extends BaseController
      */
     @ApiOperation("修改异常告警信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataType = "String"),
-            @ApiImplicitParam(name = "questionType", value = "问题类型", dataType = "String"),
-            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataType = "String"),
-            @ApiImplicitParam(name = "userName", value = "登录名称", dataType = "String")
+            @ApiImplicitParam(name = "switchIp", value = "交换机ip", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionType", value = "问题类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "questionInformation", value = "问题信息", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "userName", value = "登录名称", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:edit')")
     @Log(title = "异常告警信息", businessType = BusinessType.UPDATE)
@@ -133,7 +134,7 @@ public class AbnormalAlarmInformationController extends BaseController
      */
     @ApiOperation("删除异常告警信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchIps", value = "交换机ip", dataType = "String[]")
+            @ApiImplicitParam(name = "switchIps", value = "交换机ip", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('share:abnormal_alarm_information:remove')")
     @Log(title = "异常告警信息", businessType = BusinessType.DELETE)

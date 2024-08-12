@@ -28,10 +28,8 @@ import com.sgcc.sql.thread.DirectionalScanThreadPool;
 import com.sgcc.sql.thread.ScanFixedThreadPool;
 import com.sgcc.sql.util.InspectionMethods;
 import com.sgcc.sql.util.ScanLogicMethods;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
+import org.apache.poi.hpsf.Array;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -91,14 +89,14 @@ public class SwitchInteraction {
     */
     @ApiOperation("预执行获取交换机基本信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "ip", value = "交换机IP", dataType = "String"),
-            @ApiImplicitParam(name = "name", value = "交换机用户名", dataType = "String"),
-            @ApiImplicitParam(name = "password", value = "<PASSWORD>", dataType = "String"),
-            @ApiImplicitParam(name = "port", value = "交换机端口", dataType = "String"),
-            @ApiImplicitParam(name = "mode", value = "连接方式", dataType = "String"),
-            @ApiImplicitParam(name = "configureCiphers", value = "配置密码", dataType = "String"),
-            @ApiImplicitParam(name = "command", value = "命令数组", dataType = "String"),
-            @ApiImplicitParam(name = "pojoList", value = "分析数据集合", dataType = "String")
+            @ApiImplicitParam(name = "ip", value = "交换机IP", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "name", value = "交换机用户名", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "password", value = "<PASSWORD>", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "port", value = "交换机端口", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "mode", value = "连接方式", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "configureCiphers", value = "配置密码", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "command", value = "命令数组", dataTypeClass = Array.class, required = true),
+            @ApiImplicitParam(name = "pojoList", value = "分析数据集合", dataTypeClass = List.class, required = true)
     })
     @PostMapping("testToObtainBasicInformation/{ip}/{name}/{password}/{port}/{mode}/{configureCiphers}/{command}")
     @MyLog(title = "测试获取交换机基本信息逻辑执行结果", businessType = BusinessType.OTHER)
@@ -223,13 +221,13 @@ public class SwitchInteraction {
 
     @ApiOperation("模板扫描接口")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataTypeClass = List.class, paramType = "body"),
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "问题表ID集合", dataTypeClass = List.class),
-            @ApiImplicitParam(name = "scanNum", value = "线程数", dataTypeClass = Long.class)
+            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "formworkId", value = "模板ID", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "scanNum", value = "线程数", dataTypeClass = Long.class, required = true)
     })
     @PostMapping("/formworkScann/{formworkId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "模板扫描", businessType = BusinessType.OTHER)
-    public String formworkScann(@RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
+    public String formworkScann(@ApiParam(name = "switchInformation", value = "交换机登录信息集合") @RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
         // 获取FormworkService实例
         formworkService = SpringBeanUtil.getBean(IFormworkService.class);
 
@@ -259,9 +257,9 @@ public class SwitchInteraction {
      */
     @ApiOperation("专项扫描接口")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataTypeClass = List.class, paramType = "body"),
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "问题表ID集合", dataTypeClass = List.class),
-            @ApiImplicitParam(name = "scanNum", value = "线程数", dataTypeClass = Long.class)
+            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "问题表ID集合", dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "scanNum", value = "线程数", dataTypeClass = Long.class, required = true)
     })
     @PostMapping("/directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项扫描", businessType = BusinessType.OTHER)
@@ -342,13 +340,14 @@ public class SwitchInteraction {
      * @return
     */
     @ApiOperation("全部扫描接口")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataType = "List<String>", dataTypeClass = Object.class),
-            @ApiImplicitParam(name = "scanNum", value = "线程数", dataType = "Long", dataTypeClass = Long.class),
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(name = "switchInformation", value = "交换机登录信息集合", dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "scanNum", value = "线程数", dataTypeClass = Long.class, required = true)
     })
     @PostMapping("/multipleScans/{scanNum}")
     @MyLog(title = "全部扫描", businessType = BusinessType.OTHER)
-    public String multipleScans(@RequestBody List<String> switchInformation,@PathVariable  Long scanNum) {
+    public String multipleScans(@RequestBody List<String> switchInformation,
+                                @PathVariable  Long scanNum) {
 
         /* 交换机登录信息集合 及 系统登录人信息 线程数 */
         ParameterSet parameterSet = new ParameterSet();

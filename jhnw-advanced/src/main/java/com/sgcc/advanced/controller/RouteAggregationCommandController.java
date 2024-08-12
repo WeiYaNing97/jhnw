@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.hpsf.Array;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,15 +45,15 @@ public class RouteAggregationCommandController extends BaseController
      */
     @ApiOperation("查询路由聚合命令列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataType = "String"),
-            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:list')")
     @GetMapping("/list")
@@ -68,15 +69,15 @@ public class RouteAggregationCommandController extends BaseController
      */
     @ApiOperation("导出路由聚合命令列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataType = "String"),
-            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:export')")
     @Log(title = "路由聚合命令", businessType = BusinessType.EXPORT)
@@ -93,7 +94,7 @@ public class RouteAggregationCommandController extends BaseController
      */
     @ApiOperation("获取路由聚合命令详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:query')")
     @GetMapping(value = "/{id}")
@@ -107,15 +108,15 @@ public class RouteAggregationCommandController extends BaseController
      */
     @ApiOperation("新增路由聚合命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataType = "String"),
-            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:add')")
     @Log(title = "路由聚合命令", businessType = BusinessType.INSERT)
@@ -130,15 +131,15 @@ public class RouteAggregationCommandController extends BaseController
      */
     @ApiOperation("修改路由聚合命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键ID", dataType = "String"),
-            @ApiImplicitParam(name = "brand", value = "品牌", dataType = "String"),
-            @ApiImplicitParam(name = "switchType", value = "型号", dataType = "String"),
-            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataType = "String"),
-            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataType = "String"),
-            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataType = "String"),
-            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataType = "String"),
-            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "brand", value = "品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "switchType", value = "型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "firewareVersion", value = "内部固件版本", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "subVersion", value = "子版本号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalCommand", value = "获取内部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "internalKeywords", value = "内部关键字", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalCommand", value = "获取外部宣告地址命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "externalKeywords", value = "外部关键字", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:edit')")
     @Log(title = "路由聚合命令", businessType = BusinessType.UPDATE)
@@ -153,7 +154,7 @@ public class RouteAggregationCommandController extends BaseController
      */
     @ApiOperation("删除路由聚合命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "主键ID", dataType = "String[]")
+            @ApiImplicitParam(name = "ids", value = "主键ID", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('advanced:RouteAggregationCommand:remove')")
     @Log(title = "路由聚合命令", businessType = BusinessType.DELETE)

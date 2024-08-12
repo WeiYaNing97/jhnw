@@ -135,8 +135,8 @@ public class ImportExportController {
 
     @ApiOperation("数据库导入")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "file", value = "导入文件", dataType = "MultipartFile"),
-            @ApiImplicitParam(name = "updateSupport", value = "是否更新数据(NULL)",dataType = "boolean")
+            @ApiImplicitParam(name = "file", value = "导入文件", dataTypeClass = MultipartFile.class, required = true),
+            @ApiImplicitParam(name = "updateSupport", value = "是否更新数据(NULL)", dataTypeClass = boolean.class, required = false)
     })
     @PostMapping("/importData")
     @MyLog(title = "数据库导入", businessType = BusinessType.OTHER)

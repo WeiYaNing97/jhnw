@@ -21,6 +21,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.hpsf.Array;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -48,13 +49,13 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("查询命令逻辑列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
-            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
-            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
-            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "state", value = "状态", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "command", value = "命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:list')")
     @GetMapping("/list")
@@ -70,13 +71,13 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("导出命令逻辑列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
-            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
-            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
-            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "state", value = "状态", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "command", value = "命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:export')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.EXPORT)
@@ -93,7 +94,7 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("获取命令逻辑详细信息")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:query')")
     @GetMapping(value = "/{id}")
@@ -107,13 +108,13 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("新增命令逻辑")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
-            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
-            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
-            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "state", value = "状态", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "command", value = "命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:add')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.INSERT)
@@ -128,13 +129,13 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("修改命令逻辑")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "主键", dataType = "String"),
-            @ApiImplicitParam(name = "state", value = "状态", dataType = "String"),
-            @ApiImplicitParam(name = "cLine", value = "命令行号", dataType = "String"),
-            @ApiImplicitParam(name = "command", value = "命令", dataType = "String"),
-            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataType = "String"),
-            @ApiImplicitParam(name = "problemId", value = "分析索引", dataType = "String"),
-            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataType = "String")
+            @ApiImplicitParam(name = "id", value = "主键", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "state", value = "状态", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "cLine", value = "命令行号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "command", value = "命令", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "resultCheckId", value = "验证类型", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "problemId", value = "分析索引", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "endIndex", value = "下一命令", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:edit')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.UPDATE)
@@ -149,7 +150,7 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("删除命令逻辑")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "主键", dataType = "String[]")
+            @ApiImplicitParam(name = "ids", value = "主键", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:command_logic:remove')")
     @MyLog(title = "命令逻辑", businessType = BusinessType.DELETE)
@@ -174,8 +175,8 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("新增修复异常命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataType = "String"),
-            @ApiImplicitParam(name = "commandLogicList", value = "命令逻辑列表", dataType = "List<String>")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "commandLogicList", value = "命令逻辑列表", dataTypeClass = List.class, required = true)
     })
     //@PreAuthorize("@ss.hasPermi('sql:command_logic:insertModifyProblemCommandSet')")
     @PostMapping("insertModifyProblemCommandSet")
@@ -263,8 +264,8 @@ public class CommandLogicController extends BaseController
     @ApiOperation("修改修复异常命令")
     @PutMapping("updateProblemSolvingCommand")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataType = "String"),
-            @ApiImplicitParam(name = "commandLogics", value = "命令逻辑列表", dataType = "List<String>")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "commandLogics", value = "命令逻辑列表", dataTypeClass = List.class, required = true)
     })
     @MyLog(title = "修改修复异常命令", businessType = BusinessType.UPDATE)
     public boolean updateProblemSolvingCommand(@RequestParam String totalQuestionTableId,@RequestBody List<String> commandLogics){
@@ -285,7 +286,7 @@ public class CommandLogicController extends BaseController
      */
     @ApiOperation("删除修复异常命令")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataType = "String")
+            @ApiImplicitParam(name = "totalQuestionTableId", value = "交换机问题ID", dataTypeClass = String.class, required = true)
     })
     @DeleteMapping("deleteProblemSolvingCommand")
     @MyLog(title = "删除修复异常命令", businessType = BusinessType.UPDATE)

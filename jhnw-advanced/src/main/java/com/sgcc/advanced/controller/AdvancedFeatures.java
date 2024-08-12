@@ -39,9 +39,9 @@ public class AdvancedFeatures {
      */
     @ApiOperation("运行分析接口")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "switchInformation", value = "用户登录信息列表，格式为json字符串", dataType = "List<String>"),
-            @ApiImplicitParam(name = "scanNum", value = "扫描允许最大线程数", dataType = "Long"),
-            @ApiImplicitParam(name = "functionName", value = "功能名称列表", dataType = "List<String>")
+            @ApiImplicitParam(name = "switchInformation", value = "用户登录信息列表，格式为json字符串",dataTypeClass = List.class, required = true),
+            @ApiImplicitParam(name = "scanNum", value = "扫描允许最大线程数",dataTypeClass = Long.class,required = true),
+            @ApiImplicitParam(name = "functionName", value = "功能名称列表",dataTypeClass = List.class, required = true)
     })
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "运行分析", businessType = BusinessType.OTHER)

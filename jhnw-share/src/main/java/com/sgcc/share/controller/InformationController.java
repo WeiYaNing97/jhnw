@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.hpsf.Array;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,11 +46,11 @@ public class InformationController extends BaseController
      */
     @ApiOperation("查询交换机品牌、型号列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
-            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
-            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
-            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
-            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "交换机信息id", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:information:list')")
     @GetMapping("/list")
@@ -65,11 +66,11 @@ public class InformationController extends BaseController
      */
     @ApiOperation("导出交换机品牌、型号列表")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
-            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
-            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
-            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
-            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "交换机信息id", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:information:export')")
     @MyLog(title = "交换机信息", businessType = BusinessType.EXPORT)
@@ -100,11 +101,11 @@ public class InformationController extends BaseController
      */
     @ApiOperation("新增交换机品牌、型号")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
-            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
-            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
-            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
-            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "交换机信息id", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:information:add')")
     @MyLog(title = "交换机信息", businessType = BusinessType.INSERT)
@@ -119,11 +120,11 @@ public class InformationController extends BaseController
      */
     @ApiOperation("修改交换机品牌、型号")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "id", value = "交换机信息id",dataType = "Long"),
-            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌",dataType = "String"),
-            @ApiImplicitParam(name = "deviceModel", value = "交换机型号",dataType = "String"),
-            @ApiImplicitParam(name = "reserve1", value = "预留字段1",dataType = "String"),
-            @ApiImplicitParam(name = "reserve2", value = "预留字段2",dataType = "String")
+            @ApiImplicitParam(name = "id", value = "交换机信息id", dataTypeClass = Long.class, required = true),
+            @ApiImplicitParam(name = "deviceBrand", value = "交换机品牌", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "deviceModel", value = "交换机型号", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve1", value = "预留字段1", dataTypeClass = String.class, required = true),
+            @ApiImplicitParam(name = "reserve2", value = "预留字段2", dataTypeClass = String.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:information:edit')")
     @MyLog(title = "交换机信息", businessType = BusinessType.UPDATE)
@@ -138,7 +139,7 @@ public class InformationController extends BaseController
      */
     @ApiOperation("删除交换机品牌、型号")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "交换机信息id",dataType = "Long[]")
+            @ApiImplicitParam(name = "ids", value = "交换机信息id", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:information:remove')")
     @MyLog(title = "交换机信息", businessType = BusinessType.DELETE)
