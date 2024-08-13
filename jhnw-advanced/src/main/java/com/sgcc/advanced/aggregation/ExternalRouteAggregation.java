@@ -3,6 +3,9 @@ package com.sgcc.advanced.aggregation;
 import com.sgcc.advanced.domain.ExternalIPAddresses;
 import com.sgcc.advanced.domain.ExternalIPCalculator;
 import com.sgcc.advanced.domain.IPCalculator;
+import com.sgcc.advanced.utils.DataExtraction;
+import com.sgcc.share.domain.Constant;
+import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 
 import java.util.*;
@@ -18,9 +21,18 @@ public class ExternalRouteAggregation {
         protos.addAll(Arrays.stream(keyword.split("/")).collect(Collectors.toList()));
         // 使用Lambda表达式和Comparator对字符串按长度从长到短排序
         Collections.sort(protos, Comparator.comparingInt(String::length).reversed());
-        List<String> returnInformationList = Arrays.stream(MyUtils.trimString(returnInformation).split("\n")).collect(Collectors.toList());
+        List<String> returnInformationList = Arrays.stream(MyUtils.trimString(returnInformation).split("\r\n")).collect(Collectors.toList());
 
-        List<ExternalIPCalculator> externalIPList = getExternalIPList(returnInformationList, protos);
+        HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+"H3C", Constant.getProfileInformation());
+        List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
+        List<ExternalIPCalculator> externalIPList = new ArrayList<>();
+        /* 符合表格格式 */
+        if (keyList.indexOf("R_table")!=-1){
+            externalIPList = getTableExternalIPList(returnInformationList);
+        }else {
+            /* 不符合表格格式 */
+            externalIPList = getExternalIPList(returnInformationList, protos);
+        }
 
         Map<String, List<ExternalIPCalculator>> proto_collect = externalIPList.stream().collect(Collectors.groupingBy(ExternalIPCalculator::getProto));
 
@@ -68,6 +80,71 @@ public class ExternalRouteAggregation {
         }
     }
 
+    private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList) {
+        HashMap<String,String> keyMap = (HashMap<String,String>) CustomConfigurationUtil.getValue("路由聚合."+"H3C.R_table", Constant.getProfileInformation());
+        List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap);
+        if (stringObjectHashMapList.size() == 0){
+            return new ArrayList<>();
+        }
+
+        List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
+
+        String ipCIDR ="";
+        String proto = "";
+        String Pre = "";
+        String Cost = "";
+        String NextHop = "";
+        String Interface = "";
+        List<ExternalIPCalculator> externalIPList = new ArrayList<>();
+
+        for (HashMap<String, Object> stringObjectHashMap : stringObjectHashMapList){
+            ExternalIPCalculator externalIP = new ExternalIPCalculator();
+            for (String key:keyList){
+                String value = (String) stringObjectHashMap.get(key);
+                if (value != null){
+                    switch (key){
+                        case "Destination/Mask":
+                            if (!value.equals("&")){
+                                ipCIDR = value;
+                            }
+                            break;
+                        case "protocol":
+                            if (!value.equals("&")){
+                                proto = value;
+                            }
+                            break;
+                        case "Pre_Def_priority":
+                            if (!value.equals("&")){
+                                Pre = value;
+                            }
+                            break;
+                        case "Cost":
+                            if (!value.equals("&")){
+                                Cost = value;
+                            }
+                            break;
+                        case "NextHop":
+                            if (!value.equals("&")){
+                                NextHop = value;
+                            }
+                            break;
+                        case "Interface":
+                            if (!value.equals("&")){
+                                Interface = value;
+                            }
+                            break;
+                    }
+                }
+            }
+            externalIP.setDestinationMask(ipCIDR);
+            externalIP.setProto(proto);
+            externalIP.setPreCost("["+Pre+"/"+Cost+"]");
+            externalIP.setNextHop(NextHop);
+            externalIP.setInterface(Interface);
+            externalIPList.add(externalIP);
+        }
+        return externalIPList;
+    }
 
 
     /**

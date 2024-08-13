@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class DataExtraction {
 
-    public static List<String> tableDataExtraction(List<String> switchReturnsInformation, Map<String,String> keywordS) {
+    public static List<HashMap<String, Object>> tableDataExtraction(List<String> switchReturnsInformation, Map<String,String> keywordS) {
         // 获取表头、标题栏及位置
         /** 获取表头、标题栏 及 位置 */
         String tableHeader = keywordS.get("TableHeader");
@@ -38,6 +38,13 @@ public class DataExtraction {
             for (int j = 0; j < rowOfDataSplit.length; j++) {
                 rowFeatures_List.add(obtainDataFeatures(rowOfDataSplit[j]));
             }
+
+            String elementToCheck = "未知";
+            boolean allMatch = rowFeatures_List.stream().allMatch(element -> element.equals(elementToCheck));
+            if (allMatch) {
+                continue;
+            }
+
             String rowFeatures_List_join = String.join(",", rowFeatures_List);
 
             if (characteristicList_join.indexOf(rowFeatures_List_join) != -1) {
@@ -61,26 +68,25 @@ public class DataExtraction {
                 }
             }
         }
-        List<String> tableHeader_value_List = new ArrayList<>();
+
+        List<HashMap<String, Object>> tableDataList = new ArrayList<>();
         for (int i = 0; i < tableRowList.size(); i++) {
+            HashMap<String, Object> tableData = new HashMap<>();
             String[] rowOfDataSplit = tableRowList.get(i).split(",");
             Map<String,Object> map_name_value = new HashMap<>();
             for (int j = 0; j < rowOfDataSplit.length; j++) {
                 map_name_value.put(tableHeader_name.get(j),rowOfDataSplit[j]);
             }
-            String tableHeader_value = "";
+
             for (String key: map_name_value.keySet()) {
                 String keyByValue = getKeyByValue(keywordS, key);
                 if (keyByValue != null) {
-                    // 拼接键值对
-                    tableHeader_value += keyByValue + "=" + map_name_value.get(key) + ",";
+                    tableData.put(keyByValue, map_name_value.get(key));
                 }
             }
-            // 去掉最后一个逗号
-            tableHeader_value = tableHeader_value.substring(0,tableHeader_value.length()-1);
-            tableHeader_value_List.add(tableHeader_value);
+            tableDataList.add(tableData);
         }
-        return tableHeader_value_List;
+        return tableDataList;
     }
 
     /**
@@ -169,7 +175,7 @@ public class DataExtraction {
         // 2 如果 行信息 不包含 关键词 则返回null
         for (String key:keyword_split){
             if (input.indexOf(key.trim()) ==-1){
-                return null;
+                return new ArrayList<>();
             }
         }
 

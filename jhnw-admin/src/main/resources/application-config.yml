@@ -45,38 +45,18 @@ BasicInformation:
   equivalence:
     Huawei: Quidway
 
-#OSPF
-OSPF:
-  # neighborID、pri、state、deadTime、address、portNumber、BFDState
-  # 这些属性是为了区分OSPF命令返回信息中的参数值
-  # 邻居ID
-  neighborID: Neighbor ID;Router ID
-  # pri暂未使用，是占位列
-  pri: Pri;
-  # 状态
-  state: State;
-  # 停滞时间
-  deadTime: Dead Time;Dead-Time;DeadTime
-  # 地址
-  address: Address;Area Id;Neighbor Ad
-  # 端口号
-  portNumber: Interface
-  # BFD状态
-  BFDState: BFD State
-  # 间隔字符   例(端口号:GigabitEthernet 9/2中间存在空格)
-  ospfSpaceCharacter: GigabitEthernet
-
-#光衰
-光衰:
-  # RX默认额定偏差
-  rxRatedDeviation: 1
-  # TX默认额定偏差
-  txRatedDeviation: 0.5
-
-  # RX即时偏差
-  rxImmediateDeviation: 0.5
-  # TX即时偏差
-  txImmediateDeviation: 0.3
+# 定时任务
+TimedTasks:
+  OSPF
+  光衰
+  错误包
+  路由聚合
+# 运行分析
+运行分析:
+  OSPF
+  光衰
+  错误包
+  路由聚合
 
 # 端口号
 obtainPortNumber:
@@ -101,6 +81,34 @@ obtainPortNumber:
     Vlan
     InLoopBack
 
+#OSPF
+OSPF:
+  H3C:
+    R_table:
+      TableHeader: Area Id,Interface,Neighbor id,State
+      address: Area Id
+      portNumber: Interface
+      neighborID: Neighbor id
+      state: State
+
+#光衰
+光衰:
+  # RX默认额定偏差
+  rxRatedDeviation: 1
+  # TX默认额定偏差
+  txRatedDeviation: 0.5
+  # RX即时偏差
+  rxImmediateDeviation: 0.5
+  # TX即时偏差
+  txImmediateDeviation: 0.3
+  H3C:
+    R_table1:
+      TableHeader: Temp(Celsius),Voltage(V),Bias(mA),RX power(dBm),TX power(dBm)
+      RX: RX power(dBm)
+      TX: TX power(dBm)
+    L_list:
+      RX: 'Current Rx Power(dBM):$'
+      TX: 'Current Tx Power(dBM):$'
 
 
 # 错误包
@@ -122,31 +130,19 @@ obtainPortNumber:
     CRC: $ CRC,
   Maip:
     Input: 'RxErrorPkts : $'
-
     Output: 'TxErrorPkts : $'
   Cisco:
     Input: $ input errors
     Output: $ output errors
 
-# 定时任务
-TimedTasks:
-  OSPF
-  光衰
-  错误包
-  路由聚合
-# 运行分析
-运行分析:
-  OSPF
-  光衰
-  错误包
-  路由聚合
-
-H3C:
-  R_table:
-    TableHeader: Destination/Mask,Proto,Pre,Cost,NextHop,Interface
-    Destination/Mask: Destination/Mask
-    protocol: Proto
-    Pre_Def_priority: Pre
-    Cost: Cost
-    NextHop: NextHop
-    Interface: Interface
+# 路由聚合
+路由聚合:
+  H3C:
+    R_table:
+      TableHeader: Destination/Mask,Proto,Pre,Cost,NextHop,Interface
+      Destination/Mask: Destination/Mask
+      protocol: Proto
+      Pre_Def_priority: Pre
+      Cost: Cost
+      NextHop: NextHop
+      Interface: Interface

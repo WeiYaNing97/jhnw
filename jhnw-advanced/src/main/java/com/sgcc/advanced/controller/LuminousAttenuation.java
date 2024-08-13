@@ -4,6 +4,7 @@ import com.sgcc.advanced.domain.LightAttenuationCommand;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationCommandService;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
+import com.sgcc.advanced.utils.DataExtraction;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -509,7 +510,8 @@ public class LuminousAttenuation {
             /**
              * 提取光衰参数
              */
-            HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);
+            /*HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);*/
+            HashMap<String, Double> values =obtainTheParameterOfLightAttenuation(returnResults,switchParameters);
 
             if (values.size() == 0){
                 String subversionNumber = switchParameters.getSubversionNumber();
@@ -536,6 +538,49 @@ public class LuminousAttenuation {
         }
 
         return hashMap;
+    }
+
+    private HashMap<String, Double> obtainTheParameterOfLightAttenuation(String returnResults, SwitchParameters switchParameters) {
+        HashMap<String, Double> values = new HashMap<>();
+        Map<String,Object> keywordS = (Map<String,Object>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand(), Constant.getProfileInformation());
+
+        if (keywordS == null){
+            return values;
+        }
+
+        Map<String,String> keywordMap = new HashMap<>();
+        List<String> keywordList = keywordS.keySet().stream().collect(Collectors.toList());
+        List<String> returnResults_split_List = Arrays.stream(returnResults.split("\r\n")).collect(Collectors.toList());
+        if (keywordList.indexOf("R_table")!=-1){
+            keywordMap = (Map<String,String>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".R_table", Constant.getProfileInformation());
+            List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_split_List, keywordMap);
+            if (stringObjectHashMapList.size() != 1){
+                return values;
+            }
+            Set<String> strings = stringObjectHashMapList.get(0).keySet();
+            for (String keywordName:strings){
+                List<Double> doubles = MyUtils.StringTruncationDoubleValue( ( String ) stringObjectHashMapList.get(0).get(keywordName));
+                if (doubles.size() == 1){
+                    values.put(keywordName,doubles.get(0));
+                }
+            }
+
+        }else if (keywordList.indexOf("L_list")!=-1){
+            keywordMap = (Map<String,String>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".L_list", Constant.getProfileInformation());
+            Set<String> strings = keywordMap.keySet();
+            for (String keywordName:strings){
+                for (String keyword:returnResults_split_List) {
+                    List<String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, keywordMap.get(keywordName));
+                    if (theMeaningOfPlaceholders.size() == 1){
+                        List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(0));
+                        if (doubles.size() == 1){
+                            values.put(keywordName,doubles.get(0));
+                        }
+                    }
+                }
+            }
+        }
+        return values;
     }
 
 
@@ -1093,15 +1138,15 @@ public class LuminousAttenuation {
             "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
             "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
             "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
-    private static String returnValueResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
+    /*private static String returnValueResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
             "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\r\n" +
-            "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
-    /*private static String returnValueResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
+            "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";*/
+    private static String returnValueResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
             "            Default Rx Power High Threshold(dBM)  :-2.00\r\n" +
             "            Default Rx Power Low  Threshold(dBM)  :-23.98\r\n" +
             "            Current Tx Power(dBM)                 :-2.80\r\n" +
             "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
-            "            Default Tx Power Low  Threshold(dBM)  :-6.00";*/
+            "            Default Tx Power Low  Threshold(dBM)  :-6.00";
     /*private static String returnValueResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
             "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +
             "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +

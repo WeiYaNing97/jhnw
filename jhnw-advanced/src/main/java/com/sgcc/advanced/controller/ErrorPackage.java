@@ -4,6 +4,7 @@ import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.IErrorRateCommandService;
 import com.sgcc.advanced.service.IErrorRateService;
+import com.sgcc.advanced.utils.DataExtraction;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -548,10 +549,14 @@ public class ErrorPackage {
                     continue;
                 }
                 /*根据配置文件的取值信息 取参数值*/
-                String placeholdersContaining = getTheMeaningOfPlaceholders(value, hashMap.get(key));
+                List<String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key));
+                if (placeholdersContainingList.size() == 1){
 
-                if (placeholdersContaining!=null){
-                    hashMap.put(key,placeholdersContaining);
+                    List<Integer> integers = MyUtils.extractInts(placeholdersContainingList.get(0));
+                    if (integers.size() == 1){
+                        hashMap.put(key,integers.get(0)+"");
+                    }
+
                 }
 
                 /*如果关键词不包含 "Total Error"
@@ -564,11 +569,14 @@ public class ErrorPackage {
                 /*遍历 交换机返回信息行信息 字符串数组*/
                 for (String str:returnResultssplit){
                     /*根据配置文件的取值信息 取参数值*/
-                    String placeholdersContaining = getTheMeaningOfPlaceholders(str, hashMap.get(key));
-                    if (placeholdersContaining!=null){
-                        hashMap.put(key,placeholdersContaining);
-                        break;
+                    List<String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key));
+                    if (placeholdersContainingList.size() == 1){
+                        List<Integer> integers = MyUtils.extractInts(placeholdersContainingList.get(0));
+                        if (integers.size() == 1){
+                            hashMap.put(key,integers.get(0)+"");
+                        }
                     }
+
                 }
             }
         }
@@ -1005,7 +1013,7 @@ public class ErrorPackage {
     }
 
     /**
-     * @Description  根据关键字 取错误包数量  匹配关键词，截取数字
+     * @Description  根据关键字 取错误包数量  匹配关键词，截取数字 （被DataExtraction.getTheMeaningOfPlaceholders整合了）
      * @author charles
      * @createTime 2023/12/22 9:06
      * @desc

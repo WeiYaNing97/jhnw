@@ -5,6 +5,7 @@ import com.sgcc.advanced.domain.Ospf;
 import com.sgcc.advanced.domain.OspfCommand;
 import com.sgcc.advanced.domain.OspfEnum;
 import com.sgcc.advanced.service.IOspfCommandService;
+import com.sgcc.advanced.utils.DataExtraction;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.advanced.utils.Utils;
 import com.sgcc.common.core.domain.AjaxResult;
@@ -110,7 +111,7 @@ public class OSPFFeatures {
         /*List<String> collect = Arrays.stream(commandReturn.split("\r\n")).collect(Collectors.toList());
         AjaxResult ospfListByString = getOspfListByString(collect);*/
 
-        List<OSPFPojo> pojoList =  getOSPFPojo(commandReturn);
+        List<OSPFPojo> pojoList =  getOSPFPojo(commandReturn,switchParameters);
 
         if (pojoList.size() == 0){
 
@@ -379,7 +380,7 @@ public class OSPFFeatures {
 
     /* 获取 OSPF实体类集合
     是整体类属性只有 IP 端口号 状态*/
-    public static List<OSPFPojo> getOSPFPojo(String information) {
+    public static List<OSPFPojo> getOSPFPojo(String information,SwitchParameters switchParameters) {
 
         /**
          *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
@@ -418,6 +419,10 @@ public class OSPFFeatures {
                 }
             }
         }
+
+
+        List<OSPFPojo> ospfPojoList = getOSPFParameters(string_split,switchParameters.getDeviceBrand());
+
 
         String input = null;
         for (String str:string_split){
@@ -515,6 +520,43 @@ public class OSPFFeatures {
     }
 
     /**
+     * 根据给定的字符串列表和设备品牌获取OSPF配置参数，并返回OSPFPojo列表
+     *
+     * @param stringSplit 包含OSPF配置参数的字符串列表
+     * @param deviceBrand 设备品牌
+     * @return 包含OSPF配置参数的OSPFPojo列表
+     */
+    private static List<OSPFPojo> getOSPFParameters(List<String> stringSplit, String deviceBrand) {
+        // 获取OSPF配置参数键值对
+        Map<String,String> key_value = (Map<String,String>)CustomConfigurationUtil.getValue("OSPF." + deviceBrand + ".R_table", Constant.getProfileInformation());
+        // 创建OSPFPojo列表
+        List<OSPFPojo> ospfPojos = new ArrayList<>();
+        // 如果键值对为空，则返回空列表
+        if (key_value == null){
+            return ospfPojos;
+        }
+        // 根据键值对提取表格数据
+        List<HashMap<String, Object>> hashMapList = DataExtraction.tableDataExtraction(stringSplit, key_value);
+        // 遍历表格数据
+        for (HashMap<String, Object> hashMap:hashMapList){
+            // 创建OSPFPojo对象
+            OSPFPojo ospfPojo = new OSPFPojo();
+            // 设置IP地址
+            ospfPojo.setIp(hashMap.get("address").toString());
+            // 设置端口号
+            ospfPojo.setPort(hashMap.get("portNumber").toString());
+            // 设置状态
+            ospfPojo.setState(hashMap.get("state").toString());
+            // 将OSPFPojo对象添加到列表中
+            ospfPojos.add(ospfPojo);
+        }
+
+        // 返回OSPFPojo列表
+        return ospfPojos;
+    }
+
+
+    /**
      * @Description 获取字符串中的IP集合
      * @author charles
      * @createTime 2023/12/22 16:41
@@ -579,21 +621,28 @@ public class OSPFFeatures {
     /*判断字符串是否同时包含 端口号特征关键词 与 数字
     * 或者 判断字符串是否同时包含 字母 与 数字*/
     public static boolean isAlphanumeric(String str ,List<String> keys) {
-
+        // 如果关键词列表不为空
         if (keys!=null){
+            // 遍历关键词列表
             for (String key:keys){
+                // 如果字符串中包含关键词（不区分大小写）且字符串中包含数字
                 if (str.toLowerCase().indexOf(key.toLowerCase())!=-1 && str.matches(".*\\d.*")){
+                    // 返回true
                     return true;
                 }else {
+                    // 继续下一个循环
                     continue;
                 }
             }
         }else {
+            // 如果关键词列表为空，则判断字符串是否同时包含字母和数字
             return str.matches(".*[a-zA-Z].*") && str.matches(".*\\d.*");
         }
 
+        // 默认返回false
         return false;
     }
+
 
     public static String commandPortReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
             "Peer Statistic Information\n" +

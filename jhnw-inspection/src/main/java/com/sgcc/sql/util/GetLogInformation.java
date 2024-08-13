@@ -43,7 +43,6 @@ public class GetLogInformation {
         /*String ip = "192.168.1.100";
         String port = "GigabitEthernet1/21";*/
 
-
         PathHelper pathHelper = new PathHelper();
         String logPath = (String) CustomConfigurationUtil.getValue("configuration.logPath", Constant.getProfileInformation());
 
