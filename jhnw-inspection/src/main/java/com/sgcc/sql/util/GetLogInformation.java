@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.*;
@@ -38,7 +39,10 @@ public class GetLogInformation {
             @ApiImplicitParam(name = "port", value = "端口",dataTypeClass = String.class,required = true)
     })
     @GetMapping("/getOperationalAnalysisLogData")
-    public static void obtainOperationalAnalysisLogDataInformation(String ip ,String port) {
+    public static void obtainOperationalAnalysisLogDataInformation() {/*String ip ,String port*/
+
+        String ip = null;
+        String port = null;
 
         /*String ip = "192.168.1.100";
         String port = "GigabitEthernet1/21";*/
@@ -57,8 +61,9 @@ public class GetLogInformation {
         }
 
         List<String> strings = pathHelper.ReadFileContent(path);
+        List<LightAttenuationComparison> lightAttenuationComparisons = new ArrayList<>();
         for (String s : strings) {
-            if (s.indexOf(ip+")")!=-1 && s.indexOf(port)!=-1){
+            if (s.indexOf("LightAttenuationComparison")!=-1){
                 String[] split = s.split("LightAttenuationComparison");
                 if (split.length > 1) {
 
@@ -66,14 +71,27 @@ public class GetLogInformation {
                     timeSplit[0] = timeSplit[0].substring(1);
 
                     LightAttenuationComparison switchLoginInformation = JSON.parseObject(split[1], LightAttenuationComparison.class);
-                    if (switchLoginInformation.getSwitchIp().equals(ip)
-                            && switchLoginInformation.getPort().equals(port)) {
+                    if (ip!=null && port!=null) {
+                        if (switchLoginInformation.getSwitchIp().equals(ip)
+                                && switchLoginInformation.getPort().equals(port)) {
+                            out.println(timeSplit[0] +" RX: "+switchLoginInformation.getRxLatestNumber()+" TX: "+switchLoginInformation.getTxLatestNumber());
+                            lightAttenuationComparisons.add(switchLoginInformation);
+                        }
+                    }else if (ip!=null ){
+                        if (switchLoginInformation.getSwitchIp().equals(ip)) {
+                            out.println(timeSplit[0] +" RX: "+switchLoginInformation.getRxLatestNumber()+" TX: "+switchLoginInformation.getTxLatestNumber());
+                            lightAttenuationComparisons.add(switchLoginInformation);
+                        }
+                    }else{
                         out.println(timeSplit[0] +" RX: "+switchLoginInformation.getRxLatestNumber()+" TX: "+switchLoginInformation.getTxLatestNumber());
+                        lightAttenuationComparisons.add(switchLoginInformation);
                     }
                 }
             }
         }
+        lightAttenuationComparisons.stream().forEach(System.out::println);
 
+        retrieveErrorPacketLogDataInformation();
     }
 
     @ApiOperation(value = "获取错误包数据")
@@ -82,8 +100,10 @@ public class GetLogInformation {
             @ApiImplicitParam(name = "port", value = "端口",dataTypeClass = String.class,required = true)
     })
     @GetMapping("/retrieveErrorPacketLogDataInformation")
-    public static void retrieveErrorPacketLogDataInformation(String ip ,String port) {
+    public static void retrieveErrorPacketLogDataInformation() {/* String ip ,String port */
 
+        String ip = null;
+        String port = null;
         /*String ip = "192.168.1.100";
         String port = "GigabitEthernet0/0/5";*/
 
@@ -101,8 +121,9 @@ public class GetLogInformation {
         }
 
         List<String> strings = pathHelper.ReadFileContent(path);
+        List<ErrorRate> errorRateList = new ArrayList<>();
         for (String s : strings) {
-            if (s.indexOf(ip+")")!=-1 && s.indexOf(port)!=-1){
+            if (s.indexOf("ErrorRate")!=-1){
                 String[] split = s.split("ErrorRate");
                 if (split.length > 1) {
 
@@ -110,13 +131,25 @@ public class GetLogInformation {
                     timeSplit[0] = timeSplit[0].substring(1);
 
                     ErrorRate errorRate = JSON.parseObject(split[1], ErrorRate.class);
-                    if (errorRate.getSwitchIp().equals(ip)
-                            && errorRate.getPort().equals(port)) {
+
+                    if (ip!=null && port!=null) {
+                        if (errorRate.getSwitchIp().equals(ip)
+                                && errorRate.getPort().equals(port)) {
+                            out.println(timeSplit[0] +" Input: "+errorRate.getInputErrors()+" Output: "+errorRate.getOutputErrors() +" CRC: "+errorRate.getCrc());
+                            errorRateList.add(errorRate);
+                        }
+                    }else if (ip!=null ){
+                        if (errorRate.getSwitchIp().equals(ip)) {
+                            out.println(timeSplit[0] +" Input: "+errorRate.getInputErrors()+" Output: "+errorRate.getOutputErrors() +" CRC: "+errorRate.getCrc());
+                            errorRateList.add(errorRate);
+                        }
+                    }else{
                         out.println(timeSplit[0] +" Input: "+errorRate.getInputErrors()+" Output: "+errorRate.getOutputErrors() +" CRC: "+errorRate.getCrc());
+                        errorRateList.add(errorRate);
                     }
                 }
             }
         }
-
+        errorRateList.stream().forEach(System.out::println);
     }
 }

@@ -174,210 +174,6 @@ public class OSPFFeatures {
 
     }
 
-    /**
-     * 根据交换机返回信息提取OSPF数据
-     * @return
-     */
-    public AjaxResult getOspfListByString(List<String> returnStringSplit) {
-        HashMap<Integer,String> titleMap = new HashMap<>();
-        for (int number = 0 ;number < returnStringSplit.size(); number++){
-            /*判断一个字符串是否包含另一个字符串(忽略大小写)*/
-            if (MyUtils.containIgnoreCase(returnStringSplit.get(number),"State")){
-                /*标题行信息 赋值*/
-                titleMap.put(number,returnStringSplit.get(number));
-            }
-        }
-        List<Ospf> returnList = new ArrayList<>();
-        Set<Integer> integers = titleMap.keySet();
-        for (Integer integer:integers){
-
-            /*OSPF数组*/
-            List<String> valueList = new ArrayList<>();
-            String NameLine = titleMap.get(integer);
-            Ospf propertyValueSubscripts = null;
-
-            /*标题的 标题名数*/
-            int number = 0 ;
-            if (NameLine == null){
-                return AjaxResult.error("获取OSPF参数失败");
-            }else {
-                /*获取属性值下标*/
-                List<Object> property = getPropertyValueSubscripts(NameLine);
-                if (property == null){
-                    return AjaxResult.error("获取OSPF参数失败");
-                }
-                propertyValueSubscripts = (Ospf) property.get(0);
-                number = (Integer) property.get(1);
-            }
-
-            for (int num = integer+1 ;num < returnStringSplit.size();num++){
-                valueList.add(returnStringSplit.get(num));
-            }
-            if(valueList.size() ==0){
-                break;
-            }
-
-            /*标题下第一行 为参数行*/
-            String value = valueList.get(0);
-            /*获取参数行的列*/
-            String[] value_split = value.split(" ");
-            /*如果参数行的列数量 与 标题行的标题名数一致则 可以直接根据 下标取值*/
-            int len = value_split.length;
-            if (len != number){
-                /*如果不一致 则需要去去除空格*/
-                valueList = removOspfSpaceCharacter(number,valueList);
-            }
-
-            if (MyUtils.isCollectionEmpty(valueList)){
-                continue;
-            }else {
-                /*根据参数下表提取对应参数*/
-                List<Ospf> ospfList= getPojoList(propertyValueSubscripts,valueList,number);
-                if (MyUtils.isCollectionEmpty(ospfList)){
-                    continue;
-                }else {
-                    returnList.addAll(ospfList);
-                }
-            }
-
-        }
-        return AjaxResult.success(returnList);
-    }
-
-    /**
-     * 根据参数下表提取对应参数
-     * @param pojo
-     * @param stringList
-     * @param number
-     * @return
-     */
-    public List<Ospf> getPojoList(Ospf pojo,List<String> stringList,int number) {
-        List<Ospf> ospfList = new ArrayList<>();
-        for (String pojoString:stringList){
-            Ospf ospf = new Ospf();
-            String[] pojoStringSplit = pojoString.split(" ");
-            /*元素数不相等 或者 数据不包含IP 则结束遍历*/
-            if (number != pojoStringSplit.length || !(MyUtils.containsIPAddress(pojoString))){/*添加了对数据的 IP 特征检测*/
-                break;
-            }
-            if(pojo.getNeighborID() != null){
-                ospf.setNeighborID(pojoStringSplit[Integer.valueOf(pojo.getNeighborID()).intValue()]);
-            }
-            if(pojo.getPri() != null){
-                ospf.setPri(pojoStringSplit[Integer.valueOf(pojo.getPri()).intValue()]);
-            }
-            if(pojo.getState() != null){
-                ospf.setState(pojoStringSplit[Integer.valueOf(pojo.getState()).intValue()]);
-            }
-            if(pojo.getDeadTime() != null){
-                ospf.setDeadTime(pojoStringSplit[Integer.valueOf(pojo.getDeadTime()).intValue()]);
-            }
-            if(pojo.getAddress() != null){
-                ospf.setAddress(pojoStringSplit[Integer.valueOf(pojo.getAddress()).intValue()]);
-            }
-            if(pojo.getPortNumber() != null){
-                ospf.setPortNumber(pojoStringSplit[Integer.valueOf(pojo.getPortNumber()).intValue()]);
-            }
-            if(pojo.getBFDState() != null){
-                ospf.setBFDState(pojoStringSplit[Integer.valueOf(pojo.getBFDState()).intValue()]);
-            }
-            ospfList.add(ospf);
-        }
-        return ospfList;
-    }
-
-    /**
-     * 去除属性值中间空格  通过代码逻辑
-     * @param strings
-     * @return
-     */
-    public List<String> removOspfSpaceCharacter(int number,List<String> strings) {
-        /*创建返回对象*/
-        List<String> returnStringList = new ArrayList<>();
-        /*遍历行信息*/
-        for (String lineInformation:strings){
-            /*针对以太网的处理*/
-            String[] line_split = lineInformation.split(" ");
-            for (int num = line_split.length-1 ;num >= 0; num--){
-                /* 查看是否存在包含/的且只有数字的项
-                * 有则比较是否和标题行数量一致
-                * 一致则放入返回对象
-                * 否则跳出循环 返回结果*/
-                if (line_split[num].indexOf("/")!=-1 && !(MyUtils.judgeContainsStr(line_split[num].replaceAll("/","")))){
-                    lineInformation = lineInformation.replaceAll(" "+line_split[num],line_split[num]);
-                    /*一致则放入返回对象*/
-                    if (lineInformation.split(" ").length == number){
-                        returnStringList.add(lineInformation);
-                        break;
-                    }else {
-                        /*否则跳出循环 返回结果*/
-                        return returnStringList;
-                    }
-                }
-            }
-        }
-        return returnStringList;
-    }
-
-    /**
-     * 获取属性值下标
-     * @param information
-     * @return
-     */
-    public List<Object> getPropertyValueSubscripts(String information) {
-        /*单词数组*/
-        String[] string_split = information.trim().split(" ");
-        String word = "";
-        Ospf ospf = new Ospf();
-        int number = 0;
-        /*遍历单词数组 从前往后拼接匹配配置文件中配置的 标题名称*/
-        for (int num = 0 ; num < string_split.length ; num++ ){
-            word = word + " "+string_split[num];
-            /*拼接匹配配置文件中配置的 标题名称
-            * 返回配置文件中的key
-            * 得到 标题名称 在数组中的下标*/
-            OspfEnum ospfEnum = Utils.assignment();
-            String enumeratorValues = Utils.enumeratorValues(word.trim(),ospfEnum);
-            if (enumeratorValues != null){
-                switch (enumeratorValues){
-                    case "neighborID":
-                        ospf.setNeighborID(number+"");
-                        break;
-                    case "pri":
-                        ospf.setPri(number+"");
-                        break;
-                    case "state":
-                        ospf.setState(number+"");
-                        break;
-                    case "deadTime":
-                        ospf.setDeadTime(number+"");
-                        break;
-                    case "address":
-                        ospf.setAddress(number+"");
-                        break;
-                    case "portNumber":
-                        ospf.setPortNumber(number+"");
-                        break;
-                    case "BFDState":
-                        ospf.setBFDState(number+"");
-                        break;
-                }
-                number++;
-                word = "";
-            }
-        }
-        if (word.equals("")){
-            List<Object> objects = new ArrayList<>();
-            /* ospf 中存储的不是属性值 是下标值*/
-            objects.add(ospf);
-            objects.add(number);
-            return objects;
-        }
-        return null;
-    }
-
-    /*================================第二种实现方法============================================*/
-
     /* 获取 OSPF实体类集合
     是整体类属性只有 IP 端口号 状态*/
     public static List<OSPFPojo> getOSPFPojo(String information,SwitchParameters switchParameters) {
@@ -420,35 +216,31 @@ public class OSPFFeatures {
             }
         }
 
-
-        List<OSPFPojo> ospfPojoList = getOSPFParameters(string_split,switchParameters.getDeviceBrand());
-
-
-        String input = null;
+        /*String input = null;
         for (String str:string_split){
-            /*获取字符串中的IP集合*/
+            *//*获取字符串中的IP集合*//*
             List<String> stringList = extractIPAddresses(str);
             if (stringList.size() == 2 && str.toLowerCase().indexOf("full")!=-1){
                 input = str.trim();
             }
         }
 
-        /* todo 如果未获取到连接正常OSPF数据，则返回空集合并告警。*/
+        *//* todo 如果未获取到连接正常OSPF数据，则返回空集合并告警。*//*
         if (input == null){
             return new ArrayList<>();
         }
 
         String[] split = input.split("\\s+");
 
-        /*获取数组各元素的意义*/
+        *//*获取数组各元素的意义*//*
         List<String> stringList = obtainParameterMeanings(split);
 
-        /*获取 IP、端口号、状态  数组下标*/
+        *//*获取 IP、端口号、状态  数组下标*//*
         int ip = stringList.indexOf("IP");
         int port = stringList.indexOf("端口");
         int state = stringList.indexOf("状态");
 
-        /*获取 全文 与 含有full数据 按空格分割后 数组长度相等的行*/
+        *//*获取 全文 与 含有full数据 按空格分割后 数组长度相等的行*//*
         List<String[]> arrayList = new ArrayList<>();
         for (String str:string_split){
             String[] rowsplit = str.trim().split("\\s+");
@@ -457,17 +249,17 @@ public class OSPFFeatures {
             }
         }
 
-        /*筛选与含有full数据长度相等的行集合
+        *//*筛选与含有full数据长度相等的行集合
          * 条件数 full数据 IP、端口号、未知（非IP、端口、状态）对应的列 数据特征要一样
          * 如果一样 则是OSPF数据
-         * 如果不一样 则过滤掉*/
+         * 如果不一样 则过滤掉*//*
         List<String[]> stateList = new ArrayList<>();
         for (String[] array:arrayList){
             boolean isInput = true;
             for (int i = 0 ; i < array.length ; i++){
                 String string = stringList.get(i);
 
-                /** 有两个IP 无效IP、IP*/
+                *//** 有两个IP 无效IP、IP*//*
                 if (string.indexOf("IP") != -1){
                     if (isIP(array[i])){
                         continue;
@@ -506,7 +298,7 @@ public class OSPFFeatures {
             }
         }
 
-        /*根据下标 到筛选后的集合中提取数据 赋值给OSPFPojo */
+        *//*根据下标 到筛选后的集合中提取数据 赋值给OSPFPojo *//*
         List<OSPFPojo> ospfPojos = new ArrayList<>();
         for (String[] array:stateList){
             OSPFPojo ospfPojo = new OSPFPojo();
@@ -514,8 +306,9 @@ public class OSPFFeatures {
             ospfPojo.setPort(array[port]);
             ospfPojo.setState(array[state]);
             ospfPojos.add(ospfPojo);
-        }
+        }*/
 
+        List<OSPFPojo> ospfPojos = getOSPFParameters(string_split,switchParameters.getDeviceBrand());
         return ospfPojos;
     }
 
