@@ -549,12 +549,17 @@ public class ErrorPackage {
                     continue;
                 }
                 /*根据配置文件的取值信息 取参数值*/
-                List<String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key));
+                Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key));
                 if (placeholdersContainingList.size() == 1){
-
-                    List<Integer> integers = MyUtils.extractInts(placeholdersContainingList.get(0));
-                    if (integers.size() == 1){
-                        hashMap.put(key,integers.get(0)+"");
+                    String words = hashMap.get(key);
+                    List<String> placeholders = DataExtraction.getPlaceholders(words);
+                    if (placeholders.size() == 1){
+                        List<Integer> integers = MyUtils.extractInts(placeholdersContainingList.get(placeholders.get(0)));
+                        if (integers.size() == 1){
+                            hashMap.put(key,integers.get(0)+"");
+                        }
+                    }else {
+                        /* todo 获取到多个占位符 */
                     }
 
                 }
@@ -569,12 +574,20 @@ public class ErrorPackage {
                 /*遍历 交换机返回信息行信息 字符串数组*/
                 for (String str:returnResultssplit){
                     /*根据配置文件的取值信息 取参数值*/
-                    List<String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key));
+                    Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key));
                     if (placeholdersContainingList.size() == 1){
-                        List<Integer> integers = MyUtils.extractInts(placeholdersContainingList.get(0));
-                        if (integers.size() == 1){
-                            hashMap.put(key,integers.get(0)+"");
+                        String words = hashMap.get(key);
+                        List<String> placeholders = DataExtraction.getPlaceholders(words);
+                        if (placeholders.size() == 1){
+                            List<Integer> integers = MyUtils.extractInts(placeholdersContainingList.get(placeholders.get(0)));
+                            if (integers.size() == 1){
+                                hashMap.put(key,integers.get(0)+"");
+                                break;
+                            }
+                        }else {
+                            /* todo 获取到多个占位符 */
                         }
+
                     }
 
                 }
@@ -1203,7 +1216,7 @@ public class ErrorPackage {
             "GE0/0/32             DOWN  auto    A      A    200  To_HX_S7506E\n" +
             "GE0/0/33             UP   1G(a)   F(a)   A    2001 To_ShiJu\n";
 
-    private static String switchPortValueReturnsResult = "GigabitEthernet1/0/25 current state: UP\n" +
+    /*private static String switchPortValueReturnsResult = "GigabitEthernet1/0/25 current state: UP\n" +
             " IP Packet Frame Type: PKTFMT_ETHNT_2, Hardware Address: 0cda-41de-4e33\n" +
             " Description :To_ShuJuWangHuLian_G1/0/18\n" +
             " Loopback is not set\n" +
@@ -1242,9 +1255,9 @@ public class ErrorPackage {
             "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
             " Output: 0 output errors, - underruns, - buffer failures\n" +
             "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
-            "         0 lost carrier, - no carrier";
+            "         0 lost carrier, - no carrier";*/
 
-     /*private static String switchPortValueReturnsResult =
+     private static String switchPortValueReturnsResult =
                     " Description :To_ShuJuWangHuLian_G1/0/18\n" +
                     "Input: 982431567 packets, 1214464892426 bytes\n" +
                     "      Unicast: 981439518, Multicast: 404\n" +
@@ -1264,5 +1277,5 @@ public class ErrorPackage {
                     "      Total Error: 100\n" +
                     "      Collisions: 0, ExcessiveCollisions: 0\n" +
                     "      Late Collisions: 0, Deferreds: 0\n" +
-                    "      Buffers Purged: 0";*/
+                    "      Buffers Purged: 0";
 }

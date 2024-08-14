@@ -598,11 +598,18 @@ public class LuminousAttenuation {
             Set<String> strings = keywordMap.keySet();
             for (String keywordName:strings){
                 for (String keyword:returnResults_split_List) {
-                    List<String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, keywordMap.get(keywordName));
+                    Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, keywordMap.get(keywordName));
                     if (theMeaningOfPlaceholders.size() == 1){
-                        List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(0));
-                        if (doubles.size() == 1){
-                            values.put(keywordName,doubles.get(0));
+
+                        String words = keywordMap.get(keywordName);
+                        List<String> placeholders = DataExtraction.getPlaceholders(words);
+                        if (placeholders.size() == 1){
+                            List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(placeholders.get(0)));
+                            if (doubles.size() == 1){
+                                values.put(keywordName,doubles.get(0));
+                            }
+                        }else {
+                            /* todo 获取到多个占位符 */
                         }
                     }
                 }

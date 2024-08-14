@@ -5,6 +5,8 @@ import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DataExtraction {
@@ -169,58 +171,93 @@ public class DataExtraction {
 
 
     public static void main(String[] args) {
-        String s = "network 10.123.239.0 0.0.0.255 area 0.0.0.0";
-        List<String> $1 = getTheMeaningOfPlaceholders(s, "$ 0.0.0.255 area $");
-        $1.forEach(System.out::println);
+        String s = "ip 192.168.1.100"/*"network 10.123 239.0 0.0.0.255 area 0.0.0.0 ceshi"*/;
+        List<Integer> integers = MyUtils.extractInts(s);
+        Map<String,String> $1 = getTheMeaningOfPlaceholders(s, "ip $" /*"$ 10.123 239.0 $1 area 0.0.0.0 $2"*/);
+        $1.forEach((k,v)->{
+            System.out.println(k + " : " + v);
+        });
     }
 
+
     /**
-     * 获取占位符的含义
+     * 获取占位符在输入字符串中的意义
      *
      * @param input 输入字符串
-     * @param keyword 关键词
-     * @return 占位符的含义，如果行信息不包含关键词则返回null
+     * @param keyword 含有占位符的关键词
+     * @return 包含占位符及其在输入字符串中意义的映射
      */
-    public static List<String> getTheMeaningOfPlaceholders(String input,String keyword) {
+    public static Map<String,String> getTheMeaningOfPlaceholders(String input,String keyword) {
         // 将关键词和输入字符串中的冒号替换为" : "，并将多余的空格替换为单个空格，并去除首尾空格
         keyword = keyword.replace(":"," : ").replaceAll("\\s+"," ").trim();
         input = input.replace(":"," : ").replaceAll("\\s+"," ").trim();
 
-        // 1 首先将交换机返回信息数字替换为"",
-        // 将配置文件中的占位符$替换为""
-        String[] keyword_split = keyword.trim().split("\\$+");
+        // 将关键词按照"$数字"的形式进行拆分
+        String[] keyword_split = keyword.trim().split("\\$\\d*");
 
-        // 2 如果 行信息 不包含 关键词 则返回null
+        // 如果拆分后的数组第一个元素为空字符串，则忽略它
+        if (keyword_split.length > 0 && keyword_split[0].isEmpty()) {
+            // 忽略第一个空字符串
+            keyword_split = Arrays.copyOfRange(keyword_split, 1, keyword_split.length);
+        }
+
+        // 检查拆分后的关键词是否全部存在于输入字符串中
         for (String key:keyword_split){
             if (input.indexOf(key.trim()) ==-1){
-                return new ArrayList<>();
+                return new HashMap<>();
             }
         }
 
-        List<String> splitkeywords = splitkeywords(keyword);
-
-        List<String> returnValue = new ArrayList<>();
-
-        for (String splitkeyword:splitkeywords){
-
-            if (splitkeyword.startsWith("$")){
+        // 获取占位符列表
+        List<String> placeholders = getPlaceholders(keyword);
+        Map<String,String> returnMap = new HashMap<>();
+        for (String placeholder:placeholders){
+            String splitkeyword = splitkeywords(keyword,placeholder,placeholders);
+            if (splitkeyword.startsWith(placeholder)){
+                // 替换掉"$"方便匹配
                 // 替换掉$ 方便匹配
-                splitkeyword = splitkeyword.replace("$","").trim();
+                splitkeyword = splitkeyword.replace(placeholder,"").trim();
 
                 // 第一次出现的位置
                 int index = input.indexOf(splitkeyword);
                 String substring = input.substring(0, index);
-                returnValue.add(substring);
-            }else if (splitkeyword.endsWith("$")){
-                splitkeyword = splitkeyword.replace("$","").trim();
+                String[] split = substring.split(" ");
+                if (split.length > 0 && split[0].isEmpty()) {
+                    // 忽略第一个空字符串
+                    split = Arrays.copyOfRange(split, 1, split.length);
+                }
+                /* 占位符在关键词的前面 取出词 应该取末位*/
+                returnMap.put(placeholder,split[split.length-1]);
+            }else if (splitkeyword.endsWith(placeholder)){
+                splitkeyword = splitkeyword.replace(placeholder,"").trim();
 
                 // 最后一次出现位置
                 int lastIndex = input.indexOf(splitkeyword);
                 String substring = input.substring(lastIndex + splitkeyword.length(), input.length());
-                returnValue.add(substring);
+                String[] split = substring.split(" ");
+                if (split.length > 0 && split[0].isEmpty()) {
+                    // 忽略第一个空字符串
+                    split = Arrays.copyOfRange(split, 1, split.length);
+                }
+
+                /* 占位符在关键词的后面 取出词 应该取首位*/
+                returnMap.put(placeholder,split[0]);
             }else {
+                String variable = "";
+                List<Integer> integers = MyUtils.extractInts(placeholder);
+                if (integers.size() == 1){
+                    variable = integers.get(0)+"";
+                }
+                String delimiter  = "\\$" + variable;
+
+                // "$" 出现在中间
                 // $ 出现在中间
-                String[] $split = splitkeyword.split("\\$");
+                String[] $split = splitkeyword.split(delimiter);
+                if ($split.length > 0 && $split[0].isEmpty()) {
+                    // 忽略第一个空字符串
+                    $split = Arrays.copyOfRange($split, 1, $split.length);
+                }
+
 
                 // 第一次出现的位置
                 int start = input.indexOf($split[0].trim());
@@ -229,67 +266,116 @@ public class DataExtraction {
                 if ( start+$split[0].length() < end ){
                     int s = start + $split[0].length();
                     String substring = input.substring(s , end).trim();;
-                    returnValue.add(substring);
+                    returnMap.put(placeholder,substring);
                 }
             }
         }
 
-        return returnValue;
+        return returnMap;
     }
 
 
-    /**
-     * 将包含"$"的关键字拆分成多个子关键字并返回列表
-     *
-     * @param keyword 包含"$"的关键字
-     * @return 拆分后的子关键字列表
-     */
-    public static List<String> splitkeywords (String keyword) {
 
-        // 使用"$"将关键字拆分成数组
-        String[] keyword_split = keyword.split("\\$");
+
+    /**
+     * 拆分关键字，并返回特定格式的字符串
+     *
+     * @param keyword 待拆分的关键字字符串
+     * @param placeholder 占位符
+     * @return 返回拆分后并拼接特定格式的字符串
+     */
+    public static String splitkeywords (String keyword,String placeholder,List<String> placeholders) {
+        // 将关键字按空格拆分成字符串数组
+        String[] keyword_split = keyword.split(" ");
 
         // 如果拆分后的数组第一个元素为空字符串，则忽略它
         if (keyword_split.length > 0 && keyword_split[0].isEmpty()) {
-            // 忽略第一个空字符串
+            // 将数组的第一个元素忽略，并复制剩余元素到新的数组中
             keyword_split = Arrays.copyOfRange(keyword_split, 1, keyword_split.length);
         }
 
-        // 初始化关键字列表
-        List<String> keyList = new ArrayList<>();
+        List<String> keywordList = Arrays.stream(keyword_split).collect(Collectors.toList());
 
-        // 获取"$"在关键字中的位置列表
-        List<Integer> substringPositions = MyUtils.getSubstringPositions(keyword, "$");
+        // 如果关键字以占位符开头
+        if (keyword.startsWith(placeholder)){
 
-        // 遍历"$"的位置列表
-        for (int i = 0; i < substringPositions.size(); i++) {
-            // 如果"$"的位置是0，说明"$"在关键字的最前面
-            if (substringPositions.get(i) == 0) {
-                keyList.add("$" + keyword_split[0]);
+            if (placeholders.size() == 1){
+                return keyword.trim();
+            }else {
+                String value = placeholders.get(1);
+                int position = keywordList.indexOf(value);
+                String returnPlaceholder = "";
+                for (int i = 0;i<position;i++){
+                    returnPlaceholder += keywordList.get(i) + " ";
+                }
+                return returnPlaceholder.trim();
+            }
 
-            // 如果"$"的位置是关键字长度减1，说明"$"在关键字的最后面
-            } else if (substringPositions.get(i) == keyword.length() - 1) {
-                keyList.add(keyword_split[keyword_split.length - 1] + "$");
+        // 如果关键字以占位符结尾
+        }else if (keyword.endsWith(placeholder)){
 
-            // 其他情况
-            } else {
-                // 获取"$"之前的子字符串
-                String substringStart = keyword.substring(0, substringPositions.get(i));
-                // 获取"$"之后的子字符串
-                String substringEnd = keyword.substring(substringPositions.get(i) + 1);
+            if (placeholders.size() == 1){
+                return keyword.trim();
+            }else {
+                String value = placeholders.get(placeholders.size()-2);
+                int position = keywordList.indexOf(value);
+                String returnPlaceholder = "";
+                for (int i = position + 1;i < keywordList.size();i++){
+                    returnPlaceholder += keywordList.get(i) + " ";
+                }
+                return returnPlaceholder.trim();
+            }
 
-                // 将"$"之前的子字符串按"$"拆分
-                String[] splitStart = substringStart.split("\\$");
-                // 将"$"之后的子字符串按"$"拆分
-                String[] splitEnd = substringEnd.split("\\$");
-
-                // 将拆分后的两个子字符串的最后一部分拼接上"$"后添加到关键字列表中
-                keyList.add(splitStart[splitStart.length - 1] + "$" + splitEnd[splitEnd.length - 1]);
+        // 如果关键字中包含占位符
+        }else {
+            if (placeholders.size() == 1){
+                return keyword.trim();
+            }else {
+                // 获取占位符在关键字中的位置
+                int position = keywordList.indexOf(placeholder);
+                String start ="";
+                String end = "";
+                for (int i = position-1;i >= 0;i--){
+                    if (placeholders.contains(keywordList.get(i))){
+                        break;
+                    }else {
+                        start = keywordList.get(i) + " " + start;
+                    }
+                }
+                for (int i = position+1;i < keywordList.size();i++){
+                    if (placeholders.contains(keywordList.get(i))){
+                        break;
+                    }else {
+                        end = end + " " +keywordList.get(i) ;
+                    }
+                }
+                return start + placeholder + end;
             }
         }
+    }
 
-        // 返回关键字列表
-        return keyList;
+
+
+    /**
+     * 获取字符串中所有的占位符（以$符号开头后跟数字）
+     *
+     * @param keyword 待处理的字符串
+     * @return 包含所有占位符的列表，如果未找到占位符则返回空列表
+     */
+    public static List<String> getPlaceholders(String keyword) {
+        // 创建一个正则表达式模式对象，用于匹配$符号后面的数字
+        Pattern pattern = Pattern.compile("\\$\\d*");
+        // 创建一个匹配器对象，对输入的字符串进行匹配
+        Matcher matcher = pattern.matcher(keyword);
+        // 创建一个列表，用于存储匹配到的结果
+        List<String> list = new ArrayList<>();
+        // 使用循环查找所有匹配项
+        while (matcher.find()) {
+            // 将匹配到的结果添加到列表中
+            list.add(matcher.group());
+        }
+        // 返回存储匹配结果的列表
+        return list;
     }
 
 }
