@@ -174,8 +174,14 @@ public class OSPFFeatures {
 
     }
 
-    /* 获取 OSPF实体类集合
-    是整体类属性只有 IP 端口号 状态*/
+
+    /**
+     * 根据输入信息和交换机参数获取OSPFPojo对象列表
+     *
+     * @param information 输入信息
+     * @param switchParameters 交换机参数
+     * @return OSPFPojo对象列表
+     */
     public static List<OSPFPojo> getOSPFPojo(String information,SwitchParameters switchParameters) {
 
         /**

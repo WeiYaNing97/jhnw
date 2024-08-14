@@ -367,6 +367,8 @@ public class LuminousAttenuation {
      * @return
     */
     public String meanJudgmentProblem(LightAttenuationComparison lightAttenuationComparison) {
+
+
         //RX最新参数
         double rxLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getRxLatestNumber());
         //TX最新参数
@@ -412,6 +414,26 @@ public class LuminousAttenuation {
                 || txfiberAttenuation > MyUtils.stringToDouble(lightAttenuationComparison.getTxRatedDeviation())){
             return "有问题";
         }
+
+
+        //光衰百分比
+        String percentage = (String)CustomConfigurationUtil.getValue("光衰.percentage", Constant.getProfileInformation());
+        List<Double> doubles = MyUtils.StringTruncationDoubleValue(percentage);
+        if (doubles.size() == 1){
+
+            double percentageDouble = doubles.get(0) * 0.01;
+            //RX绝对值
+            double rxAbs = Math.abs(rxLatestNumber - rxStartValue);
+            //TX绝对值
+            double txAbs = Math.abs(txLatestNumber - txStartValue);
+            if ( rxAbs < rxStartValue * percentageDouble && txAbs < txStartValue * percentageDouble){
+                return "无问题";
+            }else {
+                return "有问题";
+            }
+
+        }
+
 
         return "无问题";
     }
@@ -553,6 +575,9 @@ public class LuminousAttenuation {
         List<String> returnResults_split_List = Arrays.stream(returnResults.split("\r\n")).collect(Collectors.toList());
         if (keywordList.indexOf("R_table")!=-1){
             keywordMap = (Map<String,String>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".R_table", Constant.getProfileInformation());
+            if (keywordMap == null){
+                return values;
+            }
             List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_split_List, keywordMap);
             if (stringObjectHashMapList.size() != 1){
                 return values;
@@ -567,6 +592,9 @@ public class LuminousAttenuation {
 
         }else if (keywordList.indexOf("L_list")!=-1){
             keywordMap = (Map<String,String>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".L_list", Constant.getProfileInformation());
+            if (keywordMap == null){
+                return values;
+            }
             Set<String> strings = keywordMap.keySet();
             for (String keywordName:strings){
                 for (String keyword:returnResults_split_List) {

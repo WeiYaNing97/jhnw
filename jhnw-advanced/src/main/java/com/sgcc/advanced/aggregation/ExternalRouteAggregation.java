@@ -82,6 +82,9 @@ public class ExternalRouteAggregation {
 
     private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList) {
         HashMap<String,String> keyMap = (HashMap<String,String>) CustomConfigurationUtil.getValue("路由聚合."+"H3C.R_table", Constant.getProfileInformation());
+        if (keyMap == null){
+            return new ArrayList<>();
+        }
         List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap);
         if (stringObjectHashMapList.size() == 0){
             return new ArrayList<>();

@@ -1233,14 +1233,14 @@ public class ErrorPackage {
             "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
             " Input (normal):  56148368 packets, - bytes\n" +
             "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-            " Input:  10 input errors, 0 runts, 0 giants, 0 throttles\n" +
+            " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
             "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
             "         - ignored, - parity errors\n" +
             " Output (total): 46229751 packets, 4553563599 bytes\n" +
             "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
             " Output (normal): 46229751 packets, - bytes\n" +
             "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-            " Output: 20 output errors, - underruns, - buffer failures\n" +
+            " Output: 0 output errors, - underruns, - buffer failures\n" +
             "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
             "         0 lost carrier, - no carrier";
 

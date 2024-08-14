@@ -101,6 +101,7 @@ OSPF:
   rxImmediateDeviation: 0.5
   # TX即时偏差
   txImmediateDeviation: 0.3
+  percentage: 1%
   H3C:
     R_table1:
       TableHeader: Temp(Celsius),Voltage(V),Bias(mA),RX power(dBm),TX power(dBm)

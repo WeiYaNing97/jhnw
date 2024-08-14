@@ -1,0 +1,674 @@
+﻿<AnPingJu_Huawei_S7712>dis cu
+!Software Version V200R021C10SPC600
+#
+sysname AnPingJu_Huawei_S7712
+#
+info-center loghost source LoopBack114
+info-center loghost 10.122.100.11 port 9514
+info-center loghost 10.122.100.71 port 9514
+info-center loghost 10.122.100.90
+#
+vlan batch 3 to 4 6 to 7 50 200 2000 to 2001
+#
+stp mode rstp
+stp instance 0 root primary
+#
+authentication-profile name default_authen_profile
+authentication-profile name dot1x_authen_profile
+authentication-profile name dot1xmac_authen_profile
+authentication-profile name mac_authen_profile
+authentication-profile name multi_authen_profile
+authentication-profile name portal_authen_profile
+#
+undo http server enable
+#
+clock timezone CST add 08:00:00
+#                                         
+dhcp enable
+#
+diffserv domain default
+#
+radius-server template default
+#
+pki realm default
+ certificate-check none
+#
+acl number 2000
+ rule 0 permit source 10.122.100.16 0
+ rule 1 permit source 10.98.138.116 0
+ rule 2 permit source 10.98.138.13 0
+ rule 3 permit source 10.122.100.0 0.0.0.255
+ rule 4 permit source 10.122.102.53 0
+ rule 5 permit source 10.122.102.32 0
+ rule 6 deny
+acl number 2010
+ rule 0 permit source 10.122.100.33 0
+ rule 1 permit source 10.122.100.59 0
+ rule 2 permit source 10.122.100.0 0.0.0.255
+ rule 3 deny
+#
+free-rule-template name default_free_rule 
+#
+portal-access-profile name portal_access_profile
+#
+drop-profile default
+#
+vlan 50
+ description To_Guanli
+#
+aaa
+ authentication-scheme default
+  authentication-mode local
+ authentication-scheme radius
+  authentication-mode radius
+ authorization-scheme default
+  authorization-mode local
+ accounting-scheme default
+  accounting-mode none
+ domain default
+  authentication-scheme radius
+  accounting-scheme default
+  radius-server default
+ domain default_admin
+  authentication-scheme default
+  accounting-scheme default               
+ local-aaa-user wrong-password retry-interval 5 retry-time 5 block-time 20
+ undo local-user admin
+ local-user apadmin password irreversible-cipher $1c$[j"4Dk%p+K$-kp.(0FJ%!9%Y,Mjpm[&~,s:7lfy6=mil:Rs"mgU$
+ local-user apadmin privilege level 15
+ local-user apadmin service-type terminal ssh
+ local-user hsxtadmin password irreversible-cipher $1c$<jDQ)T&$YD$Fx_}X$['-~d;*#<=F_b:`|kKS!8A|"eYMPD0%U\:$ idle-timeout 60 0
+ local-user hsxtadmin privilege level 15
+ local-user hsxtadmin service-type terminal ssh
+#
+ntp-service server disable
+ntp-service ipv6 server disable
+ntp-service unicast-server 10.100.48.1
+#
+interface Vlanif1
+#
+interface Vlanif3
+ ip address 10.98.138.147 255.255.255.192
+ vrrp vrid 151 virtual-ip 10.98.138.129
+ vrrp vrid 151 priority 150
+ vrrp vrid 151 preempt-mode timer delay 5
+ vrrp vrid 151 track interface GigabitEthernet1/0/31 reduced 100
+#
+interface Vlanif4
+ ip address 10.98.139.239 255.255.255.0   
+ vrrp vrid 152 virtual-ip 10.98.139.1
+ vrrp vrid 152 priority 150
+ vrrp vrid 152 preempt-mode timer delay 5
+ vrrp vrid 152 track interface GigabitEthernet1/0/31 reduced 100
+#
+interface Vlanif6
+ ip address 10.98.138.2 255.255.255.128
+ vrrp vrid 153 virtual-ip 10.98.138.1
+ vrrp vrid 153 priority 150
+ vrrp vrid 153 preempt-mode timer delay 5
+ vrrp vrid 153 track interface GigabitEthernet1/0/31 reduced 100
+#
+interface Vlanif7
+ ip address 10.98.136.13 255.255.255.0
+ vrrp vrid 154 virtual-ip 10.98.136.1
+ vrrp vrid 154 priority 150
+ vrrp vrid 154 preempt-mode timer delay 5
+ vrrp vrid 154 track interface GigabitEthernet1/0/31 reduced 100
+#
+interface Vlanif200
+ ip address 10.98.137.71 255.255.255.0
+ vrrp vrid 155 virtual-ip 10.98.137.1
+ vrrp vrid 155 priority 150
+ vrrp vrid 155 preempt-mode timer delay 5 
+ vrrp vrid 155 track interface GigabitEthernet1/0/31 reduced 100
+#
+interface Vlanif2000
+ description to-shiju
+ ip address 10.98.138.195 255.255.255.240
+ vrrp vrid 156 virtual-ip 10.98.138.194
+ vrrp vrid 156 priority 150
+ vrrp vrid 156 preempt-mode timer delay 5
+ vrrp vrid 156 track interface GigabitEthernet1/0/31 reduced 100
+#
+interface Vlanif2001
+ ip address 10.122.119.161 255.255.255.248
+#
+interface Eth-Trunk1
+ description To_HX_S7506E
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+#
+interface Ethernet0/0/0
+#
+interface GigabitEthernet1/0/0
+ shutdown
+#
+interface GigabitEthernet1/0/1            
+ shutdown
+#
+interface GigabitEthernet1/0/2
+ shutdown
+#
+interface GigabitEthernet1/0/3
+ shutdown
+#
+interface GigabitEthernet1/0/4
+ shutdown
+#
+interface GigabitEthernet1/0/5
+ shutdown
+#
+interface GigabitEthernet1/0/6
+ shutdown
+#
+interface GigabitEthernet1/0/7
+ shutdown
+#
+interface GigabitEthernet1/0/8
+ shutdown
+#
+interface GigabitEthernet1/0/9            
+ shutdown
+#
+interface GigabitEthernet1/0/10
+ shutdown
+#
+interface GigabitEthernet1/0/11
+ shutdown
+#
+interface GigabitEthernet1/0/12
+ shutdown
+#
+interface GigabitEthernet1/0/13
+ shutdown
+#
+interface GigabitEthernet1/0/14
+ shutdown
+#
+interface GigabitEthernet1/0/15
+ shutdown
+#
+interface GigabitEthernet1/0/16
+ shutdown
+#
+interface GigabitEthernet1/0/17           
+ shutdown
+#
+interface GigabitEthernet1/0/18
+ shutdown
+#
+interface GigabitEthernet1/0/19
+ shutdown
+#
+interface GigabitEthernet1/0/20
+ shutdown
+#
+interface GigabitEthernet1/0/21
+ shutdown
+#
+interface GigabitEthernet1/0/22
+ shutdown
+#
+interface GigabitEthernet1/0/23
+ shutdown
+#
+interface GigabitEthernet1/0/24
+ shutdown
+#
+interface GigabitEthernet1/0/25           
+ shutdown
+#
+interface GigabitEthernet1/0/26
+ shutdown
+#
+interface GigabitEthernet1/0/27
+ shutdown
+#
+interface GigabitEthernet1/0/28
+ shutdown
+#
+interface GigabitEthernet1/0/29
+ shutdown
+#
+interface GigabitEthernet1/0/30
+ eth-trunk 1
+#
+interface GigabitEthernet1/0/31
+ description to_ShiJu-famhhuoqiang-5kou
+ port default vlan 2001
+ port bridge enable
+#
+interface GigabitEthernet1/0/32
+ shutdown                                 
+#
+interface GigabitEthernet1/0/33
+ shutdown
+#
+interface GigabitEthernet1/0/34
+ shutdown
+#
+interface GigabitEthernet1/0/35
+ shutdown
+#
+interface GigabitEthernet1/0/36
+ shutdown
+#
+interface GigabitEthernet1/0/37
+ shutdown
+#
+interface GigabitEthernet1/0/38
+ shutdown
+#
+interface GigabitEthernet1/0/39
+ shutdown
+#
+interface GigabitEthernet1/0/40
+ shutdown                                 
+#
+interface GigabitEthernet1/0/41
+ shutdown
+#
+interface GigabitEthernet1/0/42
+ shutdown
+#
+interface GigabitEthernet1/0/43
+ shutdown
+#
+interface GigabitEthernet1/0/44
+ shutdown
+#
+interface GigabitEthernet1/0/45
+ shutdown
+#
+interface GigabitEthernet1/0/46
+ shutdown
+#
+interface GigabitEthernet1/0/47
+ shutdown
+#
+interface GigabitEthernet2/0/0
+ shutdown                                 
+#
+interface GigabitEthernet2/0/1
+ description to yingxiaolou
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+ port bridge enable
+#
+interface GigabitEthernet2/0/2
+ shutdown
+#
+interface GigabitEthernet2/0/3
+ description to xianju5720
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+ port bridge enable
+#
+interface GigabitEthernet2/0/4
+ shutdown
+#
+interface GigabitEthernet2/0/5
+ description to xianju-5720
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+ port bridge enable                       
+#
+interface GigabitEthernet2/0/6
+ shutdown
+#
+interface GigabitEthernet2/0/7
+ description To_AnBeiSuo_S5720_G0/0/49
+ port link-type trunk
+ port trunk allow-pass vlan 3 to 4 6 to 7 50 200
+#
+interface GigabitEthernet2/0/8
+ shutdown
+#
+interface GigabitEthernet2/0/9
+ shutdown
+#
+interface GigabitEthernet2/0/10
+ shutdown
+#
+interface GigabitEthernet2/0/11
+ shutdown
+#
+interface GigabitEthernet2/0/12
+ eth-trunk 1
+#                                         
+interface GigabitEthernet2/0/13
+ shutdown
+#
+interface GigabitEthernet2/0/14
+ shutdown
+#
+interface GigabitEthernet2/0/15
+ shutdown
+#
+interface GigabitEthernet2/0/16
+ port link-type trunk
+ port trunk allow-pass vlan 3 to 4 6 to 7 200
+#
+interface GigabitEthernet2/0/17
+ shutdown
+#
+interface GigabitEthernet2/0/18
+ undo negotiation auto
+ description Yunwei_TG0/1
+ port link-type trunk
+ port trunk allow-pass vlan 2 to 4094
+#
+interface GigabitEthernet2/0/19
+ shutdown                                 
+#
+interface GigabitEthernet2/0/20
+ shutdown
+#
+interface GigabitEthernet2/0/21
+ shutdown
+#
+interface GigabitEthernet2/0/22
+ shutdown
+#
+interface GigabitEthernet2/0/23
+ shutdown
+#
+interface GigabitEthernet2/0/24
+ shutdown
+#
+interface GigabitEthernet2/0/25
+ shutdown
+#
+interface GigabitEthernet2/0/26
+ shutdown
+#
+interface GigabitEthernet2/0/27
+ shutdown                                 
+#
+interface GigabitEthernet2/0/28
+ shutdown
+#
+interface GigabitEthernet2/0/29
+ shutdown
+#
+interface GigabitEthernet2/0/30
+ shutdown
+#
+interface GigabitEthernet2/0/31
+ shutdown
+#
+interface GigabitEthernet2/0/32
+ shutdown
+#
+interface GigabitEthernet2/0/33
+ shutdown
+#
+interface GigabitEthernet2/0/34
+ shutdown
+#
+interface GigabitEthernet2/0/35
+ shutdown                                 
+#
+interface GigabitEthernet2/0/36
+ shutdown
+#
+interface GigabitEthernet2/0/37
+ shutdown
+#
+interface GigabitEthernet2/0/38
+ shutdown
+#
+interface GigabitEthernet2/0/39
+ shutdown
+#
+interface GigabitEthernet2/0/40
+ shutdown
+#
+interface GigabitEthernet2/0/41
+ shutdown
+#
+interface GigabitEthernet2/0/42
+ shutdown
+#
+interface GigabitEthernet2/0/43
+ shutdown                                 
+#
+interface GigabitEthernet2/0/44
+ shutdown
+#
+interface GigabitEthernet2/0/45
+ shutdown
+#
+interface GigabitEthernet2/0/46
+ shutdown
+#
+interface GigabitEthernet2/0/47
+ shutdown
+#
+interface GigabitEthernet3/1/0
+ shutdown
+#
+interface GigabitEthernet3/1/1
+ shutdown
+#
+interface GigabitEthernet3/1/2
+ shutdown
+#
+interface GigabitEthernet3/1/3
+ shutdown                                 
+#
+interface GigabitEthernet3/1/4
+ shutdown
+#
+interface GigabitEthernet3/1/5
+ shutdown
+#
+interface GigabitEthernet3/1/6
+ shutdown
+#
+interface GigabitEthernet3/1/7
+ shutdown
+#
+interface GigabitEthernet3/1/8
+ shutdown
+#
+interface GigabitEthernet3/1/9
+ shutdown
+#
+interface GigabitEthernet3/1/10
+ shutdown
+#
+interface GigabitEthernet3/1/11
+ shutdown                                 
+#
+interface GigabitEthernet3/1/12
+ shutdown
+#
+interface GigabitEthernet3/1/13
+ shutdown
+#
+interface GigabitEthernet3/1/14
+ shutdown
+#
+interface GigabitEthernet3/1/15
+ shutdown
+#
+interface GigabitEthernet3/1/16
+ shutdown
+#
+interface GigabitEthernet3/1/17
+ shutdown
+#
+interface GigabitEthernet3/1/18
+ shutdown
+#
+interface GigabitEthernet3/1/19
+ shutdown                                 
+#
+interface GigabitEthernet3/1/20
+ shutdown
+#
+interface GigabitEthernet3/1/21
+ shutdown
+#
+interface GigabitEthernet3/1/22
+ shutdown
+#
+interface GigabitEthernet3/1/23
+ shutdown
+#
+interface XGigabitEthernet3/0/0
+#
+interface XGigabitEthernet3/0/1
+#
+interface XGigabitEthernet3/0/2
+#
+interface XGigabitEthernet3/0/3
+#
+interface XGigabitEthernet3/0/4
+#
+interface XGigabitEthernet3/0/5           
+#
+interface XGigabitEthernet3/0/6
+#
+interface XGigabitEthernet3/0/7
+#
+interface XGigabitEthernet3/0/8
+#
+interface XGigabitEthernet3/0/9
+#
+interface XGigabitEthernet3/0/10
+#
+interface XGigabitEthernet3/0/11
+#
+interface XGigabitEthernet3/0/12
+#
+interface XGigabitEthernet3/0/13
+#
+interface XGigabitEthernet3/0/14
+#
+interface XGigabitEthernet3/0/15
+#
+interface XGigabitEthernet3/0/16
+#
+interface XGigabitEthernet3/0/17          
+#
+interface XGigabitEthernet3/0/18
+#
+interface XGigabitEthernet3/0/19
+#
+interface XGigabitEthernet3/0/20
+#
+interface XGigabitEthernet3/0/21
+#
+interface XGigabitEthernet3/0/22
+#
+interface XGigabitEthernet3/0/23
+#
+interface NULL0
+#
+interface LoopBack114
+ ip address 10.122.114.208 255.255.255.255
+#
+ospf 100
+ area 0.0.0.0
+  network 10.98.136.0 0.0.0.255
+  network 10.98.137.0 0.0.0.255
+  network 10.98.138.0 0.0.0.255
+  network 10.98.139.0 0.0.0.255           
+  network 10.122.114.208 0.0.0.0
+  network 10.122.119.160 0.0.0.7
+  network 100.1.2.0 0.0.0.255
+#
+arp static 10.98.137.181 000b-3000-60d1
+arp static 10.8.136.204 2222-2222-2222
+arp static 10.8.136.34 2222-2222-2222
+arp static 10.8.136.35 2222-2222-2222
+arp static 10.8.136.91 2222-2222-2222
+arp static 10.8.136.94 2222-2222-2222
+arp static 10.8.138.143 2222-2222-2222
+arp static 10.8.138.144 2222-2222-2222
+arp static 10.8.138.18 2222-2222-2222
+arp static 10.8.138.33 2222-2222-2222
+arp static 10.8.139.104 2222-2222-2222
+arp static 10.8.139.137 2222-2222-2222
+arp static 10.8.139.138 2222-2222-2222
+arp static 10.8.139.143 2222-2222-2222
+arp static 10.8.139.171 2222-2222-2222
+arp static 10.8.139.177 2222-2222-2222
+arp static 10.8.139.203 2222-2222-2222
+arp static 10.8.139.216 2222-2222-2222
+arp static 10.8.139.227 2222-2222-2222
+arp static 10.8.139.241 2222-2222-2222    
+arp static 10.8.139.244 2222-2222-2222
+arp static 10.8.139.249 2222-2222-2222
+arp static 10.98.138.18 2222-2222-2222
+arp static 10.98.137.12 1860-24e4-ada7
+arp static 10.98.139.149 2222-2222-2222
+arp static 10.98.138.7 2222-2222-2222
+arp static 10.98.138.160 2222-2222-2222
+arp static 10.98.136.79 047c-1696-a973
+arp static 10.98.136.254 2222-2222-2222
+arp static 10.98.136.250 2222-2222-2222
+arp static 10.98.136.240 2222-2222-2222
+arp static 10.98.136.19 2222-2222-2222
+arp static 10.98.139.117 00e0-6675-ab40
+arp static 10.98.139.108 000b-001f-9b15
+arp static 10.98.136.5 2222-2222-2222
+arp static 10.98.136.8 2222-2222-2222
+arp static 10.98.136.78 e8d8-d1bd-d804
+arp static 10.98.136.88 2222-2222-2222
+arp static 10.98.136.98 2222-2222-2222
+arp static 10.98.136.118 2222-2222-2222
+arp static 10.98.136.119 2222-2222-2222
+arp static 10.98.136.147 5c60-ba3d-6a56
+arp static 10.98.136.148 5c60-ba38-22b1
+arp static 10.98.136.149 5c60-ba38-23ff   
+arp static 10.98.136.151 5c60-ba47-316b
+arp static 10.98.136.152 2222-2222-2222
+arp static 10.98.136.153 2222-2222-2222
+arp static 10.98.136.154 2222-2222-2222
+arp static 10.98.136.155 2222-2222-2222
+arp static 10.98.136.156 2222-2222-2222
+arp static 10.98.136.157 2222-2222-2222
+arp static 10.98.136.158 2222-2222-2222
+arp static 10.98.136.159 2222-2222-2222
+arp static 10.98.136.161 2222-2222-2222
+arp static 10.98.136.162 2222-2222-2222
+arp static 10.98.136.163 2222-2222-2222
+arp static 10.98.136.164 2222-2222-2222
+arp static 10.98.136.165 2222-2222-2222
+arp static 10.98.136.166 2222-2222-2222
+arp static 10.98.136.167 2222-2222-2222
+arp static 10.98.136.168 2222-2222-2222
+arp static 10.98.136.169 2222-2222-2222
+arp static 10.98.136.170 2222-2222-2222
+arp static 10.98.136.171 2222-2222-2222
+arp static 10.98.136.172 2222-2222-2222
+arp static 10.98.136.173 2222-2222-2222
+arp static 10.98.136.174 2222-2222-2222
+arp static 10.98.136.176 2222-2222-2222   
+arp static 10.98.136.177 2222-2222-2222
+arp static 10.98.136.178 2222-2222-2222
+arp static 10.98.136.179 2222-2222-2222
+arp static 10.98.136.180 2222-2222-2222
+arp static 10.98.136.181 2222-2222-2222
+arp static 10.98.136.182 2222-2222-2222
+arp static 10.98.136.183 2222-2222-2222
+arp static 10.98.136.184 2222-2222-2222
+arp static 10.98.136.185 2222-2222-2222
+arp static 10.98.136.186 2222-2222-2222
+arp static 10.98.136.187 2222-2222-2222
+arp static 10.98.136.188 2222-2222-2222
+arp static 10.98.136.189 2222-2222-2222
+arp static 10.98.136.190 2222-2222-2222
+arp static 10.98.136.191 2222-2222-2222
+arp static 10.98.136.192 e8d8-d1be-1b77
+arp static 10.98.136.193 c434-6b4f-7bd6
+arp static 10.98.136.194 94c6-9100-c799
+arp static 10.98.136.195 047c-1696-a9a1
+arp static 10.98.136.198 047c-1696-a9ab
+arp static 10.98.136.214 2222-2222-2222
+arp static 10.98.136.215 2222-2222-2222
+arp static 10.98.136.216 2222-2222-2222
+                                          

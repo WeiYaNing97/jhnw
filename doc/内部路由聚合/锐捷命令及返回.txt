@@ -1,0 +1,1160 @@
+﻿HengShui_RuiJie_2#show running-config 
+
+Building configuration...
+Current configuration : 35763 bytes
+
+version 11.0(4)B13P2
+hostname HengShui_RuiJie_2
+!
+ip access-list standard 1
+ 10 permit 10.122.100.0 0.0.0.255 
+ 20 deny any 
+!
+username hs_admin privilege 15 password 7 06073a0e261b327656421f
+!
+cwmp
+!
+install 2 M8600E-48GT-ED
+install 5 M8600E-08XS-ED
+install 6 M8600E-08XS-ED
+install 9 M8600E-44SFP4XS-ED
+!
+sysmac 8005.88d0.88e1
+!
+grtd
+!
+nfpp
+!
+service password-encryption
+!
+redundancy
+!
+ip ssh authentication-retries 5
+ip ssh time-out 60
+ip ssh version 2
+logging rate-limit msc data-flow 1000
+logging server 10.122.100.90
+!
+enable password 7 154b092c1b250c5416517c
+enable service ssh-server
+no enable service telnet-server
+!
+vlan 102
+ name NeiWang102
+!
+vlan 106
+ name NeiWang106
+!
+vlan 108
+ name NeiWang108
+!
+vlan 239
+ name NeiWang239
+!
+vlan 630
+ name ShiTangShouFan
+!
+vlan 1000
+ name To_WuZi_OLT_GuanLi
+!
+vlan range 1,110
+!
+interface GigabitEthernet 2/1
+ description I6000XingNengJianCe
+ switchport access vlan 102
+!
+interface GigabitEthernet 2/2
+ shutdown
+!
+interface GigabitEthernet 2/3
+ description I6000XingNengJianCe
+ switchport access vlan 102
+!         
+interface GigabitEthernet 2/4
+ shutdown
+!
+interface GigabitEthernet 2/5
+ description ShiTangShouFan_ShangLian_HeXin2
+ switchport mode trunk
+ switchport trunk allowed vlan only 1,102,108,630
+!
+interface GigabitEthernet 2/6
+ shutdown
+!
+interface GigabitEthernet 2/7
+ switchport access vlan 102
+!
+interface GigabitEthernet 2/8
+ shutdown
+!
+interface GigabitEthernet 2/9
+ shutdown
+ switchport access vlan 102
+!
+interface GigabitEthernet 2/10
+!
+interface GigabitEthernet 2/11
+ shutdown
+!
+interface GigabitEthernet 2/12
+ shutdown
+!
+interface GigabitEthernet 2/13
+ shutdown
+!
+interface GigabitEthernet 2/14
+ shutdown
+!
+interface GigabitEthernet 2/15
+ shutdown
+!
+interface GigabitEthernet 2/16
+ shutdown
+!
+interface GigabitEthernet 2/17
+ description To_PeiXunZhongXin_LinShi
+ shutdown
+ switchport mode trunk
+ switchport trunk allowed vlan only 106,239,630
+!
+interface GigabitEthernet 2/18
+ shutdown
+!
+interface GigabitEthernet 2/19
+ description To_WuZi_LinShi
+ switchport access vlan 102
+!
+interface GigabitEthernet 2/20
+ shutdown
+!
+interface GigabitEthernet 2/21
+ shutdown
+!
+interface GigabitEthernet 2/22
+ shutdown
+!
+interface GigabitEthernet 2/23
+ shutdown
+!         
+interface GigabitEthernet 2/24
+ shutdown
+!
+interface GigabitEthernet 2/25
+ shutdown
+!
+interface GigabitEthernet 2/26
+ shutdown
+!
+interface GigabitEthernet 2/27
+ shutdown
+!
+interface GigabitEthernet 2/28
+ shutdown
+!
+interface GigabitEthernet 2/29
+ shutdown
+!
+interface GigabitEthernet 2/30
+ shutdown
+!
+interface GigabitEthernet 2/31
+ shutdown
+!
+interface GigabitEthernet 2/32
+ shutdown
+!
+interface GigabitEthernet 2/33
+ shutdown
+!
+interface GigabitEthernet 2/34
+ shutdown
+!
+interface GigabitEthernet 2/35
+ shutdown
+!
+interface GigabitEthernet 2/36
+ shutdown
+!
+interface GigabitEthernet 2/37
+ shutdown
+!
+interface GigabitEthernet 2/38
+ shutdown
+!
+interface GigabitEthernet 2/39
+ shutdown
+!
+interface GigabitEthernet 2/40
+ shutdown
+!
+interface GigabitEthernet 2/41
+ shutdown
+!
+interface GigabitEthernet 2/42
+ shutdown
+!
+interface GigabitEthernet 2/43
+ shutdown
+!
+interface GigabitEthernet 2/44
+ shutdown
+!
+interface GigabitEthernet 2/45
+ shutdown
+!         
+interface GigabitEthernet 2/46
+ shutdown
+!
+interface GigabitEthernet 2/47
+ shutdown
+!
+interface GigabitEthernet 2/48
+ shutdown
+!
+interface GigabitEthernet 9/1
+ no switchport
+ description To_HeXin2
+ ip address 10.122.114.85 255.255.255.252
+!
+interface GigabitEthernet 9/2
+ no switchport
+ description To_HengShui_RuiJie_1
+ ip address 10.122.114.89 255.255.255.252
+!
+interface GigabitEthernet 9/3
+ description To_13-1
+ switchport mode trunk
+!
+interface GigabitEthernet 9/4
+ shutdown
+!
+interface GigabitEthernet 9/5
+ description To_13-2
+ switchport mode trunk
+!
+interface GigabitEthernet 9/6
+ shutdown
+!
+interface GigabitEthernet 9/7
+ description To_13-3
+ switchport mode trunk
+!
+interface GigabitEthernet 9/8
+ shutdown
+!
+interface GigabitEthernet 9/9
+ description To_8-1
+ switchport mode trunk
+!
+interface GigabitEthernet 9/10
+ shutdown
+!
+interface GigabitEthernet 9/11
+ description To_8-2
+ switchport mode trunk
+!
+interface GigabitEthernet 9/12
+ shutdown
+!
+interface GigabitEthernet 9/13
+ description To_8-3
+ switchport mode trunk
+!
+interface GigabitEthernet 9/14
+ no switchport
+ description To_DiaoDuLou_7506_G4/0/24
+ ip address 10.122.114.129 255.255.255.252
+!
+interface GigabitEthernet 9/15
+ description To_8-4
+ switchport mode trunk
+!
+interface GigabitEthernet 9/16
+ shutdown
+!
+interface GigabitEthernet 9/17
+ description To_3-1
+ switchport mode trunk
+ switchport trunk allowed vlan only 102,108
+!
+interface GigabitEthernet 9/18
+ shutdown
+!
+interface GigabitEthernet 9/19
+ description To_3-2
+ switchport mode trunk
+ switchport trunk allowed vlan only 102,108
+!
+interface GigabitEthernet 9/20
+ shutdown
+!
+interface GigabitEthernet 9/21
+ description To_3-3
+ switchport mode trunk
+ switchport trunk allowed vlan only 102,108
+!
+interface GigabitEthernet 9/22
+ shutdown
+!
+interface GigabitEthernet 9/23
+ shutdown
+!
+interface GigabitEthernet 9/24
+ description To_ShiLouGongFu
+ switchport mode trunk
+!
+interface GigabitEthernet 9/25
+ description To_JiGuanLou11_HuiYiShi
+ switchport access vlan 102
+!
+interface GigabitEthernet 9/26
+ shutdown
+!
+interface GigabitEthernet 9/27
+ description WuZi
+ shutdown
+ switchport access vlan 102
+!
+interface GigabitEthernet 9/28
+ shutdown
+!
+interface GigabitEthernet 9/29
+ shutdown
+!
+interface GigabitEthernet 9/30
+ shutdown
+!
+interface GigabitEthernet 9/31
+ description To_LuBei
+ shutdown
+ switchport access vlan 110
+!
+interface GigabitEthernet 9/32
+ shutdown
+!
+interface GigabitEthernet 9/33
+ description To_JiGuanLou15
+ shutdown
+ switchport access vlan 110
+!
+interface GigabitEthernet 9/34
+ shutdown
+!
+interface GigabitEthernet 9/35
+ description To_WuYeLou
+ shutdown
+ switchport mode trunk
+ switchport trunk allowed vlan only 110
+!
+interface GigabitEthernet 9/36
+ shutdown
+!
+interface GigabitEthernet 9/37
+ speed 1000
+ description To_PeiXunZhongXin 7.22
+ switchport mode trunk
+ switchport trunk allowed vlan only 106,239,630
+!
+interface GigabitEthernet 9/38
+ shutdown
+!
+interface GigabitEthernet 9/39
+ shutdown
+!
+interface GigabitEthernet 9/40
+ shutdown
+!
+interface GigabitEthernet 9/41
+ shutdown
+!
+interface GigabitEthernet 9/42
+ shutdown
+!
+interface GigabitEthernet 9/43
+ shutdown
+!
+interface GigabitEthernet 9/44
+ shutdown
+!
+interface TenGigabitEthernet 5/1
+ shutdown
+!
+interface TenGigabitEthernet 5/2
+ shutdown
+!
+interface TenGigabitEthernet 5/3
+ shutdown
+!
+interface TenGigabitEthernet 5/4
+ shutdown
+!
+interface TenGigabitEthernet 5/5
+ shutdown
+!
+interface TenGigabitEthernet 5/6
+ shutdown
+!
+interface TenGigabitEthernet 5/7
+ shutdown
+!
+interface TenGigabitEthernet 5/8
+ shutdown
+!         
+interface TenGigabitEthernet 6/1
+ shutdown
+!
+interface TenGigabitEthernet 6/2
+ shutdown
+!
+interface TenGigabitEthernet 6/3
+ shutdown
+!
+interface TenGigabitEthernet 6/4
+ shutdown
+!
+interface TenGigabitEthernet 6/5
+ shutdown
+!
+interface TenGigabitEthernet 6/6
+ shutdown
+!
+interface TenGigabitEthernet 6/7
+ shutdown
+!
+interface TenGigabitEthernet 6/8
+ shutdown
+!
+interface TenGigabitEthernet 9/45
+ shutdown
+!
+interface TenGigabitEthernet 9/46
+ shutdown
+!
+interface TenGigabitEthernet 9/47
+ shutdown
+!
+interface TenGigabitEthernet 9/48
+ shutdown
+!
+interface VLAN 102
+ ip address 10.122.102.2 255.255.255.0
+!
+interface VLAN 106
+ ip address 10.122.106.2 255.255.255.0
+!
+interface VLAN 108
+ ip address 10.122.108.2 255.255.255.0
+!
+interface VLAN 110
+!
+interface VLAN 239
+ ip address 10.123.239.2 255.255.255.0
+!
+interface VLAN 630
+ description ShiTangShouFanCeShi
+ ip address 172.20.1.30 255.255.255.0
+!
+interface VLAN 1000
+ description To_WuZi_OLT_GuanLi
+ ip address 10.122.114.69 255.255.255.252
+!
+interface Mgmt 0
+!
+ntp server 10.100.48.1
+!
+monitor session 1 destination interface GigabitEthernet 2/15
+monitor session 1 source interface GigabitEthernet 9/1 both
+monitor session 2 destination interface GigabitEthernet 2/10
+monitor session 2 source interface GigabitEthernet 2/19 both
+monitor session 2 source interface GigabitEthernet 9/3 both
+monitor session 2 source interface GigabitEthernet 9/5 both
+monitor session 2 source interface GigabitEthernet 9/7 both
+monitor session 2 source interface GigabitEthernet 9/9 both
+monitor session 2 source interface GigabitEthernet 9/11 both
+monitor session 2 source interface GigabitEthernet 9/13 both
+monitor session 2 source interface GigabitEthernet 9/15 both
+monitor session 2 source interface GigabitEthernet 9/17 both
+monitor session 2 source interface GigabitEthernet 9/19 both
+monitor session 2 source interface GigabitEthernet 9/21 both
+monitor session 2 source interface GigabitEthernet 9/24 both
+monitor session 2 source interface GigabitEthernet 9/27 both
+!
+arp 10.122.102.1 1111.1111.1111 arpa
+arp 10.122.102.3 1111.1111.1111 arpa
+arp 10.122.102.4 1111.1111.1111 arpa
+arp 10.122.102.5 6451.065d.4b37 arpa
+arp 10.122.102.6 7020.8403.765a arpa
+arp 10.122.102.11 5489.9873.83fd arpa
+arp 10.122.102.12 0090.0b31.88a8 arpa
+arp 10.122.102.13 1111.1111.1111 arpa
+arp 10.122.102.14 e0be.031b.f3e9 arpa
+arp 10.122.102.15 3c4a.92df.ea75 arpa
+arp 10.122.102.16 00d8.6166.2b82 arpa
+arp 10.122.102.18 047c.1699.90e4 arpa
+arp 10.122.102.19 8ce7.4844.4ec0 arpa
+arp 10.122.102.20 4437.e687.454c arpa
+arp 10.122.102.21 1111.1111.1111 arpa
+arp 10.122.102.22 fc4d.d4d6.71b4 arpa
+arp 10.122.102.23 4437.e687.4557 arpa
+arp 10.122.102.24 00d8.61f4.f4e5 arpa
+arp 10.122.102.25 00d8.61f4.f396 arpa
+arp 10.122.102.26 00d8.61f4.f4dd arpa
+arp 10.122.102.27 1111.1111.1111 arpa
+arp 10.122.102.28 2cf0.5dc4.9a29 arpa
+arp 10.122.102.29 e0be.031f.4cda arpa
+arp 10.122.102.30 4437.e687.44b5 arpa
+arp 10.122.102.31 00d8.61f4.f270 arpa
+arp 10.122.102.32 00d8.61af.5ea8 arpa
+arp 10.122.102.33 00d8.61f4.f269 arpa
+arp 10.122.102.34 4ccc.6ae7.3c8e arpa
+arp 10.122.102.35 047c.1628.1dfc arpa
+arp 10.122.102.36 00d8.6121.bff5 arpa
+arp 10.122.102.37 00d8.61f4.f768 arpa
+arp 10.122.102.38 00d8.61f4.f3b9 arpa
+arp 10.122.102.39 4ccc.6ae7.3c14 arpa
+arp 10.122.102.40 00d8.61f4.f394 arpa
+arp 10.122.102.41 4439.c48e.8646 arpa
+arp 10.122.102.42 703d.1570.58d5 arpa
+arp 10.122.102.43 703d.1570.586d arpa
+arp 10.122.102.44 703d.156f.fdd5 arpa
+arp 10.122.102.45 047c.1696.8fce arpa
+arp 10.122.102.46 90f6.44ff.552c arpa
+arp 10.122.102.47 90f6.44ff.53de arpa
+arp 10.122.102.48 047c.1696.8ad4 arpa
+arp 10.122.102.49 2cf0.5dc4.99a3 arpa
+arp 10.122.102.50 fc4d.d44c.f5bc arpa
+arp 10.122.102.51 1111.1111.1111 arpa
+arp 10.122.102.52 e0be.031b.f48f arpa
+arp 10.122.102.53 e0be.031b.f4b3 arpa
+arp 10.122.102.54 e0be.031b.f4e9 arpa
+arp 10.122.102.55 4437.e687.4586 arpa
+arp 10.122.102.56 c025.a59b.15df arpa
+arp 10.122.102.57 c025.a59b.1d74 arpa
+arp 10.122.102.58 4437.e687.44d2 arpa
+arp 10.122.102.59 703d.156f.f7bd arpa
+arp 10.122.102.60 4437.e694.f3b6 arpa
+arp 10.122.102.61 2cf0.5d4e.519d arpa
+arp 10.122.102.62 e0be.031b.f4b2 arpa
+arp 10.122.102.63 4437.e6a6.a8d4 arpa
+arp 10.122.102.64 047c.1696.a5c6 arpa
+arp 10.122.102.65 4ccc.6ae7.3d0a arpa
+arp 10.122.102.66 703d.156f.ffdd arpa
+arp 10.122.102.68 703d.1570.3445 arpa
+arp 10.122.102.70 c81f.6627.44f6 arpa
+arp 10.122.102.71 dcd4.44cf.35b2 arpa
+arp 10.122.102.72 2cf0.5d4e.5363 arpa
+arp 10.122.102.73 7020.8405.59f3 arpa
+arp 10.122.102.74 0017.c865.9b2b arpa
+arp 10.122.102.75 7020.8403.76ad arpa
+arp 10.122.102.76 24be.05ea.3844 arpa
+arp 10.122.102.77 4ccc.6ae7.3c82 arpa
+arp 10.122.102.78 7020.8405.5ab3 arpa
+arp 10.122.102.79 00d8.61f4.f3a6 arpa
+arp 10.122.102.80 703d.156f.fd6d arpa
+arp 10.122.102.81 703d.156f.fc9d arpa
+arp 10.122.102.82 703d.1570.1085 arpa
+arp 10.122.102.83 6451.065c.5200 arpa
+arp 10.122.102.84 90f6.44ff.5593 arpa
+arp 10.122.102.85 6451.065c.d455 arpa
+arp 10.122.102.86 1111.1111.1111 arpa
+arp 10.122.102.87 047c.1696.905c arpa
+arp 10.122.102.88 7020.8405.5ede arpa
+arp 10.122.102.89 7020.8405.5f72 arpa
+arp 10.122.102.90 00d8.61f4.f476 arpa
+arp 10.122.102.92 f8b1.569f.2cbb arpa
+arp 10.122.102.93 00e0.4c97.f3f2 arpa
+arp 10.122.102.94 e0be.031b.f4cd arpa
+arp 10.122.102.95 6451.065b.d633 arpa
+arp 10.122.102.96 7020.8405.5f6e arpa
+arp 10.122.102.97 fc4d.d4f7.80ac arpa
+arp 10.122.102.98 00d8.61f4.f260 arpa
+arp 10.122.102.99 00d8.61f4.f4be arpa
+arp 10.122.102.100 24be.05ea.3844 arpa
+arp 10.122.102.101 00d8.61f4.f47c arpa
+arp 10.122.102.102 0020.6bfc.9109 arpa
+arp 10.122.102.103 4437.e6a6.a6ce arpa
+arp 10.122.102.104 00d8.611b.a54f arpa
+arp 10.122.102.105 fc4d.d44a.0bff arpa
+arp 10.122.102.106 fc4d.d44a.0c15 arpa
+arp 10.122.102.107 fc4d.d44a.c894 arpa
+arp 10.122.102.108 7020.840e.5388 arpa
+arp 10.122.102.109 fc4d.d44a.6038 arpa
+arp 10.122.102.110 fc4d.d44a.0882 arpa
+arp 10.122.102.111 7020.8405.4f61 arpa
+arp 10.122.102.112 cc52.af4a.06c5 arpa
+arp 10.122.102.113 fc4d.d44a.0dad arpa
+arp 10.122.102.114 00f1.f518.7966 arpa
+arp 10.122.102.115 4437.e61b.8db0 arpa
+arp 10.122.102.116 001e.373a.92d4 arpa
+arp 10.122.102.117 e0be.031b.f414 arpa
+arp 10.122.102.118 00d8.61f4.f399 arpa
+arp 10.122.102.119 fc4d.d44a.0c10 arpa
+arp 10.122.102.120 7020.8403.76e9 arpa
+arp 10.122.102.121 7020.840e.56ce arpa
+arp 10.122.102.122 0016.413d.ff4e arpa
+arp 10.122.102.123 047c.1696.99c9 arpa
+arp 10.122.102.124 047c.1699.90d8 arpa
+arp 10.122.102.125 00d8.61f4.f395 arpa
+arp 10.122.102.126 fc4d.d44a.c1e7 arpa
+arp 10.122.102.127 00d8.6166.2b92 arpa
+arp 10.122.102.128 6c0b.8403.94ba arpa
+arp 10.122.102.129 00d8.61f4.f479 arpa
+arp 10.122.102.130 4ccc.6ae7.3ca8 arpa
+arp 10.122.102.131 7020.8405.5a55 arpa
+arp 10.122.102.132 047c.165e.c0f0 arpa
+arp 10.122.102.133 90f6.44ff.55ff arpa
+arp 10.122.102.134 00d8.61f4.f47a arpa
+arp 10.122.102.135 00d8.61f4.f471 arpa
+arp 10.122.102.136 00d8.61f4.f52b arpa
+arp 10.122.102.137 00d8.61f4.f2ae arpa
+arp 10.122.102.138 00d8.61f4.f474 arpa
+arp 10.122.102.139 4437.e694.a40f arpa
+arp 10.122.102.140 fc4d.d44c.f5df arpa
+arp 10.122.102.141 7497.814d.7985 arpa
+arp 10.122.102.143 4ccc.6ae7.3c83 arpa
+arp 10.122.102.145 4ccc.6ae7.3b3c arpa
+arp 10.122.102.147 2cf0.5dc4.99d9 arpa
+arp 10.122.102.148 fc4d.d44c.f527 arpa
+arp 10.122.102.150 047c.1696.8f65 arpa
+arp 10.122.102.151 6451.065c.d3b1 arpa
+arp 10.122.102.152 4437.e690.55e3 arpa
+arp 10.122.102.153 805e.c041.7eb5 arpa
+arp 10.122.102.154 805e.c041.835e arpa
+arp 10.122.102.155 4439.c48e.862a arpa
+arp 10.122.102.156 4ccc.6ae7.3ca5 arpa
+arp 10.122.102.157 2cf0.5dc4.80de arpa
+arp 10.122.102.158 047c.1628.29be arpa
+arp 10.122.102.159 00d8.61f4.f4da arpa
+arp 10.122.102.160 0017.c889.2163 arpa
+arp 10.122.102.161 fc4d.d44a.58ac arpa
+arp 10.122.102.162 7020.8405.5d1f arpa
+arp 10.122.102.163 2cf0.5d4e.535a arpa
+arp 10.122.102.164 7020.8403.76d1 arpa
+arp 10.122.102.165 fc4d.d44c.f572 arpa
+arp 10.122.102.166 047c.165e.e037 arpa
+arp 10.122.102.167 00d8.6123.ecae arpa
+arp 10.122.102.168 6c0b.846b.4356 arpa
+arp 10.122.102.169 4437.e679.e1d0 arpa
+arp 10.122.102.170 4ccc.6ae7.3c7c arpa
+arp 10.122.102.171 1111.1111.1111 arpa
+arp 10.122.102.172 94c6.912e.9e5f arpa
+arp 10.122.102.174 047c.1628.29bb arpa
+arp 10.122.102.175 6c0b.846b.447e arpa
+arp 10.122.102.176 7020.8403.76f0 arpa
+arp 10.122.102.177 6451.065c.d1fc arpa
+arp 10.122.102.178 001e.8fdc.98d5 arpa
+arp 10.122.102.179 00d8.61f4.f451 arpa
+arp 10.122.102.180 7020.8405.4736 arpa
+arp 10.122.102.181 7020.8403.76ed arpa
+arp 10.122.102.183 00d8.61f4.f47d arpa
+arp 10.122.102.184 4437.e619.c503 arpa
+arp 10.122.102.185 00d8.61f4.f4e0 arpa
+arp 10.122.102.186 00d8.61f4.f53c arpa
+arp 10.122.102.187 00d8.61f4.f478 arpa
+arp 10.122.102.188 00d8.61f4.f3cb arpa
+arp 10.122.102.189 00d8.61f4.f26a arpa
+arp 10.122.102.191 00d8.61f4.f263 arpa
+arp 10.122.102.192 e0be.031b.f40b arpa
+arp 10.122.102.193 7020.8405.59ad arpa
+arp 10.122.102.194 0021.8629.7805 arpa
+arp 10.122.102.195 fc4d.d44c.f567 arpa
+arp 10.122.102.196 4439.c48e.86a2 arpa
+arp 10.122.102.197 047c.1699.90d9 arpa
+arp 10.122.102.198 6451.065c.d470 arpa
+arp 10.122.102.199 4439.c495.317f arpa
+arp 10.122.102.200 6c0b.8403.943e arpa
+arp 10.122.102.201 5065.f327.c8e0 arpa
+arp 10.122.102.202 e0be.031b.f491 arpa
+arp 10.122.102.203 54e1.ad21.ed64 arpa
+arp 10.122.102.204 4439.c48e.ddc2 arpa
+arp 10.122.102.206 7020.8405.5a9b arpa
+arp 10.122.102.207 fc4d.d4d6.71af arpa
+arp 10.122.102.208 7020.8405.5dba arpa
+arp 10.122.102.209 e0be.031b.f47a arpa
+arp 10.122.102.210 4ccc.6ae7.3cfb arpa
+arp 10.122.102.211 fc4d.d449.26ea arpa
+arp 10.122.102.212 7020.8403.765b arpa
+arp 10.122.102.213 2cf0.5dc4.9a1c arpa
+arp 10.122.102.214 047c.1699.90e5 arpa
+arp 10.122.102.215 00d8.61f4.f48b arpa
+arp 10.122.102.216 e0be.031b.f4c6 arpa
+arp 10.122.102.217 4437.e694.a403 arpa
+arp 10.122.102.219 fc4d.d44c.f57b arpa
+arp 10.122.102.220 98e7.f42e.972b arpa
+arp 10.122.102.221 6451.0650.7d1b arpa
+arp 10.122.102.222 fc4d.d4f8.395c arpa
+arp 10.122.102.223 6c0b.8403.94a2 arpa
+arp 10.122.102.225 207b.d2bc.e8eb arpa
+arp 10.122.102.226 6451.0656.f666 arpa
+arp 10.122.102.230 7020.840d.949f arpa
+arp 10.122.102.231 7020.8405.59a8 arpa
+arp 10.122.102.232 805e.c0d6.bfc5 arpa
+arp 10.122.102.233 f8b1.56ae.032b arpa
+arp 10.122.102.234 00d8.611b.a593 arpa
+arp 10.122.102.235 1111.1111.1111 arpa
+arp 10.122.102.236 94c6.9123.9bf8 arpa
+arp 10.122.102.237 00d8.61f4.f2c6 arpa
+arp 10.122.102.238 047c.1699.8bf3 arpa
+arp 10.122.102.239 2cf0.5dc4.810a arpa
+arp 10.122.102.240 7020.8405.5e62 arpa
+arp 10.122.102.241 2cf0.5dc4.a50e arpa
+arp 10.122.102.242 2cf0.5dc4.80dd arpa
+arp 10.122.102.245 94c6.9123.a2e7 arpa
+arp 10.122.102.246 2004.0ff2.7126 arpa
+arp 10.122.102.248 e0be.031b.f4a8 arpa
+arp 10.122.102.249 e0be.031b.f525 arpa
+arp 10.122.102.251 047c.1699.90d5 arpa
+arp 10.122.102.252 047c.1699.8c32 arpa
+arp 10.122.102.254 94c6.912e.9eaa arpa
+arp 10.122.103.5 00e0.4c68.0350 arpa
+arp 10.122.103.21 94c6.910d.f42f arpa
+arp 10.122.103.90 000b.2f88.3d87 arpa
+arp 10.122.103.91 d050.998a.a8a5 arpa
+arp 10.122.103.98 0003.0ff4.a19a arpa
+arp 10.122.103.133 1111.1111.1111 arpa
+arp 10.122.103.141 1111.1111.1111 arpa
+arp 10.122.103.143 0021.86f6.1ba0 arpa
+arp 10.122.103.188 1111.1111.1111 arpa
+arp 10.122.104.89 4439.c48e.86da arpa
+arp 10.122.104.102 4439.c48e.862d arpa
+arp 10.122.104.103 1111.1111.1111 arpa
+arp 10.122.104.118 4439.c48e.86d7 arpa
+arp 10.122.104.121 4439.c48e.86b8 arpa
+arp 10.122.104.124 4439.c48e.8604 arpa
+arp 10.122.104.136 1111.1111.1111 arpa
+arp 10.122.104.151 1c6f.6503.4ab0 arpa
+arp 10.122.104.239 6451.065c.d368 arpa
+arp 10.122.106.1 1111.1111.1111 arpa
+arp 10.122.106.3 1111.1111.1111 arpa
+arp 10.122.106.4 1111.1111.1111 arpa
+arp 10.122.106.8 1111.1111.1111 arpa
+arp 10.122.106.9 1111.1111.1111 arpa
+arp 10.122.106.17 1111.1111.1111 arpa
+arp 10.122.106.19 1111.1111.1111 arpa
+arp 10.122.106.45 0024.21c1.5e13 arpa
+arp 10.122.106.46 0025.11e4.0cd5 arpa
+arp 10.122.106.47 0025.112d.701b arpa
+arp 10.122.106.48 0025.112d.6bb6 arpa
+arp 10.122.106.49 0025.11f1.fd3c arpa
+arp 10.122.106.50 0025.11e5.9193 arpa
+arp 10.122.106.51 0025.11e7.52d9 arpa
+arp 10.122.106.52 0025.11e6.0e6b arpa
+arp 10.122.106.53 0025.11e4.6a40 arpa
+arp 10.122.106.54 1111.1111.1111 arpa
+arp 10.122.106.55 0025.11f1.2fcc arpa
+arp 10.122.106.56 0025.11e6.0e39 arpa
+arp 10.122.106.57 0001.6c42.6248 arpa
+arp 10.122.106.58 0025.11f1.bf2b arpa
+arp 10.122.106.59 1111.1111.1111 arpa
+arp 10.122.106.60 1111.1111.1111 arpa
+arp 10.122.106.61 0025.112d.6a1b arpa
+arp 10.122.106.62 1111.1111.1111 arpa
+arp 10.122.106.63 0025.11e9.bd10 arpa
+arp 10.122.106.64 68f7.28b5.291c arpa
+arp 10.122.106.65 d8cb.8a0b.d715 arpa
+arp 10.122.106.66 0023.2484.7857 arpa
+arp 10.122.106.67 0023.2484.7869 arpa
+arp 10.122.106.68 d8cb.8a0b.bea8 arpa
+arp 10.122.106.69 d8cb.8a0b.c01b arpa
+arp 10.122.106.70 0023.2484.df72 arpa
+arp 10.122.106.71 448a.5be1.eeb4 arpa
+arp 10.122.106.72 d8cb.8a0b.d588 arpa
+arp 10.122.106.73 d8cb.8a0b.bfb8 arpa
+arp 10.122.106.74 d8cb.8a0b.d6d0 arpa
+arp 10.122.106.75 0023.2484.df53 arpa
+arp 10.122.106.76 d8cb.8a0b.bec1 arpa
+arp 10.122.106.77 d8cb.8a0b.bf99 arpa
+arp 10.122.106.78 d8cb.8a0b.bfcb arpa
+arp 10.122.106.79 d8cb.8a0b.bf9c arpa
+arp 10.122.106.80 d8cb.8a0b.bfc3 arpa
+arp 10.122.106.81 d8cb.8a0b.bfb1 arpa
+arp 10.122.106.82 d8cb.8a0b.c03b arpa
+arp 10.122.106.83 0023.2484.7826 arpa
+arp 10.122.106.84 0023.2484.786a arpa
+arp 10.122.106.85 0023.2484.def3 arpa
+arp 10.122.106.86 d8cb.8a0b.bfc9 arpa
+arp 10.122.106.87 d8cb.8a0b.d6c0 arpa
+arp 10.122.106.88 d8cb.8a0b.bfac arpa
+arp 10.122.106.89 d8cb.8a0b.bfbf arpa
+arp 10.122.106.90 d8cb.8a0b.bfa5 arpa
+arp 10.122.106.91 448a.5be4.b7e4 arpa
+arp 10.122.106.92 d8cb.8a0b.bfec arpa
+arp 10.122.106.93 d8cb.8a0b.bfbc arpa
+arp 10.122.106.94 d8cb.8a0b.bfc8 arpa
+arp 10.122.106.95 d8cb.8a0b.bfa7 arpa
+arp 10.122.106.96 68f7.28db.09bc arpa
+arp 10.122.106.97 d8cb.8a0b.bffd arpa
+arp 10.122.106.98 d8cb.8a0b.d77a arpa
+arp 10.122.106.99 d8cb.8a0b.bfb7 arpa
+arp 10.122.106.100 0023.2484.dea0 arpa
+arp 10.122.106.101 d8cb.8a0b.bfe7 arpa
+arp 10.122.106.102 d8cb.8a0b.bfd5 arpa
+arp 10.122.106.103 d8cb.8a0b.bf8c arpa
+arp 10.122.106.104 d8cb.8a0b.bfd6 arpa
+arp 10.122.106.105 d8cb.8a0b.d650 arpa
+arp 10.122.106.106 d8cb.8a0b.bf95 arpa
+arp 10.122.106.107 d8cb.8a0b.bfca arpa
+arp 10.122.106.108 d8cb.8a0b.beb2 arpa
+arp 10.122.106.109 d8cb.8a0b.bf8d arpa
+arp 10.122.106.110 d8cb.8a0b.bf00 arpa
+arp 10.122.106.111 d8cb.8a0b.bfe5 arpa
+arp 10.122.106.112 d8cb.8a0b.bfb5 arpa
+arp 10.122.106.113 d8cb.8a0b.bfb9 arpa
+arp 10.122.106.114 d8cb.8a0b.bfc1 arpa
+arp 10.122.106.115 d8cb.8a0b.bf90 arpa
+arp 10.122.106.116 d8cb.8a0b.bff0 arpa
+arp 10.122.106.117 d8cb.8a0b.bfef arpa
+arp 10.122.106.118 d8cb.8a0b.bdb3 arpa
+arp 10.122.106.119 0023.2484.df9d arpa
+arp 10.122.106.120 d8cb.8a0b.bef2 arpa
+arp 10.122.106.121 d8cb.8a0b.c03c arpa
+arp 10.122.106.122 d8cb.8a0b.bfa8 arpa
+arp 10.122.106.123 d8cb.8a0b.bfa3 arpa
+arp 10.122.106.124 d8cb.8a0b.c003 arpa
+arp 10.122.106.125 d8cb.8a0b.be60 arpa
+arp 10.122.106.126 d8cb.8a0b.c039 arpa
+arp 10.122.106.127 0023.2484.67c2 arpa
+arp 10.122.106.128 d8cb.8a0b.d5b6 arpa
+arp 10.122.106.129 d8cb.8a0b.bfbd arpa
+arp 10.122.106.130 0023.2484.df88 arpa
+arp 10.122.106.131 d8cb.8a0b.d5d8 arpa
+arp 10.122.106.132 d8cb.8a0b.beae arpa
+arp 10.122.106.133 d8cb.8a0b.c029 arpa
+arp 10.122.106.134 d8cb.8a0b.bfd7 arpa
+arp 10.122.106.135 d8cb.8a0b.c01f arpa
+arp 10.122.106.136 d8cb.8a0b.becc arpa
+arp 10.122.106.137 d8cb.8a0b.bfcc arpa
+arp 10.122.106.138 d8cb.8a0b.d749 arpa
+arp 10.122.106.139 d8cb.8a0b.cf01 arpa
+arp 10.122.106.140 d8cb.8a0b.bfba arpa
+arp 10.122.106.141 d8cb.8a0b.bfa1 arpa
+arp 10.122.106.142 00e0.ec29.0296 arpa
+arp 10.122.106.143 00e0.ec29.0264 arpa
+arp 10.122.106.144 00e0.6723.67a7 arpa
+arp 10.122.106.145 00e0.6720.9687 arpa
+arp 10.122.106.164 9408.c701.648f arpa
+arp 10.122.106.179 0001.6c57.3d2e arpa
+arp 10.122.106.186 0014.222d.f4ed arpa
+arp 10.122.106.187 6451.064a.ffe8 arpa
+arp 10.122.106.190 1111.1111.1111 arpa
+arp 10.122.106.191 e0be.038f.1f75 arpa
+arp 10.122.106.192 fc4d.d44c.f12d arpa
+arp 10.122.106.193 4439.c48e.85c5 arpa
+arp 10.122.106.194 f4f1.9e13.8ee5 arpa
+arp 10.122.106.199 1111.1111.1111 arpa
+arp 10.122.106.200 4437.e618.4ef9 arpa
+arp 10.122.106.201 e0be.0396.1f78 arpa
+arp 10.122.106.202 98ee.cb39.3c64 arpa
+arp 10.122.106.203 1111.1111.1111 arpa
+arp 10.122.106.204 f079.5969.3a38 arpa
+arp 10.122.106.205 fc4d.d44a.c9a0 arpa
+arp 10.122.106.206 1111.1111.1111 arpa
+arp 10.122.106.207 1111.1111.1111 arpa
+arp 10.122.106.208 1111.1111.1111 arpa
+arp 10.122.106.209 0a0e.0000.0e7c arpa
+arp 10.122.106.210 0a0e.0000.0e85 arpa
+arp 10.122.106.211 94de.8085.efc8 arpa
+arp 10.122.106.212 0a0e.0000.0e81 arpa
+arp 10.122.106.213 0a0e.0000.2b40 arpa
+arp 10.122.106.214 4ccc.6ae7.3c95 arpa
+arp 10.122.106.215 4ccc.6ae7.3ca5 arpa
+arp 10.122.106.216 4ccc.6ae7.2e82 arpa
+arp 10.122.106.217 4ccc.6ae7.3c83 arpa
+arp 10.122.106.218 4ccc.6ae7.3c9d arpa
+arp 10.122.106.219 4ccc.6ae7.3c7d arpa
+arp 10.122.106.220 4ccc.6ae7.3b7c arpa
+arp 10.122.106.221 4ccc.6ae7.3b3c arpa
+arp 10.122.106.222 4ccc.6ae7.3c82 arpa
+arp 10.122.106.223 4ccc.6ae7.2e67 arpa
+arp 10.122.106.224 4ccc.6ae7.3cfc arpa
+arp 10.122.106.225 4ccc.6ae7.2e20 arpa
+arp 10.122.106.226 1111.1111.1111 arpa
+arp 10.122.106.227 1111.1111.1111 arpa
+arp 10.122.106.228 1111.1111.1111 arpa
+arp 10.122.106.229 7804.e395.b7c8 arpa
+arp 10.122.106.230 1111.1111.1111 arpa
+arp 10.122.106.231 1111.1111.1111 arpa
+arp 10.122.106.232 0023.2493.3d33 arpa
+arp 10.122.106.233 68f7.28b5.23c4 arpa
+arp 10.122.106.234 68f7.28b5.2749 arpa
+arp 10.122.106.235 fc4d.d44c.f5c0 arpa
+arp 10.122.106.236 4437.e690.5672 arpa
+arp 10.122.106.237 7020.840e.6072 arpa
+arp 10.122.106.238 9408.c701.6ee7 arpa
+arp 10.122.106.251 1111.1111.1111 arpa
+arp 10.122.106.252 1111.1111.1111 arpa
+arp 10.122.106.253 1111.1111.1111 arpa
+arp 10.122.106.254 1111.1111.1111 arpa
+arp 10.122.108.1 e0be.031b.f465 arpa
+arp 10.122.108.3 94c6.912e.9eb2 arpa
+arp 10.122.108.4 4437.e690.5667 arpa
+arp 10.122.108.5 4ccc.6ae7.2e92 arpa
+arp 10.122.108.6 7020.8403.757d arpa
+arp 10.122.108.7 6451.065b.d673 arpa
+arp 10.122.108.8 7020.840e.6943 arpa
+arp 10.122.108.9 e0be.031b.f4bc arpa
+arp 10.122.108.10 047c.165e.e00e arpa
+arp 10.122.108.11 1111.1111.1111 arpa
+arp 10.122.108.12 047c.1699.922d arpa
+arp 10.122.108.13 047c.1696.8f49 arpa
+arp 10.122.108.14 00d8.6121.aaad arpa
+arp 10.122.108.15 fc4d.d44c.f5d4 arpa
+arp 10.122.108.16 4ccc.6ae7.3bdc arpa
+arp 10.122.108.17 7020.8403.765e arpa
+arp 10.122.108.18 94c6.9171.d27d arpa
+arp 10.122.108.19 e0be.031b.f487 arpa
+arp 10.122.108.20 00d8.6121.ab5e arpa
+arp 10.122.108.21 00d8.611d.f333 arpa
+arp 10.122.108.22 fc4d.d449.26b5 arpa
+arp 10.122.108.23 1111.1111.1111 arpa
+arp 10.122.108.24 2222.2222.2222 arpa
+arp 10.122.108.25 4437.e690.b343 arpa
+arp 10.122.108.26 7020.8405.5fbf arpa
+arp 10.122.108.27 6451.065b.d709 arpa
+arp 10.122.108.28 f8b1.56ab.3edf arpa
+arp 10.122.108.29 f8b1.56ab.33f0 arpa
+arp 10.122.108.30 4439.c48e.8602 arpa
+arp 10.122.108.31 4439.c48e.86ef arpa
+arp 10.122.108.32 7020.8403.7680 arpa
+arp 10.122.108.33 4ccc.6ae7.3cfc arpa
+arp 10.122.108.34 e0be.031b.f4c2 arpa
+arp 10.122.108.35 7020.8403.7683 arpa
+arp 10.122.108.36 7020.8405.5ede arpa
+arp 10.122.108.38 4437.e690.59c1 arpa
+arp 10.122.108.39 6c4b.90ce.f7da arpa
+arp 10.122.108.40 0021.8629.77e1 arpa
+arp 10.122.108.41 fc4d.d4d6.71b1 arpa
+arp 10.122.108.42 1111.1111.1111 arpa
+arp 10.122.108.43 5065.f327.c8d6 arpa
+arp 10.122.108.44 e0be.031b.f3d7 arpa
+arp 10.122.108.45 94c6.912e.9ec7 arpa
+arp 10.122.108.46 6451.065c.5119 arpa
+arp 10.122.108.47 6451.065d.4b43 arpa
+arp 10.122.108.48 94c6.912e.9e9a arpa
+arp 10.122.108.49 047c.1699.90db arpa
+arp 10.122.108.50 4439.c48e.ddd5 arpa
+arp 10.122.108.51 2cf0.5d4e.51b9 arpa
+arp 10.122.108.52 2222.2222.2222 arpa
+arp 10.122.108.53 00d8.61f4.f502 arpa
+arp 10.122.108.54 94c6.9171.d243 arpa
+arp 10.122.108.55 e0be.031b.f4d6 arpa
+arp 10.122.108.56 4ccc.6ae7.2e89 arpa
+arp 10.122.108.57 94c6.9123.a9e9 arpa
+arp 10.122.108.58 94c6.9171.dd39 arpa
+arp 10.122.108.59 94c6.912e.9ee0 arpa
+arp 10.122.108.60 94c6.9171.d160 arpa
+arp 10.122.108.61 94c6.912e.9af3 arpa
+arp 10.122.108.62 94c6.9170.6b7d arpa
+arp 10.122.108.63 94c6.912e.9ed8 arpa
+arp 10.122.108.64 4437.e660.1085 arpa
+arp 10.122.108.65 7020.8405.5045 arpa
+arp 10.122.108.66 7020.8403.76f3 arpa
+arp 10.122.108.67 7020.8403.75c1 arpa
+arp 10.122.108.68 4439.c48e.8668 arpa
+arp 10.122.108.69 2cf0.5dc4.9a2c arpa
+arp 10.122.108.70 2cf0.5d4e.5322 arpa
+arp 10.122.108.71 6451.0650.7c9e arpa
+arp 10.122.108.72 e0be.031b.f3cb arpa
+arp 10.122.108.73 047c.1696.99f8 arpa
+arp 10.122.108.74 fc4d.d44a.c9dd arpa
+arp 10.122.108.75 00d8.611b.a596 arpa
+arp 10.122.108.76 309c.23c6.8de0 arpa
+arp 10.122.108.77 4437.e650.cfdb arpa
+arp 10.122.108.78 1111.1111.1111 arpa
+arp 10.122.108.79 24be.0501.761f arpa
+arp 10.122.108.80 0021.8629.78a9 arpa
+arp 10.122.108.81 047c.165e.e03e arpa
+arp 10.122.108.82 047c.1699.8bf1 arpa
+arp 10.122.108.83 7020.8405.46de arpa
+arp 10.122.108.84 94c6.9171.d2a2 arpa
+arp 10.122.108.85 fc4d.d44c.f606 arpa
+arp 10.122.108.87 94c6.912e.9ecf arpa
+arp 10.122.108.88 047c.1699.90df arpa
+arp 10.122.108.89 e0be.031b.f461 arpa
+arp 10.122.108.90 e0be.031b.f41a arpa
+arp 10.122.108.92 54e1.ad21.60f3 arpa
+arp 10.122.108.93 047c.1628.1dfb arpa
+arp 10.122.108.94 00d8.6129.790a arpa
+arp 10.122.108.95 cc52.af4a.055b arpa
+arp 10.122.108.96 cc52.af4a.0745 arpa
+arp 10.122.108.97 4437.e690.59d3 arpa
+arp 10.122.108.98 00d8.6166.2dc8 arpa
+arp 10.122.108.99 fc4d.d44a.0c1e arpa
+arp 10.122.108.100 7020.840e.56bc arpa
+arp 10.122.108.101 00d8.611d.f2c6 arpa
+arp 10.122.108.102 4ccc.6ae7.2e25 arpa
+arp 10.122.108.104 e0be.031b.f449 arpa
+arp 10.122.108.105 4439.c48e.85ed arpa
+arp 10.122.108.106 1111.1111.1111 arpa
+arp 10.122.108.107 0023.2497.c229 arpa
+arp 10.122.108.108 1111.1111.1111 arpa
+arp 10.122.108.109 047c.1699.90e1 arpa
+arp 10.122.108.110 1111.1111.1111 arpa
+arp 10.122.108.111 00d8.61f4.f4e4 arpa
+arp 10.122.108.113 4437.e690.5672 arpa
+arp 10.122.108.114 fc4d.d449.3b05 arpa
+arp 10.122.108.115 00d8.61f4.f399 arpa
+arp 10.122.108.116 7020.8405.5a36 arpa
+arp 10.122.108.117 7020.8403.76cd arpa
+arp 10.122.108.118 4ccc.6ae7.3c45 arpa
+arp 10.122.108.119 4439.c48e.80e9 arpa
+arp 10.122.108.120 4439.c48e.81ba arpa
+arp 10.122.108.121 90f6.44ff.55ac arpa
+arp 10.122.108.122 6c0b.8403.9502 arpa
+arp 10.122.108.123 6451.0656.f484 arpa
+arp 10.122.108.124 00d8.6166.2b7a arpa
+arp 10.122.108.125 00d8.611b.a4ef arpa
+arp 10.122.108.126 2cf0.5d4e.535e arpa
+arp 10.122.108.127 fc4d.d44c.f5cc arpa
+arp 10.122.108.128 00d8.6129.7915 arpa
+arp 10.122.108.129 00d8.611b.a9ea arpa
+arp 10.122.108.130 7020.8403.7697 arpa
+arp 10.122.108.131 047c.1699.8bf6 arpa
+arp 10.122.108.132 7020.8405.5fdf arpa
+arp 10.122.108.133 2cf0.5dc4.9505 arpa
+arp 10.122.108.134 2cf0.5dc4.80e8 arpa
+arp 10.122.108.135 2cf0.5dc4.99f2 arpa
+arp 10.122.108.136 4437.e61b.944e arpa
+arp 10.122.108.137 fc4d.d44c.f5e7 arpa
+arp 10.122.108.138 7020.8405.5f44 arpa
+arp 10.122.108.139 e0be.031b.f4a3 arpa
+arp 10.122.108.140 fc4d.d44c.f5e0 arpa
+arp 10.122.108.141 e0be.031b.f504 arpa
+arp 10.122.108.142 2cf0.5d4e.51b5 arpa
+arp 10.122.108.143 2cf0.5d4e.52ee arpa
+arp 10.122.108.144 fc4d.d44a.0b8d arpa
+arp 10.122.108.145 6c0b.8403.936e arpa
+arp 10.122.108.146 7020.8405.5e77 arpa
+arp 10.122.108.147 00d8.61f4.f860 arpa
+arp 10.122.108.148 00d8.61f4.f41e arpa
+arp 10.122.108.149 00d8.61f4.f3d0 arpa
+arp 10.122.108.150 00d8.61f4.f49c arpa
+arp 10.122.108.151 2cf0.5dc4.80f0 arpa
+arp 10.122.108.152 6c0b.8443.59d4 arpa
+arp 10.122.108.153 6c0b.8442.f20f arpa
+arp 10.122.108.154 94c6.9171.d278 arpa
+arp 10.122.108.155 00d8.61f4.f855 arpa
+arp 10.122.108.156 e0be.031b.f3da arpa
+arp 10.122.108.157 1111.1111.1111 arpa
+arp 10.122.108.158 5065.f326.21cc arpa
+arp 10.122.108.159 047c.1699.90dd arpa
+arp 10.122.108.160 1111.1111.1111 arpa
+arp 10.122.108.161 2cf0.5d4e.5325 arpa
+arp 10.122.108.162 4439.c495.3203 arpa
+arp 10.122.108.163 047c.1628.1df2 arpa
+arp 10.122.108.164 4437.e665.f8d3 arpa
+arp 10.122.108.165 e0be.031b.f4b1 arpa
+arp 10.122.108.166 00d8.6129.7913 arpa
+arp 10.122.108.167 047c.169e.4903 arpa
+arp 10.122.108.168 207b.d2ee.2ecc arpa
+arp 10.122.108.169 00d8.6166.2d95 arpa
+arp 10.122.108.170 cc52.af4a.057a arpa
+arp 10.122.108.171 4ccc.6ae7.3ceb arpa
+arp 10.122.108.172 7020.8405.59e9 arpa
+arp 10.122.108.173 90f6.44ff.5604 arpa
+arp 10.122.108.174 7020.8403.7654 arpa
+arp 10.122.108.175 6c0b.843c.709d arpa
+arp 10.122.108.176 4439.c48e.86f6 arpa
+arp 10.122.108.177 16dc.dd55.7d8c arpa
+arp 10.122.108.178 4439.c48e.868a arpa
+arp 10.122.108.179 00d8.611b.a8a2 arpa
+arp 10.122.108.180 fc4d.d44a.0790 arpa
+arp 10.122.108.181 94c6.912e.9eba arpa
+arp 10.122.108.183 fc4d.d4f8.4a52 arpa
+arp 10.122.108.184 7020.8403.76ea arpa
+arp 10.122.108.185 2cf0.5d4e.535f arpa
+arp 10.122.108.186 1111.1111.1111 arpa
+arp 10.122.108.187 fc4d.d44c.f5cb arpa
+arp 10.122.108.188 fc4d.d44a.c39a arpa
+arp 10.122.108.189 6451.065c.d464 arpa
+arp 10.122.108.190 2cf0.5d4e.5314 arpa
+arp 10.122.108.191 047c.1696.a5f4 arpa
+arp 10.122.108.192 2cf0.5dc4.99fd arpa
+arp 10.122.108.193 1111.1111.1111 arpa
+arp 10.122.108.194 fc4d.d44a.bf06 arpa
+arp 10.122.108.195 94c6.9170.6c48 arpa
+arp 10.122.108.196 4439.c48e.db5e arpa
+arp 10.122.108.198 00d8.6129.78a6 arpa
+arp 10.122.108.199 6451.0650.7b70 arpa
+arp 10.122.108.200 e0be.031b.f474 arpa
+arp 10.122.108.201 047c.1696.99ec arpa
+arp 10.122.108.202 e0be.031b.f460 arpa
+arp 10.122.108.203 6c0b.8403.945d arpa
+arp 10.122.108.204 4ccc.6ae7.3cc7 arpa
+arp 10.122.108.205 6c0b.8403.9489 arpa
+arp 10.122.108.206 047c.169e.48d9 arpa
+arp 10.122.108.207 6c0b.8403.945c arpa
+arp 10.122.108.208 1111.1111.1111 arpa
+arp 10.122.108.209 047c.1696.8fe7 arpa
+arp 10.122.108.211 4ccc.6ae7.3c5e arpa
+arp 10.122.108.212 4437.e686.efba arpa
+arp 10.122.108.213 3448.edfe.b5b6 arpa
+arp 10.122.108.214 1111.1111.1111 arpa
+arp 10.122.108.215 fc4d.d44c.f635 arpa
+arp 10.122.108.216 7020.8405.5fa2 arpa
+arp 10.122.108.217 4ccc.6ae7.3c71 arpa
+arp 10.122.108.218 4ccc.6a2e.1522 arpa
+arp 10.122.108.219 2cf0.5dc4.812a arpa
+arp 10.122.108.220 e0be.031b.f4ae arpa
+arp 10.122.108.221 6451.065d.4b40 arpa
+arp 10.122.108.222 fc4d.d44c.f3d0 arpa
+arp 10.122.108.223 7497.814d.797c arpa
+arp 10.122.108.224 7020.8405.5f1a arpa
+arp 10.122.108.225 2cf0.5d4e.52f1 arpa
+arp 10.122.108.226 7020.840e.56b9 arpa
+arp 10.122.108.227 047c.165e.c0de arpa
+arp 10.122.108.228 047c.1696.99bf arpa
+arp 10.122.108.229 4ccc.6ae7.2e20 arpa
+arp 10.122.108.230 00d8.61f4.f398 arpa
+arp 10.122.108.231 6451.065b.d713 arpa
+arp 10.122.108.232 2cf0.5dc4.99de arpa
+arp 10.122.108.233 047c.1699.90dc arpa
+arp 10.122.108.234 0024.7e05.0aa0 arpa
+arp 10.122.108.235 7020.8403.7655 arpa
+arp 10.122.108.236 5065.f324.aaae arpa
+arp 10.122.108.237 94c6.912e.9df3 arpa
+arp 10.122.108.238 fc4d.d44b.fa9b arpa
+arp 10.122.108.239 7020.8403.76df arpa
+arp 10.122.108.240 e0be.031b.f417 arpa
+arp 10.122.108.241 fc4d.d4f8.4ec5 arpa
+arp 10.122.108.242 6c0b.8403.9441 arpa
+arp 10.122.108.243 2cf0.5d4e.51f6 arpa
+arp 10.122.108.244 988b.0a3d.3bcb arpa
+arp 10.122.108.245 7020.8403.76e7 arpa
+arp 10.122.108.246 fc4d.d44a.be4e arpa
+arp 10.122.108.247 047c.1696.8a5c arpa
+arp 10.122.108.248 1111.1111.1111 arpa
+arp 10.122.108.249 6c0b.8403.936e arpa
+arp 10.122.108.250 2cf0.5dc4.80e6 arpa
+arp 10.122.108.251 1111.1111.1111 arpa
+arp 10.122.108.252 1111.1111.1111 arpa
+arp 10.122.108.253 0010.c6b0.b6f6 arpa
+arp 10.122.108.254 4437.e690.5667 arpa
+!
+router ospf 100
+ graceful-restart
+ network 10.122.102.0 0.0.0.255 area 0.0.0.0
+ network 10.122.106.0 0.0.0.255 area 0.0.0.0
+ network 10.122.108.0 0.0.0.255 area 0.0.0.0
+ network 10.122.114.84 0.0.0.3 area 0.0.0.0
+ network 10.122.114.88 0.0.0.3 area 0.0.0.0
+ network 10.122.114.128 0.0.0.3 area 0.0.0.0
+ network 10.123.239.0 0.0.0.255 area 0.0.0.0
+!
+ip route 10.10.0.0 255.255.0.0 10.122.104.27
+ip route 10.13.0.0 255.255.0.0 10.122.104.27
+ip route 10.19.0.0 255.255.0.0 10.122.104.27
+!
+snmp-server host 10.122.100.33 traps version 2c v2c
+snmp-server host 10.122.100.24 traps version 2c v2c
+snmp-server host 10.122.100.59 traps version 2c v2c
+snmp-server community 7 034038150b310d764c ro 
+!
+line console 0
+line vty 0 35
+ transport input ssh
+ timeout login response 60
+ access-class 1 in
+ login local
+!
+end

@@ -1,0 +1,1454 @@
+﻿HeXinJiaoHuanJi_2#show running-config 
+Building configuration...
+
+Current configuration : 41338 bytes
+!
+! Last configuration change at 01:02:22 UTC Fri Jun 28 2024 by admin
+! NVRAM config last updated at 01:02:23 UTC Fri Jun 28 2024 by admin
+!
+version 12.2
+service timestamps debug uptime
+service timestamps log uptime
+service password-encryption
+service counters max age 10
+!
+hostname HeXinJiaoHuanJi_2
+!
+enable password 7 0017120B520E181301266C
+!
+username admin password 7 06150E2C1A1B1A0C0B1032
+no aaa new-model
+ip subnet-zero
+!
+!
+no ip domain-lookup
+!
+ip multicast-routing 
+mls ip multicast flow-stat-timer 9
+no mls flow ip
+no mls flow ipv6
+mls cef error action freeze
+spanning-tree mode pvst
+no spanning-tree optimize bpdu transmission
+diagnostic cns publish cisco.cns.device.diag_results
+diagnostic cns subscribe cisco.cns.device.diag_commands
+!
+redundancy
+ mode sso
+ main-cpu
+  auto-sync running-config
+!
+vlan internal allocation policy ascending
+vlan access-log ratelimit 2000
+!
+!
+interface Loopback114
+ ip address 10.122.114.225 255.255.255.255
+!
+interface Port-channel1
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel2
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel3
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel4
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel5
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel6
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel7
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel8
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel9
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel10
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel44
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface Port-channel100
+ description To_HeXi1_C6509
+ ip address 10.122.114.137 255.255.255.252
+!
+interface Port-channel256
+ description To_FW(G1/5)_DiDiao_NE40E_GE1/1/5 
+ ip address 10.122.119.58 255.255.255.248
+ ip access-group port445 in
+ ip access-group port445 out
+!
+interface GigabitEthernet1/1
+ description To_WangGuanJi
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/2
+ description ShiTangShouFan
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102,108,630
+ switchport mode trunk
+!
+interface GigabitEthernet1/3
+ description To_JiFangWangGuan
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/4
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/5
+ no ip address
+!
+interface GigabitEthernet1/6
+ description To_FW(G1/5)_DiDiao_NE40E_GE1/1/5 
+ no ip address
+ channel-group 256 mode active
+!
+interface GigabitEthernet1/7
+ description To_FW(G1/5)_DiDiao_NE40E_GE1/1/5 
+ no ip address
+ channel-group 256 mode active
+!
+interface GigabitEthernet1/8
+ description To_FW(G1/5)_DiDiao_NE40E_GE1/1/5 
+ no ip address
+ channel-group 256 mode active
+!
+interface GigabitEthernet1/9
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/10
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/11
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/12
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/13
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/14
+ description To_TaiShiGanZhi1_GuanLi
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/15
+ description i6000xingnengjiance
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 102
+ switchport mode access
+!
+interface GigabitEthernet1/16
+ description To_TaiShiGanZhi2_GuanLi
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/17
+ description To_IpsJingXiang
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/18
+ description To_TaiShiGanZhi_JingXiang
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/19
+ description To_HengShuiZhan_C3560
+ ip address 10.122.114.38 255.255.255.252
+!
+interface GigabitEthernet1/20
+ description To_YingGaoASC_E2_10.122.102.244
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 102
+ switchport mode access
+!
+interface GigabitEthernet1/21
+ description To_YingGaoASM_E0_TRUNK
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface GigabitEthernet1/22
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/23
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/24
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/25
+ description To_ShiTangShouFan
+ no ip address
+ switchport
+ switchport access vlan 630
+ switchport mode access
+!
+interface GigabitEthernet1/26
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/27
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/28
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/29
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/30
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/31
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/32
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/33
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/34
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/35
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/36
+ no ip address
+ shutdown 
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/37
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/38
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/39
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/40
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/41
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/42
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/43
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/44
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 44 mode active
+!
+interface GigabitEthernet1/45
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet1/46
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 44 mode active
+!
+interface GigabitEthernet1/47
+ description To_XianJuHuiJu_FW
+ ip address 10.122.119.25 255.255.255.248
+!
+interface GigabitEthernet1/48
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 102
+ switchport mode access
+!
+interface GigabitEthernet2/1
+ description To_ShengGongSi_SR6604-2
+ ip address 10.122.119.11 255.255.255.248
+ shutdown
+!
+interface GigabitEthernet2/2
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 104
+ switchport mode access
+!
+interface GigabitEthernet2/3
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/4
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/5
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/6
+ description To_IdsGuanli
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/7
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/8
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/9
+ description To_QianPuZhanHuLian_G0/4
+ ip address 10.122.114.1 255.255.255.252
+!
+interface GigabitEthernet2/10
+ no ip address
+ shutdown 
+!
+interface GigabitEthernet2/11
+ description To_IdsJingXiang
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/12
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/13
+ description To_LouDongSaoMiao
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 102
+ switchport mode access
+!
+interface GigabitEthernet2/14
+ description To_IpsWangGuan
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/15
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/16
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/17
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/18
+ description To_FuWuQiYu_JiaoHuanJi
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/19
+ description CeSu
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 102
+ switchport mode access
+!
+interface GigabitEthernet2/20
+ description To-ZhuanBao
+ ip address 192.168.1.1 255.255.255.0
+ shutdown
+!
+interface GigabitEthernet2/21
+ description To_ShiTangShouFan
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 630
+ switchport mode access
+!
+interface GigabitEthernet2/22
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/23
+ description To_HuaFangJingXiang
+ no ip address
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/24
+ description To_HuaFangGongZuo
+ no ip address
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface GigabitEthernet2/25
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/26
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/27
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/28
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/29
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/30
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/31
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/32
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/33
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/34
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/35
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/36
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/37
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/38
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/39
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/40
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/41
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/42
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/43
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/44
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/45
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/46
+ no ip address
+ shutdown
+ switchport
+ switchport mode access
+!
+interface GigabitEthernet2/47
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 105
+ switchport mode access
+!
+interface GigabitEthernet2/48
+ description To_PeiXunZhongXin_H3C_S2152_E1/0/1
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface GigabitEthernet3/1
+ no ip address
+ shutdown
+ speed nonegotiate
+!
+interface GigabitEthernet3/2
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 2 mode desirable
+!
+interface GigabitEthernet3/3
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 3 mode desirable
+!
+interface GigabitEthernet3/4
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 4 mode desirable
+!
+interface GigabitEthernet3/5
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 5 mode desirable
+!
+interface GigabitEthernet3/6
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 6 mode desirable
+!
+interface GigabitEthernet3/7
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 7 mode desirable
+!
+interface GigabitEthernet3/8
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 8 mode desirable
+!
+interface GigabitEthernet3/9
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 9 mode desirable
+!
+interface GigabitEthernet3/10
+ description To_15Lou_BoDa_3448
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport access vlan 110
+ switchport mode access
+!
+interface GigabitEthernet3/11
+ description To_HengShui_RuiJie_2
+ ip address 10.122.114.86 255.255.255.252
+ speed nonegotiate
+!
+interface GigabitEthernet3/12
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 102
+!
+interface GigabitEthernet3/13
+ description TO_WuZi_OLT
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 102,1000
+ switchport mode trunk
+!
+interface GigabitEthernet3/14
+ no ip address
+ shutdown
+!
+interface GigabitEthernet3/15
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport access vlan 105
+!
+interface GigabitEthernet3/16
+ description To_HeZhuangHuiJu_H3C_S5500_G1/0/2
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport access vlan 107
+!
+interface GigabitEthernet3/17
+ description To_HeZhuangHuiJu_H3C_S5500_G1/0/2
+ no ip address
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 630,999
+ switchport mode trunk
+!
+interface GigabitEthernet3/18
+ description TO-LuBeiYingYeTing
+ no ip address
+ shutdown
+ switchport
+ switchport access vlan 110
+ switchport mode access
+!
+interface GigabitEthernet3/19
+ no ip address
+ shutdown
+!
+interface GigabitEthernet3/20
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,108
+ switchport mode trunk
+!
+interface GigabitEthernet3/21
+ no ip address
+ channel-group 100 mode active
+!
+interface GigabitEthernet3/22
+ no ip address
+ channel-group 100 mode active
+!
+interface GigabitEthernet3/23
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface GigabitEthernet3/24
+ description To_DiaoDuZongShuWang_NE40E-X6_VPN602
+ ip address 10.122.114.142 255.255.255.252
+!
+interface GigabitEthernet4/1
+ description To_8Lou_10.122.100.94
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102,108
+ switchport mode trunk
+!
+interface GigabitEthernet4/2
+ description To_8Lou_10.122.100.95
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102,108,239
+ switchport mode trunk
+!
+interface GigabitEthernet4/3
+ description To_8Lou_10.122.100.96
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102,108
+ switchport mode trunk
+!
+interface GigabitEthernet4/4
+ description To_8Lou_10.122.100.93
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102,108
+ switchport mode trunk
+!
+interface GigabitEthernet4/5
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 5 mode desirable
+!
+interface GigabitEthernet4/6
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 6 mode desirable
+!
+interface GigabitEthernet4/7
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 7 mode desirable
+!
+interface GigabitEthernet4/8
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 8 mode desirable
+!
+interface GigabitEthernet4/9
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 9 mode desirable
+!
+interface GigabitEthernet4/10
+ no ip address
+ shutdown
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ channel-group 10 mode desirable
+!
+interface GigabitEthernet4/11
+ description To_13Lou_10.122.100.90
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102
+ switchport mode trunk
+!
+interface GigabitEthernet4/12
+ description To_13Lou_10.122.100.91
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102
+ switchport mode trunk
+!
+interface GigabitEthernet4/13
+ description To_13Lou_10.122.100.92
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,102
+ switchport mode trunk
+!
+interface GigabitEthernet4/14
+ description 1
+ no ip address
+ shutdown
+ speed nonegotiate
+ channel-group 256 mode active
+!
+interface GigabitEthernet4/15
+ description To_ZongGongSi
+ no ip address
+ speed nonegotiate
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 630,1001
+ switchport mode trunk
+!
+interface GigabitEthernet4/16
+ no ip address
+ shutdown
+!
+interface GigabitEthernet4/17
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport access vlan 102
+!
+interface GigabitEthernet4/18
+ description To_ShiTangShouFan
+ no ip address
+ shutdown
+ speed nonegotiate
+ switchport
+ switchport access vlan 630
+ switchport mode access
+!
+interface GigabitEthernet4/19
+ no ip address
+ shutdown
+!
+interface GigabitEthernet4/20
+ no ip address
+ shutdown
+!
+interface GigabitEthernet4/21
+ no ip address
+ shutdown
+!
+interface GigabitEthernet4/22
+ no ip address
+ shutdown
+!
+interface GigabitEthernet4/23
+ no ip address
+ shutdown
+!
+interface GigabitEthernet4/24
+ no ip address
+ shutdown
+!
+interface GigabitEthernet5/1
+ no ip address
+ shutdown
+!
+interface GigabitEthernet5/2
+ no ip address
+ shutdown
+!
+interface GigabitEthernet6/1
+ no ip address
+ shutdown 
+!
+interface GigabitEthernet6/2
+ no ip address
+ shutdown
+!
+interface Vlan1
+ ip address 10.122.100.6 255.255.255.0 secondary
+ ip address 10.122.100.5 255.255.255.0
+ no ip redirects
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan102
+ no ip address
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan106
+ description To_PeiXunZhongXin
+ no ip address
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan107
+ no ip address
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan108
+ no ip address
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan109
+ no ip address
+ shutdown
+!
+interface Vlan110
+ no ip address
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan111
+ no ip address
+!
+interface Vlan239
+ no ip address
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan630
+ description ShiTangShouFan
+ ip address 172.20.1.101 255.255.255.0
+!
+interface Vlan999
+ description To_HeZhuangHuiJu_H3C_S5500_G1/0/2
+ ip address 10.122.114.109 255.255.255.252
+!
+interface Vlan1000
+ description WuZiOLT_GuanLi
+ ip address 10.122.114.69 255.255.255.252
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan1001
+ description To_ZongGongSi_HuLian
+ ip address 10.122.114.81 255.255.255.252
+ no ip proxy-arp
+ ip pim dense-mode
+!
+interface Vlan2000
+ no ip address
+ no ip proxy-arp
+ ip pim dense-mode
+!
+router ospf 100
+ log-adjacency-changes
+ redistribute static subnets
+ network 10.122.100.0 0.0.0.255 area 0.0.0.0
+ network 10.122.114.0 0.0.0.3 area 0.0.0.0
+ network 10.122.114.36 0.0.0.3 area 0.0.0.0
+ network 10.122.114.68 0.0.0.3 area 0.0.0.0
+ network 10.122.114.80 0.0.0.3 area 0.0.0.0
+ network 10.122.114.84 0.0.0.3 area 0.0.0.0
+ network 10.122.114.108 0.0.0.3 area 0.0.0.0
+ network 10.122.114.136 0.0.0.3 area 0.0.0.0
+ network 10.122.114.225 0.0.0.0 area 0.0.0.0
+ network 10.122.119.8 0.0.0.7 area 0.0.0.0
+ network 10.122.119.24 0.0.0.7 area 0.0.0.0
+ network 10.122.119.56 0.0.0.7 area 0.0.0.0
+ default-information originate always
+!
+ip classless
+ip route 0.0.0.0 0.0.0.0 10.122.100.100 180
+ip route 10.10.0.0 255.255.0.0 10.122.104.27
+ip route 10.13.0.0 255.255.0.0 10.122.104.27
+ip route 10.19.0.0 255.255.0.0 10.122.104.27
+ip route 10.122.111.0 255.255.255.248 10.122.114.141 150 name bodaceshi
+ip route 10.122.112.0 255.255.255.248 10.122.114.141 150 name XinQiao_YeWu
+ip route 10.122.112.8 255.255.255.248 10.122.114.141 150 name MeiZHuang_YeWu
+ip route 10.122.112.16 255.255.255.248 10.122.114.141 150 name QingLiangDianYeWu
+ip route 10.122.112.24 255.255.255.248 10.122.114.141 150 name YuQuanYeWu
+ip route 10.122.112.32 255.255.255.248 10.122.114.141 150 name XingWang
+ip route 10.122.112.40 255.255.255.248 10.122.114.141 150 name beiqu
+ip route 10.122.112.48 255.255.255.248 10.122.114.141 150 name Weiqiao
+ip route 10.122.112.56 255.255.255.248 10.122.114.141 150 name GuanZhuang
+ip route 10.122.112.64 255.255.255.248 10.122.114.141 150 name TuanMa
+ip route 10.122.112.72 255.255.255.248 10.122.114.141 150 name TanZhuang
+ip route 10.122.112.80 255.255.255.248 10.122.114.141 150 name HouAn
+ip route 10.122.112.88 255.255.255.248 10.122.114.141 150 name KongWu
+ip route 10.122.112.96 255.255.255.248 10.122.114.141 150 name ZaoQiang
+ip route 10.122.112.104 255.255.255.248 10.122.114.141 150 name JieGuan
+ip route 10.122.112.112 255.255.255.248 10.122.114.141 150 name QingFengYeWu
+ip route 10.122.112.120 255.255.255.248 10.122.114.141 150 name TaiChengCun
+ip route 10.122.112.128 255.255.255.248 10.122.114.141 150 name ChangSheng_YeWu
+ip route 10.122.112.136 255.255.255.248 10.122.114.141 150 name Shunhe_YeWu
+ip route 10.122.112.144 255.255.255.248 10.122.114.141 150 name BinHu_YeWu
+ip route 10.122.112.152 255.255.255.248 10.122.114.141 150 name QingHuan_YeWu
+ip route 10.122.112.160 255.255.255.248 10.122.114.141 150 name DongLiTun_YeWu
+ip route 10.122.112.168 255.255.255.248 10.122.114.141 150 name XinZhuang_YeWu
+ip route 10.122.113.0 255.255.255.252 10.122.114.141 150 name ChuYi
+ip route 10.122.113.4 255.255.255.252 10.122.114.141 150 name BeiDai
+ip route 10.122.113.8 255.255.255.252 10.122.114.141 150 name CuiChi_hulian
+ip route 10.122.113.12 255.255.255.252 10.122.114.141 150 name TaiGuZhuang
+ip route 10.122.113.24 255.255.255.252 10.122.114.141 150 name FuDe
+ip route 10.122.113.32 255.255.255.252 10.122.114.141 150 name TaiChengHuLian
+ip route 10.122.113.36 255.255.255.252 10.122.114.141 150 name XinHua_HuLian
+ip route 10.122.113.40 255.255.255.252 10.122.114.141 150 name AnPingZhan
+ip route 10.122.113.44 255.255.255.252 10.122.114.141 150 name DiaoDu9Lou
+ip route 10.122.113.72 255.255.255.252 10.122.114.141 150 name XinZhuang_HuLian
+ip route 10.122.113.80 255.255.255.252 10.122.114.141 150 name QingHan_HuLian
+ip route 10.122.113.84 255.255.255.252 10.122.114.141 150 name BinHu_HuLian
+ip route 10.122.113.88 255.255.255.252 10.122.114.141 150 name Shunhe_HuLian
+ip route 10.122.113.92 255.255.255.252 10.122.114.141 150 name QingFeng_HuLian
+ip route 10.122.113.96 255.255.255.252 10.122.114.141 150 name XingWang-HuLian
+ip route 10.122.113.100 255.255.255.252 10.122.114.141 150 name ZhangTian_HuLian
+ip route 10.122.113.104 255.255.255.252 10.122.114.141 150 name YuQuanHuLian
+ip route 10.122.113.108 255.255.255.252 10.122.114.141 150 name QingLiangDian
+ip route 10.122.113.112 255.255.255.252 10.122.114.141 150 name MeiZhuangZhanHuLian
+ip route 10.122.113.116 255.255.255.252 10.122.114.141 150 name XinQiao_HuLian
+ip route 10.122.113.120 255.255.255.252 10.122.114.141 150 name guchenghulian
+ip route 10.122.113.124 255.255.255.252 10.122.114.141 150 name RaoYangZhan_LinShi
+ip route 10.122.113.128 255.255.255.252 10.122.114.141 150 name guoxi_hulian
+ip route 10.122.113.132 255.255.255.252 10.122.114.141 150 name boling
+ip route 10.122.113.136 255.255.255.252 10.122.114.141 150 name tongxin
+ip route 10.122.113.140 255.255.255.252 10.122.114.141 150 name tangfeng
+ip route 10.122.113.144 255.255.255.252 10.122.114.141 150 name dahe
+ip route 10.122.113.148 255.255.255.252 10.122.114.141 150 name shenxianzhan
+ip route 10.122.113.156 255.255.255.252 10.122.114.141 150 name fuyang
+ip route 10.122.113.160 255.255.255.252 10.122.114.141 150 name NingAn
+ip route 10.122.113.164 255.255.255.252 10.122.114.141 150 name YunJianFenBu_HuLian
+ip route 10.122.113.168 255.255.255.252 10.122.114.141 150 name TuoYang
+ip route 10.122.113.172 255.255.255.252 10.122.114.141 150 name TongDa
+ip route 10.122.113.176 255.255.255.252 10.122.114.141 150 name TuanMa
+ip route 10.122.113.180 255.255.255.252 10.122.114.141 150 name XiWang
+ip route 10.122.113.188 255.255.255.252 10.122.114.141 150 name GuangChang
+ip route 10.122.113.192 255.255.255.252 10.122.114.141 150 name weiqiao
+ip route 10.122.113.196 255.255.255.252 10.122.114.141 150 name wangjiajing
+ip route 10.122.113.200 255.255.255.252 10.122.114.141 150 name JiLu
+ip route 10.122.113.204 255.255.255.252 10.122.114.141 150 name LongMa
+ip route 10.122.113.208 255.255.255.252 10.122.114.141 150 name XiaZhuang
+ip route 10.122.113.212 255.255.255.252 10.122.114.141 150 name XiYuan
+ip route 10.122.113.216 255.255.255.252 10.122.114.141 150 name JiXian
+ip route 10.122.113.220 255.255.255.252 10.122.114.141 150 name XiSha
+ip route 10.122.113.224 255.255.255.252 10.122.114.141 150 name GuangChuan
+ip route 10.122.113.228 255.255.255.252 10.122.114.141 150 name WangDu
+ip route 10.122.113.232 255.255.255.252 10.122.114.141 150 name QiZhuang
+ip route 10.122.113.236 255.255.255.252 10.122.114.141 150 name ZhongWang
+ip route 10.122.113.240 255.255.255.252 10.122.114.141 150 name ChenShi
+ip route 10.122.113.244 255.255.255.252 10.122.114.141 150 name QianYing
+ip route 10.122.113.248 255.255.255.252 10.122.114.141 150 name HeZhuang
+ip route 10.122.113.252 255.255.255.252 10.122.114.141 150 name HuDong
+ip route 10.122.114.32 255.255.255.252 10.122.114.141 name GuCheng
+ip route 10.122.114.112 255.255.255.252 10.122.114.141 name SuCun
+ip route 10.122.114.232 255.255.255.255 10.122.114.141 150 name YangCunGuanLi
+ip route 10.122.114.233 255.255.255.255 10.122.114.141 150 name SuCun
+ip route 10.122.114.234 255.255.255.255 10.122.114.141 150 name GuCheng
+ip route 10.122.114.235 255.255.255.255 10.122.114.141 150 name LongMa
+ip route 10.122.114.240 255.255.255.255 10.122.114.141 150 name CuiChi_Guanli
+ip route 10.122.114.242 255.255.255.255 10.122.114.141 150 name PengDuGuanLi
+ip route 10.122.115.16 255.255.255.240 10.122.114.141 150 name ChuYi
+ip route 10.122.115.64 255.255.255.240 10.122.114.141 150 name SuCun
+ip route 10.122.115.80 255.255.255.240 10.122.114.141 name GuCheng
+ip route 10.122.115.96 255.255.255.240 10.122.114.141 150 name LongMa
+ip route 10.122.115.208 255.255.255.240 10.122.114.141 150 name AnPingZhan
+ip route 10.122.115.240 255.255.255.240 10.122.114.141 150 name BeiDai
+ip route 10.122.116.16 255.255.255.240 10.122.114.141 150 name TaiGuZhuang
+ip route 10.122.116.32 255.255.255.240 10.122.114.141 150 name GuangChang
+ip route 10.122.116.48 255.255.255.240 10.122.114.141 150 name FuDe
+ip route 10.122.116.64 255.255.255.240 10.122.114.141 150 name TaiChengYeWu
+ip route 10.122.116.96 255.255.255.240 10.122.114.141 150 name DiaoDu9Lou_YeWu
+ip route 10.122.116.112 255.255.255.240 10.122.114.141 150 name HeZhuangXianLuJianCeDaTing
+ip route 10.122.116.128 255.255.255.240 10.122.114.141 150 name QianPuBeiDiao
+ip route 10.122.116.144 255.255.255.240 10.122.114.141 150 name ZhangTianZhan_2
+ip route 10.122.116.160 255.255.255.224 10.122.114.141 150 name CheDui
+ip route 10.122.116.192 255.255.255.240 10.122.114.141 150 name HeZhuangXianLuJianCeDaTing2
+ip route 10.122.116.224 255.255.255.240 10.122.114.141 150 name ShiMinZhongXin
+ip route 10.122.117.0 255.255.255.248 10.122.114.141 150 name WangDu
+ip route 10.122.117.8 255.255.255.248 10.122.114.141 150 name GuangChuan
+ip route 10.122.117.16 255.255.255.248 10.122.114.141 150 name HeZhuang
+ip route 10.122.117.24 255.255.255.248 10.122.114.141 150 name ZhongWang
+ip route 10.122.117.32 255.255.255.248 10.122.114.141 150 name QiZhuang
+ip route 10.122.117.40 255.255.255.248 10.122.114.141 150 name HuDong
+ip route 10.122.117.48 255.255.255.248 10.122.114.141 150 name tongxin
+ip route 10.122.117.56 255.255.255.248 10.122.114.141 150 name QianYing
+ip route 10.122.117.64 255.255.255.248 10.122.114.141 150 name ChenShi
+ip route 10.122.117.72 255.255.255.248 10.122.114.141 150 name boling
+ip route 10.122.117.80 255.255.255.248 10.122.114.141 150 name XiSha
+ip route 10.122.117.88 255.255.255.248 10.122.114.141 150 name JiXian
+ip route 10.122.117.96 255.255.255.248 10.122.114.141 150 name XiYuan
+ip route 10.122.117.104 255.255.255.248 10.122.114.141 150 name XiaZhuang
+ip route 10.122.117.112 255.255.255.248 10.122.114.141 150 name guoxi_yewu
+ip route 10.122.117.120 255.255.255.248 10.122.114.141 150 name JiLu
+ip route 10.122.117.128 255.255.255.248 10.122.114.141 150 name wangjiajing
+ip route 10.122.117.136 255.255.255.248 10.122.114.141 150 name weiqiao
+ip route 10.122.117.144 255.255.255.248 10.122.114.141 150 name WuQiangZhan
+ip route 10.122.117.152 255.255.255.248 10.122.114.141 150 name XiWang
+ip route 10.122.117.160 255.255.255.248 10.122.114.141 150 name GuangChang
+ip route 10.122.117.168 255.255.255.248 10.122.114.141 150 name DaYingZhan
+ip route 10.122.117.176 255.255.255.248 10.122.114.141 150 name TongDa
+ip route 10.122.117.184 255.255.255.248 10.122.114.141 150 name TuoYang
+ip route 10.122.117.192 255.255.255.248 10.122.114.141 150 name NingAn
+ip route 10.122.117.200 255.255.255.248 10.122.114.141 150 name fuyang
+ip route 10.122.117.208 255.255.255.248 10.122.114.141 150 name changle
+ip route 10.122.117.216 255.255.255.248 10.122.114.141 150 name shenxianzhan
+ip route 10.122.117.224 255.255.255.248 10.122.114.141 150 name dahe
+ip route 10.122.117.232 255.255.255.248 10.122.114.141 150 name tangfeng
+ip route 10.122.117.240 255.255.255.248 10.122.114.141 150 name XinHua_YeWu
+ip route 10.122.117.248 255.255.255.248 10.122.114.141 150 name guchengyewu
+no ip http server
+!
+!
+!
+ip access-list extended port445
+ deny   tcp any any eq 135
+ deny   tcp any any eq 137
+ deny   tcp any any eq 138
+ deny   tcp any any eq 139
+ deny   tcp any any eq 445
+ permit ip any any
+!
+logging 10.122.100.90
+logging 10.122.100.11
+access-list 1 permit 10.122.100.16
+access-list 1 permit 10.122.108.62
+access-list 1 permit 10.122.100.0 0.0.0.255
+access-list 1 deny   any
+access-list 100 permit ip 10.122.0.0 0.0.255.255 10.122.101.0 0.0.0.255
+access-list 101 permit ip 10.122.101.0 0.0.0.255 10.122.0.0 0.0.255.255
+arp 10.122.100.20 1111.1111.1111 ARPA
+arp 10.122.100.21 9cc2.c455.e708 ARPA
+arp 10.122.100.23 7cd3.0ab2.bc24 ARPA
+arp 10.122.100.17 1111.1111.1111 ARPA
+arp 10.122.100.18 1111.1111.1111 ARPA
+arp 10.122.100.19 001d.0923.d257 ARPA
+arp 10.122.100.28 0894.ef68.a392 ARPA
+arp 10.122.100.29 1111.1111.1111 ARPA
+arp 10.122.100.30 0894.ef68.a0d0 ARPA
+arp 10.122.100.31 1111.1111.1111 ARPA
+arp 10.122.100.24 0894.ef68.a392 ARPA
+arp 10.122.100.25 1111.1111.1111 ARPA
+arp 10.122.100.26 1111.1111.1111 ARPA
+arp 10.122.100.27 0894.ef68.a392 ARPA
+arp 10.122.100.4 000c.297e.70d6 ARPA
+arp 10.122.100.7 1111.1111.1111 ARPA
+arp 10.122.100.1 1111.1111.1111 ARPA
+arp 10.122.100.2 1111.1111.1111 ARPA
+arp 10.122.100.3 2004.0fea.67f0 ARPA
+arp 10.122.100.12 1111.1111.1111 ARPA
+arp 10.122.100.13 0024.ac03.95c0 ARPA
+arp 10.122.100.14 9845.62f4.05cc ARPA
+arp 10.122.100.15 1111.1111.1111 ARPA
+arp 10.122.100.8 d08e.79c9.2321 ARPA
+arp 10.122.100.10 0024.acda.21b6 ARPA
+arp 10.122.100.52 d4ae.527f.d01c ARPA
+arp 10.122.100.54 1111.1111.1111 ARPA
+arp 10.122.100.55 1111.1111.1111 ARPA
+arp 10.122.100.48 1111.1111.1111 ARPA
+arp 10.122.100.50 1111.1111.1111 ARPA
+arp 10.122.100.60 001d.0904.2453 ARPA
+arp 10.122.100.61 0010.74b5.1f84 ARPA
+arp 10.122.100.62 0010.74b5.1f7a ARPA
+arp 10.122.100.56 c81f.66b9.5046 ARPA
+arp 10.122.100.59 2004.0ff2.7126 ARPA
+arp 10.122.100.37 1111.1111.1111 ARPA
+arp 10.122.100.38 1111.1111.1111 ARPA
+arp 10.122.100.39 1111.1111.1111 ARPA
+arp 10.122.100.32 5405.db7b.dc3b ARPA
+arp 10.122.100.33 00e0.81d8.e9da ARPA
+arp 10.122.100.34 1111.1111.1111 ARPA
+arp 10.122.100.45 6c92.bf10.04a3 ARPA
+arp 10.122.100.46 001d.0901.cd56 ARPA
+arp 10.122.100.47 001d.0901.cd56 ARPA
+arp 10.122.100.40 1111.1111.1111 ARPA
+arp 10.122.100.41 1111.1111.1111 ARPA
+arp 10.122.100.42 7cd3.0ab3.9208 ARPA
+arp 10.122.100.84 000c.2911.d167 ARPA
+arp 10.122.100.85 000c.2918.39a0 ARPA
+arp 10.122.100.86 000c.29f6.b2e3 ARPA
+arp 10.122.100.87 9845.62a7.b15f ARPA
+arp 10.122.100.80 90e7.10e4.833e ARPA
+arp 10.122.100.82 9c52.f874.4fce ARPA
+arp 10.122.100.83 000c.2967.0608 ARPA
+arp 10.122.100.92 1111.1111.1111 ARPA
+arp 10.122.100.95 8c14.7dd1.9a6a ARPA
+arp 10.122.100.88 000c.297e.70d6 ARPA
+arp 10.122.100.91 1111.1111.1111 ARPA
+arp 10.122.100.68 1111.1111.1111 ARPA
+arp 10.122.100.69 0040.4827.7d8b ARPA
+arp 10.122.100.70 0009.f604.3940 ARPA
+arp 10.122.100.71 001d.0923.e8b9 ARPA
+arp 10.122.100.65 1111.1111.1111 ARPA
+arp 10.122.100.66 00e0.d814.10ab ARPA
+arp 10.122.100.67 1111.1111.1111 ARPA
+arp 10.122.100.76 1111.1111.1111 ARPA
+arp 10.122.100.77 1111.1111.1111 ARPA
+arp 10.122.100.72 7cd3.0ab3.96b4 ARPA
+arp 10.122.100.73 000e.4551.3e70 ARPA
+arp 10.122.100.74 1111.1111.1111 ARPA
+arp 10.122.100.75 1111.1111.1111 ARPA
+arp 10.122.100.116 1111.1111.1111 ARPA
+arp 10.122.100.117 1111.1111.1111 ARPA
+arp 10.122.100.118 1111.1111.1111 ARPA
+arp 10.122.100.119 1111.1111.1111 ARPA
+arp 10.122.100.112 1111.1111.1111 ARPA
+arp 10.122.100.113 1111.1111.1111 ARPA
+arp 10.122.100.114 1111.1111.1111 ARPA
+arp 10.122.100.115 1111.1111.1111 ARPA
+arp 10.122.100.124 1111.1111.1111 ARPA
+arp 10.122.100.125 1111.1111.1111 ARPA
+arp 10.122.100.126 1111.1111.1111 ARPA
+arp 10.122.100.127 1111.1111.1111 ARPA
+arp 10.122.100.120 1111.1111.1111 ARPA
+arp 10.122.100.121 1111.1111.1111 ARPA
+arp 10.122.100.122 1111.1111.1111 ARPA
+arp 10.122.100.123 1111.1111.1111 ARPA
+arp 10.122.100.101 1111.1111.1111 ARPA
+arp 10.122.100.102 1111.1111.1111 ARPA
+arp 10.122.100.103 1111.1111.1111 ARPA
+arp 10.122.100.99 b405.5d14.3df4 ARPA
+arp 10.122.100.108 1111.1111.1111 ARPA
+arp 10.122.100.109 1111.1111.1111 ARPA
+arp 10.122.100.111 1111.1111.1111 ARPA
+arp 10.122.100.104 1111.1111.1111 ARPA
+arp 10.122.100.105 1111.1111.1111 ARPA
+arp 10.122.100.106 1111.1111.1111 ARPA
+arp 10.122.100.107 1111.1111.1111 ARPA
+arp 10.122.100.148 1111.1111.1111 ARPA
+arp 10.122.100.149 1111.1111.1111 ARPA
+arp 10.122.100.150 1111.1111.1111 ARPA
+arp 10.122.100.151 1111.1111.1111 ARPA
+arp 10.122.100.144 1111.1111.1111 ARPA
+arp 10.122.100.145 1111.1111.1111 ARPA
+arp 10.122.100.146 1111.1111.1111 ARPA
+arp 10.122.100.147 1111.1111.1111 ARPA
+arp 10.122.100.156 1111.1111.1111 ARPA
+arp 10.122.100.157 1111.1111.1111 ARPA
+arp 10.122.100.158 1111.1111.1111 ARPA
+arp 10.122.100.159 1111.1111.1111 ARPA
+arp 10.122.100.152 1111.1111.1111 ARPA
+arp 10.122.100.153 1111.1111.1111 ARPA
+arp 10.122.100.154 1111.1111.1111 ARPA
+arp 10.122.100.155 1111.1111.1111 ARPA
+arp 10.122.100.132 1111.1111.1111 ARPA
+arp 10.122.100.133 1111.1111.1111 ARPA
+arp 10.122.100.134 1111.1111.1111 ARPA
+arp 10.122.100.135 1111.1111.1111 ARPA
+arp 10.122.100.128 1111.1111.1111 ARPA
+arp 10.122.100.129 1111.1111.1111 ARPA
+arp 10.122.100.130 1111.1111.1111 ARPA
+arp 10.122.100.131 1111.1111.1111 ARPA
+arp 10.122.100.140 1111.1111.1111 ARPA
+arp 10.122.100.141 1111.1111.1111 ARPA
+arp 10.122.100.142 1111.1111.1111 ARPA
+arp 10.122.100.143 1111.1111.1111 ARPA
+arp 10.122.100.136 1111.1111.1111 ARPA
+arp 10.122.100.137 1111.1111.1111 ARPA
+arp 10.122.100.138 1111.1111.1111 ARPA
+arp 10.122.100.139 1111.1111.1111 ARPA
+arp 10.122.100.180 1111.1111.1111 ARPA
+arp 10.122.100.181 1111.1111.1111 ARPA
+arp 10.122.100.182 1111.1111.1111 ARPA
+arp 10.122.100.183 1111.1111.1111 ARPA
+arp 10.122.100.176 1111.1111.1111 ARPA
+arp 10.122.100.177 1111.1111.1111 ARPA
+arp 10.122.100.178 1111.1111.1111 ARPA
+arp 10.122.100.179 1111.1111.1111 ARPA
+arp 10.122.100.188 1111.1111.1111 ARPA
+arp 10.122.100.189 1111.1111.1111 ARPA
+arp 10.122.100.190 1111.1111.1111 ARPA
+arp 10.122.100.191 1111.1111.1111 ARPA
+arp 10.122.100.184 1111.1111.1111 ARPA
+arp 10.122.100.185 1111.1111.1111 ARPA
+arp 10.122.100.186 1111.1111.1111 ARPA
+arp 10.122.100.187 1111.1111.1111 ARPA

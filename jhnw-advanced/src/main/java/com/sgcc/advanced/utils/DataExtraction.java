@@ -9,13 +9,21 @@ import java.util.stream.Collectors;
 
 public class DataExtraction {
 
+    /**
+     * 从交换机返回信息中提取表格数据
+     *
+     * @param switchReturnsInformation 交换机返回信息列表
+     * @param keywordS                  关键字映射
+     * @return 表格数据列表，每个元素为一个HashMap，包含键值对形式的表格数据
+     */
     public static List<HashMap<String, Object>> tableDataExtraction(List<String> switchReturnsInformation, Map<String,String> keywordS) {
         // 获取表头、标题栏及位置
-        /** 获取表头、标题栏 及 位置 */
         String tableHeader = keywordS.get("TableHeader");
+        // 将字符串中的中文标点符号替换为英文标点符号
         tableHeader = MyUtils.normalizePunctuation(tableHeader);
         List<String> tableHeader_name = Arrays.stream(tableHeader.split(",")).collect(Collectors.toList());
         tableHeader = tableHeader.replace(",", " ");
+
         int HeaderLineNumber = 0;
         for (int i=0; i<switchReturnsInformation.size(); i++) {
             if ( switchReturnsInformation.get(i).equals(tableHeader) ) {
@@ -23,14 +31,15 @@ public class DataExtraction {
                 break;
             }
         }
+
         // 特征集合
-        /* 特征集合 */
         List<String> characteristicList = new ArrayList<>();
         String[] firstRowOfDataSplit = switchReturnsInformation.get(HeaderLineNumber+1).split(" ");
         for (int i = 0; i < firstRowOfDataSplit.length; i++) {
             characteristicList.add(obtainDataFeatures(firstRowOfDataSplit[i]));
         }
         String characteristicList_join = String.join(",", characteristicList);
+
         List<String> tableRowList = new ArrayList<>();
         for (int i = HeaderLineNumber+1; i < switchReturnsInformation.size(); i++) {
             String[] rowOfDataSplit = switchReturnsInformation.get(i).split(" ");
@@ -39,6 +48,7 @@ public class DataExtraction {
                 rowFeatures_List.add(obtainDataFeatures(rowOfDataSplit[j]));
             }
 
+            // 检查行特征是否全部为"未知"
             String elementToCheck = "未知";
             boolean allMatch = rowFeatures_List.stream().allMatch(element -> element.equals(elementToCheck));
             if (allMatch) {
@@ -47,10 +57,13 @@ public class DataExtraction {
 
             String rowFeatures_List_join = String.join(",", rowFeatures_List);
 
+            // 检查行特征是否存在于特征集合中
             if (characteristicList_join.indexOf(rowFeatures_List_join) != -1) {
                 if (characteristicList_join.equals(rowFeatures_List_join)){
+                    // 如果行特征等于特征集合，则直接添加到tableRowList中
                     tableRowList.add(String.join(",", Arrays.stream(rowOfDataSplit).collect(Collectors.toList())));
-                }else {
+                } else {
+                    // 获取特征集合中对应特征的起始索引和结束索引
                     int i1 = characteristicList_join.indexOf(rowFeatures_List_join);
                     String startsubstring = characteristicList_join.substring(0, i1);
                     int i2 = MyUtils.countCharWithRegex(startsubstring, ',');
@@ -64,6 +77,8 @@ public class DataExtraction {
                     for (int k = 0; k < i3; k++) {
                         end += ",&";
                     }
+
+                    // 拼接特殊字符后添加到tableRowList中
                     tableRowList.add(start + String.join(",", Arrays.stream(rowOfDataSplit).collect(Collectors.toList())) + end);
                 }
             }
@@ -75,9 +90,11 @@ public class DataExtraction {
             String[] rowOfDataSplit = tableRowList.get(i).split(",");
             Map<String,Object> map_name_value = new HashMap<>();
             for (int j = 0; j < rowOfDataSplit.length; j++) {
+                // 将表头名称和数据值映射存储
                 map_name_value.put(tableHeader_name.get(j),rowOfDataSplit[j]);
             }
 
+            // 根据关键字映射更新tableData的键值
             for (String key: map_name_value.keySet()) {
                 String keyByValue = getKeyByValue(keywordS, key);
                 if (keyByValue != null) {
@@ -88,6 +105,7 @@ public class DataExtraction {
         }
         return tableDataList;
     }
+
 
     /**
      * 根据给定的字符串信息获取数据特征。
@@ -152,7 +170,7 @@ public class DataExtraction {
 
     public static void main(String[] args) {
         String s = "network 10.123.239.0 0.0.0.255 area 0.0.0.0";
-        List<String> $1 = getTheMeaningOfPlaceholders(s, "network $ 0.0.0.255 area $");
+        List<String> $1 = getTheMeaningOfPlaceholders(s, "$ 0.0.0.255 area $");
         $1.forEach(System.out::println);
     }
 
