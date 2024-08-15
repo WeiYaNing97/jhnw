@@ -123,8 +123,15 @@ OSPF:
     CRC: $ CRC,
   H3C:
     CRC: 'CRC: $'
-    Input: 'Total Error: $'
-    Output: 'Total Error: $'
+    Input: 'Input \n5 Total Error: $'
+    Output: 'Output \n4 Total Error: $'
+    InputPKT:
+      keyword: "Input: $1 bytes, $2 packets"
+      PKT: $2
+    OutputPKT:
+      keyword: "Output: $1 bytes, $2 packets"
+      PKT: $2
+
   RuiJie:
     Input: $ input errors
     Output: $ output errors

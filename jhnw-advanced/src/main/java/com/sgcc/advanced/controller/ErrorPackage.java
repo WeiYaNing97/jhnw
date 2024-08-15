@@ -320,6 +320,9 @@ public class ErrorPackage {
                     hashMap.put("IfQuestion","无问题");
                     //continue;
                 }
+
+                /* Map<String, Object> deviceVersion = getKeywords(switchParameters); */
+
             }
             /*自定义分隔符*/
             String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
@@ -355,6 +358,8 @@ public class ErrorPackage {
         }
         return null;
     }
+
+
 
     /*发送命令 错误包数量信息*/
     /**
@@ -498,6 +503,7 @@ public class ErrorPackage {
 
         /* 获取三个参数的关键词 并存储再 hashMap 集合中*/
         HashMap<String,String> hashMap =new HashMap<>();
+        HashMap<String,Object> pktMap =new HashMap<>();
         for (String key:strings){
             switch (key.toLowerCase()){
                 case "input":
@@ -512,6 +518,13 @@ public class ErrorPackage {
                     String crc = (String) deviceVersion.get(key);
                     hashMap.put("CRC",crc);
                     break;
+
+                case "inputpkt":
+                    pktMap.put("InputPKT",deviceVersion.get(key));
+                    break;
+                case "outputpkt":
+                    pktMap.put("OutputPKT",deviceVersion.get(key));
+                    break;
             }
         }
 
@@ -524,32 +537,49 @@ public class ErrorPackage {
         HashMap<String, String> valueTotalError = new HashMap<>();
 
         for (String key:keySet){
-            if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
+            String mapvalue = hashMap.get(key);
+            int num = mapvalue.indexOf("\\n");
+            if ( num != -1){
+
                 /* 通过 Total Error 先获取到 ：包含Input和Output值的行信息
                 * 例如：
                 * Input ：行信息
                 * Output ：行信息 */
-                valueTotalError = getValueTotalError(returnResults);
 
+                List<String> value = getValueWrap(returnResults,mapvalue, num);
+                if (value.size() == 1){
+                    valueTotalError.put(key,value.get(0));
+                }else {
+                    /* todo 根据占位符 获取到了多条数据 获取参数失败 */
+                }
             }
         }
 
         /*遍历 hashMap 的 key值  获取对应的参数值*/
         for (String key:keySet){
 
+            int position = hashMap.get(key).indexOf("\\n");
             /*key值 的 value值是否包含 "Total Error" */
-            if (MyUtils.containIgnoreCase(hashMap.get(key),"Total Error")){
+            if (position != -1){
+
+                String substring = hashMap.get(key).substring(position+2).trim();
+                String lineString = substring.split(" ")[0];
+                hashMap.put(key,substring.substring(lineString.length()));
+
                 /*如果根据 "Total Error" 获取行信息为 空 则取下一参数*/
                 if (valueTotalError.size()==0){
                     continue;
                 }
+
                 /*根据 key 获取关键词 */
                 String value = valueTotalError.get(key);
                 if (value == null){
                     continue;
                 }
+
                 /*根据配置文件的取值信息 取参数值*/
                 Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key));
+
                 if (placeholdersContainingList.size() == 1){
                     String words = hashMap.get(key);
                     List<String> placeholders = DataExtraction.getPlaceholders(words);
@@ -564,9 +594,7 @@ public class ErrorPackage {
 
                 }
 
-                /*如果关键词不包含 "Total Error"
-                * */
-            }else if (!(MyUtils.containIgnoreCase(hashMap.get(key),"Total Error"))){
+            }else {
 
                 /* 按行分割 交换机返回信息每行信息 为字符串数组*/
                 String[] returnResultssplit = returnResults.split("\r\n");
@@ -593,6 +621,30 @@ public class ErrorPackage {
                 }
             }
         }
+
+        /*总包*/
+        if (pktMap.keySet().size() != 0){
+            Object inputpkt = pktMap.get("inputpkt");
+            Object outputpkt = pktMap.get("outputpkt");
+
+            if(inputpkt != null){
+                if (inputpkt instanceof Map){
+                    Map<String,Object> InputPKT =(Map<String,Object>) inputpkt;
+                }else if (inputpkt instanceof String){
+                    String InputPKT =(String) inputpkt;
+                }
+            }
+
+            if(outputpkt != null){
+                if (outputpkt instanceof Map){
+                    Map<String,Object> OutputPKT =(Map<String,Object>) outputpkt;
+                }else if (outputpkt instanceof String){
+                    String OutputPKT =(String) outputpkt;
+                }
+            }
+        }
+
+
 
         List<String> stringList = new ArrayList<>();
 
@@ -770,87 +822,71 @@ public class ErrorPackage {
         return deviceVersion;
     }
 
-    /**
-    * @Description  当取词关键词有 Total Error 时的取词逻辑
-     * 需要区分时Input的Total Error，还是Output的Total Error
-     *
-     * 交换机返回信息文本例子：
-     * Input: 982431567 packets, 1214464892426 bytes
-     * Unicast: 981439518, Multicast: 404
-     * Broadcast: 991644, Jumbo: 0
-     * Discard: 0, Pause: 0
-     * Frames: 0
-     *
-     * Total Error: 2
-     * CRC: 1, Giants: 0
-     * Jabbers: 0, Fragments: 0
-     * Runts: 0, DropEvents: 0
-     * Alignments: 0, Symbols: 1
-     * Ignoreds: 0
-     *
-     * Output: 508606045 packets, 45046419657 bytes
-     * Unicast: 502482495, Multicast: 6122779
-     * Broadcast: 771, Jumbo: 0
-     * Discard: 0, Pause: 0
-     *
-     * Total Error: 0
-     * Collisions: 0, ExcessiveCollisions: 0
-     * Late Collisions: 0, Deferreds: 0
-     * Buffers Purged: 0
-     *
-     * 实现逻辑：按行分割成字符串 包含 Input、Output、Total Error的都放入集合
-     * 然后遍历集合，将Total Error元素取出来，如果Total Error元素行包含Input 或 Output则放入HashMap<String,String>
-     *     如果包含Input 或 Output 则取前一个元素，看是Input 还是 Output
-    * @author charles
-    * @createTime 2023/11/8 15:45
-    * @desc
-    * @param information
-     * @return
-    */
-    public HashMap<String,String> getValueTotalError(String information) {
+
+    public List<String> getValueWrap(String information,String placeholder,Integer num) {
+
+        String startString = placeholder.substring(0, num).trim();
+        String endString = placeholder.substring(num + 2).trim();
+        String lineString = endString.split(" ")[0];
+        endString = endString.substring(lineString.length());
+        Integer line = Integer.valueOf(lineString).intValue();
+
+        String mark = "";
+        String keyword = "";
+        int position = 0;
+        boolean $_position = startString.contains("$");
+        if ($_position) {
+            position = -1;
+            mark = endString;
+            keyword = startString;
+        }else {
+            $_position = endString.contains("$");
+            if ($_position){
+                position = 1;
+                mark = startString;
+                keyword = endString;
+            }
+        }
+
+        /* 获取配置文件中的关键词 */
+        List<String> keywordList = Arrays.stream(keyword.split("\\$")).map(x -> x.trim()).collect(Collectors.toList());
+
         /* 按行  分割  交换机返回信息字符串数组 */
         String[] informationSplit = information.split("\r\n");
 
-        /* 遍历交换机返回信息 行信息
-
-        *粗略过滤 将所有"Input"、"Output" 、"Total Error" 放入list集合中
-
-        *判断 行信息 包含 "Input" 则 在list集合中 存储 Input
-        *判断 行信息 包含 "Output" 则 在list集合中 存储 Output
-        *判断 行信息 包含 "Total Error" 则 在list集合中存储整行的信息*/
+        // 遍历交换机返回信息 行信息
         List<String> valueList = new ArrayList<>();
         for (int number = 0; number<informationSplit.length; number++){
-            /*判断一个字符串是否包含另一个字符串(忽略大小写)*/
-            if (MyUtils.containIgnoreCase(informationSplit[number],"Input")){ //&& !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))
-                valueList.add("Input");
+            /*//判断一个字符串是否包含另一个字符串(忽略大小写)
+            if (MyUtils.containIgnoreCase(informationSplit[number],mark)){
+                valueList.add(mark);
+            }else {
+                continue;
             }
-            if (MyUtils.containIgnoreCase(informationSplit[number],"Output")){//&& !(MyUtils.containIgnoreCase(informationSplit[number],"Total Error"))
-                valueList.add("Output");
-            }
-            if (MyUtils.containIgnoreCase(informationSplit[number],"Total Error")){
-                valueList.add(informationSplit[number]);
+            int i = number + (line * position);
+            // 判断主字符串是否包含集合中的所有元素(忽略大小写)
+            if (MyUtils.containsAllElements(informationSplit[ i ],keywordList)){
+                valueList.add(informationSplit[ i ]);
+            }*/
+
+            int i = number + (line * position);
+            if (MyUtils.containIgnoreCase(informationSplit[number],mark)
+            && MyUtils.containsAllElements(informationSplit[ i ],keywordList)){
+                valueList.add(informationSplit[ i ]);
             }
         }
 
-        /* 获取 "Total Error"前的元素 判断"Total Error"的参数是"Input 还是 Output"
-        存储 "Total Error" 与"Input 、Output" 的map对应关系 */
-        HashMap<String,String> returnMap = new HashMap<>();
-        /*循环遍历 存储包含"Total Error"、"Input"、"Output" 信息的集合 */
-        for (int i = 0 ;i<valueList.size();i++){
-            /*判断 集合元素是否包含 "Total Error"
-            * 如果包含 则 判断该行是否包含 "Input" 或者 "Output" ，存在着则 存入map集合 key值为 "Input" 或者 "Output"
-            * 如果 不包含 "Input" 及 "Output"  且 "Total Error"不为 集合的0号元素
-             则取出 前一元素 作为 key值*/
-            if ( i > 0 && MyUtils.containIgnoreCase(valueList.get(i),"Total Error")){
-                if (MyUtils.containIgnoreCase(valueList.get(i-1),"Input")){
-                    returnMap.put("Input",valueList.get(i));
-                }else if (MyUtils.containIgnoreCase(valueList.get(i-1),"Output")){
-                    returnMap.put("Output",valueList.get(i));
-                }
+        return valueList;
+
+        /*List<String> returnvalue = new ArrayList<>();
+        //在给定的字符串列表中查找指定元素的所有位置，并返回位置列表。
+        List<Integer> elementPositions = MyUtils.findElementPositions(valueList, mark);
+        for (Integer element_position:elementPositions){
+            if (element_position+position < valueList.size() && element_position+position >= 0 && !(valueList.get(element_position+position).equals(mark))){
+                returnvalue.add(valueList.get(element_position+position));
             }
         }
-
-        return returnMap;
+        return returnvalue;*/
     }
 
     /**
@@ -1259,6 +1295,8 @@ public class ErrorPackage {
 
      private static String switchPortValueReturnsResult =
                     " Description :To_ShuJuWangHuLian_G1/0/18\n" +
+                    "    Input: 22789602665 bytes, 122755407 packets\n" +
+                    "    Output: 86753318501 bytes, 163119446 packets\n" +
                     "Input: 982431567 packets, 1214464892426 bytes\n" +
                     "      Unicast: 981439518, Multicast: 404\n" +
                     "      Broadcast: 991644, Jumbo: 0\n" +
@@ -1278,4 +1316,5 @@ public class ErrorPackage {
                     "      Collisions: 0, ExcessiveCollisions: 0\n" +
                     "      Late Collisions: 0, Deferreds: 0\n" +
                     "      Buffers Purged: 0";
+
 }

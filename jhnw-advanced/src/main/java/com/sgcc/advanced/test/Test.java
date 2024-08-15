@@ -1,9 +1,6 @@
 package com.sgcc.advanced.test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @program: jhnw
@@ -14,5 +11,11 @@ import java.util.List;
 
 public class Test {
     public static void main(String[] args) {
+        Map<String, String> map = new HashMap<>();
+        Set<String> strings = map.keySet();
+        for (String string : strings) {
+            System.out.println(string);
+        }
+
     }
 }

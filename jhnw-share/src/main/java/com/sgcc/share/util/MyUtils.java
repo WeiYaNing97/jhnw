@@ -287,6 +287,29 @@ public class MyUtils {
     /* ============================== 实体类 结束 ==============================*/
     /* ============================== 字符串、文章 开始 ==============================*/
 
+
+    /**
+     * 判断主字符串是否包含集合中的所有元素(忽略大小写)
+     *
+     * @param mainString 主字符串
+     * @param elements 字符串集合
+     * @return 如果主字符串包含集合中的所有元素，返回true；否则返回false
+     */
+    public static boolean containsAllElements(String mainString, List<String> elements) {
+        // 遍历集合中的每个元素
+        for (String element : elements) {
+            // 如果主字符串不包含当前元素
+            if (mainString.toLowerCase().indexOf(element.toLowerCase()) == -1) {
+                // 返回false，表示主字符串不包含集合中的所有元素
+                return false;
+            }
+        }
+        // 如果主字符串包含集合中的所有元素，返回true
+        return true;
+    }
+
+
+
     /**
      * 将字符串中的中文标点符号替换为英文标点符号
      *
@@ -680,6 +703,32 @@ public class MyUtils {
     }
     /* ============================== 数组 结束 ==============================*/
     /* ============================== 集合 开始 ==============================*/
+
+    /**
+     * 在给定的字符串列表中查找指定元素的所有位置，并返回位置列表。
+     *
+     * @param list 给定的字符串列表
+     * @param element 要查找的指定元素
+     * @return 包含指定元素所有位置的列表，如果未找到则返回空列表
+     */
+    public static List<Integer> findElementPositions(List<String> list, String element) {
+        // 创建一个用于存储元素位置的列表
+        List<Integer> positions = new ArrayList<>();
+
+        // 遍历列表中的每个元素
+        for (int i = 0; i < list.size(); i++) {
+            // 如果当前元素与给定元素相等
+            if (list.get(i).equals(element)) {
+                // 将当前元素的索引添加到位置列表中
+                positions.add(i);
+            }
+        }
+
+        // 返回位置列表
+        return positions;
+    }
+
+
     /**
      * @Description  查看字符串集合A中存在，但字符串集合B中不存在的部分
      * @author charles
