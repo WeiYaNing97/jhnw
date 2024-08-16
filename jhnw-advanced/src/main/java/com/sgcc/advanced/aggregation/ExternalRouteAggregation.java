@@ -24,6 +24,7 @@ public class ExternalRouteAggregation {
         List<String> returnInformationList = Arrays.stream(MyUtils.trimString(returnInformation).split("\r\n")).collect(Collectors.toList());
 
         HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+"H3C", Constant.getProfileInformation());
+
         List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
         List<ExternalIPCalculator> externalIPList = new ArrayList<>();
         /* 符合表格格式 */
@@ -80,31 +81,49 @@ public class ExternalRouteAggregation {
         }
     }
 
+    /**
+     * 从返回信息中提取表格数据，并解析为ExternalIPCalculator对象的列表
+     *
+     * @param returnInformationList 包含表格数据的字符串列表
+     * @return 返回一个包含ExternalIPCalculator对象的列表，如果配置信息为空或表格数据为空，则返回空列表
+     */
     private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList) {
+        // 获取路由聚合配置信息
         HashMap<String,String> keyMap = (HashMap<String,String>) CustomConfigurationUtil.getValue("路由聚合."+"H3C.R_table", Constant.getProfileInformation());
         if (keyMap == null){
+            // 如果配置信息为空，则返回空列表
             return new ArrayList<>();
         }
+        // 从返回信息中提取表格数据
         List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap);
         if (stringObjectHashMapList.size() == 0){
+            // 如果表格数据为空，则返回空列表
             return new ArrayList<>();
         }
 
+        // 获取配置信息中的所有键
         List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
 
+        // 定义变量存储提取的路由信息
         String ipCIDR ="";
         String proto = "";
         String Pre = "";
         String Cost = "";
         String NextHop = "";
         String Interface = "";
+        // 存储外部IP计算器的列表
         List<ExternalIPCalculator> externalIPList = new ArrayList<>();
 
+        // 遍历表格数据
         for (HashMap<String, Object> stringObjectHashMap : stringObjectHashMapList){
+            // 创建外部IP计算器对象
             ExternalIPCalculator externalIP = new ExternalIPCalculator();
+            // 遍历配置信息中的每个键
             for (String key:keyList){
+                // 获取表格数据中对应键的值
                 String value = (String) stringObjectHashMap.get(key);
                 if (value != null){
+                    // 根据键的值设置对应的属性
                     switch (key){
                         case "Destination/Mask":
                             if (!value.equals("&")){
@@ -139,15 +158,19 @@ public class ExternalRouteAggregation {
                     }
                 }
             }
+            // 设置外部IP计算器的属性值
             externalIP.setDestinationMask(ipCIDR);
             externalIP.setProto(proto);
             externalIP.setPreCost("["+Pre+"/"+Cost+"]");
             externalIP.setNextHop(NextHop);
             externalIP.setInterface(Interface);
+            // 将外部IP计算器添加到列表中
             externalIPList.add(externalIP);
         }
+        // 返回外部IP计算器的列表
         return externalIPList;
     }
+
 
 
     /**

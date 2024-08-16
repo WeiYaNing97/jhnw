@@ -225,10 +225,16 @@ public class LuminousAttenuation {
             }
         }
 
+        /*自定义分隔符*/
+        String customDelimiter =null;
+        Object customDelimiterObject =  CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject instanceof String){
+            customDelimiter = (String) customDelimiterObject;
+        }
+
         /*10:获取光衰参数不为空*/
         try {
             for (String portstr:port){
-
 
                 //根据光衰参数阈值的代码库回显和日志
                 String subversionNumber1 = switchParameters.getSubversionNumber();
@@ -333,9 +339,7 @@ public class LuminousAttenuation {
                     }
                 }
 
-                /*自定义分隔符*/
-                String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-
+                /* customDelimiter 自定义分隔符 */
                 hashMap.put("parameterString","端口号"+ customDelimiter +"是" + customDelimiter + portstr + customDelimiter +
                         "光衰参数"+ customDelimiter +"是"+ customDelimiter +
                         "TX:"+getparameter.get(portstr+"TX")+
@@ -417,7 +421,13 @@ public class LuminousAttenuation {
 
 
         //光衰百分比
-        String percentage = (String)CustomConfigurationUtil.getValue("光衰.percentage", Constant.getProfileInformation());
+        String percentage = null;
+        Object percentageObject = CustomConfigurationUtil.getValue("光衰.percentage", Constant.getProfileInformation());
+        if (percentageObject instanceof String){
+            percentage = (String) percentageObject;
+        }
+
+
         List<Double> doubles = MyUtils.StringTruncationDoubleValue(percentage);
         if (doubles.size() == 1){
 
@@ -551,11 +561,19 @@ public class LuminousAttenuation {
             }
 
 
+            if(values.get("TX") != null){
+                hashMap.put(port+"TX",values.get("TX")+"");
+            }else if (values.get("TX_Power") != null){
+                hashMap.put(port+"TX",values.get("TX_Power")+"");
+            }
+            System.err.println(port+"TX" +"            "+hashMap.get(port+"TX"));
 
-            hashMap.put(port+"TX",values.get("TX")+"");
-            System.err.println(port+"TX" +"            "+values.get("TX")+"");
-            hashMap.put(port+"RX",values.get("RX")+"");
-            System.err.println(port+"RX"+"              "+values.get("RX")+"");
+            if(values.get("RX") != null){
+                hashMap.put(port+"RX",values.get("RX")+"");
+            }else if (values.get("RX_Power") != null){
+                hashMap.put(port+"RX",values.get("RX_Power")+"");
+            }
+            System.err.println(port+"RX"+"              "+hashMap.get(port+"RX"));
 
         }
 
@@ -598,18 +616,45 @@ public class LuminousAttenuation {
             Set<String> strings = keywordMap.keySet();
             for (String keywordName:strings){
                 for (String keyword:returnResults_split_List) {
-                    Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, keywordMap.get(keywordName));
-                    if (theMeaningOfPlaceholders.size() == 1){
+                    Object mapvalue = keywordMap.get(keywordName);
+                    if (mapvalue instanceof String){
+                        Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, (String) mapvalue);
+                        if (theMeaningOfPlaceholders.size() == 1){
 
-                        String words = keywordMap.get(keywordName);
-                        List<String> placeholders = DataExtraction.getPlaceholders(words);
-                        if (placeholders.size() == 1){
-                            List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(placeholders.get(0)));
-                            if (doubles.size() == 1){
-                                values.put(keywordName,doubles.get(0));
+                            String words = keywordMap.get(keywordName);
+                            List<String> placeholders = DataExtraction.getPlaceholders(words);
+                            if (placeholders.size() == 1){
+                                List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(placeholders.get(0)));
+                                if (doubles.size() == 1){
+                                    values.put(keywordName,doubles.get(0));
+                                }
+                            }
+                        }
+                    }else if (mapvalue instanceof Map){
+                        Map<String,String> map = (Map<String,String>) mapvalue;
+                        Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword,map.get("keyword"));
+                        if (theMeaningOfPlaceholders.size() == 1){
+
+                            String words = keywordMap.get(keywordName);
+                            List<String> placeholders = DataExtraction.getPlaceholders(words);
+                            if (placeholders.size() == 1){
+                                List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(placeholders.get(0)));
+                                if (doubles.size() == 1){
+                                    values.put(keywordName,doubles.get(0));
+                                }
                             }
                         }else {
                             /* todo 获取到多个占位符 */
+                            for (String getkey_ymlvalue:theMeaningOfPlaceholders.keySet()){
+                                for (String ymlkey:map.keySet()){
+                                    if (map.get(ymlkey).equals(getkey_ymlvalue)){
+                                        List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(getkey_ymlvalue));
+                                        if (doubles.size() == 1){
+                                            values.put(ymlkey,doubles.get(0));
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -928,12 +973,24 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxAverageValue(tx);
             lightAttenuationComparison.setTxStartValue(tx);
             /* 插入 默认 额定偏差*/
-            lightAttenuationComparison.setRxRatedDeviation(""+CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation()));
-            lightAttenuationComparison.setTxRatedDeviation(""+ CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation()));
-            /* 插入 默认 即时偏差*/
-            lightAttenuationComparison.setRxImmediateDeviation(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
-            lightAttenuationComparison.setTxImmediateDeviation(""+ CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
+            Object rxRatedDeviation = CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation());
+            if (rxRatedDeviation!=null && rxRatedDeviation instanceof String){
+                lightAttenuationComparison.setRxRatedDeviation((String) rxRatedDeviation);
+            }
+            Object txRatedDeviation = CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation());
+            if (txRatedDeviation!=null && txRatedDeviation instanceof String){
+                lightAttenuationComparison.setTxRatedDeviation((String) txRatedDeviation);
+            }
 
+            /* 插入 默认 即时偏差*/
+            Object rxImmediateDeviation = CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation());
+            if (rxImmediateDeviation!=null && rxImmediateDeviation instanceof String){
+                lightAttenuationComparison.setRxImmediateDeviation((String) rxImmediateDeviation);
+            }
+            Object txImmediateDeviation = CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation());
+            if (txImmediateDeviation!=null && txImmediateDeviation instanceof String){
+                lightAttenuationComparison.setTxImmediateDeviation((String) txImmediateDeviation);
+            }
 
             lightAttenuationComparison.setValueOne("UP");
 
@@ -1176,14 +1233,14 @@ public class LuminousAttenuation {
     /*private static String returnValueResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
             "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\r\n" +
             "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";*/
-    private static String returnValueResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
+    /*private static String returnValueResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
             "            Default Rx Power High Threshold(dBM)  :-2.00\r\n" +
             "            Default Rx Power Low  Threshold(dBM)  :-23.98\r\n" +
             "            Current Tx Power(dBM)                 :-2.80\r\n" +
             "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
-            "            Default Tx Power Low  Threshold(dBM)  :-6.00";
-    /*private static String returnValueResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
+            "            Default Tx Power Low  Threshold(dBM)  :-6.00";*/
+    private static String returnValueResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
             "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +
             "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +
-            "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";*/
+            "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";
 }

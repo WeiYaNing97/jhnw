@@ -700,7 +700,12 @@ public class SwitchInteraction {
         //extractInformation_string1 = extractInformation_string1.replace(",","");
 
         /*自定义分隔符*/
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        String customDelimiter = null;
+        Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject instanceof  String){
+            customDelimiter = (String) customDelimiterObject;
+        }
+
 
         String[] return_result_split = extractInformation_string1.split(customDelimiter);
         for (int num = 0;num<return_result_split.length;num++){
@@ -787,7 +792,12 @@ public class SwitchInteraction {
             String[] removecustom = basicInformation.getCommand().split("\\[");
 
             /*自定义分隔符*/
-            String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+            String customDelimiter = null;
+            Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+            if (customDelimiterObject instanceof  String){
+                customDelimiter = (String) customDelimiterObject;
+            }
+
             String[] commandsplit = removecustom[0].split(customDelimiter);
 
             String commandString =""; //预设交换机返回结果
@@ -1087,7 +1097,11 @@ public class SwitchInteraction {
                 交换机返回信息字符串, 单次分析提取数据，循环分析提取数据
                 交换机返回信息字符串分析索引位置(光标)，第一条分析ID， 当前分析ID ，是否循环 ，内部固件版本号] */
         // 设备型号=:=S3600-28P-EI=:=设备品牌=:=H3C=:=内部固件版本=:=3.10,=:=子版本号=:=1510P09=:=
-        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());/*最大循环次数*/
+        Integer numberOfCycles = 10;
+        Object numberOfCyclesObject = CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());/*最大循环次数*/
+        if (numberOfCyclesObject !=null && numberOfCyclesObject instanceof Integer){
+            numberOfCycles = Integer.valueOf( (String) numberOfCyclesObject ).intValue();
+        }
 
         String strings = selectProblemScanLogicById(switchParameters, totalQuestionTable,
                 resultString.split("\r\n"), //交换机返回结果 按行分割 交换机返回信息字符串
@@ -1118,7 +1132,12 @@ public class SwitchInteraction {
      */
     public String removeIdentifier(String strings) {
         /*# 标识符  两个标识符之间以;分阁*/
-        String identifierString = (String) CustomConfigurationUtil.getValue("configuration.identifier", Constant.getProfileInformation());
+        String identifierString = null;
+        Object identifierStringObject = CustomConfigurationUtil.getValue("configuration.identifier", Constant.getProfileInformation());
+        if (identifierStringObject instanceof String){
+            identifierString = (String) identifierStringObject;
+        }
+
         String[] identifiersplit = identifierString.split(";");
         for (String identifier:identifiersplit){
             strings =strings.replace(identifier,"");
@@ -1774,7 +1793,12 @@ public class SwitchInteraction {
                     String dynamicInformation = switchProblemCO.getDynamicInformation();
 
                     /*自定义分隔符*/
-                    String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+                    String customDelimiter = null;
+                    Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+                    if (customDelimiterObject instanceof String){
+                        customDelimiter = (String) customDelimiterObject;
+                    }
+
                     //几个参数中间的 参数默认是 以  "=:=" 来分割的
                     //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
 
@@ -1960,7 +1984,12 @@ public class SwitchInteraction {
                                         CommandReturn commandReturn,String current_Round_Extraction_String,String extractInformation_string){
 
         //配置文件中 获取 最大循环次数  循环 为定义问题的循环 例如 获取多用户
-        Integer numberOfCycles = (Integer) CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
+        Integer numberOfCycles = 10;
+
+        Object numberOfCyclesObject = CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
+        if (numberOfCyclesObject instanceof Integer){
+            numberOfCycles = Integer.valueOf((String) numberOfCyclesObject).intValue();
+        }
 
         /*根据分析ID获取问题扫描逻辑详细信息*/
         String problemScanLogic_string = selectProblemScanLogicById(switchParameters, totalQuestionTable,

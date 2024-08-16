@@ -207,7 +207,11 @@ public class DefinitionProblemController extends BaseController {
         String comands = "";
 
         // 获取自定义分隔符
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        String customDelimiter = null;
+        Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject != null && customDelimiterObject instanceof String){
+            customDelimiter = (String) customDelimiterObject;
+        }
 
         // 拼接命令字符串
         for (int num = 0 ;num < command.length; num++){
@@ -481,7 +485,11 @@ public class DefinitionProblemController extends BaseController {
 
         try {
             // 获取最大超时时间
-            Integer maximumTimeoutString = (Integer) CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
+            Integer maximumTimeoutString = 1000;
+            Object  maximumTimeoutObject = CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
+            if (maximumTimeoutObject !=null && maximumTimeoutObject instanceof Integer){
+                maximumTimeoutString = Integer.valueOf( (String) maximumTimeoutObject).intValue();
+            }
 
             // 获取异步任务的执行结果，并设置超时时间
             List<String> result = (List<String>) future.get(Long.valueOf(maximumTimeoutString).longValue(), TimeUnit.MILLISECONDS);
@@ -885,7 +893,11 @@ public class DefinitionProblemController extends BaseController {
         HashMap<Long,String> hashMap = new HashMap<>();
 
         // 获取配置文件自定义分隔符
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        String customDelimiter = null;
+        Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject instanceof String){
+            customDelimiter = (String) customDelimiterObject ;
+        }
 
         // 遍历命令逻辑实体类集合，并转换为字符串存入哈希表
         for (CommandLogic commandLogic:commandLogicList){
@@ -1163,7 +1175,12 @@ public class DefinitionProblemController extends BaseController {
         problemScanLogicList = InspectionMethods.splitSuccessFailureLogic(problemScanLogicList);
 
         /*自定义分隔符*/
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        String customDelimiter = null;
+        Object customDelimiterObject = (Object) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject != null && customDelimiterObject instanceof String){
+            customDelimiter = (String) customDelimiterObject;
+        }
+
         /*行号:实体类*/
         HashMap<Long,String> hashMap = new HashMap<>();
         for (ProblemScanLogic problemScanLogic:problemScanLogicList){

@@ -155,7 +155,11 @@ public class OSPFFeatures {
                 }
 
                 /*自定义分隔符*/
-                String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+                String customDelimiter = null;
+                Object customDelimiterObject =  CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+                if (customDelimiterObject instanceof String){
+                    customDelimiter = (String) customDelimiterObject;
+                }
 
                 // =:= 是自定义分割符
                 hashMap.put("parameterString","功能"+customDelimiter+"是"+customDelimiter+"OSPF"+customDelimiter+"参数"+customDelimiter+"是"+customDelimiter+"地址:"+ospf.getIp()+"状态:"+ospf.getState()+"端口号:"+ospf.getPort());
@@ -188,7 +192,11 @@ public class OSPFFeatures {
          *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
          * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth
          * 根据空格分割为 关键词数组*/
-        String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
+        String deviceVersion = null;
+        Object deviceVersionObject =  CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
+        if (deviceVersionObject instanceof String){
+            deviceVersion = (String) deviceVersionObject;
+        }
         String[] keywords = deviceVersion.trim().split(" ");
 
         /** 遍历配置文件定义的关于交换机端口号的特征 关键词

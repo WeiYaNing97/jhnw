@@ -153,7 +153,11 @@ public class BasicInformationController extends BaseController
 
         // 获取自定义分隔符
         /*自定义分隔符*/
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        String customDelimiter = null;
+        Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject instanceof String) {
+            customDelimiter = (String) customDelimiterObject;
+        }
 
         // 遍历查询结果列表
         for (BasicInformation basicInformation:list){

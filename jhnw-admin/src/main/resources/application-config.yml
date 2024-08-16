@@ -107,9 +107,16 @@ OSPF:
       TableHeader: Temp(Celsius),Voltage(V),Bias(mA),RX power(dBm),TX power(dBm)
       RX: RX power(dBm)
       TX: TX power(dBm)
-    L_list:
+    L_list1:
       RX: 'Current Rx Power(dBM):$'
       TX: 'Current Tx Power(dBM):$'
+    L_list:
+      RX:
+        keyword: 'Rx Power:  $1 Warning range: $2'
+        RX_Power: $1
+      TX:
+        keyword: 'Tx Power:  $1 Warning range: $2'
+        TX_Power: $1
 
 
 # 错误包
@@ -127,10 +134,10 @@ OSPF:
     Output: 'Output \n4 Total Error: $'
     InputPKT:
       keyword: "Input: $1 bytes, $2 packets"
-      PKT: $2
+      InputPKT_PKT: $2
     OutputPKT:
       keyword: "Output: $1 bytes, $2 packets"
-      PKT: $2
+      OutputPKT_PKT: $2
 
   RuiJie:
     Input: $ input errors

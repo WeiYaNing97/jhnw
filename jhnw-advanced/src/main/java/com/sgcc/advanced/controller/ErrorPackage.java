@@ -222,21 +222,22 @@ public class ErrorPackage {
             errorRate.setSwitchId(switchID); /*交换机基本信息ID*/
             errorRate.setPort(port); /*交换机端口号*/
             /* 获取该端口号的 错误包参数 */
-            List<String> errorPackageValue = (List<String>) errorPackageParameters.get(port);
-            for (String error:errorPackageValue){
-                if (MyUtils.containIgnoreCase(error,"input") || MyUtils.containIgnoreCase(error,"Rx") ){
+            Map<String,String> errorPackageValue = (Map<String,String>) errorPackageParameters.get(port);
+            Set<String> strings = errorPackageValue.keySet();
+            for (String key:strings){
+                if (key.toLowerCase().equals("Input".toLowerCase()) ){
                     //MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error)
                     /*去除原因 前面方法已经将非纯数字、因素去除了*/
-                    errorRate.setInputErrors(MyUtils.StringTruncationMatcherValue(error));
+                    errorRate.setInputErrors(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
                 }
-                if (MyUtils.containIgnoreCase(error,"output") || MyUtils.containIgnoreCase(error,"Tx") ){
-                    errorRate.setOutputErrors(MyUtils.StringTruncationMatcherValue(error));
+                if (key.toLowerCase().equals("Output".toLowerCase())){
+                    errorRate.setOutputErrors(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
                 }
-                if (MyUtils.containIgnoreCase(error,"crc")){
-                    errorRate.setCrc(MyUtils.StringTruncationMatcherValue(error));
+                if (key.toLowerCase().equals("CRC".toLowerCase())){
+                    errorRate.setCrc(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
                 }
-                if (MyUtils.containIgnoreCase(error,"Description")){
-                    errorRate.setDescription(error);
+                if (key.toLowerCase().equals("Description".toLowerCase())){
+                    errorRate.setDescription(errorPackageValue.get(key));
                 }
             }
             HashMap<String,String> hashMap = new HashMap<>();
@@ -321,11 +322,20 @@ public class ErrorPackage {
                     //continue;
                 }
 
-                /* Map<String, Object> deviceVersion = getKeywords(switchParameters); */
+                /* 误码率百分比 检验错误*/
+                boolean Percentage = judgingPercentage(errorPackageValue);
+                if (!Percentage){
+                    hashMap.put("IfQuestion","有问题");
+                }
 
             }
             /*自定义分隔符*/
-            String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+            String customDelimiter = null;
+            Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+            if (customDelimiterObject instanceof String){
+                customDelimiter = (String) customDelimiterObject;
+            }
+
             // =:= 是自定义分割符
             String portNumber = "端口号"+customDelimiter+"是"+customDelimiter+port+" "+ errorRate.getDescription() + customDelimiter;
             String InputErrors = "";
@@ -359,7 +369,59 @@ public class ErrorPackage {
         return null;
     }
 
+    public static boolean judgingPercentage(Map<String,String> errorPackageValue) {
+        String InputPKT = null;
+        String OutputPKT = null;
 
+        if (errorPackageValue.get("InputPKT")!=null
+        || errorPackageValue.get("OutputPKT")!=null
+        || errorPackageValue.get("InputPKT_PKT")!=null
+        || errorPackageValue.get("OutputPKT_PKT")!=null){
+
+            if (errorPackageValue.get("InputPKT")!=null){
+                InputPKT = errorPackageValue.get("InputPKT");
+
+            }else if (errorPackageValue.get("InputPKT_PKT")!=null){
+                InputPKT = errorPackageValue.get("InputPKT_PKT");
+
+            }else if (errorPackageValue.get("OutputPKT")!=null){
+                OutputPKT = errorPackageValue.get("OutputPKT");
+
+            }else if (errorPackageValue.get("OutputPKT_PKT")!=null){
+                OutputPKT = errorPackageValue.get("OutputPKT_PKT");
+            }
+
+        }
+
+        /* 获取光衰百分数 如果没有相关设定 默认无问题 返回 true*/
+        String percentageString = null;
+        Object percentageObject = CustomConfigurationUtil.getValue("光衰.percentage", Constant.getProfileInformation());
+        if (percentageObject instanceof String){
+            percentageString = (String) percentageObject;
+        }
+        if (percentageString == null){
+            return true;
+        }
+
+
+        double percentagedouble = MyUtils.stringToDouble(percentageString) * 0.01;
+        if (InputPKT!=null){
+            if (MyUtils.stringToDouble(errorPackageValue.get("Input"))/MyUtils.stringToDouble(InputPKT) < percentagedouble){
+
+            }else {
+                return false;
+            }
+        }
+        if (OutputPKT!=null){
+            if (MyUtils.stringToDouble(errorPackageValue.get("Input"))/MyUtils.stringToDouble(OutputPKT) < percentagedouble){
+
+            }else {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     /*发送命令 错误包数量信息*/
     /**
@@ -380,7 +442,6 @@ public class ErrorPackage {
         ExecuteCommand executeCommand = new ExecuteCommand();
         // 遍历端口号集合，检测各端口号的错误包参数
         for (String port:portNumber){
-            List<String> valueList = new ArrayList<>();
             // 替换端口号，得到完整的获取端口号错误包参数命令
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             // 执行交换机命令，并返回结果
@@ -404,15 +465,10 @@ public class ErrorPackage {
             }
 
             // 查看交换机错误包数量
-            valueList = getParameters(switchParameters,returnResults,port);
+            Map<String, String> parameters = getParameters(switchParameters, returnResults, port);
 
-            // 获取描述信息 描述：Description:*/
-            String description = getDescription(returnResults);
-            if (description!=null){
-                valueList.add("Description:"+description);
-            }
 
-            if (MyUtils.isCollectionEmpty(valueList)){
+            if (parameters.size() == 0){
                 // 如果获取到的错误包数量为空，则进行异常处理
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -428,8 +484,14 @@ public class ErrorPackage {
                 // 继续处理下一个端口号
                 continue;
             }else {
+                // 获取描述信息 描述：Description:*/
+                String description = getDescription(returnResults);
+                if (description!=null){
+                    parameters.put("Description" , description);
+                }
+
                 // 将获取到的错误包参数添加到结果HashMap中
-                hashMap.put(port,valueList);
+                hashMap.put(port,parameters);
             }
         }
         // 返回结果HashMap
@@ -486,12 +548,12 @@ public class ErrorPackage {
      * @param port              需要查询的端口号
      * @return 交换机错误包数量参数的列表，列表中的元素格式为"参数名:参数值"
      */
-    public List<String> getParameters(SwitchParameters switchParameters,String returnResults,String port) {
+    public Map<String,String> getParameters(SwitchParameters switchParameters,String returnResults,String port) {
 
         /*根据四项基本信息 查询获取光衰参数的关键词*/
         Map<String, Object> deviceVersion = getKeywords(switchParameters);
         if (deviceVersion.size() == 0){
-            return new ArrayList<>();
+            return new HashMap<>();
         }
 
         Set<String> strings = deviceVersion.keySet();
@@ -555,6 +617,43 @@ public class ErrorPackage {
             }
         }
 
+
+        /*总包*/
+        if (pktMap.keySet().size() != 0){
+            Object inputpkt = pktMap.get("InputPKT");
+            Object outputpkt = pktMap.get("OutputPKT");
+
+            if(inputpkt != null){
+                if (inputpkt instanceof Map){
+                    Map<String,Object> InputPKT =(Map<String,Object>) inputpkt;
+                    String keyword = (String) InputPKT.get("keyword");
+                    hashMap.put("InputPKT",keyword);
+                    String KPT = (String) InputPKT.get("InputPKT_PKT");
+                    hashMap.put("InputPKT_PKT",KPT);
+                }else if (inputpkt instanceof String){
+                    String InputPKT =(String) inputpkt;
+                    hashMap.put("InputPKT",InputPKT);
+                }
+            }
+
+            if(outputpkt != null){
+                if (outputpkt instanceof Map){
+                    Map<String,Object> OutputPKT =(Map<String,Object>) outputpkt;
+                    String keyword = (String) OutputPKT.get("keyword");
+                    hashMap.put("OutputPKT",keyword);
+                    String KPT = (String) OutputPKT.get("OutputPKT_PKT");
+                    hashMap.put("OutputPKT_PKT",KPT);
+                }else if (outputpkt instanceof String){
+                    String OutputPKT =(String) outputpkt;
+                    hashMap.put("OutputPKT",OutputPKT);
+                }
+            }
+        }
+
+
+
+
+
         /*遍历 hashMap 的 key值  获取对应的参数值*/
         for (String key:keySet){
 
@@ -590,6 +689,14 @@ public class ErrorPackage {
                         }
                     }else {
                         /* todo 获取到多个占位符 */
+                        for (String getkey_ymlvalue:placeholdersContainingList.keySet()){
+                            Map<String, String> stringStringMap = (Map<String, String>) deviceVersion.get(key);
+                            for (String ymlkey:stringStringMap.keySet()){
+                                if (stringStringMap.get(ymlkey).equals(getkey_ymlvalue)){
+                                    hashMap.put(ymlkey,placeholdersContainingList.get(getkey_ymlvalue));
+                                }
+                            }
+                        }
                     }
 
                 }
@@ -612,45 +719,28 @@ public class ErrorPackage {
                                 hashMap.put(key,integers.get(0)+"");
                                 break;
                             }
-                        }else {
-                            /* todo 获取到多个占位符 */
                         }
-
+                    }else {
+                        /* todo 获取到多个占位符 */
+                        for (String getkey_ymlvalue:placeholdersContainingList.keySet()){
+                            Map<String, String> stringStringMap = (Map<String, String>) deviceVersion.get(key);
+                            for (String ymlkey:stringStringMap.keySet()){
+                                if (stringStringMap.get(ymlkey).equals(getkey_ymlvalue)){
+                                    hashMap.put(ymlkey,placeholdersContainingList.get(getkey_ymlvalue));
+                                }
+                            }
+                        }
                     }
 
                 }
             }
         }
 
-        /*总包*/
-        if (pktMap.keySet().size() != 0){
-            Object inputpkt = pktMap.get("inputpkt");
-            Object outputpkt = pktMap.get("outputpkt");
-
-            if(inputpkt != null){
-                if (inputpkt instanceof Map){
-                    Map<String,Object> InputPKT =(Map<String,Object>) inputpkt;
-                }else if (inputpkt instanceof String){
-                    String InputPKT =(String) inputpkt;
-                }
-            }
-
-            if(outputpkt != null){
-                if (outputpkt instanceof Map){
-                    Map<String,Object> OutputPKT =(Map<String,Object>) outputpkt;
-                }else if (outputpkt instanceof String){
-                    String OutputPKT =(String) outputpkt;
-                }
-            }
-        }
-
-
-
-        List<String> stringList = new ArrayList<>();
+        Map<String,String> stringMap = new HashMap<>();
 
         for (String key:keySet){
             if (MyUtils.determineWhetherAStringIsAPureNumber(hashMap.get(key))){
-                stringList.add(key + ":" +hashMap.get(key));
+                stringMap.put(key , hashMap.get(key));
             }else {
                 /*  端口未获取到错误包 */
                 String subversionNumber = switchParameters.getSubversionNumber();
@@ -666,7 +756,7 @@ public class ErrorPackage {
             }
         }
 
-        return stringList;
+        return stringMap;
     }
 
     /**
@@ -1157,7 +1247,13 @@ public class ErrorPackage {
     public static String getDescription(String information) {
         /* 配置文件中 获取 Description 关键词
         * 关键词 根据 ； 转化为 关键词 字符串 数组*/
-        String descriptionValue = (String) CustomConfigurationUtil.getValue("错误包.描述", Constant.getProfileInformation());
+        String descriptionValue = null;
+        Object descriptionValueObject = (Object) CustomConfigurationUtil.getValue("错误包.描述", Constant.getProfileInformation());
+        if (descriptionValueObject instanceof String){
+            descriptionValue = (String) descriptionValueObject;
+        }
+
+
         if (descriptionValue == null){
             return null;
         }

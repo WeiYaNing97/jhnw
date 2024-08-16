@@ -128,7 +128,12 @@ public class DataExtraction {
 
         /*判断字符串是否为端口号
         * 判断是否以端口号关键词开始 并且包含数字*/
-        String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
+        String deviceVersion = null;
+        Object deviceVersionObject = CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
+        if (deviceVersionObject instanceof String) {
+            deviceVersion = (String) deviceVersionObject;
+        }
+
         List<String> deviceVersionList = Arrays.stream(deviceVersion.split(" ")).collect(Collectors.toList());
         Collections.sort(deviceVersionList, Comparator.comparingInt(String::length).reversed());
         for (String keyword: deviceVersionList) {

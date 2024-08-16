@@ -615,7 +615,11 @@ public class TotalQuestionTableController extends BaseController
         HashSet<String> temProNameHashSet = new HashSet();
 
         /*自定义分隔符*/
-        String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        String customDelimiter = null;
+        Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject instanceof  String){
+            customDelimiter = (String) customDelimiterObject;
+        }
 
         for (TotalQuestionTable totalQuestion:totalQuestionTableList){
             typeProblemHashSet.add(totalQuestion.getTypeProblem());

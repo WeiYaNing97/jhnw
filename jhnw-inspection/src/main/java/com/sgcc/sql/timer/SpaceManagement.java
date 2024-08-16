@@ -149,7 +149,7 @@ public class SpaceManagement extends TimerTask {
      *
      * @param dateStr 日期字符串，格式为"yyyy-MM-dd"
      * @return 如果超过半年返回true，否则返回false
-     * @throws DateTimeParseException 如果日期字符串格式不正确，则抛出DateTimeParseException异常
+     *   如果日期字符串格式不正确，则抛出DateTimeParseException异常
      */
     public static  boolean isItTimeout(String dateStr,Double dataRetentionTime) {
         // 创建一个日期格式化器，用于解析日期字符串
@@ -223,7 +223,7 @@ public class SpaceManagement extends TimerTask {
         DatabaseUsage databaseUsage = getDatabaseUsage(databaseName);
 
         // 所用空间占比(%)
-        int usedSpaceRateInt = (Integer) CustomConfigurationUtil.getValue("configuration.spaceManagement.usedSpaceRate", Constant.getProfileInformation());
+        Integer usedSpaceRateInt = (Integer) CustomConfigurationUtil.getValue("configuration.spaceManagement.usedSpaceRate", Constant.getProfileInformation());
 
         // 输出数据库使用率
         /*System.err.println("数据库使用率：" + databaseUsage.getUsedSpacePercent());*/
