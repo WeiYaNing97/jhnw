@@ -33,17 +33,23 @@ import static java.lang.System.*;
 @RequestMapping("/GetLogInformation")
 public class GetLogInformation {
 
+    /**
+     * 获取光衰数据
+     *
+     * @param ip 交换机IP地址，必填项
+     * @param port 端口，必填项
+     * @return 无返回值，通过控制台输出光衰数据
+     */
     @ApiOperation(value = "获取光衰数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ip", value = "交换机IP地址",dataTypeClass = String.class,required = true),
             @ApiImplicitParam(name = "port", value = "端口",dataTypeClass = String.class,required = true)
     })
     @GetMapping("/getOperationalAnalysisLogData")
-    public static void obtainOperationalAnalysisLogDataInformation() {/*String ip ,String port*/
+    public static void obtainOperationalAnalysisLogDataInformation(String ip ,String port) {/*String ip ,String port*/
 
-        String ip = null;
-        String port = null;
-
+        /*String ip = null;
+        String port = null;*/
         /*String ip = "192.168.1.100";
         String port = "GigabitEthernet1/21";*/
 
@@ -91,19 +97,26 @@ public class GetLogInformation {
         }
         lightAttenuationComparisons.stream().forEach(System.out::println);
 
-        retrieveErrorPacketLogDataInformation();
+        retrieveErrorPacketLogDataInformation(ip,port);
     }
 
+    /**
+     * 获取错误包数据
+     *
+     * @param ip 交换机IP地址，必填项
+     * @param port 端口，必填项
+     * @return 无返回值，通过控制台输出错误包数据
+     */
     @ApiOperation(value = "获取错误包数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ip", value = "交换机IP地址",dataTypeClass = String.class,required = true),
             @ApiImplicitParam(name = "port", value = "端口",dataTypeClass = String.class,required = true)
     })
     @GetMapping("/retrieveErrorPacketLogDataInformation")
-    public static void retrieveErrorPacketLogDataInformation() {/* String ip ,String port */
+    public static void retrieveErrorPacketLogDataInformation(String ip ,String port) {/* String ip ,String port */
 
-        String ip = null;
-        String port = null;
+        /*String ip = null;
+        String port = null;*/
         /*String ip = "192.168.1.100";
         String port = "GigabitEthernet0/0/5";*/
 

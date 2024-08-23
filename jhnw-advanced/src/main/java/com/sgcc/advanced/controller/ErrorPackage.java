@@ -322,7 +322,9 @@ public class ErrorPackage {
                     //continue;
                 }
 
-                /* 误码率百分比 检验错误*/
+                /*
+                判断误码率百分比是否满足要求
+                误码率百分比 检验错误*/
                 boolean Percentage = judgingPercentage(errorPackageValue);
                 if (!Percentage){
                     hashMap.put("IfQuestion","有问题");
@@ -369,33 +371,42 @@ public class ErrorPackage {
         return null;
     }
 
+    /**
+     * 判断光衰百分比是否满足要求
+     *
+     * @param errorPackageValue 包含数据包值的Map
+     * @return 如果光衰百分比满足要求则返回true，否则返回false
+     */
     public static boolean judgingPercentage(Map<String,String> errorPackageValue) {
         String InputPKT = null;
         String OutputPKT = null;
 
-        if (errorPackageValue.get("InputPKT")!=null
-        || errorPackageValue.get("OutputPKT")!=null
-        || errorPackageValue.get("InputPKT_PKT")!=null
-        || errorPackageValue.get("OutputPKT_PKT")!=null){
+        if (errorPackageValue.get(ErrorPackageL_listEnum.singlePlaceholderInput().toString())!=null
+        || errorPackageValue.get(ErrorPackageL_listEnum.singlePlaceholderOutput().toString())!=null
+        || errorPackageValue.get(ErrorPackageL_listEnum.multiplePlaceholdersInput().toString())!=null
+        || errorPackageValue.get(ErrorPackageL_listEnum.multiplePlaceholdersOutput().toString())!=null){
 
-            if (errorPackageValue.get("InputPKT")!=null){
-                InputPKT = errorPackageValue.get("InputPKT");
+            if (errorPackageValue.get(ErrorPackageL_listEnum.singlePlaceholderInput().toString())!=null){
+                InputPKT = errorPackageValue.get(ErrorPackageL_listEnum.singlePlaceholderInput().toString());
 
-            }else if (errorPackageValue.get("InputPKT_PKT")!=null){
-                InputPKT = errorPackageValue.get("InputPKT_PKT");
+            }
+            if (errorPackageValue.get(ErrorPackageL_listEnum.multiplePlaceholdersInput().toString())!=null){
+                InputPKT = errorPackageValue.get(ErrorPackageL_listEnum.multiplePlaceholdersInput().toString());
 
-            }else if (errorPackageValue.get("OutputPKT")!=null){
-                OutputPKT = errorPackageValue.get("OutputPKT");
+            }
+            if (errorPackageValue.get(ErrorPackageL_listEnum.singlePlaceholderOutput().toString())!=null){
+                OutputPKT = errorPackageValue.get(ErrorPackageL_listEnum.singlePlaceholderOutput().toString());
 
-            }else if (errorPackageValue.get("OutputPKT_PKT")!=null){
-                OutputPKT = errorPackageValue.get("OutputPKT_PKT");
+            }
+            if (errorPackageValue.get(ErrorPackageL_listEnum.multiplePlaceholdersOutput().toString())!=null){
+                OutputPKT = errorPackageValue.get(ErrorPackageL_listEnum.multiplePlaceholdersOutput().toString());
             }
 
         }
 
         /* 获取光衰百分数 如果没有相关设定 默认无问题 返回 true*/
         String percentageString = null;
-        Object percentageObject = CustomConfigurationUtil.getValue("光衰.percentage", Constant.getProfileInformation());
+        Object percentageObject = CustomConfigurationUtil.getValue("错误包.percentage", Constant.getProfileInformation());
         if (percentageObject instanceof String){
             percentageString = (String) percentageObject;
         }
@@ -403,20 +414,23 @@ public class ErrorPackage {
             return true;
         }
 
+        /* 字符串截取double值 */
+        List<Double> doubles = MyUtils.StringTruncationDoubleValue(percentageString);
+        if (doubles.size() == 1){
+            double percentagedouble = doubles.get(0) * 0.01;
+            if (InputPKT!=null){
+                if (MyUtils.stringToDouble(errorPackageValue.get("Input"))/MyUtils.stringToDouble(InputPKT) < percentagedouble){
 
-        double percentagedouble = MyUtils.stringToDouble(percentageString) * 0.01;
-        if (InputPKT!=null){
-            if (MyUtils.stringToDouble(errorPackageValue.get("Input"))/MyUtils.stringToDouble(InputPKT) < percentagedouble){
-
-            }else {
-                return false;
+                }else {
+                    return false;
+                }
             }
-        }
-        if (OutputPKT!=null){
-            if (MyUtils.stringToDouble(errorPackageValue.get("Input"))/MyUtils.stringToDouble(OutputPKT) < percentagedouble){
+            if (OutputPKT!=null){
+                if (MyUtils.stringToDouble(errorPackageValue.get("Input"))/MyUtils.stringToDouble(OutputPKT) < percentagedouble){
 
-            }else {
-                return false;
+                }else {
+                    return false;
+                }
             }
         }
 
@@ -567,6 +581,7 @@ public class ErrorPackage {
         HashMap<String,String> hashMap =new HashMap<>();
         HashMap<String,Object> pktMap =new HashMap<>();
         for (String key:strings){
+
             switch (key.toLowerCase()){
                 case "input":
                     String input = (String) deviceVersion.get(key);
@@ -582,10 +597,10 @@ public class ErrorPackage {
                     break;
 
                 case "inputpkt":
-                    pktMap.put("InputPKT",deviceVersion.get(key));
+                    pktMap.put(ErrorPackageL_listEnum.singlePlaceholderInput().toString(),deviceVersion.get(key));
                     break;
                 case "outputpkt":
-                    pktMap.put("OutputPKT",deviceVersion.get(key));
+                    pktMap.put(ErrorPackageL_listEnum.singlePlaceholderOutput().toString(),deviceVersion.get(key));
                     break;
             }
         }
@@ -603,11 +618,6 @@ public class ErrorPackage {
             int num = mapvalue.indexOf("\\n");
             if ( num != -1){
 
-                /* 通过 Total Error 先获取到 ：包含Input和Output值的行信息
-                * 例如：
-                * Input ：行信息
-                * Output ：行信息 */
-
                 List<String> value = getValueWrap(returnResults,mapvalue, num);
                 if (value.size() == 1){
                     valueTotalError.put(key,value.get(0));
@@ -618,34 +628,38 @@ public class ErrorPackage {
         }
 
 
-        /*总包*/
+        /*总包数*/
         if (pktMap.keySet().size() != 0){
-            Object inputpkt = pktMap.get("InputPKT");
-            Object outputpkt = pktMap.get("OutputPKT");
+
+            Object inputpkt = pktMap.get(ErrorPackageL_listEnum.singlePlaceholderInput().toString());
+            Object outputpkt = pktMap.get(ErrorPackageL_listEnum.singlePlaceholderOutput().toString());
+
+
+
 
             if(inputpkt != null){
                 if (inputpkt instanceof Map){
                     Map<String,Object> InputPKT =(Map<String,Object>) inputpkt;
-                    String keyword = (String) InputPKT.get("keyword");
-                    hashMap.put("InputPKT",keyword);
-                    String KPT = (String) InputPKT.get("InputPKT_PKT");
-                    hashMap.put("InputPKT_PKT",KPT);
+                    String keyword = (String) InputPKT.get(ErrorPackageL_listEnum.key().toString());
+                    hashMap.put(ErrorPackageL_listEnum.singlePlaceholderInput().toString(),keyword);
+                    String KPT = (String) InputPKT.get(ErrorPackageL_listEnum.multiplePlaceholdersInput().toString());
+                    hashMap.put(ErrorPackageL_listEnum.multiplePlaceholdersInput().toString(),KPT);
                 }else if (inputpkt instanceof String){
                     String InputPKT =(String) inputpkt;
-                    hashMap.put("InputPKT",InputPKT);
+                    hashMap.put(ErrorPackageL_listEnum.singlePlaceholderInput().toString(),InputPKT);
                 }
             }
 
             if(outputpkt != null){
                 if (outputpkt instanceof Map){
                     Map<String,Object> OutputPKT =(Map<String,Object>) outputpkt;
-                    String keyword = (String) OutputPKT.get("keyword");
-                    hashMap.put("OutputPKT",keyword);
-                    String KPT = (String) OutputPKT.get("OutputPKT_PKT");
-                    hashMap.put("OutputPKT_PKT",KPT);
+                    String keyword = (String) OutputPKT.get(ErrorPackageL_listEnum.key().toString());
+                    hashMap.put(ErrorPackageL_listEnum.singlePlaceholderOutput().toString(),keyword);
+                    String KPT = (String) OutputPKT.get(ErrorPackageL_listEnum.multiplePlaceholdersOutput().toString());
+                    hashMap.put(ErrorPackageL_listEnum.multiplePlaceholdersOutput().toString(),KPT);
                 }else if (outputpkt instanceof String){
                     String OutputPKT =(String) outputpkt;
-                    hashMap.put("OutputPKT",OutputPKT);
+                    hashMap.put(ErrorPackageL_listEnum.singlePlaceholderOutput().toString(),OutputPKT);
                 }
             }
         }
@@ -678,7 +692,7 @@ public class ErrorPackage {
 
                 /*根据配置文件的取值信息 取参数值*/
                 Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key));
-
+                /* 如果获取到的是一个参数 则可以直接赋值 */
                 if (placeholdersContainingList.size() == 1){
                     String words = hashMap.get(key);
                     List<String> placeholders = DataExtraction.getPlaceholders(words);
@@ -687,18 +701,22 @@ public class ErrorPackage {
                         if (integers.size() == 1){
                             hashMap.put(key,integers.get(0)+"");
                         }
-                    }else {
-                        /* todo 获取到多个占位符 */
-                        for (String getkey_ymlvalue:placeholdersContainingList.keySet()){
-                            Map<String, String> stringStringMap = (Map<String, String>) deviceVersion.get(key);
-                            for (String ymlkey:stringStringMap.keySet()){
-                                if (stringStringMap.get(ymlkey).equals(getkey_ymlvalue)){
-                                    hashMap.put(ymlkey,placeholdersContainingList.get(getkey_ymlvalue));
-                                }
+                    }
+                }else {
+                    /* 多个占位符 获取到了多个参数
+                    * 遍历占位符 */
+                    for (String getkey_ymlvalue:placeholdersContainingList.keySet()){
+                        /* 获取配置文件 占位符与含义的map数据 */
+                        Map<String, String> stringStringMap = (Map<String, String>) deviceVersion.get(key);
+                        /* 遍历配置文件 占位符与含义的map数据
+                        * 与占位符做对比 获取对应占位符含义
+                        * 将占位符含义 与占位符参数组合 */
+                        for (String ymlkey:stringStringMap.keySet()){
+                            if (stringStringMap.get(ymlkey).equals(getkey_ymlvalue)){
+                                hashMap.put(ymlkey,placeholdersContainingList.get(getkey_ymlvalue));
                             }
                         }
                     }
-
                 }
 
             }else {
@@ -721,9 +739,14 @@ public class ErrorPackage {
                             }
                         }
                     }else {
-                        /* todo 获取到多个占位符 */
+                        /* 多个占位符 获取到了多个参数
+                         * 遍历占位符 */
                         for (String getkey_ymlvalue:placeholdersContainingList.keySet()){
+                            /* 获取配置文件 占位符与含义的map数据 */
                             Map<String, String> stringStringMap = (Map<String, String>) deviceVersion.get(key);
+                            /* 遍历配置文件 占位符与含义的map数据
+                             * 与占位符做对比 获取对应占位符含义
+                             * 将占位符含义 与占位符参数组合 */
                             for (String ymlkey:stringStringMap.keySet()){
                                 if (stringStringMap.get(ymlkey).equals(getkey_ymlvalue)){
                                     hashMap.put(ymlkey,placeholdersContainingList.get(getkey_ymlvalue));
@@ -913,6 +936,14 @@ public class ErrorPackage {
     }
 
 
+    /**
+     * 从信息字符串中按照指定占位符和行数提取包含关键词的行信息
+     *
+     * @param information 包含信息的字符串
+     * @param placeholder 占位符字符串，格式为{行数 占位符内容}，例如{2 KEYWORD}
+     * @param num 占位符中行数之前的字符数
+     * @return 包含关键词的行信息列表
+     */
     public List<String> getValueWrap(String information,String placeholder,Integer num) {
 
         String startString = placeholder.substring(0, num).trim();
@@ -961,7 +992,8 @@ public class ErrorPackage {
 
             int i = number + (line * position);
             if (MyUtils.containIgnoreCase(informationSplit[number],mark)
-            && MyUtils.containsAllElements(informationSplit[ i ],keywordList)){
+                    && i < informationSplit.length
+                    && MyUtils.containsAllElements(informationSplit[ i ],keywordList)){
                 valueList.add(informationSplit[ i ]);
             }
         }
@@ -1378,14 +1410,14 @@ public class ErrorPackage {
             "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
             " Input (normal):  56148368 packets, - bytes\n" +
             "         56111416 unicasts, 36952 broadcasts, 0 multicasts, 0 pauses\n" +
-            " Input:  0 input errors, 0 runts, 0 giants, 0 throttles\n" +
-            "         0 CRC, 0 frame, - overruns, 0 aborts\n" +
+            " Input:  10 input errors, 0 runts, 0 giants, 0 throttles\n" +
+            "         20 CRC, 0 frame, - overruns, 0 aborts\n" +
             "         - ignored, - parity errors\n" +
             " Output (total): 46229751 packets, 4553563599 bytes\n" +
             "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
             " Output (normal): 46229751 packets, - bytes\n" +
             "         43884692 unicasts, 911492 broadcasts, 1433567 multicasts, 0 pauses\n" +
-            " Output: 0 output errors, - underruns, - buffer failures\n" +
+            " Output: 30 output errors, - underruns, - buffer failures\n" +
             "         0 aborts, 0 deferred, 0 collisions, 0 late collisions\n" +
             "         0 lost carrier, - no carrier";*/
 
@@ -1413,4 +1445,29 @@ public class ErrorPackage {
                     "      Late Collisions: 0, Deferreds: 0\n" +
                     "      Buffers Purged: 0";
 
+}
+
+enum ErrorPackageL_listEnum{
+    keyword, /* 占位符关键词*/
+
+    InputPKT, /* 单占位符获取Input总包*/
+    OutputPKT, /* 单占位符获取Output总包*/
+    InputPKT_PKT, /* 多占位符获取Input总包*/
+    OutputPKT_PKT; /* 多占位符获取Input总包*/
+
+    static ErrorPackageL_listEnum key(){
+        return keyword;
+    }
+    static ErrorPackageL_listEnum singlePlaceholderInput(){
+        return InputPKT;
+    }
+    static ErrorPackageL_listEnum singlePlaceholderOutput(){
+        return OutputPKT;
+    }
+    static ErrorPackageL_listEnum multiplePlaceholdersInput(){
+        return InputPKT_PKT;
+    }
+    static ErrorPackageL_listEnum multiplePlaceholdersOutput(){
+        return OutputPKT_PKT;
+    }
 }

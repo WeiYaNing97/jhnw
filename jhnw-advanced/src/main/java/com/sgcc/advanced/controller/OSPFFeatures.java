@@ -349,7 +349,7 @@ public class OSPFFeatures {
             // 创建OSPFPojo对象
             OSPFPojo ospfPojo = new OSPFPojo();
             // 设置IP地址
-            ospfPojo.setIp(hashMap.get("address").toString());
+            ospfPojo.setIp(hashMap.get("neighborID").toString());
             // 设置端口号
             ospfPojo.setPort(hashMap.get("portNumber").toString());
             // 设置状态

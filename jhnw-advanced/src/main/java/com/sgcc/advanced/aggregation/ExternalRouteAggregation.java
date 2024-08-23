@@ -4,7 +4,10 @@ import com.sgcc.advanced.domain.ExternalIPAddresses;
 import com.sgcc.advanced.domain.ExternalIPCalculator;
 import com.sgcc.advanced.domain.IPCalculator;
 import com.sgcc.advanced.utils.DataExtraction;
+import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 
@@ -13,18 +16,18 @@ import java.util.stream.Collectors;
 
 public class ExternalRouteAggregation {
 
-    public static void main(String[] args){
+    public static void externalRouteAggregation(SwitchParameters switchParameters, String switchReturnsexternalInformation, String externalKeywords){
 
         // 获取路由 OSPF、直连、静态 的关键词
-        String keyword = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
         List<String> protos = new ArrayList<>();
-        protos.addAll(Arrays.stream(keyword.split("/")).collect(Collectors.toList()));
+        protos.addAll(Arrays.stream(externalKeywords.split("/")).collect(Collectors.toList()));
         // 使用Lambda表达式和Comparator对字符串按长度从长到短排序
         Collections.sort(protos, Comparator.comparingInt(String::length).reversed());
-        List<String> returnInformationList = Arrays.stream(MyUtils.trimString(returnInformation).split("\r\n")).collect(Collectors.toList());
 
-        HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+"H3C", Constant.getProfileInformation());
+        List<String> returnInformationList = Arrays.stream(switchReturnsexternalInformation.split("\r\n")).collect(Collectors.toList());
 
+
+        HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+switchParameters.getDeviceBrand(), Constant.getProfileInformation());
         List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
         List<ExternalIPCalculator> externalIPList = new ArrayList<>();
         /* 符合表格格式 */
@@ -45,35 +48,60 @@ public class ExternalRouteAggregation {
 
             Set<String> NextHopSet = NextHop_collect.keySet();
             for (String NextHop : NextHopSet) {
-                System.err.println("====================="+NextHop+"=====================");
+                System.err.println("=========================================="+NextHop);
                 List<ExternalIPCalculator> NextHop_externalIPS = NextHop_collect.get(NextHop);
-                Map<String, List<ExternalIPCalculator>> PreCost_collect = NextHop_externalIPS.stream().collect(Collectors.groupingBy(ExternalIPCalculator::getPreCost));
 
-                Set<String> PreCostSet = PreCost_collect.keySet();
-                for (String PreCost : PreCostSet) {
-                    System.err.println("=========================================="+PreCost);
-                    List<ExternalIPCalculator> PreCost_externalIPS = PreCost_collect.get(PreCost);
+                for (ExternalIPCalculator NextHop_externalIP : NextHop_externalIPS) {
+                    // 根据目标掩码计算第一个可用IP和最后一个可用IP
+                    IPCalculator calculator = IPAddressCalculator.Calculator(NextHop_externalIP.getDestinationMask());
+                    NextHop_externalIP.setFirstAvailable(calculator.getFirstAvailable());
+                    NextHop_externalIP.setFinallyAvailable(calculator.getFinallyAvailable());
+                }
 
-                    for (ExternalIPCalculator PreCost_externalIP : PreCost_externalIPS) {
-                        // 根据目标掩码计算第一个可用IP和最后一个可用IP
-                        IPCalculator calculator = IPAddressCalculator.Calculator(PreCost_externalIP.getDestinationMask());
-                        PreCost_externalIP.setFirstAvailable(calculator.getFirstAvailable());
-                        PreCost_externalIP.setFinallyAvailable(calculator.getFinallyAvailable());
+                // 将NextHop_externalIPS进行地址范围拼接
+                List<ExternalIPAddresses> externalIPAddressesList = IPAddressUtils.ExternalSplicingAddressRange(NextHop_externalIPS);
+
+
+                List<List<String>> returnList = new ArrayList<>();
+                for (ExternalIPAddresses externalIPAddresses : externalIPAddressesList) {
+                    System.err.println(externalIPAddresses.getIpStart()+" "+externalIPAddresses.getIpEnd());
+                    List<ExternalIPCalculator> externalIPCalculatorList = externalIPAddresses.getExternalIPCalculatorList();
+                    externalIPCalculatorList.forEach(System.err::println);
+                    System.err.println("===================聚合 ：=======================");
+                    // 获取网络号
+                    List<String> aggregatedRouteList = IPAddressUtils.getNetworkNumber(externalIPAddresses.getIpStart(), externalIPAddresses.getIpEnd());
+                    aggregatedRouteList.forEach(System.err::println);
+                    System.err.println("================================================\r\n");
+
+
+
+                    List<String> preAggregationRouteList = externalIPCalculatorList.stream()
+                            .map(x -> x.getDestinationMask() + "[" + x.getFirstAvailable() + " - " + x.getFinallyAvailable() + "]")
+                            .collect(Collectors.toList());
+
+                    List<String> returnString = new ArrayList<>();
+                    returnString.add("原始网络号:");
+                    returnString.addAll(preAggregationRouteList);
+                    returnString.add("聚合网络号:");
+                    returnString.addAll(aggregatedRouteList);
+                    returnString.stream().forEach(System.err::println);
+                    System.err.println("==============================================================");
+                    returnList.add(returnString);
+
+
+                    HashMap<String,String> hashMap = new HashMap<>();
+                    if (preAggregationRouteList.size() == aggregatedRouteList.size()) {
+                        hashMap.put("IfQuestion","无问题");
+                    }else {
+                        hashMap.put("IfQuestion","有问题");
                     }
 
-                    // 将PreCost_externalIPS进行地址范围拼接
-                    List<ExternalIPAddresses> externalIPAddressesList = IPAddressUtils.ExternalSplicingAddressRange(PreCost_externalIPS);
-
-                    for (ExternalIPAddresses externalIPAddresses : externalIPAddressesList) {
-                        System.err.println(externalIPAddresses.getIpStart()+" "+externalIPAddresses.getIpEnd());
-                        List<ExternalIPCalculator> externalIPCalculatorList = externalIPAddresses.getExternalIPCalculatorList();
-                        externalIPCalculatorList.forEach(System.err::println);
-                        System.err.println("===================聚合 ：=======================");
-                        // 获取网络号
-                        List<String> stringList = IPAddressUtils.getNetworkNumber(externalIPAddresses.getIpStart(), externalIPAddresses.getIpEnd());
-                        stringList.forEach(System.err::println);
-                        System.err.println("================================================\r\n");
-                    }
+                    SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+                    hashMap.put("ProblemName","外部路由聚合");
+                    hashMap.put("parameterString",String.join("\r\n" , returnString));
+                    Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+                    SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+                    switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
                 }
             }
 
@@ -81,49 +109,31 @@ public class ExternalRouteAggregation {
         }
     }
 
-    /**
-     * 从返回信息中提取表格数据，并解析为ExternalIPCalculator对象的列表
-     *
-     * @param returnInformationList 包含表格数据的字符串列表
-     * @return 返回一个包含ExternalIPCalculator对象的列表，如果配置信息为空或表格数据为空，则返回空列表
-     */
     private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList) {
-        // 获取路由聚合配置信息
         HashMap<String,String> keyMap = (HashMap<String,String>) CustomConfigurationUtil.getValue("路由聚合."+"H3C.R_table", Constant.getProfileInformation());
         if (keyMap == null){
-            // 如果配置信息为空，则返回空列表
             return new ArrayList<>();
         }
-        // 从返回信息中提取表格数据
         List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap);
         if (stringObjectHashMapList.size() == 0){
-            // 如果表格数据为空，则返回空列表
             return new ArrayList<>();
         }
 
-        // 获取配置信息中的所有键
         List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
 
-        // 定义变量存储提取的路由信息
         String ipCIDR ="";
         String proto = "";
         String Pre = "";
         String Cost = "";
         String NextHop = "";
         String Interface = "";
-        // 存储外部IP计算器的列表
         List<ExternalIPCalculator> externalIPList = new ArrayList<>();
 
-        // 遍历表格数据
         for (HashMap<String, Object> stringObjectHashMap : stringObjectHashMapList){
-            // 创建外部IP计算器对象
             ExternalIPCalculator externalIP = new ExternalIPCalculator();
-            // 遍历配置信息中的每个键
             for (String key:keyList){
-                // 获取表格数据中对应键的值
                 String value = (String) stringObjectHashMap.get(key);
                 if (value != null){
-                    // 根据键的值设置对应的属性
                     switch (key){
                         case "Destination/Mask":
                             if (!value.equals("&")){
@@ -158,19 +168,15 @@ public class ExternalRouteAggregation {
                     }
                 }
             }
-            // 设置外部IP计算器的属性值
             externalIP.setDestinationMask(ipCIDR);
             externalIP.setProto(proto);
             externalIP.setPreCost("["+Pre+"/"+Cost+"]");
             externalIP.setNextHop(NextHop);
             externalIP.setInterface(Interface);
-            // 将外部IP计算器添加到列表中
             externalIPList.add(externalIP);
         }
-        // 返回外部IP计算器的列表
         return externalIPList;
     }
-
 
 
     /**
@@ -316,82 +322,5 @@ public class ExternalRouteAggregation {
     }
 
 
-    static String returnInformation = "Destinations : 403      Routes : 2233\n" +
-            "\n" +
-            "Destination/Mask   Proto   Pre Cost        NextHop         Interface\n" +
-            "0.0.0.0/0          O_ASE2  150 1           10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "0.0.0.0/32         Direct  0   0           127.0.0.1       InLoop0\n" +
-            "10.0.0.0/8         O_ASE2  150 1           10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.10.0.0/16       O_ASE2  150 20          10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.13.0.0/16       O_ASE2  150 20          10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.19.0.0/16       O_ASE2  150 20          10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.98.128.0/19     O_ASE2  150 500         10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.98.128.0/24     O_INTRA 10  104         10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.98.128.1/32     O_INTRA 10  104         10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.98.129.0/24     O_INTRA 10  104         10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.98.129.1/32     O_INTRA 10  104         10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n" +
-            "                                           10.98.138.2     Vlan6\n" +
-            "                                           10.98.138.147   Vlan3\n" +
-            "                                           10.98.138.195   Vlan2000\n" +
-            "                                           10.98.139.239   Vlan4\n" +
-            "10.98.130.0/24     O_INTRA 10  104         10.98.136.13    Vlan7\n" +
-            "                                           10.98.137.71    Vlan200\n"+
-            "O     10.122.114.92/30 [110/2] via 10.122.114.90, 336d,22:11:17, GigabitEthernet 9/2\n" +
-            "O     10.122.114.108/30 [110/2] via 10.122.114.86, 55d,15:58:41, GigabitEthernet 9/1\n" +
-            "O E2  10.122.114.112/30 [110/20] via 10.122.114.86, 259d,14:47:59, GigabitEthernet 9/1\n" +
-            "O     10.122.114.116/30 [110/3] via 10.122.114.86, 46d,15:14:52, GigabitEthernet 9/1\n" +
-            "C     10.122.114.128/30 is directly connected, GigabitEthernet 9/14\n" +
-            "C     10.122.114.129/32 is local host. \n" +
-            "O     10.122.114.132/30 [110/2] via 10.122.114.90, 27d,17:27:30, GigabitEthernet 9/2\n" +
-            "                        [110/2] via 10.122.114.130, 27d,17:27:30, GigabitEthernet 9/14\n" +
-            "O     10.122.114.136/30 [110/2] via 10.122.114.86, 336d,22:11:17, GigabitEthernet 9/1\n" +
-            "O E2  10.122.114.144/30 [110/1] via 10.122.114.86, 98d,11:28:16, GigabitEthernet 9/1\n" +
-            "O E2  10.122.114.148/30 [110/1] via 10.122.114.86, 98d,11:28:16, GigabitEthernet 9/1\n" +
-            "                        [110/1] via 10.122.114.90, 98d,11:28:16, GigabitEthernet 9/2";
+
 }

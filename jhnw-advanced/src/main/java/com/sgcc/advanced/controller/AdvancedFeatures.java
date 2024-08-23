@@ -26,7 +26,6 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class AdvancedFeatures {
 
-
     /**
      * 调用运行分析接口，根据扫描次数和功能名称，执行相应的操作。
      *
@@ -46,44 +45,21 @@ public class AdvancedFeatures {
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "运行分析", businessType = BusinessType.OTHER)
     public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {
-        // 获取当前时间并格式化为字符串
-        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-
-        // 初始化多线程参数列表
-        // 预设多线程参数 Object[] 中的参数格式为： {mode,ip,name,password,port}
-        List<SwitchParameters> switchParametersList = new ArrayList<>();
-
-        // 遍历用户登录信息列表，转换为json格式的登录信息
-        /*将字符串格式的用户登录信息 转化为json格式的登录信息*/
-        for (String information:switchInformation){
-            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
-            SwitchParameters switchParameters = new SwitchParameters();
-            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
-            switchParameters.setScanningTime(simpleDateFormat);
-            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
-            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
-
-            // 将多线程参数添加到列表中
-            //连接方式，ip，用户名，密码，端口号
-            switchParametersList.add(switchParameters);
-        }
-
-        // 创建线程池参数对象
-        ParameterSet parameterSet = new ParameterSet();
-        parameterSet.setSwitchParameters(switchParametersList);
-        parameterSet.setLoginUser(SecurityUtils.getLoginUser());
-        parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());
+        // 转换用户登录信息列表为SwitchParameters列表
+        List<SwitchParameters> switchParameters = convertSwitchInformation(switchInformation);
+        // 创建参数集对象，将用户登录信息列表和扫描次数传入
+        ParameterSet parameterSet = createParameterSet(switchParameters, scanNum);
 
         try {
             // 调用高级功能线程池执行登录信息操作
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
-            AdvancedThreadPool.switchLoginInformations(parameterSet, functionName,true);
+            executeAdvancedFunction(parameterSet, functionName, true);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        // 打印扫描结束信息
-        System.err.println("扫描结束");
+
+        /* todo 存在问题 前端无法接受全部后端传入WebSocket数据*/
 
         // 发送WebSocket消息，传输登录人姓名和问题简述
         //传输登陆人姓名 及问题简述
@@ -112,6 +88,79 @@ public class AdvancedFeatures {
                 return "扫描结束";
             }
         }
+    }
+
+    /**
+     * 将用户登录信息列表转换为SwitchParameters列表。
+     *
+     * @param switchInformation 用户登录信息列表
+     * @return 转换后的SwitchParameters列表
+     */
+    private List<SwitchParameters> convertSwitchInformation(List<String> switchInformation) {
+        List<SwitchParameters> switchParametersList = new ArrayList<>();
+        // 设置当前时间格式为"yyyy-MM-dd HH:mm:ss"
+        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
+        for (String information : switchInformation) {
+            // 解析用户登录信息为SwitchLoginInformation对象
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
+
+            // 创建SwitchParameters对象
+            SwitchParameters switchParameters = new SwitchParameters();
+
+            // 设置登录用户信息
+            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
+
+            // 设置扫描时间
+            switchParameters.setScanningTime(simpleDateFormat);
+
+            // 将SwitchLoginInformation对象的属性复制到SwitchParameters对象中
+            BeanUtils.copyBeanProp(switchParameters, switchLoginInformation);
+
+            // 将端口号转换为整数并设置到SwitchParameters对象中
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
+
+            // 将转换后的SwitchParameters对象添加到列表中
+            switchParametersList.add(switchParameters);
+        }
+
+        // 返回转换后的SwitchParameters列表
+        return switchParametersList;
+    }
+
+
+
+    /**
+     * 创建ParameterSet对象并设置相关参数。
+     *
+     * @param switchParametersList SwitchParameters列表
+     * @param scanNum              扫描次数
+     * @return 创建的ParameterSet对象
+     */
+    private ParameterSet createParameterSet(List<SwitchParameters> switchParametersList, Long scanNum) {
+        // 创建ParameterSet对象
+        ParameterSet parameterSet = new ParameterSet();
+        // 设置SwitchParameters列表
+        parameterSet.setSwitchParameters(switchParametersList);
+        // 设置登录用户信息
+        parameterSet.setLoginUser(SecurityUtils.getLoginUser());
+        // 设置线程数，将扫描次数转换为整数并设置
+        parameterSet.setThreadCount(Integer.valueOf(scanNum + "").intValue());
+        // 返回创建的ParameterSet对象
+        return parameterSet;
+    }
+
+
+    /**
+     * 调用高级功能线程池执行登录信息操作。
+     *
+     * @param parameterSet    包含登录信息和其他参数的ParameterSet对象
+     * @param functionName    功能名称列表
+     * @param isRSA           是否通过RSA加密后传入后端，默认为true
+     * @throws InterruptedException 线程中断异常
+     */
+    private void executeAdvancedFunction(ParameterSet parameterSet, List<String> functionName, boolean isRSA) throws InterruptedException {
+        AdvancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
     }
 
 }

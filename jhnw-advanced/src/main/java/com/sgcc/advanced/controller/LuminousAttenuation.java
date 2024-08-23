@@ -563,15 +563,15 @@ public class LuminousAttenuation {
 
             if(values.get("TX") != null){
                 hashMap.put(port+"TX",values.get("TX")+"");
-            }else if (values.get("TX_Power") != null){
-                hashMap.put(port+"TX",values.get("TX_Power")+"");
+            }else if (LuminousAttenuationL_listEnum.TX_Power().toString() != null){
+                hashMap.put(port+"TX",values.get(LuminousAttenuationL_listEnum.TX_Power().toString())+"");
             }
             System.err.println(port+"TX" +"            "+hashMap.get(port+"TX"));
 
             if(values.get("RX") != null){
                 hashMap.put(port+"RX",values.get("RX")+"");
-            }else if (values.get("RX_Power") != null){
-                hashMap.put(port+"RX",values.get("RX_Power")+"");
+            }else if (values.get(LuminousAttenuationL_listEnum.RX_Power().toString()) != null){
+                hashMap.put(port+"RX",values.get(LuminousAttenuationL_listEnum.RX_Power().toString())+"");
             }
             System.err.println(port+"RX"+"              "+hashMap.get(port+"RX"));
 
@@ -580,8 +580,17 @@ public class LuminousAttenuation {
         return hashMap;
     }
 
+    /**
+     * 根据返回结果和交换机参数获取光衰参数值
+     *
+     * @param returnResults 返回结果字符串
+     * @param switchParameters 交换机参数
+     * @return 包含光衰参数值的HashMap，其中key为参数名称，value为对应的参数值
+     */
     private HashMap<String, Double> obtainTheParameterOfLightAttenuation(String returnResults, SwitchParameters switchParameters) {
         HashMap<String, Double> values = new HashMap<>();
+
+        // 获取关键字配置
         Map<String,Object> keywordS = (Map<String,Object>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand(), Constant.getProfileInformation());
 
         if (keywordS == null){
@@ -591,24 +600,31 @@ public class LuminousAttenuation {
         Map<String,String> keywordMap = new HashMap<>();
         List<String> keywordList = keywordS.keySet().stream().collect(Collectors.toList());
         List<String> returnResults_split_List = Arrays.stream(returnResults.split("\r\n")).collect(Collectors.toList());
+
+        // 处理R_table的情况
         if (keywordList.indexOf("R_table")!=-1){
+            // 获取R_table关键字配置
             keywordMap = (Map<String,String>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".R_table", Constant.getProfileInformation());
             if (keywordMap == null){
                 return values;
             }
+            // 解析表格数据
             List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_split_List, keywordMap);
             if (stringObjectHashMapList.size() != 1){
                 return values;
             }
             Set<String> strings = stringObjectHashMapList.get(0).keySet();
             for (String keywordName:strings){
+                // 提取字符串中的数字
                 List<Double> doubles = MyUtils.StringTruncationDoubleValue( ( String ) stringObjectHashMapList.get(0).get(keywordName));
                 if (doubles.size() == 1){
                     values.put(keywordName,doubles.get(0));
                 }
             }
 
+            // 处理L_list的情况
         }else if (keywordList.indexOf("L_list")!=-1){
+            // 获取L_list关键字配置
             keywordMap = (Map<String,String>) CustomConfigurationUtil.getValue("光衰." + switchParameters.getDeviceBrand()+".L_list", Constant.getProfileInformation());
             if (keywordMap == null){
                 return values;
@@ -618,12 +634,14 @@ public class LuminousAttenuation {
                 for (String keyword:returnResults_split_List) {
                     Object mapvalue = keywordMap.get(keywordName);
                     if (mapvalue instanceof String){
+                        // 获取占位符的含义
                         Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, (String) mapvalue);
                         if (theMeaningOfPlaceholders.size() == 1){
-
                             String words = keywordMap.get(keywordName);
+                            // 提取占位符
                             List<String> placeholders = DataExtraction.getPlaceholders(words);
                             if (placeholders.size() == 1){
+                                // 提取占位符对应的字符串中的数字
                                 List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(placeholders.get(0)));
                                 if (doubles.size() == 1){
                                     values.put(keywordName,doubles.get(0));
@@ -632,12 +650,14 @@ public class LuminousAttenuation {
                         }
                     }else if (mapvalue instanceof Map){
                         Map<String,String> map = (Map<String,String>) mapvalue;
+                        // 获取占位符的含义
                         Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword,map.get("keyword"));
                         if (theMeaningOfPlaceholders.size() == 1){
-
                             String words = keywordMap.get(keywordName);
+                            // 提取占位符
                             List<String> placeholders = DataExtraction.getPlaceholders(words);
                             if (placeholders.size() == 1){
+                                // 提取占位符对应的字符串中的数字
                                 List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(placeholders.get(0)));
                                 if (doubles.size() == 1){
                                     values.put(keywordName,doubles.get(0));
@@ -648,6 +668,7 @@ public class LuminousAttenuation {
                             for (String getkey_ymlvalue:theMeaningOfPlaceholders.keySet()){
                                 for (String ymlkey:map.keySet()){
                                     if (map.get(ymlkey).equals(getkey_ymlvalue)){
+                                        // 提取占位符对应的字符串中的数字
                                         List<Double> doubles = MyUtils.StringTruncationDoubleValue(theMeaningOfPlaceholders.get(getkey_ymlvalue));
                                         if (doubles.size() == 1){
                                             values.put(ymlkey,doubles.get(0));
@@ -663,9 +684,9 @@ public class LuminousAttenuation {
         return values;
     }
 
-
     /**
      * 提取光衰参数
+     * 根据 PX POWER 和 TX POWER
      * @param string
      * @return
      */
@@ -939,26 +960,32 @@ public class LuminousAttenuation {
 
     /**
      * 光衰参数存入 光衰比较表
-     * @param switchParameters
-     * @param hashMap
-     * @param port
-     * @return
+     * @param switchParameters 交换机参数
+     * @param hashMap 光衰参数哈希表
+     * @param port 端口号
+     * @return 插入结果
      */
     public InsertLightAttenuation average(SwitchParameters switchParameters,HashMap<String,String> hashMap,String port) {
-
+        // 创建光衰比较表对象
         LightAttenuationComparison lightAttenuationComparison = new LightAttenuationComparison();
+        // 设置交换机的IP地址
         lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
+        // 获取交换机四项基本信息ID并设置到光衰比较表对象中
         lightAttenuationComparison.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));/*获取交换机四项基本信息ID*/
+        // 设置端口号
         lightAttenuationComparison.setPort(port);
 
+        // 获取光衰比较表服务
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
+        // 查询光衰比较表列表
         List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(lightAttenuationComparison);
 
+        // 获取接收端光衰参数
         String rx = hashMap.get(port+"RX");
+        // 获取发送端光衰参数
         String tx = hashMap.get(port+"TX");
 
         if (MyUtils.isCollectionEmpty(lightAttenuationComparisons)){
-
             /*需要新插入信息*/
             lightAttenuationComparison = new LightAttenuationComparison();
             lightAttenuationComparison.setSwitchIp(switchParameters.getIp());
@@ -999,23 +1026,34 @@ public class LuminousAttenuation {
             insertLightAttenuation.setLightAttenuationComparison(lightAttenuationComparison);
             return insertLightAttenuation;
         }else {
-
+            // 否则，获取光衰比较表列表的第一个对象
             lightAttenuationComparison = lightAttenuationComparisons.get(0);
+            // 设置最新的接收端光衰参数
             lightAttenuationComparison.setRxLatestNumber(rx);
+            // 更新接收端光衰平均值
             double rxAverageValue = updateAverage(lightAttenuationComparison.getNumberParameters(), MyUtils.stringToDouble(lightAttenuationComparison.getRxAverageValue()), MyUtils.stringToDouble(rx));
+            // 设置接收端光衰平均值
             lightAttenuationComparison.setRxAverageValue(rxAverageValue+"");
+            // 设置最新的发送端光衰参数
             lightAttenuationComparison.setTxLatestNumber(tx);
+            // 更新发送端光衰平均值
             double txAverageValue = updateAverage(lightAttenuationComparison.getNumberParameters(), MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue()), MyUtils.stringToDouble(tx));
+            // 设置发送端光衰平均值
             lightAttenuationComparison.setTxAverageValue("" + txAverageValue);
+            // 更新光衰参数数量
             lightAttenuationComparison.setNumberParameters(lightAttenuationComparison.getNumberParameters()+1);
 
+            // 设置状态为UP
             lightAttenuationComparison.setValueOne("UP");
 
+            // 创建插入光衰结果对象
             InsertLightAttenuation insertLightAttenuation = new InsertLightAttenuation();
+            // 设置插入结果
             insertLightAttenuation.setInsertResults(lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparison));
+            // 设置光衰比较表对象
             insertLightAttenuation.setLightAttenuationComparison(lightAttenuationComparison);
+            // 返回插入结果
             return insertLightAttenuation;
-
         }
     }
 
@@ -1031,7 +1069,6 @@ public class LuminousAttenuation {
         String result = df.format((newParameter + numberParameters * avg) / (numberParameters + 1));
         return MyUtils.stringToDouble(result);
     }
-
 
     /**
      * @Description  获取 RX TX 位置
@@ -1109,7 +1146,6 @@ public class LuminousAttenuation {
             return doubleList.get(0);
         }*/
     }
-
 
     /*Double类型字符串去除结尾的0 或者结尾的.*/
     public static String zero_suppression(String value) {
@@ -1230,17 +1266,35 @@ public class LuminousAttenuation {
             "TenGigabitEthernet 6/26 down 1 Unknown Unknown fiber\n" +
             "TenGigabitEthernet 6/27 down 1 Unknown Unknown fiber\n" +
             "TenGigabitEthernet 6/28 down 1 Unknown Unknown fiber";
-    /*private static String returnValueResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
+    private static String returnValueResults = "Current diagnostic parameters[AP:Average Power]:\r\n" +
             "Temp(Celsius)   Voltage(V)      Bias(mA)            RX power(dBm)       TX power(dBm)\r\n" +
-            "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";*/
+            "37(OK)          3.36(OK)        15.91(OK)           -5.96(OK)[AP]       -6.04(OK)";
     /*private static String returnValueResults = "Current Rx Power(dBM)                 :-11.87\r\n" +
             "            Default Rx Power High Threshold(dBM)  :-2.00\r\n" +
             "            Default Rx Power Low  Threshold(dBM)  :-23.98\r\n" +
             "            Current Tx Power(dBM)                 :-2.80\r\n" +
             "            Default Tx Power High Threshold(dBM)  :1.00\r\n" +
             "            Default Tx Power Low  Threshold(dBM)  :-6.00";*/
-    private static String returnValueResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
+    /*private static String returnValueResults = "Port BW: 1G, Transceiver max BW: 1G, Transceiver Mode: SingleMode\r\n" +
             "WaveLength: 1310nm, Transmission Distance: 10km\r\n" +
             "Rx Power:  -6.0dBm, Warning range: [-16.989,  -5.999]dBm\r\n" +
-            "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";
+            "Tx Power:  -6.20dBm, Warning range: [-9.500,  -2.999]dBm";*/
+}
+enum LuminousAttenuationL_listEnum{
+
+    keyword, /* 占位符关键词*/
+    RX_Power, /* 单占位符获取 RX_Power 总包*/
+    TX_Power; /* 单占位符获取 TX_Power 总包*/
+
+    static LuminousAttenuationL_listEnum keyword(){
+        return keyword;
+    }
+
+    static LuminousAttenuationL_listEnum RX_Power(){
+        return RX_Power;
+    }
+
+    static LuminousAttenuationL_listEnum TX_Power(){
+        return TX_Power;
+    }
 }
