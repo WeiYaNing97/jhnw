@@ -49,6 +49,7 @@ public class DataExtraction {
 
         List<String> tableRowList = new ArrayList<>();
         for (int i = HeaderLineNumber+1; i < switchReturnsInformation.size(); i++) {
+
             String[] rowOfDataSplit = switchReturnsInformation.get(i).split(" ");
             List<String> rowFeatures_List = new ArrayList<>();
             for (int j = 0; j < rowOfDataSplit.length; j++) {
@@ -58,6 +59,7 @@ public class DataExtraction {
             // 检查行特征是否全部为"未知"
             String elementToCheck = "未知";
             boolean allMatch1 = rowFeatures_List.stream().allMatch(element -> element.equals(elementToCheck));
+
             /*  todo 表格提取数据 怎样判断不是需提取数据
                 当前信息行全为未知 并且 当前信息行数据要小于 标题数据
                 的情况下 默认不满足条件
@@ -71,11 +73,16 @@ public class DataExtraction {
             String rowFeatures_List_join = String.join(",", rowFeatures_List);
 
             // 检查行特征是否存在于特征集合中,并且只有一个。
-            // 如果出现：行信息：IP,端口号   标题属性： IP,端口号,纯数字,纯数字,IP,端口号  也会导致取值错误。
             List<Integer> substringPositions = MyUtils.getSubstringPositions(characteristicList_join, rowFeatures_List_join);
             if (substringPositions.size() != 1){
-                // todo 报错 提出数据可能出现异常 因为非正常跳出
-                break;
+
+                if (substringPositions.size() > 1){/* 多个 */
+                    // todo 应该报错 ：行信息：IP,端口号   标题属性： IP,端口号,纯数字,纯数字,IP,端口号  也会导致取值错误。
+
+                }
+
+                // todo 当前行特征与特征集合中特征不匹配，跳过   继续分析下一行
+                continue;
             }
 
             if (characteristicList_join.equals(rowFeatures_List_join)){

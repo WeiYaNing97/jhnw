@@ -10,9 +10,7 @@ import com.sgcc.advanced.domain.IPCalculator;
 public class LinkBundling {
 
     public static void main(String[] args) {
-
         boolean three_layers = LinkBundlingAnalysis("192.168.0.1", "192.168.0.0/24");
-
         if (three_layers) {
             System.out.println("三层链路捆绑");
         } else {
@@ -20,7 +18,6 @@ public class LinkBundling {
             System.out.println("两层链路捆绑");
 
         }
-
     }
 
 
