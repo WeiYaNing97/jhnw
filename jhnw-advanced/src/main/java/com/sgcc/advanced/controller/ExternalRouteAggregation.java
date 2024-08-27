@@ -1,5 +1,7 @@
-package com.sgcc.advanced.aggregation;
+package com.sgcc.advanced.controller;
 
+import com.sgcc.advanced.aggregation.IPAddressCalculator;
+import com.sgcc.advanced.aggregation.IPAddressUtils;
 import com.sgcc.advanced.domain.ExternalIPAddresses;
 import com.sgcc.advanced.domain.ExternalIPCalculator;
 import com.sgcc.advanced.domain.IPCalculator;
@@ -16,6 +18,14 @@ import java.util.stream.Collectors;
 
 public class ExternalRouteAggregation {
 
+    /**
+     * 外部路由聚合方法
+     *
+     * @param switchParameters 交换机参数对象
+     * @param switchReturnsexternalInformation 交换机返回的外部信息
+     * @param externalKeywords 外部关键词
+     * @return 无返回值
+     */
     public static void externalRouteAggregation(SwitchParameters switchParameters, String switchReturnsexternalInformation, String externalKeywords){
 
         // 获取路由 OSPF、直连、静态 的关键词

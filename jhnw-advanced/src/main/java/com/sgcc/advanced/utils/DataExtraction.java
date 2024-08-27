@@ -1,6 +1,7 @@
 package com.sgcc.advanced.utils;
 
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.domain.MultiParameterReturn;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 
@@ -11,11 +12,7 @@ import java.util.stream.Collectors;
 
 public class DataExtraction {
 
-    /**
-     * todo R_table提取数据方法缺点：
-     * 如果要提取数据的行信息中中有省略数据，并且行信息中没有特征数据 则无法提取。
-     */
-    /* R_table */
+
     /**
      * 从交换机返回信息中提取表格数据
      *
@@ -23,7 +20,49 @@ public class DataExtraction {
      * @param keywordS                  关键字映射
      * @return 表格数据列表，每个元素为一个HashMap，包含键值对形式的表格数据
      */
-    public static List<HashMap<String, Object>> tableDataExtraction(List<String> switchReturnsInformation, Map<String,String> keywordS) {
+    public static List<HashMap<String, Object>> tableDataExtraction (List<String> switchReturnsInformation, Map<String,String> keywordS){
+        // 创建一个用于存储结果的列表
+        List<HashMap<String, Object>> returnList = new ArrayList<>();
+
+        Integer lineNumber = 0;
+        for ( ; lineNumber < switchReturnsInformation.size(); lineNumber++) {
+            // 调用single_table方法获取多参数返回结果
+            /* 返回多个参数 行号和表格数据 */
+            MultiParameterReturn multiParameterReturn = single_table(switchReturnsInformation, keywordS, lineNumber);
+
+            // 获取返回的表格数据列表
+            List<HashMap<String, Object>> hashMaps = (List<HashMap<String, Object>>) multiParameterReturn.getParameter();
+            if (hashMaps.size() > 0) {
+                // 将表格数据添加到结果列表中
+                returnList.addAll(hashMaps);
+                // 更新行号
+                lineNumber = multiParameterReturn.getCount();
+            }
+        }
+
+        // 返回结果列表
+        return returnList;
+    }
+
+
+
+    /**
+     * todo R_table提取数据方法缺点：
+     * 如果要提取数据的行信息中中有省略数据，并且行信息中没有特征数据 则无法提取。
+     * 如果表格数据中存在空行或杂数据，无法提取无关数据后的表格数据。例如，表格信息中加入了一条无关数据。
+     *
+     */
+    /* R_table */
+    /**
+     * 从交换机返回信息中提取表格数据
+     *
+     * @param switchReturnsInformation 交换机返回信息列表，每个元素为字符串类型
+     * @param keywordS                  关键字映射，键为字符串类型，值为字符串类型
+     * @param lineNumber                当前处理的行号
+     * @return 返回一个MultiParameterReturn对象，包含两个属性：count表示处理的最后一行行号，parameter表示提取到的表格数据列表
+     *         表格数据列表的每个元素为一个HashMap，包含键值对形式的表格数据，键为字符串类型，值为对象类型
+     */
+    public static MultiParameterReturn single_table(List<String> switchReturnsInformation, Map<String,String> keywordS, Integer lineNumber) {
         // 获取表头、标题栏及位置
         String tableHeader = keywordS.get("TableHeader");
         // 将字符串中的中文标点符号替换为英文标点符号
@@ -32,9 +71,9 @@ public class DataExtraction {
         tableHeader = tableHeader.replace(",", " ");
 
         int HeaderLineNumber = 0;
-        for (int i=0; i<switchReturnsInformation.size(); i++) {
-            if ( switchReturnsInformation.get(i).equals(tableHeader) ) {
-                HeaderLineNumber = i;
+        for (; lineNumber<switchReturnsInformation.size(); lineNumber++) {
+            if ( switchReturnsInformation.get(lineNumber).equals(tableHeader) ) {
+                HeaderLineNumber = lineNumber;
                 break;
             }
         }
@@ -48,9 +87,12 @@ public class DataExtraction {
         String characteristicList_join = String.join(",", characteristicList);
 
         List<String> tableRowList = new ArrayList<>();
-        for (int i = HeaderLineNumber+1; i < switchReturnsInformation.size(); i++) {
 
-            String[] rowOfDataSplit = switchReturnsInformation.get(i).split(" ");
+        lineNumber++;
+
+        for ( ; lineNumber < switchReturnsInformation.size(); lineNumber++) {
+
+            String[] rowOfDataSplit = switchReturnsInformation.get(lineNumber).split(" ");
             List<String> rowFeatures_List = new ArrayList<>();
             for (int j = 0; j < rowOfDataSplit.length; j++) {
                 rowFeatures_List.add(obtainDataFeatures(rowOfDataSplit[j]));
@@ -60,43 +102,51 @@ public class DataExtraction {
             String elementToCheck = "未知";
             boolean allMatch1 = rowFeatures_List.stream().allMatch(element -> element.equals(elementToCheck));
 
-            /*  todo 表格提取数据 怎样判断不是需提取数据
-                当前信息行全为未知 并且 当前信息行数据要小于 标题数据
-                的情况下 默认不满足条件
-                如果当前行数 大于 标题属性数 直接结束*/
+            /*  todo 怎样判断不是表格数据
+                */
             if ( rowFeatures_List.size() > tableHeader_name.size()
                     || (allMatch1 && rowFeatures_List.size() != tableHeader_name.size())) {
+
                 // todo 报错 提出数据可能出现异常 因为非正常跳出
+                //  当前信息行全为未知 并且 当前信息行数据要小于 标题属性数据 的情况下 默认不满足条件
+                //  如果当前行数 大于 标题属性数 直接结束
                 break;
+
             }
 
             String rowFeatures_List_join = String.join(",", rowFeatures_List);
 
-            // 检查行特征是否存在于特征集合中,并且只有一个。
+            // 检查 行特征 是否存在于 标题属性特征 中,并且只出现一次。
             List<Integer> substringPositions = MyUtils.getSubstringPositions(characteristicList_join, rowFeatures_List_join);
             if (substringPositions.size() != 1){
 
-                if (substringPositions.size() > 1){/* 多个 */
+                if (substringPositions.size() > 1){
+                    /* 行特征 存在 标题属性特征中 出现多次
+                     * 数据不好判断 故 导致数据提取错误  */
                     // todo 应该报错 ：行信息：IP,端口号   标题属性： IP,端口号,纯数字,纯数字,IP,端口号  也会导致取值错误。
-
                 }
 
-                // todo 当前行特征与特征集合中特征不匹配，跳过   继续分析下一行
-                continue;
+                // substringPositions.size() < 1 说明行特征 不存在于标题属性特征中
+                // todo 当前行特征与特征集合中特征不匹配，跳出循环
+                break;
             }
+
 
             if (characteristicList_join.equals(rowFeatures_List_join)){
                 // 如果行特征等于特征集合，则直接添加到tableRowList中
                 tableRowList.add(String.join(",", Arrays.stream(rowOfDataSplit).collect(Collectors.toList())));
+
             } else {
                 // 获取特征集合中对应特征的起始索引和结束索引
                 int i1 = characteristicList_join.indexOf(rowFeatures_List_join);
                 String startsubstring = characteristicList_join.substring(0, i1);
                 int i2 = MyUtils.countCharWithRegex(startsubstring, ',');
+
                 String start = "";
                 for (int k = 0; k < i2; k++) {
                     start += "&,";
                 }
+
                 String endsubstring = characteristicList_join.substring(i1+rowFeatures_List_join.length());
                 int i3 = MyUtils.countCharWithRegex(endsubstring, ',');
                 String end = "";
@@ -107,6 +157,7 @@ public class DataExtraction {
                 // 拼接特殊字符后添加到tableRowList中
                 tableRowList.add(start + String.join(",", Arrays.stream(rowOfDataSplit).collect(Collectors.toList())) + end);
             }
+
         }
 
         List<HashMap<String, Object>> tableDataList = new ArrayList<>();
@@ -128,7 +179,12 @@ public class DataExtraction {
             }
             tableDataList.add(tableData);
         }
-        return tableDataList;
+
+        MultiParameterReturn multiParameterReturn = new MultiParameterReturn();
+        multiParameterReturn.setCount(lineNumber);
+        multiParameterReturn.setParameter(tableDataList);
+
+        return multiParameterReturn;
     }
 
     /* L_list */
@@ -183,6 +239,8 @@ public class DataExtraction {
                     returnMap.put(placeholder,split[split.length-1]);
                 }else {
                     // todo 配置文件关键词 设置错误 取词失败。
+
+
                 }
             }else if (splitkeyword.endsWith(placeholder)){
                 splitkeyword = splitkeyword.replace(placeholder,"").trim();

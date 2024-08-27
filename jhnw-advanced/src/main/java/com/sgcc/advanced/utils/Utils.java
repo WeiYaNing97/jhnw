@@ -1,7 +1,7 @@
 package com.sgcc.advanced.utils;
-import com.sgcc.advanced.domain.LightAttenuationComparison;
-import com.sgcc.advanced.domain.OspfEnum;
+import com.sgcc.advanced.domain.*;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.CustomConfigurationUtil;
 
 import java.util.ArrayList;
@@ -13,9 +13,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * 不能写入共用模块的方法类
+ * 运行分析模块的方法类
  */
 public class Utils {
+
+
     /**
      * 光衰功能 比较参数是否改变
      * @param lightAttenuationComparison
@@ -73,6 +75,25 @@ public class Utils {
         }
 
         return ips;
+    }
+
+    /**
+     * @Description 获取字符串中的IP集合
+     * @author charles
+     * @createTime 2023/12/22 16:41
+     * @desc
+     * @param input
+     * @return
+     */
+    public static List<String> extractIPAddresses(String input) {
+        List<String> ipAddresses = new ArrayList<>();
+        Pattern pattern = Pattern.compile(
+                "\\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b");
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            ipAddresses.add(matcher.group());
+        }
+        return ipAddresses;
     }
 
     /**

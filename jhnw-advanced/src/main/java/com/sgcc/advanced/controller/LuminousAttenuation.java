@@ -6,6 +6,7 @@ import com.sgcc.advanced.service.ILightAttenuationCommandService;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
 import com.sgcc.advanced.utils.DataExtraction;
 import com.sgcc.advanced.utils.ScreeningMethod;
+import com.sgcc.advanced.utils.Utils;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
@@ -41,74 +42,259 @@ public class LuminousAttenuation {
     @Autowired
     private ILightAttenuationCommandService lightAttenuationCommandService;
 
+
     /**
-     * 光衰功能接口  发送命令 获取返回端口号信息数据
-     * @param switchParameters
-     * @return
+     * 获取扫描结果
+     *
+     * @param switchParameters 交换机参数对象
+     * @param ports 端口列表
+     * @param getparameter 获取的参数集合
+     * @return AjaxResult对象，包含光衰比较列表
      */
-    public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
+    public AjaxResult obtainScanningResults(SwitchParameters switchParameters,List<String> ports,HashMap<String, String> getparameter) {
+        /** 根据交换机IP获取数据表数据 */
+        LightAttenuationComparison selectpojo = new LightAttenuationComparison();
+        selectpojo.setSwitchIp(switchParameters.getIp());
+        lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
+        List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(selectpojo);
 
-        /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
-        LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
-        lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
-        lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
-        lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
-        lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
+        /** 数据表数据 存入MAP集合中 */
+        Map<String,LightAttenuationComparison> lightAttenuationComparisonMap = new HashMap<>();
+        for (LightAttenuationComparison pojo:lightAttenuationComparisons){
+            lightAttenuationComparisonMap.put(pojo.getPort(),pojo);
+        }
+        /** 获取Map集合中KEY值数据集合*/
+        List<String> keySet = lightAttenuationComparisonMap.keySet().stream().collect(Collectors.toList());
+        /** 查看字符串集合A中存在，但字符串集合B中不存在的部分
+         * 查看 数据表中有，但是扫描后没有的端口    数据表中独有的端口号*/
+        List<String> difference = MyUtils.findDifference(keySet,ports);
 
-        lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
-        List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandListBySQL(lightAttenuationCommand);
+        /**
+         * 数据表中有，扫描结果没有的 则 说明 断开了连接
+         * 断开接口提示交换机端口断开连接，端口状态为DOWN*/
+        for (String portstr:difference){
 
-        /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
-        if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
+            /** 修改端口号状态  */
+            LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
+            lightAttenuationComparisonPojo.setValueOne("DOWN");
+            int i = lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparisonPojo);
+            if (i > 0 ){
 
-            String subversionNumber = switchParameters.getSubversionNumber();
-            if (subversionNumber!=null){
-                subversionNumber = "、"+subversionNumber;
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能端口号:"+portstr +"断开连接，端口状态为DOWN\r\n");
+
+            }else {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:光衰功能端口号:"+portstr +"修改状态为DOWN失败\r\n"
+                );
+
+                return AjaxResult.error();
             }
-
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                    "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能未定义获取端口号命令\r\n");
-
-            return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
-
         }
 
-        //从 lightAttenuationCommandList 中 获取四项基本最详细的数据
-        lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand( lightAttenuationCommandList );
+        /*自定义分隔符*/
+        String customDelimiter =null;
+        Object customDelimiterObject =  CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject instanceof String){
+            customDelimiter = (String) customDelimiterObject;
+        }
+
+        List<LightAttenuationComparison> pojoList = new ArrayList<>();
+
+        /*10:获取光衰参数不为空*/
+        try {
+            for (String portstr:ports){
+
+                //根据光衰参数阈值的代码库回显和日志
+                String subversionNumber1 = switchParameters.getSubversionNumber();
+                if (subversionNumber1!=null){
+                    subversionNumber1 = "、"+subversionNumber1;
+                }
+
+
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "数据记录",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion() + subversionNumber1 + ","+
+                                "问题为:光衰功能端口号:"+portstr +
+                                " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n");
+
+
+
+                /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
+                if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
+                    InsertLightAttenuation insertLightAttenuation = average(switchParameters, getparameter, portstr);
+                    if (insertLightAttenuation.getInsertResults()>0){
+                        pojoList.add(insertLightAttenuation.getLightAttenuationComparison());
+                    }else {
+                        // todo 数据库操作失败
+                    }
+                }else {
+                    continue;
+                }
+
+
+                HashMap<String,String> hashMap = new HashMap<>();
+                hashMap.put("ProblemName","光衰");
+                /* 如果 lightAttenuationComparisonMap 对应端口号 为空 则数据库表光衰记录表中没有相关信息
+                则默认无问题*/
+                if (lightAttenuationComparisonMap.get(portstr) == null){
+                    hashMap.put("IfQuestion","无问题");
+                }else {
+                    LightAttenuationComparison lightAttenuationComparison = lightAttenuationComparisonMap.get(portstr);
+                    if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
+                        //判断光衰是否有问题
+                        String meanJudgmentProblem = meanJudgmentProblem(lightAttenuationComparison);
+                        hashMap.put("IfQuestion",meanJudgmentProblem);
+                        if (meanJudgmentProblem.equals("无问题")){
+                            //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
+                            if (lightAttenuationComparison.getValueOne().equals("DOWN")){
+                                String subversionNumber = switchParameters.getSubversionNumber();
+                                if (subversionNumber!=null){
+                                    subversionNumber = "、"+subversionNumber;
+                                }
+                                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
+                                        "系统信息:" +
+                                                "IP地址为:"+switchParameters.getIp()+","+
+                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                "问题为:光衰功能端口号:"+portstr + "恢复连接\r\n");
+                            }
+                        }else if (meanJudgmentProblem.equals("有问题")){
+                            //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
+                            if (lightAttenuationComparison.getValueOne().equals("DOWN")){
+
+                                String subversionNumber = switchParameters.getSubversionNumber();
+                                if (subversionNumber!=null){
+                                    subversionNumber = "、"+subversionNumber;
+                                }
+
+                                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
+                                        "系统信息:" +
+                                                "IP地址为:"+switchParameters.getIp()+","+
+                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                                "问题为:光衰功能端口号:"+portstr + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
+                            }
+                        }
+                        //根据光衰参数阈值的代码库回显和日志
+                        String subversionNumber = switchParameters.getSubversionNumber();
+                        if (subversionNumber!=null){
+                            subversionNumber = "、"+subversionNumber;
+                        }
+                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), null, "光衰",
+                                "IP地址为:("+switchParameters.getIp()+"),"+
+                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                        lightAttenuationComparison.toJson() +"\r\n");
+                    }
+                }
+
+                /* customDelimiter 自定义分隔符 */
+                hashMap.put("parameterString","端口号"+ customDelimiter +"是" + customDelimiter + portstr + customDelimiter +
+                        "光衰参数"+ customDelimiter +"是"+ customDelimiter +
+                        "TX:"+getparameter.get(portstr+"TX")+
+                        "  RX:"+getparameter.get(portstr+"RX"));
+
+                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+                Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+                SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+                switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return AjaxResult.success(pojoList);
+    }
+
+    /**
+     * 光衰功能接口  发送命令 获取返回端口号信息数据
+     *
+     * @param switchParameters 交换机参数对象
+     * @return AjaxResult对象，包含操作结果
+     */
+    public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
+        // 获取光衰命令对象
+        AjaxResult lightAttenuationCommandPojo = getLightAttenuationCommandPojo(switchParameters);
+        // 如果命令操作不成功，则返回错误结果
+        if (!lightAttenuationCommandPojo.get("msg").equals("操作成功")){
+            return lightAttenuationCommandPojo;
+        }
+
+        // 将返回结果转换为光衰命令对象
+        LightAttenuationCommand lightAttenuationCommand = (LightAttenuationCommand)lightAttenuationCommandPojo.get("data");
+
+        // 获取端口号信息数据
+        AjaxResult AjaxResultport = getPort(switchParameters, lightAttenuationCommand);
+        // 如果获取端口号操作不成功，则返回错误结果
+        if(!AjaxResultport.get("msg").equals("操作成功")){
+            return AjaxResultport;
+        }
+        // 将返回结果转换为端口号列表
+        List<String> ports = (List<String>) AjaxResultport.get("data");
+
+        // 获取光衰参数
+        AjaxResult lightAttenuationParameters = getLightAttenuationParameters(ports, switchParameters, lightAttenuationCommand);
+        // 如果获取光衰参数操作不成功，则返回错误结果
+        if (!lightAttenuationParameters.get("msg").equals("操作成功")){
+            return lightAttenuationParameters;
+        }
+        // 将返回结果转换为光衰参数集合
+        HashMap<String, String> getparameter = (HashMap<String, String>) lightAttenuationParameters.get("data");
+
+        // 获取扫描结果
+        AjaxResult ajaxResult = obtainScanningResults(switchParameters, ports, getparameter);
+        // 返回扫描结果
+        return ajaxResult;
+    }
+
+
+    /**
+     * 根据交换机参数获取光衰端口号
+     *
+     * @param switchParameters 交换机参数对象
+     * @return AjaxResult对象，包含获取到的光衰端口号列表
+     */
+    public AjaxResult getPort(SwitchParameters switchParameters,LightAttenuationCommand lightAttenuationCommand) {
+
         /*获取up端口号命令*/
         String command = lightAttenuationCommand.getGetPortCommand();
-
         //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
         ExecuteCommand executeCommand = new ExecuteCommand();
-
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
         returnString = this.returnPortString;
         returnString = MyUtils.trimString(returnString);
 
         // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
         if (returnString == null){
-
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                             "问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
-
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:光衰功能获取端口号命令错误,需要重新定义\r\n");
         }
-
         //5：如果交换机返回信息不为 null说明命令执行正常,
         //则继续 根据交换机返回信息获取获取 up状态 光衰端口号 铜缆除外，铜缆关键词为 COPPER
         List<String> port = ObtainUPStatusPortNumber(returnString);
-
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
             //关于没有端口号为UP状态 的错误代码库
@@ -146,220 +332,76 @@ public class LuminousAttenuation {
             }
         }
 
-        //8：根据 up状态端口号 及交换机信息
-        //获取光衰参数命令 ：  lightAttenuationCommand.getGetParameterCommand()
-        //switchParameters ： 交换机信息类
-        HashMap<String, String> getparameter = getparameter(port, switchParameters,lightAttenuationCommand.getGetParameterCommand());
+        return AjaxResult.success(port);
+    }
 
-        /*9：获取光衰参数为空*/
-        if (MyUtils.isMapEmpty(getparameter)){
+    /**
+     * 获取光衰参数
+     *
+     * @param port 光衰端口列表
+     * @param switchParameters 交换机参数对象
+     * @param lightAttenuationCommand 光衰命令对象
+     * @return 包含获取到的光衰参数的 AjaxResult 对象
+     */
+    public AjaxResult getLightAttenuationParameters(List<String> port, SwitchParameters switchParameters, LightAttenuationCommand lightAttenuationCommand) {
+        // 调用 getparameter 方法获取参数，并将结果保存在 getparameter 变量中
+        HashMap<String, String> getparameter = getparameter(port, switchParameters, lightAttenuationCommand.getGetParameterCommand());
+
+        // 如果 getparameter 变量为空
+        if (MyUtils.isMapEmpty(getparameter)) {
+            // 获取交换机的子版本号
+            String subversionNumber = switchParameters.getSubversionNumber();
+
+            // 如果子版本号不为空，则在其前面加上"、"
+            if (subversionNumber != null) {
+                subversionNumber = "、" + subversionNumber;
+            }
+
+            // 调用 AbnormalAlarmInformationMethod 类的 afferent 方法记录问题日志
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:" + switchParameters.getIp() + "," +
+                            "基本信息为:" + switchParameters.getDeviceBrand() + "、" + switchParameters.getDeviceModel() + "、" + switchParameters.getFirmwareVersion() + subversionNumber + "," +
+                            "问题为:光衰功能所有UP状态端口皆未获取到光衰参数\r\n");
+
+            // 返回错误结果的 AjaxResult 对象
+            return AjaxResult.error("IP地址:" + switchParameters.getIp() + "未获取到光衰参数");
+        }
+
+        // 返回成功结果的 AjaxResult 对象，并包含获取到的参数 getparameter
+        return AjaxResult.success(getparameter);
+    }
+
+    /**
+     * 根据交换机参数获取光衰减命令对象并返回AjaxResult
+     *
+     * @param switchParameters 交换机参数对象
+     * @return AjaxResult 光衰减命令对象
+     */
+    public  AjaxResult getLightAttenuationCommandPojo(SwitchParameters switchParameters) {
+        /*1：获取配置文件关于 光衰问题的 符合交换机品牌的命令的 配置信息*/
+        // 根据交换机参数获取光衰减命令对象
+        LightAttenuationCommand lightAttenuationCommand = getLightAttenuationCommand(switchParameters);
+        lightAttenuationCommandService = SpringBeanUtil.getBean(ILightAttenuationCommandService.class);
+        List<LightAttenuationCommand> lightAttenuationCommandList = lightAttenuationCommandService.selectLightAttenuationCommandListBySQL(lightAttenuationCommand);
+
+        /*2：当 配置文件光衰问题的命令 为空时 进行 日志写入*/
+        if (MyUtils.isCollectionEmpty(lightAttenuationCommandList)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:光衰功能所有UP状态端口皆未获取到光衰参数\r\n");
-
-            return AjaxResult.error("IP地址:"+switchParameters.getIp()+"未获取到光衰参数");
+                            "问题为:光衰功能未定义获取端口号命令\r\n");
+            return AjaxResult.error("未定义"+switchParameters.getDeviceBrand()+"交换机获取端口号命令");
         }
-
-        List<LightAttenuationComparison> pojoList = new ArrayList<>();
-
-        /** 根据交换机IP获取数据表数据 */
-        LightAttenuationComparison selectpojo = new LightAttenuationComparison();
-        selectpojo.setSwitchIp(switchParameters.getIp());
-        lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
-        List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(selectpojo);
-
-        /** 数据表数据 存入MAP集合中 */
-        Map<String,LightAttenuationComparison> lightAttenuationComparisonMap = new HashMap<>();
-        for (LightAttenuationComparison pojo:lightAttenuationComparisons){
-            lightAttenuationComparisonMap.put(pojo.getPort(),pojo);
-        }
-        /** 获取Map集合中KEY值数据集合*/
-        List<String> keySet = lightAttenuationComparisonMap.keySet().stream().collect(Collectors.toList());
-        /** 查看字符串集合A中存在，但字符串集合B中不存在的部分
-         * 查看 数据表中有，但是扫描后没有的端口    数据表中独有的端口号*/
-        List<String> difference = MyUtils.findDifference(keySet,port);
-
-        /**
-        * 数据表中有，扫描结果没有的 则 说明 断开了连接
-         * 断开接口提示交换机端口断开连接，端口状态为DOWN*/
-        for (String portstr:difference){
-
-            /** 修改端口号状态  */
-            LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
-            lightAttenuationComparisonPojo.setValueOne("DOWN");
-            int i = lightAttenuationComparisonService.updateLightAttenuationComparison(lightAttenuationComparisonPojo);
-            if (i > 0 ){
-
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
-                        "系统信息:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能端口号:"+portstr +"断开连接，端口状态为DOWN\r\n");
-
-            }else {
-                    String subversionNumber = switchParameters.getSubversionNumber();
-                    if (subversionNumber!=null){
-                        subversionNumber = "、"+subversionNumber;
-                    }
-
-                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
-                            "系统信息:" +
-                                    "IP地址为:"+switchParameters.getIp()+","+
-                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                    "问题为:光衰功能端口号:"+portstr +"修改状态为DOWN失败\r\n"
-                            );
-
-                return AjaxResult.error();
-            }
-        }
-
-        /*自定义分隔符*/
-        String customDelimiter =null;
-        Object customDelimiterObject =  CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-        if (customDelimiterObject instanceof String){
-            customDelimiter = (String) customDelimiterObject;
-        }
-
-        /*10:获取光衰参数不为空*/
-        try {
-            for (String portstr:port){
-
-                //根据光衰参数阈值的代码库回显和日志
-                String subversionNumber1 = switchParameters.getSubversionNumber();
-                if (subversionNumber1!=null){
-                    subversionNumber1 = "、"+subversionNumber1;
-                }
-
-
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "数据记录",
-                        "系统信息:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion() + subversionNumber1 + ","+
-                                "问题为:光衰功能端口号:"+portstr +
-                                " TX:"+getparameter.get(portstr+"TX")+" RX:"+getparameter.get(portstr+"RX")+"\r\n");
-
-
-
-                /*当光衰参数不为空时  光衰参数存入 光衰比较表*/
-                if (getparameter.get(portstr+"TX") != null && getparameter.get(portstr+"RX") != null){
-
-                    InsertLightAttenuation insertLightAttenuation = average(switchParameters, getparameter, portstr);
-
-                    if (insertLightAttenuation.getInsertResults()>0){
-                        pojoList.add(insertLightAttenuation.getLightAttenuationComparison());
-                    }else {
-                        /*数据库操作失败*/
-                    }
-
-                }else {
-                    continue;
-                }
-
-                HashMap<String,String> hashMap = new HashMap<>();
-                hashMap.put("ProblemName","光衰");
-
-                /* 如果 lightAttenuationComparisonMap 对应端口号 为空 则数据库表光衰记录表中没有相关信息
-                则默认无问题*/
-                if (lightAttenuationComparisonMap.get(portstr) == null){
-
-                    hashMap.put("IfQuestion","无问题");
-
-                }else {
-
-                    LightAttenuationComparison lightAttenuationComparison = lightAttenuationComparisonMap.get(portstr);
-
-                    if (lightAttenuationComparison.getRxRatedDeviation()!=null && lightAttenuationComparison.getTxRatedDeviation()!=null){
-                        //判断光衰是否有问题
-                        String meanJudgmentProblem = meanJudgmentProblem(lightAttenuationComparison);
-
-                        hashMap.put("IfQuestion",meanJudgmentProblem);
-
-                        if (meanJudgmentProblem.equals("无问题")){
-
-                            //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
-
-                            if (lightAttenuationComparison.getValueOne().equals("DOWN")){
-
-                                String subversionNumber = switchParameters.getSubversionNumber();
-                                if (subversionNumber!=null){
-                                    subversionNumber = "、"+subversionNumber;
-                                }
-
-                                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
-                                        "系统信息:" +
-                                                "IP地址为:"+switchParameters.getIp()+","+
-                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                "问题为:光衰功能端口号:"+portstr + "恢复连接\r\n");
-
-                            }
-
-                        }else if (meanJudgmentProblem.equals("有问题")){
-
-                            //LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
-
-                            if (lightAttenuationComparison.getValueOne().equals("DOWN")){
-
-                                String subversionNumber = switchParameters.getSubversionNumber();
-                                if (subversionNumber!=null){
-                                    subversionNumber = "、"+subversionNumber;
-                                }
-
-                                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
-                                        "系统信息:" +
-                                                "IP地址为:"+switchParameters.getIp()+","+
-                                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                                "问题为:光衰功能端口号:"+portstr + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
-
-                            }
-
-                        }
-
-                        //根据光衰参数阈值的代码库回显和日志
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), null, "光衰",
-                                "IP地址为:("+switchParameters.getIp()+"),"+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        lightAttenuationComparison.toJson() +"\r\n");
-                    }
-                }
-
-                /* customDelimiter 自定义分隔符 */
-                hashMap.put("parameterString","端口号"+ customDelimiter +"是" + customDelimiter + portstr + customDelimiter +
-                        "光衰参数"+ customDelimiter +"是"+ customDelimiter +
-                        "TX:"+getparameter.get(portstr+"TX")+
-                        "  RX:"+getparameter.get(portstr+"RX"));
-
-                SwitchScanResultController switchScanResultController = new SwitchScanResultController();
-                Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
-
-                SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
-                switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return AjaxResult.success(pojoList);
+        //从 lightAttenuationCommandList 中 获取四项基本最详细的数据
+        lightAttenuationCommand = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand( lightAttenuationCommandList );
+        return AjaxResult.success(lightAttenuationCommand);
     }
-
 
     /**
     * @Description 判断光衰是否有问题
@@ -377,7 +419,6 @@ public class LuminousAttenuation {
         double rxLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getRxLatestNumber());
         //TX最新参数
         double txLatestNumber = MyUtils.stringToDouble(lightAttenuationComparison.getTxLatestNumber());
-
         //RX起始值(基准)
         double rxStartValue = MyUtils.stringToDouble(lightAttenuationComparison.getRxStartValue());
         //TX起始值(基准)
@@ -388,10 +429,6 @@ public class LuminousAttenuation {
         //TX平均值
         double txAverageValue = MyUtils.stringToDouble(lightAttenuationComparison.getTxAverageValue());
 
-        /*RX即时偏差*/
-        //double rxImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation()));
-        /*TX即时偏差*/
-        //double txImmediateDeviation = MyUtils.stringToDouble(""+CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation()));
 
         DecimalFormat df = new DecimalFormat("#.0000");
 
@@ -449,7 +486,7 @@ public class LuminousAttenuation {
     }
 
     /**
-    * @Description 根据交换机返回信息获取获取 UP 状态端口号
+    * @Description 根据交换机返回信息获取获取 UP 状态端口号 非"COPPER"铜缆的 数据
      *
     * @desc
      * 遍历交换及返回信息，其中包含" UP "状态的、不包含"COPPER"铜缆的、
@@ -490,7 +527,6 @@ public class LuminousAttenuation {
 
         return port;
     }
-
 
     /**
      * 根据 up状态端口号 及交换机信息  发送命令并获取光衰参数信息
@@ -537,8 +573,6 @@ public class LuminousAttenuation {
                 continue;
             }
 
-
-
             /**
              * 提取光衰参数
              */
@@ -559,7 +593,6 @@ public class LuminousAttenuation {
 
                 continue;
             }
-
 
             if(values.get("TX") != null){
                 hashMap.put(port+"TX",values.get("TX")+"");
@@ -684,278 +717,26 @@ public class LuminousAttenuation {
         return values;
     }
 
+
     /**
-     * 提取光衰参数
-     * 根据 PX POWER 和 TX POWER
-     * @param string
-     * @return
+     * 根据交换机参数获取光衰减命令对象
+     *
+     * @param switchParameters 交换机参数对象
+     * @return 返回创建好的光衰减命令对象
      */
-    public HashMap<String,Double> getDecayValues(String string,SwitchParameters switchParameters) {
-        /*根据 "\r\n" 切割为行信息*/
-        String[] Line_split = string.toUpperCase().split("\r\n");
-
-        /*
-        * 自定义 光衰参数默认给个 50
-        * 收发光功率可能为正，但是一般最大30左右
-        * 此时默认给50 作为是否 获取到返回信息 的判断
-        * */
-        double txpower = 50.0;
-        double rxpower = 50.0;
-
-        /*创建字符串集合，用于存储 key：valu格式的参数
-         遍历交换机返回信息，如果 tx 和 rx 不在同一行 则说明 是 key：valu格式的参数
-         则 存入 集合中*/
-        List<String> keyValueList = new ArrayList<>();
-
-        /* 遍历交换机返回信息行数组 */
-        for (int number = 0 ;number<Line_split.length;number++) {
-
-            /* 字符串包含 TX POWER、RX POWER 一定是参数名
-             * 但是考虑到 可能不会是 TX POWER 或者 RX POWER
-             * 提供了另一种方式 当出现TX或者RX时，并且出现 dbm时，那么TX和RX的字段也会是参数名*/
-            if (Line_split[number].indexOf("TX POWER") !=-1
-                    || Line_split[number].indexOf("RX POWER") !=-1
-
-                    || ((Line_split[number].indexOf("TX") !=-1 || Line_split[number].indexOf("RX") !=-1) && Line_split[number].indexOf("DBM") !=-1)){
-
-                Line_split[number] = MyUtils.caseInsensitiveReplace(Line_split[number], "RX POWER", "RXPOWER");
-                Line_split[number] = MyUtils.caseInsensitiveReplace(Line_split[number], "TX POWER", "TXPOWER");
-
-            }else {
-                continue;
-            }
-
-
-            /* 获取 TX POWER 和 RX POWER 的位置
-            * 当其中一个值不为 -1时 则为key：value格式
-            * 如果全不为 -1时 则是 两个光衰参数在同一行 的格式
-            * 如果全部为 -1时，则 RX、TX 都不包含*/
-            int tx = Line_split[number].indexOf("TX");
-            int rx = Line_split[number].indexOf("RX");
-
-            /* RX、TX都为-1时
-             则RX、TX都不包含
-             则进入下一循环*/
-            if (tx ==-1 && rx ==-1){
-                continue;
-            }
-
-            /*如果 RX TX 同时不为 -1
-            则说明同时包含 RX TX
-            则 需要判断 RX 、 TX 的先后顺序*/
-
-            /*设 num 为 TX 与 RX的位置关系
-            为1是RX、TX
-            为-1时TX、RX
-            为0 时 key:value */
-            int num = 0 ;
-
-            if (tx!=-1 && rx!=-1){
-                /*如果全不为 -1时 则是 两个光衰参数在同一行 的格式
-                   RX power(dBm)       TX power(dBm)
-                   -5.96(OK)[AP]       -6.04(OK)
-                *需要判断 RX和TX的先后顺序 */
-                if (tx > rx){
-                    /*当 tx > rx时 说明 rx在前 TX 在后
-                    * 所以 num = 1时，说明 rx在前 TX 在后*/
-                    num = 1;
-                }else if (tx < rx){
-                    /*当 tx < rx时 说明 tx在前 RX 在后
-                     * 所以 num = -1时，说明 tx在前 RX 在后*/
-                    num = -1;
-                }
-
-            }else {
-
-                /*如果 TX RX 不同时为 -1 则 说明：收、发光功率不在一行
-                则程序  num = 0
-                为 不在一行
-                为 key：value格式
-                num = 0  不做修改 */
-
-            }
-
-
-            /* 因为 num = 0 所以 为 不在一行 为 key：value格式
-            * 需要 存放入 集合中 */
-            /* 去掉了 && (tx != -1 || rx != -1) 因为 之前 RX、TX 都不包含 已经做过判断 */
-            if (num == 0){
-
-                /* 包含 TX 或者 RX
-                key:value 格式
-                keyValueList集合 用于存储 key:value 格式数据*/
-                keyValueList.add(Line_split[number]);
-
-            }else {
-
-                /*错误信息预定义 用于提取数据失败返回前端显示 */
-                String nextrow = Line_split[number];
-                String parameterInformation = nextrow;
-                /*两个都包含 则 两个参数值在一行
-                * 如果不包含 ： 则将*/
-                if (nextrow.indexOf( ":" ) == -1){
-                    nextrow = Line_split[number+1];
-                    parameterInformation = parameterInformation +"\r\n"+ nextrow;
-                }
-
-                String[] Line_split_split = Line_split[number].split("\\s+");
-
-                /*字符串截取double值*/
-                List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
-
-                HashMap<String, Integer> position = new HashMap<>();
-
-                if (Line_split_split.length == values.size()){
-
-                    position = getPosition(Line_split[number]);
-
-                }else {
-                    /*去除单个的空格,保留连续多个空格*/
-                    String replaceAll = Line_split[number].replaceAll("(?<=\\S)\\s(?=\\S)", "");
-
-                    Line_split_split =replaceAll.split("\\s+");
-                    if (Line_split_split.length == values.size()){
-                        position = getPosition(replaceAll);
-                    }else {
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                                "异常:" +
-                                        "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:光衰功能光衰参数取词失败," +
-                                        "光衰参数行信息:"+parameterInformation+"\r\n");
-
-                    }
-                }
-
-                txpower = values.get(position.get("TX"));
-                rxpower = values.get(position.get("RX"));
-
-                break;
-            }
-        }
-
-
-        /*key ： value 格式*/
-        if (keyValueList.size()!=0){
-
-            /*当包含 TX POWER 或 RX POWER 的数多余2条是
-            要再次筛选 CURRENT 光衰参数信息 或是阈值信息*/
-            if (keyValueList.size() > 2){
-                /*存储再次筛选后的 行信息*/
-                List<String> keylist = new ArrayList<>();
-                for (int num = 0 ; num<keyValueList.size();num++){
-                    /*Current Rx Power(dBM)                 :-11.87
-                      Default Rx Power High Threshold(dBM)  :-2.00
-                      Default Rx Power Low  Threshold(dBM)  :-23.98
-                      Current Tx Power(dBM)                 :-2.80
-                      Default Tx Power High Threshold(dBM)  :1.00
-                      Default Tx Power Low  Threshold(dBM)  :-6.00*/
-                    /*遇到包含 CURRENT 是则存储行信息集合
-                       containIgnoreCase   判断一个字符串是否包含另一个字符串(忽略大小写)
-                    * 下面两行是否包含HIGH 和 LOW 阈值区间*/
-
-                    if (MyUtils.containIgnoreCase(keyValueList.get(num),"CURRENT")){
-                        keylist.add(keyValueList.get(num));
-                    }
-
-                }
-                /*筛选以后 重新赋值
-                  Current Rx Power(dBM)                 :-11.87
-                  Current Tx Power(dBM)                 :-2.80
-                */
-                if (keylist.size() > 1){
-                    keyValueList = keylist;
-                }
-
-            }
-
-            /*遍历 行信息集合*/
-            for (String keyvalue:keyValueList){
-
-                /*当 行信息包含 RX 说明是 RX数据*/
-                if (MyUtils.containIgnoreCase(keyvalue,"RXPOWER")){
-                    /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
-                    List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-
-                    if (doubleList.size()==1){
-                            /*Current Rx Power(dBM)                 :-11.87
-                            Current Tx Power(dBM)                 :-2.80*/
-                        rxpower = doubleList.get(0);
-
-                    }else if (doubleList.size()==3){
-
-                        Double rx = getParameterValueIndex("RXPOWER", doubleList, keyvalue);
-                            /*  Rx Power:  -6.23dBm, Warning range: [-16.989,  -5.999]dBm
-                                Tx Power:  -6.16dBm, Warning range: [-9.500,  -2.999]dBm  */
-                        if (rx != null){
-                            rxpower = rx;
-                        }
-
-                    }else {
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                                "异常:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能光衰参数行数值数量不正确,无法解析," +
-                                "光衰参数行信息:"+keyvalue+"\r\n");
-
-                    }
-                }
-
-                /*当 行信息包含 TX 说明是 TX数据*/
-                if (MyUtils.containIgnoreCase(keyvalue,"TXPOWER")){
-
-                    /*获取负数值 如果一个则是光衰 如果三个则是包含阈值*/
-                    List<Double> doubleList = MyUtils.StringTruncationDoubleValue(keyvalue);
-                    if (doubleList.size()==1){
-                        txpower = doubleList.get(0);
-                    }else if (doubleList.size()==3){
-                        Double tx = getParameterValueIndex("TXPOWER", doubleList, keyvalue);
-                        if (tx != null){
-                            txpower = tx;
-                        }
-                    }else {
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                                "异常:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:光衰功能光衰参数行负数数量不正确,无法解析," +
-                                "光衰参数行信息:"+keyvalue+"\r\n");
-
-                    }
-
-                }
-            }
-        }
-
-        HashMap<String,Double> hashMap = new HashMap<>();
-
-        if (Double.valueOf(txpower).doubleValue() == 50.0 || Double.valueOf(rxpower).doubleValue() == 50.0)
-            return hashMap;
-
-        /**
-        * 为什么等于1时为null？
-        */
-        hashMap.put("TX", txpower);/*Double.valueOf(txpower).doubleValue() == 1?null:txpower*/
-        hashMap.put("RX", rxpower);/*Double.valueOf(rxpower).doubleValue() == 1?null:rxpower*/
-
-        return hashMap;
-
+    public static LightAttenuationCommand getLightAttenuationCommand(SwitchParameters switchParameters) {
+        // 创建一个 LightAttenuationCommand 对象
+        LightAttenuationCommand lightAttenuationCommand = new LightAttenuationCommand();
+        // 设置 LightAttenuationCommand 对象的品牌属性为交换机参数的品牌
+        lightAttenuationCommand.setBrand(switchParameters.getDeviceBrand());
+        // 设置 LightAttenuationCommand 对象的交换机类型属性为交换机参数的型号
+        lightAttenuationCommand.setSwitchType(switchParameters.getDeviceModel());
+        // 设置 LightAttenuationCommand 对象的固件版本属性为交换机参数的固件版本
+        lightAttenuationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
+        // 设置 LightAttenuationCommand 对象的子版本号属性为交换机参数的子版本号
+        lightAttenuationCommand.setSubVersion(switchParameters.getSubversionNumber());
+        // 返回创建好的 LightAttenuationCommand 对象
+        return lightAttenuationCommand;
     }
 
     /**
@@ -1001,22 +782,22 @@ public class LuminousAttenuation {
             lightAttenuationComparison.setTxStartValue(tx);
             /* 插入 默认 额定偏差*/
             Object rxRatedDeviation = CustomConfigurationUtil.getValue("光衰.rxRatedDeviation",Constant.getProfileInformation());
-            if (rxRatedDeviation!=null && rxRatedDeviation instanceof String){
-                lightAttenuationComparison.setRxRatedDeviation((String) rxRatedDeviation);
+            if (rxRatedDeviation!=null ){
+                lightAttenuationComparison.setRxRatedDeviation(rxRatedDeviation+"");
             }
             Object txRatedDeviation = CustomConfigurationUtil.getValue("光衰.txRatedDeviation",Constant.getProfileInformation());
-            if (txRatedDeviation!=null && txRatedDeviation instanceof String){
-                lightAttenuationComparison.setTxRatedDeviation((String) txRatedDeviation);
+            if (txRatedDeviation!=null ){
+                lightAttenuationComparison.setTxRatedDeviation(txRatedDeviation+"");
             }
 
             /* 插入 默认 即时偏差*/
             Object rxImmediateDeviation = CustomConfigurationUtil.getValue("光衰.rxImmediateDeviation",Constant.getProfileInformation());
-            if (rxImmediateDeviation!=null && rxImmediateDeviation instanceof String){
-                lightAttenuationComparison.setRxImmediateDeviation((String) rxImmediateDeviation);
+            if (rxImmediateDeviation!=null ){
+                lightAttenuationComparison.setRxImmediateDeviation(rxImmediateDeviation+"");
             }
             Object txImmediateDeviation = CustomConfigurationUtil.getValue("光衰.txImmediateDeviation",Constant.getProfileInformation());
-            if (txImmediateDeviation!=null && txImmediateDeviation instanceof String){
-                lightAttenuationComparison.setTxImmediateDeviation((String) txImmediateDeviation);
+            if (txImmediateDeviation!=null ){
+                lightAttenuationComparison.setTxImmediateDeviation(txImmediateDeviation+"");
             }
 
             lightAttenuationComparison.setValueOne("UP");
@@ -1070,91 +851,6 @@ public class LuminousAttenuation {
         return MyUtils.stringToDouble(result);
     }
 
-    /**
-     * @Description  获取 RX TX 位置
-     * @author charles
-     * @createTime 2023/12/19 12:34
-     * @desc
-     * @param input
-     * @return
-     */
-    public static HashMap<String,Integer> getPosition(String input) {
-        String[] split = input.split("\\s+");
-        HashMap<String,Integer> position = new HashMap<>();
-        for (int i = 0 ; i < split.length ; i++){
-            if ( split[i].indexOf("RX")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
-
-                position.put("RX",i);
-            }else if ( split[i].indexOf("TX")!=-1 ){/*&& split[i].indexOf("power")!=-1*/
-
-                position.put("TX",i);
-            }
-        }
-        return position;
-    }
-
-    /*获取 RX或者TX后面的第一个参数*/
-    public static Double getParameterValueIndex(String keyword,List<Double> values,String input) {
-        // 获取keyword在input中出现的所有位置
-        List<Integer> keywordPositions = MyUtils.getSubstringPositions(input, keyword);
-
-        if (keywordPositions.size()!=1){
-            return null;
-        }
-        // 获取keyword在input中第一次出现的位置
-        Integer keywordPosition = keywordPositions.get(0);
-        // 从keyword位置后截取字符串，并提取其中的Double类型值
-        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(input.substring(keywordPosition+keyword.length(), input.length()));
-
-        if (doubleList.size() == 0){
-            return null;
-        }else {
-            return doubleList.get(0);
-        }
-
-        /*// 子字符串在父字符串中出现的所有位置
-        List<Integer> keywordPositions = MyUtils.getSubstringPositions(input, keyword);
-
-        if (keywordPositions.size()!=1){
-            return null;
-        }
-
-        Integer keywordPosition = keywordPositions.get(0);
-
-        Set<Integer> positionList = new HashSet<>();
-
-        // 遍历values列表，获取每个值在input中的位置
-        for (double value:values){
-            positionList.addAll(MyUtils.getSubstringPositions(input, zero_suppression(value+"") ));
-        }
-
-        int i = 0;
-        // 从keywordPosition+2开始遍历，直到input的倒数第二个字符
-        for (i = keywordPosition+2 ; i < input.length()-1 ; i++){
-            boolean contains = positionList.contains(i);
-            if (contains){
-                break;
-            }
-        }
-
-        // 截取从i位置到input末尾的子字符串，并提取其中的Double类型值
-        List<Double> doubleList = MyUtils.StringTruncationDoubleValue(input.substring(i, input.length()));
-
-        if (doubleList.size() == 0){
-            return null;
-        }else {
-            return doubleList.get(0);
-        }*/
-    }
-
-    /*Double类型字符串去除结尾的0 或者结尾的.*/
-    public static String zero_suppression(String value) {
-        while ((value+"").endsWith("0") || (value+"").endsWith(".")){
-            value = value.substring(0,value.length()-1);
-        }
-        return value;
-    }
-
 
     private static String returnPortString = "Interface Status Vlan Duplex Speed Type\n" +
             "--------------------------------------------------------------------------\n" +
@@ -1164,7 +860,7 @@ public class LuminousAttenuation {
             "GigabitEthernet 1/4 down 1 Unknown Unknown copper\n" +
             "GigabitEthernet 1/5 down 1001 Unknown Unknown copper\n" +
             "GigabitEthernet 1/6 up 5 Full 100M copper\n" +
-            "GigabitEthernet 1/7 up 2010 Full 100M copper\n" +
+            "GigabitEthernet 1/7 down 2010 Full 100M fiber\n" +
             "GigabitEthernet 1/8 down 1 Unknown Unknown copper\n" +
             "GigabitEthernet 1/9 down 1 Unknown Unknown copper\n" +
             "GigabitEthernet 1/10 down 1 Unknown Unknown copper\n" +

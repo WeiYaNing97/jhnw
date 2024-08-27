@@ -1,11 +1,11 @@
 package com.sgcc.advanced.controller;
 
-import com.sgcc.advanced.aggregation.ExternalRouteAggregation;
 import com.sgcc.advanced.aggregation.IPAddressCalculator;
 import com.sgcc.advanced.aggregation.IPAddressUtils;
 import com.sgcc.advanced.domain.*;
 import com.sgcc.advanced.service.IRouteAggregationCommandService;
 import com.sgcc.advanced.utils.ScreeningMethod;
+import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
@@ -29,24 +29,150 @@ public class RouteAggregation {
     /**
      * 获取聚合结果
      *
-     * @param switchParameters 交换机参数
+     * @param switchParameters 交换机参数对象
      * @return 无返回值
      */
-    public  void obtainAggregationResults(SwitchParameters switchParameters) {
+    public AjaxResult obtainAggregationResults(SwitchParameters switchParameters) {
 
-        Map<String, String> switchReturnsMap = switchReturnsResult(switchParameters);
+        // 调用switchReturnsResult方法获取交换机返回结果，
+        // internal 内部路由返回信息 external 外部路由返回信息 externalKeywords 外部关键字
+        // 并存储到switchReturnsMap中
+        AjaxResult AjaxResultswitchReturnsResult = switchReturnsResult(switchParameters);
+        if (!AjaxResultswitchReturnsResult.get("msg").equals("操作成功")){
+            return AjaxResultswitchReturnsResult;
+        }
+        Map<String, String> switchReturnsMap = (Map<String, String>) AjaxResultswitchReturnsResult.get("data");
+
+        // 从switchReturnsMap中获取internal信息
         String switchReturnsinternalInformation = switchReturnsMap.get("internal");
+        // 如果internal信息不为空
         if (switchReturnsinternalInformation != null){
+            // 调用internalRouteAggregation方法进行内部路由聚合
             internalRouteAggregation(switchParameters,switchReturnsinternalInformation);
         }
+
+        // 从switchReturnsMap中获取external信息
         String switchReturnsexternalInformation = switchReturnsMap.get("external");
-        String externalKeywords = switchReturnsMap.get("externalKeywords");
+        // 如果external信息不为空
         if (switchReturnsexternalInformation!=null){
+            // 从switchReturnsMap中获取externalKeywords信息
+            String externalKeywords = switchReturnsMap.get("externalKeywords");
+
+            // 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
             ExternalRouteAggregation.externalRouteAggregation(switchParameters,switchReturnsexternalInformation,externalKeywords);
         }
 
+        return AjaxResult.success();
     }
 
+
+    /**
+     * 获取路由聚合命令
+     *
+     * @param switchParameters 交换机参数对象
+     * @return 路由聚合命令对象
+     */
+    public RouteAggregationCommand getRouteAggregationCommand(SwitchParameters switchParameters) {
+        // 创建一个路由聚合命令对象
+        RouteAggregationCommand routeAggregationCommand = new RouteAggregationCommand();
+        // 设置路由聚合命令对象的品牌为交换机参数对象的设备品牌
+        routeAggregationCommand.setBrand(switchParameters.getDeviceBrand());
+        // 设置路由聚合命令对象的交换机类型为交换机参数对象的设备型号
+        routeAggregationCommand.setSwitchType(switchParameters.getDeviceModel());
+        // 设置路由聚合命令对象的固件版本为交换机参数对象的固件版本
+        routeAggregationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
+        // 设置路由聚合命令对象的子版本号为交换机参数对象的子版本号
+        routeAggregationCommand.setSubVersion(switchParameters.getSubversionNumber());
+        // 返回路由聚合命令对象
+        return routeAggregationCommand;
+    }
+
+    /**
+     * 获取路由聚合命令对象
+     *
+     * @param switchParameters 交换机参数对象
+     * @return 路由聚合命令对象，若配置文件路由聚合问题的命令为空则返回null
+     */
+    public AjaxResult getRouteAggregationCommandPojo(SwitchParameters switchParameters){
+        // 1：获取配置文件关于路由聚合问题的符合交换机品牌的命令的配置信息
+        /* SwitchParameters switchParameters */
+        RouteAggregationCommand routeAggregationCommand = getRouteAggregationCommand(switchParameters);
+
+        // 获取IRouteAggregationCommandService的bean实例
+        routeAggregationCommandService = SpringBeanUtil.getBean(IRouteAggregationCommandService.class);
+        // 查询符合配置的路由聚合命令列表
+        List<RouteAggregationCommand> routeAggregationCommandList = routeAggregationCommandService.selectRouteAggregationCommandListBySQL(routeAggregationCommand);
+
+        // 当配置文件路由聚合问题的命令为空时，进行日志写入
+        if (MyUtils.isCollectionEmpty(routeAggregationCommandList)){
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:IP地址为:"+switchParameters.getIp()+"。"+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                            "问题为:路由聚合功能未定义获取网络号命令。\r\n"
+            );
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:路由聚合功能未定义获取网络号命令\r\n");
+        }
+
+        // 从routeAggregationCommandList中获取四项基本最详细的数据
+        /* 从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
+        RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesRouteAggregationCommand(routeAggregationCommandList);
+        return AjaxResult.success(routeAggregationCommandPojo);
+    }
+
+    /**
+     * 根据SwitchParameters参数获取交换机返回信息
+     *
+     * @param switchParameters 包含交换机相关信息的参数对象
+     * @return 交换机返回信息，若路由聚合命令为空则返回null
+     */
+    public AjaxResult switchReturnsResult(SwitchParameters switchParameters) {
+
+        AjaxResult commandPojo = getRouteAggregationCommandPojo(switchParameters);
+        if (!commandPojo.get("msg").equals("操作成功")){
+            return commandPojo;
+        }
+        RouteAggregationCommand routeAggregationCommandPojo = (RouteAggregationCommand) commandPojo.get("data");
+
+        Map<String,String> returnMap = new HashMap<>();
+
+        // 获取路由聚合问题的内部命令
+        String internalCommand = routeAggregationCommandPojo.getInternalCommand();
+        // 执行交换机命令，返回交换机返回信息
+        /* 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        ExecuteCommand executeCommand = new ExecuteCommand();
+        String internal = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
+        // 去除返回信息中的空白字符
+        internal = H3C;
+        internal = MyUtils.trimString(internal);
+        returnMap.put("internal",internal);
+
+        // 获取路由聚合问题的外部命令
+        String externalCommand = routeAggregationCommandPojo.getExternalCommand();
+        String external = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
+        // 去除返回信息中的空白字符
+        external = externalreturnInformation;
+        external = MyUtils.trimString(external);
+        returnMap.put("external",external);
+
+        String externalKeywords = routeAggregationCommandPojo.getExternalKeywords();
+        externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
+        returnMap.put("externalKeywords",externalKeywords);
+
+        // 返回交换机返回信息
+        return AjaxResult.success(returnMap);
+    }
+
+    /**
+     * 内部路由聚合方法
+     *
+     * @param switchParameters 交换机参数对象
+     * @param switchReturnsinternalInformation 交换机返回的内部信息
+     * @return 无返回值
+     */
     public static void internalRouteAggregation(SwitchParameters switchParameters,String switchReturnsinternalInformation) {
         // 获取IP信息列表
         List<IPInformation> ipInformationList = IPAddressUtils.getIPInformation(MyUtils.trimString(switchReturnsinternalInformation));
@@ -88,78 +214,6 @@ public class RouteAggregation {
 
         }
     }
-
-
-    /**
-     * 根据SwitchParameters参数获取交换机返回信息
-     *
-     * @param switchParameters 包含交换机相关信息的参数对象
-     * @return 交换机返回信息，若路由聚合命令为空则返回null
-     */
-    public Map<String,String> switchReturnsResult(SwitchParameters switchParameters) {
-
-        // 1：获取配置文件关于路由聚合问题的符合交换机品牌的命令的配置信息
-        /* SwitchParameters switchParameters */
-        RouteAggregationCommand routeAggregationCommand = new RouteAggregationCommand();
-        routeAggregationCommand.setBrand(switchParameters.getDeviceBrand());
-        routeAggregationCommand.setSwitchType(switchParameters.getDeviceModel());
-        routeAggregationCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
-        routeAggregationCommand.setSubVersion(switchParameters.getSubversionNumber());
-
-        // 获取IRouteAggregationCommandService的bean实例
-        routeAggregationCommandService = SpringBeanUtil.getBean(IRouteAggregationCommandService.class);
-        // 查询符合配置的路由聚合命令列表
-        List<RouteAggregationCommand> routeAggregationCommandList = routeAggregationCommandService.selectRouteAggregationCommandListBySQL(routeAggregationCommand);
-
-        // 当配置文件路由聚合问题的命令为空时，进行日志写入
-        if (MyUtils.isCollectionEmpty(routeAggregationCommandList)){
-            String subversionNumber = switchParameters.getSubversionNumber();
-            if (subversionNumber!=null){
-                subversionNumber = "、"+subversionNumber;
-            }
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                    "异常:IP地址为:"+switchParameters.getIp()+"。"+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
-                            "问题为:路由聚合功能未定义获取网络号命令。\r\n"
-            );
-            return null ;
-        }
-
-        // 从routeAggregationCommandList中获取四项基本最详细的数据
-        /* 从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
-        RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesRouteAggregationCommand(routeAggregationCommandList);
-
-
-        Map<String,String> returnMap = new HashMap<>();
-
-        // 获取路由聚合问题的内部命令
-        String internalCommand = routeAggregationCommandPojo.getInternalCommand();
-        // 执行交换机命令，返回交换机返回信息
-        /* 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
-        ExecuteCommand executeCommand = new ExecuteCommand();
-        String internal = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
-        // 去除返回信息中的空白字符
-        internal = H3C;
-        internal = MyUtils.trimString(internal);
-        returnMap.put("internal",internal);
-
-        // 获取路由聚合问题的外部命令
-        String externalCommand = routeAggregationCommandPojo.getExternalCommand();
-        String external = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
-        // 去除返回信息中的空白字符
-        external = externalreturnInformation;
-        external = MyUtils.trimString(external);
-        returnMap.put("external",external);
-
-        String externalKeywords = routeAggregationCommandPojo.getExternalKeywords();
-        externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
-        returnMap.put("externalKeywords",externalKeywords);
-
-        // 返回交换机返回信息
-        return returnMap;
-    }
-
-
 
     public static String H3C = "  network 10.98.136.0 0.0.0.255\n" +
             "  network 10.98.137.0 0.0.0.255\n" +

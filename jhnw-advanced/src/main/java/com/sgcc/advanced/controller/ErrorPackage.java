@@ -6,6 +6,7 @@ import com.sgcc.advanced.service.IErrorRateCommandService;
 import com.sgcc.advanced.service.IErrorRateService;
 import com.sgcc.advanced.utils.DataExtraction;
 import com.sgcc.advanced.utils.ScreeningMethod;
+import com.sgcc.advanced.utils.Utils;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.enums.BusinessType;
@@ -39,40 +40,329 @@ public class ErrorPackage {
     @Autowired
     private IErrorRateCommandService errorRateCommandService;
 
-    /*发送命令 返回端口号信息*/
+    /**
+     * 获取判断结果
+     *
+     * @param switchParameters 交换机参数对象
+     * @param errorRateMap     数据库错误率映射表 key：端口哈  value：错误率对象
+     * @param errorPackageParameters 错误包参数映射表
+     * @param port             交换机端口号
+     * @param switchID         交换机ID
+     * @return 封装了判断结果的HashMap
+     */
+    public HashMap<String,String> obtainJudgmentResult(SwitchParameters switchParameters,
+                                                       Map<String,ErrorRate> errorRateMap,
+                                                       HashMap<String, Object> errorPackageParameters,
+                                                       String port,
+                                                       Long switchID) {
+        /** 当前扫描数据*/
+        ErrorRate errorRate = new ErrorRate();
+        errorRate.setSwitchIp(switchParameters.getIp()); /*IP*/
+        errorRate.setSwitchId(switchID); /*交换机基本信息ID*/
+        errorRate.setPort(port); /*交换机端口号*/
+        /* 获取该端口号的 错误包参数 */
+        Map<String,String> errorPackageValue = (Map<String,String>) errorPackageParameters.get(port);
+        Set<String> strings = errorPackageValue.keySet();
+        for (String key:strings){
+            if (key.toLowerCase().equals("Input".toLowerCase()) ){
+                //MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error)
+                /*去除原因 前面方法已经将非纯数字、因素去除了*/
+                errorRate.setInputErrors(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
+            }
+            if (key.toLowerCase().equals("Output".toLowerCase())){
+                errorRate.setOutputErrors(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
+            }
+            if (key.toLowerCase().equals("CRC".toLowerCase())){
+                errorRate.setCrc(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
+            }
+            if (key.toLowerCase().equals("Description".toLowerCase())){
+                errorRate.setDescription(errorPackageValue.get(key));
+            }
+        }
+        HashMap<String,String> hashMap = new HashMap<>();
+        hashMap.put("ProblemName","错误包");
+        String subversionNumber1 = switchParameters.getSubversionNumber();
+        if (subversionNumber1!=null){
+            subversionNumber1 = "、"+subversionNumber1;
+        }
+        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
+                "系统信息:" +
+                        "IP地址为:("+switchParameters.getIp()+"),"+
+                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber1+","+
+                        errorRate.toJson()+"\r\n");
+        /** 数据库数据*/
+        ErrorRate primaryErrorRate = errorRateMap.get(port);
+        if (primaryErrorRate == null){
+            /* 数据库中没有历史数据 可以直接插入 */
+            errorRate.setLink("UP");
+            errorRateService.insertErrorRate(errorRate);
+            hashMap.put("IfQuestion","无问题");
+            //continue;
+        }else {
+            /*num 判断 两次扫描数值是否一致*/
+            int num = 0;
+            if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null) &&
+                    (!primaryErrorRate.getInputErrors().equals(errorRate.getInputErrors()))){
+                num++;
+            }else if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() ==null)
+                    || (primaryErrorRate.getInputErrors() ==null && errorRate.getInputErrors() !=null)){
+                /*原数据 或者 新数据 一项为空 另一项不为空*/
+                num++;
+            }
+            if ((primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() !=null) &&
+                    (!primaryErrorRate.getOutputErrors().equals(errorRate.getOutputErrors()))){
+                num++;
+            }else if((primaryErrorRate.getOutputErrors() ==null && errorRate.getOutputErrors() !=null)
+                    || (primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() ==null)){
+                num++;
+            }
+            if ((primaryErrorRate.getCrc() !=null && errorRate.getCrc() !=null) &&
+                    (!primaryErrorRate.getCrc().equals(errorRate.getCrc()))){
+                num++;
+            }else if((primaryErrorRate.getCrc() ==null && errorRate.getCrc() !=null)
+                    || (primaryErrorRate.getCrc() !=null && errorRate.getCrc() ==null)){
+                num++;
+            }
+            /*如果 num 不为0 则前后数据不一致 则有问题*/
+            if (num>0){
+                errorRate.setId(primaryErrorRate.getId());
+                /* 判断数据库数据 是 否为 断开状态*/
+                if ( primaryErrorRate.getLink().equals("DOWN")){
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
+                            "系统信息:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:错误包功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
+                    errorRate.setLink("UP");
+                }
+                int i = errorRateService.updateErrorRate(errorRate);
+                hashMap.put("IfQuestion","有问题");
+            }else if (num == 0){
+                errorRate.setId(primaryErrorRate.getId());
+                /*判断数据库数据是否为 断开状态*/
+                if ( primaryErrorRate.getLink().equals("DOWN")){
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
+                            "系统信息:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:错误包功能端口号:"+ port + "恢复连接\r\n");
+                    errorRate.setLink("UP");
+                }
+                int i = errorRateService.updateErrorRate(errorRate);
+                hashMap.put("IfQuestion","无问题");
+                //continue;
+            }
 
-    //@MyLog(title = "高级功能错误包扫描", businessType = BusinessType.OTHER)
+                /*
+                判断误码率百分比是否满足要求
+                误码率百分比 检验错误*/
+            boolean Percentage = judgingPercentage(errorPackageValue);
+            if (!Percentage){
+                hashMap.put("IfQuestion","有问题");
+            }
+
+        }
+        /*自定义分隔符*/
+        String customDelimiter = null;
+        Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        if (customDelimiterObject instanceof String){
+            customDelimiter = (String) customDelimiterObject;
+        }
+
+        // =:= 是自定义分割符
+        String portNumber = "端口号"+customDelimiter+"是"+customDelimiter+port+" "+ errorRate.getDescription() + customDelimiter;
+        String InputErrors = "";
+        String OutputErrors = "";
+        String Crc = "";
+
+        /** 如果数据库相关数据为空 则可以直接赋值插入*/
+        if (primaryErrorRate != null){
+            InputErrors = primaryErrorRate.getInputErrors()!=null?"input"+customDelimiter+"是"+customDelimiter+"input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+customDelimiter
+                    :"input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
+            OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output"+customDelimiter+"是"+customDelimiter+"output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+customDelimiter
+                    :"output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
+            Crc = primaryErrorRate.getCrc()!=null?"crc"+customDelimiter+"是"+customDelimiter+"crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
+                    :"crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
+        }else {
+            InputErrors = "input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
+            OutputErrors = "output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
+            Crc = "crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
+        }
+
+        String parameterString = portNumber +" "+ InputErrors+" "+OutputErrors+" "+Crc;
+        if (parameterString.endsWith( customDelimiter )){
+            parameterString = parameterString.substring(0,parameterString.length()-3);
+        }
+        hashMap.put("parameterString",parameterString);
+
+        return hashMap;
+    }
+
+
+    /**
+     * 获取错误包信息
+     *
+     * @param switchParameters 交换机参数对象
+     * @return AjaxResult 包含错误包信息的AjaxResult对象
+     */
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
+        // 获取四项基本最详细的数据
+        AjaxResult errorRateCommandPojo = getErrorRateCommandPojo(switchParameters);
+        if (!errorRateCommandPojo.get("msg").equals("操作成功")){
+            return errorRateCommandPojo;
+        }
+        ErrorRateCommand errorRateCommand = (ErrorRateCommand) errorRateCommandPojo.get("data");
 
-        /*1：获取配置文件关于 错误包问题的 符合交换机品牌的命令的 配置信息*/
-        ErrorRateCommand errorRateCommand = new ErrorRateCommand();
-        errorRateCommand.setBrand(switchParameters.getDeviceBrand());
-        errorRateCommand.setSwitchType(switchParameters.getDeviceModel());
-        errorRateCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
-        errorRateCommand.setSubVersion(switchParameters.getSubversionNumber());
+        // 获取端口列表
+        AjaxResult AjaxResultPort = getPort(switchParameters, errorRateCommand);
+        if (!AjaxResultPort.get("msg").equals("操作成功")){
+            return AjaxResultPort;
+        }
+        List<String> portList = (List<String>) AjaxResultPort.get("data");
 
-        errorRateCommandService = SpringBeanUtil.getBean(IErrorRateCommandService.class);
-        List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandListBySQL(errorRateCommand);
+        // 获取错误包参数集合
+        AjaxResult AjaxResultErrorPackageParameter = getErrorPackageParameters(switchParameters, errorRateCommand, portList);
+        if (!AjaxResultErrorPackageParameter.get("msg").equals("操作成功")){
+            return AjaxResultErrorPackageParameter;
+        }
+        HashMap<String, Object> errorPackageParameters = (HashMap<String, Object>) AjaxResultErrorPackageParameter.get("data");
 
-        /*2：当 配置文件错误包问题的命令 为空时 进行 日志写入*/
-        if (MyUtils.isCollectionEmpty(errorRateCommandList)){
+        // 获取扫描结果
+        AjaxResult ajaxResult = obtainScanningResults(switchParameters, portList, errorPackageParameters);
+        return ajaxResult;
+    }
 
+
+    /**
+     * 获取扫描结果
+     *
+     * @param switchParameters 交换机参数对象
+     * @param portList 端口列表
+     * @param errorPackageParameters 错误包参数集合
+     * @return AjaxResult对象，包含操作结果
+     */
+    public AjaxResult obtainScanningResults(SwitchParameters switchParameters , List<String> portList,HashMap<String, Object> errorPackageParameters) {
+        ErrorRate selectpojo = new ErrorRate();
+        selectpojo.setSwitchIp(switchParameters.getIp());
+
+        //解决多线程 service 为null问题
+        //查询数据库错误包列表
+        errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);
+        List<ErrorRate> list = errorRateService.selectErrorRateList(selectpojo);
+        Map<String,ErrorRate> errorRateMap = new HashMap<>();
+        for (ErrorRate pojo:list){
+            errorRateMap.put( pojo.getPort() , pojo );
+        }
+
+        List<String> keySet = errorRateMap.keySet().stream().collect(Collectors.toList());
+
+        /**
+         * 查看字符串集合A中存在，但字符串集合B中不存在的部分
+         * 查看数据表中有，但是扫描后没有的端口（数据表中独有的端口号）
+         */
+        List<String> difference = MyUtils.findDifference(keySet,portList);
+
+        /*获取交换机四项基本信息ID*/
+        Long switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
+
+        for (String port:difference){
+            // 修改端口号状态
+            ErrorRate errorRate = errorRateMap.get(port);
+            errorRate.setLink("DOWN");
+            int i = errorRateService.updateErrorRate(errorRate);
+
+            if (i > 0 ){
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:错误包功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n");
+            }else {
+                String subversionNumber = switchParameters.getSubversionNumber();
+                if (subversionNumber!=null){
+                    subversionNumber = "、"+subversionNumber;
+                }
+                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
+                        "系统信息:" +
+                                "IP地址为:"+switchParameters.getIp()+","+
+                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                "问题为:错误包功能端口号:"+ port +"修改状态为DOWN失败\r\n");
+                return AjaxResult.error();
+            }
+        }
+
+        // 获取错误包参数集合中的Key
+        for (String port:portList){
+            //获取判断结果
+            HashMap<String, String> hashMap = obtainJudgmentResult(switchParameters,
+                    errorRateMap,
+                    errorPackageParameters,
+                    port,
+                    switchID);
+
+            SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+            Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+            SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+            switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
+        }
+
+        return AjaxResult.success();
+    }
+
+
+
+    /**
+     * 根据交换机参数、错误率命令和端口列表获取错误包参数
+     *
+     * @param switchParameters 交换机参数对象
+     * @param errorRateCommand 错误率命令对象
+     * @param portList 端口列表
+     * @return AjaxResult 封装了错误包参数的AjaxResult对象
+     */
+    public AjaxResult getErrorPackageParameters(SwitchParameters switchParameters,ErrorRateCommand errorRateCommand,List<String> portList) {
+        /*获取错误包参数命令*/
+        String errorPackageCommand = errorRateCommand.getGetParameterCommand();
+        /*获取到错误包参数 map集合*/
+        HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
+
+        if ( errorPackageParameters.size() == 0 ){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
 
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                    "异常:IP地址为:"+switchParameters.getIp()+"。"+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
-                            "问题为:错误包功能未定义获取端口号的命令。\r\n"
-            );
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:错误包功能所有UP状态端口皆未获取到错误包参数\r\n");
 
-            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能未定义获取端口号的命令\r\n");
+            return AjaxResult.error("所有端口都没有获取到错误包参数");
         }
 
-        /*从errorRateCommandList中 获取四项基本最详细的数据*/
-        errorRateCommand = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(errorRateCommandList);
+        return AjaxResult.success(errorPackageParameters);
+    }
+
+    /**
+     * 根据交换机参数和错误率命令获取端口号
+     *
+     * @param switchParameters 交换机参数对象
+     * @param errorRateCommand 错误率命令对象
+     * @return AjaxResult 封装了端口号列表的AjaxResult对象
+     */
+    public AjaxResult getPort(SwitchParameters switchParameters,ErrorRateCommand errorRateCommand) {
         /*获取up端口号命令*/
         String portNumberCommand = errorRateCommand.getGetPortCommand();
 
@@ -135,8 +425,8 @@ public class ErrorPackage {
                 String[] conversSplit = convers.split(":");
                 for (int num=0;num<portList.size();num++){
                     /* getFirstLetters 获取字符串开头字母部分
-                    * 判断 是否与转译相同
-                    * 如果相同 则 进行转译  */
+                     * 判断 是否与转译相同
+                     * 如果相同 则 进行转译  */
                     if (MyUtils.getFirstLetters(portList.get(num)).trim().equals(conversSplit[0])){
                         portList.set(num,portList.get(num).replace(conversSplit[0],conversSplit[1]));
                     }
@@ -144,232 +434,76 @@ public class ErrorPackage {
             }
         }
 
-        /*获取错误包参数命令*/
-        String errorPackageCommand = errorRateCommand.getGetParameterCommand();
-        /*获取到错误包参数 map集合*/
-        HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
+        return AjaxResult.success(portList);
+    }
 
-        if ( errorPackageParameters.size() == 0 ){
+
+    /**
+     * 根据交换机参数获取错误率命令对象
+     *
+     * @param switchParameters 交换机参数对象
+     * @return ErrorRateCommand 错误率命令对象
+     */
+    public static ErrorRateCommand getErrorRateCommand(SwitchParameters switchParameters) {
+        // 创建一个ErrorRateCommand对象
+        ErrorRateCommand errorRateCommand = new ErrorRateCommand();
+        // 设置设备品牌
+        errorRateCommand.setBrand(switchParameters.getDeviceBrand());
+        // 设置设备型号
+        errorRateCommand.setSwitchType(switchParameters.getDeviceModel());
+        // 设置固件版本
+        errorRateCommand.setFirewareVersion(switchParameters.getFirmwareVersion());
+        // 设置子版本号
+        errorRateCommand.setSubVersion(switchParameters.getSubversionNumber());
+        // 返回ErrorRateCommand对象
+        return errorRateCommand;
+    }
+
+    /**
+     * 根据交换机参数获取错误率命令对象
+     *
+     * @param switchParameters 交换机参数对象
+     * @return AjaxResult 封装了错误率命令对象的AjaxResult对象
+     */
+    public  AjaxResult getErrorRateCommandPojo(SwitchParameters switchParameters) {
+        // 获取错误率命令对象
+        ErrorRateCommand errorRateCommand = getErrorRateCommand(switchParameters);
+
+        // 获取错误率命令服务对象
+        errorRateCommandService = SpringBeanUtil.getBean(IErrorRateCommandService.class);
+
+        // 根据错误率命令对象查询错误率命令列表
+        List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandListBySQL(errorRateCommand);
+
+        /*2：当 配置文件错误包问题的命令 为空时 进行 日志写入*/
+        if (MyUtils.isCollectionEmpty(errorRateCommandList)){
+            // 获取子版本号
             String subversionNumber = switchParameters.getSubversionNumber();
+            // 如果子版本号不为空，则在前面添加顿号
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
 
+            // 写入异常日志
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                    "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能所有UP状态端口皆未获取到错误包参数\r\n");
+                    "异常:IP地址为:"+switchParameters.getIp()+"。"+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
+                            "问题为:错误包功能未定义获取端口号的命令。\r\n"
+            );
 
-            return AjaxResult.error("所有端口都没有获取到错误包参数");
+            // 返回错误结果
+            return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能未定义获取端口号的命令\r\n");
         }
 
-        ErrorRate selectpojo = new ErrorRate();
-        selectpojo.setSwitchIp(switchParameters.getIp());
+        /*从errorRateCommandList中 获取四项基本最详细的数据*/
+        // 从错误率命令列表中筛选最详细的数据
+        errorRateCommand = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(errorRateCommandList);
 
-        /*查询数据库错误包列表*/
-        errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);//解决 多线程 service 为null问题
-        List<ErrorRate> list = errorRateService.selectErrorRateList(selectpojo);
-        Map<String,ErrorRate> errorRateMap = new HashMap<>();
-        for (ErrorRate pojo:list){
-            errorRateMap.put( pojo.getPort() , pojo );
-        }
-
-        List<String> keySet = errorRateMap.keySet().stream().collect(Collectors.toList());
-
-        /** 查看字符串集合A中存在，但字符串集合B中不存在的部分
-         * 查看 数据表中有，但是扫描后没有的端口    数据表中独有的端口号*/
-        List<String> difference = MyUtils.findDifference(keySet,portList);
-
-        /*获取交换机四项基本信息ID*/
-        Long switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
-
-        for (String port:difference){
-            /** 修改端口号状态  */
-            ErrorRate errorRate = errorRateMap.get(port);
-            errorRate.setLink("DOWN");
-            int i = errorRateService.updateErrorRate(errorRate);
-
-            if (i > 0 ){
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
-                        "系统信息:" +
-                                "IP地址为:"+switchParameters.getIp()+","+
-                                "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                "问题为:错误包功能端口号:"+ port +"断开连接，端口状态为DOWN\r\n");
-            }else {
-                String subversionNumber = switchParameters.getSubversionNumber();
-                if (subversionNumber!=null){
-                    subversionNumber = "、"+subversionNumber;
-                }
-                AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
-                        "系统信息:" +
-                        "IP地址为:"+switchParameters.getIp()+","+
-                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                        "问题为:错误包功能端口号:"+ port +"修改状态为DOWN失败\r\n");
-                return AjaxResult.error();
-            }
-        }
-
-        /*获取错误包参数集合中的Key*/
-        for (String port:portList){
-            /** 当前扫描数据*/
-            ErrorRate errorRate = new ErrorRate();
-            errorRate.setSwitchIp(switchParameters.getIp()); /*IP*/
-            errorRate.setSwitchId(switchID); /*交换机基本信息ID*/
-            errorRate.setPort(port); /*交换机端口号*/
-            /* 获取该端口号的 错误包参数 */
-            Map<String,String> errorPackageValue = (Map<String,String>) errorPackageParameters.get(port);
-            Set<String> strings = errorPackageValue.keySet();
-            for (String key:strings){
-                if (key.toLowerCase().equals("Input".toLowerCase()) ){
-                    //MyUtils.StringTruncationMatcherValue(error).equals("")?"0":MyUtils.StringTruncationMatcherValue(error)
-                    /*去除原因 前面方法已经将非纯数字、因素去除了*/
-                    errorRate.setInputErrors(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
-                }
-                if (key.toLowerCase().equals("Output".toLowerCase())){
-                    errorRate.setOutputErrors(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
-                }
-                if (key.toLowerCase().equals("CRC".toLowerCase())){
-                    errorRate.setCrc(MyUtils.StringTruncationMatcherValue(errorPackageValue.get(key)));
-                }
-                if (key.toLowerCase().equals("Description".toLowerCase())){
-                    errorRate.setDescription(errorPackageValue.get(key));
-                }
-            }
-            HashMap<String,String> hashMap = new HashMap<>();
-            hashMap.put("ProblemName","错误包");
-            String subversionNumber1 = switchParameters.getSubversionNumber();
-            if (subversionNumber1!=null){
-                subversionNumber1 = "、"+subversionNumber1;
-            }
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
-                    "系统信息:" +
-                            "IP地址为:("+switchParameters.getIp()+"),"+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber1+","+
-                            errorRate.toJson()+"\r\n");
-            /** 数据库数据*/
-            ErrorRate primaryErrorRate = errorRateMap.get(port);
-            if (primaryErrorRate == null){
-                /* 数据库中没有历史数据 可以直接插入 */
-                errorRate.setLink("UP");
-                errorRateService.insertErrorRate(errorRate);
-                hashMap.put("IfQuestion","无问题");
-                //continue;
-            }else {
-                /*num 判断 两次扫描数值是否一致*/
-                int num = 0;
-                if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() !=null) &&
-                        (!primaryErrorRate.getInputErrors().equals(errorRate.getInputErrors()))){
-                    num++;
-                }else if ((primaryErrorRate.getInputErrors() !=null && errorRate.getInputErrors() ==null)
-                || (primaryErrorRate.getInputErrors() ==null && errorRate.getInputErrors() !=null)){
-                    /*原数据 或者 新数据 一项为空 另一项不为空*/
-                    num++;
-                }
-                if ((primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() !=null) &&
-                        (!primaryErrorRate.getOutputErrors().equals(errorRate.getOutputErrors()))){
-                    num++;
-                }else if((primaryErrorRate.getOutputErrors() ==null && errorRate.getOutputErrors() !=null)
-                || (primaryErrorRate.getOutputErrors() !=null && errorRate.getOutputErrors() ==null)){
-                    num++;
-                }
-                if ((primaryErrorRate.getCrc() !=null && errorRate.getCrc() !=null) &&
-                        (!primaryErrorRate.getCrc().equals(errorRate.getCrc()))){
-                    num++;
-                }else if((primaryErrorRate.getCrc() ==null && errorRate.getCrc() !=null)
-                || (primaryErrorRate.getCrc() !=null && errorRate.getCrc() ==null)){
-                    num++;
-                }
-                /*如果 num 不为0 则前后数据不一致 则有问题*/
-                if (num>0){
-                    errorRate.setId(primaryErrorRate.getId());
-                    /* 判断数据库数据 是 否为 断开状态*/
-                    if ( primaryErrorRate.getLink().equals("DOWN")){
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
-                                "系统信息:" +
-                                        "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:错误包功能端口号:"+ port + "恢复连接,出现正负超限告警，提示重置基准数据\r\n");
-                        errorRate.setLink("UP");
-                    }
-                    int i = errorRateService.updateErrorRate(errorRate);
-                    hashMap.put("IfQuestion","有问题");
-                }else if (num == 0){
-                    errorRate.setId(primaryErrorRate.getId());
-                    /*判断数据库数据是否为 断开状态*/
-                    if ( primaryErrorRate.getLink().equals("DOWN")){
-                        String subversionNumber = switchParameters.getSubversionNumber();
-                        if (subversionNumber!=null){
-                            subversionNumber = "、"+subversionNumber;
-                        }
-                        AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "错误包",
-                                "系统信息:" +
-                                        "IP地址为:"+switchParameters.getIp()+","+
-                                        "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                                        "问题为:错误包功能端口号:"+ port + "恢复连接\r\n");
-                        errorRate.setLink("UP");
-                    }
-                    int i = errorRateService.updateErrorRate(errorRate);
-                    hashMap.put("IfQuestion","无问题");
-                    //continue;
-                }
-
-                /*
-                判断误码率百分比是否满足要求
-                误码率百分比 检验错误*/
-                boolean Percentage = judgingPercentage(errorPackageValue);
-                if (!Percentage){
-                    hashMap.put("IfQuestion","有问题");
-                }
-
-            }
-            /*自定义分隔符*/
-            String customDelimiter = null;
-            Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-            if (customDelimiterObject instanceof String){
-                customDelimiter = (String) customDelimiterObject;
-            }
-
-            // =:= 是自定义分割符
-            String portNumber = "端口号"+customDelimiter+"是"+customDelimiter+port+" "+ errorRate.getDescription() + customDelimiter;
-            String InputErrors = "";
-            String OutputErrors = "";
-            String Crc = "";
-
-            /** 如果数据库相关数据为空 则可以直接赋值插入*/
-            if (primaryErrorRate != null){
-                InputErrors = primaryErrorRate.getInputErrors()!=null?"input"+customDelimiter+"是"+customDelimiter+"input原:"+primaryErrorRate.getInputErrors()+",input现:"+errorRate.getInputErrors()+customDelimiter
-                        :"input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
-                OutputErrors = primaryErrorRate.getOutputErrors()!=null?"output"+customDelimiter+"是"+customDelimiter+"output原:"+primaryErrorRate.getOutputErrors()+",output现:"+errorRate.getOutputErrors()+customDelimiter
-                        :"output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
-                Crc = primaryErrorRate.getCrc()!=null?"crc"+customDelimiter+"是"+customDelimiter+"crc原:"+primaryErrorRate.getCrc()+",crc现:"+errorRate.getCrc()
-                        :"crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
-            }else {
-                InputErrors = "input"+ customDelimiter +"是"+ customDelimiter + errorRate.getInputErrors() + customDelimiter;
-                OutputErrors = "output"+ customDelimiter +"是"+ customDelimiter + errorRate.getOutputErrors() + customDelimiter;
-                Crc = "crc"+customDelimiter+"是" + customDelimiter +errorRate.getCrc();
-            }
-
-            String parameterString = portNumber +" "+ InputErrors+" "+OutputErrors+" "+Crc;
-            if (parameterString.endsWith( customDelimiter )){
-                parameterString = parameterString.substring(0,parameterString.length()-3);
-            }
-            hashMap.put("parameterString",parameterString);
-            SwitchScanResultController switchScanResultController = new SwitchScanResultController();
-            Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
-            SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
-            switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-        }
-        return null;
+        // 返回成功结果，并包含筛选后的错误率命令对象
+        return AjaxResult.success(errorRateCommand);
     }
+
+
 
     /**
      * 判断光衰百分比是否满足要求
@@ -1372,7 +1506,7 @@ public class ErrorPackage {
             "GE0/0/24             ADM  auto    A      T    1    to_fajianbu_S3448\n" +
             "GE0/0/25             DOWN auto    A      T    1\n" +
             "GE0/0/26             DOWN auto    A      T    1\n" +
-            "GE0/0/27             DOWN auto    A      T    1\n" +
+            "GE0/0/27             UP auto    A      T    1\n" +
             "GE0/0/28             DOWN auto    A      T    1\n" +
             "GE0/0/29             DOWN auto    A      T    1\n" +
             "GE0/0/30             DOWN   1G(a)   F(a)   T    1    To_HX_S7506E\n" +
@@ -1422,7 +1556,7 @@ public class ErrorPackage {
             "         0 lost carrier, - no carrier";*/
 
      private static String switchPortValueReturnsResult =
-                    " Description :To_ShuJuWangHuLian_G1/0/18\n" +
+                    " Description :To_AnBeiSuo_S5720_G0/0/49\n" +
                     "    Input: 22789602665 bytes, 122755407 packets\n" +
                     "    Output: 86753318501 bytes, 163119446 packets\n" +
                     "Input: 982431567 packets, 1214464892426 bytes\n" +
@@ -1430,7 +1564,7 @@ public class ErrorPackage {
                     "      Broadcast: 991644, Jumbo: 0\n" +
                     "      Discard: 0, Pause: 0\n" +
                     "      Frames: 0\n" +
-                    "      Total Error: 50\n" +
+                    "      Total Error: 60\n" +
                     "      CRC: 1, Giants: 0\n" +
                     "      Jabbers: 0, Fragments: 0\n" +
                     "      Runts: 0, DropEvents: 0\n" +
