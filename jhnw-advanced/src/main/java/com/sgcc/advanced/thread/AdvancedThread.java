@@ -1,8 +1,5 @@
 package com.sgcc.advanced.thread;
-import com.sgcc.advanced.controller.ErrorPackage;
-import com.sgcc.advanced.controller.LuminousAttenuation;
-import com.sgcc.advanced.controller.OSPFFeatures;
-import com.sgcc.advanced.controller.RouteAggregation;
+import com.sgcc.advanced.controller.*;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
@@ -73,6 +70,11 @@ public class AdvancedThread extends Thread {
                     case "路由聚合":
                         RouteAggregation routeAggregation = new RouteAggregation();
                         routeAggregation.obtainAggregationResults(switchParameters);
+                        break;
+
+                    case "链路捆绑":
+                        LinkBundling linkBundling = new LinkBundling();
+                        linkBundling.linkBindingInterface(switchParameters);
                         break;
 
                 }

@@ -352,6 +352,12 @@ public class ScreeningMethod {
 
 
 
+    /**
+     * 从给定的RouteAggregationCommand列表中获取精确度最高的RouteAggregationCommand对象
+     *
+     * @param routeAggregationCommandList RouteAggregationCommand对象列表
+     * @return 精确度最高的RouteAggregationCommand对象
+     */
     public static RouteAggregationCommand ObtainPreciseEntityClassesRouteAggregationCommand(List<RouteAggregationCommand> routeAggregationCommandList) {
         /*定义返回内容*/
         RouteAggregationCommand routeAggregationCommandPojo = new RouteAggregationCommand();
@@ -526,5 +532,103 @@ public class ScreeningMethod {
         value1 = value1.replaceAll("\\D", "");
         value2 = value2.replaceAll("\\D", "");
         return value1.compareTo(value2);
+    }
+
+    public static LinkBindingCommand ObtainPreciseEntityClassesLinkBindingCommand(List<LinkBindingCommand> linkBindingCommandList) {
+        /*定义返回内容*/
+        LinkBindingCommand linkBindingCommandPojo = new LinkBindingCommand();
+        /*遍历交换机问题集合*/
+        for (LinkBindingCommand linkBindingCommand:linkBindingCommandList){
+            /*如果返回为空 则可以直接存入 map集合*/
+            if (linkBindingCommandPojo.getId() != null){
+                /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
+                /* 获取 两个交换机问题的 参数数量的精确度 */
+                /*map*/
+                int usedNumber = 0;
+                if (!(linkBindingCommandPojo.getSwitchType().equals("*"))){
+                    usedNumber = usedNumber +1;
+                }
+                if (!(linkBindingCommandPojo.getFirewareVersion().equals("*"))){
+                    usedNumber = usedNumber +1;
+                }
+                if (!(linkBindingCommandPojo.getSubVersion().equals("*"))){
+                    usedNumber = usedNumber +1;
+                }
+                /*新*/
+                int newNumber = 0;
+                if (!(linkBindingCommand.getSwitchType().equals("*"))){
+                    newNumber = newNumber +1;
+                }
+                if (!(linkBindingCommand.getFirewareVersion().equals("*"))){
+                    newNumber = newNumber +1;
+                }
+                if (!(linkBindingCommand.getSubVersion().equals("*"))){
+                    newNumber = newNumber +1;
+                }
+                /*对比参数的数量大小
+                 * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
+                if (usedNumber < newNumber){
+                    /* 新 比 map中的精确*/
+                    linkBindingCommandPojo = linkBindingCommand;
+                    continue;
+                }else if (usedNumber == newNumber){
+
+                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
+                    String pojotype = linkBindingCommandPojo.getSwitchType();
+                    String errorRateCommandtype = linkBindingCommand.getSwitchType();
+
+                    /*比较两个属性的精确度
+                     * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
+                     * 返回0 则精确性相等 则进行下一步分析*/
+                    int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
+
+                    if (typeinteger > 0){
+                        continue;
+                    }else if (typeinteger < 0){
+                        linkBindingCommandPojo = linkBindingCommand;
+                        continue;
+                    }else if (typeinteger == 0){
+
+                        String pojofirewareVersion = linkBindingCommandPojo.getFirewareVersion();
+                        String errorRateCommandFirewareVersion = linkBindingCommand.getFirewareVersion();
+
+                        /*比较两个属性的精确度*/
+                        int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
+
+                        if (firewareVersioninteger > 0){
+                            continue;
+                        }else if (firewareVersioninteger < 0){
+                            linkBindingCommandPojo = linkBindingCommand;
+                            continue;
+                        }else if (firewareVersioninteger == 0){
+
+                            String pojosubVersion = linkBindingCommandPojo.getSubVersion();
+                            String errorRateCommandSubVersion = linkBindingCommand.getSubVersion();
+
+                            /*比较两个属性的精确度*/
+                            int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
+
+                            if (subVersioninteger > 0){
+                                continue;
+                            }else if (subVersioninteger < 0){
+                                linkBindingCommandPojo = linkBindingCommand;
+                                continue;
+                            }else if (subVersioninteger == 0){
+                                /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
+                                 * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
+                                 * */
+                                continue;
+                            }
+                        }
+                    }
+                }else  if (usedNumber > newNumber) {
+                    /* map 中的更加精确  则 进行下一层遍历*/
+                    continue;
+                }
+            }else {
+                linkBindingCommandPojo = linkBindingCommand;
+            }
+        }
+        return linkBindingCommandPojo;
     }
 }

@@ -1,7 +1,5 @@
 package com.sgcc.share.service;
 
-import com.sgcc.share.domain.DatabaseUsage;
-
 /**
  * @program: jhnw
  * @description: 直接访问整个数据库
@@ -11,13 +9,8 @@ import com.sgcc.share.domain.DatabaseUsage;
 public interface DatabaseUsageService {
 
 
-    /**
-     * 获取指定数据库的使用情况。
-     *
-     * @param databaseName 数据库的名称
-     * @return 包含数据库使用情况的 DatabaseUsage 对象，如果数据库不存在或发生其他错误则返回 null
-     */
-    DatabaseUsage getDatabaseUsage(String databaseName);
+
+    double getDatabaseUsage(String databaseName);
 
     /**
      * 根据时间删除系统操作日志

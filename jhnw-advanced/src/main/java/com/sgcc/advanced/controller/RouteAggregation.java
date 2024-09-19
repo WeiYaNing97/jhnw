@@ -27,6 +27,45 @@ public class RouteAggregation {
     private IRouteAggregationCommandService routeAggregationCommandService;
 
     /**
+     * 执行内部命令以获取路由聚合问题的信息
+     *
+     * @param switchParameters 交换机参数对象
+     * @param routeAggregationCommandPojo 路由聚合命令对象
+     * @return 交换机返回的信息
+     */
+    public String executeInternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo) {
+        // 获取路由聚合问题的内部命令
+        String internalCommand = routeAggregationCommandPojo.getInternalCommand();
+        // 执行交换机命令，返回交换机返回信息
+        /* 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        ExecuteCommand executeCommand = new ExecuteCommand();
+        String internal = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
+        // 去除返回信息中的空白字符
+        internal = H3C;
+        internal = MyUtils.trimString(internal);
+        return internal;
+    }
+
+    /**
+     * 执行外部命令以获取路由聚合问题的信息
+     *
+     * @param switchParameters 交换机参数对象
+     * @param routeAggregationCommandPojo 路由聚合命令对象
+     * @return 交换机返回的外部信息
+     */
+    public String executeExternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo){
+        // 获取路由聚合问题的外部命令
+        String externalCommand = routeAggregationCommandPojo.getExternalCommand();
+        ExecuteCommand executeCommand = new ExecuteCommand();
+        String external = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
+        // 去除返回信息中的空白字符
+        external = externalreturnInformation;
+        external = MyUtils.trimString(external);
+        return external;
+    }
+
+
+    /**
      * 获取聚合结果
      *
      * @param switchParameters 交换机参数对象
@@ -34,32 +73,36 @@ public class RouteAggregation {
      */
     public AjaxResult obtainAggregationResults(SwitchParameters switchParameters) {
 
-        // 调用switchReturnsResult方法获取交换机返回结果，
-        // internal 内部路由返回信息 external 外部路由返回信息 externalKeywords 外部关键字
-        // 并存储到switchReturnsMap中
-        AjaxResult AjaxResultswitchReturnsResult = switchReturnsResult(switchParameters);
-        if (!AjaxResultswitchReturnsResult.get("msg").equals("操作成功")){
-            return AjaxResultswitchReturnsResult;
+        AjaxResult commandPojo = getRouteAggregationCommandPojo(switchParameters);
+        if (!commandPojo.get("msg").equals("操作成功")){
+            return commandPojo;
         }
-        Map<String, String> switchReturnsMap = (Map<String, String>) AjaxResultswitchReturnsResult.get("data");
+        RouteAggregationCommand routeAggregationCommandPojo = (RouteAggregationCommand) commandPojo.get("data");
 
-        // 从switchReturnsMap中获取internal信息
-        String switchReturnsinternalInformation = switchReturnsMap.get("internal");
+        /**
+         * 执行内部路由命令
+         * 如果internal信息不为空，则调用InternalRouteAggregation类的internalRouteAggregation方法进行内部路由聚合
+         */
+        String internal = executeInternalCommand(switchParameters, routeAggregationCommandPojo);
         // 如果internal信息不为空
-        if (switchReturnsinternalInformation != null){
+        if (internal != null){
             // 调用internalRouteAggregation方法进行内部路由聚合
-            internalRouteAggregation(switchParameters,switchReturnsinternalInformation);
+            internalRouteAggregation(switchParameters,internal);
         }
 
-        // 从switchReturnsMap中获取external信息
-        String switchReturnsexternalInformation = switchReturnsMap.get("external");
+        /**
+         * 执行外部路由命令
+         * 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
+         */
+        String external = executeExternalCommand(switchParameters, routeAggregationCommandPojo);
         // 如果external信息不为空
-        if (switchReturnsexternalInformation!=null){
+        if (external!=null){
             // 从switchReturnsMap中获取externalKeywords信息
-            String externalKeywords = switchReturnsMap.get("externalKeywords");
+            String externalKeywords = routeAggregationCommandPojo.getExternalKeywords();
+            externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
 
             // 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
-            ExternalRouteAggregation.externalRouteAggregation(switchParameters,switchReturnsexternalInformation,externalKeywords);
+            ExternalRouteAggregation.externalRouteAggregation(switchParameters,external,externalKeywords);
         }
 
         return AjaxResult.success();
@@ -123,48 +166,6 @@ public class RouteAggregation {
         return AjaxResult.success(routeAggregationCommandPojo);
     }
 
-    /**
-     * 根据SwitchParameters参数获取交换机返回信息
-     *
-     * @param switchParameters 包含交换机相关信息的参数对象
-     * @return 交换机返回信息，若路由聚合命令为空则返回null
-     */
-    public AjaxResult switchReturnsResult(SwitchParameters switchParameters) {
-
-        AjaxResult commandPojo = getRouteAggregationCommandPojo(switchParameters);
-        if (!commandPojo.get("msg").equals("操作成功")){
-            return commandPojo;
-        }
-        RouteAggregationCommand routeAggregationCommandPojo = (RouteAggregationCommand) commandPojo.get("data");
-
-        Map<String,String> returnMap = new HashMap<>();
-
-        // 获取路由聚合问题的内部命令
-        String internalCommand = routeAggregationCommandPojo.getInternalCommand();
-        // 执行交换机命令，返回交换机返回信息
-        /* 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
-        ExecuteCommand executeCommand = new ExecuteCommand();
-        String internal = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
-        // 去除返回信息中的空白字符
-        internal = H3C;
-        internal = MyUtils.trimString(internal);
-        returnMap.put("internal",internal);
-
-        // 获取路由聚合问题的外部命令
-        String externalCommand = routeAggregationCommandPojo.getExternalCommand();
-        String external = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
-        // 去除返回信息中的空白字符
-        external = externalreturnInformation;
-        external = MyUtils.trimString(external);
-        returnMap.put("external",external);
-
-        String externalKeywords = routeAggregationCommandPojo.getExternalKeywords();
-        externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
-        returnMap.put("externalKeywords",externalKeywords);
-
-        // 返回交换机返回信息
-        return AjaxResult.success(returnMap);
-    }
 
     /**
      * 内部路由聚合方法
@@ -177,16 +178,20 @@ public class RouteAggregation {
         // 获取IP信息列表
         List<IPInformation> ipInformationList = IPAddressUtils.getIPInformation(MyUtils.trimString(switchReturnsinternalInformation));
         List<String> collect = ipInformationList.stream().map(ipInformation -> MyUtils.convertToCIDR(ipInformation.getIp(), ipInformation.getMask())).collect(Collectors.toList());
+
         // 将IP信息列表转换为IP计算器列表
         List<IPCalculator> ipCalculatorList = collect.stream().map(ipCIDR -> IPAddressCalculator.Calculator(ipCIDR)).collect(Collectors.toList());
+
         // 对IP计算器列表进行排序
         IPAddressUtils.sortIPCalculator(ipCalculatorList);
+
         List<IPAddresses> ipAddresses = IPAddressUtils.splicingAddressRange(ipCalculatorList);
         List<List<String>> returnList = new ArrayList<>();
         for (IPAddresses ipAddress : ipAddresses) {
             List<String> preAggregationRouteList = ipAddress.getIpCalculatorList().stream()
                     .map(x -> x.getIp() + "/" + x.getMask() + "[" + x.getFirstAvailable() + " - " + x.getFinallyAvailable() + "]")
                     .collect(Collectors.toList());
+
             List<String> aggregatedRouteList = IPAddressUtils.getNetworkNumber(ipAddress.getIpStart(), ipAddress.getIpEnd());
 
             List<String> returnString = new ArrayList<>();
@@ -194,9 +199,13 @@ public class RouteAggregation {
             returnString.addAll(preAggregationRouteList);
             returnString.add("聚合网络号:");
             returnString.addAll(aggregatedRouteList);
+            returnList.add(returnString);
+
+
+            //输出控制台
             returnString.stream().forEach(System.err::println);
             System.err.println("==============================================================");
-            returnList.add(returnString);
+
 
             HashMap<String,String> hashMap = new HashMap<>();
             if (preAggregationRouteList.size() == aggregatedRouteList.size()) {
@@ -204,6 +213,7 @@ public class RouteAggregation {
             }else {
                 hashMap.put("IfQuestion","有问题");
             }
+
 
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
             hashMap.put("ProblemName","内部路由聚合");

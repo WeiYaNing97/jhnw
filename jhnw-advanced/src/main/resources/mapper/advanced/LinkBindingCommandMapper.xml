@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sgcc.advanced.mapper.LinkBindingCommandMapper">
+    
+    <resultMap type="LinkBindingCommand" id="LinkBindingCommandResult">
+        <result property="id"    column="id"    />
+        <result property="brand"    column="brand"    />
+        <result property="switchType"    column="switch_type"    />
+        <result property="firewareVersion"    column="fireware_version"    />
+        <result property="subVersion"    column="sub_version"    />
+        <result property="routingTableCommand"    column="routing_table_command"    />
+        <result property="keywords"    column="keywords"    />
+    </resultMap>
+
+    <sql id="selectLinkBindingCommandVo">
+        select id, brand, switch_type, fireware_version, sub_version, routing_table_command, keywords from link_binding_command
+    </sql>
+
+    <select id="selectLinkBindingCommandList" parameterType="LinkBindingCommand" resultMap="LinkBindingCommandResult">
+        <include refid="selectLinkBindingCommandVo"/>
+        <where>  
+            <if test="brand != null  and brand != ''"> and brand = #{brand}</if>
+            <if test="switchType != null  and switchType != ''"> and switch_type = #{switchType}</if>
+            <if test="firewareVersion != null  and firewareVersion != ''"> and fireware_version = #{firewareVersion}</if>
+            <if test="subVersion != null  and subVersion != ''"> and sub_version = #{subVersion}</if>
+            <if test="routingTableCommand != null  and routingTableCommand != ''"> and routing_table_command = #{routingTableCommand}</if>
+            <if test="keywords != null  and keywords != ''"> and keywords = #{keywords}</if>
+        </where>
+    </select>
+    
+    <select id="selectLinkBindingCommandById" parameterType="Long" resultMap="LinkBindingCommandResult">
+        <include refid="selectLinkBindingCommandVo"/>
+        where id = #{id}
+    </select>
+    <select id="selectLinkBindingCommandListBySQL" parameterType="LinkBindingCommand" resultMap="LinkBindingCommandResult">
+        <include refid="selectLinkBindingCommandVo"/>
+        ${fuzzySQL}
+    </select>
+        
+    <insert id="insertLinkBindingCommand" parameterType="LinkBindingCommand">
+        insert into link_binding_command
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="brand != null and brand != ''">brand,</if>
+            <if test="switchType != null">switch_type,</if>
+            <if test="firewareVersion != null">fireware_version,</if>
+            <if test="subVersion != null">sub_version,</if>
+            <if test="routingTableCommand != null and routingTableCommand != ''">routing_table_command,</if>
+            <if test="keywords != null and keywords != ''">keywords,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="brand != null and brand != ''">#{brand},</if>
+            <if test="switchType != null">#{switchType},</if>
+            <if test="firewareVersion != null">#{firewareVersion},</if>
+            <if test="subVersion != null">#{subVersion},</if>
+            <if test="routingTableCommand != null and routingTableCommand != ''">#{routingTableCommand},</if>
+            <if test="keywords != null and keywords != ''">#{keywords},</if>
+         </trim>
+    </insert>
+
+    <update id="updateLinkBindingCommand" parameterType="LinkBindingCommand">
+        update link_binding_command
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="brand != null and brand != ''">brand = #{brand},</if>
+            <if test="switchType != null">switch_type = #{switchType},</if>
+            <if test="firewareVersion != null">fireware_version = #{firewareVersion},</if>
+            <if test="subVersion != null">sub_version = #{subVersion},</if>
+            <if test="routingTableCommand != null and routingTableCommand != ''">routing_table_command = #{routingTableCommand},</if>
+            <if test="keywords != null and keywords != ''">keywords = #{keywords},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteLinkBindingCommandById" parameterType="Long">
+        delete from link_binding_command where id = #{id}
+    </delete>
+
+    <delete id="deleteLinkBindingCommandByIds" parameterType="String">
+        delete from link_binding_command where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

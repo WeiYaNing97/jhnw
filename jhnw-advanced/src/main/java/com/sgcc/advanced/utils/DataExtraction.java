@@ -29,6 +29,9 @@ public class DataExtraction {
             // 调用single_table方法获取多参数返回结果
             /* 返回多个参数 行号和表格数据 */
             MultiParameterReturn multiParameterReturn = single_table(switchReturnsInformation, keywordS, lineNumber);
+            if (multiParameterReturn == null) {
+                continue;
+            }
 
             // 获取返回的表格数据列表
             List<HashMap<String, Object>> hashMaps = (List<HashMap<String, Object>>) multiParameterReturn.getParameter();
@@ -80,6 +83,10 @@ public class DataExtraction {
 
         // 特征集合
         List<String> characteristicList = new ArrayList<>();
+        if (HeaderLineNumber+1 >= switchReturnsInformation.size()){
+            return null;
+        }
+
         String[] firstRowOfDataSplit = switchReturnsInformation.get(HeaderLineNumber+1).split(" ");
         for (int i = 0; i < firstRowOfDataSplit.length; i++) {
             characteristicList.add(obtainDataFeatures(firstRowOfDataSplit[i]));

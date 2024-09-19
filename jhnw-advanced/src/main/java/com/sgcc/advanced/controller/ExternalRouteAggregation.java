@@ -19,15 +19,14 @@ import java.util.stream.Collectors;
 public class ExternalRouteAggregation {
 
     /**
-     * 外部路由聚合方法
+     * 获取外部IP计算器列表
      *
      * @param switchParameters 交换机参数对象
      * @param switchReturnsexternalInformation 交换机返回的外部信息
      * @param externalKeywords 外部关键词
-     * @return 无返回值
+     * @return 返回外部IP计算器列表
      */
-    public static void externalRouteAggregation(SwitchParameters switchParameters, String switchReturnsexternalInformation, String externalKeywords){
-
+    public static List<ExternalIPCalculator> getExternalIPCalculatorList(SwitchParameters switchParameters, String switchReturnsexternalInformation, String externalKeywords) {
         // 获取路由 OSPF、直连、静态 的关键词
         List<String> protos = new ArrayList<>();
         protos.addAll(Arrays.stream(externalKeywords.split("/")).collect(Collectors.toList()));
@@ -47,6 +46,20 @@ public class ExternalRouteAggregation {
             /* 不符合表格格式 */
             externalIPList = getExternalIPList(returnInformationList, protos);
         }
+        return externalIPList;
+    }
+
+    /**
+     * 外部路由聚合方法
+     *
+     * @param switchParameters 交换机参数对象
+     * @param switchReturnsexternalInformation 交换机返回的外部信息
+     * @param externalKeywords 外部关键词
+     * @return 无返回值
+     */
+    public static void externalRouteAggregation(SwitchParameters switchParameters, String switchReturnsexternalInformation, String externalKeywords){
+
+        List<ExternalIPCalculator> externalIPList = getExternalIPCalculatorList(switchParameters, switchReturnsexternalInformation, externalKeywords);
 
         Map<String, List<ExternalIPCalculator>> proto_collect = externalIPList.stream().collect(Collectors.groupingBy(ExternalIPCalculator::getProto));
 

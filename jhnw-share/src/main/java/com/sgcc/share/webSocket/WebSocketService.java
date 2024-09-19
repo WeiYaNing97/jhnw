@@ -131,36 +131,68 @@ public class WebSocketService {
         try {
             // 根据用户名从WebSocket连接映射中获取对应的WebSocketClient对象
             WebSocketClient webSocketClient = webSocketMap.get(userName);
-            if(webSocketClient!=null){
-                // 对WebSocketClient对象进行同步，确保线程安全
-                synchronized(webSocketClient) {
-                    // 发送消息对象给指定的客户端
-                    webSocketClient.getSession().getBasicRemote().sendObject(object);
+            if (webSocketClient != null) {
+                Session session = webSocketClient.getSession();
+                if (session != null && session.isOpen()) {
+                    RemoteEndpoint.Basic basicRemote = session.getBasicRemote();
+                    if (basicRemote != null) {
+                        // 对WebSocketClient对象进行同步，确保线程安全
+                        synchronized (webSocketClient) {
+                            // 发送消息对象给指定的客户端
+                            basicRemote.sendObject(object);
+                        }
+                    } else {
+                        // 处理getBasicRemote()返回null的情况
+                        System.err.println("Failed to get BasicRemote for user: " + userName);
+                    }
+                } else {
+                    // 处理session为null或未打开的情况
+                    System.err.println("Session is null or not open for user: " + userName);
                 }
+            } else {
+                // 处理webSocketClient为null的情况
+                System.err.println("No WebSocketClient found for user: " + userName);
             }
         } catch (IOException | EncodeException e) {
-            // 捕获并打印异常信息
+            // 捕获并打印异常信息，可以选择更合适的日志记录方式
             e.printStackTrace();
-            // 将异常信息转换为RuntimeException并抛出
-            throw new RuntimeException(e.getMessage());
+            // 根据异常类型进行更具体的异常处理，而不是直接抛出RuntimeException
+            if (e instanceof EncodeException) {
+                // 处理编码异常，例如记录更详细的日志或进行重试等操作
+                System.err.println("EncodeException occurred while sending message to user: " + userName);
+            } else {
+                // 处理其他IOException异常，可以选择抛出自定义异常或进行其他操作
+                System.err.println("IOException occurred while sending message to user: " + userName);
+            }
+            // 可以选择不抛出异常，而是记录错误并优雅地处理异常情况（根据具体需求决定）
+            // throw new RuntimeException("Failed to send message to user: " + userName, e);
         }
     }
-    public static void sendMessage(String userName,String string){
+    public static void sendMessage(String userName,String message){
         try {
             // 从WebSocket连接映射中获取指定用户名的WebSocketClient对象
             WebSocketClient webSocketClient = webSocketMap.get(userName);
-            if(webSocketClient!=null){
-                // 对WebSocketClient对象进行同步，确保线程安全
-                synchronized(webSocketClient){
+            if (webSocketClient != null) {
+                // 对WebSocketClient对象进行同步，确保线程安全（如果WebSocketClient内部不是线程安全的）
+                synchronized (webSocketClient) {
                     // 发送文本消息给指定的客户端
-                    webSocketClient.getSession().getBasicRemote().sendText(string);
+                    Session session = webSocketClient.getSession();
+                    if (session != null && session.isOpen()) {
+                        session.getBasicRemote().sendText(message);
+                    } else {
+                        // 处理session为null或未打开的情况（可选）
+                        System.out.println("Session is null or not open for user: " + userName);
+                    }
                 }
+            } else {
+                // 处理webSocketClient为null的情况（可选）
+                System.out.println("No WebSocketClient found for user: " + userName);
             }
         } catch (IOException e) {
-            // 捕获并打印异常信息
+            // 捕获并打印异常信息，可以选择更合适的日志记录方式
             e.printStackTrace();
-            // 将异常信息转换为RuntimeException并抛出
-            throw new RuntimeException(e.getMessage());
+            // 可以考虑不抛出RuntimeException，而是记录错误并优雅地处理（可选）
+            throw new RuntimeException("Failed to send message to user: " + userName, e);
         }
     }
     public static void sendMessageAll(String string) {

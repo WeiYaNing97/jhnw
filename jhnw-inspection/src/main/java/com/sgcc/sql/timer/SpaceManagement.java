@@ -2,14 +2,11 @@ package com.sgcc.sql.timer;
 
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.Constant;
-import com.sgcc.share.domain.DatabaseUsage;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.service.*;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.system.service.ISwitchOperLogService;
-import com.sgcc.system.service.ISysOperLogService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -220,14 +217,14 @@ public class SpaceManagement extends TimerTask {
         String databaseName = split[split.length - 1].split("\\?")[0];
 
         // 调用方法获取数据库使用率
-        DatabaseUsage databaseUsage = getDatabaseUsage(databaseName);
+        double databaseUsage = getDatabaseUsage(databaseName);
 
         // 所用空间占比(%)
         Integer usedSpaceRateInt = (Integer) CustomConfigurationUtil.getValue("configuration.spaceManagement.usedSpaceRate", Constant.getProfileInformation());
 
         // 输出数据库使用率
         /*System.err.println("数据库使用率：" + databaseUsage.getUsedSpacePercent());*/
-        if (databaseUsage.getUsedSpacePercent() > usedSpaceRateInt) {
+        if (databaseUsage > usedSpaceRateInt) {
             //传输登陆人姓名 及问题简述
             AbnormalAlarmInformationMethod.afferent(null, null, "问题日志",
                     "异常：数据库已使用空间占比大于配置文件设置的使用空间占比\r\n");
@@ -264,16 +261,16 @@ public class SpaceManagement extends TimerTask {
         return ProfileInformation;
     }
 
+
     /**
-     * 获取指定数据库的使用情况
+     * 获取指定数据库的使用情况（单位：MB），保留两位小数
      *
-     * @param databaseName 数据库名
-     * @return 返回指定数据库的使用情况实体对象
+     * @param databaseName 数据库名称
+     * @return 返回指定数据库的使用情况，单位为MB，保留两位小数
      */
-    public static DatabaseUsage getDatabaseUsage(String databaseName) {
+    public static double getDatabaseUsage(String databaseName) {
         // 获取 DatabaseUsageService 的实例
         databaseUsageService = SpringBeanUtil.getBean(DatabaseUsageService.class);
-
         // 调用 DatabaseUsageService 的 getDatabaseUsage 方法获取数据库使用情况
         return databaseUsageService.getDatabaseUsage(databaseName);
     }

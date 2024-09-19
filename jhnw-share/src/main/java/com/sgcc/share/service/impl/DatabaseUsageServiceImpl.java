@@ -1,6 +1,5 @@
 package com.sgcc.share.service.impl;
 
-import com.sgcc.share.domain.DatabaseUsage;
 import com.sgcc.share.mapper.DatabaseUsageMapper;
 import com.sgcc.share.service.DatabaseUsageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +16,20 @@ public class DatabaseUsageServiceImpl implements DatabaseUsageService {
     @Autowired
     private DatabaseUsageMapper databaseUsageMapper;
 
+
     /**
-     * 根据数据库名称获取数据库使用情况。
+     * 获取指定数据库的使用情况（单位：MB），保留两位小数
      *
      * @param databaseName 数据库名称
-     * @return 包含数据库使用情况的 DatabaseUsage 对象
-     * @throws Exception 如果获取数据库使用情况过程中出现异常
+     * @return 返回指定数据库的使用情况，单位为MB，保留两位小数
      */
-    public DatabaseUsage getDatabaseUsage(String databaseName) {
-        // 调用 databaseUsageMapper 的 getDatabaseUsage 方法，根据数据库名称获取数据库使用情况
-        DatabaseUsage databaseUsage = databaseUsageMapper.getDatabaseUsage(databaseName);
-
-        // 将获取到的数据库使用情况打印到错误输出流中（通常用于调试）
-        /*System.err.println(databaseUsage.toString());*/
-
-        // 返回获取到的数据库使用情况对象
+    public double getDatabaseUsage(String databaseName) {
+        // 调用databaseUsageMapper的getDatabaseUsage方法，传入数据库名称，获取数据库使用情况
+        double databaseUsage = databaseUsageMapper.getDatabaseUsage(databaseName);
+        // 返回数据库使用情况
         return databaseUsage;
     }
+
 
 
     /**
