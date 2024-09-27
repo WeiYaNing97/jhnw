@@ -1,5 +1,6 @@
 package com.sgcc.sql.controller;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,6 @@ import com.sgcc.sql.domain.TimedTask;
 import com.sgcc.sql.service.ITimedTaskService;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.common.core.page.TableDataInfo;
-import sun.plugin.javascript.navig.Array;
 
 /**
  * 定时任务Controller
@@ -181,7 +181,9 @@ public class TimedTaskController extends BaseController
      */
     @ApiOperation(value = "删除定时任务")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(name = "ids", value = "定时任务编号", dataTypeClass = Array.class, required = true)
+            @ApiImplicitParam(name = "ids", value = "定时任务编号", dataType = "java.lang.Long",
+                    paramType = "query", required = true,
+                    allowMultiple = true, example = "1,2,3")
     })
     @PreAuthorize("@ss.hasPermi('sql:TimedTask:remove')")
     @MyLog(title = "定时任务", businessType = BusinessType.DELETE)

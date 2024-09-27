@@ -41,6 +41,7 @@ public class RouteAggregation {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String internal = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
         // 去除返回信息中的空白字符
+        // todo 路由聚合虚拟数据
         internal = H3C;
         internal = MyUtils.trimString(internal);
         return internal;
@@ -59,6 +60,7 @@ public class RouteAggregation {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String external = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
         // 去除返回信息中的空白字符
+        // todo 路由聚合虚拟数据
         external = externalreturnInformation;
         external = MyUtils.trimString(external);
         return external;

@@ -26,15 +26,14 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class AdvancedFeatures {
 
+
     /**
-     * 调用运行分析接口，根据扫描次数和功能名称，执行相应的操作。
+     * 运行分析接口
      *
      * @param switchInformation 用户登录信息列表，格式为json字符串
-     * @param scanNum           扫描次数
-     * @param functionName      功能名称列表
-     * @return 返回扫描结束字符串
-     * @throws InterruptedException 线程中断异常
-     * @throws IOException 文件写入异常
+     * @param scanNum           扫描允许最大线程数
+     * @param functionName    功能名称列表
+     * @return 返回扫描结果
      */
     @ApiOperation("运行分析接口")
     @ApiImplicitParams(value = {
@@ -44,7 +43,10 @@ public class AdvancedFeatures {
     })
     @PostMapping("/advancedFunction/{scanNum}/{functionName}")
     @MyLog(title = "运行分析", businessType = BusinessType.OTHER)
-    public String advancedFunction(@RequestBody List<String> switchInformation, @PathVariable Long scanNum, @PathVariable List<String> functionName) {
+    public String advancedFunction(@RequestBody List<String> switchInformation,
+                                   @PathVariable Long scanNum,
+                                   @PathVariable List<String> functionName) {
+
         // 转换用户登录信息列表为SwitchParameters列表
         List<SwitchParameters> switchParameters = convertSwitchInformation(switchInformation);
         // 创建参数集对象，将用户登录信息列表和扫描次数传入
@@ -154,13 +156,20 @@ public class AdvancedFeatures {
     /**
      * 调用高级功能线程池执行登录信息操作。
      *
+     * 本方法利用线程池异步执行登录信息的操作，旨在提高执行效率和处理性能。
+     * 它适用于需要对登录信息进行批量或复杂操作的场景，通过指定不同的功能名称列表，
+     * 可以实现包括但不限于更新、验证等操作。注意，本方法默认假设传入的参数通过RSA加密，
+     * 除非明确指定不使用加密。
+     *
      * @param parameterSet    包含登录信息和其他参数的ParameterSet对象
-     * @param functionName    功能名称列表
-     * @param isRSA           是否通过RSA加密后传入后端，默认为true
-     * @throws InterruptedException 线程中断异常
+     * @param functionName    功能名称列表，每个名称对应一个具体操作
+     * @param isRSA           是否通过RSA加密后端传入的数据，默认为true
+     * @throws InterruptedException 线程中断异常，当线程在等待状态中被中断时抛出
      */
     private void executeAdvancedFunction(ParameterSet parameterSet, List<String> functionName, boolean isRSA) throws InterruptedException {
+        // 调用高级线程池具体实现类中的方法来执行登录信息的操作
         AdvancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
     }
+
 
 }

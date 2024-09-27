@@ -1108,14 +1108,25 @@ public class MyUtils {
         // 返回绝对路径拼接文件名称得到的相对路径
         return file.getAbsolutePath() + "/" + filePath;
     }
+    /**
+     * 获取项目根路径
+     *
+     * 此方法用于确定当前项目的根路径。根据系统属性“user.dir”来获取。
+     * 通过此方法可以确定项目的根目录，这对于资源文件路径解析非常有用。
+     *
+     * @return 项目的根路径字符串
+     */
     public static String getProjectPath() {
+        // 获取当前工作的目录路径
         String projectPath = System.getProperty("user.dir");
 
+        // 以下是判断路径以确定根目录的旧代码，目前被注释掉
         /*开发环境：E:\ideaProject\jhnw*/
         /*部署环境：E:\ideaProject\jhnw\jhnw-admin\target*/
         /*if (projectPath.endsWith("\\jhnw")){
             projectPath = projectPath.substring(0,projectPath.length() - ("\\jhnw".length()) );
         }*/
+        // 返回项目根路径
         return projectPath;
     }
     /**

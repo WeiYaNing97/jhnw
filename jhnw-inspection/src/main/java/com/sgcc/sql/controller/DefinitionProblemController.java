@@ -488,7 +488,7 @@ public class DefinitionProblemController extends BaseController {
             Integer maximumTimeoutString = 1000;
             Object  maximumTimeoutObject = CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
             if (maximumTimeoutObject !=null && maximumTimeoutObject instanceof Integer){
-                maximumTimeoutString = Integer.valueOf( (String) maximumTimeoutObject).intValue();
+                maximumTimeoutString = (Integer) maximumTimeoutObject;
             }
 
             // 获取异步任务的执行结果，并设置超时时间

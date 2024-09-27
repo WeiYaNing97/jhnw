@@ -122,6 +122,7 @@ public class OSPFFeatures {
         String command = ospfCommand.getGetParameterCommand();
         String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
 
+        // todo OSPF虚拟数据
         commandReturn = this.commandPortReturn;
         commandReturn = MyUtils.trimString(commandReturn);
 
@@ -358,7 +359,7 @@ public class OSPFFeatures {
             "0.0.0.2 GigabitEthernet1/0/5 11.37.96.57 Full\n" +
             "0.0.0.2 GigabitEthernet8/0/22 11.37.96.61 Full\n" +
             "0.0.0.2 GigabitEthernet1/0/10 11.37.96.40 Full\n" +
-            "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 not\n" +
+            "0.0.0.2 GigabitEthernet1/0/15 11.37.96.12 Init\n" +
             "----------- --------------- ----------------------- ---------------------------\n" +
             "Total Peer(s): 15\n" +
             "\n" +

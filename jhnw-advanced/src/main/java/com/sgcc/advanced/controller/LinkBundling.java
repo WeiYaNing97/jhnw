@@ -39,27 +39,28 @@ public class LinkBundling {
      */
     public AjaxResult linkBindingInterface(SwitchParameters switchParameters) {
 
-        /* 与登录设备相连的用户站IP，需要前端输入的数据 */
+        // 与登录设备相连的用户站IP，需要前端输入的数据
         List<String> ipList = new ArrayList<>();
 
-
+        // 获取链路绑定命令的AjaxResult对象
         AjaxResult commandPojo = getLinkBindingCommandPojo(switchParameters);
 
+        // 如果操作消息不为"操作成功"，则直接返回commandPojo
         if (!commandPojo.get("msg").equals("操作成功")){
             return commandPojo;
         }
 
+        // 将commandPojo中的数据转换为LinkBindingCommand对象
         LinkBindingCommand linkBindingCommand = (LinkBindingCommand) commandPojo.get("data");
 
 
-        /**
-         * 执行外部路由命令
-         * 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
-         */
+        // 执行外部路由命令
+        // 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
         String external = getRoutingTableCommand(switchParameters,linkBindingCommand);
 
-
+        // 存储目标地址和掩码的列表
         List<String> DestinationMaskList = new ArrayList<>();
+
         // 如果external信息不为空
         if (external!=null){
 
@@ -72,10 +73,12 @@ public class LinkBundling {
             DestinationMaskList = externalIPCalculatorList.stream().map(x -> x.getDestinationMask()).collect(Collectors.toList());
         }
 
+        // 用于映射IP地址和链路捆绑类型的HashMap
         HashMap<String,String> ipListMap = new HashMap<>();
         for (String ip:ipList){
             for (String destinationMask : DestinationMaskList) {
 
+                // 判断是否为三层链路捆绑
                 boolean three_layers = LinkBundlingAnalysis(ip,destinationMask);
                 if (three_layers){
                     ipListMap.put(ip,"三层链路捆绑");
@@ -83,8 +86,10 @@ public class LinkBundling {
             }
         }
 
+        // 返回操作成功的AjaxResult对象
         return AjaxResult.success();
     }
+
 
 
     /**
@@ -100,6 +105,7 @@ public class LinkBundling {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String external = executeCommand.executeScanCommandByCommand(switchParameters, routingTableCommand);
         // 去除返回信息中的空白字符
+        // todo 链路捆绑虚拟数据
         external = routingTableCommandReturnInformation.trim();
         external = MyUtils.trimString(external);
         return external;

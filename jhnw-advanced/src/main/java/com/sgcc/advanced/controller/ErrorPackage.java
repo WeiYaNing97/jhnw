@@ -369,6 +369,7 @@ public class ErrorPackage {
         /*3：配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         String returnString = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
+        // todo 错误包虚拟数据
         returnString = this.switchPortReturnsResult;
         returnString = MyUtils.trimString(returnString);
 
@@ -594,6 +595,8 @@ public class ErrorPackage {
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             // 执行交换机命令，并返回结果
             String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
+
+            //todo 错误包虚拟数据
             returnResults = this.switchPortValueReturnsResult;
             returnResults = MyUtils.trimString(returnResults);
             if (returnResults == null){

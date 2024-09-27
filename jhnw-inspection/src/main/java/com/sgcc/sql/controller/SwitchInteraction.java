@@ -1988,7 +1988,7 @@ public class SwitchInteraction {
 
         Object numberOfCyclesObject = CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
         if (numberOfCyclesObject instanceof Integer){
-            numberOfCycles = Integer.valueOf((String) numberOfCyclesObject).intValue();
+            numberOfCycles = (Integer) numberOfCyclesObject;
         }
 
         /*根据分析ID获取问题扫描逻辑详细信息*/
