@@ -4,7 +4,6 @@ import com.sgcc.advanced.domain.*;
 import com.sgcc.advanced.service.IOspfCommandService;
 import com.sgcc.advanced.utils.DataExtraction;
 import com.sgcc.advanced.utils.ScreeningMethod;
-import com.sgcc.advanced.utils.Utils;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchScanResultController;
@@ -15,18 +14,13 @@ import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.ExecuteCommand;
 import com.sgcc.share.util.MyUtils;
-import com.sgcc.share.util.PathHelper;
-import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.io.IOException;
+
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * OSPF 功能

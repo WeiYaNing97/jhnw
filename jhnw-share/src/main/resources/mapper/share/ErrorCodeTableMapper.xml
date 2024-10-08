@@ -5,6 +5,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.sgcc.share.mapper.ErrorCodeTableMapper">
     
     <resultMap type="ErrorCodeTable" id="ErrorCodeTableResult">
+        <result property="errorCodeId"    column="error_code_id"    />
         <result property="errorCodeNumber"    column="error_code_number"    />
         <result property="errorCodeInformation"    column="error_code_information"    />
         <result property="errorSolution"    column="error_solution"    />
@@ -12,32 +13,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectErrorCodeTableVo">
-        select error_code_number, error_code_information, error_solution, create_time from error_code_table
+        select error_code_id, error_code_number, error_code_information, error_solution, create_time from error_code_table
     </sql>
 
     <select id="selectErrorCodeTableList" parameterType="ErrorCodeTable" resultMap="ErrorCodeTableResult">
         <include refid="selectErrorCodeTableVo"/>
         <where>  
+            <if test="errorCodeNumber != null  and errorCodeNumber != ''"> and error_code_number = #{errorCodeNumber}</if>
             <if test="errorCodeInformation != null  and errorCodeInformation != ''"> and error_code_information = #{errorCodeInformation}</if>
             <if test="errorSolution != null  and errorSolution != ''"> and error_solution = #{errorSolution}</if>
         </where>
     </select>
     
-    <select id="selectErrorCodeTableByErrorCodeNumber" parameterType="String" resultMap="ErrorCodeTableResult">
+    <select id="selectErrorCodeTableByErrorCodeId" parameterType="Long" resultMap="ErrorCodeTableResult">
         <include refid="selectErrorCodeTableVo"/>
-        where error_code_number = #{errorCodeNumber}
+        where error_code_id = #{errorCodeId}
     </select>
         
-    <insert id="insertErrorCodeTable" parameterType="ErrorCodeTable">
+    <insert id="insertErrorCodeTable" parameterType="ErrorCodeTable" useGeneratedKeys="true" keyProperty="errorCodeId">
         insert into error_code_table
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="errorCodeNumber != null">error_code_number,</if>
+            <if test="errorCodeNumber != null and errorCodeNumber != ''">error_code_number,</if>
             <if test="errorCodeInformation != null and errorCodeInformation != ''">error_code_information,</if>
             <if test="errorSolution != null and errorSolution != ''">error_solution,</if>
             <if test="createTime != null">create_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="errorCodeNumber != null">#{errorCodeNumber},</if>
+            <if test="errorCodeNumber != null and errorCodeNumber != ''">#{errorCodeNumber},</if>
             <if test="errorCodeInformation != null and errorCodeInformation != ''">#{errorCodeInformation},</if>
             <if test="errorSolution != null and errorSolution != ''">#{errorSolution},</if>
             <if test="createTime != null">#{createTime},</if>
@@ -47,21 +49,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateErrorCodeTable" parameterType="ErrorCodeTable">
         update error_code_table
         <trim prefix="SET" suffixOverrides=",">
+            <if test="errorCodeNumber != null and errorCodeNumber != ''">error_code_number = #{errorCodeNumber},</if>
             <if test="errorCodeInformation != null and errorCodeInformation != ''">error_code_information = #{errorCodeInformation},</if>
             <if test="errorSolution != null and errorSolution != ''">error_solution = #{errorSolution},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
         </trim>
-        where error_code_number = #{errorCodeNumber}
+        where error_code_id = #{errorCodeId}
     </update>
 
-    <delete id="deleteErrorCodeTableByErrorCodeNumber" parameterType="String">
-        delete from error_code_table where error_code_number = #{errorCodeNumber}
+    <delete id="deleteErrorCodeTableByErrorCodeId" parameterType="Long">
+        delete from error_code_table where error_code_id = #{errorCodeId}
     </delete>
 
-    <delete id="deleteErrorCodeTableByErrorCodeNumbers" parameterType="String">
-        delete from error_code_table where error_code_number in 
-        <foreach item="errorCodeNumber" collection="array" open="(" separator="," close=")">
-            #{errorCodeNumber}
+    <delete id="deleteErrorCodeTableByErrorCodeIds" parameterType="String">
+        delete from error_code_table where error_code_id in 
+        <foreach item="errorCodeId" collection="array" open="(" separator="," close=")">
+            #{errorCodeId}
         </foreach>
     </delete>
 </mapper>

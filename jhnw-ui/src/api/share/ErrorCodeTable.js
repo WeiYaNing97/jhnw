@@ -10,9 +10,9 @@ export function listErrorCodeTable(query) {
 }
 
 // 查询错误代码详细
-export function getErrorCodeTable(errorCodeNumber) {
+export function getErrorCodeTable(errorCodeId) {
   return request({
-    url: '/share/ErrorCodeTable/' + errorCodeNumber,
+    url: '/share/ErrorCodeTable/' + errorCodeId,
     method: 'get'
   })
 }
@@ -36,9 +36,9 @@ export function updateErrorCodeTable(data) {
 }
 
 // 删除错误代码
-export function delErrorCodeTable(errorCodeNumber) {
+export function delErrorCodeTable(errorCodeId) {
   return request({
-    url: '/share/ErrorCodeTable/' + errorCodeNumber,
+    url: '/share/ErrorCodeTable/' + errorCodeId,
     method: 'delete'
   })
 }

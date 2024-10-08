@@ -2,7 +2,7 @@ package com.sgcc.advanced.controller;
 
 import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
-import com.sgcc.advanced.utils.Utils;
+import com.sgcc.advanced.utils.AdvancedUtils;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.utils.poi.ExcelUtil;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -247,7 +247,7 @@ public class LightAttenuationComparisonController extends BaseController
         LightAttenuationComparison pojo = lightAttenuationComparisonService.selectLightAttenuationComparisonById(lightAttenuationComparison.getId());
         /*查看前端传入数据是否有修改
         * 如果没有修改，则默认 当前参数设置为 基准和平均值*/
-        if (Utils.LightAttenuationComparisonEquals(lightAttenuationComparison,pojo)){
+        if (AdvancedUtils.LightAttenuationComparisonEquals(lightAttenuationComparison,pojo)){
             /* 数量设置为 1 */
             lightAttenuationComparison.setNumberParameters(1);
             /* 基准 */

@@ -24,7 +24,7 @@ import com.sgcc.common.core.page.TableDataInfo;
  * 错误代码Controller
  * 
  * @author ruoyi
- * @date 2024-09-27
+ * @date 2024-10-08
  */
 @RestController
 @RequestMapping("/share/ErrorCodeTable")
@@ -62,14 +62,10 @@ public class ErrorCodeTableController extends BaseController
      * 获取错误代码详细信息
      */
     @PreAuthorize("@ss.hasPermi('share:ErrorCodeTable:query')")
-    @GetMapping(value = "/{errorCodeNumber}")
-    public AjaxResult getInfo(@PathVariable("errorCodeNumber") String errorCodeNumber)
+    @GetMapping(value = "/{errorCodeId}")
+    public AjaxResult getInfo(@PathVariable("errorCodeId") Long errorCodeId)
     {
-        ErrorCodeTable errorCodeTable = errorCodeTableService.selectErrorCodeTableByErrorCodeNumber(errorCodeNumber);
-        if (errorCodeTable == null){
-            return AjaxResult.error("未知错误,错误代码不存在!");
-        }
-        return AjaxResult.success(errorCodeTable);
+        return AjaxResult.success(errorCodeTableService.selectErrorCodeTableByErrorCodeId(errorCodeId));
     }
 
     /**
@@ -99,9 +95,9 @@ public class ErrorCodeTableController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('share:ErrorCodeTable:remove')")
     @Log(title = "错误代码", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{errorCodeNumbers}")
-    public AjaxResult remove(@PathVariable String[] errorCodeNumbers)
+	@DeleteMapping("/{errorCodeIds}")
+    public AjaxResult remove(@PathVariable Long[] errorCodeIds)
     {
-        return toAjax(errorCodeTableService.deleteErrorCodeTableByErrorCodeNumbers(errorCodeNumbers));
+        return toAjax(errorCodeTableService.deleteErrorCodeTableByErrorCodeIds(errorCodeIds));
     }
 }

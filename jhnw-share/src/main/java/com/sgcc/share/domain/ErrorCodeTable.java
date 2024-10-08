@@ -9,13 +9,17 @@ import com.sgcc.common.core.domain.BaseEntity;
  * 错误代码对象 error_code_table
  * 
  * @author ruoyi
- * @date 2024-09-27
+ * @date 2024-10-08
  */
 public class ErrorCodeTable extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    /** 错误代码库主键 */
+    private Long errorCodeId;
+
     /** 错误代码号 */
+    @Excel(name = "错误代码号")
     private String errorCodeNumber;
 
     /** 错误代码信息 */
@@ -26,6 +30,15 @@ public class ErrorCodeTable extends BaseEntity
     @Excel(name = "错误解决办法")
     private String errorSolution;
 
+    public void setErrorCodeId(Long errorCodeId) 
+    {
+        this.errorCodeId = errorCodeId;
+    }
+
+    public Long getErrorCodeId() 
+    {
+        return errorCodeId;
+    }
     public void setErrorCodeNumber(String errorCodeNumber) 
     {
         this.errorCodeNumber = errorCodeNumber;
@@ -57,6 +70,7 @@ public class ErrorCodeTable extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("errorCodeId", getErrorCodeId())
             .append("errorCodeNumber", getErrorCodeNumber())
             .append("errorCodeInformation", getErrorCodeInformation())
             .append("errorSolution", getErrorSolution())

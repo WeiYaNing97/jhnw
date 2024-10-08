@@ -1,21 +1,22 @@
 package com.sgcc.advanced.utils;
+import com.alibaba.fastjson.JSON;
 import com.sgcc.advanced.domain.*;
-import com.sgcc.share.domain.Constant;
+import com.sgcc.common.utils.SecurityUtils;
+import com.sgcc.common.utils.bean.BeanUtils;
+import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.SwitchParameters;
-import com.sgcc.share.util.CustomConfigurationUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * 运行分析模块的方法类
  */
-public class Utils {
+public class AdvancedUtils {
 
 
     /**
@@ -123,5 +124,43 @@ public class Utils {
 
         // 返回CIDR表示法的IP地址
         return ipAddress + "/" + prefixLength;
+    }
+
+    /**
+     * 将用户登录信息列表转换为SwitchParameters列表。
+     *
+     * @param switchInformation 用户登录信息列表
+     * @return 转换后的SwitchParameters列表
+     */
+    public static List<SwitchParameters> convertSwitchInformation(List<String> switchInformation) {
+        List<SwitchParameters> switchParametersList = new ArrayList<>();
+        // 设置当前时间格式为"yyyy-MM-dd HH:mm:ss"
+        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
+        for (String information : switchInformation) {
+            // 解析用户登录信息为SwitchLoginInformation对象
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
+
+            // 创建SwitchParameters对象
+            SwitchParameters switchParameters = new SwitchParameters();
+
+            // 设置登录用户信息
+            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
+
+            // 设置扫描时间
+            switchParameters.setScanningTime(simpleDateFormat);
+
+            // 将SwitchLoginInformation对象的属性复制到SwitchParameters对象中
+            BeanUtils.copyBeanProp(switchParameters, switchLoginInformation);
+
+            // 将端口号转换为整数并设置到SwitchParameters对象中
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
+
+            // 将转换后的SwitchParameters对象添加到列表中
+            switchParametersList.add(switchParameters);
+        }
+
+        // 返回转换后的SwitchParameters列表
+        return switchParametersList;
     }
 }

@@ -12,7 +12,7 @@ import com.sgcc.share.service.IErrorCodeTableService;
  * 错误代码Service业务层处理
  * 
  * @author ruoyi
- * @date 2024-09-27
+ * @date 2024-10-08
  */
 @Service
 public class ErrorCodeTableServiceImpl implements IErrorCodeTableService 
@@ -23,13 +23,13 @@ public class ErrorCodeTableServiceImpl implements IErrorCodeTableService
     /**
      * 查询错误代码
      * 
-     * @param errorCodeNumber 错误代码主键
+     * @param errorCodeId 错误代码主键
      * @return 错误代码
      */
     @Override
-    public ErrorCodeTable selectErrorCodeTableByErrorCodeNumber(String errorCodeNumber)
+    public ErrorCodeTable selectErrorCodeTableByErrorCodeId(Long errorCodeId)
     {
-        return errorCodeTableMapper.selectErrorCodeTableByErrorCodeNumber(errorCodeNumber);
+        return errorCodeTableMapper.selectErrorCodeTableByErrorCodeId(errorCodeId);
     }
 
     /**
@@ -72,24 +72,24 @@ public class ErrorCodeTableServiceImpl implements IErrorCodeTableService
     /**
      * 批量删除错误代码
      * 
-     * @param errorCodeNumbers 需要删除的错误代码主键
+     * @param errorCodeIds 需要删除的错误代码主键
      * @return 结果
      */
     @Override
-    public int deleteErrorCodeTableByErrorCodeNumbers(String[] errorCodeNumbers)
+    public int deleteErrorCodeTableByErrorCodeIds(Long[] errorCodeIds)
     {
-        return errorCodeTableMapper.deleteErrorCodeTableByErrorCodeNumbers(errorCodeNumbers);
+        return errorCodeTableMapper.deleteErrorCodeTableByErrorCodeIds(errorCodeIds);
     }
 
     /**
      * 删除错误代码信息
      * 
-     * @param errorCodeNumber 错误代码主键
+     * @param errorCodeId 错误代码主键
      * @return 结果
      */
     @Override
-    public int deleteErrorCodeTableByErrorCodeNumber(String errorCodeNumber)
+    public int deleteErrorCodeTableByErrorCodeId(Long errorCodeId)
     {
-        return errorCodeTableMapper.deleteErrorCodeTableByErrorCodeNumber(errorCodeNumber);
+        return errorCodeTableMapper.deleteErrorCodeTableByErrorCodeId(errorCodeId);
     }
 }

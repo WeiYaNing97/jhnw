@@ -7,17 +7,17 @@ import com.sgcc.share.domain.ErrorCodeTable;
  * 错误代码Service接口
  * 
  * @author ruoyi
- * @date 2024-09-27
+ * @date 2024-10-08
  */
 public interface IErrorCodeTableService 
 {
     /**
      * 查询错误代码
      * 
-     * @param errorCodeNumber 错误代码主键
+     * @param errorCodeId 错误代码主键
      * @return 错误代码
      */
-    public ErrorCodeTable selectErrorCodeTableByErrorCodeNumber(String errorCodeNumber);
+    public ErrorCodeTable selectErrorCodeTableByErrorCodeId(Long errorCodeId);
 
     /**
      * 查询错误代码列表
@@ -46,16 +46,16 @@ public interface IErrorCodeTableService
     /**
      * 批量删除错误代码
      * 
-     * @param errorCodeNumbers 需要删除的错误代码主键集合
+     * @param errorCodeIds 需要删除的错误代码主键集合
      * @return 结果
      */
-    public int deleteErrorCodeTableByErrorCodeNumbers(String[] errorCodeNumbers);
+    public int deleteErrorCodeTableByErrorCodeIds(Long[] errorCodeIds);
 
     /**
      * 删除错误代码信息
      * 
-     * @param errorCodeNumber 错误代码主键
+     * @param errorCodeId 错误代码主键
      * @return 结果
      */
-    public int deleteErrorCodeTableByErrorCodeNumber(String errorCodeNumber);
+    public int deleteErrorCodeTableByErrorCodeId(Long errorCodeId);
 }

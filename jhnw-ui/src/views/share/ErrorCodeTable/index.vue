@@ -1,6 +1,15 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form-item label="错误代码号" prop="errorCodeNumber">
+        <el-input
+          v-model="queryParams.errorCodeNumber"
+          placeholder="请输入错误代码号"
+          clearable
+          size="small"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="错误代码信息" prop="errorCodeInformation">
         <el-input
           v-model="queryParams.errorCodeInformation"
@@ -74,6 +83,7 @@
 
     <el-table v-loading="loading" :data="ErrorCodeTableList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="错误代码库主键" align="center" prop="errorCodeId" />
       <el-table-column label="错误代码号" align="center" prop="errorCodeNumber" />
       <el-table-column label="错误代码信息" align="center" prop="errorCodeInformation" />
       <el-table-column label="错误解决办法" align="center" prop="errorSolution" />
@@ -108,6 +118,9 @@
     <!-- 添加或修改错误代码对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="错误代码号" prop="errorCodeNumber">
+          <el-input v-model="form.errorCodeNumber" placeholder="请输入错误代码号" />
+        </el-form-item>
         <el-form-item label="错误代码信息" prop="errorCodeInformation">
           <el-input v-model="form.errorCodeInformation" placeholder="请输入错误代码信息" />
         </el-form-item>
@@ -154,6 +167,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        errorCodeNumber: null,
         errorCodeInformation: null,
         errorSolution: null,
       },
@@ -161,6 +175,9 @@ export default {
       form: {},
       // 表单校验
       rules: {
+        errorCodeNumber: [
+          { required: true, message: "错误代码号不能为空", trigger: "blur" }
+        ],
         errorCodeInformation: [
           { required: true, message: "错误代码信息不能为空", trigger: "blur" }
         ],
@@ -194,6 +211,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
+        errorCodeId: null,
         errorCodeNumber: null,
         errorCodeInformation: null,
         errorSolution: null,
@@ -213,7 +231,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.errorCodeNumber)
+      this.ids = selection.map(item => item.errorCodeId)
       this.single = selection.length!==1
       this.multiple = !selection.length
     },
@@ -226,8 +244,8 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const errorCodeNumber = row.errorCodeNumber || this.ids
-      getErrorCodeTable(errorCodeNumber).then(response => {
+      const errorCodeId = row.errorCodeId || this.ids
+      getErrorCodeTable(errorCodeId).then(response => {
         this.form = response.data;
         this.open = true;
         this.title = "修改错误代码";
@@ -237,7 +255,7 @@ export default {
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.errorCodeNumber != null) {
+          if (this.form.errorCodeId != null) {
             updateErrorCodeTable(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
@@ -255,9 +273,9 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const errorCodeNumbers = row.errorCodeNumber || this.ids;
-      this.$modal.confirm('是否确认删除错误代码编号为"' + errorCodeNumbers + '"的数据项？').then(function() {
-        return delErrorCodeTable(errorCodeNumbers);
+      const errorCodeIds = row.errorCodeId || this.ids;
+      this.$modal.confirm('是否确认删除错误代码编号为"' + errorCodeIds + '"的数据项？').then(function() {
+        return delErrorCodeTable(errorCodeIds);
       }).then(() => {
         this.getList();
         this.$modal.msgSuccess("删除成功");
