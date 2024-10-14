@@ -176,16 +176,21 @@ public class OSPFFeatures {
     public AjaxResult obtainOSPFExceptionJudgmentResults(SwitchParameters switchParameters,List<OSPFPojo> pojoList) {
         for (OSPFPojo ospf:pojoList){
             try {
+
+
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "ospf",
                         "系统信息:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:ospf功能IP:"+ospf.getIp()+"端口号:"+ospf.getPort()+"状态:"+ospf.getState()+"\r\n");
+
+
+
+
 
                 HashMap<String,String> hashMap = new HashMap<>();
                 hashMap.put("ProblemName","OSPF");
@@ -294,7 +299,7 @@ public class OSPFFeatures {
             }
         }
 
-        List<OSPFPojo> ospfPojos = getOSPFParameters(string_split,switchParameters.getDeviceBrand());
+        List<OSPFPojo> ospfPojos = getOSPFParameters(string_split,switchParameters.getDeviceBrand(),switchParameters);
         return ospfPojos;
     }
 
@@ -305,7 +310,7 @@ public class OSPFFeatures {
      * @param deviceBrand 设备品牌
      * @return 包含OSPF配置参数的OSPFPojo列表
      */
-    private static List<OSPFPojo> getOSPFParameters(List<String> stringSplit, String deviceBrand) {
+    private static List<OSPFPojo> getOSPFParameters(List<String> stringSplit, String deviceBrand,SwitchParameters switchParameters) {
         // 获取OSPF配置参数键值对
         Map<String,String> key_value = (Map<String,String>)CustomConfigurationUtil.getValue("OSPF." + deviceBrand + ".R_table", Constant.getProfileInformation());
         // 创建OSPFPojo列表
@@ -315,7 +320,7 @@ public class OSPFFeatures {
             return ospfPojos;
         }
         // 根据键值对提取表格数据
-        List<HashMap<String, Object>> hashMapList = DataExtraction.tableDataExtraction(stringSplit, key_value);
+        List<HashMap<String, Object>> hashMapList = DataExtraction.tableDataExtraction(stringSplit, key_value,switchParameters);
 
         // 遍历表格数据
         for (HashMap<String, Object> hashMap:hashMapList){

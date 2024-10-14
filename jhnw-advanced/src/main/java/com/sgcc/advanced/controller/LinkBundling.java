@@ -92,12 +92,13 @@ public class LinkBundling {
 
 
 
+
     /**
-     * 执行外部命令以获取路由聚合问题的信息
+     * 获取路由表命令
      *
      * @param switchParameters 交换机参数对象
-     * @param routeAggregationCommandPojo 路由聚合命令对象
-     * @return 交换机返回的外部信息
+     * @param linkBindingCommand 链路绑定命令对象
+     * @return 返回获取到的路由表命令结果
      */
     public String getRoutingTableCommand(SwitchParameters switchParameters,LinkBindingCommand linkBindingCommand){
         // 获取路由聚合问题的外部命令

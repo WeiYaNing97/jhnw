@@ -559,13 +559,14 @@ public class DefinitionProblemController extends BaseController {
                     if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
                             &&jsonPojo.indexOf("command") !=-1){
                         isCommand = true;
-                        System.err.println(" id符合，且包含 command");
+                        /*System.err.println(" id符合，且包含 command");*/
                     }
                 }
             }else if (number+1<jsonPojoList.size() && jsonPojoList.get(number+1).indexOf("command") !=-1){
-                System.err.println(" 集合下一元素 包含 command ");
+                /*System.err.println(" 集合下一元素 包含 command ");*/
                 isCommand = true;
             }
+
 
 
 
@@ -698,8 +699,8 @@ public class DefinitionProblemController extends BaseController {
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
 
-        List<String> list1 = new ArrayList<>();
-        List<String> list2 = new ArrayList<>();
+        /*List<String> list1 = new ArrayList<>();
+        List<String> list2 = new ArrayList<>();*/
 
         String problem_area_code = totalQuestionTableId.substring(0, 8);
 

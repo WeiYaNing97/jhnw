@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 /**
  * @program: jhnw
- * @description: 文章比较 文本比较
+ * @description: 文章比较 文本比较 文本对比
  * @author:
  * @create: 2023-11-29 11:56
  **/

@@ -8,6 +8,7 @@ import com.sgcc.share.domain.*;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchInformationService;
+import com.sgcc.share.translate.TranSlate;
 import com.sgcc.share.webSocket.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -633,7 +634,7 @@ public class FunctionalMethods {
                 //登录信息
                 String login_Information= login_return_Information[0];
                 //登录信息翻译
-                //TranSlate.tranSlate(login_Information);
+                /*TranSlate.tranSlate(login_Information);*/
 
                 System.err.println("\r\n登录信息==\r\n"+login_Information);
 

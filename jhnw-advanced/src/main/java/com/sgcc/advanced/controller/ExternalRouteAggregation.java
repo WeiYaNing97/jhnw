@@ -8,6 +8,7 @@ import com.sgcc.advanced.domain.IPCalculator;
 import com.sgcc.advanced.utils.DataExtraction;
 import com.sgcc.share.controller.SwitchScanResultController;
 import com.sgcc.share.domain.Constant;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.CustomConfigurationUtil;
@@ -31,23 +32,32 @@ public class ExternalRouteAggregation {
         List<String> protos = new ArrayList<>();
         protos.addAll(Arrays.stream(externalKeywords.split("/")).collect(Collectors.toList()));
         // 使用Lambda表达式和Comparator对字符串按长度从长到短排序
+        // 排序protos列表，根据字符串的长度从长到短进行排序
         Collections.sort(protos, Comparator.comparingInt(String::length).reversed());
 
+        // 将交换机返回的外部信息按换行符分割成字符串列表
         List<String> returnInformationList = Arrays.stream(switchReturnsexternalInformation.split("\r\n")).collect(Collectors.toList());
 
-
+        // 从配置中获取路由聚合配置信息
         HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+switchParameters.getDeviceBrand(), Constant.getProfileInformation());
+        // 获取keyMap的所有键，存储到keyList列表中
         List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
+        // 初始化外部IP计算器列表
         List<ExternalIPCalculator> externalIPList = new ArrayList<>();
+
         /* 符合表格格式 */
+        // 如果keyList中存在"R_table"，则使用getTableExternalIPList方法获取外部IP计算器列表
         if (keyList.indexOf("R_table")!=-1){
-            externalIPList = getTableExternalIPList(returnInformationList);
+            externalIPList = getTableExternalIPList(returnInformationList,switchParameters);
         }else {
             /* 不符合表格格式 */
-            externalIPList = getExternalIPList(returnInformationList, protos);
+            // 如果不符合表格格式，则使用getExternalIPList方法获取外部IP计算器列表
+            externalIPList = getExternalIPList(returnInformationList, protos,switchParameters);
         }
+        // 返回外部IP计算器列表
         return externalIPList;
     }
+
 
     /**
      * 外部路由聚合方法
@@ -132,12 +142,12 @@ public class ExternalRouteAggregation {
         }
     }
 
-    private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList) {
+    private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList,SwitchParameters switchParameters) {
         HashMap<String,String> keyMap = (HashMap<String,String>) CustomConfigurationUtil.getValue("路由聚合."+"H3C.R_table", Constant.getProfileInformation());
         if (keyMap == null){
             return new ArrayList<>();
         }
-        List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap);
+        List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap, switchParameters);
         if (stringObjectHashMapList.size() == 0){
             return new ArrayList<>();
         }
@@ -209,7 +219,9 @@ public class ExternalRouteAggregation {
      * @param protos 协议列表
      * @return 外部IP列表
      */
-    public static List<ExternalIPCalculator> getExternalIPList(List<String> returnInformationList, List<String> protos) {
+    public static List<ExternalIPCalculator> getExternalIPList(List<String> returnInformationList,
+                                                               List<String> protos,
+                                                               SwitchParameters switchParameters) {
         List<ExternalIPCalculator> externalIPList = new ArrayList<>();
 
         /*协议*/
@@ -306,7 +318,22 @@ public class ExternalRouteAggregation {
                         ( returnInformation_split_i.indexOf(Pre_Cost_List.get(0) + " "+ Pre_Cost_List.get(1)) != -1)){
                     Pre_Cost = "["+Pre_Cost_List.get(0)+"/"+Pre_Cost_List.get(1)+"]";
                 }else if(Pre_Cost_List.size() != 0){
-                    // todo 异常处理 优先级、Cost值不正确
+
+                    //  异常处理 获取优先级、Cost值不正确
+                    String subversionNumber = switchParameters.getSubversionNumber();
+                    if (subversionNumber!=null){
+                        subversionNumber = "、"+subversionNumber;
+                    }
+                    AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "路由聚合",
+                            "系统信息:" +
+                                    "IP地址为:"+switchParameters.getIp()+","+
+                                    "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                                    "问题为:路由聚合"+ port +"端口号获取到的优先级、Cost值不正确\r\n");
+                    //程序问题
+                    AbnormalAlarmInformationMethod.afferent(null,switchParameters.getLoginUser().getUsername()
+                            ,"错误代码",
+                            "OPSA0004");
+
 
                     return new ArrayList<>();
                 }
@@ -334,7 +361,8 @@ public class ExternalRouteAggregation {
         // 遍历协议列表
         for (String proto : protos) {
             // 判断当前行信息是否包含协议（忽略大小写）
-            if (MyUtils.containIgnoreCase(returnInformationSplitI," "+proto+" ")
+            if (MyUtils.containIgnoreCase(" "+returnInformationSplitI+" "," "+proto+" ")
+                    // 如果当前行信息包含协议（在协议前后有空格）或者当前行信息以协议开头（协议后有空格）
                     || returnInformationSplitI.startsWith(proto+" ")) {
                 // 如果包含，则返回该协议
                 return proto;
@@ -343,6 +371,7 @@ public class ExternalRouteAggregation {
         // 如果遍历完所有协议都不匹配，则返回null
         return null;
     }
+
 
 
 

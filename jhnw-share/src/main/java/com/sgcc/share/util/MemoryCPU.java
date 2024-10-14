@@ -59,13 +59,11 @@ public class MemoryCPU extends TimerTask {
     public void get_Memory_CPU() {
         // 初始化系统信息
         initSystemInfo();
-
         // 拼接内存和CPU信息字符串
         String Memory_CPU = "内存大小 : "+MemorySize+"\r\n"+
                 "内存使用率 : "+MemoryUsage+"\r\n"+
                 "CPU总数 : "+TotalCPUs+"\r\n"+
                 "CPU利用率 : "+CPUUtilization+"\r\n";
-
         // 将内存和CPU信息通过WebSocket发送给所有客户端
         WebSocketService.sendMessageAll(Memory_CPU);
     }
@@ -108,11 +106,15 @@ public class MemoryCPU extends TimerTask {
      * @param systemInfo
      */
     private void printlnCpuInfo(SystemInfo systemInfo) throws InterruptedException {
+        // 获取处理器信息
         CentralProcessor processor = systemInfo.getHardware().getProcessor();
+        // 获取系统CPU负载的ticks值
         long[] prevTicks = processor.getSystemCpuLoadTicks();
         // 睡眠1s
         TimeUnit.SECONDS.sleep(1);
+        // 再次获取系统CPU负载的ticks值
         long[] ticks = processor.getSystemCpuLoadTicks();
+        // 计算各种CPU状态的ticks差值
         long nice = ticks[CentralProcessor.TickType.NICE.getIndex()]
                 - prevTicks[CentralProcessor.TickType.NICE.getIndex()];
         long irq = ticks[CentralProcessor.TickType.IRQ.getIndex()]
@@ -129,17 +131,33 @@ public class MemoryCPU extends TimerTask {
                 - prevTicks[CentralProcessor.TickType.IOWAIT.getIndex()];
         long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()]
                 - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
+        // 计算总的CPU ticks
         long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
-
+        // 获取逻辑处理器的数量
         TotalCPUs = processor.getLogicalProcessorCount();
+        // 计算CPU的空闲率，并格式化为百分比字符串
         CPUUtilization = new DecimalFormat("#.##%").format(idle * 1.0 / totalCpu);
+        // 将CPU使用率转换为百分比字符串，保留两位小数
         CPUUtilization = keepTwoDecimalPlaces((100.00 - Double.valueOf(CPUUtilization.substring(0,CPUUtilization.length()-1)).doubleValue()))+"%";
     }
 
+
+        /**
+         * 保留两位小数的工具方法
+         *
+         * @param value 需要保留两位小数的浮点数
+         * @return 保留两位小数后的字符串
+         */
     public static String keepTwoDecimalPlaces(double value) {
 
+        // 将double类型的值转换为BigDecimal类型
         BigDecimal bd = new BigDecimal(value);
+
+        // 设置小数点后保留两位，并采用四舍五入的舍入模式
         bd = bd.setScale(2, RoundingMode.HALF_UP);
+
+        // 将BigDecimal对象转换为字符串并返回
         return bd.toString();
     }
+
 }

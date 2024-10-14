@@ -635,17 +635,15 @@ public class LuminousAttenuation {
             }else if (LuminousAttenuationL_listEnum.TX_Power().toString() != null){
                 hashMap.put(port+"TX",values.get(LuminousAttenuationL_listEnum.TX_Power().toString())+"");
             }
-            System.err.println(port+"TX" +"            "+hashMap.get(port+"TX"));
+            /*System.err.println(port+"TX" +"            "+hashMap.get(port+"TX"));*/
 
             if(values.get("RX") != null){
                 hashMap.put(port+"RX",values.get("RX")+"");
             }else if (values.get(LuminousAttenuationL_listEnum.RX_Power().toString()) != null){
                 hashMap.put(port+"RX",values.get(LuminousAttenuationL_listEnum.RX_Power().toString())+"");
             }
-            System.err.println(port+"RX"+"              "+hashMap.get(port+"RX"));
-
+            /*System.err.println(port+"RX"+"              "+hashMap.get(port+"RX"));*/
         }
-
         return hashMap;
     }
 
@@ -678,7 +676,8 @@ public class LuminousAttenuation {
                 return values;
             }
             // 解析表格数据
-            List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_split_List, keywordMap);
+            List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_split_List,
+                    keywordMap,switchParameters);
             if (stringObjectHashMapList.size() != 1){
                 return values;
             }
@@ -704,7 +703,7 @@ public class LuminousAttenuation {
                     Object mapvalue = keywordMap.get(keywordName);
                     if (mapvalue instanceof String){
                         // 获取占位符的含义
-                        Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, (String) mapvalue);
+                        Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, (String) mapvalue,switchParameters);
                         if (theMeaningOfPlaceholders.size() == 1){
                             String words = keywordMap.get(keywordName);
                             // 提取占位符
@@ -720,7 +719,7 @@ public class LuminousAttenuation {
                     }else if (mapvalue instanceof Map){
                         Map<String,String> map = (Map<String,String>) mapvalue;
                         // 获取占位符的含义
-                        Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword,map.get("keyword"));
+                        Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword,map.get("keyword"),switchParameters);
                         if (theMeaningOfPlaceholders.size() == 1){
                             String words = keywordMap.get(keywordName);
                             // 提取占位符

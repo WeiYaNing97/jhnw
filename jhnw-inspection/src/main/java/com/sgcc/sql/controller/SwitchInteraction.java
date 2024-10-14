@@ -1,9 +1,7 @@
 package com.sgcc.sql.controller;
 import cn.hutool.core.date.DateTime;
 import com.alibaba.fastjson.JSON;
-import com.sgcc.advanced.controller.ErrorPackage;
-import com.sgcc.advanced.controller.LuminousAttenuation;
-import com.sgcc.advanced.controller.OSPFFeatures;
+import com.sgcc.advanced.controller.*;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.common.core.domain.model.LoginUser;
@@ -467,6 +465,19 @@ public class SwitchInteraction {
                     case "错误包":
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
+                        break;
+
+
+                    case "路由聚合":
+                        // 创建RouteAggregation对象并执行obtainAggregationResults方法
+                        RouteAggregation routeAggregation = new RouteAggregation();
+                        routeAggregation.obtainAggregationResults(switchParameters);
+                        break;
+
+                    case "链路捆绑":
+                        // 创建LinkBundling对象并执行linkBindingInterface方法
+                        LinkBundling linkBundling = new LinkBundling();
+                        linkBundling.linkBindingInterface(switchParameters);
                         break;
                 }
             }

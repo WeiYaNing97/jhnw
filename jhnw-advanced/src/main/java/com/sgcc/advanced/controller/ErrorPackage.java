@@ -752,6 +752,10 @@ public class ErrorPackage {
                     valueTotalError.put(key,value.get(0));
                 }else {
                     /* todo 根据占位符 获取到了多条数据 获取参数失败 */
+                    AbnormalAlarmInformationMethod.afferent(null,
+                            switchParameters.getLoginUser().getUsername(),
+                            "错误代码",
+                            "OPSA0005");
                 }
             }
         }
@@ -820,7 +824,7 @@ public class ErrorPackage {
                 }
 
                 /*根据配置文件的取值信息 取参数值*/
-                Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key));
+                Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key),switchParameters);
                 /* 如果获取到的是一个参数 则可以直接赋值 */
                 if (placeholdersContainingList.size() == 1){
                     String words = hashMap.get(key);
@@ -856,7 +860,7 @@ public class ErrorPackage {
                 /*遍历 交换机返回信息行信息 字符串数组*/
                 for (String str:returnResultssplit){
                     /*根据配置文件的取值信息 取参数值*/
-                    Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key));
+                    Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key),switchParameters);
                     if (placeholdersContainingList.size() == 1){
                         String words = hashMap.get(key);
                         List<String> placeholders = DataExtraction.getPlaceholders(words);

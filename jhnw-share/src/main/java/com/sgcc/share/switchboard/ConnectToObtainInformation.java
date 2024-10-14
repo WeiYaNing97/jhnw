@@ -30,20 +30,24 @@ public class ConnectToObtainInformation {
     @Autowired
     private ISwitchScanResultService switchScanResultService;
 
-    /*Inspection Completed*/
+
     /**
-     * 连接交换机 获取交换机基本信息
-     * @param switchParameters
-     * @return
+     * 连接交换机获取基本信息
+     *
+     * @param switchParameters 交换机参数
+     * @param isRSA          是否使用RSA加密
+     * @return AjaxResult 异步请求结果
      */
     public AjaxResult connectSwitchObtainBasicInformation(SwitchParameters switchParameters,boolean isRSA) {
-        //连接交换机  requestConnect：
+        // 连接交换机 requestConnect：
         AjaxResult requestConnect_ajaxResult = null;
 
         /* 判断 交换机信息 是否经过了RSA加密 */
         if ( isRSA && switchParameters.getName() != null && switchParameters.getPassword() != null){
             /* RSA 解密 */
+            // 对交换机密码进行RSA解密
             switchParameters.setPassword(RSAUtils.decryptFrontEndCiphertext(switchParameters.getPassword()));
+            // 对交换机配置密码进行RSA解密
             switchParameters.setConfigureCiphers(RSAUtils.decryptFrontEndCiphertext(switchParameters.getConfigureCiphers()));
         }
 
@@ -51,47 +55,54 @@ public class ConnectToObtainInformation {
         if (switchParameters.getName() == null || switchParameters.getPassword() == null
             || switchParameters.getName().equals("") || switchParameters.getPassword().equals("")){
 
+            // 获取SpringBean工具类实例
             switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
+            // 根据交换机IP获取最新的扫描结果
             SwitchScanResult theLatestDataByIP = switchScanResultService.getTheLatestDataByIP(switchParameters.getIp());
 
             if(theLatestDataByIP == null){
+                // 返回交换机登录信息获取失败的Ajax结果
                 return AjaxResult.error("交换机登录信息获取失败");
             }
 
+            // 设置交换机名称为扫描结果中的交换机名称
             switchParameters.setName(theLatestDataByIP.getSwitchName());
+            // 对扫描结果中的交换机密码进行解密
             switchParameters.setPassword(EncryptUtil.desaltingAndDecryption(theLatestDataByIP.getSwitchPassword()));
 
             if (theLatestDataByIP.getConfigureCiphers()!=null){
+                // 对扫描结果中的交换机配置密码进行解密
                 switchParameters.setConfigureCiphers(EncryptUtil.desaltingAndDecryption(theLatestDataByIP.getConfigureCiphers()));
             }
 
         }
 
         for (int number = 0; number <1 ; number++){
+            // 调用requestConnect方法连接交换机，并获取结果
             requestConnect_ajaxResult = requestConnect(switchParameters);
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
                 break;
             }
         }
 
-            //如果返回为 交换机连接失败 则连接交换机失败
+        //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
 
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
             if (loginError != null){
                 for (int number = 1;number<loginError.size();number++){
 
-
                     String loginErrorString = loginError.get(number);
 
+                    // 调用AbnormalAlarmInformationMethod类的afferent方法记录异常信息
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "交换机连接",
                             "异常:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
 
+            // 返回交换机连接失败的Ajax结果
             return AjaxResult.error("交换机连接失败");
         }
-
 
         //解析返回参数 data
         switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
@@ -99,13 +110,16 @@ public class ConnectToObtainInformation {
         //如果连接成功
         if(requestConnect_ajaxResult.get("msg").equals("操作成功")){
 
+            // 调用getBasicInformationCurrency方法获取交换机基本信息
             /* 获取交换机基本信息 */
             AjaxResult basicInformationList_ajaxResult = getBasicInformationCurrency(switchParameters);
             return basicInformationList_ajaxResult;
         }
 
+        // 返回交换机连接失败的Ajax结果
         return AjaxResult.error("交换机连接失败");
     }
+
 
     /*Inspection Completed*/
     /**

@@ -2,6 +2,8 @@ package com.sgcc.advanced.utils;
 
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.domain.MultiParameterReturn;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
+import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
 
@@ -20,7 +22,9 @@ public class DataExtraction {
      * @param keywordS                  关键字映射
      * @return 表格数据列表，每个元素为一个HashMap，包含键值对形式的表格数据
      */
-    public static List<HashMap<String, Object>> tableDataExtraction (List<String> switchReturnsInformation, Map<String,String> keywordS){
+    public static List<HashMap<String, Object>> tableDataExtraction (List<String> switchReturnsInformation,
+                                                                     Map<String,String> keywordS,
+                                                                     SwitchParameters switchParameters){
         // 创建一个用于存储结果的列表
         List<HashMap<String, Object>> returnList = new ArrayList<>();
 
@@ -28,7 +32,7 @@ public class DataExtraction {
         for ( ; lineNumber < switchReturnsInformation.size(); lineNumber++) {
             // 调用single_table方法获取多参数返回结果
             /* 返回多个参数 行号和表格数据 */
-            MultiParameterReturn multiParameterReturn = single_table(switchReturnsInformation, keywordS, lineNumber);
+            MultiParameterReturn multiParameterReturn = single_table(switchReturnsInformation, keywordS, lineNumber,switchParameters);
             if (multiParameterReturn == null) {
                 continue;
             }
@@ -65,7 +69,7 @@ public class DataExtraction {
      * @return 返回一个MultiParameterReturn对象，包含两个属性：count表示处理的最后一行行号，parameter表示提取到的表格数据列表
      *         表格数据列表的每个元素为一个HashMap，包含键值对形式的表格数据，键为字符串类型，值为对象类型
      */
-    public static MultiParameterReturn single_table(List<String> switchReturnsInformation, Map<String,String> keywordS, Integer lineNumber) {
+    public static MultiParameterReturn single_table(List<String> switchReturnsInformation, Map<String,String> keywordS, Integer lineNumber,SwitchParameters switchParameters) {
         // 获取表头、标题栏及位置
         String tableHeader = keywordS.get("TableHeader");
         // 将字符串中的中文标点符号替换为英文标点符号
@@ -114,9 +118,15 @@ public class DataExtraction {
             if ( rowFeatures_List.size() > tableHeader_name.size()
                     || (allMatch1 && rowFeatures_List.size() != tableHeader_name.size())) {
 
-                // todo 报错 提出数据可能出现异常 因为非正常跳出
-                //  当前信息行全为未知 并且 当前信息行数据要小于 标题属性数据 的情况下 默认不满足条件
-                //  如果当前行数 大于 标题属性数 直接结束
+                // 报错 提出数据可能出现异常 因为非正常跳出
+                // 当前信息行全为未知 并且 当前信息行数据要小于 标题属性数据 的情况下 默认不满足条件
+                // 如果当前行数 大于 标题属性数 直接结束
+
+                //程序问题
+                AbnormalAlarmInformationMethod.afferent(null,switchParameters.getLoginUser().getUsername()
+                        ,"错误代码",
+                        "OPSA0001");
+
                 break;
 
             }
@@ -130,11 +140,16 @@ public class DataExtraction {
                 if (substringPositions.size() > 1){
                     /* 行特征 存在 标题属性特征中 出现多次
                      * 数据不好判断 故 导致数据提取错误  */
-                    // todo 应该报错 ：行信息：IP,端口号   标题属性： IP,端口号,纯数字,纯数字,IP,端口号  也会导致取值错误。
+                    // 应该报错 ：行信息：IP,端口号   标题属性： IP,端口号,纯数字,纯数字,IP,端口号  也会导致取值错误。
+
+                    //程序问题
+                    AbnormalAlarmInformationMethod.afferent(null,switchParameters.getLoginUser().getUsername()
+                            ,"错误代码",
+                            "OPSA0002");
                 }
 
                 // substringPositions.size() < 1 说明行特征 不存在于标题属性特征中
-                // todo 当前行特征与特征集合中特征不匹配，跳出循环
+                // 当前行特征与特征集合中特征不匹配，跳出循环
                 break;
             }
 
@@ -202,7 +217,7 @@ public class DataExtraction {
      * @param keyword 关键字，其中包含了占位符
      * @return 一个映射表，将占位符映射到它们对应的含义；如果输入或关键词为空，或者关键词中的占位符在输入字符串中不存在，则返回空映射表
      */
-    public static Map<String,String> getTheMeaningOfPlaceholders(String input,String keyword) {
+    public static Map<String,String> getTheMeaningOfPlaceholders(String input,String keyword,SwitchParameters switchParameters) {
         // 将关键词和输入字符串中的冒号替换为" : "，并将多余的空格替换为单个空格，并去除首尾空格
         keyword = keyword.replace(":"," : ").replaceAll("\\s+"," ").trim();
         input = input.replace(":"," : ").replaceAll("\\s+"," ").trim();
@@ -245,8 +260,11 @@ public class DataExtraction {
                     /* 占位符在关键词的前面 取出词 应该取末位*/
                     returnMap.put(placeholder,split[split.length-1]);
                 }else {
-                    // todo 配置文件关键词 设置错误 取词失败。
-
+                    //todo 配置文件关键词 设置错误 取词失败。
+                    AbnormalAlarmInformationMethod.afferent(null,
+                            switchParameters.getLoginUser().getUsername(),
+                            "错误代码",
+                            "OPSA0003");
 
                 }
             }else if (splitkeyword.endsWith(placeholder)){
