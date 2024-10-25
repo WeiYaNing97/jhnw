@@ -90,7 +90,7 @@ public class FunctionalMethods {
      * @param str 交换机返回信息
      * @return boolean 判断命令是否错误，错误为false，正确为true
      */
-    public static boolean judgmentError(SwitchParameters switchParameters, String str){
+    public static boolean judgmentError(SwitchParameters switchParameters, StringBuffer str){
         // 创建SwitchError对象
         SwitchError switchError = new SwitchError();
         // 设置交换机品牌
@@ -129,7 +129,7 @@ public class FunctionalMethods {
      * @param switchInformation 交换机返回信息
      * @return boolean 判断命令是否故障，故障为false，正常为true
      */
-    public static boolean switchfailure(SwitchParameters switchParameters, String switchInformation){
+    public static boolean switchfailure(SwitchParameters switchParameters, StringBuffer switchInformation){
 
         // 创建一个 SwitchFailure 对象
         SwitchFailure switchFailure = new SwitchFailure();
@@ -502,24 +502,24 @@ public class FunctionalMethods {
      * @Param: [switchInformation]
      * @return: java.lang.String
      */
-    public static String removeLoginInformation(String switchInformation){
+    public static StringBuffer removeLoginInformation(StringBuffer switchInformation){
         //交换机返回信息 按行分割为 字符串数组
         // 因为登录信息 会另起一行 登录信息 会在行首
-        String[] switchInformation_array = switchInformation.split("\r\n");
+        List<String> switchInformation_List = StringBufferUtils.stringBufferSplit(switchInformation,"\r\n");
 
         //循环遍历 按行分析 是否存在登录信息
-        for (int number=0;number<switchInformation_array.length;number++){
+        for (int number=0;number<switchInformation_List.size();number++){
 
-            String information = switchInformation_array[number];
+            String information = switchInformation_List.get(number);
             if (information!=null && !information.equals("")){
                 // 调用loginInformationAuthentication方法处理当前行信息
-                String loginInformationAuthentication = loginInformationAuthentication(switchInformation_array[number]);
+                String loginInformationAuthentication = loginInformationAuthentication(switchInformation_List.get(number));
                 if (loginInformationAuthentication.indexOf("^") !=-1 ){
                     // 如果处理后的信息包含"^"，则直接赋值给原数组对应位置
-                    switchInformation_array[number] = loginInformationAuthentication;
+                    switchInformation_List.set(number,loginInformationAuthentication);
                 }else {
                     // 否则去除处理后的信息两侧的空格，并赋值给原数组对应位置
-                    switchInformation_array[number] = loginInformationAuthentication.trim();
+                    switchInformation_List.set(number,loginInformationAuthentication);
                 }
 
             }
@@ -528,13 +528,13 @@ public class FunctionalMethods {
         // 因为之前按行分割了，所以需要将处理后的信息重新拼接成字符串返回
         //因为 之前 按行分割了
         //返回字符串
-        StringBuilder stringBuilder = new StringBuilder();
-        for (int number=0;number<switchInformation_array.length;number++){
+        StringBuffer stringBuffer = new StringBuffer();
+        for (int number=0;number<switchInformation_List.size();number++){
             // 拼接每一行信息，并在末尾添加换行符
-            stringBuilder.append(switchInformation_array[number]);
-            stringBuilder.append("\r\n");
+            stringBuffer.append(switchInformation_List.get(number));
+            stringBuffer.append("\r\n");
         }
-        return stringBuilder.toString();
+        return StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
     }
 
     /**
@@ -657,9 +657,9 @@ public class FunctionalMethods {
      * @param wordSelectionResult
      * @return
      */
-    public static String judgeResultWordSelection(String wordSelectionResult) {
+    public static StringBuffer judgeResultWordSelection(StringBuffer wordSelectionResult) {
         // 获取字符串的最后一个字符
-        String last = wordSelectionResult.substring(wordSelectionResult.length() - 1, wordSelectionResult.length());
+        String last = StringBufferUtils.substring(wordSelectionResult,wordSelectionResult.length() - 1, wordSelectionResult.length()).toString();
         // 定义包含逗号和点号的字符串数组
         String[] character = {",", "."};
         // 遍历数组中的每个字符
@@ -667,7 +667,7 @@ public class FunctionalMethods {
             // 如果最后一个字符与数组中的字符相等
             if (last.equals(judgeChar)) {
                 // 截取除最后一个字符外的子字符串并赋值给原字符串
-                wordSelectionResult = wordSelectionResult.substring(0, wordSelectionResult.length() - 1);
+                wordSelectionResult = StringBufferUtils.substring(wordSelectionResult,0, wordSelectionResult.length() - 1);
                 // 跳出循环
                 break;
             }

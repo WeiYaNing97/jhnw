@@ -27,7 +27,9 @@ public class ExternalRouteAggregation {
      * @param externalKeywords 外部关键词
      * @return 返回外部IP计算器列表
      */
-    public static List<ExternalIPCalculator> getExternalIPCalculatorList(SwitchParameters switchParameters, String switchReturnsexternalInformation, String externalKeywords) {
+    public static List<ExternalIPCalculator> getExternalIPCalculatorList(SwitchParameters switchParameters,
+                                                                         List<String> switchReturnsexternalInformation_List,
+                                                                         String externalKeywords) {
         // 获取路由 OSPF、直连、静态 的关键词
         List<String> protos = new ArrayList<>();
         protos.addAll(Arrays.stream(externalKeywords.split("/")).collect(Collectors.toList()));
@@ -36,8 +38,6 @@ public class ExternalRouteAggregation {
         Collections.sort(protos, Comparator.comparingInt(String::length).reversed());
 
         // 将交换机返回的外部信息按换行符分割成字符串列表
-        List<String> returnInformationList = Arrays.stream(switchReturnsexternalInformation.split("\r\n")).collect(Collectors.toList());
-
         // 从配置中获取路由聚合配置信息
         HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+switchParameters.getDeviceBrand(), Constant.getProfileInformation());
         // 获取keyMap的所有键，存储到keyList列表中
@@ -48,11 +48,11 @@ public class ExternalRouteAggregation {
         /* 符合表格格式 */
         // 如果keyList中存在"R_table"，则使用getTableExternalIPList方法获取外部IP计算器列表
         if (keyList.indexOf("R_table")!=-1){
-            externalIPList = getTableExternalIPList(returnInformationList,switchParameters);
+            externalIPList = getTableExternalIPList(switchReturnsexternalInformation_List,switchParameters);
         }else {
             /* 不符合表格格式 */
             // 如果不符合表格格式，则使用getExternalIPList方法获取外部IP计算器列表
-            externalIPList = getExternalIPList(returnInformationList, protos,switchParameters);
+            externalIPList = getExternalIPList(switchReturnsexternalInformation_List, protos,switchParameters);
         }
         // 返回外部IP计算器列表
         return externalIPList;
@@ -67,9 +67,11 @@ public class ExternalRouteAggregation {
      * @param externalKeywords 外部关键词
      * @return 无返回值
      */
-    public static void externalRouteAggregation(SwitchParameters switchParameters, String switchReturnsexternalInformation, String externalKeywords){
+    public static void externalRouteAggregation(SwitchParameters switchParameters,
+                                                List<String> external_List,
+                                                String externalKeywords){
 
-        List<ExternalIPCalculator> externalIPList = getExternalIPCalculatorList(switchParameters, switchReturnsexternalInformation, externalKeywords);
+        List<ExternalIPCalculator> externalIPList = getExternalIPCalculatorList(switchParameters, external_List, externalKeywords);
 
         Map<String, List<ExternalIPCalculator>> proto_collect = externalIPList.stream().collect(Collectors.groupingBy(ExternalIPCalculator::getProto));
 

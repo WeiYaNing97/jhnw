@@ -17,27 +17,27 @@ public class NonRelationalDataTable extends BaseEntity
 
     /** 非关系型数据ID */
     @Excel(name = "非关系型数据ID")
-    private String nonRelationalId;
+    private StringBuffer nonRelationalId;
 
     /** 非关系型数据 */
     @Excel(name = "非关系型数据")
-    private String nonRelationalData;
+    private StringBuffer nonRelationalData;
 
-    public void setNonRelationalId(String nonRelationalId) 
+    public void setNonRelationalId(StringBuffer nonRelationalId)
     {
         this.nonRelationalId = nonRelationalId;
     }
 
-    public String getNonRelationalId() 
+    public StringBuffer getNonRelationalId()
     {
         return nonRelationalId;
     }
-    public void setNonRelationalData(String nonRelationalData) 
+    public void setNonRelationalData(StringBuffer nonRelationalData)
     {
         this.nonRelationalData = nonRelationalData;
     }
 
-    public String getNonRelationalData() 
+    public StringBuffer getNonRelationalData()
     {
         return nonRelationalData;
     }

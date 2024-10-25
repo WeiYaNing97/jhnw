@@ -14,6 +14,7 @@ import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.ExecuteCommand;
 import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.StringBufferUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
@@ -56,20 +57,22 @@ public class LinkBundling {
 
         // 执行外部路由命令
         // 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
-        String external = getRoutingTableCommand(switchParameters,linkBindingCommand);
+        List<String> external_List = getRoutingTableCommand(switchParameters,linkBindingCommand);
 
         // 存储目标地址和掩码的列表
         List<String> DestinationMaskList = new ArrayList<>();
 
         // 如果external信息不为空
-        if (external!=null){
+        if (MyUtils.isCollectionEmpty(external_List)){
 
             // 从switchReturnsMap中获取externalKeywords信息
             String externalKeywords = linkBindingCommand.getKeywords();
             externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
 
             // 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
-            List<ExternalIPCalculator> externalIPCalculatorList = ExternalRouteAggregation.getExternalIPCalculatorList(switchParameters, external, externalKeywords);
+            List<ExternalIPCalculator> externalIPCalculatorList = ExternalRouteAggregation.getExternalIPCalculatorList(switchParameters,
+                    external_List,
+                    externalKeywords);
             DestinationMaskList = externalIPCalculatorList.stream().map(x -> x.getDestinationMask()).collect(Collectors.toList());
         }
 
@@ -100,16 +103,16 @@ public class LinkBundling {
      * @param linkBindingCommand 链路绑定命令对象
      * @return 返回获取到的路由表命令结果
      */
-    public String getRoutingTableCommand(SwitchParameters switchParameters,LinkBindingCommand linkBindingCommand){
+    public List<String> getRoutingTableCommand(SwitchParameters switchParameters,LinkBindingCommand linkBindingCommand){
         // 获取路由聚合问题的外部命令
         String routingTableCommand = linkBindingCommand.getRoutingTableCommand();
         ExecuteCommand executeCommand = new ExecuteCommand();
-        String external = executeCommand.executeScanCommandByCommand(switchParameters, routingTableCommand);
+        List<String> stringList = executeCommand.executeScanCommandByCommand(switchParameters, routingTableCommand);
         // 去除返回信息中的空白字符
         // todo 链路捆绑虚拟数据
-        external = routingTableCommandReturnInformation.trim();
-        external = MyUtils.trimString(external);
-        return external;
+        stringList = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(routingTableCommandReturnInformation)),
+                "\r\n");
+        return stringList;
     }
 
 

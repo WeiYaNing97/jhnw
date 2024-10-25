@@ -389,26 +389,26 @@ public class SolveProblemController {
      * @param dynamicInformation
      * @return  key : value   ->  用户名 : admin
      */
-    public HashMap<String,String> separationParameters(String dynamicInformation) {
+    public HashMap<String,String> separationParameters(StringBuffer dynamicInformation) {
         //几个参数中间的 参数是 以  "=:=" 来分割的
         //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
         /*自定义分隔符*/
         String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
-        String[] parameterStringsplit = dynamicInformation.split(customDelimiter);
+        List<String> parameterStringsplit_List =StringBufferUtils.stringBufferSplit(dynamicInformation,"\r\n");
 
         HashMap<String,String> valueHashMap = new HashMap<>();
         //判断提取参数 是否为空
-        if (parameterStringsplit.length>0){
+        if (parameterStringsplit_List.size()>0){
             //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
             //所以 参数组 要倒序插入
-            for (int number=parameterStringsplit.length-1;number>0;number--){
+            for (int number=parameterStringsplit_List.size()-1;number>0;number--){
                 //插入参数
                 //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
-                String setDynamicInformation=parameterStringsplit[number];
+                String setDynamicInformation=parameterStringsplit_List.get(number);
                 String information = setDynamicInformation;//动态信息
                 number = number - 2;
-                String name = parameterStringsplit[number];//动态信息名称
+                String name = parameterStringsplit_List.get(number);//动态信息名称
                 valueHashMap.put(name,information);
             }
         }
@@ -464,7 +464,8 @@ public class SolveProblemController {
             }
         }
 
-        String commandString =""; //预设交换机返回结果
+        StringBuffer commandString = new StringBuffer(); //预设交换机返回结果
+
         //user_String, connectMethod, telnetSwitchMethod
         for (String command:commandList){
             //根据 连接方法 判断 实际连接方式
@@ -494,12 +495,17 @@ public class SolveProblemController {
                      * 返回结果
                      * 如果交换机返回信息错误，则返回信息为 null*/
                     ExecuteCommand executeCommand = new ExecuteCommand();
-                    commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
-                    if (commandString == null){
+                    List<String> stringList = executeCommand.executeScanCommandByCommand(switchParameters, command);
+                    if (MyUtils.isCollectionEmpty(stringList)){
                         //交换机返回信息错误 导致 方法返回值为null
                         //所谓 修复失败 则返回错误
                         return switchParameters.getIp()+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:交换机返回错误信息";
                     }
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (String string:stringList){
+                        stringBuffer.append(string).append("\r\n");
+                    }
+                    commandString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
                     //commandString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),command,null);
                     //commandString = Utils.removeLoginInformation(commandString);
                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
@@ -507,8 +513,12 @@ public class SolveProblemController {
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                             switchParameters.getIp()+"发送:"+command+"\r\n");
 
-
-                    commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,null);
+                    List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (String string : stringList) {
+                        stringBuffer.append(string).append("\r\n");
+                    }
+                    commandString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
                     //commandString = Utils.removeLoginInformation(commandString);
                 }
 
@@ -518,9 +528,11 @@ public class SolveProblemController {
                 boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, commandString);
                 // 存在故障返回 false
                 if (!switchfailure) {
-                    String[] commandStringSplit = commandString.split("\r\n");
+
+                    List<String> commandStringSplit = StringBufferUtils.stringBufferSplit(commandString,"\r\n");
+
                     for (String returnString : commandStringSplit) {
-                        deviceBrand = FunctionalMethods.switchfailure(switchParameters, returnString);
+                        deviceBrand = FunctionalMethods.switchfailure(switchParameters,new StringBuffer(returnString));
                         if (!deviceBrand) {
                             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                     "故障:"+switchParameters.getIp()+":"+returnString+"\r\n");
@@ -532,12 +544,22 @@ public class SolveProblemController {
                                  * 返回结果
                                  * 如果交换机返回信息错误，则返回信息为 null*/
                                 ExecuteCommand executeCommand = new ExecuteCommand();
-                                commandString = executeCommand.executeScanCommandByCommand(switchParameters, " ");
-                                if (commandString == null){
+                                List<String> stringList = executeCommand.executeScanCommandByCommand(switchParameters, " ");
+
+                                if (MyUtils.isCollectionEmpty(stringList)){
                                     //交换机返回信息错误 导致 方法返回值为null
                                     //所谓 修复失败 则返回错误
                                     return switchParameters.getIp()+": 问题 ："+switchScanResult.getProblemName() +":" +command+ "错误:交换机返回错误信息";
                                 }
+
+                                StringBuffer stringBuffer = new StringBuffer();
+                                for (String string:stringList){
+                                    stringBuffer.append(string).append("\r\n");
+                                }
+
+                                commandString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+
+
                                 //switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
                             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                                 switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",switchParameters.getNotFinished());
@@ -555,30 +577,34 @@ public class SolveProblemController {
             returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
             //去除其他 交换机登录信息
             commandString = FunctionalMethods.removeLoginInformation(commandString);
+
             //交换机返回信息 修整字符串  去除多余 "\r\n" 连续空格 为插入数据美观
-            commandString = MyUtils.trimString(commandString);
+            commandString = StringBufferUtils.arrange(commandString);
 
             //交换机返回信息 按行分割为 字符串数组
-            String[] commandString_split = commandString.split("\r\n");
+            List<String> commandString_split_List = StringBufferUtils.stringBufferSplit(commandString, "\r\n");
+
             // 返回日志内容
-            if (commandString_split.length > 1){
-                String current_return_log = commandString.substring(0, commandString.length() - commandString_split[commandString_split.length - 1].length() - 2).trim();
+            if (commandString_split_List.size() > 1){
+                StringBuffer current_return_log = StringBufferUtils.substring(commandString,0, commandString.length() - commandString_split_List.get(commandString_split_List.size() - 1).length() - 2);
+
                 returnRecord.setCurrentReturnLog(current_return_log);
+
                 //返回日志前后都有\r\n
-                String current_return_log_substring_end = current_return_log.substring(current_return_log.length() - 2, current_return_log.length());
+                StringBuffer current_return_log_substring_end = StringBufferUtils.substring(current_return_log,current_return_log.length() - 2, current_return_log.length());
                 if (!current_return_log_substring_end.equals("\r\n")){
-                    current_return_log = current_return_log+"\r\n";
+                    current_return_log.append("\r\n");
                 }
                 String current_return_log_substring_start = current_return_log.substring(0, 2);
                 if (!current_return_log_substring_start.equals("\r\n")){
-                    current_return_log = "\r\n"+current_return_log;
+                    current_return_log.insert(0,"\r\n");
                 }
 
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                         switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
 
                 //当前标识符 如：<H3C> [H3C]
-                String current_identifier = commandString_split[commandString_split.length - 1].trim();
+                String current_identifier = commandString_split_List.get(commandString_split_List.size() - 1);
                 returnRecord.setCurrentIdentifier(current_identifier);
                 //当前标识符前后都没有\r\n
                 String current_identifier_substring_end = current_identifier.substring(current_identifier.length() - 2, current_identifier.length());
@@ -594,11 +620,11 @@ public class SolveProblemController {
                         switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
 
 
-            }else if (commandString_split.length == 1){
-                returnRecord.setCurrentIdentifier("\r\n"+commandString_split[0]+"\r\n");
+            }else if (commandString_split_List.size() == 1){
+                returnRecord.setCurrentIdentifier("\r\n"+commandString_split_List.get(0)+"\r\n");
 
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
-                        switchParameters.getIp()+"接收:"+commandString_split[0]+"\r\n");
+                        switchParameters.getIp()+"接收:"+commandString_split_List.get(0)+"\r\n");
 
             }
 
@@ -606,10 +632,12 @@ public class SolveProblemController {
             int update = returnRecordService.updateReturnRecord(returnRecord);
             //判断命令是否错误 错误为false 正确为true
             if (!(FunctionalMethods.judgmentError( switchParameters,commandString))){
+
                 //  简单检验，命令正确，新命令  commandLogic.getEndIndex()
-                String[] returnString_split = commandString.split("\r\n");
-                for (String string_split:returnString_split){
-                    if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
+                List<String> returnString_split_List = StringBufferUtils.stringBufferSplit(commandString, "\r\n");
+
+                for (String string_split:returnString_split_List){
+                    if (!FunctionalMethods.judgmentError( switchParameters,new StringBuffer(string_split))){
 
                         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                 "风险:"+switchParameters.getIp() +":问题:"+switchScanResult.getProblemName() +"命令:" +command +"错误:"+string_split+"\r\n");
@@ -755,34 +783,34 @@ public class SolveProblemController {
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());
                 //提取信息 如果不为空 则有参数
                 if (switchScanResult.getDynamicInformation()!=null && !switchScanResult.getDynamicInformation().equals("")){
-                    String dynamicInformation = switchScanResult.getDynamicInformation();
+                    StringBuffer dynamicInformation = switchScanResult.getDynamicInformation();
 
                     //几个参数中间的 参数是 以  "=:=" 来分割的
                     //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
                     /*自定义分隔符*/
                     String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-                    String[] dynamicInformationsplit = dynamicInformation.split(customDelimiter);
+                    List<String> dynamicInformationsplit_List = StringBufferUtils.stringBufferSplit(dynamicInformation,customDelimiter);
 
                     //判断提取参数 是否为空
-                    if (dynamicInformationsplit.length>0){
+                    if (dynamicInformationsplit_List.size()>0){
                         //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
                         //所以 参数组 要倒序插入
-                        for (int number=dynamicInformationsplit.length-1;number>0;number--){
+                        for (int number=dynamicInformationsplit_List.size()-1;number>0;number--){
                             //创建 参数 实体类
                             ValueInformationVO valueInformationVO = new ValueInformationVO();
                             //插入参数
                             //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
-                            String setDynamicInformation=dynamicInformationsplit[number];
+                            String setDynamicInformation=dynamicInformationsplit_List.get(number);
                             valueInformationVO.setDynamicInformation(setDynamicInformation);
                             --number;
-                            String setExhibit=dynamicInformationsplit[number];
+                            String setExhibit=dynamicInformationsplit_List.get(number);
                             valueInformationVO.setExhibit(setExhibit);//是否显示
                             if (setExhibit.equals("否")){
                                 String setDynamicInformationMD5 = EncryptUtil.densificationAndSalt(setDynamicInformation);
                                 valueInformationVO.setDynamicInformation(setDynamicInformationMD5);//动态信息
                             }
                             --number;
-                            valueInformationVO.setDynamicVname(dynamicInformationsplit[number]);//动态信息名称
+                            valueInformationVO.setDynamicVname(dynamicInformationsplit_List.get(number));//动态信息名称
                             valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                             valueInformationVOList.add(valueInformationVO);
                         }

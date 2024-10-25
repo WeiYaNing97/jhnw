@@ -11,13 +11,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class ExecuteCommand {
     @Autowired
     private IReturnRecordService returnRecordService;
     //命令返回信息
-    private String command_string = null;
+    private StringBuffer command_string = null;
 
     /* 告警、异常信息写入 */
     /**
@@ -32,7 +34,7 @@ public class ExecuteCommand {
      * @return
     */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    public String executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
+    public List<String> executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
 
@@ -125,9 +127,15 @@ public class ExecuteCommand {
                 // 提交要执行的方法，并设置超时时间为2秒
                 ScheduledFuture<?> future = executor.schedule(() -> {
                     // 执行的方法逻辑
-                    command_string = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
-
-                }, 1, TimeUnit.SECONDS);
+                    List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
+                    if (stringList.size()!=0){
+                        StringBuffer stringBuffer = new StringBuffer();
+                        for (String string : stringList) {
+                            stringBuffer.append(string).append("\r\n");
+                        }
+                        command_string = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+                    }
+                    }, 1, TimeUnit.SECONDS);
 
                 try {
                     // 等待任务执行结果，同时设置超时时间为21秒
@@ -147,9 +155,16 @@ public class ExecuteCommand {
                             "问题为:命令:"+ command+"未获取到交换机返回信息,telnet超时\r\n");
 
 
-                    command_string = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
+                    List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), command, null);
+                    if (stringList.size()!=0){
+                        StringBuffer stringBuffer = new StringBuffer();
+                        for (String string : stringList) {
+                            stringBuffer.append(string).append("\r\n");
+                        }
+                        command_string = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+                    }
 
-                    return null;
+                    return new ArrayList<>();
 
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
@@ -169,18 +184,19 @@ public class ExecuteCommand {
             returnRecord.setCurrentReturnLog(command_string);
 
             //修整返回信息  文章字段 换行符 由"\r"  "\n"  "\r\n" 规范成 "\r\n" 并且 连续多空格转化为单空格
-            command_string = MyUtils.trimString(command_string);
+            command_string = StringBufferUtils.arrange(command_string);
 
 
             //粗略查看是否存在 故障 存在故障返回 false 不存在故障返回 true
             // 存在故障返回 false
             if (!FunctionalMethods.switchfailure(switchParameters, command_string)) {
                 /*字段按行分割为 行信息数组 LineInformation*/
-                String[] commandStringSplit = command_string.split("\r\n");
+
+                List<String> commandStringSplit_List = StringBufferUtils.stringBufferSplit(command_string,"\r\n");
                 /* 遍历交换机行信息*/
-                for (String LineInformation : commandStringSplit) {
+                for (String LineInformation : commandStringSplit_List) {
                     /*当行信息包含 故障时 进入错误代码库*/
-                    deviceBrand = FunctionalMethods.switchfailure(switchParameters, LineInformation);
+                    deviceBrand = FunctionalMethods.switchfailure(switchParameters, new StringBuffer(LineInformation));
                     if (!deviceBrand) {
 
                         String subversionNumber = switchParameters.getSubversionNumber();
@@ -223,13 +239,18 @@ public class ExecuteCommand {
         returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_id).longValue());
         //去除其他 交换机登录信息
         command_string = FunctionalMethods.removeLoginInformation(command_string);
+
+
         //按行切割: 字段按行分割为 行信息数组 LineInformation
-        String[] LineInformation = command_string.split("\r\n");
+        List<String> lineInformation_List = StringBufferUtils.stringBufferSplit(command_string,"\r\n");
+
         /*当返回信息不止为 标识符时*/
-        if (LineInformation.length != 1){
+        if (lineInformation_List.size() != 1){
+
             /*获取返回日志 去除 标识符
              * 标识符为 最后一个元素  注意要删除 \r\n  所以-2*/
-            String current_return_log = command_string.substring(0,command_string.length()-LineInformation[LineInformation.length-1].length()-2);
+            StringBuffer current_return_log = StringBufferUtils.substring(command_string,0,command_string.length()-lineInformation_List.get(lineInformation_List.size()-1).length()-2);
+
             // 去掉^之前的 \r\n
             /* 不包含 ： ^down
             * 原因:交换机正确返回信息也包含：
@@ -240,7 +261,8 @@ public class ExecuteCommand {
                 #down: LBDT down
                 * */
             if (current_return_log.indexOf("^")!=-1 && current_return_log.indexOf("^down") ==-1){
-                current_return_log = current_return_log.substring(2 + LineInformation[LineInformation.length-1].trim().length(),current_return_log.length());
+                current_return_log = StringBufferUtils.substring(current_return_log,2 + lineInformation_List.get(lineInformation_List.size()-1).length(),current_return_log.length());
+
             }
             returnRecord.setCurrentReturnLog(current_return_log);
             //交换机返回日志的前端回显
@@ -249,7 +271,7 @@ public class ExecuteCommand {
 
         }
         //按行切割最后一位应该是 标识符
-        String current_identifier = LineInformation[LineInformation.length-1].trim();
+        String current_identifier = lineInformation_List.get(lineInformation_List.size()-1);
         returnRecord.setCurrentIdentifier(current_identifier);
         //交换机返回标识符的前端回显
 
@@ -264,9 +286,9 @@ public class ExecuteCommand {
         //粗略判断命令是否错误 错误为false 正确为true
         if (!(FunctionalMethods.judgmentError( switchParameters,command_string))){
             /*字段按行分割为 行信息数组 LineInformation*/
-            for (String string_split:LineInformation){
+            for (String string_split:lineInformation_List){
                 /* 按行 去查找具体错误信息*/
-                if (!FunctionalMethods.judgmentError( switchParameters,string_split)){
+                if (!FunctionalMethods.judgmentError( switchParameters,new StringBuffer(string_split))){
 
                     String subversionNumber = switchParameters.getSubversionNumber();
                     if (subversionNumber!=null){
@@ -286,7 +308,7 @@ public class ExecuteCommand {
             }
         }
 
-        return command_string;
+        return StringBufferUtils.stringBufferSplit(command_string,"\r\n");
     }
 
 }

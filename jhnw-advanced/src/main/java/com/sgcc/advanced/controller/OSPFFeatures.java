@@ -14,6 +14,7 @@ import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.ExecuteCommand;
 import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.StringBufferUtils;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,10 +54,10 @@ public class OSPFFeatures {
         if (!ospfCommandReturnResult.get("msg").equals("操作成功")){
             return ospfCommandReturnResult;
         }
-        String commandReturn = (String) ospfCommandReturnResult.get("data");
+        List<String> commandReturn_List = (List<String>) ospfCommandReturnResult.get("data");
 
         // 获取OSPF数据列表
-        AjaxResult OSPFPojoList = retrieveOSPFData(switchParameters, commandReturn);
+        AjaxResult OSPFPojoList = retrieveOSPFData(switchParameters, commandReturn_List);
         if (!OSPFPojoList.get("msg").equals("操作成功")){
             return OSPFPojoList;
         }
@@ -114,14 +115,14 @@ public class OSPFFeatures {
         // 根据交换机信息类  执行交换命令
         ExecuteCommand executeCommand = new ExecuteCommand();
         String command = ospfCommand.getGetParameterCommand();
-        String commandReturn = executeCommand.executeScanCommandByCommand(switchParameters,command);
+        List<String> commandReturn_List = executeCommand.executeScanCommandByCommand(switchParameters,command);
 
         // todo OSPF虚拟数据
-        commandReturn = this.commandPortReturn;
-        commandReturn = MyUtils.trimString(commandReturn);
+        commandReturn_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.commandPortReturn)),
+                "\r\n");
 
         /*执行命令返回结果为null 则是命令执行错误*/
-        if (commandReturn == null){
+        if (MyUtils.isCollectionEmpty(commandReturn_List)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
@@ -136,7 +137,7 @@ public class OSPFFeatures {
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:ospf功能命令错误,请重新定义\r\n");
         }
 
-        return AjaxResult.success("操作成功",commandReturn);
+        return AjaxResult.success("操作成功",commandReturn_List);
     }
 
     /**
@@ -146,9 +147,9 @@ public class OSPFFeatures {
      * @param commandReturn 命令返回结果
      * @return AjaxResult 包含OSPFPojo对象列表的AjaxResult对象
      */
-    public AjaxResult retrieveOSPFData(SwitchParameters switchParameters,String commandReturn) {
+    public AjaxResult retrieveOSPFData(SwitchParameters switchParameters,List<String> commandReturn_List ) {
         // 根据输入信息和交换机参数获取OSPFPojo对象列表
-        List<OSPFPojo> pojoList =  getOSPFPojo(commandReturn,switchParameters);
+        List<OSPFPojo> pojoList =  getOSPFPojo( commandReturn_List ,switchParameters);
 
         if (pojoList.size() == 0){
             String subversionNumber = switchParameters.getSubversionNumber();
@@ -255,7 +256,7 @@ public class OSPFFeatures {
      * @param switchParameters 交换机参数
      * @return OSPFPojo对象列表
      */
-    public static List<OSPFPojo> getOSPFPojo(String information,SwitchParameters switchParameters) {
+    public static List<OSPFPojo> getOSPFPojo(List<String> commandReturn_List ,SwitchParameters switchParameters) {
 
         /**
          *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
@@ -268,11 +269,17 @@ public class OSPFFeatures {
         }
         String[] keywords = deviceVersion.trim().split(" ");
 
+        StringBuffer stringBuffer = new StringBuffer();
+        for (String commandReturn:commandReturn_List){
+            stringBuffer.append(commandReturn+" ");
+        }
+
+
         /** 遍历配置文件定义的关于交换机端口号的特征 关键词
          * 如果 交换机返回结果包含 特征关键词 则 保存特征关键词 */
         List<String> keys = new ArrayList<>();
         for (String key:keywords){
-            if (MyUtils.containIgnoreCase(information,key)){
+            if (StringBufferUtils.stringBufferContainString(stringBuffer,key)){
                 keys.add(key);
             }
         }
@@ -289,17 +296,18 @@ public class OSPFFeatures {
          * 遍历特征关键词
          *  将端口号中有空格的情况 去除空格
          *  例如： GigabitEthernet 1/0/0  替换成  GigabitEthernet1/0/0*/
-        List<String> string_split = Arrays.asList(information.split("\r\n"));
+
+
         for (String key:keys){
-            for (int i = 0 ; i < string_split.size() ; i++){
+            for (int i = 0 ; i < commandReturn_List.size() ; i++){
                 /* 判断一个字符串是否包含另一个字符串(忽略大小写) */
-                if (MyUtils.containIgnoreCase(string_split.get(i),key+" ")){
-                    string_split.set(i,string_split.get(i).replace(key+" ",key));
+                if (MyUtils.containIgnoreCase(commandReturn_List.get(i),key+" ")){
+                    commandReturn_List.set(i,commandReturn_List.get(i).replace(key+" ",key));
                 }
             }
         }
 
-        List<OSPFPojo> ospfPojos = getOSPFParameters(string_split,switchParameters.getDeviceBrand(),switchParameters);
+        List<OSPFPojo> ospfPojos = getOSPFParameters(commandReturn_List,switchParameters.getDeviceBrand(),switchParameters);
         return ospfPojos;
     }
 

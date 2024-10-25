@@ -218,32 +218,45 @@ public class ConnectToObtainInformation {
     public String enable(SwitchParameters switchParameters) {
 
         /*交换机返回结果*/
-        String returnString = null;
+        StringBuffer returnString = null;
 
         /* 执行 回车命令 获取交换机及返回结果*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
 
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-            returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
-
+            List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
+            if (stringList.size()!=0) {
+                StringBuffer stringBuffer = new StringBuffer();
+                for (String string : stringList) {
+                    stringBuffer.append(string).append("\r\n");
+                }
+                returnString = StringBufferUtils.substring(stringBuffer, 0, stringBuffer.length() - 2);
+            }
         }
 
         if (returnString==null){
             return "交换机连接失败";
         }
 
-        String trim = returnString.trim();
+        String returnString_end = returnString.charAt(returnString.length() - 1)+"";
 
         /*判断 交换机返回结果给标识符 是否 以> 结尾*/
         /*思科交换机返回信息是 #  不需要发送 enable*/
-        if (trim.endsWith(">")){
+        if (returnString_end.equals(">")){
 
             /*发送 enable 命令 查看返回结果 */
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"enable",null);
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
+                List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
+                if (stringList.size()!=0){
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (String string : stringList) {
+                        stringBuffer.append(string).append("\r\n");
+                    }
+                    returnString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+                }
             }
 
             /*判断交换机返回结果是否为空*/
@@ -270,8 +283,14 @@ public class ConnectToObtainInformation {
 
                         returnString = connectMethod.sendCommand(switchParameters.getIp(),sshConnect,switchParameters.getConfigureCiphers(),null);
                     }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-
-                        returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
+                        List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
+                        if (stringList.size()!=0){
+                            StringBuffer stringBuffer = new StringBuffer();
+                            for (String string : stringList) {
+                                stringBuffer.append(string).append("\r\n");
+                            }
+                            returnString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+                        }
                     }
 
                     return "交换机连接成功";
@@ -279,7 +298,7 @@ public class ConnectToObtainInformation {
             }
 
             /*思科交换机返回信息是 #  不需要发送 enable*/
-        }else if (trim.substring(trim.length()-1,trim.length()).equals("#")){
+        }else if ( (returnString.charAt(returnString.length() - 1)+"").equals("#")){
 
             return "交换机连接成功";
         }
@@ -295,31 +314,45 @@ public class ConnectToObtainInformation {
     */
     public String enable1(SwitchParameters switchParameters) {
         /*交换机返回结果*/
-        String returnString = null;
+        StringBuffer returnString = null;
         /* 执行 回车命令 获取交换机及返回结果*/
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             // SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 回车  、 返回信息未结束标准）
             returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"\r",null);
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-            returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
+            List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "\r", null);
+            if (stringList.size()!=0){
+                StringBuffer stringBuffer = new StringBuffer();
+                for (String string : stringList) {
+                    stringBuffer.append(string).append("\r\n");
+                }
+                returnString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+            }
         }
-        if (returnString == null || returnString == "" ){
+        if (returnString == null || returnString.toString() == "" ){
             return "交换机连接失败";
         }else if (returnString.equals("遗失对主机的连接")){
             return "遗失对主机的连接";
         }
         /*判断交换机返回结果的标识符 是否 以> 结尾*/
         /*思科交换机返回信息是 #  不需要发送 enable*/
-        if (returnString.trim().endsWith(">")){
+        if ((returnString.charAt(returnString.length() - 1)+"").endsWith(">")){
             /*发送 enable 命令 查看返回结果 */
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 /* SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 enable  、 返回信息未结束标准）*/
                 returnString = switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),"enable",null);
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
+                List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), "enable", null);
+                if (stringList.size()!=0){
+                    StringBuffer stringBuffer = new StringBuffer();
+                    for (String string : stringList) {
+                        stringBuffer.append(string).append("\r\n");
+                    }
+                    returnString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+                }
             }
             /*判断交换机返回结果是否为空*/
-            if (returnString == null || returnString == ""){
+            if (returnString == null || returnString.toString() == ""){
                 return "交换机连接失败";
             }else if (returnString.equals("遗失对主机的连接")){
                 return "交换机连接失败";
@@ -336,19 +369,26 @@ public class ConnectToObtainInformation {
                         /*(JSCH 使用方法类)SshConnect sshConnect = switchParameters.getSshConnect();
                         SSH方法类 发送命令  参数为  （IP 、 JSCH方法类 、 配置密码  、 返回信息未结束标准）*/
                         returnString = connectMethod.sendCommand(switchParameters.getIp(),switchParameters.getSshConnect(),switchParameters.getConfigureCiphers(),null);
-                        if (returnString == null || returnString == ""){
+                        if (returnString == null || returnString.toString() == ""){
                             return "交换机连接失败";
                         }else if (returnString.equals("遗失对主机的连接")){
                             return "交换机连接失败";
                         }
                     }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
-                        returnString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
+                        List<String> stringList = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(), switchParameters.getTelnetComponent(), switchParameters.getConfigureCiphers(), null);
+                        if (stringList.size()!=0){
+                            StringBuffer stringBuffer = new StringBuffer();
+                            for (String string : stringList) {
+                                stringBuffer.append(string).append("\r\n");
+                            }
+                            returnString = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
+                        }
                     }
                     return "交换机连接成功";
                 }
             }
             /*思科交换机返回信息的标识符结尾是 #  不需要发送 enable*/
-        }else if (returnString.trim().endsWith("#")){
+        }else if ((returnString.charAt(returnString.length() - 1)+"").endsWith("#")){
             return "交换机连接成功";
         }
         return "交换机连接失败";
@@ -376,7 +416,7 @@ public class ConnectToObtainInformation {
         /*H3C*/
         String[] commandsplit = ( (String) CustomConfigurationUtil.getValue("BasicInformation.getBrandCommand", Constant.getProfileInformation())).split(";");
 
-        String commandString =""; //预设交换机返回结果
+        List<String> commandString = new ArrayList<>(); //预设交换机返回结果
         //遍历数据表命令 分割得到的 命令数组
         for (String command:commandsplit){
 
@@ -388,7 +428,7 @@ public class ConnectToObtainInformation {
 
             /*commandString = "";
             commandString = MyUtils.trimString(commandString);*/
-            if (commandString == null){
+            if (commandString == null || commandString.size() == 0){
                 continue;
             }
 
@@ -447,7 +487,7 @@ public class ConnectToObtainInformation {
      * @return  返回  交换机基本信息
      * 品牌和型号应为一个单词 中间不包含空格
      */
-    public HashMap<String,String> analyzeStringToGetBasicInformation(String returns_String) {
+    public HashMap<String,String> analyzeStringToGetBasicInformation(List<String> returns_String_List) {
 
         /*查询 数据库 交换机信息表 品牌名 集合*/
         informationService = SpringBeanUtil.getBean(IInformationService.class);
@@ -455,15 +495,20 @@ public class ConnectToObtainInformation {
         /* 该表 在定义交换机问题的时候 会同步交换机基本信息到 information表*/
         List<String> brandList = informationService.selectDeviceBrandList();
 
+        StringBuffer stringBuffer = new StringBuffer();
+        for (String returns_String:returns_String_List){
+            stringBuffer.append(returns_String.trim()).append("\r\n");
+        }
+
         /* 交换机返回结果 空格替换成空格 按空格分割为 单词数组*/
-        String[] return_word = returns_String.replaceAll("\r\n"," ").split(" ");
+        List<String> return_word_List = StringBufferUtils.stringBufferSplit(stringBuffer,"\r\n");
 
         /* 定义交换机返回信息中 包含的品牌名称 集合*/
         List<String> brands = new ArrayList<>();
         /*遍历品牌 例如：H3C*/
         for (String brandString:brandList){
             /* 遍历交换机返回 单词数组*/
-            for (String word:return_word){
+            for (String word:return_word_List){
                 /*判断 是否 包含 品牌 */
                 if (MyUtils.containIgnoreCase(word,brandString)){
                     brands.add(word);
@@ -486,7 +531,7 @@ public class ConnectToObtainInformation {
         /* 根据匹配到的交换机品牌 查询 数据库 交换机信息表 型号 集合*/
         List<Information> informationList = informationService.selectDeviceModelListByArray(brandArray);
         for (Information information:informationList){
-            for (String word:return_word){
+            for (String word:return_word_List){
                 /*判断是否包含型号*/
                 if (MyUtils.containIgnoreCase(word,information.getDeviceModel())){
                     brand_model.add(information);
@@ -499,7 +544,7 @@ public class ConnectToObtainInformation {
             /* 遍历型号信息 例如：S2152*/
             for (Information information:informationList){
                 /* 全文匹配 */
-                if (returns_String.toLowerCase().indexOf(information.getDeviceModel().toLowerCase())!=-1){
+                if (StringBufferUtils.stringBufferContainString(stringBuffer,information.getDeviceModel())){
                     brand_model.add(information);
                 }
             }
@@ -518,7 +563,6 @@ public class ConnectToObtainInformation {
         /** 设备子版本 获取交换机子版本关键字*/
         String deviceSubversion = (String) CustomConfigurationUtil.getValue("BasicInformation.deviceSubversion",Constant.getProfileInformation());
 
-        String[] rowSplit = returns_String.split("\r\n");
 
         /*获取交换机版本关键字按;分割成关键词数组*/
         /*yml 配置文件中 多个值之间用;隔开*/
@@ -528,22 +572,22 @@ public class ConnectToObtainInformation {
         /* 遍历获取版本关键字*/
         for (String version:deviceVersionSplit){
             /* 判断一个字符串是否包含另一个字符串(忽略大小写) */
-            if (!MyUtils.containIgnoreCase(returns_String,version)){
+            if (!StringBufferUtils.stringBufferContainString(stringBuffer,version)){
                 continue;
             }
 
             /* 遍历行信息*/
-            for (int number = 0 ; number < rowSplit.length; number++){
+            for (int number = 0 ; number < returns_String_List.size(); number++){
 
                 /*获取版本号关键词位置*/
-                int rowposition = rowSplit[number].toUpperCase().indexOf(version.toUpperCase());
+                int rowposition = returns_String_List.get(number).toUpperCase().indexOf(version.toUpperCase());
 
                 /*如果 rowposition 不为 -1 则说明包含 交换机返回信息的 number 行信息
                 * 包含 版本号关键词位置*/
                 if (rowposition != -1){
 
                     /* 截取 版本号关键词 后面的信息 例如：  5.20.99, Release 1106*/
-                    String row = rowSplit[number].substring( rowposition + version.length() ,  rowSplit[number].length() );
+                    String row = returns_String_List.get(number).substring( rowposition + version.length() ,returns_String_List.get(number).length() );
 
 
 
@@ -631,20 +675,19 @@ public class ConnectToObtainInformation {
         String[] deviceSubversionSplit =deviceSubversion.split(";");
 
         for (String version:deviceSubversionSplit){
-
-            if (!MyUtils.containIgnoreCase(returns_String,version)){
+            if (!StringBufferUtils.stringBufferContainString(stringBuffer,version)){
                 continue;
             }
 
-            for (int number = 0 ; number < rowSplit.length; number++){
+            for (int number = 0 ; number < returns_String_List.size(); number++){
 
                 /* 获取版本号位置 */
-                int rowposition = rowSplit[number].toUpperCase().indexOf(version.toUpperCase());
+                int rowposition = returns_String_List.get(number).toUpperCase().indexOf(version.toUpperCase());
 
                 if (rowposition != -1){
 
                     /*判断是是否包含, 和 子版本关键词*/
-                    subversionNo = rowSplit[number].substring(rowposition + version.length(), rowSplit[number].length());
+                    subversionNo = returns_String_List.get(number).substring(rowposition + version.length(), returns_String_List.get(number).length());
 
                     int i = subversionNo.indexOf(",");
 

@@ -266,7 +266,7 @@ public class SwitchScanResultController extends BaseController
         // 设置问题名称
         switchScanResult.setProblemName(hashMap.get("ProblemName"));
         // 设置动态信息
-        switchScanResult.setDynamicInformation(hashMap.get("parameterString"));
+        switchScanResult.setDynamicInformation(new StringBuffer(hashMap.get("parameterString")));
         // 设置是否有问题
         switchScanResult.setIfQuestion(hashMap.get("IfQuestion")); //是否有问题
         // 设置登录用户名
@@ -343,33 +343,33 @@ public class SwitchScanResultController extends BaseController
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());
                 //提取信息 如果不为空 则有参数
                 if (switchScanResult.getDynamicInformation()!=null && !switchScanResult.getDynamicInformation().equals("")){
-                    String dynamicInformation = switchScanResult.getDynamicInformation();
+                    StringBuffer dynamicInformationStringBuffer = switchScanResult.getDynamicInformation();
                     //几个参数中间的 参数是 以  "=:=" 来分割的
                     //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
                     /*自定义分隔符*/
                     String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
-                    String[] dynamicInformationsplit = dynamicInformation.split(customDelimiter);
+                    List<String> dynamicInformationsplit_List = StringBufferUtils.stringBufferSplit(dynamicInformationStringBuffer,customDelimiter);
                     //判断提取参数 是否为空
-                    if (dynamicInformationsplit.length>0){
+                    if (dynamicInformationsplit_List.size()>0){
                         //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
                         //所以 参数组 要倒序插入
-                        for (int number=dynamicInformationsplit.length-1;number>0;number--){
+                        for (int number=dynamicInformationsplit_List.size()-1;number>0;number--){
                             //创建 参数 实体类
                             ValueInformationVO valueInformationVO = new ValueInformationVO();
                             //插入参数
                             //用户名=:=是=:=admin=:=密码=:=否=:=$c$3$ucuLP5tRIUiNMSGST3PKZPvR0Z0bw2/g=:=
-                            String setDynamicInformation=dynamicInformationsplit[number];
+                            String setDynamicInformation=dynamicInformationsplit_List.get(number);
                             valueInformationVO.setDynamicInformation(setDynamicInformation);
                             --number;
-                            String setExhibit=dynamicInformationsplit[number];
+                            String setExhibit=dynamicInformationsplit_List.get(number);
                             valueInformationVO.setExhibit(setExhibit);//是否显示
                             if (setExhibit.equals("否")){
                                 String setDynamicInformationMD5 = EncryptUtil.densificationAndSalt(setDynamicInformation);
                                 valueInformationVO.setDynamicInformation(setDynamicInformationMD5);//动态信息
                             }
                             --number;
-                            valueInformationVO.setDynamicVname(dynamicInformationsplit[number]);//动态信息名称
+                            valueInformationVO.setDynamicVname(dynamicInformationsplit_List.get(number));//动态信息名称
                             valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                             valueInformationVOList.add(valueInformationVO);
                         }

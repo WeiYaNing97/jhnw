@@ -360,14 +360,15 @@ public class ErrorPackage {
 
         /*3：配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
-        String returnString = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
+        List<String> return_information_List = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
         // todo 错误包虚拟数据
-        returnString = this.switchPortReturnsResult;
-        returnString = MyUtils.trimString(returnString);
+        return_information_List = StringBufferUtils.stringBufferSplit(
+                StringBufferUtils.arrange(new StringBuffer(this.switchPortReturnsResult)),
+                "\r\n");
 
 
-        /*4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息*/
-        if (returnString == null){
+        /*4: 如果交换机返回信息为空 则 命令错误，交换机返回错误信息*/
+        if (MyUtils.isCollectionEmpty(return_information_List)) {
 
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
@@ -386,7 +387,7 @@ public class ErrorPackage {
 
         /*5：如果交换机返回信息不为 null 说明命令执行正常,
         则继续 根据交换机返回信息获取错误包端口号*/
-        List<String> portList = ObtainUPStatusPortNumber(returnString);
+        List<String> portList = ObtainUPStatusPortNumber(return_information_List);
 
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(portList)){
@@ -586,12 +587,15 @@ public class ErrorPackage {
             // 替换端口号，得到完整的获取端口号错误包参数命令
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             // 执行交换机命令，并返回结果
-            String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
+            List<String> returnResults_List = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
 
             //todo 错误包虚拟数据
-            returnResults = this.switchPortValueReturnsResult;
-            returnResults = MyUtils.trimString(returnResults);
-            if (returnResults == null){
+            returnResults_List = StringBufferUtils.stringBufferSplit(
+                    StringBufferUtils.arrange(new StringBuffer(this.switchPortValueReturnsResult)),
+                    "\r\n");
+
+
+            if (MyUtils.isCollectionEmpty(returnResults_List)) {
                 // 如果结果为空，则进行异常处理
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
@@ -608,7 +612,7 @@ public class ErrorPackage {
             }
 
             // 查看交换机错误包数量
-            Map<String, String> parameters = getParameters(switchParameters, returnResults, port);
+            Map<String, String> parameters = getParameters(switchParameters,returnResults_List, port);
 
 
             if (parameters.size() == 0){
@@ -628,7 +632,7 @@ public class ErrorPackage {
                 continue;
             }else {
                 // 获取描述信息 描述：Description:*/
-                String description = getDescription(returnResults);
+                String description = getDescription(returnResults_List);
                 if (description!=null){
                     parameters.put("Description" , description);
                 }
@@ -649,16 +653,14 @@ public class ErrorPackage {
      * @author charles
      * @createTime 2023/12/19 21:36
      */
-    public List<String> ObtainUPStatusPortNumber(String returnString) {
-        // 按行分割 交换机返回信息行信息 字符串数组
-        String[] returnStringSplit = returnString.split("\r\n");
+    public List<String> ObtainUPStatusPortNumber(List<String> return_information_List) {
 
         // 遍历 交换机行信息字符串数组
         // 判断 交换机返回行信息是否包含 UP（状态）
         // 是 则存放入端口待取集合
         List<String> strings = new ArrayList<>();
 
-        for (String string:returnStringSplit){
+        for (String string:return_information_List){
             // 判断是否包含 " UP "
             if ((string.toUpperCase().indexOf(" UP ")!=-1)){
                 // 去除字符串两边的空格，并存入端口待取集合
@@ -691,7 +693,7 @@ public class ErrorPackage {
      * @param port              需要查询的端口号
      * @return 交换机错误包数量参数的列表，列表中的元素格式为"参数名:参数值"
      */
-    public Map<String,String> getParameters(SwitchParameters switchParameters,String returnResults,String port) {
+    public Map<String,String> getParameters(SwitchParameters switchParameters,List<String> returnResults_List,String port) {
 
         /*根据四项基本信息 查询获取光衰参数的关键词*/
         Map<String, Object> deviceVersion = getKeywords(switchParameters);
@@ -747,7 +749,7 @@ public class ErrorPackage {
             int num = mapvalue.indexOf("\\n");
             if ( num != -1){
 
-                List<String> value = getValueWrap(returnResults,mapvalue, num);
+                List<String> value = getValueWrap(returnResults_List,mapvalue, num);
                 if (value.size() == 1){
                     valueTotalError.put(key,value.get(0));
                 }else {
@@ -855,10 +857,8 @@ public class ErrorPackage {
             }else {
 
                 /* 按行分割 交换机返回信息每行信息 为字符串数组*/
-                String[] returnResultssplit = returnResults.split("\r\n");
-
                 /*遍历 交换机返回信息行信息 字符串数组*/
-                for (String str:returnResultssplit){
+                for (String str:returnResults_List){
                     /*根据配置文件的取值信息 取参数值*/
                     Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key),switchParameters);
                     if (placeholdersContainingList.size() == 1){
@@ -1077,7 +1077,7 @@ public class ErrorPackage {
      * @param num 占位符中行数之前的字符数
      * @return 包含关键词的行信息列表
      */
-    public List<String> getValueWrap(String information,String placeholder,Integer num) {
+    public List<String> getValueWrap(List<String> returnResults_List,String placeholder,Integer num) {
 
         String startString = placeholder.substring(0, num).trim();
         String endString = placeholder.substring(num + 2).trim();
@@ -1105,12 +1105,10 @@ public class ErrorPackage {
         /* 获取配置文件中的关键词 */
         List<String> keywordList = Arrays.stream(keyword.split("\\$")).map(x -> x.trim()).collect(Collectors.toList());
 
-        /* 按行  分割  交换机返回信息字符串数组 */
-        String[] informationSplit = information.split("\r\n");
 
         // 遍历交换机返回信息 行信息
         List<String> valueList = new ArrayList<>();
-        for (int number = 0; number<informationSplit.length; number++){
+        for (int number = 0; number<returnResults_List.size(); number++){
             /*//判断一个字符串是否包含另一个字符串(忽略大小写)
             if (MyUtils.containIgnoreCase(informationSplit[number],mark)){
                 valueList.add(mark);
@@ -1124,10 +1122,10 @@ public class ErrorPackage {
             }*/
 
             int i = number + (line * position);
-            if (MyUtils.containIgnoreCase(informationSplit[number],mark)
-                    && i < informationSplit.length
-                    && MyUtils.containsAllElements(informationSplit[ i ],keywordList)){
-                valueList.add(informationSplit[ i ]);
+            if (MyUtils.containIgnoreCase(returnResults_List.get(number),mark)
+                    && i < returnResults_List.size()
+                    && MyUtils.containsAllElements(returnResults_List.get(i),keywordList)){
+                valueList.add(returnResults_List.get(i));
             }
         }
 
@@ -1196,7 +1194,7 @@ public class ErrorPackage {
                 /*获取数组的最后一个元素*/
                 String value = parameterArray[parameterArray.length-1].trim();
                 /*去掉结尾的 . 或 ，*/
-                value = FunctionalMethods.judgeResultWordSelection(value);
+                value = FunctionalMethods.judgeResultWordSelection(new StringBuffer(value)).toString();
                 /*检查元素是否为纯数字*/
                 if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                     if (str1.indexOf(str2.replace("$", value))!=-1){
@@ -1212,7 +1210,7 @@ public class ErrorPackage {
                     /*获取数组的最后一个元素*/
                     String value = parameterArray[parameterArray.length-1].trim();
                     /*去掉结尾的 . 或 ，*/
-                    value = FunctionalMethods.judgeResultWordSelection(value);
+                    value = FunctionalMethods.judgeResultWordSelection(new StringBuffer(value)).toString();
                     /*检查元素是否为纯数字*/
                     if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                         if (str1.indexOf(str2.replace("$", value))!=-1){
@@ -1233,7 +1231,7 @@ public class ErrorPackage {
                 String[] parameterArray = str1Split[1].trim().split(" ");
                 /*获取数组的第一个元素*/
                 String value = parameterArray[0].trim();
-                value = FunctionalMethods.judgeResultWordSelection(value);
+                value = FunctionalMethods.judgeResultWordSelection(new StringBuffer(value)).toString();
                 if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                     if (str1.indexOf(str2.replace("$", value))!=-1){
                         return value;
@@ -1244,7 +1242,7 @@ public class ErrorPackage {
                 String[] parameterArray = str1Split[0].trim().split(" ");
                 /*获取数组的第一个元素*/
                 String value = parameterArray[0].trim();
-                value = FunctionalMethods.judgeResultWordSelection(value);
+                value = FunctionalMethods.judgeResultWordSelection(new StringBuffer(value)).toString();
                 if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                     if (str1.indexOf(str2.replace("$", value))!=-1){
                         return value;
@@ -1257,7 +1255,7 @@ public class ErrorPackage {
                     /*获取数组的第一个元素*/
                     String value = parameterArray[0].trim();
                     /*去掉结尾的 . 或 ，*/
-                    value = FunctionalMethods.judgeResultWordSelection(value);
+                    value = FunctionalMethods.judgeResultWordSelection(new StringBuffer(value)).toString();
                     /*检查元素是否为纯数字*/
                     if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                         if (str1.indexOf(str2.replace("$", value))!=-1){
@@ -1289,7 +1287,7 @@ public class ErrorPackage {
                     /*因为要获取的是数字，则此时第一个元素为要获取的参数*/
                     String[] split2 = split[split.length - 1].split(str2Split[1]);
                     String value = split2[0].trim();
-                    value = FunctionalMethods.judgeResultWordSelection(value);
+                    value = FunctionalMethods.judgeResultWordSelection(new StringBuffer(value)).toString();
                     if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                         if (str1.indexOf(str2.replace("$", value))!=-1){
                             return value;
@@ -1301,7 +1299,7 @@ public class ErrorPackage {
                     for (String string:str2Split){
                         String[] split2 = string.split(str2Split[1]);
                         String value = split2[0].trim();
-                        value = FunctionalMethods.judgeResultWordSelection(value);
+                        value = FunctionalMethods.judgeResultWordSelection(new StringBuffer(value)).toString();
                         if (MyUtils.determineWhetherAStringIsAPureNumber(value)){
                             if (str1.indexOf(str2.replace("$", value))!=-1){
                                 return value;
@@ -1409,7 +1407,7 @@ public class ErrorPackage {
      * @param information
      * @return
      */
-    public static String getDescription(String information) {
+    public static String getDescription(List<String> returnResults_List) {
         /* 配置文件中 获取 Description 关键词
         * 关键词 根据 ； 转化为 关键词 字符串 数组*/
         String descriptionValue = null;
@@ -1422,18 +1420,25 @@ public class ErrorPackage {
         if (descriptionValue == null){
             return null;
         }
+
+        StringBuffer stringBuffer = new StringBuffer();
+        for (String information:returnResults_List){
+            stringBuffer.append(information);
+            stringBuffer.append(" ");
+        }
+
         String[] descriptionSplit = descriptionValue.split(";");
         for (String description:descriptionSplit){
             /* 判断交换机返回信息 是否包含 Description关键词
             * 如果不包含 则 跳出当前循环 进行下一个 循环*/
-            if (information.trim().toLowerCase().indexOf(description.toLowerCase()) == -1){
+
+            if (!StringBufferUtils.stringBufferContainString(stringBuffer,description)){
                 continue;
             }
-            /*按行分割 获得交换机返回信息 数组*/
-            String[] informationSplit = information.split("\r\n");
+
             /*遍历 交换机返回信息数组
             * 判断 Description关键词 在那一行 */
-            for (String string:informationSplit){
+            for (String string:returnResults_List){
                 /*交换机返回信息行信息中 判断是否包含 Description关键词
                 * 如果包含 则 != -1
                 * 如果不包含 则 = -1*/

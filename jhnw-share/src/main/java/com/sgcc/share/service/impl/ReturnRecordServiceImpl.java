@@ -64,7 +64,7 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
         /** 交换机返回结果 数据放入 非关系型数据表*/
         NonRelationalDataTable nonRelationalDataTable = new NonRelationalDataTable();
 
-        nonRelationalDataTable.setNonRelationalId(new MyUtils().getID( (returnRecord.getId() +"").substring(0,4) , null));
+        nonRelationalDataTable.setNonRelationalId(new StringBuffer(new MyUtils().getID( (returnRecord.getId() +"").substring(0,4) , null)));
         nonRelationalDataTable.setNonRelationalData( returnRecord.getCurrentReturnLog() );
         int i1 = nonRelationalDataTableMapper.insertNonRelationalDataTable(nonRelationalDataTable);
         if (i1<0){
@@ -105,8 +105,8 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
     public int deleteReturnRecordById(Long id)
     {
         ReturnRecord returnRecord = returnRecordMapper.selectPojoSingleTableById(id);
-        String nonRelationalDataTableId = returnRecord.getCurrentReturnLog();
-        int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalId(nonRelationalDataTableId);
+        StringBuffer nonRelationalDataTableId = returnRecord.getCurrentReturnLog();
+        int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalId(nonRelationalDataTableId.toString());
         if (i<0){
             return i;
         }
@@ -145,7 +145,7 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
 
         List<String> nonRelationalDataTableIds =new ArrayList<>();
         for (ReturnRecord record:returnRecords){
-            nonRelationalDataTableIds.add(record.getCurrentReturnLog());
+            nonRelationalDataTableIds.add(record.getCurrentReturnLog().toString());
         }
         String[] dynamicInformationArray = nonRelationalDataTableIds.toArray(new String[nonRelationalDataTableIds.size()]);
         int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalIds(dynamicInformationArray);
@@ -163,7 +163,7 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
 
         List<String> nonRelationalDataTableIds =new ArrayList<>();
         for (ReturnRecord record:returnRecords){
-            nonRelationalDataTableIds.add(record.getCurrentReturnLog());
+            nonRelationalDataTableIds.add(record.getCurrentReturnLog().toString());
         }
         String[] dynamicInformationArray = nonRelationalDataTableIds.toArray(new String[nonRelationalDataTableIds.size()]);
         int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalIds(dynamicInformationArray);
@@ -181,7 +181,7 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
 
         List<String> nonRelationalDataTableIds =new ArrayList<>();
         for (ReturnRecord record:returnRecords){
-            nonRelationalDataTableIds.add(record.getCurrentReturnLog());
+            nonRelationalDataTableIds.add(record.getCurrentReturnLog().toString());
         }
         String[] dynamicInformationArray = nonRelationalDataTableIds.toArray(new String[nonRelationalDataTableIds.size()]);
         int i = nonRelationalDataTableMapper.deleteNonRelationalDataTableByNonRelationalIds(dynamicInformationArray);
@@ -205,7 +205,7 @@ public class ReturnRecordServiceImpl implements IReturnRecordService
         List<String> nonRelationalDataTableIds =new ArrayList<>();
         for (ReturnRecord record:returnRecords){
             // 将每条退货记录中的当前退货日志ID添加到列表中
-            nonRelationalDataTableIds.add(record.getCurrentReturnLog());
+            nonRelationalDataTableIds.add(record.getCurrentReturnLog().toString());
         }
         // 将非关系型数据表ID列表转换为数组
         String[] dynamicInformationArray = nonRelationalDataTableIds.toArray(new String[nonRelationalDataTableIds.size()]);

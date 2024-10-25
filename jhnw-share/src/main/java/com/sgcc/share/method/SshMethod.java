@@ -58,7 +58,7 @@ public class SshMethod {
      * @param notFinished   返回信息未结束标准
      * @return
     */
-    public String sendCommand(String ip,SshConnect sshConnect,String command,String notFinished){
+    public StringBuffer sendCommand(String ip,SshConnect sshConnect,String command,String notFinished){
         //ssh发送命令
         //将命令放到数组中，满足封装的JSCH方法的参数要求
         String[] cmds = {command};
@@ -71,8 +71,9 @@ public class SshMethod {
             return null;
         }
         if (string.indexOf("遗失对主机的连接")!=-1){
-            return string;
+            return new StringBuffer(string.trim());
         }
+
         if (string.length()>1 && string.substring(0, 1).equals("\n")){
             //字符串删除子字符串
             string = trimStr(string, string.substring(0, 1));
@@ -123,7 +124,7 @@ public class SshMethod {
             string = string.replace(notFinished,"");
         }
        // this.ReturnInformation = string;
-        return string;
+        return new StringBuffer(string.trim());//返回string;
     }
 
     /**

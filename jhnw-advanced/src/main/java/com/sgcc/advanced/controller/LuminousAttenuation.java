@@ -311,13 +311,13 @@ public class LuminousAttenuation {
         String command = lightAttenuationCommand.getGetPortCommand();
         //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
         ExecuteCommand executeCommand = new ExecuteCommand();
-        String returnString = executeCommand.executeScanCommandByCommand(switchParameters, command);
+        List<String> returnString_List = executeCommand.executeScanCommandByCommand(switchParameters, command);
         // todo 光衰虚拟数据
-        returnString = this.returnPortString;
-        returnString = MyUtils.trimString(returnString);
+        returnString_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.returnPortString)),
+                "\r\n");
 
         // 4: 如果交换机返回信息为 null 则 命令错误，交换机返回错误信息
-        if (returnString == null){
+        if (MyUtils.isCollectionEmpty(returnString_List)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
@@ -331,7 +331,7 @@ public class LuminousAttenuation {
         }
         //5：如果交换机返回信息不为 null说明命令执行正常,
         //则继续 根据交换机返回信息获取获取 up状态 光衰端口号 铜缆除外，铜缆关键词为 COPPER
-        List<String> port = ObtainUPStatusPortNumber(returnString);
+        List<String> port = ObtainUPStatusPortNumber(returnString_List);
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(port)){
             //关于没有端口号为UP状态 的错误代码库
@@ -531,15 +531,14 @@ public class LuminousAttenuation {
     * @param returnString
      * @return
     */
-    public List<String> ObtainUPStatusPortNumber(String returnString) {
+    public List<String> ObtainUPStatusPortNumber(List<String> returnString_List) {
         /* 按行分割 交换机返回信息行信息 字符串数组*/
-        String[] returnStringSplit = returnString.split("\r\n");
 
         /*遍历 交换机行信息字符串数组
          *  判断 交换机返回行信息是否包含 UP（状态）  且 不能为铜缆 "COPPER"
          *  是 则存放入端口待取集合*/
         List<String> strings = new ArrayList<>();
-        for (String string:returnStringSplit){
+        for (String string:returnString_List){
             /*包含 交换机返回行信息转化为大写 UP状态  不能为COPPER铜缆的  并且该行带有“/”的 存放入端口待取集合*/
             if ((string.toUpperCase().indexOf(" UP ")!=-1)  && (string.toUpperCase().indexOf("COPPER") == -1)){
                 strings.add(string.trim());
@@ -589,12 +588,12 @@ public class LuminousAttenuation {
              * 交换机执行命令 并返回结果
              */
             ExecuteCommand executeCommand = new ExecuteCommand();
-            String returnResults = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
+            List<String> returnResults_List = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
             // todo 光衰虚拟数据
-            returnResults = this.returnValueResults;
-            returnResults = MyUtils.trimString(returnResults);
+            returnResults_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.returnValueResults)),
+                    "\r\n");
 
-            if (returnResults == null){
+            if (MyUtils.isCollectionEmpty(returnResults_List)){
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
@@ -613,7 +612,7 @@ public class LuminousAttenuation {
              * 提取光衰参数
              */
             /*HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);*/
-            HashMap<String, Double> values =obtainTheParameterOfLightAttenuation(returnResults,switchParameters);
+            HashMap<String, Double> values =obtainTheParameterOfLightAttenuation( returnResults_List,switchParameters);
 
             if (values.size() == 0){
                 String subversionNumber = switchParameters.getSubversionNumber();
@@ -654,7 +653,7 @@ public class LuminousAttenuation {
      * @param switchParameters 交换机参数
      * @return 包含光衰参数值的HashMap，其中key为参数名称，value为对应的参数值
      */
-    private HashMap<String, Double> obtainTheParameterOfLightAttenuation(String returnResults, SwitchParameters switchParameters) {
+    private HashMap<String, Double> obtainTheParameterOfLightAttenuation(List<String> returnResults_List, SwitchParameters switchParameters) {
         HashMap<String, Double> values = new HashMap<>();
 
         // 获取关键字配置
@@ -666,7 +665,6 @@ public class LuminousAttenuation {
 
         Map<String,String> keywordMap = new HashMap<>();
         List<String> keywordList = keywordS.keySet().stream().collect(Collectors.toList());
-        List<String> returnResults_split_List = Arrays.stream(returnResults.split("\r\n")).collect(Collectors.toList());
 
         // 处理R_table的情况
         if (keywordList.indexOf("R_table")!=-1){
@@ -676,7 +674,7 @@ public class LuminousAttenuation {
                 return values;
             }
             // 解析表格数据
-            List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_split_List,
+            List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_List,
                     keywordMap,switchParameters);
             if (stringObjectHashMapList.size() != 1){
                 return values;
@@ -699,7 +697,7 @@ public class LuminousAttenuation {
             }
             Set<String> strings = keywordMap.keySet();
             for (String keywordName:strings){
-                for (String keyword:returnResults_split_List) {
+                for (String keyword:returnResults_List) {
                     Object mapvalue = keywordMap.get(keywordName);
                     if (mapvalue instanceof String){
                         // 获取占位符的含义

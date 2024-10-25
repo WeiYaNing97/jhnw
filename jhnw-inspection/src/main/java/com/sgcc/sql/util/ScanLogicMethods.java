@@ -6,6 +6,7 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.util.StringBufferUtils;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.domain.CommandReturn;
@@ -52,7 +53,7 @@ public class ScanLogicMethods {
     public String MatchingLogicMethod(SwitchParameters switchParameters,
                                              String matched, String information_line_n, String matchContent,
                                              TotalQuestionTable totalQuestionTable,
-                                             String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
+                                             List<String> return_information_List, String current_Round_Extraction_String, String extractInformation_string,
                                              int line_n, String firstID , List<ProblemScanLogic> problemScanLogicList, String currentID,
                                              Integer insertsInteger, Integer loop,Integer numberOfCycles,ProblemScanLogic problemScanLogic,
                                              String matching_logic, int num) {
@@ -83,7 +84,7 @@ public class ScanLogicMethods {
             /**扫描分析成功逻辑*/
             ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
             String trueLogic = scanLogicMethods.trueLogic(switchParameters, totalQuestionTable,
-                    return_information_array, current_Round_Extraction_String, extractInformation_string,
+                    return_information_List, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
 
@@ -98,7 +99,7 @@ public class ScanLogicMethods {
                     注释原因 逻辑修改后一定不包含null
                       参数值一般为 ： present,0   full,0   1,0   0,1*/
             if ((matching_logic.indexOf("full&")!=-1)
-                    && num < return_information_array.length-1){
+                    && num < return_information_List.size()-1){
                 return "continue";
             }
 
@@ -117,7 +118,7 @@ public class ScanLogicMethods {
             /*失败逻辑*/
             ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
             String falseLogic = scanLogicMethods.falseLogic(switchParameters, totalQuestionTable,
-                    return_information_array, current_Round_Extraction_String, extractInformation_string,
+                    return_information_List, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
 
@@ -212,7 +213,7 @@ public class ScanLogicMethods {
             SwitchParameters switchParameters,
             String action, String information_line_n, String matchContent,
             TotalQuestionTable totalQuestionTable,
-            String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
+            List<String> return_information_List, String current_Round_Extraction_String, String extractInformation_string,
             int line_n, String firstID , List<ProblemScanLogic> problemScanLogicList, String currentID,
             Integer insertsInteger, Integer loop,Integer numberOfCycles,ProblemScanLogic problemScanLogic,
             String relativePosition_line) {
@@ -235,14 +236,18 @@ public class ScanLogicMethods {
         }*/
 
         //取词操作
-        String wordSelection_string = null;
+        StringBuffer wordSelection_string = new StringBuffer();
         if (action.indexOf("all") != -1){
-            wordSelection_string = String.join("\r\n",return_information_array);
+            for (int i = 0; i < return_information_List.size(); i++) {
+                wordSelection_string.append(return_information_List.get(i)).append("\r\n");
+            }
+            wordSelection_string = StringBufferUtils.substring(wordSelection_string,0,wordSelection_string.length()-2);
         }else {
-            //取词操作
-            wordSelection_string = FunctionalMethods.wordSelection(
-                    information_line_n,matchContent, //返回信息的一行     matchContent.trim() 提取关键字
-                    relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
+            String s = FunctionalMethods.wordSelection(
+                    information_line_n, matchContent, //返回信息的一行     matchContent.trim() 提取关键字
+                    relativePosition_line, problemScanLogic.getrPosition(), problemScanLogic.getLength());//位置 长度WLs
+//取词操作
+            wordSelection_string = new StringBuffer(s);
         }
 
         /** 取词逻辑只有成功，但是如果取出为空 则为 取词失败 */
@@ -298,7 +303,7 @@ public class ScanLogicMethods {
         /*成功逻辑*/
         ScanLogicMethods scanLogicMethods = new ScanLogicMethods();
         String trueLogic = scanLogicMethods.trueLogic(switchParameters, totalQuestionTable,
-                return_information_array, current_Round_Extraction_String, extractInformation_string,
+                return_information_List, current_Round_Extraction_String, extractInformation_string,
                 line_n, firstID, problemScanLogicList, currentID,
                 insertsInteger, loop, numberOfCycles, problemScanLogic);
 
@@ -334,7 +339,7 @@ public class ScanLogicMethods {
             SwitchParameters switchParameters,
             String compare,
             TotalQuestionTable totalQuestionTable,
-            String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
+            List<String> return_information_List, String current_Round_Extraction_String, String extractInformation_string,
             int line_n, String firstID , List<ProblemScanLogic> problemScanLogicList, String currentID,
             Integer insertsInteger, Integer loop,Integer numberOfCycles,ProblemScanLogic problemScanLogic) {
 
@@ -376,14 +381,14 @@ public class ScanLogicMethods {
         if (compare_boolean){
             /*成功逻辑*/
             String trueLogic = scanLogicMethods.trueLogic(switchParameters, totalQuestionTable,
-                    return_information_array, current_Round_Extraction_String, extractInformation_string,
+                    return_information_List, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
             return trueLogic;
         }else {
             /*失败逻辑*/
             String falseLogic = scanLogicMethods.falseLogic(switchParameters, totalQuestionTable,
-                    return_information_array, current_Round_Extraction_String, extractInformation_string,
+                    return_information_List, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
             return falseLogic;
@@ -414,7 +419,7 @@ public class ScanLogicMethods {
      * @return 返回提取信息 或者 null
      */
     public  String trueLogic(SwitchParameters switchParameters,TotalQuestionTable totalQuestionTable,
-                            String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
+                            List<String> return_information_List, String current_Round_Extraction_String, String extractInformation_string,
                             int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
                             Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
 
@@ -444,7 +449,7 @@ public class ScanLogicMethods {
 
             /*继续进行分析*/
             String ProblemScanLogic_returnstring = switchInteraction.selectProblemScanLogicById(switchParameters,totalQuestionTable,
-                    return_information_array,current_Round_Extraction_String,extractInformation_string,
+                    return_information_List,current_Round_Extraction_String,extractInformation_string,
                     line_n,firstID,problemScanLogicList,problemScanLogic.gettNextId(),insertsInteger, loop, numberOfCycles);
 
             //如果返回信息为null
@@ -485,7 +490,7 @@ public class ScanLogicMethods {
      * @return
     */
     public  String falseLogic(SwitchParameters switchParameters, TotalQuestionTable totalQuestionTable,
-                             String[] return_information_array, String current_Round_Extraction_String, String extractInformation_string,
+                             List<String> return_information_List, String current_Round_Extraction_String, String extractInformation_string,
                              int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
                              Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
 
@@ -513,7 +518,7 @@ public class ScanLogicMethods {
         if (problemScanLogic.getfNextId()!=null && problemScanLogic.getfNextId()!=null){
 
             String ProblemScanLogic_returnstring = switchInteraction.selectProblemScanLogicById(switchParameters,totalQuestionTable,
-                    return_information_array,current_Round_Extraction_String,extractInformation_string,
+                    return_information_List,current_Round_Extraction_String,extractInformation_string,
                     line_n,firstID,problemScanLogicList,
                     problemScanLogic.getfNextId(), // problemScanLogic.getfNextId(); 下一条frue分析ID
                     insertsInteger, loop, numberOfCycles);

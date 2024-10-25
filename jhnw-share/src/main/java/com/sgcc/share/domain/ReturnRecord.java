@@ -44,7 +44,7 @@ public class ReturnRecord extends BaseEntity
 
     /** 当前返回日志  */
     @Excel(name = "当前返回日志 ")
-    private String currentReturnLog;
+    private StringBuffer currentReturnLog;
 
     /** 当前标识符 */
     @Excel(name = "当前标识符")
@@ -72,12 +72,12 @@ public class ReturnRecord extends BaseEntity
     {
         return currentCommLog;
     }
-    public void setCurrentReturnLog(String currentReturnLog) 
+    public void setCurrentReturnLog(StringBuffer currentReturnLog)
     {
         this.currentReturnLog = currentReturnLog;
     }
 
-    public String getCurrentReturnLog() 
+    public StringBuffer getCurrentReturnLog()
     {
         return currentReturnLog;
     }

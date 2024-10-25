@@ -16,12 +16,11 @@ public class IPAddressUtils {
      * @param returnInformation 包含IP信息的字符串
      * @return 包含提取出的IP信息的列表
      */
-    public static List<IPInformation> getIPInformation(String returnInformation) {
+    public static List<IPInformation> getIPInformation(List<String> switchReturnsinternalInformation_List) {
         List<IPInformation> ipInformationList = new ArrayList<>();
         // 按照换行符将返回信息分割成数组
-        String[] informationSplit = returnInformation.split("\r\n");
 
-        for (String information:informationSplit){
+        for (String information:switchReturnsinternalInformation_List){
             // 如果信息中包含"network"字符串
             // todo 获取地址关键字需要确定
             if (information.toLowerCase().indexOf("network".toLowerCase())!=-1){

@@ -13,6 +13,7 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.ExecuteCommand;
 import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.StringBufferUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -33,18 +34,17 @@ public class RouteAggregation {
      * @param routeAggregationCommandPojo 路由聚合命令对象
      * @return 交换机返回的信息
      */
-    public String executeInternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo) {
+    public List<String> executeInternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo) {
         // 获取路由聚合问题的内部命令
         String internalCommand = routeAggregationCommandPojo.getInternalCommand();
         // 执行交换机命令，返回交换机返回信息
         /* 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
-        String internal = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
+        List<String> internal_List = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
         // 去除返回信息中的空白字符
         // todo 路由聚合虚拟数据
-        internal = H3C;
-        internal = MyUtils.trimString(internal);
-        return internal;
+        internal_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(H3C)),"\r\n");
+        return internal_List;
     }
 
     /**
@@ -54,16 +54,16 @@ public class RouteAggregation {
      * @param routeAggregationCommandPojo 路由聚合命令对象
      * @return 交换机返回的外部信息
      */
-    public String executeExternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo){
+    public List<String> executeExternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo){
         // 获取路由聚合问题的外部命令
         String externalCommand = routeAggregationCommandPojo.getExternalCommand();
         ExecuteCommand executeCommand = new ExecuteCommand();
-        String external = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
+        List<String> external_List = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
         // 去除返回信息中的空白字符
         // todo 路由聚合虚拟数据
-        external = externalreturnInformation;
-        external = MyUtils.trimString(external);
-        return external;
+        external_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(externalreturnInformation)),
+                "\r\n");
+        return external_List;
     }
 
 
@@ -85,26 +85,26 @@ public class RouteAggregation {
          * 执行内部路由命令
          * 如果internal信息不为空，则调用InternalRouteAggregation类的internalRouteAggregation方法进行内部路由聚合
          */
-        String internal = executeInternalCommand(switchParameters, routeAggregationCommandPojo);
+        List<String> internal_List = executeInternalCommand(switchParameters, routeAggregationCommandPojo);
         // 如果internal信息不为空
-        if (internal != null){
+        if (MyUtils.isCollectionEmpty(internal_List)){
             // 调用internalRouteAggregation方法进行内部路由聚合
-            internalRouteAggregation(switchParameters,internal);
+            internalRouteAggregation(switchParameters,internal_List);
         }
 
         /**
          * 执行外部路由命令
          * 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
          */
-        String external = executeExternalCommand(switchParameters, routeAggregationCommandPojo);
+        List<String> external_List = executeExternalCommand(switchParameters, routeAggregationCommandPojo);
         // 如果external信息不为空
-        if (external!=null){
+        if (MyUtils.isCollectionEmpty(external_List)){
             // 从switchReturnsMap中获取externalKeywords信息
             String externalKeywords = routeAggregationCommandPojo.getExternalKeywords();
             externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
 
             // 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
-            ExternalRouteAggregation.externalRouteAggregation(switchParameters,external,externalKeywords);
+            ExternalRouteAggregation.externalRouteAggregation(switchParameters,external_List,externalKeywords);
         }
 
         return AjaxResult.success();
@@ -176,9 +176,9 @@ public class RouteAggregation {
      * @param switchReturnsinternalInformation 交换机返回的内部信息
      * @return 无返回值
      */
-    public static void internalRouteAggregation(SwitchParameters switchParameters,String switchReturnsinternalInformation) {
+    public static void internalRouteAggregation(SwitchParameters switchParameters,List<String> switchReturnsinternalInformation_List) {
         // 获取IP信息列表
-        List<IPInformation> ipInformationList = IPAddressUtils.getIPInformation(MyUtils.trimString(switchReturnsinternalInformation));
+        List<IPInformation> ipInformationList = IPAddressUtils.getIPInformation(switchReturnsinternalInformation_List);
         List<String> collect = ipInformationList.stream().map(ipInformation -> MyUtils.convertToCIDR(ipInformation.getIp(), ipInformation.getMask())).collect(Collectors.toList());
 
         // 将IP信息列表转换为IP计算器列表

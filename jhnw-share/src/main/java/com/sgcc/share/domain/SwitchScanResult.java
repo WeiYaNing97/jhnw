@@ -85,7 +85,7 @@ public class SwitchScanResult extends BaseEntity
 
     /** 动态信息 */
     @Excel(name = "动态信息")
-    private String dynamicInformation;
+    private StringBuffer dynamicInformation;
 
 
     /** 登录名称 */
@@ -212,11 +212,11 @@ public class SwitchScanResult extends BaseEntity
         this.comId = comId;
     }
 
-    public String getDynamicInformation() {
+    public StringBuffer getDynamicInformation() {
         return dynamicInformation;
     }
 
-    public void setDynamicInformation(String dynamicInformation) {
+    public void setDynamicInformation(StringBuffer dynamicInformation) {
         this.dynamicInformation = dynamicInformation;
     }
 

@@ -1,10 +1,13 @@
 package com.sgcc.share.method;
 import com.sgcc.share.connectutil.TelnetComponent;
+import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.StringBufferUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * Copyright (C), 2015-2019
@@ -35,10 +38,10 @@ public class TelnetSwitchMethod {
             e.printStackTrace();
         }
         if (open != null){
-            String namecommand = sendCommand(ip,open,name,null);
-            if (namecommand!=null){
-                String passwordcommand = sendCommand(ip,open,password,null);
-                if (passwordcommand!=null){
+            List<String> namecommand = sendCommand(ip,open,name,null);
+            if (MyUtils.isCollectionEmpty(namecommand)){
+                List<String> passwordcommand = sendCommand(ip,open,password,null);
+                if (MyUtils.isCollectionEmpty(passwordcommand)){
                     return open;
                 }
             }
@@ -59,7 +62,7 @@ public class TelnetSwitchMethod {
     }
 
     @GetMapping("sendCommand")
-    public String sendCommand(String ip,TelnetComponent telnetComponent,String common,String notFinished){
+    public List<String> sendCommand(String ip, TelnetComponent telnetComponent, String common, String notFinished){
         String returnStringCommand = dispatchOrders(ip,telnetComponent,common,notFinished);
         String endIdentifier = "<>,[]";
         String[] endIdentifierSplit = endIdentifier.split(",");
@@ -113,12 +116,15 @@ public class TelnetSwitchMethod {
                 for (char chars:returnStringCommandChars){
                     returnString = returnString +  chars;
                     if (returnString.indexOf(end_substring)!=-1){
-                        return returnString;
+
+                        List<String> stringList = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(returnString)), "\r\n");
+                        return stringList;
                     }
                 }
             }
         }
-        return returnStringCommand;
+        List<String> stringList = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(returnStringCommand)), "\r\n");
+        return stringList;
     }
 
 
