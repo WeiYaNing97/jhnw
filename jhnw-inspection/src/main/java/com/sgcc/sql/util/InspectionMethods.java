@@ -16,13 +16,14 @@ public class InspectionMethods {
     /*Inspection Completed*/
     /**
      * 筛选匹配度高的交换机问题
-     * 逻辑 定义一个 map集合 key为 范式分类和范式名称 保证问题的唯一
-     * 遍历交换机问题集合 提取范式分类和范式名称  到 map中查询 是否返回实体类
-     * 如果返回为空 则可以直接存入 map集合
-     * 如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map
-     * 如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152
-     * @param totalQuestionTableList
-     * @return
+     *
+     * <p>
+     * 该方法通过遍历交换机问题集合，对每个问题进行筛选，确保筛选出的每个问题都是该分类和名称下最精确的一个。
+     * 方法逻辑概述如下：
+     * 1. 定义一个HashMap集合，键为范式分类和范式名称的组合，保证每个问题的唯一性。
+     *
+     * @param totalQuestionTableList 交换机问题集合
+     * @return 筛选后的交换机问题列表
      */
     public static List<TotalQuestionTable> ObtainPreciseEntityClasses(List<TotalQuestionTable> totalQuestionTableList) {
 
@@ -31,114 +32,8 @@ public class InspectionMethods {
 
         /*遍历交换机问题集合*/
         for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
-
-            /*提取范式分类和范式名称  到 map中查询 是否返回实体类*/
-            String key =totalQuestionTable.getTypeProblem() + totalQuestionTable.getTemProName();
-            /* 查询map集合中 key为 范式分类+范式名称 的问题数据 */
-            TotalQuestionTable pojo = totalQuestionTableHashMap.get(key);
-
-            /*如果返回为空 则可以直接存入 map集合*/
-            if (pojo != null){
-
-                /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-
-                /* 获取 两个交换机问题数据 四项基本信息中 * 的数量 */
-                /* pojo为现存map集合中的问题数据*/
-                int usedNumber = 0;
-                if (pojo.getType().indexOf("*")!=-1){
-                    usedNumber = usedNumber +1;
-                }
-                if (pojo.getFirewareVersion().indexOf("*")!=-1){
-                    usedNumber = usedNumber +1;
-                }
-                if (pojo.getSubVersion().indexOf("*")!=-1){
-                    usedNumber = usedNumber +1;
-                }
-
-                /*新*/
-                int newNumber = 0;
-                if (totalQuestionTable.getType().indexOf("*")!=-1){
-                    newNumber = newNumber +1;
-                }
-                if (totalQuestionTable.getFirewareVersion().indexOf("*")!=-1){
-                    newNumber = newNumber +1;
-                }
-                if (totalQuestionTable.getSubVersion().indexOf("*")!=-1){
-                    newNumber = newNumber +1;
-                }
-
-                /*对比参数的数量大小
-                *因为 包含 * 的 +1 所以 数值越小的 越精确
-                 * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
-                if (usedNumber > newNumber){
-                    /* 新 比 map中的精确*/
-                    totalQuestionTableHashMap.put(key,totalQuestionTable);
-
-                }else  if (usedNumber < newNumber) {
-                    /* map 中的更加精确  则 进行下一层遍历*/
-                    continue;
-                    //totalQuestionTableHashMap.put(key,pojo);
-
-                }else if (usedNumber == newNumber){
-
-                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
-                    String pojotype = pojo.getType();
-                    String totalQuestionTabletype = totalQuestionTable.getType();
-
-                    /*比较两个属性的精确度
-                     * 返回1 是第一个数属性精确 返回2 是第二个属性更精确
-                     * 返回0 则精确性相等 则进行下一步分析*/
-                    Integer typeinteger = filterAccurately(pojotype, totalQuestionTabletype);
-
-                    if (typeinteger == 1){
-                        totalQuestionTableHashMap.put(key,pojo);
-
-                    }else if (typeinteger == 2){
-                        totalQuestionTableHashMap.put(key,totalQuestionTable);
-
-                    }else if (typeinteger == 0){
-
-                        String pojofirewareVersion = pojo.getFirewareVersion();
-                        String totalQuestionTablefirewareVersion = totalQuestionTable.getFirewareVersion();
-
-                        /*比较两个属性的精确度*/
-                        Integer firewareVersioninteger = filterAccurately(pojofirewareVersion, totalQuestionTablefirewareVersion);
-
-                        if (firewareVersioninteger == 1){
-                            totalQuestionTableHashMap.put(key,pojo);
-
-                        }else if (firewareVersioninteger == 2){
-                            totalQuestionTableHashMap.put(key,totalQuestionTable);
-
-                        }else if (firewareVersioninteger == 0){
-
-                            String pojosubVersion = pojo.getSubVersion();
-                            String totalQuestionTablesubVersion = totalQuestionTable.getSubVersion();
-
-                            /*比较两个属性的精确度*/
-                            Integer subVersioninteger = filterAccurately(pojosubVersion, totalQuestionTablesubVersion);
-
-                            if (subVersioninteger == 1){
-                                totalQuestionTableHashMap.put(key,pojo);
-
-                            }else if (subVersioninteger == 2){
-                                totalQuestionTableHashMap.put(key,totalQuestionTable);
-
-                            }else if (subVersioninteger == 0){
-                                /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
-                                 * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
-                                 * */
-                                continue;
-                                //totalQuestionTableHashMap.put(key,totalQuestionTable);
-                            }
-                        }
-                    }
-                }
-            }else {
-
-                /*map的key值为空 则 可以直接存入 map集合*/
-                totalQuestionTableHashMap.put(key,totalQuestionTable);
-            }
+            // 调用comparisonConditions方法，传入HashMap和问题实体进行比较
+            comparisonConditions(totalQuestionTableHashMap,totalQuestionTable);
 
         }
 
@@ -151,12 +46,147 @@ public class InspectionMethods {
         while (iterator.hasNext()) {
 
             Map.Entry< String, TotalQuestionTable > entry = iterator.next();
+            // 将HashMap中的每个值（即问题实体）添加到返回列表中
             TotalQuestionTablePojoList.add(entry.getValue());
 
         }
 
         return TotalQuestionTablePojoList;
     }
+
+
+    /**
+     * 根据给定的交换机问题表（TotalQuestionTable）和已存在的交换机问题表HashMap，更新HashMap中的记录。
+     *
+     * @param totalQuestionTableHashMap 已存在的交换机问题表HashMap，键为范式分类和范式名称的组合，值为TotalQuestionTable对象。
+     * @param totalQuestionTable        新的交换机问题表对象，用于与HashMap中的对象进行比较和更新。
+     *
+     * 此方法首先根据给定TotalQuestionTable对象的范式分类和范式名称生成一个唯一键，
+     * 然后在HashMap中查找是否存在该键对应的记录。
+     *
+     * 如果HashMap中不存在该键的记录，则直接将新的TotalQuestionTable对象添加到HashMap中。
+     *
+     * 如果HashMap中存在该键的记录，则根据以下规则进行比较和更新：
+     * 1. 比较两个TotalQuestionTable对象中四项基本信息（类型、固件版本、子版本等）中"*"的数量，
+     *    数量越少表示越精确。如果新对象的"*"数量少于HashMap中对象的"*"数量，则更新HashMap。
+     * 2. 如果两个对象的"*"数量相同，则依次比较类型、固件版本、子版本等属性的精确度。
+     *    使用filterAccurately方法比较两个字符串的精确度，该方法返回1表示第一个字符串更精确，
+     *    返回2表示第二个字符串更精确，返回0表示两者精确度相同。
+     * 3. 如果所有比较的属性精确度都相同，则表明两个TotalQuestionTable对象完全相同，
+     *    理论上不应该出现这种情况（因为数据库中有联合唯一索引）。
+     *    如果确实出现，则直接结束方法执行。
+     */
+    public static void comparisonConditions(Map<String,TotalQuestionTable> totalQuestionTableHashMap,
+                                            TotalQuestionTable totalQuestionTable) {
+        // 提取范式分类和范式名称  到 map中查询 是否返回实体类
+        String key = totalQuestionTable.getTypeProblem() + totalQuestionTable.getTemProName();
+        // 查询map集合中 key为 范式分类+范式名称 的问题数据
+        TotalQuestionTable pojo = totalQuestionTableHashMap.get(key);
+
+        // 如果返回为空 则可以直接存入 map集合
+        if (pojo != null){
+
+            // 如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map
+
+            // 获取 两个交换机问题数据 四项基本信息中 * 的数量
+            // pojo为现存map集合中的问题数据
+            int usedNumber = 0;
+            if (pojo.getType().indexOf("*")!=-1){
+                usedNumber = usedNumber +1;
+            }
+            if (pojo.getFirewareVersion().indexOf("*")!=-1){
+                usedNumber = usedNumber +1;
+            }
+            if (pojo.getSubVersion().indexOf("*")!=-1){
+                usedNumber = usedNumber +1;
+            }
+
+            // 新
+            int newNumber = 0;
+            if (totalQuestionTable.getType().indexOf("*")!=-1){
+                newNumber = newNumber +1;
+            }
+            if (totalQuestionTable.getFirewareVersion().indexOf("*")!=-1){
+                newNumber = newNumber +1;
+            }
+            if (totalQuestionTable.getSubVersion().indexOf("*")!=-1){
+                newNumber = newNumber +1;
+            }
+
+            // 对比参数的数量大小
+            // 因为 包含 * 的 +1 所以 数值越小的 越精确
+            // 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的
+            if (usedNumber > newNumber){
+                // 新 比 map中的精确
+                totalQuestionTableHashMap.put(key,totalQuestionTable);
+
+            }else  if (usedNumber < newNumber) {
+                // map 中的更加精确  则 进行下一层遍历
+                // 如果条件不满足，直接结束方法 代码段提出  结束需要通过 return 跳出方法 不再执行后续代码
+                return;
+            }else if (usedNumber == newNumber){
+
+                // 如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152
+                String pojotype = pojo.getType();
+                String totalQuestionTabletype = totalQuestionTable.getType();
+
+                // 比较两个属性的精确度
+                // 返回1 是第一个数属性精确 返回2 是第二个属性更精确
+                // 返回0 则精确性相等 则进行下一步分析
+                Integer typeinteger = filterAccurately(pojotype, totalQuestionTabletype);
+
+                if (typeinteger == 1){
+                    totalQuestionTableHashMap.put(key,pojo);
+
+                }else if (typeinteger == 2){
+                    totalQuestionTableHashMap.put(key,totalQuestionTable);
+
+                }else if (typeinteger == 0){
+
+                    String pojofirewareVersion = pojo.getFirewareVersion();
+                    String totalQuestionTablefirewareVersion = totalQuestionTable.getFirewareVersion();
+
+                    // 比较两个属性的精确度
+                    Integer firewareVersioninteger = filterAccurately(pojofirewareVersion, totalQuestionTablefirewareVersion);
+
+                    if (firewareVersioninteger == 1){
+                        totalQuestionTableHashMap.put(key,pojo);
+
+                    }else if (firewareVersioninteger == 2){
+                        totalQuestionTableHashMap.put(key,totalQuestionTable);
+
+                    }else if (firewareVersioninteger == 0){
+
+                        String pojosubVersion = pojo.getSubVersion();
+                        String totalQuestionTablesubVersion = totalQuestionTable.getSubVersion();
+
+                        // 比较两个属性的精确度
+                        Integer subVersioninteger = filterAccurately(pojosubVersion, totalQuestionTablesubVersion);
+
+                        if (subVersioninteger == 1){
+                            totalQuestionTableHashMap.put(key,pojo);
+
+                        }else if (subVersioninteger == 2){
+                            totalQuestionTableHashMap.put(key,totalQuestionTable);
+
+                        }else if (subVersioninteger == 0){
+                            // 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
+                            // 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
+                            // 如果条件不满足，直接结束方法 代码段提出  结束需要通过 return 跳出方法 不再执行后续代码
+                            return;
+                        }
+                    }
+                }
+            }
+        }else {
+
+            // map的key值为空 则 可以直接存入 map集合
+            totalQuestionTableHashMap.put(key,totalQuestionTable);
+        }
+    }
+
+
+
 
     /*Inspection Completed*/
     /**

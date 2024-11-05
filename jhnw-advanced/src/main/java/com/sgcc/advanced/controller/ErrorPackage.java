@@ -1423,8 +1423,7 @@ public class ErrorPackage {
 
         StringBuffer stringBuffer = new StringBuffer();
         for (String information:returnResults_List){
-            stringBuffer.append(information);
-            stringBuffer.append(" ");
+            stringBuffer.append(information).append(" ");
         }
 
         String[] descriptionSplit = descriptionValue.split(";");
@@ -1443,7 +1442,6 @@ public class ErrorPackage {
                 * 如果包含 则 != -1
                 * 如果不包含 则 = -1*/
                 /* 如果行信息中 以"Description:" 开头 则 i=0 */
-                string = string.trim();
                 int i = string.toLowerCase().indexOf(description.toLowerCase());
                 if (i!=-1){
                     int i1 = string.toLowerCase().indexOf(description.toLowerCase());

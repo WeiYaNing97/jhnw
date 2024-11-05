@@ -105,8 +105,15 @@ public class StringBufferUtils {
             }
         }
 
+        /* 去除交换机返回信息每行数据的 开始和结尾的空格 */
+        List<String> stringList = StringBufferUtils.stringBufferSplit(formattedArticle, "\r\n");
+        StringBuffer resultArticle = new StringBuffer();
+        for (String line : stringList) {
+            resultArticle.append(line.trim()).append("\r\n");
+        }
+
         // 输出格式化后的文章
-        return formattedArticle;
+        return resultArticle;
     }
 
 

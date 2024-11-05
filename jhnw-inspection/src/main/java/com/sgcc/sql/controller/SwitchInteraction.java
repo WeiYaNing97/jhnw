@@ -226,11 +226,11 @@ public class SwitchInteraction {
     @PostMapping("/formworkScann/{formworkId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "模板扫描", businessType = BusinessType.OTHER)
     public String formworkScann(@ApiParam(name = "switchInformation", value = "交换机登录信息集合") @RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
+
         // 获取FormworkService实例
         formworkService = SpringBeanUtil.getBean(IFormworkService.class);
 
-        // 查询问题模板
-        /* 查询问题模板 */
+        // 查询问题模板信息
         Formwork formwork = formworkService.selectFormworkById(formworkId);
 
         // 将模板索引按逗号分割成数组
@@ -269,12 +269,15 @@ public class SwitchInteraction {
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         for (String information:switchInformation){
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
+
             SwitchParameters switchParameters = new SwitchParameters();
             switchParameters.setLoginUser(SecurityUtils.getLoginUser());
             switchParameters.setScanningTime(simpleDateFormat);
+
             BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
             switchParametersList.add(switchParameters);
+
         }
 
         /*交换机问题表集合*/
@@ -1197,7 +1200,7 @@ public class SwitchInteraction {
      * 根据分析ID获取问题扫描逻辑详细信息
      * @param switchParameters    交换机信息
      * @param totalQuestionTable   交换机在扫描的问题
-     * @param return_information_array  交换机返回结果按行分割 交换机返回信息的行字符串
+     * @param return_information_List  交换机返回结果按行分割 交换机返回信息的行字符串
      * @param current_Round_Extraction_String  单词扫描提取信息
      * @param extractInformation_string   多次提取信息总和
      * @param line_n  光标
@@ -1220,12 +1223,9 @@ public class SwitchInteraction {
 
         /** 创建对象： 将要执行的ID */
         /*默认使用当前分析ID : currentID
-
         判断当前分析ID(currentID)是否为空。
-
         如果为空则用第一条分析ID(firstID).
         如果当前分析ID(currentID)不为空，说明是第二次调用本方法，则使用当前分析ID(currentID) 赋值给ID
-
         */
         String id = currentID;
         if (currentID == null){
@@ -1237,7 +1237,7 @@ public class SwitchInteraction {
         /**判断逻辑 是通过数据表获取 还是前端传入数据*/
         // 分析逻辑是否为空，以及是查询数据库还是使用预加载数据
         /* 判断输入参数：problemScanLogicList 分析逻辑实体类集合  是否 为空，
-
+        *
         * 不为空则，则为预取交换机基本信息功能。 分析逻辑数据通过problemScanLogicList来存储。
         * 如果为空，则需要查询数据库。都是通过ID来获取具体分析逻辑数据。
         *
@@ -1290,12 +1290,11 @@ public class SwitchInteraction {
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+
                         "。问题类型:"+totalQuestionTable.getTypeProblem()+ "。问题名称:"+totalQuestionTable.getTemProName()+
                         "。错误:循环超最大次数。\r\n");
-
                 return null;
             }
 
 
-            /*需要调出循环ID 当做 当前分析ID 继续执行*/
+            /*需要调出循环ID 当做 当前分析ID 继续执行分析*/
             /*currentID = problemScanLogic.getCycleStartId();*/
             String loop_string = selectProblemScanLogicById(
                     switchParameters,/*交换机信息类*/
@@ -1323,12 +1322,13 @@ public class SwitchInteraction {
         if (problemScanLogic.getProblemId()!=null){
 
             //有问题 无问题  完成
-            /*查看问题ID(ProblemId)字段。
+            /*
+            查看问题ID(ProblemId)字段。
             如果该字段不为空，则分析出问题了或者分析完成了。
 
-            1：如果ProblemId字段包含"问题"
-
-            2：ProblemId字段不包含  "问题"  并且ProblemId字段  不包含"完成"  (自定义的问题名称)。   */
+            1：如果 ProblemId 字段包含"问题"
+            2：ProblemId字段不包含  "问题"  并且ProblemId字段  不包含"完成"  (自定义的问题名称)。
+            */
             if (problemScanLogic.getProblemId().indexOf("问题")!=-1
                     || (problemScanLogic.getProblemId().indexOf("问题") ==-1  && !problemScanLogic.getProblemId().equals("完成") )){
 
@@ -1377,8 +1377,10 @@ public class SwitchInteraction {
                 new SwitchIssueEcho().getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
 
                 //getSwitchScanResultListBySwitchParameters(switchParameters);
-                /*如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
-                则tNextId赋值给当前分析ID 调用本方法，继续分析流程。*/
+                /*
+                如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
+                则tNextId赋值给当前分析ID 调用本方法，继续分析流程。
+                */
                 /** 有问题、无问题时，逻辑没有完成 走下一 ID*/
                 if (problemScanLogic.gettNextId() != null){
 
@@ -1396,11 +1398,14 @@ public class SwitchInteraction {
                 /*如果tComId不为空时，则调用方法executeScanCommandByCommandId发送新命令，
                 通过analysisReturnResults进行新的分析。*/
                 if (problemScanLogic.gettComId() != null){
+
                     CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
+
                     if (!commandReturn.isSuccessOrNot()){
                         /*交换机返回错误信息处理*/
                         return null;
                     }
+
                     String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
                             commandReturn,current_Round_Extraction_String, extractInformation_string);
                     return analysisReturnResults_String;
@@ -2058,16 +2063,16 @@ public class SwitchInteraction {
      */
     public AjaxResult scanProblem (SwitchParameters switchParameters,
                                   List<TotalQuestionTable> totalQuestionTables) {
-        /* 存储 可扫描交换机问题 */
+        /* 存储 满足思想基本信息的、将要扫描的 交换机问题 */
         List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
 
         /* totalQuestionTables == null 的时候 是扫描全部问题
-         * totalQuestionTables != null 的时候 是专项扫描*/
+         * totalQuestionTables != null 的时候 是专项扫描
+         * 获取满足思想基本信息的、将要扫描的 交换机问题*/
         if (totalQuestionTables == null){
 
             /* 根据交换机基本信息 查询 可扫描的交换机问题 */
             AjaxResult commandIdByInformation_ajaxResult = commandIdByInformation(switchParameters);
-
             /*告警、异常信息写入*/
             /* 返回AjaxResult长度为0 则未定义交换机问题*/
             if (commandIdByInformation_ajaxResult.size() == 0){
@@ -2076,7 +2081,6 @@ public class SwitchInteraction {
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:IP地址为:"+switchParameters.getIp()+"。"+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
@@ -2085,7 +2089,6 @@ public class SwitchInteraction {
 
                 return  AjaxResult.success("未定义交换机问题");
             }
-
             /* 返回AjaxResult长度不为0 则赋值可扫描交换机问题集合 */
             totalQuestionTableList = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
 
@@ -2093,7 +2096,6 @@ public class SwitchInteraction {
 
             //totalQuestionTables != null 是 专项扫描问题
             for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
-
                 // 匹配符合当前交换机四项基本信息的问题   要么问题和交换机的基本信息相同  要么问题的四项基本信息为*
                 if (  totalQuestionTable.getBrand().equals(switchParameters.getDeviceBrand())
                         && (  totalQuestionTable.getType().equals(switchParameters.getDeviceModel()) || totalQuestionTable.getType().equals("*")  )
@@ -2102,17 +2104,17 @@ public class SwitchInteraction {
 
                     totalQuestionTableList.add(totalQuestionTable);
                 }else {
-
+                    //不匹配则跳过 继续下一个问题
                     continue;
                 }
-
             }
-
         }
 
 
         /*筛选匹配度高的交换机问题*/
         List<TotalQuestionTable> TotalQuestionTablePojoList = InspectionMethods.ObtainPreciseEntityClasses(totalQuestionTableList);
+
+
 
         for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){
 
