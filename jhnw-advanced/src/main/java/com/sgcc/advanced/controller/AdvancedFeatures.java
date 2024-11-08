@@ -66,7 +66,8 @@ public class AdvancedFeatures {
 
         // 发送WebSocket消息，传输登录人姓名和问题简述
         //传输登陆人姓名 及问题简述
-        WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收："+"扫描结束\r\n");
 
         try {
             // 将问题简述和问题路径写入文件

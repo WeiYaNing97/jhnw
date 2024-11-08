@@ -47,7 +47,8 @@ public class DirectionalScanThread extends Thread  {
             //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
             switchInteraction.logInToGetBasicInformation(switchParameters, totalQuestionTables,advancedName,isRSA);
 
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
+            WebSocketService webSocketService = new WebSocketService();
+            webSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
 
         } catch (Exception e) {
             e.printStackTrace();

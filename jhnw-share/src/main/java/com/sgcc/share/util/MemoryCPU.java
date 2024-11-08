@@ -65,7 +65,8 @@ public class MemoryCPU extends TimerTask {
                 "CPU总数 : "+TotalCPUs+"\r\n"+
                 "CPU利用率 : "+CPUUtilization+"\r\n";
         // 将内存和CPU信息通过WebSocket发送给所有客户端
-        WebSocketService.sendMessageAll(Memory_CPU);
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessageAll(Memory_CPU);
     }
 
 

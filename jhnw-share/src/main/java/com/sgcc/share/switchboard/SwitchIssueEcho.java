@@ -109,6 +109,7 @@ public class SwitchIssueEcho {
             switchProblemVO.setSwitchIp(null);
         }
         scanResultsVOList.add(scanResultsVO);
-        WebSocketService.sendMessage("loophole"+username,scanResultsVOList);
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage("loophole"+username,scanResultsVOList);
     }
 }

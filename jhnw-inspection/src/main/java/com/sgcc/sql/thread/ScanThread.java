@@ -45,7 +45,8 @@ public class ScanThread extends Thread  {
             switchInteraction.logInToGetBasicInformation(switchParameters,null,null,isRSA);
 
             /*扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转*/
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
+            WebSocketService webSocketService = new WebSocketService();
+            webSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
 
         } catch (Exception e) {
             e.printStackTrace();

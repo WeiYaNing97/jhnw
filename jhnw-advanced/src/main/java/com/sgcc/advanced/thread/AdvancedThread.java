@@ -130,7 +130,8 @@ public class AdvancedThread extends Thread {
         /** 运行分析扫描 及 快照功能 旋转的圆圈，用于取消圆圈旋转 */
         // 发送WebSocket消息，通知扫描完成
         /*扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转*/
-        WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
 
         // 从线程池中移除当前线程
         AdvancedThreadPool.removeThread(this.getName());

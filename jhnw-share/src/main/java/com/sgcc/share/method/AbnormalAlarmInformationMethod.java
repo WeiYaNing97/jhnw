@@ -38,22 +38,29 @@ public class AbnormalAlarmInformationMethod {
      */
     public static void afferent(String ip,String name,String categories,String information) {
 
+        // 获取运行分析配置值
         String operationalAnalysis = (String) CustomConfigurationUtil.getValue("运行分析", Constant.getProfileInformation());
 
+        // 将运行分析字符串分割成列表
         List<String> operationalAnalysisList = Arrays.asList(operationalAnalysis.split(" "));
 
         boolean isContains = false;
+        // 检查问题名是否在运行分析列表中
         if (categories !=null && operationalAnalysisList.contains(categories)){
             isContains = true;
         }
 
+        // 创建WebSocketService实例
+        WebSocketService webSocketService = new WebSocketService();
+        // 如果用户名和问题名都不为空
         if (name != null && categories != null){
-            // 如果用户名和问题名都不为空
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(name,information);
+            webSocketService.sendMessage(name,information);
             try {
                 if (isContains){
+                    // 创建PathHelper实例
                     PathHelper pathHelper = new PathHelper();
+                    // 根据高级特性名写入数据到文件
                     pathHelper.writeDataToFileByAdvancedFeatureName(categories,information);
                 }else {
                     // 插入问题简述及问题路径（按问题名分类）
@@ -63,10 +70,10 @@ public class AbnormalAlarmInformationMethod {
                 e.printStackTrace();
             }
 
+        // 如果用户名不为空，但问题名为空
         }else if (name != null && categories == null){
-            // 如果用户名不为空，但问题名为空
             //传输登陆人姓名 及问题简述
-            WebSocketService.sendMessage(name,information);
+            webSocketService.sendMessage(name,information);
             try {
                 // 插入问题简述及问题路径（不分类）
                 PathHelper.writeDataToFile(information);
@@ -74,13 +81,14 @@ public class AbnormalAlarmInformationMethod {
                 e.printStackTrace();
             }
 
+        // 如果用户名为空，但问题名不为空
         }else if (name == null && categories != null){
-
-            WebSocketService.sendMessageAll(information);
-            // 如果用户名为空，但问题名不为空
+            webSocketService.sendMessageAll(information);
             try {
                 if (isContains){
+                    // 创建PathHelper实例
                     PathHelper pathHelper = new PathHelper();
+                    // 根据高级特性名写入数据到文件
                     pathHelper.writeDataToFileByAdvancedFeatureName(categories,information);
                 }else {
                     // 插入问题简述及问题路径（按问题名分类）
@@ -90,10 +98,10 @@ public class AbnormalAlarmInformationMethod {
                 e.printStackTrace();
             }
 
+        // 如果用户名和问题名都为空
         }else if (name == null && categories == null){
 
-            WebSocketService.sendMessageAll(information);
-            // 如果用户名和问题名都为空
+            webSocketService.sendMessageAll(information);
             try {
                 // 插入问题简述及问题路径（不分类）
                 PathHelper.writeDataToFile(information);
@@ -120,5 +128,6 @@ public class AbnormalAlarmInformationMethod {
         abnormalAlarmInformationService.insertAbnormalAlarmInformation(abnormalAlarmInformation);
 
     }
+
 
 }

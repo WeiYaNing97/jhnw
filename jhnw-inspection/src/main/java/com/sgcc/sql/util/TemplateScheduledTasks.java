@@ -91,8 +91,8 @@ class Tasks{
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(customQuestionArray);
 
         }else if (advancedFeatureName.size() == 0 && customQuestionCollection.size() == 0){
-
-            WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
+            WebSocketService webSocketService = new WebSocketService();
+            webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
 
         }
 

@@ -63,8 +63,8 @@ public class RepairFixedThread extends Thread {
              * @param problemIds	所有问题ID
             */
             solveProblemController.batchSolution(switchParameters,switchScanResults,problemIds);
-
-            WebSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
+            WebSocketService webSocketService = new WebSocketService();
+            webSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

@@ -744,7 +744,8 @@ public class SolveProblemController {
                 switchProblemVO.setSwitchIp(null);
             }
         }
-        WebSocketService.sendMessage("loophole:"+loginUser.getUsername(),scanResultsVOList);
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage("loophole:"+loginUser.getUsername(),scanResultsVOList);
         return scanResultsVOList;
     }
 
@@ -875,8 +876,8 @@ public class SolveProblemController {
                 switchProblemVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
             }
         }
-
-        WebSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage("loophole"+loginUser.getUsername(),scanResultsVOList);
         return scanResultsVOList;
     }
 }

@@ -302,11 +302,14 @@ public class SwitchInteraction {
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         Long[] ids = idScan.toArray(new Long[idScan.size()]);
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+
+        WebSocketService webSocketService = new WebSocketService();
+
         if (ids.length != 0 ){
             totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
         }else if (ids.length == 0 && advancedName.size() == 0){
-            WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
+            webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
             return "扫描结束";
         }
 
@@ -321,7 +324,7 @@ public class SwitchInteraction {
         }
 
         //传输登陆人姓名 及问题简述
-        WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
+        webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
         try {
             //插入问题简述及问题路径
             PathHelper.writeDataToFile("接收:"+"扫描结束\r\n");
@@ -389,7 +392,9 @@ public class SwitchInteraction {
 
         //  扫描结束 提示前端信息
         //传输登陆人姓名 及问题简述
-        WebSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:扫描结束\r\n");
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:扫描结束\r\n");
+
         try {
             //插入问题简述及问题路径
             PathHelper.writeDataToFile("接收:扫描结束\r\n");
@@ -1805,8 +1810,8 @@ public class SwitchInteraction {
                 switchProblemVO.setSwitchIp(null);
             }
         }
-
-        WebSocketService.sendMessage("loophole"+loginName,scanResultsVOList);
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage("loophole"+loginName,scanResultsVOList);
         return scanResultsVOList;
     }
 
@@ -1942,7 +1947,8 @@ public class SwitchInteraction {
             }
         }
 
-        WebSocketService.sendMessage("loophole"+switchParameters.getLoginUser().getUsername(),scanResultsVOList);
+        WebSocketService webSocketService = new WebSocketService();
+        webSocketService.sendMessage("loophole"+switchParameters.getLoginUser().getUsername(),scanResultsVOList);
         return scanResultsVOList;
 
     }
