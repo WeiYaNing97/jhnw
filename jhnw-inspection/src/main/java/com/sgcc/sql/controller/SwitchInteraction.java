@@ -401,19 +401,6 @@ public class SwitchInteraction {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        /*SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//可以方便地修改日期格式
-        String nowTime_10 = dateFormat.format(new Date(new Date().getTime() + 600000));
-        while (true){
-            if (WebSocketService.userMap.get(parameterSet.getLoginUser().getUsername()) != null){
-                WebSocketService.userMap.remove(parameterSet.getLoginUser().getUsername());
-                return "扫描结束";
-            }
-            if (dateFormat.format(new Date(new Date().getTime())).compareTo(nowTime_10) >=0 ){
-                return "扫描结束";
-            }
-        }*/
-
         return "扫描结束";
     }
 
@@ -1173,7 +1160,7 @@ public class SwitchInteraction {
         strings = removeIdentifier(strings);
 
         //控制台 输出  交换机 基本信息
-        System.err.print("\r\n基本信息："+strings+"\r\n");
+        //System.err.print("\r\n基本信息："+strings+"\r\n");
 
         return strings;
     }

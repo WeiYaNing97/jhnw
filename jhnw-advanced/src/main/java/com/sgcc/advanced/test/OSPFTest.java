@@ -117,7 +117,6 @@ public class OSPFTest {
 
         /*获取数组各元素的意义*/
         List<String> stringList = obtainParameterMeanings(split);
-        System.out.println(stringList);
 
         /*获取 IP、端口号、状态  数组下标*/
         int ip = stringList.indexOf("IP");

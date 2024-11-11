@@ -126,7 +126,6 @@ public class AbnormalAlarmInformationMethod {
         abnormalAlarmInformationService = SpringBeanUtil.getBean(IAbnormalAlarmInformationService.class);
         // 将异常告警信息插入到数据库
         abnormalAlarmInformationService.insertAbnormalAlarmInformation(abnormalAlarmInformation);
-
     }
 
 

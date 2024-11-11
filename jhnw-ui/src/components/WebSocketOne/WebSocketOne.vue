@@ -34,6 +34,7 @@
                 if (this.webSocket.readyState === 1) {
                     this.webSocket.send('来自前ssss端的数据')
                 } else {
+                    console.error('WebSocket 服务未连接');
                     throw Error('服务未连接')
                 }
             },

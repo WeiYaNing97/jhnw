@@ -16,12 +16,6 @@ import java.util.stream.Collectors;
 
 public class Test {
     public static void main(String[] args) {
-        int i=5 ;
 
-        do {
-            System.out.println(i);
-        }while(-i>5);
-
-        System.out.println("Hello World!");
     }
 }
