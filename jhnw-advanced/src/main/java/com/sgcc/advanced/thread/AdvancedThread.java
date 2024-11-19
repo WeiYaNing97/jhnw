@@ -15,6 +15,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 public class AdvancedThread extends Thread {
+
+    boolean sign = false;
+
     //运行分析名称列表
     List<String> functionName = null;
     SwitchParameters switchParameters = null;
@@ -56,6 +59,12 @@ public class AdvancedThread extends Thread {
      */
     @Override
     public void run() {
+
+        if (sign){
+            System.err.println("线程已终止");
+            return;
+        }
+
         // 创建ConnectToObtainInformation对象
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         // 调用connectSwitchObtainBasicInformation方法获取交换机基本信息
@@ -71,6 +80,13 @@ public class AdvancedThread extends Thread {
 
             // 遍历需要执行的功能列表
             for (String function:functionName){
+
+                // 如果sing为true，则终止循环
+                if (sign){
+                    System.err.println("线程已终止");
+                    return;
+                }
+
                 // 根据功能名称执行不同的方法
                 switch (function){
                     case "OSPF":
@@ -133,12 +149,20 @@ public class AdvancedThread extends Thread {
         WebSocketService webSocketService = new WebSocketService();
         webSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
 
-        // 从线程池中移除当前线程
-        AdvancedThreadPool.removeThread(this.getName());
-
         // 减少计数器计数
         countDownLatch.countDown();
 
+    }
+
+    /**
+     * 终止线程。
+     *
+     * 将全局变量 sing 设置为 true，用于指示线程应该终止运行。
+     */
+    public void TerminateThread() {
+        // 将全局变量 sing 设置为 true
+        // 用于指示线程应该终止运行
+        sign = true;
     }
 
 }

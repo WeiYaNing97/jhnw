@@ -72,6 +72,11 @@ public class SwitchInteraction {
     @Autowired
     private  IFormworkService formworkService;
 
+    /*全面扫描线程池*/
+    HashMap<String,ScanFixedThreadPool> scanFixedThreadPoolHashMap = new HashMap<>();
+    /* 专项扫描线程池*/
+    HashMap<String,DirectionalScanThreadPool> directionalScanThreadPoolHashMap = new HashMap<>();
+
     /**
     * @Description预执行获取交换机基本信息
     * @desc
@@ -318,7 +323,10 @@ public class SwitchInteraction {
 
         try {
             //boolean isRSA = true; 密码是否 RSA加密
-            DirectionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedName,true);
+            DirectionalScanThreadPool directionalScanThreadPool = new DirectionalScanThreadPool();
+            directionalScanThreadPoolHashMap.put(parameterSet.getLoginUser().getUsername(),directionalScanThreadPool);
+            directionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedName,true);
+            directionalScanThreadPoolHashMap.remove(parameterSet.getLoginUser().getUsername());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -333,6 +341,15 @@ public class SwitchInteraction {
         }
 
         return "扫描结束";
+    }
+
+    /* 模版、专项扫描终止 */
+    @PostMapping("/directionalTerminationScann")
+    public void directionalTerminationScann() {
+        String username = SecurityUtils.getLoginUser().getUsername();
+        DirectionalScanThreadPool directionalScanThreadPool = directionalScanThreadPoolHashMap.get(username);
+        directionalScanThreadPool.terminationScanThread();
+        directionalScanThreadPoolHashMap.remove(username);
     }
 
     /*Inspection Completed*/
@@ -385,7 +402,10 @@ public class SwitchInteraction {
         try {
             /*扫描全部问题线程池*/
             //boolean isRSA = true; 密码是否经过RSA加密
-            ScanFixedThreadPool.switchLoginInformations(parameterSet, true);
+            ScanFixedThreadPool scanFixedThreadPool = new ScanFixedThreadPool();
+            scanFixedThreadPoolHashMap.put(parameterSet.getLoginUser().getUsername(),scanFixedThreadPool);
+            scanFixedThreadPool.switchLoginInformations(parameterSet, true);
+            scanFixedThreadPoolHashMap.remove(parameterSet.getLoginUser().getUsername());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -404,9 +424,17 @@ public class SwitchInteraction {
         return "扫描结束";
     }
 
+    /* 全面扫描终止 */
+    @PostMapping("/multipleTerminationScann")
+    public void multipleTerminationScann() {
+        String username = SecurityUtils.getLoginUser().getUsername();
+        ScanFixedThreadPool scanFixedThreadPool = scanFixedThreadPoolHashMap.get(username);
+        scanFixedThreadPool.terminationScanThread();
+        scanFixedThreadPoolHashMap.remove(username);
+    }
 
 
-    /*Inspection Completed*/
+    /* 为了方便 全部扫描 和 专项扫描 已经将方法提取出来 加入到了线程的run方法中  */
     /**
      * @method: 扫描方法 logInToGetBasicInformation
      * @Param: [threadName, mode, ip, name, password, port] 传参:mode连接方式, ip 地址, name 用户名, password 密码, port 端口号，
@@ -415,7 +443,9 @@ public class SwitchInteraction {
      * @return: com.sgcc.common.core.domain.AjaxResult
      */
     /*@GetMapping("logInToGetBasicInformation")*/
-    public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) {
+    public AjaxResult logInToGetBasicInformation(SwitchParameters switchParameters,
+                                                 List<TotalQuestionTable> totalQuestionTables,
+                                                 List<String> advancedName,boolean isRSA) {
 
         /*连接交换机 获取交换机基本信息*/
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();

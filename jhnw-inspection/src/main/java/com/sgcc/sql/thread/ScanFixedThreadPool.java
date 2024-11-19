@@ -14,8 +14,7 @@ import java.util.stream.IntStream;
 /*Inspection Completed*/
 public class ScanFixedThreadPool {
 
-    // 用来存储线程名称的map
-    public static Map threadNameMap = new HashMap();
+    List<ScanThread> scanThreadList = new ArrayList<>();
 
     /**
     * @Description 扫描功能线程池
@@ -26,7 +25,7 @@ public class ScanFixedThreadPool {
      * @param isRSA	 密码是否通过 RSA 解密
      * @return
     */
-    public static void switchLoginInformations(ParameterSet parameterSet,boolean isRSA) throws InterruptedException {
+    public void switchLoginInformations(ParameterSet parameterSet,boolean isRSA) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
@@ -36,9 +35,10 @@ public class ScanFixedThreadPool {
             String threadName = getThreadName(i);
             switchParameters.setThreadName(threadName);
             i++;
-            /*加入map*/
-            threadNameMap.put(threadName, threadName);
-            fixedThreadPool.execute(new ScanThread(threadName,switchParameters,countDownLatch,fixedThreadPool,isRSA));//mode, ip, name, password,configureCiphers, port, loginUser,time
+
+            ScanThread scanThread = new ScanThread(threadName, switchParameters, countDownLatch, fixedThreadPool, isRSA);
+            fixedThreadPool.execute(scanThread);//mode, ip, name, password,configureCiphers, port, loginUser,time
+            scanThreadList.add(scanThread);
         }
 
         countDownLatch.await();
@@ -47,13 +47,24 @@ public class ScanFixedThreadPool {
 
     }
 
-    public static void removeThread(String i) {
-        threadNameMap.remove(i);
-        System.err.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
-    }
 
-    public static String getThreadName(int i) {
+    public String getThreadName(int i) {
         String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
+
+    /**
+     * 终止所有扫描线程。
+     *
+     * 该方法遍历scanThreadList中的所有扫描线程（ScanThread），并调用每个线程的termination方法来终止它们。
+     * 这通常用于在不再需要这些线程时释放资源。
+     */
+    public  void terminationScanThread() {
+        // 遍历scanThreadList中的所有扫描线程（ScanThread）
+        for (ScanThread scanThread : scanThreadList) {
+            // 调用每个线程的termination方法来终止线程
+            scanThread.termination();
+        }
+    }
+
 }

@@ -431,7 +431,9 @@ class SnapshotMethod{
             strings.add("错误包");
             // 调用 AdvancedThreadPool 的 switchLoginInformations 方法，传入参数集、字符串列表和 false（表示不进行 RSA 解密）
             // 注意：这里注释中提到 RSA 前面方法已经解密了，所以用 false，高频扫描会第二次解密出现错误
-            AdvancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
+            AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
+            advancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
+
         } catch (InterruptedException e) {
             // 捕获 InterruptedException 异常并打印堆栈信息
             e.printStackTrace();

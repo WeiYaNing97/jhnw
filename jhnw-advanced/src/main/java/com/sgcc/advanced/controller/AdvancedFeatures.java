@@ -28,6 +28,8 @@ import java.util.*;
 public class AdvancedFeatures {
 
 
+    HashMap<String, AdvancedThreadPool> advancedThreadPoolHashMap = new HashMap<>();
+
     /**
      * 运行分析接口
      *
@@ -132,8 +134,25 @@ public class AdvancedFeatures {
      */
     private void executeAdvancedFunction(ParameterSet parameterSet, List<String> functionName, boolean isRSA) throws InterruptedException {
         // 调用高级线程池具体实现类中的方法来执行登录信息的操作
-        AdvancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
+        AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
+        advancedThreadPoolHashMap.put(parameterSet.getLoginUser().getUsername(), advancedThreadPool);
+        advancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
+        advancedThreadPoolHashMap.remove(parameterSet.getLoginUser().getUsername());
     }
 
+
+    /**
+     * 终止高级线程池。
+     *
+     * 该方法用于终止指定用户的高级线程池，并从HashMap中移除对应的线程池对象。
+     */
+    /* 全面扫描终止 */
+    @PostMapping("/advancedFunctionTerminationScann")
+    public void advancedFunctionTerminationScann() {
+        String username = SecurityUtils.getLoginUser().getUsername();
+        AdvancedThreadPool advancedThreadPool = advancedThreadPoolHashMap.get(username);
+        advancedThreadPool.terminationScanThread();
+        advancedThreadPoolHashMap.remove(username);
+    }
 
 }

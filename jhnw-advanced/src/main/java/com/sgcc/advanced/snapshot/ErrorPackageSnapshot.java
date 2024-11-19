@@ -326,7 +326,9 @@ class ErrorPackageMethod{
             strings.add("错误包");
 
             // 调用AdvancedThreadPool的switchLoginInformations方法，传入参数并执行（注意：RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误）
-            AdvancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
+            AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
+            advancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
+
         } catch (InterruptedException e) {
             // 如果发生线程中断异常，则打印异常堆栈信息
             e.printStackTrace();

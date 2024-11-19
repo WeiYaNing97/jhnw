@@ -2,12 +2,18 @@ package com.sgcc.sql;
 
 import com.alibaba.fastjson.JSON;
 import com.sgcc.share.domain.SwitchLoginInformation;
+import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.sql.domain.AnalyzeConvertJson;
+import com.sgcc.sql.thread.DirectionalScanThread;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -20,19 +26,46 @@ import java.util.stream.Collectors;
  **/
 public class test {
     public static void main(String[] args) {
-        String input = "abc123def456";
-        int firstNumber = getFirstNumberFromString(input);
-        System.out.println(firstNumber);
+
+
+        MyThreadtest myThreadtest = new MyThreadtest();
+        myThreadtest.run();
+
+        try {
+            Thread.sleep(5000);
+            myThreadtest.updateFlag();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class MyThreadtest implements Runnable {
+
+    List<MyThread> myThreads = new ArrayList<>();
+
+    @Override
+    public void run() {
+        MyThreadStart();
     }
 
-    public static int getFirstNumberFromString(String input) {
-        Pattern pattern = Pattern.compile("\\d+");
-        Matcher matcher = pattern.matcher(input);
+    public void MyThreadStart() {
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
 
-        if (matcher.find()) {
-            return Integer.parseInt(matcher.group());
-        } else {
-            return -1; // 如果没有找到数字，返回-1或其他默认值
+        for (int i = 0; i <= 1; i++) {
+            MyThread myThread = new MyThread(i);
+            fixedThreadPool.execute(myThread);
+            myThreads.add(myThread);
+        }
+
+        fixedThreadPool.shutdown();
+    }
+
+    public void updateFlag() {
+        System.err.println("==============================更新flag");
+        for (MyThread myThread : myThreads) {
+            myThread.updateFlag();
         }
     }
 }

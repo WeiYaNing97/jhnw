@@ -341,7 +341,8 @@ class LuminousAttenuationMethod{
 
             // 调用线程池执行光衰扫描任务
             // 注意：RSA解密已在前面方法完成，如果使用true则高频扫描时会出现第二次解密错误
-            AdvancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
+            AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
+            advancedThreadPool.switchLoginInformations(parameterSet, strings ,false);/*RSA前面方法已经解密了，如果用true 高频扫描会第二次解密出现错误*/
 
         } catch (InterruptedException e) {
             // 如果线程被中断，则打印异常堆栈信息

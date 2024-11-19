@@ -13,13 +13,12 @@ import java.util.stream.Collectors;
  */
 public class DirectionalScanThreadPool {
 
-    // 用来存储线程名称的map
-    public static Map threadNameMap = new HashMap();
+    List<DirectionalScanThread> directionalScanThreadList = new ArrayList<>();
 
     /**
      * newFixedThreadPool submit submit
      */
-    public static void switchLoginInformations(ParameterSet parameterSet, List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) throws InterruptedException {
+    public void switchLoginInformations(ParameterSet parameterSet, List<TotalQuestionTable> totalQuestionTables,List<String> advancedName,boolean isRSA) throws InterruptedException {
         // 用于计数线程是否执行完成
         CountDownLatch countDownLatch = new CountDownLatch(parameterSet.getSwitchParameters().size());
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(parameterSet.getThreadCount());
@@ -28,10 +27,11 @@ public class DirectionalScanThreadPool {
         for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){
             String threadName = getThreadName(i);
             i++;
-            /*添加入线程map集合*/
-            threadNameMap.put(threadName, threadName);
+
             switchParameters.setThreadName(threadName);
-            fixedThreadPool.execute(new DirectionalScanThread(threadName,switchParameters,totalQuestionTables, advancedName,countDownLatch,fixedThreadPool,isRSA));
+            DirectionalScanThread directionalScanThread = new DirectionalScanThread(threadName, switchParameters, totalQuestionTables, advancedName, countDownLatch, fixedThreadPool, isRSA);
+            directionalScanThreadList.add(directionalScanThread);
+            fixedThreadPool.execute(directionalScanThread);
 
         }
 
@@ -41,14 +41,22 @@ public class DirectionalScanThreadPool {
 
     }
 
-
-    public static void removeThread(String i) {
-        threadNameMap.remove(i);
-        System.err.println("删除线程Thread" + i + ", Hash表的Size：" + threadNameMap.size());
-    }
     public static String getThreadName(int i) {
         String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
 
+    /**
+     * 终止所有扫描线程。
+     *
+     * 该方法遍历scanThreadList中的所有扫描线程（ScanThread），并调用每个线程的termination方法来终止它们。
+     * 这通常用于在不再需要这些线程时释放资源。
+     */
+    public  void terminationScanThread() {
+        // 遍历scanThreadList中的所有扫描线程（ScanThread）
+        for (DirectionalScanThread directionalScanThread : directionalScanThreadList) {
+            // 调用每个线程的termination方法来终止线程
+            directionalScanThread.termination();
+        }
+    }
 }

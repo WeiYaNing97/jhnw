@@ -98,7 +98,8 @@ class Tasks{
 
         try {
             //boolean isRSA = true; 密码是否 RSA加密
-            DirectionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedFeatureName,false);
+            DirectionalScanThreadPool directionalScanThreadPool = new DirectionalScanThreadPool();
+            directionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedFeatureName,false);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

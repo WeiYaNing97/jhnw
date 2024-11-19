@@ -82,7 +82,9 @@ public class TimingMethodClass {
         try {
             /*高级功能线程池*/
             // boolean isRSA = false;  //前端数据是否通过 RSA 加密后传入后端  读取表格信息 密码为明文
-            AdvancedThreadPool.switchLoginInformations(parameterSet, functionName,false);
+            AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
+            advancedThreadPool.switchLoginInformations(parameterSet, functionName,false);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
