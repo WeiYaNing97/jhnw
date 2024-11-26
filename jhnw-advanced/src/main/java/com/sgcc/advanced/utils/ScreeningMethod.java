@@ -1,6 +1,9 @@
 package com.sgcc.advanced.utils;
 
 import com.sgcc.advanced.domain.*;
+import com.sgcc.common.core.domain.AjaxResult;
+import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.util.WorkThreadMonitor;
 
 import java.util.*;
 
@@ -21,7 +24,14 @@ public class ScreeningMethod {
     * @param errorRateCommandList
      * @return
     */
-    public static ErrorRateCommand ObtainPreciseEntityClassesErrorRateCommand(List<ErrorRateCommand> errorRateCommandList) {
+    public static ErrorRateCommand ObtainPreciseEntityClassesErrorRateCommand(SwitchParameters switchParameters,
+                                                                              List<ErrorRateCommand> errorRateCommandList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /*定义返回内容*/
         ErrorRateCommand errorRateCommandPojo = new ErrorRateCommand();
         /*遍历交换机问题集合*/
@@ -132,7 +142,15 @@ public class ScreeningMethod {
     * @param lightAttenuationCommandList
      * @return
     */
-    public static LightAttenuationCommand ObtainPreciseEntityClassesLightAttenuationCommand(List<LightAttenuationCommand> lightAttenuationCommandList) {
+    public static LightAttenuationCommand ObtainPreciseEntityClassesLightAttenuationCommand(SwitchParameters switchParameters,
+                                                                                            List<LightAttenuationCommand> lightAttenuationCommandList) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /*定义返回内容 精确实体类*/
         LightAttenuationCommand lightAttenuationCommandPojo = new LightAttenuationCommand();
         /*遍历交换机问题集合*/
@@ -248,7 +266,14 @@ public class ScreeningMethod {
     * @param ospfCommandList
      * @return
     */
-    public static OspfCommand ObtainPreciseEntityClassesOspfCommand(List<OspfCommand> ospfCommandList) {
+    public static OspfCommand ObtainPreciseEntityClassesOspfCommand(SwitchParameters switchParameters,List<OspfCommand> ospfCommandList) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /*定义返回内容*/
         OspfCommand ospfCommandPojo = new OspfCommand();
         /*遍历交换机问题集合*/
@@ -358,7 +383,15 @@ public class ScreeningMethod {
      * @param routeAggregationCommandList RouteAggregationCommand对象列表
      * @return 精确度最高的RouteAggregationCommand对象
      */
-    public static RouteAggregationCommand ObtainPreciseEntityClassesRouteAggregationCommand(List<RouteAggregationCommand> routeAggregationCommandList) {
+    public static RouteAggregationCommand ObtainPreciseEntityClassesRouteAggregationCommand(SwitchParameters switchParameters,
+                                                                                            List<RouteAggregationCommand> routeAggregationCommandList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         /*定义返回内容*/
         RouteAggregationCommand routeAggregationCommandPojo = new RouteAggregationCommand();
         /*遍历交换机问题集合*/
@@ -453,6 +486,9 @@ public class ScreeningMethod {
                 routeAggregationCommandPojo = routeAggregationCommand ;
             }
         }
+
+
+
         return routeAggregationCommandPojo;
     }
 
@@ -534,7 +570,14 @@ public class ScreeningMethod {
         return value1.compareTo(value2);
     }
 
-    public static LinkBindingCommand ObtainPreciseEntityClassesLinkBindingCommand(List<LinkBindingCommand> linkBindingCommandList) {
+    public static LinkBindingCommand ObtainPreciseEntityClassesLinkBindingCommand(SwitchParameters switchParameters,
+                                                                                  List<LinkBindingCommand> linkBindingCommandList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /*定义返回内容*/
         LinkBindingCommand linkBindingCommandPojo = new LinkBindingCommand();
         /*遍历交换机问题集合*/

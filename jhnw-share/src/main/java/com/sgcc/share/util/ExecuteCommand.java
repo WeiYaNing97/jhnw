@@ -1,5 +1,6 @@
 package com.sgcc.share.util;
 
+import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.domain.ReturnRecord;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
@@ -35,6 +36,12 @@ public class ExecuteCommand {
     */
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         //交换机返回信息 插入 数据库
         ReturnRecord returnRecord = new ReturnRecord();
 

@@ -15,6 +15,7 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.ExecuteCommand;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.StringBufferUtils;
+import com.sgcc.share.util.WorkThreadMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
@@ -40,44 +41,59 @@ public class LinkBundling {
      */
     public AjaxResult linkBindingInterface(SwitchParameters switchParameters) {
 
-        // 与登录设备相连的用户站IP，需要前端输入的数据
-        List<String> ipList = new ArrayList<>();
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
 
         // 获取链路绑定命令的AjaxResult对象
         AjaxResult commandPojo = getLinkBindingCommandPojo(switchParameters);
-
-        // 如果操作消息不为"操作成功"，则直接返回commandPojo
-        if (!commandPojo.get("msg").equals("操作成功")){
+        // 检查线程中断标志
+        if (commandPojo == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }else if (!commandPojo.get("msg").equals("操作成功")){// 如果操作消息不为"操作成功"，则直接返回commandPojo
             return commandPojo;
         }
-
         // 将commandPojo中的数据转换为LinkBindingCommand对象
         LinkBindingCommand linkBindingCommand = (LinkBindingCommand) commandPojo.get("data");
-
 
         // 执行外部路由命令
         // 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
         List<String> external_List = getRoutingTableCommand(switchParameters,linkBindingCommand);
-
         // 存储目标地址和掩码的列表
         List<String> DestinationMaskList = new ArrayList<>();
-
-        // 如果external信息不为空
-        if (MyUtils.isCollectionEmpty(external_List)){
+        // 检查线程中断标志
+        if (external_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }else if (MyUtils.isCollectionEmpty(external_List)){// 如果external信息不为空
 
             // 从switchReturnsMap中获取externalKeywords信息
             String externalKeywords = linkBindingCommand.getKeywords();
+            /* todo 虚假数据 */
             externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
 
             // 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
             List<ExternalIPCalculator> externalIPCalculatorList = ExternalRouteAggregation.getExternalIPCalculatorList(switchParameters,
                     external_List,
                     externalKeywords);
+
+            // 检查线程中断标志
+            if (externalIPCalculatorList == null &&
+                    WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                // 如果线程中断标志为true，则直接返回
+                return AjaxResult.success("操作成功", "线程已终止扫描");
+            }
+
             DestinationMaskList = externalIPCalculatorList.stream().map(x -> x.getDestinationMask()).collect(Collectors.toList());
         }
 
         // 用于映射IP地址和链路捆绑类型的HashMap
         HashMap<String,String> ipListMap = new HashMap<>();
+        // 与登录设备相连的用户站IP，需要前端输入的数据
+        List<String> ipList = new ArrayList<>();
         for (String ip:ipList){
             for (String destinationMask : DestinationMaskList) {
 
@@ -104,6 +120,13 @@ public class LinkBundling {
      * @return 返回获取到的路由表命令结果
      */
     public List<String> getRoutingTableCommand(SwitchParameters switchParameters,LinkBindingCommand linkBindingCommand){
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         // 获取路由聚合问题的外部命令
         String routingTableCommand = linkBindingCommand.getRoutingTableCommand();
         ExecuteCommand executeCommand = new ExecuteCommand();
@@ -176,15 +199,18 @@ public class LinkBundling {
      * @return 路由聚合命令对象，若配置文件路由聚合问题的命令为空则返回null
      */
     public AjaxResult getLinkBindingCommandPojo(SwitchParameters switchParameters){
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
 
         LinkBindingCommand linkBindingCommand = getLinkBindingCommand(switchParameters);
-
-
         // 获取IRouteAggregationCommandService的bean实例
         linkBindingCommandService = SpringBeanUtil.getBean(ILinkBindingCommandService.class);
         // 查询符合配置的路由聚合命令列表
         List<LinkBindingCommand> linkBindingCommandList = linkBindingCommandService.selectLinkBindingCommandListBySQL(linkBindingCommand);
-
         // 当配置文件路由聚合问题的命令为空时，进行日志写入
         if (MyUtils.isCollectionEmpty(linkBindingCommandList)){
             String subversionNumber = switchParameters.getSubversionNumber();
@@ -199,9 +225,20 @@ public class LinkBundling {
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:路由聚合功能未定义获取网络号命令\r\n");
         }
 
+
         // 从routeAggregationCommandList中获取四项基本最详细的数据
         /* 从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
-        LinkBindingCommand linkBindingCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesLinkBindingCommand(linkBindingCommandList);
+        LinkBindingCommand linkBindingCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesLinkBindingCommand(
+                switchParameters,
+                linkBindingCommandList);
+
+        // 检查线程中断标志
+        if (linkBindingCommandPojo ==  null &&
+                WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         return AjaxResult.success(linkBindingCommandPojo);
     }
 

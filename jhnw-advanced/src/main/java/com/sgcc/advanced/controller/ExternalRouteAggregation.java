@@ -13,6 +13,7 @@ import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.WorkThreadMonitor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,21 +31,28 @@ public class ExternalRouteAggregation {
     public static List<ExternalIPCalculator> getExternalIPCalculatorList(SwitchParameters switchParameters,
                                                                          List<String> switchReturnsexternalInformation_List,
                                                                          String externalKeywords) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         // 获取路由 OSPF、直连、静态 的关键词
         List<String> protos = new ArrayList<>();
         protos.addAll(Arrays.stream(externalKeywords.split("/")).collect(Collectors.toList()));
         // 使用Lambda表达式和Comparator对字符串按长度从长到短排序
         // 排序protos列表，根据字符串的长度从长到短进行排序
         Collections.sort(protos, Comparator.comparingInt(String::length).reversed());
-
         // 将交换机返回的外部信息按换行符分割成字符串列表
         // 从配置中获取路由聚合配置信息
         HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+switchParameters.getDeviceBrand(), Constant.getProfileInformation());
         // 获取keyMap的所有键，存储到keyList列表中
         List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
+
+
+
         // 初始化外部IP计算器列表
         List<ExternalIPCalculator> externalIPList = new ArrayList<>();
-
         /* 符合表格格式 */
         // 如果keyList中存在"R_table"，则使用getTableExternalIPList方法获取外部IP计算器列表
         if (keyList.indexOf("R_table")!=-1){
@@ -54,6 +62,8 @@ public class ExternalRouteAggregation {
             // 如果不符合表格格式，则使用getExternalIPList方法获取外部IP计算器列表
             externalIPList = getExternalIPList(switchReturnsexternalInformation_List, protos,switchParameters);
         }
+
+
         // 返回外部IP计算器列表
         return externalIPList;
     }
@@ -70,19 +80,43 @@ public class ExternalRouteAggregation {
     public static void externalRouteAggregation(SwitchParameters switchParameters,
                                                 List<String> external_List,
                                                 String externalKeywords){
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return;
+        }
 
         List<ExternalIPCalculator> externalIPList = getExternalIPCalculatorList(switchParameters, external_List, externalKeywords);
-
+        // 检查线程中断标志
+        if (externalIPList == null &&
+                WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return;
+        }
         Map<String, List<ExternalIPCalculator>> proto_collect = externalIPList.stream().collect(Collectors.groupingBy(ExternalIPCalculator::getProto));
+
+
 
         Set<String> protoSet = proto_collect.keySet();
         for (String proto : protoSet) {
+            // 检查线程中断标志
+            if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                // 如果线程中断标志为true，则直接返回
+                return;
+            }
+
             System.err.println(proto+"==========================================");
             List<ExternalIPCalculator> proto_externalIPS = proto_collect.get(proto);
             Map<String, List<ExternalIPCalculator>> NextHop_collect = proto_externalIPS.stream().collect(Collectors.groupingBy(ExternalIPCalculator::getNextHop));
 
             Set<String> NextHopSet = NextHop_collect.keySet();
             for (String NextHop : NextHopSet) {
+                // 检查线程中断标志
+                if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    // 如果线程中断标志为true，则直接返回
+                    return;
+                }
+
                 System.err.println("=========================================="+NextHop);
                 List<ExternalIPCalculator> NextHop_externalIPS = NextHop_collect.get(NextHop);
 
@@ -94,11 +128,24 @@ public class ExternalRouteAggregation {
                 }
 
                 // 将NextHop_externalIPS进行地址范围拼接
-                List<ExternalIPAddresses> externalIPAddressesList = IPAddressUtils.ExternalSplicingAddressRange(NextHop_externalIPS);
-
+                List<ExternalIPAddresses> externalIPAddressesList = IPAddressUtils.ExternalSplicingAddressRange(switchParameters,NextHop_externalIPS);
+                // 检查线程中断标志
+                if (externalIPAddressesList == null &&
+                        WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    // 如果线程中断标志为true，则直接返回
+                    return;
+                }
 
                 List<List<String>> returnList = new ArrayList<>();
                 for (ExternalIPAddresses externalIPAddresses : externalIPAddressesList) {
+
+                    // 检查线程中断标志
+                    if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                        // 如果线程中断标志为true，则直接返回
+                        return;
+                    }
+
+
                     System.err.println(externalIPAddresses.getIpStart()+" "+externalIPAddresses.getIpEnd());
                     List<ExternalIPCalculator> externalIPCalculatorList = externalIPAddresses.getExternalIPCalculatorList();
                     externalIPCalculatorList.forEach(System.err::println);
@@ -139,18 +186,29 @@ public class ExternalRouteAggregation {
                     switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
                 }
             }
-
             System.err.println("\r\n\r\n");
         }
     }
 
-    private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList,SwitchParameters switchParameters) {
+    private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList,
+                                                                     SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         HashMap<String,String> keyMap = (HashMap<String,String>) CustomConfigurationUtil.getValue("路由聚合."+"H3C.R_table", Constant.getProfileInformation());
         if (keyMap == null){
             return new ArrayList<>();
         }
         List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap, switchParameters);
-        if (stringObjectHashMapList.size() == 0){
+        // 检查线程中断标志
+        if (stringObjectHashMapList == null &&
+                WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }else if (stringObjectHashMapList.size() == 0){
             return new ArrayList<>();
         }
 
@@ -224,8 +282,13 @@ public class ExternalRouteAggregation {
     public static List<ExternalIPCalculator> getExternalIPList(List<String> returnInformationList,
                                                                List<String> protos,
                                                                SwitchParameters switchParameters) {
-        List<ExternalIPCalculator> externalIPList = new ArrayList<>();
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
 
+        List<ExternalIPCalculator> externalIPList = new ArrayList<>();
         /*协议*/
         String proto = "";
         /*IP CIDR格式*/
@@ -243,6 +306,13 @@ public class ExternalRouteAggregation {
             String port = MyUtils.includePortNumberKeywords(returnInformation_split_i);
             /* 当端口号不为空*/
             if (port == null) {
+
+                // 检查线程中断标志
+                if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    // 如果线程中断标志为true，则直接返回
+                    return null;
+                }
+
                 continue;
             }
 

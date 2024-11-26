@@ -6,6 +6,7 @@ import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.CustomConfigurationUtil;
 import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.WorkThreadMonitor;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -25,6 +26,14 @@ public class DataExtraction {
     public static List<HashMap<String, Object>> tableDataExtraction (List<String> switchReturnsInformation,
                                                                      Map<String,String> keywordS,
                                                                      SwitchParameters switchParameters){
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         // 创建一个用于存储结果的列表
         List<HashMap<String, Object>> returnList = new ArrayList<>();
 
@@ -218,6 +227,14 @@ public class DataExtraction {
      * @return 一个映射表，将占位符映射到它们对应的含义；如果输入或关键词为空，或者关键词中的占位符在输入字符串中不存在，则返回空映射表
      */
     public static Map<String,String> getTheMeaningOfPlaceholders(String input,String keyword,SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
+
         // 将关键词和输入字符串中的冒号替换为" : "，并将多余的空格替换为单个空格，并去除首尾空格
         keyword = keyword.replace(":"," : ").replaceAll("\\s+"," ").trim();
         input = input.replace(":"," : ").replaceAll("\\s+"," ").trim();

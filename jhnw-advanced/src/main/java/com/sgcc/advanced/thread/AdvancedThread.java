@@ -5,6 +5,7 @@ import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.ConnectToObtainInformation;
 import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.util.WorkThreadMonitor;
 import com.sgcc.share.webSocket.WebSocketService;
 
 import java.io.IOException;
@@ -60,8 +61,9 @@ public class AdvancedThread extends Thread {
     @Override
     public void run() {
 
-        if (sign){
-            System.err.println("线程已终止");
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
             return;
         }
 
@@ -81,10 +83,11 @@ public class AdvancedThread extends Thread {
             // 遍历需要执行的功能列表
             for (String function:functionName){
 
-                // 如果sing为true，则终止循环
-                if (sign){
-                    System.err.println("线程已终止");
-                    return;
+
+                // 检查线程中断标志
+                if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    // 如果线程中断标志为true，则直接跳出循环
+                    break;
                 }
 
                 // 根据功能名称执行不同的方法

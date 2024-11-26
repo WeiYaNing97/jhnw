@@ -2,7 +2,9 @@ package com.sgcc.advanced.aggregation;
 
 
 import com.sgcc.advanced.domain.*;
+import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.MyUtils;
+import com.sgcc.share.util.WorkThreadMonitor;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,7 +18,15 @@ public class IPAddressUtils {
      * @param returnInformation 包含IP信息的字符串
      * @return 包含提取出的IP信息的列表
      */
-    public static List<IPInformation> getIPInformation(List<String> switchReturnsinternalInformation_List) {
+    public static List<IPInformation> getIPInformation(SwitchParameters switchParameters,
+                                                       List<String> switchReturnsinternalInformation_List) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         List<IPInformation> ipInformationList = new ArrayList<>();
         // 按照换行符将返回信息分割成数组
 
@@ -165,7 +175,14 @@ public class IPAddressUtils {
      * @param ipCalculatorList IP计算器列表，每个IP计算器包含可用IP地址范围
      * @return 拼接后的IP地址段列表
      */
-    public static List<IPAddresses> splicingAddressRange(List<IPCalculator> ipCalculatorList) {
+    public static List<IPAddresses> splicingAddressRange(SwitchParameters switchParameters,
+                                                         List<IPCalculator> ipCalculatorList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         List<IPAddresses> ipAddressesList = new ArrayList<>();
         for (IPCalculator ipCalculator : ipCalculatorList) {
             IPAddresses ipAddresses = new IPAddresses();
@@ -180,6 +197,13 @@ public class IPAddressUtils {
         // 标记是否需要继续合并IP地址段
         boolean flag = true;
         while (flag){
+
+            // 检查线程中断标志
+            if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                // 如果线程中断标志为true，则直接返回
+                return null;
+            }
+
             flag = false;
             for (int i = ipAddressesList.size()-1; i >= 1; i--){
                 // 判断当前IP地址段与前一个IP地址段是否有交集或连续
@@ -233,7 +257,13 @@ public class IPAddressUtils {
      * @param externalIPCalculatorList 外部IP计算器列表
      * @return 拼接后的外部IP地址段列表
      */
-    public static List<ExternalIPAddresses> ExternalSplicingAddressRange(List<ExternalIPCalculator> externalIPCalculatorList) {
+    public static List<ExternalIPAddresses> ExternalSplicingAddressRange(SwitchParameters switchParameters,
+                                                                         List<ExternalIPCalculator> externalIPCalculatorList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
         List<ExternalIPAddresses> externalIPAddressesList = new ArrayList<>();
         for (ExternalIPCalculator externalIPCalculator : externalIPCalculatorList) {
             ExternalIPAddresses externalIPAddresses = new ExternalIPAddresses();
@@ -248,6 +278,13 @@ public class IPAddressUtils {
         // 标记是否需要继续合并IP地址段
         boolean flag = true;
         while (flag){
+
+            // 检查线程中断标志
+            if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                // 如果线程中断标志为true，则直接返回
+                return null;
+            }
+
             flag = false;
             for (int i = externalIPAddressesList.size()-1; i >= 1; i--){
                 // 判断当前IP地址段与前一个IP地址段是否有交集或连续

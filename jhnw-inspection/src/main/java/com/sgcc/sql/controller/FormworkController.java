@@ -135,7 +135,7 @@ public class FormworkController extends BaseController
             @ApiImplicitParam(name = "ids", value = "主键", dataTypeClass = Array.class, required = true)
     })
     @PreAuthorize("@ss.hasPermi('sql:formwork:query')")
-    @GetMapping(value = "/{ids}")
+    @GetMapping(value = "/getInfoByIds/{ids}")
     public AjaxResult getInfoByIds(@PathVariable("ids") Long[] ids)
     {
         return AjaxResult.success(formworkService.selectFormworkByIds(ids));

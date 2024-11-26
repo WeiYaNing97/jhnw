@@ -117,6 +117,7 @@ public class ScanThread extends Thread  {
             /*筛选匹配度高的交换机问题*/
             List<TotalQuestionTable> TotalQuestionTablePojoList = InspectionMethods.ObtainPreciseEntityClasses(totalQuestionTableList);
 
+
             for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){
 
                 if (sign){

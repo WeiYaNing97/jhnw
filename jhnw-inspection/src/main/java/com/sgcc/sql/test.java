@@ -28,44 +28,33 @@ public class test {
     public static void main(String[] args) {
 
 
-        MyThreadtest myThreadtest = new MyThreadtest();
-        myThreadtest.run();
-
-        try {
-            Thread.sleep(5000);
-            myThreadtest.updateFlag();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-class MyThreadtest implements Runnable {
-
-    List<MyThread> myThreads = new ArrayList<>();
-
-    @Override
-    public void run() {
-        MyThreadStart();
-    }
-
-    public void MyThreadStart() {
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
-
-        for (int i = 0; i <= 1; i++) {
+        for (int i = 0; i <= 0; i++) {
             MyThread myThread = new MyThread(i);
+
             fixedThreadPool.execute(myThread);
-            myThreads.add(myThread);
-        }
 
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            Thread.State state = myThread.getState();
+            System.out.println("100线程状态：" + state);
+
+
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            Thread.State state2 = myThread.getState();
+            System.out.println("10000线程状态：" + state2);
+
+
+        }
         fixedThreadPool.shutdown();
-    }
-
-    public void updateFlag() {
-        System.err.println("==============================更新flag");
-        for (MyThread myThread : myThreads) {
-            myThread.updateFlag();
-        }
     }
 }

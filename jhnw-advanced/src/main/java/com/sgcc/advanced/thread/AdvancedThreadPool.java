@@ -2,6 +2,7 @@ package com.sgcc.advanced.thread;
 
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
+import com.sgcc.share.util.WorkThreadMonitor;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -23,6 +24,13 @@ public class AdvancedThreadPool {
      * @throws InterruptedException 如果等待线程中断，则抛出 InterruptedException 异常
      */
     public void switchLoginInformations(ParameterSet parameterSet, List<String> functionName,boolean isRSA) throws InterruptedException {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(parameterSet.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return;
+        }
+
         // 创建一个CountDownLatch对象，用于计数线程是否执行完成
         // 计数器的初始值为参数集合中SwitchParameters的数量
         // 用于计数线程是否执行完成
@@ -32,6 +40,7 @@ public class AdvancedThreadPool {
 
         int i = 1;
         for (SwitchParameters switchParameters:parameterSet.getSwitchParameters()){
+
             // 获取线程名
             String threadName = getThreadName(i);
             // 将线程名设置给SwitchParameters对象
@@ -41,6 +50,7 @@ public class AdvancedThreadPool {
             // 创建一个AdvancedThread对象，并将其提交给线程池执行
             // AdvancedThread的构造函数中包含了线程名、SwitchParameters对象、函数列表、CountDownLatch对象、线程池对象和是否使用RSA算法的参数
             AdvancedThread advancedThread = new AdvancedThread(threadName, switchParameters, functionName, countDownLatch, fixedThreadPool, isRSA);
+
             threads.add(advancedThread);
             fixedThreadPool.execute(advancedThread);//mode, ip, name, password,configureCiphers, port, loginUser,time
 

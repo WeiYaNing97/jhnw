@@ -10,6 +10,7 @@ import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.util.WorkThreadMonitor;
 import com.sgcc.share.webSocket.WebSocketService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -55,6 +56,9 @@ public class AdvancedFeatures {
         // 创建参数集对象，将用户登录信息列表和扫描次数传入
         ParameterSet parameterSet = createParameterSet(switchParameters, scanNum);
 
+        /*设置线程中断标志*/
+        WorkThreadMonitor.setShutdownFlag(parameterSet.getLoginUser().getUsername(),false);
+
         try {
             // 调用高级功能线程池执行登录信息操作
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
@@ -62,6 +66,9 @@ public class AdvancedFeatures {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        /*移除线程中断标志*/
+        WorkThreadMonitor.removeThread(parameterSet.getLoginUser().getUsername());
 
 
         /* todo 存在问题 前端无法接受全部后端传入WebSocket数据*/
@@ -133,9 +140,17 @@ public class AdvancedFeatures {
      * @throws InterruptedException 线程中断异常，当线程在等待状态中被中断时抛出
      */
     private void executeAdvancedFunction(ParameterSet parameterSet, List<String> functionName, boolean isRSA) throws InterruptedException {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(parameterSet.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return;
+        }
+
         // 调用高级线程池具体实现类中的方法来执行登录信息的操作
         AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
         advancedThreadPoolHashMap.put(parameterSet.getLoginUser().getUsername(), advancedThreadPool);
+
         advancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
         advancedThreadPoolHashMap.remove(parameterSet.getLoginUser().getUsername());
     }

@@ -11,10 +11,7 @@ import com.sgcc.share.domain.Constant;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
-import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.ExecuteCommand;
-import com.sgcc.share.util.MyUtils;
-import com.sgcc.share.util.StringBufferUtils;
+import com.sgcc.share.util.*;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,29 +39,63 @@ public class OSPFFeatures {
      * @return AjaxResult 包含OSPF值的AjaxResult对象
      */
     public AjaxResult getOSPFValues(SwitchParameters switchParameters) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
+
+
+
         // 获取OSPF命令对象
         AjaxResult ospfCommandPojo = getOspfCommandPojo(switchParameters);
-        if (!ospfCommandPojo.get("msg").equals("操作成功")){
+        if (ospfCommandPojo == null){
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }else if (!ospfCommandPojo.get("msg").equals("操作成功")){
             return ospfCommandPojo;
         }
         OspfCommand ospfCommand = (OspfCommand) ospfCommandPojo.get("data");
 
+
+
+
         // 获取OSPF命令执行结果
         AjaxResult ospfCommandReturnResult = getOSPFCommandReturnResult(switchParameters, ospfCommand);
-        if (!ospfCommandReturnResult.get("msg").equals("操作成功")){
+        if (ospfCommandReturnResult == null){
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }else if (!ospfCommandReturnResult.get("msg").equals("操作成功")){
             return ospfCommandReturnResult;
         }
         List<String> commandReturn_List = (List<String>) ospfCommandReturnResult.get("data");
 
+
+
+
         // 获取OSPF数据列表
         AjaxResult OSPFPojoList = retrieveOSPFData(switchParameters, commandReturn_List);
-        if (!OSPFPojoList.get("msg").equals("操作成功")){
+        // 检查线程中断标志
+        if (OSPFPojoList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }else if (!OSPFPojoList.get("msg").equals("操作成功")){
             return OSPFPojoList;
         }
         List<OSPFPojo> pojoList = (List<OSPFPojo>) OSPFPojoList.get("data");
 
+
+
+
+
         // 获取OSPF异常判断结果
         AjaxResult ajaxResult = obtainOSPFExceptionJudgmentResults(switchParameters, pojoList);
+        // 检查线程中断标志
+        if (ajaxResult == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
+
+
         return ajaxResult;
     }
 
@@ -76,8 +107,19 @@ public class OSPFFeatures {
      * @return AjaxResult 包含OSPF命令对象的AjaxResult对象
      */
     public AjaxResult getOspfCommandPojo(SwitchParameters switchParameters) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         // 获取OSPF命令对象
         OspfCommand ospfCommand = getOspfCommand(switchParameters);
+        if (ospfCommand == null){
+            // 如果返回结果为 null，则线程中断标志为true，并返回
+            return null;
+        }
 
         // 查询OSPF 命令集合
         // 查询 符合交换机基本信息的 OSPF命令集合
@@ -99,10 +141,13 @@ public class OSPFFeatures {
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:未定义该交换机OSPF命令\r\n");
         }
 
-
         // 通过四项基本欸的精确度 筛选最精确的OSPF命令
-        ospfCommand = ScreeningMethod.ObtainPreciseEntityClassesOspfCommand(ospfCommandList);
-        return AjaxResult.success(ospfCommand);
+        OspfCommand ospfCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesOspfCommand(switchParameters, ospfCommandList);
+        if (ospfCommandPojo == null){
+            // 如果返回结果为 null，则线程中断标志为true，并返回
+            return null;
+        }
+        return AjaxResult.success(ospfCommandPojo);
     }
 
     /**
@@ -112,14 +157,29 @@ public class OSPFFeatures {
      * @return AjaxResult 包含执行结果的AjaxResult对象
      */
     public AjaxResult getOSPFCommandReturnResult(SwitchParameters switchParameters,OspfCommand ospfCommand ) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         // 根据交换机信息类  执行交换命令
         ExecuteCommand executeCommand = new ExecuteCommand();
         String command = ospfCommand.getGetParameterCommand();
         List<String> commandReturn_List = executeCommand.executeScanCommandByCommand(switchParameters,command);
+        if (commandReturn_List == null || WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            return null;
+        }
 
         // todo OSPF虚拟数据
         commandReturn_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.commandPortReturn)),
                 "\r\n");
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
 
         /*执行命令返回结果为null 则是命令执行错误*/
         if (MyUtils.isCollectionEmpty(commandReturn_List)){
@@ -148,8 +208,22 @@ public class OSPFFeatures {
      * @return AjaxResult 包含OSPFPojo对象列表的AjaxResult对象
      */
     public AjaxResult retrieveOSPFData(SwitchParameters switchParameters,List<String> commandReturn_List ) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         // 根据输入信息和交换机参数获取OSPFPojo对象列表
         List<OSPFPojo> pojoList =  getOSPFPojo( commandReturn_List ,switchParameters);
+
+        // 检查线程中断标志
+        if (pojoList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
 
         if (pojoList.size() == 0){
             String subversionNumber = switchParameters.getSubversionNumber();
@@ -163,6 +237,7 @@ public class OSPFFeatures {
                             "问题为:ospf功能信息提取失败\r\n");
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:ospf功能信息提取失败\r\n");
         }
+
         return AjaxResult.success(pojoList);
     }
 
@@ -175,10 +250,15 @@ public class OSPFFeatures {
      * @return AjaxResult 包含OSPF异常判断结果的AjaxResult对象
      */
     public AjaxResult obtainOSPFExceptionJudgmentResults(SwitchParameters switchParameters,List<OSPFPojo> pojoList) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         for (OSPFPojo ospf:pojoList){
             try {
-
-
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
@@ -235,6 +315,12 @@ public class OSPFFeatures {
      * @return 返回一个OSPF命令对象
      */
     public static OspfCommand getOspfCommand(SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         // 创建一个OSPF命令对象
         OspfCommand ospfCommand = new OspfCommand();
         // 设置OSPF命令对象的品牌属性为交换机参数的品牌
@@ -257,6 +343,11 @@ public class OSPFFeatures {
      * @return OSPFPojo对象列表
      */
     public static List<OSPFPojo> getOSPFPojo(List<String> commandReturn_List ,SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
 
         /**
          *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
@@ -308,6 +399,13 @@ public class OSPFFeatures {
         }
 
         List<OSPFPojo> ospfPojos = getOSPFParameters(commandReturn_List,switchParameters.getDeviceBrand(),switchParameters);
+
+        // 检查线程中断标志
+        if (ospfPojos == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         return ospfPojos;
     }
 
@@ -319,17 +417,32 @@ public class OSPFFeatures {
      * @return 包含OSPF配置参数的OSPFPojo列表
      */
     private static List<OSPFPojo> getOSPFParameters(List<String> stringSplit, String deviceBrand,SwitchParameters switchParameters) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         // 获取OSPF配置参数键值对
         Map<String,String> key_value = (Map<String,String>)CustomConfigurationUtil.getValue("OSPF." + deviceBrand + ".R_table", Constant.getProfileInformation());
-        // 创建OSPFPojo列表
-        List<OSPFPojo> ospfPojos = new ArrayList<>();
         // 如果键值对为空，则返回空列表
         if (key_value == null){
-            return ospfPojos;
+            return new ArrayList<>();
         }
+
         // 根据键值对提取表格数据
         List<HashMap<String, Object>> hashMapList = DataExtraction.tableDataExtraction(stringSplit, key_value,switchParameters);
+        // 检查线程中断标志
+        if (hashMapList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
 
+
+        // 创建OSPFPojo列表
+        List<OSPFPojo> ospfPojos = new ArrayList<>();
         // 遍历表格数据
         for (HashMap<String, Object> hashMap:hashMapList){
             // 创建OSPFPojo对象
@@ -347,6 +460,9 @@ public class OSPFFeatures {
         // 返回OSPFPojo列表
         return ospfPojos;
     }
+
+
+
 
     public static String commandPortReturn = "OSPF Process 1 with Router ID 11.37.96.2\n" +
             "Peer Statistic Information\n" +

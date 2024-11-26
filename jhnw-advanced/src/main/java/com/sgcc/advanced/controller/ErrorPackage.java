@@ -47,6 +47,14 @@ public class ErrorPackage {
                                                        HashMap<String, Object> errorPackageParameters,
                                                        String port,
                                                        Long switchID) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         /** 当前扫描数据*/
         ErrorRate errorRate = new ErrorRate();
         errorRate.setSwitchIp(switchParameters.getIp()); /*IP*/
@@ -206,29 +214,65 @@ public class ErrorPackage {
      * @return AjaxResult 包含错误包信息的AjaxResult对象
      */
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
+
+
         // 获取四项基本最详细的数据
         AjaxResult errorRateCommandPojo = getErrorRateCommandPojo(switchParameters);
-        if (!errorRateCommandPojo.get("msg").equals("操作成功")){
+        // 检查线程中断标志
+        if (errorRateCommandPojo == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!errorRateCommandPojo.get("msg").equals("操作成功")){
             return errorRateCommandPojo;
         }
         ErrorRateCommand errorRateCommand = (ErrorRateCommand) errorRateCommandPojo.get("data");
 
+
+
         // 获取端口列表
         AjaxResult AjaxResultPort = getPort(switchParameters, errorRateCommand);
-        if (!AjaxResultPort.get("msg").equals("操作成功")){
+        // 检查线程中断标志
+        if (AjaxResultPort == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!AjaxResultPort.get("msg").equals("操作成功")){
             return AjaxResultPort;
         }
         List<String> portList = (List<String>) AjaxResultPort.get("data");
 
+
+
+
         // 获取错误包参数集合
         AjaxResult AjaxResultErrorPackageParameter = getErrorPackageParameters(switchParameters, errorRateCommand, portList);
-        if (!AjaxResultErrorPackageParameter.get("msg").equals("操作成功")){
+        // 检查线程中断标志
+        if (AjaxResultErrorPackageParameter == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!AjaxResultErrorPackageParameter.get("msg").equals("操作成功")){
             return AjaxResultErrorPackageParameter;
         }
         HashMap<String, Object> errorPackageParameters = (HashMap<String, Object>) AjaxResultErrorPackageParameter.get("data");
 
+
+
+
         // 获取扫描结果
         AjaxResult ajaxResult = obtainScanningResults(switchParameters, portList, errorPackageParameters);
+        // 检查线程中断标志
+        if (ajaxResult == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
+
+
+
         return ajaxResult;
     }
 
@@ -242,9 +286,15 @@ public class ErrorPackage {
      * @return AjaxResult对象，包含操作结果
      */
     public AjaxResult obtainScanningResults(SwitchParameters switchParameters , List<String> portList,HashMap<String, Object> errorPackageParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         ErrorRate selectpojo = new ErrorRate();
         selectpojo.setSwitchIp(switchParameters.getIp());
-
         //解决多线程 service 为null问题
         //查询数据库错误包列表
         errorRateService = SpringBeanUtil.getBean(IErrorRateService.class);
@@ -253,7 +303,6 @@ public class ErrorPackage {
         for (ErrorRate pojo:list){
             errorRateMap.put( pojo.getPort() , pojo );
         }
-
         List<String> keySet = errorRateMap.keySet().stream().collect(Collectors.toList());
 
         /**
@@ -264,6 +313,12 @@ public class ErrorPackage {
 
         /*获取交换机四项基本信息ID*/
         Long switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
+        // 检查线程中断标志
+        if (switchID == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
 
         for (String port:difference){
             // 修改端口号状态
@@ -303,6 +358,11 @@ public class ErrorPackage {
                     errorPackageParameters,
                     port,
                     switchID);
+            // 检查线程中断标志
+            if (hashMap == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                // 如果线程中断标志为true，则直接返回
+                return null;
+            }
 
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
             Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
@@ -324,10 +384,21 @@ public class ErrorPackage {
      * @return AjaxResult 封装了错误包参数的AjaxResult对象
      */
     public AjaxResult getErrorPackageParameters(SwitchParameters switchParameters,ErrorRateCommand errorRateCommand,List<String> portList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /*获取错误包参数命令*/
         String errorPackageCommand = errorRateCommand.getGetParameterCommand();
         /*获取到错误包参数 map集合*/
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
+        // 检查线程中断标志
+        if (errorPackageParameters == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
 
         if ( errorPackageParameters.size() == 0 ){
             String subversionNumber = switchParameters.getSubversionNumber();
@@ -355,12 +426,25 @@ public class ErrorPackage {
      * @return AjaxResult 封装了端口号列表的AjaxResult对象
      */
     public AjaxResult getPort(SwitchParameters switchParameters,ErrorRateCommand errorRateCommand) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /*获取up端口号命令*/
         String portNumberCommand = errorRateCommand.getGetPortCommand();
 
         /*3：配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> return_information_List = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
+        // 检查线程中断标志
+        if (return_information_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         // todo 错误包虚拟数据
         return_information_List = StringBufferUtils.stringBufferSplit(
                 StringBufferUtils.arrange(new StringBuffer(this.switchPortReturnsResult)),
@@ -387,24 +471,27 @@ public class ErrorPackage {
 
         /*5：如果交换机返回信息不为 null 说明命令执行正常,
         则继续 根据交换机返回信息获取错误包端口号*/
-        List<String> portList = ObtainUPStatusPortNumber(return_information_List);
+        List<String> portList = ObtainUPStatusPortNumber(switchParameters,return_information_List);
+
+        // 检查线程中断标志
+        if (portList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
 
         /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
         if (MyUtils.isCollectionEmpty(portList)){
-
             //关于没有端口号为UP状态 的错误代码库
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                             "问题为:错误包功能无UP状态端口号,是否需要CRT检查异常\r\n"
             );
-
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能无UP状态端口号,是否需要CRT检查异常\r\n");
 
         }
@@ -439,6 +526,12 @@ public class ErrorPackage {
      * @return ErrorRateCommand 错误率命令对象
      */
     public static ErrorRateCommand getErrorRateCommand(SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         // 创建一个ErrorRateCommand对象
         ErrorRateCommand errorRateCommand = new ErrorRateCommand();
         // 设置设备品牌
@@ -460,12 +553,22 @@ public class ErrorPackage {
      * @return AjaxResult 封装了错误率命令对象的AjaxResult对象
      */
     public  AjaxResult getErrorRateCommandPojo(SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         // 获取错误率命令对象
         ErrorRateCommand errorRateCommand = getErrorRateCommand(switchParameters);
-
+        // 检查线程中断标志
+        if (errorRateCommand ==null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
         // 获取错误率命令服务对象
         errorRateCommandService = SpringBeanUtil.getBean(IErrorRateCommandService.class);
-
         // 根据错误率命令对象查询错误率命令列表
         List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandListBySQL(errorRateCommand);
 
@@ -491,10 +594,17 @@ public class ErrorPackage {
 
         /*从errorRateCommandList中 获取四项基本最详细的数据*/
         // 从错误率命令列表中筛选最详细的数据
-        errorRateCommand = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(errorRateCommandList);
+        ErrorRateCommand errorRateCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(switchParameters,errorRateCommandList);
+        // 检查线程中断标志
+        if (errorRateCommandPojo ==null){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
 
         // 返回成功结果，并包含筛选后的错误率命令对象
-        return AjaxResult.success(errorRateCommand);
+        return AjaxResult.success(errorRateCommandPojo);
     }
 
 
@@ -579,6 +689,13 @@ public class ErrorPackage {
      * @createTime 2023/12/19 21:41
      */
     public HashMap<String,Object> getErrorPackageParameters(SwitchParameters switchParameters,List<String> portNumber,String errorPackageCommand) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+
         // 创建返回对象 HashMap
         HashMap<String,Object> hashMap = new HashMap<>();
         ExecuteCommand executeCommand = new ExecuteCommand();
@@ -588,7 +705,11 @@ public class ErrorPackage {
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
             // 执行交换机命令，并返回结果
             List<String> returnResults_List = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
-
+            // 检查线程中断标志
+            if (returnResults_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                // 如果线程中断标志为true，则直接返回
+                return null;
+            }
             //todo 错误包虚拟数据
             returnResults_List = StringBufferUtils.stringBufferSplit(
                     StringBufferUtils.arrange(new StringBuffer(this.switchPortValueReturnsResult)),
@@ -613,6 +734,11 @@ public class ErrorPackage {
 
             // 查看交换机错误包数量
             Map<String, String> parameters = getParameters(switchParameters,returnResults_List, port);
+            // 检查线程中断标志
+            if (parameters == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                // 如果线程中断标志为true，则直接返回
+                return null;
+            }
 
 
             if (parameters.size() == 0){
@@ -653,7 +779,14 @@ public class ErrorPackage {
      * @author charles
      * @createTime 2023/12/19 21:36
      */
-    public List<String> ObtainUPStatusPortNumber(List<String> return_information_List) {
+    public List<String> ObtainUPStatusPortNumber(SwitchParameters switchParameters,
+                                                 List<String> return_information_List) {
+
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
 
         // 遍历 交换机行信息字符串数组
         // 判断 交换机返回行信息是否包含 UP（状态）
@@ -695,9 +828,19 @@ public class ErrorPackage {
      */
     public Map<String,String> getParameters(SwitchParameters switchParameters,List<String> returnResults_List,String port) {
 
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /*根据四项基本信息 查询获取光衰参数的关键词*/
         Map<String, Object> deviceVersion = getKeywords(switchParameters);
-        if (deviceVersion.size() == 0){
+        // 检查线程中断标志
+        if (deviceVersion == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        } else if (deviceVersion.size() == 0){
             return new HashMap<>();
         }
 
@@ -769,9 +912,6 @@ public class ErrorPackage {
             Object inputpkt = pktMap.get(ErrorPackageL_listEnum.singlePlaceholderInput().toString());
             Object outputpkt = pktMap.get(ErrorPackageL_listEnum.singlePlaceholderOutput().toString());
 
-
-
-
             if(inputpkt != null){
                 if (inputpkt instanceof Map){
                     Map<String,Object> InputPKT =(Map<String,Object>) inputpkt;
@@ -801,8 +941,6 @@ public class ErrorPackage {
 
 
 
-
-
         /*遍历 hashMap 的 key值  获取对应的参数值*/
         for (String key:keySet){
 
@@ -827,8 +965,11 @@ public class ErrorPackage {
 
                 /*根据配置文件的取值信息 取参数值*/
                 Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key),switchParameters);
-                /* 如果获取到的是一个参数 则可以直接赋值 */
-                if (placeholdersContainingList.size() == 1){
+                // 检查线程中断标志
+                if (placeholdersContainingList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    // 如果线程中断标志为true，则直接返回
+                    return null;
+                }else if (placeholdersContainingList.size() == 1){/* 如果获取到的是一个参数 则可以直接赋值 */
                     String words = hashMap.get(key);
                     List<String> placeholders = DataExtraction.getPlaceholders(words);
                     if (placeholders.size() == 1){
@@ -861,7 +1002,11 @@ public class ErrorPackage {
                 for (String str:returnResults_List){
                     /*根据配置文件的取值信息 取参数值*/
                     Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key),switchParameters);
-                    if (placeholdersContainingList.size() == 1){
+                    // 检查线程中断标志
+                    if (placeholdersContainingList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                        // 如果线程中断标志为true，则直接返回
+                        return null;
+                    }else if (placeholdersContainingList.size() == 1){
                         String words = hashMap.get(key);
                         List<String> placeholders = DataExtraction.getPlaceholders(words);
                         if (placeholders.size() == 1){
@@ -924,6 +1069,12 @@ public class ErrorPackage {
      * @return
     */
     public Map<String, Object> getKeywords (SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
         /* 获取配置文件 关于 错误包 的配置信息*/
         Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包",Constant.getProfileInformation());
         /*查询错误包关键词 如果返回为 null 则提示前端*/
