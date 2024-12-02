@@ -36,7 +36,7 @@ public class FunctionalMethods {
     /*获取交换机基本信息 有返回ID 没有插入并返回ID*/
     public static Long getSwitchParametersId(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }

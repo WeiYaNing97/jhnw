@@ -37,7 +37,7 @@ public class RouteAggregation {
      */
     public List<String> executeInternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -64,7 +64,7 @@ public class RouteAggregation {
      */
     public List<String> executeExternalCommand(SwitchParameters switchParameters,RouteAggregationCommand routeAggregationCommandPojo){
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -89,17 +89,14 @@ public class RouteAggregation {
      */
     public AjaxResult obtainAggregationResults(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
 
-
-
-
         AjaxResult commandPojo = getRouteAggregationCommandPojo(switchParameters);
         // 检查线程中断标志
-        if (commandPojo==null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (commandPojo==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         } else if (!commandPojo.get("msg").equals("操作成功")){
@@ -116,7 +113,7 @@ public class RouteAggregation {
          */
         List<String> internal_List = executeInternalCommand(switchParameters, routeAggregationCommandPojo);
         // 检查线程中断标志
-        if (internal_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (internal_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         } else if (MyUtils.isCollectionEmpty(internal_List)){// 如果internal信息不为空
@@ -133,7 +130,7 @@ public class RouteAggregation {
          */
         List<String> external_List = executeExternalCommand(switchParameters, routeAggregationCommandPojo);
         // 检查线程中断标志
-        if (external_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (external_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         } else if (MyUtils.isCollectionEmpty(external_List)){// 如果external信息不为空
@@ -161,7 +158,7 @@ public class RouteAggregation {
      */
     public RouteAggregationCommand getRouteAggregationCommand(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -189,7 +186,7 @@ public class RouteAggregation {
      */
     public AjaxResult getRouteAggregationCommandPojo(SwitchParameters switchParameters){
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -199,7 +196,7 @@ public class RouteAggregation {
         RouteAggregationCommand routeAggregationCommand = getRouteAggregationCommand(switchParameters);
         // 检查线程中断标志
         if (routeAggregationCommand == null &&
-                WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -229,7 +226,7 @@ public class RouteAggregation {
                 routeAggregationCommandList);
 
         // 检查线程中断标志
-        if (routeAggregationCommandPojo==null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (routeAggregationCommandPojo==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -248,7 +245,7 @@ public class RouteAggregation {
     public static void internalRouteAggregation(SwitchParameters switchParameters,List<String> switchReturnsinternalInformation_List) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
@@ -258,7 +255,7 @@ public class RouteAggregation {
         // 获取IP信息列表
         List<IPInformation> ipInformationList = IPAddressUtils.getIPInformation(switchParameters,switchReturnsinternalInformation_List);
         // 检查线程中断标志
-        if (ipInformationList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (ipInformationList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
@@ -272,7 +269,7 @@ public class RouteAggregation {
 
         List<IPAddresses> ipAddresses = IPAddressUtils.splicingAddressRange(switchParameters,ipCalculatorList);
         // 检查线程中断标志
-        if (ipAddresses == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (ipAddresses == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
@@ -282,7 +279,7 @@ public class RouteAggregation {
         List<List<String>> returnList = new ArrayList<>();
         for (IPAddresses ipAddress : ipAddresses) {
             // 检查线程中断标志
-            if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return;
             }

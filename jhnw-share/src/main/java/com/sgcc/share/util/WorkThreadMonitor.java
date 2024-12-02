@@ -14,11 +14,15 @@ public class WorkThreadMonitor {
      * @param key 关键字，用于从shutdownFlags中获取对应的AtomicBoolean对象
      * @return 如果shutdownFlags中存在以key为键的AtomicBoolean对象，并且其值为true，则返回true；否则返回false
      */
-    public static boolean getShutdownFlag(String key) {
+    public static boolean getShutdown_Flag(String key) {
         // 从shutdownFlags中获取以key为键的AtomicBoolean对象
         AtomicBoolean shutdownFlag = shutdownFlags.get(key);
+
+        System.err.println("getShutdownFlag:" + shutdownFlag);
+
         // 返回shutdownFlag不为null且其值为true的情况
         return shutdownFlag != null && shutdownFlag.get();
+
     }
 
     /**
@@ -27,7 +31,7 @@ public class WorkThreadMonitor {
      * @param key 关键字，用于在shutdownFlags中创建或更新对应的AtomicBoolean对象
      * @param value 关闭标志位的值，true表示关闭，false表示不关闭
      */
-    public static void setShutdownFlag(String key, boolean value) {
+    public static void setShutdown_Flag(String key, boolean value) {
         // 在shutdownFlags中创建或更新以key为键的AtomicBoolean对象，并将其初始化为value
         shutdownFlags.put(key, new AtomicBoolean(value));
     }
@@ -43,7 +47,7 @@ public class WorkThreadMonitor {
      *
      * 注意：此方法直接移除键值对，不进行预期值的匹配检查。
      */
-    public static void removeThread(String key) {
+    public static void remove_Thread(String key) {
         // 只有当 "someKey" 对应的 AtomicBoolean 实例是 expectedValue 时才移除
         // AtomicBoolean expectedValue = new AtomicBoolean(true); // 预期值
         // shutdownFlags.remove(key, expectedValue);
@@ -63,7 +67,7 @@ public class WorkThreadMonitor {
      * 在这个过程中，initialValue作为预期值来与AtomicBoolean实例的当前值进行比较。
      * 如果匹配成功，则移除该AtomicBoolean实例；否则，不移除。
      */
-    public static void removeThreadByInitialValue(String key,boolean initialValue) {
+    public static void remove_ThreadByInitialValue(String key,boolean initialValue) {
         // 只有当 "someKey" 对应的 AtomicBoolean 实例是 expectedValue 时才移除
         AtomicBoolean expectedValue = new AtomicBoolean(initialValue); // 预期值
         shutdownFlags.remove(key, expectedValue);

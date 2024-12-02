@@ -51,7 +51,7 @@ public class LuminousAttenuation {
      */
     public AjaxResult obtainScanningResults(SwitchParameters switchParameters,List<String> ports,HashMap<String, String> getparameter) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -272,7 +272,7 @@ public class LuminousAttenuation {
      */
     public AjaxResult obtainLightDecay(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -282,7 +282,7 @@ public class LuminousAttenuation {
         // 获取光衰命令对象
         AjaxResult lightAttenuationCommandPojo = getLightAttenuationCommandPojo(switchParameters);
         // 检查线程中断标志
-        if (lightAttenuationCommandPojo == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (lightAttenuationCommandPojo == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -299,7 +299,7 @@ public class LuminousAttenuation {
         // 获取端口号信息数据
         AjaxResult AjaxResultport = getPort(switchParameters, lightAttenuationCommand);
         // 检查线程中断标志
-        if (AjaxResultport == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (AjaxResultport == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -317,7 +317,7 @@ public class LuminousAttenuation {
         // 获取光衰参数
         AjaxResult lightAttenuationParameters = getLightAttenuationParameters(ports, switchParameters, lightAttenuationCommand);
         // 检查线程中断标志
-        if (lightAttenuationParameters == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (lightAttenuationParameters == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -334,7 +334,7 @@ public class LuminousAttenuation {
         // 获取扫描结果
         AjaxResult ajaxResult = obtainScanningResults(switchParameters, ports, getparameter);
         // 检查线程中断标志
-        if (ajaxResult == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (ajaxResult == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -353,7 +353,7 @@ public class LuminousAttenuation {
      */
     public AjaxResult getPort(SwitchParameters switchParameters,LightAttenuationCommand lightAttenuationCommand) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -363,7 +363,7 @@ public class LuminousAttenuation {
         //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> returnString_List = executeCommand.executeScanCommandByCommand(switchParameters, command);
-        if (returnString_List == null || WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (returnString_List == null || WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             return null;
         }
 
@@ -391,7 +391,7 @@ public class LuminousAttenuation {
         //则继续 根据交换机返回信息获取获取 up状态 光衰端口号 铜缆除外，铜缆关键词为 COPPER
         List<String> port = ObtainUPStatusPortNumber(switchParameters ,returnString_List);
         // 检查线程中断标志
-        if (port == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (port == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -452,7 +452,7 @@ public class LuminousAttenuation {
      */
     public AjaxResult getLightAttenuationParameters(List<String> port, SwitchParameters switchParameters, LightAttenuationCommand lightAttenuationCommand) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -461,7 +461,7 @@ public class LuminousAttenuation {
         // 调用 getparameter 方法获取参数，并将结果保存在 getparameter 变量中
         HashMap<String, String> getparameter = getparameter(port, switchParameters, lightAttenuationCommand.getGetParameterCommand());
         // 检查线程中断标志
-        if (getparameter == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (getparameter == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         } else if (MyUtils.isMapEmpty(getparameter)) {// 如果 getparameter 变量为空
@@ -497,7 +497,7 @@ public class LuminousAttenuation {
     public  AjaxResult getLightAttenuationCommandPojo(SwitchParameters switchParameters) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -634,7 +634,7 @@ public class LuminousAttenuation {
     */
     public List<String> ObtainUPStatusPortNumber(SwitchParameters switchParameters,List<String> returnString_List) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -679,7 +679,7 @@ public class LuminousAttenuation {
      */
     public HashMap<String,String> getparameter(List<String> portNumber,SwitchParameters switchParameters,String command) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -704,7 +704,7 @@ public class LuminousAttenuation {
             List<String> returnResults_List = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
 
             // 检查线程中断标志
-            if (returnResults_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (returnResults_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }
@@ -734,7 +734,7 @@ public class LuminousAttenuation {
             /*HashMap<String, Double> values = getDecayValues(returnResults,switchParameters);*/
             HashMap<String, Double> values =obtainTheParameterOfLightAttenuation( returnResults_List,switchParameters);
             // 检查线程中断标志
-            if (values == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (values == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }else if (values.size() == 0){
@@ -776,7 +776,7 @@ public class LuminousAttenuation {
      */
     private HashMap<String, Double> obtainTheParameterOfLightAttenuation(List<String> returnResults_List, SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -803,7 +803,7 @@ public class LuminousAttenuation {
             List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnResults_List,
                     keywordMap,switchParameters);
             // 检查线程中断标志
-            if (stringObjectHashMapList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (stringObjectHashMapList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }else if (stringObjectHashMapList.size() != 1){
@@ -835,7 +835,7 @@ public class LuminousAttenuation {
                         // 获取占位符的含义
                         Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword, (String) mapvalue,switchParameters);
                         // 检查线程中断标志
-                        if (theMeaningOfPlaceholders == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                        if (theMeaningOfPlaceholders == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                             // 如果线程中断标志为true，则直接返回
                             return null;
                         }else if (theMeaningOfPlaceholders.size() == 1){
@@ -855,7 +855,7 @@ public class LuminousAttenuation {
                         // 获取占位符的含义
                         Map<String,String> theMeaningOfPlaceholders = DataExtraction.getTheMeaningOfPlaceholders(keyword,map.get("keyword"),switchParameters);
                         // 检查线程中断标志
-                        if (theMeaningOfPlaceholders == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                        if (theMeaningOfPlaceholders == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                             // 如果线程中断标志为true，则直接返回
                             return null;
                         }else if (theMeaningOfPlaceholders.size() == 1){
@@ -899,7 +899,7 @@ public class LuminousAttenuation {
      */
     public static LightAttenuationCommand getLightAttenuationCommand(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }

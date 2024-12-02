@@ -28,9 +28,6 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class AdvancedFeatures {
 
-
-    HashMap<String, AdvancedThreadPool> advancedThreadPoolHashMap = new HashMap<>();
-
     /**
      * 运行分析接口
      *
@@ -52,12 +49,18 @@ public class AdvancedFeatures {
                                    @PathVariable List<String> functionName) {
 
         // 转换用户登录信息列表为SwitchParameters列表
-        List<SwitchParameters> switchParameters = AdvancedUtils.convertSwitchInformation(switchInformation);
+        List<SwitchParameters> switchParameters = AdvancedUtils.convertSwitchInformation(switchInformation,":运行分析");
+
         // 创建参数集对象，将用户登录信息列表和扫描次数传入
         ParameterSet parameterSet = createParameterSet(switchParameters, scanNum);
 
+        if (switchParameters.size() == 0) {
+            return "没有可用的用户登录信息";
+        }
+
+
         /*设置线程中断标志*/
-        WorkThreadMonitor.setShutdownFlag(parameterSet.getLoginUser().getUsername(),false);
+        WorkThreadMonitor.setShutdown_Flag(switchParameters.get(0).getScanMark(),false);
 
         try {
             // 调用高级功能线程池执行登录信息操作
@@ -68,8 +71,7 @@ public class AdvancedFeatures {
         }
 
         /*移除线程中断标志*/
-        WorkThreadMonitor.removeThread(parameterSet.getLoginUser().getUsername());
-
+        WorkThreadMonitor.remove_Thread(switchParameters.get(0).getScanMark());
 
         /* todo 存在问题 前端无法接受全部后端传入WebSocket数据*/
 
@@ -80,7 +82,8 @@ public class AdvancedFeatures {
 
         try {
             // 将问题简述和问题路径写入文件
-            PathHelper.writeDataToFile("接收："+"扫描结束\r\n");
+            PathHelper pathHelper = new PathHelper();
+            pathHelper.writeDataToFile("接收："+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -142,17 +145,15 @@ public class AdvancedFeatures {
     private void executeAdvancedFunction(ParameterSet parameterSet, List<String> functionName, boolean isRSA) throws InterruptedException {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(parameterSet.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(parameterSet.getSwitchParameters().get(0).getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
 
         // 调用高级线程池具体实现类中的方法来执行登录信息的操作
         AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
-        advancedThreadPoolHashMap.put(parameterSet.getLoginUser().getUsername(), advancedThreadPool);
-
         advancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
-        advancedThreadPoolHashMap.remove(parameterSet.getLoginUser().getUsername());
+
     }
 
 
@@ -164,10 +165,9 @@ public class AdvancedFeatures {
     /* 全面扫描终止 */
     @PostMapping("/advancedFunctionTerminationScann")
     public void advancedFunctionTerminationScann() {
-        String username = SecurityUtils.getLoginUser().getUsername();
-        AdvancedThreadPool advancedThreadPool = advancedThreadPoolHashMap.get(username);
-        advancedThreadPool.terminationScanThread();
-        advancedThreadPoolHashMap.remove(username);
+        /*设置线程中断标志*/
+        WorkThreadMonitor.setShutdown_Flag(SecurityUtils.getLoginUser().getUsername(),true);
+
     }
 
 }

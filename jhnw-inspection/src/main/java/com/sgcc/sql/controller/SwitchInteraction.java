@@ -72,11 +72,6 @@ public class SwitchInteraction {
     @Autowired
     private  IFormworkService formworkService;
 
-    /*全面扫描线程池*/
-    HashMap<String,ScanFixedThreadPool> scanFixedThreadPoolHashMap = new HashMap<>();
-    /* 专项扫描线程池*/
-    HashMap<String,DirectionalScanThreadPool> directionalScanThreadPoolHashMap = new HashMap<>();
-
     /**
     * @Description预执行获取交换机基本信息
     * @desc
@@ -231,21 +226,19 @@ public class SwitchInteraction {
     @PostMapping("/formworkScann/{formworkId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "模板扫描", businessType = BusinessType.OTHER)
     public String formworkScann(@ApiParam(name = "switchInformation", value = "交换机登录信息集合") @RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
-
         // 获取FormworkService实例
         formworkService = SpringBeanUtil.getBean(IFormworkService.class);
-
         // 查询问题模板信息
         Formwork formwork = formworkService.selectFormworkById(formworkId);
-
         // 将模板索引按逗号分割成数组
         String[] formworkSplit = formwork.getFormworkIndex().split(",");
-
         // 将数组转换为List
         List<String> totalQuestionTableId = Arrays.stream(formworkSplit).collect(Collectors.toList());
 
+
         // 调用directionalScann方法进行模板扫描
         String formworkScann = directionalScann(switchInformation, totalQuestionTableId, scanNum);
+
 
         // 返回扫描结果
         return formworkScann;
@@ -307,7 +300,6 @@ public class SwitchInteraction {
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
         Long[] ids = idScan.toArray(new Long[idScan.size()]);
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
-
         WebSocketService webSocketService = new WebSocketService();
 
         if (ids.length != 0 ){
@@ -324,18 +316,18 @@ public class SwitchInteraction {
         try {
             //boolean isRSA = true; 密码是否 RSA加密
             DirectionalScanThreadPool directionalScanThreadPool = new DirectionalScanThreadPool();
-            directionalScanThreadPoolHashMap.put(parameterSet.getLoginUser().getUsername(),directionalScanThreadPool);
             directionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedName,true);
-            directionalScanThreadPoolHashMap.remove(parameterSet.getLoginUser().getUsername());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         //传输登陆人姓名 及问题简述
-        webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
+        webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:扫描结束\r\n");
+
         try {
             //插入问题简述及问题路径
-            PathHelper.writeDataToFile("接收:"+"扫描结束\r\n");
+            PathHelper pathHelper = new PathHelper();
+            pathHelper.writeDataToFile("接收:扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -343,14 +335,6 @@ public class SwitchInteraction {
         return "扫描结束";
     }
 
-    /* 模版、专项扫描终止 */
-    @PostMapping("/directionalTerminationScann")
-    public void directionalTerminationScann() {
-        String username = SecurityUtils.getLoginUser().getUsername();
-        DirectionalScanThreadPool directionalScanThreadPool = directionalScanThreadPoolHashMap.get(username);
-        directionalScanThreadPool.terminationScanThread();
-        directionalScanThreadPoolHashMap.remove(username);
-    }
 
     /*Inspection Completed*/
     /**
@@ -403,9 +387,7 @@ public class SwitchInteraction {
             /*扫描全部问题线程池*/
             //boolean isRSA = true; 密码是否经过RSA加密
             ScanFixedThreadPool scanFixedThreadPool = new ScanFixedThreadPool();
-            scanFixedThreadPoolHashMap.put(parameterSet.getLoginUser().getUsername(),scanFixedThreadPool);
             scanFixedThreadPool.switchLoginInformations(parameterSet, true);
-            scanFixedThreadPoolHashMap.remove(parameterSet.getLoginUser().getUsername());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -417,20 +399,12 @@ public class SwitchInteraction {
 
         try {
             //插入问题简述及问题路径
-            PathHelper.writeDataToFile("接收:扫描结束\r\n");
+            PathHelper pathHelper = new PathHelper();
+            pathHelper.writeDataToFile("接收:扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
         return "扫描结束";
-    }
-
-    /* 全面扫描终止 */
-    @PostMapping("/multipleTerminationScann")
-    public void multipleTerminationScann() {
-        String username = SecurityUtils.getLoginUser().getUsername();
-        ScanFixedThreadPool scanFixedThreadPool = scanFixedThreadPoolHashMap.get(username);
-        scanFixedThreadPool.terminationScanThread();
-        scanFixedThreadPoolHashMap.remove(username);
     }
 
 

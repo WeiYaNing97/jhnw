@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
  */
 public class DirectionalScanThreadPool {
 
-    List<DirectionalScanThread> directionalScanThreadList = new ArrayList<>();
 
     /**
      * newFixedThreadPool submit submit
@@ -30,7 +29,7 @@ public class DirectionalScanThreadPool {
 
             switchParameters.setThreadName(threadName);
             DirectionalScanThread directionalScanThread = new DirectionalScanThread(threadName, switchParameters, totalQuestionTables, advancedName, countDownLatch, fixedThreadPool, isRSA);
-            directionalScanThreadList.add(directionalScanThread);
+
             fixedThreadPool.execute(directionalScanThread);
 
         }
@@ -46,17 +45,4 @@ public class DirectionalScanThreadPool {
         return "threadname" + name;
     }
 
-    /**
-     * 终止所有扫描线程。
-     *
-     * 该方法遍历scanThreadList中的所有扫描线程（ScanThread），并调用每个线程的termination方法来终止它们。
-     * 这通常用于在不再需要这些线程时释放资源。
-     */
-    public  void terminationScanThread() {
-        // 遍历scanThreadList中的所有扫描线程（ScanThread）
-        for (DirectionalScanThread directionalScanThread : directionalScanThreadList) {
-            // 调用每个线程的termination方法来终止线程
-            directionalScanThread.termination();
-        }
-    }
 }

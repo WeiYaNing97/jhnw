@@ -37,7 +37,7 @@ public class ExecuteCommand {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public List<String> executeScanCommandByCommand(SwitchParameters switchParameters, String command) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }

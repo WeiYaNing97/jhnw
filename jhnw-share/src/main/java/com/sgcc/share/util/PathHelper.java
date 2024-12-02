@@ -15,12 +15,14 @@ public class PathHelper {
     /*日志路径*/
     public static String logPath = "D:\\jhnwadminlog" ;//Configuration.logPath;
     public static String logTime = MyUtils.getDate("yyyy-MM-dd");
+
+    private final Object lock = new Object();
     /**
      * 将字符串写入文件中
      * @param str
      * @throws IOException
      */
-    public static void writeDataToFile(String str) throws IOException {
+    public void writeDataToFile(String str) throws IOException {
         // 获取当前时间并格式化为指定格式的字符串
         String logPresent = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
         // 添加时间前缀
@@ -62,21 +64,23 @@ public class PathHelper {
             }
         }
         BufferedWriter bw;
-        try {
+        synchronized (lock){
             boolean append = true;  //  是否追加
             // 创建文件写入流
             FileWriter fw = new FileWriter(writefile, append);
-            // 创建缓冲写入流
-            bw = new BufferedWriter(fw);
-            // 写入字符串到文件
-            fw.write(str);
-            // 刷新缓冲区
-            fw.flush();
-            // 关闭文件写入流
-            fw.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                // 创建缓冲写入流
+                bw = new BufferedWriter(fw);
+                // 写入字符串到文件
+                fw.write(str);
+                // 刷新缓冲区
+                fw.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                // 关闭文件写入流
+                fw.close();
+            }
         }
     }
     /**
@@ -85,7 +89,7 @@ public class PathHelper {
      * @param str 要写入的字符串
      * @throws IOException
      */
-    public static void writeDataToFileByName(String name,String str) throws IOException {
+    public void writeDataToFileByName(String name,String str) throws IOException {
         // 获取当前时间并格式化
         String logPresent = MyUtils.getDate("yyyy-MM-dd HH:mm:ss");
         logPresent = "["+logPresent+"] ";
@@ -125,20 +129,23 @@ public class PathHelper {
         }
 
         BufferedWriter bw;
-        try {
+        synchronized (lock){
             boolean append = true;  // 是否追加到文件末尾
             // 创建FileWriter对象，并设置是否追加
             FileWriter fw = new FileWriter(writefile, append);
-            // 创建BufferedWriter对象，用于缓冲写入操作
-            bw = new BufferedWriter(fw);
-            // 写入字符串到文件
-            fw.write(str);
-            // 刷新缓冲区，确保数据写入文件
-            fw.flush();
-            // 关闭流
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                // 创建BufferedWriter对象，用于缓冲写入操作
+                bw = new BufferedWriter(fw);
+                // 写入字符串到文件
+                fw.write(str);
+                // 刷新缓冲区，确保数据写入文件
+                fw.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                // 关闭流
+                fw.close();
+            }
         }
     }
 
@@ -188,20 +195,23 @@ public class PathHelper {
         }
 
         BufferedWriter bw;
-        try {
+        synchronized (lock){
             boolean append = true;  // 是否追加到文件末尾
             // 创建FileWriter对象，并设置是否追加
             FileWriter fw = new FileWriter(writefile, append);
-            // 创建BufferedWriter对象，用于缓冲写入操作
-            bw = new BufferedWriter(fw);
-            // 写入字符串到文件
-            fw.write(str);
-            // 刷新缓冲区，确保数据写入文件
-            fw.flush();
-            // 关闭流
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                // 创建BufferedWriter对象，用于缓冲写入操作
+                bw = new BufferedWriter(fw);
+                // 写入字符串到文件
+                fw.write(str);
+                // 刷新缓冲区，确保数据写入文件
+                fw.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }finally {
+                // 关闭流
+                fw.close();
+            }
         }
     }
 

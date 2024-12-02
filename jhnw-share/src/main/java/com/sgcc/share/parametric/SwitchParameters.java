@@ -11,6 +11,9 @@ import com.sgcc.share.method.TelnetSwitchMethod;
 */
 
 public class SwitchParameters {
+
+    private String scanMark; //扫描标记
+
     private LoginUser loginUser;//登陆人信息
     private String threadName;//线程名
     private String scanningTime;//扫描时间
@@ -154,5 +157,14 @@ public class SwitchParameters {
     }
     public void setNotFinished(String notFinished) {
         this.notFinished = notFinished;
+    }
+
+
+    public String getScanMark() {
+        return scanMark;
+    }
+
+    public void setScanMark(String scanMark) {
+        this.scanMark = scanMark;
     }
 }

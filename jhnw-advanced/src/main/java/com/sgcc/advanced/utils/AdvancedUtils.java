@@ -1,6 +1,7 @@
 package com.sgcc.advanced.utils;
 import com.alibaba.fastjson.JSON;
 import com.sgcc.advanced.domain.*;
+import com.sgcc.common.core.domain.model.LoginUser;
 import com.sgcc.common.utils.SecurityUtils;
 import com.sgcc.common.utils.bean.BeanUtils;
 import com.sgcc.share.domain.SwitchLoginInformation;
@@ -132,7 +133,7 @@ public class AdvancedUtils {
      * @param switchInformation 用户登录信息列表
      * @return 转换后的SwitchParameters列表
      */
-    public static List<SwitchParameters> convertSwitchInformation(List<String> switchInformation) {
+    public static List<SwitchParameters> convertSwitchInformation(List<String> switchInformation,String scanMark) {
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         // 设置当前时间格式为"yyyy-MM-dd HH:mm:ss"
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
@@ -144,8 +145,12 @@ public class AdvancedUtils {
             // 创建SwitchParameters对象
             SwitchParameters switchParameters = new SwitchParameters();
 
+            LoginUser loginUser = SecurityUtils.getLoginUser();
+            // 设置扫描标记
+            switchParameters.setScanMark(loginUser.getUsername()+scanMark);
+
             // 设置登录用户信息
-            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
+            switchParameters.setLoginUser(loginUser);
 
             // 设置扫描时间
             switchParameters.setScanningTime(simpleDateFormat);

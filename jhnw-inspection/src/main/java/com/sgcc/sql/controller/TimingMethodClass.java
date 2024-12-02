@@ -98,7 +98,8 @@ public class TimingMethodClass {
 
         try {
             //插入问题简述及问题路径
-            PathHelper.writeDataToFile("接收:"+"扫描结束\r\n");
+            PathHelper pathHelper = new PathHelper();
+            pathHelper.writeDataToFile("接收:"+"扫描结束\r\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

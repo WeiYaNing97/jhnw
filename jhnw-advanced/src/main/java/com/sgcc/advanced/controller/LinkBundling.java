@@ -42,7 +42,7 @@ public class LinkBundling {
     public AjaxResult linkBindingInterface(SwitchParameters switchParameters) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -50,7 +50,7 @@ public class LinkBundling {
         // 获取链路绑定命令的AjaxResult对象
         AjaxResult commandPojo = getLinkBindingCommandPojo(switchParameters);
         // 检查线程中断标志
-        if (commandPojo == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (commandPojo == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }else if (!commandPojo.get("msg").equals("操作成功")){// 如果操作消息不为"操作成功"，则直接返回commandPojo
@@ -65,7 +65,7 @@ public class LinkBundling {
         // 存储目标地址和掩码的列表
         List<String> DestinationMaskList = new ArrayList<>();
         // 检查线程中断标志
-        if (external_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (external_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }else if (MyUtils.isCollectionEmpty(external_List)){// 如果external信息不为空
@@ -82,7 +82,7 @@ public class LinkBundling {
 
             // 检查线程中断标志
             if (externalIPCalculatorList == null &&
-                    WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return AjaxResult.success("操作成功", "线程已终止扫描");
             }
@@ -122,7 +122,7 @@ public class LinkBundling {
     public List<String> getRoutingTableCommand(SwitchParameters switchParameters,LinkBindingCommand linkBindingCommand){
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -200,7 +200,7 @@ public class LinkBundling {
      */
     public AjaxResult getLinkBindingCommandPojo(SwitchParameters switchParameters){
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -234,7 +234,7 @@ public class LinkBundling {
 
         // 检查线程中断标志
         if (linkBindingCommandPojo ==  null &&
-                WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }

@@ -26,8 +26,6 @@ import java.util.concurrent.*;
 /*Inspection Completed*/
 public class ScanThread extends Thread  {
 
-    boolean sign = false;
-
     SwitchParameters switchParameters = null;
     // 用于计数线程是否执行完成
     CountDownLatch countDownLatch = null;
@@ -57,11 +55,6 @@ public class ScanThread extends Thread  {
                     null,
                     null,
                     isRSA);*/
-
-            if (sign){
-                System.err.println("线程已终止");
-                return;
-            }
 
             /*连接交换机 获取交换机基本信息*/
             ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
@@ -119,11 +112,6 @@ public class ScanThread extends Thread  {
 
 
             for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){
-
-                if (sign){
-                    System.err.println("线程已终止");
-                    break;
-                }
 
                 /*告警、异常信息写入*/
                 if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
@@ -189,13 +177,6 @@ public class ScanThread extends Thread  {
 
             countDownLatch.countDown();
         }
-    }
-
-
-
-
-    public void termination() {
-        sign = true;
     }
 
 }

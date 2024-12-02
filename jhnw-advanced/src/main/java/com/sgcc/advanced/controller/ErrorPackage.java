@@ -49,7 +49,7 @@ public class ErrorPackage {
                                                        Long switchID) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getLoginUser().getUsername())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -216,7 +216,7 @@ public class ErrorPackage {
     public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -225,7 +225,7 @@ public class ErrorPackage {
         // 获取四项基本最详细的数据
         AjaxResult errorRateCommandPojo = getErrorRateCommandPojo(switchParameters);
         // 检查线程中断标志
-        if (errorRateCommandPojo == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (errorRateCommandPojo == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         } else if (!errorRateCommandPojo.get("msg").equals("操作成功")){
@@ -238,7 +238,7 @@ public class ErrorPackage {
         // 获取端口列表
         AjaxResult AjaxResultPort = getPort(switchParameters, errorRateCommand);
         // 检查线程中断标志
-        if (AjaxResultPort == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (AjaxResultPort == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         } else if (!AjaxResultPort.get("msg").equals("操作成功")){
@@ -252,7 +252,7 @@ public class ErrorPackage {
         // 获取错误包参数集合
         AjaxResult AjaxResultErrorPackageParameter = getErrorPackageParameters(switchParameters, errorRateCommand, portList);
         // 检查线程中断标志
-        if (AjaxResultErrorPackageParameter == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (AjaxResultErrorPackageParameter == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         } else if (!AjaxResultErrorPackageParameter.get("msg").equals("操作成功")){
@@ -266,7 +266,7 @@ public class ErrorPackage {
         // 获取扫描结果
         AjaxResult ajaxResult = obtainScanningResults(switchParameters, portList, errorPackageParameters);
         // 检查线程中断标志
-        if (ajaxResult == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (ajaxResult == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -287,7 +287,7 @@ public class ErrorPackage {
      */
     public AjaxResult obtainScanningResults(SwitchParameters switchParameters , List<String> portList,HashMap<String, Object> errorPackageParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -314,7 +314,7 @@ public class ErrorPackage {
         /*获取交换机四项基本信息ID*/
         Long switchID = FunctionalMethods.getSwitchParametersId(switchParameters);
         // 检查线程中断标志
-        if (switchID == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (switchID == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -359,7 +359,7 @@ public class ErrorPackage {
                     port,
                     switchID);
             // 检查线程中断标志
-            if (hashMap == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (hashMap == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }
@@ -385,7 +385,7 @@ public class ErrorPackage {
      */
     public AjaxResult getErrorPackageParameters(SwitchParameters switchParameters,ErrorRateCommand errorRateCommand,List<String> portList) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -395,7 +395,7 @@ public class ErrorPackage {
         /*获取到错误包参数 map集合*/
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
         // 检查线程中断标志
-        if (errorPackageParameters == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (errorPackageParameters == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -428,7 +428,7 @@ public class ErrorPackage {
     public AjaxResult getPort(SwitchParameters switchParameters,ErrorRateCommand errorRateCommand) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -440,7 +440,7 @@ public class ErrorPackage {
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> return_information_List = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
         // 检查线程中断标志
-        if (return_information_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (return_information_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -474,7 +474,7 @@ public class ErrorPackage {
         List<String> portList = ObtainUPStatusPortNumber(switchParameters,return_information_List);
 
         // 检查线程中断标志
-        if (portList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (portList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -527,7 +527,7 @@ public class ErrorPackage {
      */
     public static ErrorRateCommand getErrorRateCommand(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -554,7 +554,7 @@ public class ErrorPackage {
      */
     public  AjaxResult getErrorRateCommandPojo(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -563,7 +563,7 @@ public class ErrorPackage {
         // 获取错误率命令对象
         ErrorRateCommand errorRateCommand = getErrorRateCommand(switchParameters);
         // 检查线程中断标志
-        if (errorRateCommand ==null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (errorRateCommand ==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -690,7 +690,7 @@ public class ErrorPackage {
      */
     public HashMap<String,Object> getErrorPackageParameters(SwitchParameters switchParameters,List<String> portNumber,String errorPackageCommand) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -706,7 +706,7 @@ public class ErrorPackage {
             // 执行交换机命令，并返回结果
             List<String> returnResults_List = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
             // 检查线程中断标志
-            if (returnResults_List == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (returnResults_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }
@@ -735,7 +735,7 @@ public class ErrorPackage {
             // 查看交换机错误包数量
             Map<String, String> parameters = getParameters(switchParameters,returnResults_List, port);
             // 检查线程中断标志
-            if (parameters == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (parameters == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }
@@ -783,7 +783,7 @@ public class ErrorPackage {
                                                  List<String> return_information_List) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -829,7 +829,7 @@ public class ErrorPackage {
     public Map<String,String> getParameters(SwitchParameters switchParameters,List<String> returnResults_List,String port) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -837,7 +837,7 @@ public class ErrorPackage {
         /*根据四项基本信息 查询获取光衰参数的关键词*/
         Map<String, Object> deviceVersion = getKeywords(switchParameters);
         // 检查线程中断标志
-        if (deviceVersion == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (deviceVersion == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         } else if (deviceVersion.size() == 0){
@@ -966,7 +966,7 @@ public class ErrorPackage {
                 /*根据配置文件的取值信息 取参数值*/
                 Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(value, hashMap.get(key),switchParameters);
                 // 检查线程中断标志
-                if (placeholdersContainingList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                if (placeholdersContainingList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                     // 如果线程中断标志为true，则直接返回
                     return null;
                 }else if (placeholdersContainingList.size() == 1){/* 如果获取到的是一个参数 则可以直接赋值 */
@@ -1003,7 +1003,7 @@ public class ErrorPackage {
                     /*根据配置文件的取值信息 取参数值*/
                     Map<String,String> placeholdersContainingList = DataExtraction.getTheMeaningOfPlaceholders(str, hashMap.get(key),switchParameters);
                     // 检查线程中断标志
-                    if (placeholdersContainingList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    if (placeholdersContainingList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                         // 如果线程中断标志为true，则直接返回
                         return null;
                     }else if (placeholdersContainingList.size() == 1){
@@ -1070,7 +1070,7 @@ public class ErrorPackage {
     */
     public Map<String, Object> getKeywords (SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }

@@ -64,7 +64,8 @@ public class AbnormalAlarmInformationMethod {
                     pathHelper.writeDataToFileByAdvancedFeatureName(categories,information);
                 }else {
                     // 插入问题简述及问题路径（按问题名分类）
-                    PathHelper.writeDataToFileByName(categories,information);
+                    PathHelper pathHelper = new PathHelper();
+                    pathHelper.writeDataToFileByName(categories,information);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -76,7 +77,8 @@ public class AbnormalAlarmInformationMethod {
             webSocketService.sendMessage(name,information);
             try {
                 // 插入问题简述及问题路径（不分类）
-                PathHelper.writeDataToFile(information);
+                PathHelper pathHelper = new PathHelper();
+                pathHelper.writeDataToFile(information);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,7 +94,8 @@ public class AbnormalAlarmInformationMethod {
                     pathHelper.writeDataToFileByAdvancedFeatureName(categories,information);
                 }else {
                     // 插入问题简述及问题路径（按问题名分类）
-                    PathHelper.writeDataToFileByName(categories,information);
+                    PathHelper pathHelper = new PathHelper();
+                    pathHelper.writeDataToFileByName(categories,information);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -104,7 +107,8 @@ public class AbnormalAlarmInformationMethod {
             webSocketService.sendMessageAll(information);
             try {
                 // 插入问题简述及问题路径（不分类）
-                PathHelper.writeDataToFile(information);
+                PathHelper pathHelper = new PathHelper();
+                pathHelper.writeDataToFile(information);
             } catch (IOException e) {
                 e.printStackTrace();
             }

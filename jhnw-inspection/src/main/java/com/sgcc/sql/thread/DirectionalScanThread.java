@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutorService;
 */
 public class DirectionalScanThread extends Thread  {
 
-    boolean sign = false;
     SwitchParameters switchParameters = null;
     List<TotalQuestionTable> totalQuestionTables = null;
     List<String> advancedName = null;
@@ -55,14 +54,6 @@ public class DirectionalScanThread extends Thread  {
             //扫描方法 logInToGetBasicInformation  传参 ：mode连接方式, ip 地址, name 用户名, password 密码, port 端口号
             /*SwitchInteraction switchInteraction = new SwitchInteraction();
             switchInteraction.logInToGetBasicInformation(switchParameters, totalQuestionTables,advancedName,isRSA);*/
-
-            if (sign){
-                System.err.println("线程已终止,run位置,无法继续执行");
-                /* 因为没有链接交换机 所以可以直接返回
-                * 否则需要断开交换机链接*/
-                return;
-            }
-
 
             /*连接交换机 获取交换机基本信息*/
             ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
@@ -95,11 +86,6 @@ public class DirectionalScanThread extends Thread  {
             if (advancedName != null && advancedName.size() != 0){
 
                 for (String function:advancedName){
-                    if (sign){
-                        System.err.println("线程已终止 "+ function +" 位置,无法继续执行");
-                        /* 因为链接交换机 所以 需要断开交换机链接*/
-                        break;
-                    }
 
                     switch (function){
                         case "OSPF":
@@ -187,12 +173,6 @@ public class DirectionalScanThread extends Thread  {
 
             for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){
 
-                if (sign){
-                    System.err.println("线程已终止 "+totalQuestionTable.getProblemName()+" 位置,无法继续执行");
-                    /* 因为链接交换机 所以 需要断开交换机链接*/
-                    break;
-                }
-
                 /*告警、异常信息写入*/
                 if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
                     //传输登陆人姓名 及问题简述
@@ -265,8 +245,4 @@ public class DirectionalScanThread extends Thread  {
         System.err.println("活跃线程数："+threadCount);*/
     }
 
-
-    public void termination() {
-        sign = true;
-    }
 }

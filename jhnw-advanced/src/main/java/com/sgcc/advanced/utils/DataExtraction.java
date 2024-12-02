@@ -28,7 +28,7 @@ public class DataExtraction {
                                                                      SwitchParameters switchParameters){
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -228,7 +228,7 @@ public class DataExtraction {
      */
     public static Map<String,String> getTheMeaningOfPlaceholders(String input,String keyword,SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }

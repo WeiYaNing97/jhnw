@@ -15,9 +15,9 @@
 
     </div>
 
-<!--    <el-button @click="terminateScan">
+    <el-button @click="terminateScan">
       终止扫描
-    </el-button>-->
+    </el-button>
 
     <el-form :model="queryParams" ref="queryForm" :rules="rules" :inline="true"
              v-show="showSearch" label-width="40px" :show-message="false">

@@ -22,7 +22,7 @@ public class IPAddressUtils {
                                                        List<String> switchReturnsinternalInformation_List) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -178,7 +178,7 @@ public class IPAddressUtils {
     public static List<IPAddresses> splicingAddressRange(SwitchParameters switchParameters,
                                                          List<IPCalculator> ipCalculatorList) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -199,7 +199,7 @@ public class IPAddressUtils {
         while (flag){
 
             // 检查线程中断标志
-            if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }
@@ -260,7 +260,7 @@ public class IPAddressUtils {
     public static List<ExternalIPAddresses> ExternalSplicingAddressRange(SwitchParameters switchParameters,
                                                                          List<ExternalIPCalculator> externalIPCalculatorList) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -280,7 +280,7 @@ public class IPAddressUtils {
         while (flag){
 
             // 检查线程中断标志
-            if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }

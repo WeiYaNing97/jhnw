@@ -32,7 +32,7 @@ public class ExternalRouteAggregation {
                                                                          List<String> switchReturnsexternalInformation_List,
                                                                          String externalKeywords) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -81,7 +81,7 @@ public class ExternalRouteAggregation {
                                                 List<String> external_List,
                                                 String externalKeywords){
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
@@ -89,7 +89,7 @@ public class ExternalRouteAggregation {
         List<ExternalIPCalculator> externalIPList = getExternalIPCalculatorList(switchParameters, external_List, externalKeywords);
         // 检查线程中断标志
         if (externalIPList == null &&
-                WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
@@ -100,7 +100,7 @@ public class ExternalRouteAggregation {
         Set<String> protoSet = proto_collect.keySet();
         for (String proto : protoSet) {
             // 检查线程中断标志
-            if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+            if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return;
             }
@@ -112,7 +112,7 @@ public class ExternalRouteAggregation {
             Set<String> NextHopSet = NextHop_collect.keySet();
             for (String NextHop : NextHopSet) {
                 // 检查线程中断标志
-                if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                     // 如果线程中断标志为true，则直接返回
                     return;
                 }
@@ -131,7 +131,7 @@ public class ExternalRouteAggregation {
                 List<ExternalIPAddresses> externalIPAddressesList = IPAddressUtils.ExternalSplicingAddressRange(switchParameters,NextHop_externalIPS);
                 // 检查线程中断标志
                 if (externalIPAddressesList == null &&
-                        WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                        WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                     // 如果线程中断标志为true，则直接返回
                     return;
                 }
@@ -140,7 +140,7 @@ public class ExternalRouteAggregation {
                 for (ExternalIPAddresses externalIPAddresses : externalIPAddressesList) {
 
                     // 检查线程中断标志
-                    if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                    if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                         // 如果线程中断标志为true，则直接返回
                         return;
                     }
@@ -193,7 +193,7 @@ public class ExternalRouteAggregation {
     private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList,
                                                                      SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -205,7 +205,7 @@ public class ExternalRouteAggregation {
         List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap, switchParameters);
         // 检查线程中断标志
         if (stringObjectHashMapList == null &&
-                WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }else if (stringObjectHashMapList.size() == 0){
@@ -283,7 +283,7 @@ public class ExternalRouteAggregation {
                                                                List<String> protos,
                                                                SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -308,7 +308,7 @@ public class ExternalRouteAggregation {
             if (port == null) {
 
                 // 检查线程中断标志
-                if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                     // 如果线程中断标志为true，则直接返回
                     return null;
                 }

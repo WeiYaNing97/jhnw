@@ -12,9 +12,6 @@ import java.util.stream.Collectors;
 
 public class AdvancedThreadPool {
 
-    public List<AdvancedThread> threads =new ArrayList<>();
-
-
     /**
      * 运行分析线程池
      *
@@ -26,7 +23,7 @@ public class AdvancedThreadPool {
     public void switchLoginInformations(ParameterSet parameterSet, List<String> functionName,boolean isRSA) throws InterruptedException {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(parameterSet.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(parameterSet.getSwitchParameters().get(0).getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
@@ -50,8 +47,6 @@ public class AdvancedThreadPool {
             // 创建一个AdvancedThread对象，并将其提交给线程池执行
             // AdvancedThread的构造函数中包含了线程名、SwitchParameters对象、函数列表、CountDownLatch对象、线程池对象和是否使用RSA算法的参数
             AdvancedThread advancedThread = new AdvancedThread(threadName, switchParameters, functionName, countDownLatch, fixedThreadPool, isRSA);
-
-            threads.add(advancedThread);
             fixedThreadPool.execute(advancedThread);//mode, ip, name, password,configureCiphers, port, loginUser,time
 
         }
@@ -77,19 +72,4 @@ public class AdvancedThreadPool {
         // 返回线程名称，格式为 "threadname" + name
         return "threadname" + name;
     }
-
-
-    /**
-     * 终止所有线程。
-     *
-     * 该方法遍历threads集合中的每一个AdvancedThread对象，并调用其TerminateThread方法以终止所有线程。
-     */
-    public void terminationScanThread() {
-        // 遍历threads集合中的每一个AdvancedThread对象
-        for (AdvancedThread thread : threads) {
-            // 调用当前线程的TerminateThread方法终止线程
-            thread.TerminateThread();
-        }
-    }
-
 }

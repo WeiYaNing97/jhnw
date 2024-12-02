@@ -16,9 +16,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 public class AdvancedThread extends Thread {
-
-    boolean sign = false;
-
     //运行分析名称列表
     List<String> functionName = null;
     SwitchParameters switchParameters = null;
@@ -62,7 +59,7 @@ public class AdvancedThread extends Thread {
     public void run() {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
@@ -85,7 +82,7 @@ public class AdvancedThread extends Thread {
 
 
                 // 检查线程中断标志
-                if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+                if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                     // 如果线程中断标志为true，则直接跳出循环
                     break;
                 }
@@ -156,16 +153,5 @@ public class AdvancedThread extends Thread {
         countDownLatch.countDown();
 
     }
-
-    /**
-     * 终止线程。
-     *
-     * 将全局变量 sing 设置为 true，用于指示线程应该终止运行。
-     */
-    public void TerminateThread() {
-        // 将全局变量 sing 设置为 true
-        // 用于指示线程应该终止运行
-        sign = true;
-    }
-
+    
 }

@@ -41,7 +41,7 @@ public class OSPFFeatures {
     public AjaxResult getOSPFValues(SwitchParameters switchParameters) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -75,7 +75,7 @@ public class OSPFFeatures {
         // 获取OSPF数据列表
         AjaxResult OSPFPojoList = retrieveOSPFData(switchParameters, commandReturn_List);
         // 检查线程中断标志
-        if (OSPFPojoList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (OSPFPojoList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }else if (!OSPFPojoList.get("msg").equals("操作成功")){
@@ -90,7 +90,7 @@ public class OSPFFeatures {
         // 获取OSPF异常判断结果
         AjaxResult ajaxResult = obtainOSPFExceptionJudgmentResults(switchParameters, pojoList);
         // 检查线程中断标志
-        if (ajaxResult == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (ajaxResult == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
@@ -109,7 +109,7 @@ public class OSPFFeatures {
     public AjaxResult getOspfCommandPojo(SwitchParameters switchParameters) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -158,7 +158,7 @@ public class OSPFFeatures {
      */
     public AjaxResult getOSPFCommandReturnResult(SwitchParameters switchParameters,OspfCommand ospfCommand ) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -167,7 +167,7 @@ public class OSPFFeatures {
         ExecuteCommand executeCommand = new ExecuteCommand();
         String command = ospfCommand.getGetParameterCommand();
         List<String> commandReturn_List = executeCommand.executeScanCommandByCommand(switchParameters,command);
-        if (commandReturn_List == null || WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (commandReturn_List == null || WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             return null;
         }
 
@@ -176,7 +176,7 @@ public class OSPFFeatures {
                 "\r\n");
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -209,7 +209,7 @@ public class OSPFFeatures {
      */
     public AjaxResult retrieveOSPFData(SwitchParameters switchParameters,List<String> commandReturn_List ) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -219,7 +219,7 @@ public class OSPFFeatures {
         List<OSPFPojo> pojoList =  getOSPFPojo( commandReturn_List ,switchParameters);
 
         // 检查线程中断标志
-        if (pojoList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (pojoList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -252,7 +252,7 @@ public class OSPFFeatures {
     public AjaxResult obtainOSPFExceptionJudgmentResults(SwitchParameters switchParameters,List<OSPFPojo> pojoList) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -316,7 +316,7 @@ public class OSPFFeatures {
      */
     public static OspfCommand getOspfCommand(SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -344,7 +344,7 @@ public class OSPFFeatures {
      */
     public static List<OSPFPojo> getOSPFPojo(List<String> commandReturn_List ,SwitchParameters switchParameters) {
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -401,7 +401,7 @@ public class OSPFFeatures {
         List<OSPFPojo> ospfPojos = getOSPFParameters(commandReturn_List,switchParameters.getDeviceBrand(),switchParameters);
 
         // 检查线程中断标志
-        if (ospfPojos == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (ospfPojos == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -419,7 +419,7 @@ public class OSPFFeatures {
     private static List<OSPFPojo> getOSPFParameters(List<String> stringSplit, String deviceBrand,SwitchParameters switchParameters) {
 
         // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
@@ -435,7 +435,7 @@ public class OSPFFeatures {
         // 根据键值对提取表格数据
         List<HashMap<String, Object>> hashMapList = DataExtraction.tableDataExtraction(stringSplit, key_value,switchParameters);
         // 检查线程中断标志
-        if (hashMapList == null && WorkThreadMonitor.getShutdownFlag(switchParameters.getLoginUser().getUsername())){
+        if (hashMapList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }

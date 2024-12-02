@@ -52,19 +52,4 @@ public class ScanFixedThreadPool {
         String name = System.currentTimeMillis() + new Random().nextInt(100) +" ";
         return "threadname" + name;
     }
-
-    /**
-     * 终止所有扫描线程。
-     *
-     * 该方法遍历scanThreadList中的所有扫描线程（ScanThread），并调用每个线程的termination方法来终止它们。
-     * 这通常用于在不再需要这些线程时释放资源。
-     */
-    public  void terminationScanThread() {
-        // 遍历scanThreadList中的所有扫描线程（ScanThread）
-        for (ScanThread scanThread : scanThreadList) {
-            // 调用每个线程的termination方法来终止线程
-            scanThread.termination();
-        }
-    }
-
 }
