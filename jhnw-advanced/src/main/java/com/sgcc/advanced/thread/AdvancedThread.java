@@ -57,13 +57,11 @@ public class AdvancedThread extends Thread {
      */
     @Override
     public void run() {
-
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
-
         // 创建ConnectToObtainInformation对象
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         // 调用connectSwitchObtainBasicInformation方法获取交换机基本信息
@@ -73,20 +71,15 @@ public class AdvancedThread extends Thread {
         if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))
                 && !(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
                 && !(basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))) {
-
             // 将返回的数据转换为SwitchParameters对象
             this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
             // 遍历需要执行的功能列表
             for (String function:functionName){
-
-
                 // 检查线程中断标志
                 if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                     // 如果线程中断标志为true，则直接跳出循环
                     break;
                 }
-
                 // 根据功能名称执行不同的方法
                 switch (function){
                     case "OSPF":
@@ -94,25 +87,21 @@ public class AdvancedThread extends Thread {
                         OSPFFeatures ospfFeatures = new OSPFFeatures();
                         ospfFeatures.getOSPFValues(switchParameters);
                         break;
-
                     case "光衰":
                         // 创建LuminousAttenuation对象并执行obtainLightDecay方法
                         LuminousAttenuation luminousAttenuation = new LuminousAttenuation();
                         luminousAttenuation.obtainLightDecay(switchParameters);
                         break;
-
                     case "错误包":
                         // 创建ErrorPackage对象并执行getErrorPackage方法
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
                         break;
-
                     case "路由聚合":
                         // 创建RouteAggregation对象并执行obtainAggregationResults方法
                         RouteAggregation routeAggregation = new RouteAggregation();
                         routeAggregation.obtainAggregationResults(switchParameters);
                         break;
-
                     case "链路捆绑":
                         // 创建LinkBundling对象并执行linkBindingInterface方法
                         LinkBundling linkBundling = new LinkBundling();

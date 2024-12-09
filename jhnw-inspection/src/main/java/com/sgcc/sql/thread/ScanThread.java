@@ -6,6 +6,7 @@ import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.ConnectToObtainInformation;
 import com.sgcc.share.util.PathHelper;
+import com.sgcc.share.util.WorkThreadMonitor;
 import com.sgcc.sql.TerminationTest;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.share.webSocket.WebSocketService;
@@ -47,15 +48,6 @@ public class ScanThread extends Thread  {
     @Override
     public void run() {
         try {
-            /*与交换机交互方法类*/
-            //扫描方法 logInToGetBasicInformation
-            /*
-            SwitchInteraction switchInteraction = new SwitchInteraction();
-            switchInteraction.logInToGetBasicInformation(switchParameters,
-                    null,
-                    null,
-                    isRSA);*/
-
             /*连接交换机 获取交换机基本信息*/
             ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
             AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters,isRSA);
@@ -64,18 +56,15 @@ public class ScanThread extends Thread  {
             if (basicInformationList_ajaxResult.get("msg").equals("交换机连接失败")
                     || basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")
                     || basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败")){
-
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+"。"+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
                                 "问题为:"+basicInformationList_ajaxResult.get("msg")+"。\r\n");
-
                 return;
             }
 
@@ -105,14 +94,9 @@ public class ScanThread extends Thread  {
             }
             /* 返回AjaxResult长度不为0 则赋值可扫描交换机问题集合 */
             List<TotalQuestionTable> totalQuestionTableList = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
-
-
             /*筛选匹配度高的交换机问题*/
             List<TotalQuestionTable> TotalQuestionTablePojoList = InspectionMethods.ObtainPreciseEntityClasses(totalQuestionTableList);
-
-
             for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){
-
                 /*告警、异常信息写入*/
                 if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
                     //传输登陆人姓名 及问题简述
@@ -131,23 +115,24 @@ public class ScanThread extends Thread  {
                 }
 
                 if (totalQuestionTable.getLogicalID().indexOf("命令") != -1){
-
                     /* 交换机返回结果未结束标志符：   ---- More ----    */
                     switchParameters.setNotFinished(totalQuestionTable.getNotFinished());
-
                     //根据命令ID获取具体命令，执行
                     //返回  交换机返回信息 和  第一条分析ID
                     CommandReturn commandReturn = switchInteraction.executeScanCommandByCommandId(switchParameters,totalQuestionTable,totalQuestionTable.getLogicalID().replace("命令",""));
-                    if (!commandReturn.isSuccessOrNot()){
+                    if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                        break;
+                    }else if (!commandReturn.isSuccessOrNot()){
                         /*交换机返回错误信息处理
                          * 遍历下一个问题*/
                         continue;
                     }
-
                     //分析
                     String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters, totalQuestionTable,
                             commandReturn ,  "",  "");
-
+                    if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                        break;
+                    }
                 }else if (totalQuestionTable.getLogicalID().indexOf("分析") != -1){
 
                     CommandReturn commandReturn = new CommandReturn();
@@ -157,7 +142,9 @@ public class ScanThread extends Thread  {
                     //分析
                     String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters, totalQuestionTable,
                             commandReturn,  "",  "");
-
+                    if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                        break;
+                    }
                 }
             }
 
@@ -174,7 +161,6 @@ public class ScanThread extends Thread  {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-
             countDownLatch.countDown();
         }
     }

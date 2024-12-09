@@ -46,8 +46,6 @@ public class OSPFFeatures {
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
 
-
-
         // 获取OSPF命令对象
         AjaxResult ospfCommandPojo = getOspfCommandPojo(switchParameters);
         if (ospfCommandPojo == null){
@@ -57,9 +55,6 @@ public class OSPFFeatures {
         }
         OspfCommand ospfCommand = (OspfCommand) ospfCommandPojo.get("data");
 
-
-
-
         // 获取OSPF命令执行结果
         AjaxResult ospfCommandReturnResult = getOSPFCommandReturnResult(switchParameters, ospfCommand);
         if (ospfCommandReturnResult == null){
@@ -68,9 +63,6 @@ public class OSPFFeatures {
             return ospfCommandReturnResult;
         }
         List<String> commandReturn_List = (List<String>) ospfCommandReturnResult.get("data");
-
-
-
 
         // 获取OSPF数据列表
         AjaxResult OSPFPojoList = retrieveOSPFData(switchParameters, commandReturn_List);
@@ -83,10 +75,6 @@ public class OSPFFeatures {
         }
         List<OSPFPojo> pojoList = (List<OSPFPojo>) OSPFPojoList.get("data");
 
-
-
-
-
         // 获取OSPF异常判断结果
         AjaxResult ajaxResult = obtainOSPFExceptionJudgmentResults(switchParameters, pojoList);
         // 检查线程中断标志
@@ -94,7 +82,6 @@ public class OSPFFeatures {
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
-
 
         return ajaxResult;
     }

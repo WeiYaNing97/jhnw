@@ -293,17 +293,16 @@ public class LightAttenuationTest {
 
         HashMap<String,Double> hashMap = new HashMap<>();
 
-        if (Double.valueOf(txpower).doubleValue() == 50.0 || Double.valueOf(rxpower).doubleValue() == 50.0)
+        if (Double.valueOf(txpower).doubleValue() == 50.0 || Double.valueOf(rxpower).doubleValue() == 50.0){
             return hashMap;
+        }
 
         /**
          * 为什么等于1时为null？
          */
         hashMap.put("TX", txpower);/*Double.valueOf(txpower).doubleValue() == 1?null:txpower*/
         hashMap.put("RX", rxpower);/*Double.valueOf(rxpower).doubleValue() == 1?null:rxpower*/
-
         return hashMap;
-
     }
 
     /**

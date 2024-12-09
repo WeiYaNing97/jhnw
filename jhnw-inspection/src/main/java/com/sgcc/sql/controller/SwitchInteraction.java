@@ -115,7 +115,7 @@ public class SwitchInteraction {
 
         /*连接交换机   返回交换机信息 */
         AjaxResult requestConnect_ajaxResult = null;
-        for (int number = 0; number <1 ; number++){
+        for (int number = 0; number < 3 ; number++){
             /* 连接交换机返回 交换机信息类 */
             ConnectToObtainInformation connectToObtainInformation = new  ConnectToObtainInformation();
             requestConnect_ajaxResult = connectToObtainInformation.requestConnect(switchParameters);
@@ -127,22 +127,16 @@ public class SwitchInteraction {
         //如果返回为 交换机连接失败 则连接交换机失败
         /*交换机连接失败 前端显示连接失败原因 写入日志*/
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
-
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
-
                     String loginErrorString = loginError.get(number);
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "交换机连接",
                             "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
-
                 }
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), null, "交换机连接",
                     "风险:"+ switchParameters.getIp() + "交换机连接失败\r\n");
-
             return "交换机连接失败";
         }
 
@@ -181,27 +175,24 @@ public class SwitchInteraction {
 
             //将相同ID  时间戳 的 实体类 放到一个实体
             List<ProblemScanLogic> problemScanLogics = InspectionMethods.definitionProblem(problemScanLogicList);
-
             //获取交换机基本信息
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
             AjaxResult basicInformationList_ajaxResult = getBasicInformationTest(switchParameters,command,problemScanLogics);   //getBasicInformationList
+            if (basicInformationList_ajaxResult == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return  null;
+            }
             switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
             /*关闭连接交换机*/
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
             }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                 switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
             }
-
             return "设备品牌:"+switchParameters.getDeviceBrand()+"设备型号:"+switchParameters.getDeviceModel()
                     +"内部固件版本:"+switchParameters.getFirmwareVersion()+"子版本号:"+switchParameters.getSubversionNumber();
-
         }else {
-
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
-
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
                     String loginErrorString = loginError.get(number);
@@ -209,11 +200,9 @@ public class SwitchInteraction {
                             "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "交换机连接",
                     "风险:"+switchParameters.getIp() + "交换机连接失败\r\n");
         }
-
         return  "交换机连接失败";
     }
 
@@ -226,6 +215,14 @@ public class SwitchInteraction {
     @PostMapping("/formworkScann/{formworkId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "模板扫描", businessType = BusinessType.OTHER)
     public String formworkScann(@ApiParam(name = "switchInformation", value = "交换机登录信息集合") @RequestBody List<String> switchInformation,@PathVariable  Long formworkId,@PathVariable  Long scanNum) {
+        // 获取用户信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 设置扫描标记
+        String scanMark = loginUser.getUsername() + ":模板扫描";
+        // 设置扫描标记为false
+        WorkThreadMonitor.setShutdown_Flag(scanMark,false);
+
+
         // 获取FormworkService实例
         formworkService = SpringBeanUtil.getBean(IFormworkService.class);
         // 查询问题模板信息
@@ -236,13 +233,89 @@ public class SwitchInteraction {
         List<String> totalQuestionTableId = Arrays.stream(formworkSplit).collect(Collectors.toList());
 
 
-        // 调用directionalScann方法进行模板扫描
-        String formworkScann = directionalScann(switchInformation, totalQuestionTableId, scanNum);
+        /**
+         * 专项扫描
+         */
+        // 获取当前时间，格式化为字符串
+        String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        /*交换机信息集合*/
+        List<SwitchParameters> switchParametersList = new ArrayList<>();
 
+        // 遍历交换机登录信息集合
+        for (String information : switchInformation) {
+            // 将JSON字符串解析为SwitchLoginInformation对象
+            SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
+            // 创建SwitchParameters对象
+            SwitchParameters switchParameters = new SwitchParameters();
+            // 设置扫描标记
+            switchParameters.setScanMark(scanMark);
+            // 设置登录用户
+            switchParameters.setLoginUser(loginUser);
+            // 设置扫描时间
+            switchParameters.setScanningTime(simpleDateFormat);
+            // 将switchLoginInformation对象的属性复制到switchParameters对象
+            BeanUtils.copyBeanProp(switchParameters, switchLoginInformation);
+            // 将端口号转换为int类型并设置
+            switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
+            // 将switchParameters对象添加到交换机信息集合中
+            switchParametersList.add(switchParameters);
+        }
 
-        // 返回扫描结果
-        return formworkScann;
+        /*交换机问题表集合*/
+        List<Long> idScan = new ArrayList<>();
+
+        /*运行分析集合*/
+        List<String> advancedName = new ArrayList<>();
+        /* 遍历专项扫描问题集合*/
+        for (String id : totalQuestionTableId) {
+            /*判断字符串是否为全数字*/
+            if (MyUtils.allIsNumeric(id)) {
+                /*交换机问题表*/
+                idScan.add(Long.valueOf(id).longValue());
+            } else {
+                /*运行分析*/
+                advancedName.add(id);
+            }
+        }
+
+        /*根据交换机问题表ID集合 查询问题表数据*/
+        ParameterSet parameterSet = new ParameterSet();
+        // 设置登录用户
+        parameterSet.setLoginUser(SecurityUtils.getLoginUser());
+        // 将idScan集合转换为Long数组
+        Long[] ids = idScan.toArray(new Long[idScan.size()]);
+        List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        // 创建WebSocketService实例
+        WebSocketService webSocketService = new WebSocketService();
+
+        // 判断ids数组长度是否不为0
+        if (ids.length != 0) {
+            // 获取TotalQuestionTableService实例
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class); // 解决多线程时service为null的问题
+            // 根据ids数组查询问题表数据
+            totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
+        } else if (ids.length == 0 && advancedName.size() == 0) {
+            // 如果ids数组长度为0且运行分析集合长度为0，则发送扫描结束消息
+            webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(), "接收:" + "扫描结束\r\n");
+            return "扫描结束";
+        }
+
+        // 设置线程数
+        parameterSet.setThreadCount(Integer.valueOf(scanNum + "").intValue()); /* 线程 */
+        // 设置交换机信息表
+        parameterSet.setSwitchParameters(switchParametersList); /* 交换机信息表 */
+
+        if (WorkThreadMonitor.getShutdown_Flag(scanMark)){
+            return "终止扫描";
+        }
+
+        // 调用directional方法并返回结果
+        String directional = directional(parameterSet, totalQuestionTables, advancedName);
+        WorkThreadMonitor.remove_Thread(scanMark);
+
+        return directional;
     }
+
 
 
 
@@ -259,61 +332,107 @@ public class SwitchInteraction {
     })
     @PostMapping("/directionalScann/{totalQuestionTableId}/{scanNum}")///{totalQuestionTableId}/{scanNum}
     @MyLog(title = "专项扫描", businessType = BusinessType.OTHER)
-    public  String directionalScann(@RequestBody List<String> switchInformation,@PathVariable  List<String> totalQuestionTableId,@PathVariable  Long scanNum) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
-
+    public String directionalScann(@RequestBody List<String> switchInformation, @PathVariable List<String> totalQuestionTableId, @PathVariable Long scanNum) {
+        // 获取用户信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 设置扫描标记
+        String scanMark = loginUser.getUsername() + ":专项扫描";
+        // 设置扫描标记为false
+        WorkThreadMonitor.setShutdown_Flag(scanMark, false);
+        // 获取当前时间，格式化为字符串
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         /*交换机信息集合*/
         List<SwitchParameters> switchParametersList = new ArrayList<>();
-        for (String information:switchInformation){
+        // 遍历交换机登录信息集合
+        for (String information : switchInformation) {
+            // 将JSON字符串解析为SwitchLoginInformation对象
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
-
+            // 创建SwitchParameters对象
             SwitchParameters switchParameters = new SwitchParameters();
-            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
+            // 设置扫描标记
+            switchParameters.setScanMark(scanMark);
+            // 设置登录用户
+            switchParameters.setLoginUser(loginUser);
+            // 设置扫描时间
             switchParameters.setScanningTime(simpleDateFormat);
-
-            BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
+            // 将switchLoginInformation对象的属性复制到switchParameters对象
+            BeanUtils.copyBeanProp(switchParameters, switchLoginInformation);
+            // 将端口号转换为int类型并设置
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
+            // 将switchParameters对象添加到交换机信息集合中
             switchParametersList.add(switchParameters);
-
         }
 
         /*交换机问题表集合*/
         List<Long> idScan = new ArrayList<>();
-
         /*运行分析集合*/
         List<String> advancedName = new ArrayList<>();
         /* 遍历专项扫描问题集合*/
-        for (String id:totalQuestionTableId){
+        for (String id : totalQuestionTableId) {
             /*判断字符串是否为全数字*/
-            if (MyUtils.allIsNumeric(id)){
+            if (MyUtils.allIsNumeric(id)) {
                 /*交换机问题表*/
                 idScan.add(Long.valueOf(id).longValue());
-            }else {
+            } else {
                 /*运行分析*/
                 advancedName.add(id);
             }
         }
-
         /*根据交换机问题表ID集合 查询问题表数据*/
         ParameterSet parameterSet = new ParameterSet();
+        // 设置登录用户
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());
+        // 将idScan集合转换为Long数组
         Long[] ids = idScan.toArray(new Long[idScan.size()]);
         List<TotalQuestionTable> totalQuestionTables = new ArrayList<>();
+        // 创建WebSocketService实例
         WebSocketService webSocketService = new WebSocketService();
-
-        if (ids.length != 0 ){
-            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class);//解决 多线程 service 为null问题
+        // 判断ids数组长度是否不为0
+        if (ids.length != 0) {
+            // 获取TotalQuestionTableService实例
+            totalQuestionTableService = SpringBeanUtil.getBean(ITotalQuestionTableService.class); // 解决多线程时service为null的问题
+            // 根据ids数组查询问题表数据
             totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableByIds(ids);
-        }else if (ids.length == 0 && advancedName.size() == 0){
-            webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:"+"扫描结束\r\n");
+        } else if (ids.length == 0 && advancedName.size() == 0) {
+            // 如果ids数组长度为0且运行分析集合长度为0，则发送扫描结束消息
+            webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(), "接收:" + "扫描结束\r\n");
             return "扫描结束";
         }
+        // 设置线程数
+        parameterSet.setThreadCount(Integer.valueOf(scanNum + "").intValue()); /* 线程 */
+        // 设置交换机信息表
+        parameterSet.setSwitchParameters(switchParametersList); /* 交换机信息表 */
+        // 如果扫描标记为true，则直接返回"扫描结束"
+        if (WorkThreadMonitor.getShutdown_Flag(scanMark)) {
+            return "终止扫描";
+        }
+        // 调用directional方法并获取结果
+        String directional = directional(parameterSet, totalQuestionTables, advancedName);
+        // 移除扫描标记
+        WorkThreadMonitor.remove_Thread(scanMark);
+        return directional;
+    }
 
-        parameterSet.setThreadCount(Integer.valueOf(scanNum+"").intValue());/*线程*/
-        parameterSet.setSwitchParameters(switchParametersList);/*交换机信息表*/
+
+    /**
+     * 专项扫描方法
+     *
+     * @param parameterSet 参数集合，包含登录用户信息、线程数、交换机信息等
+     * @param totalQuestionTables 问题表集合，包含多个问题表的信息
+     * @param advancedName 运行分析集合，包含需要运行分析的问题名称
+     * @return 返回字符串"扫描结束"
+     */
+    public  String directional(ParameterSet parameterSet,
+                               List<TotalQuestionTable> totalQuestionTables,
+                               List<String> advancedName) {//@RequestBody List<String> switchInformation,@PathVariable  List<Long> totalQuestionTableId,@PathVariable  Long scanNum
+
+        if (WorkThreadMonitor.getShutdown_Flag(parameterSet.getSwitchParameters().get(0).getScanMark())){
+            return "终止扫描";
+        }
 
         try {
+            // 初始化DirectionalScanThreadPool对象
             //boolean isRSA = true; 密码是否 RSA加密
             DirectionalScanThreadPool directionalScanThreadPool = new DirectionalScanThreadPool();
             directionalScanThreadPool.switchLoginInformations(parameterSet, totalQuestionTables, advancedName,true);
@@ -321,6 +440,7 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
 
+        WebSocketService webSocketService = new WebSocketService();
         //传输登陆人姓名 及问题简述
         webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:扫描结束\r\n");
 
@@ -334,7 +454,6 @@ public class SwitchInteraction {
 
         return "扫描结束";
     }
-
 
     /*Inspection Completed*/
     /**
@@ -354,6 +473,13 @@ public class SwitchInteraction {
     public String multipleScans(@RequestBody List<String> switchInformation,
                                 @PathVariable  Long scanNum) {
 
+        // 获取用户信息
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        // 设置扫描标记
+        String scanMark = loginUser.getUsername() + ":安全配置";
+        // 设置扫描标记为false
+        WorkThreadMonitor.setShutdown_Flag(scanMark, false);
+
         /* 交换机登录信息集合 及 系统登录人信息 线程数 */
         ParameterSet parameterSet = new ParameterSet();
         parameterSet.setLoginUser(SecurityUtils.getLoginUser());/*程序登陆人*/
@@ -362,21 +488,18 @@ public class SwitchInteraction {
         /* 交换机登录信息集合 */
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         for (String information:switchInformation){
-
             /* 交换机登录信息 转化为 实体类 */
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
-
             // 四个参数 设默认值
             SwitchParameters switchParameters = new SwitchParameters();
-            switchParameters.setLoginUser(SecurityUtils.getLoginUser());
+            switchParameters.setScanMark(scanMark);
+            switchParameters.setLoginUser(loginUser);
             switchParameters.setScanningTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));/*扫描时间*/
             BeanUtils.copyBeanProp(switchParameters,switchLoginInformation);
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
-
             //以多线程中的格式 存放数组中
             //连接方式，ip，用户名，密码，端口号
             switchParametersList.add(switchParameters);
-
         }
 
         /* 交换机登录信息集合 */
@@ -396,6 +519,8 @@ public class SwitchInteraction {
         //传输登陆人姓名 及问题简述
         WebSocketService webSocketService = new WebSocketService();
         webSocketService.sendMessage(parameterSet.getLoginUser().getUsername(),"接收:扫描结束\r\n");
+        // 根据给定的键移除对应的线程关闭标志位
+        WorkThreadMonitor.remove_Thread(scanMark);
 
         try {
             //插入问题简述及问题路径
@@ -405,6 +530,19 @@ public class SwitchInteraction {
             e.printStackTrace();
         }
         return "扫描结束";
+    }
+
+    /**
+     * 终止高级线程池。
+     *
+     * 该方法用于终止指定用户的高级线程池，并从HashMap中移除对应的线程池对象。
+     */
+    /* 全面扫描终止 */
+    @PostMapping("/terminationScann/{scanClassification}")
+    public void terminationScann(@PathVariable String scanClassification){
+        /*设置线程中断标志*/
+        WorkThreadMonitor.setShutdown_Flag(SecurityUtils.getLoginUser().getUsername()+":"+scanClassification,true);
+
     }
 
 
@@ -429,28 +567,22 @@ public class SwitchInteraction {
         if (basicInformationList_ajaxResult.get("msg").equals("交换机连接失败")
                 || basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")
                 || basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败")){
-
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+"。"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
                             "问题为:"+basicInformationList_ajaxResult.get("msg")+"。\r\n");
-
             return basicInformationList_ajaxResult;
         }
 
         /*交换机登录信息 通过获取交换机基本信息 该实体类已经包含交换机基本信息*/
         switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
-
-
         /** 普通扫描是否含有运行分析 ， 如果含有运行分析在接下来先扫描运行分析 */
         if (advancedName != null && advancedName.size() != 0){
-
             for (String function:advancedName){
                 switch (function){
                     case "OSPF":
@@ -465,14 +597,11 @@ public class SwitchInteraction {
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
                         break;
-
-
                     case "路由聚合":
                         // 创建RouteAggregation对象并执行obtainAggregationResults方法
                         RouteAggregation routeAggregation = new RouteAggregation();
                         routeAggregation.obtainAggregationResults(switchParameters);
                         break;
-
                     case "链路捆绑":
                         // 创建LinkBundling对象并执行linkBindingInterface方法
                         LinkBundling linkBundling = new LinkBundling();
@@ -487,7 +616,6 @@ public class SwitchInteraction {
         //5.获取交换机可扫描的问题并执行分析操作
         /*当 totalQuestionTables 不为空时，为专项扫描*/
         AjaxResult ajaxResult = scanProblem(switchParameters,totalQuestionTables);
-
         /* 关闭交换机连接 */
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
@@ -546,7 +674,6 @@ public class SwitchInteraction {
                     //  WebSocket 传输 命令
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                             switchParameters.getIp()+"发送:"+command+"\r\n");
-
                     //command
                     /*根据交换机信息类 与 具体命令，执行并返回交换机返回信息
                      * 返回结果
@@ -566,13 +693,11 @@ public class SwitchInteraction {
 
                     commandString_List = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,switchParameters.getNotFinished());
                 }
-
                 StringBuffer stringBuffer = new StringBuffer();
                 for (String returnString : commandString_List){
                     stringBuffer.append(returnString).append("\r\n");
                 }
                 stringBuffer = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
-
                 //  WebSocket 传输 交换机返回结果
                 returnRecord.setCurrentReturnLog(stringBuffer);
                 //粗略查看是否存在 故障
@@ -580,7 +705,6 @@ public class SwitchInteraction {
                 boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, stringBuffer);
                 // 存在故障返回 false
                 if (!switchfailure){
-
                     // 遍历交换机返回信息数组
                     for (String returnString:commandString_List){
                         // 查看是否存在 故障
@@ -588,10 +712,8 @@ public class SwitchInteraction {
                         deviceBrand = FunctionalMethods.switchfailure(switchParameters, new StringBuffer(returnString));
                         // 存在故障返回 false
                         if (!deviceBrand){
-
                             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                     "故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
-
                             returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
                             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                                 //command
@@ -619,19 +741,15 @@ public class SwitchInteraction {
                     //传输登陆人姓名 及问题简述
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                             "错误:交换机执行"+commandtrim+"命令返回信息插入失败\r\n");
-
                 }
-
             }while (!deviceBrand);
             returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
             returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_Int).longValue());
-
             StringBuffer stringBuffer = new StringBuffer();
             for (String returnString : commandString_List){
                 stringBuffer.append(returnString).append("\r\n");
             }
             stringBuffer = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
-
             //去除其他 交换机登录信息
             stringBuffer = FunctionalMethods.removeLoginInformation(stringBuffer);
 
@@ -639,10 +757,8 @@ public class SwitchInteraction {
             // 返回日志内容
             StringBuffer current_return_log = new StringBuffer();
             if (commandString_List.size() !=1 ){
-
                 current_return_log = StringBufferUtils.substring(stringBuffer, 0, stringBuffer.length() - commandString_List.get(commandString_List.size() - 1).length() - 2);
                 returnRecord.setCurrentReturnLog(current_return_log);
-
                 //返回日志前后都有\r\n 可以改为 current_return_log.endsWith("\r\n");
                 StringBuffer current_return_log_substring_end = StringBufferUtils.substring(current_return_log,current_return_log.length() - 2, current_return_log.length());
                 if (!current_return_log_substring_end.toString().equals("\r\n")){
@@ -669,12 +785,8 @@ public class SwitchInteraction {
             if (current_identifier_substring_start.equals("\r\n")){
                 current_identifier = current_identifier.substring(2,current_identifier.length());
             }
-
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
-
-
             //存储交换机返回数据 插入数据库
             returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
             int update = returnRecordService.updateReturnRecord(returnRecord);
@@ -683,10 +795,8 @@ public class SwitchInteraction {
                 //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
                 for (String string_split:commandString_List){
                     if (!FunctionalMethods.judgmentError( switchParameters,new StringBuffer(string_split))){
-
                         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                 "风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
-
                         break;
                     }
                 }
@@ -721,6 +831,10 @@ public class SwitchInteraction {
         String extractInformation_string1 = analysisReturn(switchParameters,null,
                 return_sum_List, first_problem_scanLogic_Id,problemScanLogicList);
         //extractInformation_string1 = extractInformation_string1.replace(",","");
+        // 判断线程是否关闭 关闭则结束当前线程
+        if (extractInformation_string1 == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         /*自定义分隔符*/
         String customDelimiter = null;
@@ -752,14 +866,8 @@ public class SwitchInteraction {
                 num = num+2;
                 switchParameters.setSubversionNumber(return_result_split[num]);
             }
-            // 根据交换机信息查询 获取 扫描问题的 命令ID
-            /*List<String> stringList = new ArrayList<>();
-                    stringList.add(deviceBrand);
-                    stringList.add(deviceModel);
-                    stringList.add(firmwareVersion);
-                    stringList.add(subversionNumber);
-                    WebSocketService.sendMessage("basicinformation"+userName,stringList);*/
 
+            // 根据交换机信息查询 获取 扫描问题的 命令ID
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     "系统信息:"+switchParameters.getIp()+
                             "基本信息:设备品牌:"+switchParameters.getDeviceBrand()+
@@ -875,7 +983,6 @@ public class SwitchInteraction {
 
                         commandString = switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent(),command,switchParameters.getNotFinished());
                     }
-
                     StringBuffer stringBuffer = new StringBuffer();
                     for (String string : commandString) {
                         stringBuffer.append(string).append("\r\n");
@@ -883,7 +990,6 @@ public class SwitchInteraction {
                     stringBuffer = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
                     //  WebSocket 传输 交换机返回结果
                     returnRecord.setCurrentReturnLog(stringBuffer);
-
                     //粗略查看是否存在 故障
                     // 存在故障返回 false 不存在故障返回 true
                     boolean switchfailure = FunctionalMethods.switchfailure(switchParameters, stringBuffer);
@@ -899,10 +1005,8 @@ public class SwitchInteraction {
                             // 存在故障返回 false
                             if (!deviceBrand){
                                 loop = true;
-
                                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                         "故障:"+switchParameters.getIp() + ":"+returnString+"\r\n");
-
                                 returnRecord.setCurrentIdentifier(switchParameters.getIp() + "出现故障:"+returnString);
                                 if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                                     //command
@@ -910,15 +1014,12 @@ public class SwitchInteraction {
                                      * 返回结果
                                      * 如果交换机返回信息错误，则返回信息为 null*/
                                     ExecuteCommand executeCommand = new ExecuteCommand();
-
                                     commandString = executeCommand.executeScanCommandByCommand(switchParameters, " ");
                                     if (commandString.size() == 0){
                                         //交换机返回信息错误 导致 方法返回值为null
                                         //所谓 修复失败 则返回错误
                                         break;
                                     }
-
-
                                     //switchParameters.getConnectMethod().sendCommand(switchParameters.getIp(),switchParameters.getSshConnect()," ",switchParameters.getNotFinished());
                                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
                                     switchParameters.getTelnetSwitchMethod().sendCommand(switchParameters.getIp(),switchParameters.getTelnetComponent()," ",switchParameters.getNotFinished());
@@ -932,32 +1033,25 @@ public class SwitchInteraction {
                         //传输登陆人姓名 及问题简述
                         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                 "错误:交换机返回信息插入失败\r\n");
-
                     }
                 }while (!deviceBrand);
-
                 if (commandString == null){
                     //交换机返回信息错误 导致 方法返回值为null
                     //所谓 修复失败 则返回错误
                     break;
                 }
-
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
                 returnRecord = returnRecordService.selectReturnRecordById(Integer.valueOf(insert_Int).longValue());
-
                 StringBuffer stringBuffer = new StringBuffer();
                 for (String string : commandString) {
                     stringBuffer.append(string).append("\r\n");
                 }
                 stringBuffer = StringBufferUtils.substring(stringBuffer,0,stringBuffer.length()-2);
-
                 // 返回日志内容
                 StringBuffer current_return_log = new StringBuffer();
                 if (commandString.size() !=1 ){
                     /*通过截取 去除 标识符 和 标识符与返回日志中间的 \r\n*/
-
                     current_return_log = StringBufferUtils.substring(stringBuffer,0, stringBuffer.length() - commandString.get(commandString.size() - 1).length() - 2);
-
                     returnRecord.setCurrentReturnLog(current_return_log);
                     //返回日志前后都有\r\n 可以改为 current_return_log.endsWith("\r\n");
                     //测试一下endsWith() startsWith()方法
@@ -965,7 +1059,6 @@ public class SwitchInteraction {
                     //endsWith() 方法用于测试字符串是否以指定的后缀结束。
                     //startsWith() 前缀
                     StringBuffer current_return_log_substring_end = StringBufferUtils.substring(current_return_log,current_return_log.length() - 2, current_return_log.length());
-
                     if (!current_return_log_substring_end.equals("\r\n")){
                         current_return_log.append("\r\n");
                     }
@@ -974,14 +1067,11 @@ public class SwitchInteraction {
                         current_return_log.insert(0,"\r\n");
                     }
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                         switchParameters.getIp()+"接收:"+current_return_log+"\r\n");
-
                 //当前标识符 如：<H3C> [H3C]
                 String current_identifier = commandString.get(commandString.size() - 1);
                 returnRecord.setCurrentIdentifier(current_identifier);
-
                 //当前标识符前后都没有\r\n
                 //测试一下endsWith() startsWith()方法
                 //返回日志前后都有\r\n 可以改为 current_return_log.endsWith("\r\n");
@@ -995,38 +1085,30 @@ public class SwitchInteraction {
                 if (current_identifier_substring_start.equals("\r\n")){
                     current_identifier = current_identifier.substring(2,current_identifier.length());
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                         switchParameters.getIp()+"接收:"+current_identifier+"\r\n");
-
                 //存储交换机返回数据 插入数据库
                 returnRecordService = SpringBeanUtil.getBean(IReturnRecordService.class);//解决 多线程 service 为null问题
                 int update = returnRecordService.updateReturnRecord(returnRecord);
-
                 StringBuffer returnStringBuffer = new StringBuffer();
                 for (String commandReturnString : commandString) {
                     returnStringBuffer.append(commandReturnString).append("\r\n");
                 }
                 returnStringBuffer = StringBufferUtils.substring(returnStringBuffer,0,
                         returnStringBuffer.length()-2);
-
                 //判断命令是否错误 错误为false 正确为true
                 if (!FunctionalMethods.judgmentError( switchParameters,returnStringBuffer)){
                     //如果返回信息错误 则结束当前命令，执行 遍历数据库下一条命令字符串(,)
-
                     for (String string_split:commandString){
                         if (!FunctionalMethods.judgmentError( switchParameters,new StringBuffer(string_split))){
                             loop = true;
-
                             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                                     "风险:"+switchParameters.getIp()+ ":" +command+ ":"+string_split+"\r\n");
-
                             continue;
                         }
                     }
                     continue;
                 }
-
                 //当前命令字符串 返回命令总和("\r\n"分隔)
                 return_sum.add(commandtrim);
                 return_sum.addAll(commandString);
@@ -1038,30 +1120,28 @@ public class SwitchInteraction {
             if (loop){
                 continue;
             }
-
             if (basicInformation.getProblemId() == null){
                 continue;
             }
-
             //分析第一条ID basicInformation.getProblemId() (为 问题扫描逻辑表  ID)
             String first_problem_scanLogic_Id = basicInformation.getProblemId();
             // 根据交换机返回信息、分析ID 分析逻辑集合获取交换机基本信息
             //进行分析 返回总提取信息
             String extractInformation_string1 = analysisReturn(switchParameters,null,
                     return_sum, first_problem_scanLogic_Id,null);
+            if (extractInformation_string1 == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
+
             if (extractInformation_string1.indexOf("错误") !=-1){
                 continue;
             }
-
             if (extractInformation_string1.equals("") || extractInformation_string1 == null){
                 continue;
             }
-
             //extractInformation_string1 = extractInformation_string1.replace(",","");
-
             /*自定义分隔符*/
             String[] return_result_split = extractInformation_string1.split(customDelimiter);
-
             for (int num = 0;num<return_result_split.length;num++){
                 //设备型号
                 if (return_result_split[num].equals("设备型号")){
@@ -1111,17 +1191,13 @@ public class SwitchInteraction {
                     return AjaxResult.success(switchParameters);
                 }
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
                     "系统信息:"+switchParameters.getIp() +
                             "基本信息:设备品牌:"+switchParameters.getDeviceBrand()+
                             "设备型号:"+switchParameters.getDeviceModel()+
                             "内部固件版本:"+switchParameters.getFirmwareVersion()+
                             "子版本号:"+switchParameters.getSubversionNumber()+"\r\n");
-
-
         }
-
         return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
     }
 
@@ -1152,20 +1228,18 @@ public class SwitchInteraction {
                 "", "",
                 0, first_problem_scanLogic_Id ,problemScanLogicList, null,0, 0, numberOfCycles);// loop end
 
-        if (strings == null){
+        if (strings == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }else if (strings == null){
             return "获取基本信息错误";
         }
-
         if (strings.indexOf("错误") !=-1){
             return strings;
         }
-
         /*去除标识符 （TM）*/
         strings = removeIdentifier(strings);
-
         //控制台 输出  交换机 基本信息
         //System.err.print("\r\n基本信息："+strings+"\r\n");
-
         return strings;
     }
 
@@ -1217,6 +1291,10 @@ public class SwitchInteraction {
                                              Integer insertsInteger,
                                              Integer loop,Integer numberOfCycles) {
 
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
+
         /** 创建对象： 将要执行的ID */
         /*默认使用当前分析ID : currentID
         判断当前分析ID(currentID)是否为空。
@@ -1227,8 +1305,6 @@ public class SwitchInteraction {
         if (currentID == null){
             id = firstID;
         }
-
-
 
         /**判断逻辑 是通过数据表获取 还是前端传入数据*/
         // 分析逻辑是否为空，以及是查询数据库还是使用预加载数据
@@ -1243,15 +1319,12 @@ public class SwitchInteraction {
         //分析逻辑
         ProblemScanLogic problemScanLogic = null;
         if (problemScanLogicList == null){
-
             /** 可以优化一下，通过分析ID先进行查询逻辑集合，然后根据ID到逻辑集合中获取，可以减少访问数据库次数，又可以与预取交换机基本信息功能一致 */
             //根据ID查询分析数据
             //根据第一条分析ID 查询将要进行的分析逻辑信息
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
             problemScanLogic = problemScanLogicService.selectProblemScanLogicById(id);
-
         }else {
-
             //遍历逻辑集合
             //根据将要进行的分析逻辑ID，取出将要进行的分析逻辑信息
             for (ProblemScanLogic pojo:problemScanLogicList){
@@ -1262,9 +1335,6 @@ public class SwitchInteraction {
 
         }
 
-
-
-
         /**  判断是否是循环逻辑 并处理循环逻辑 */
         // 如果循环ID不为空的话 说明分析数据为 循环分析 则需要 调出循环ID 当做 当前分析ID继续执行
         // 循环分析数据 不需要分析 功能指向循环位置
@@ -1274,13 +1344,12 @@ public class SwitchInteraction {
             loop = loop + 1;
 
             /* 告警、异常信息写入 */
-            if (loop > numberOfCycles){
+            if ( loop > numberOfCycles ){
                 /*循环超过了最大循环次数*/
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:IP地址为:"+switchParameters.getIp()+"。"+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+
@@ -1288,7 +1357,6 @@ public class SwitchInteraction {
                         "。错误:循环超最大次数。\r\n");
                 return null;
             }
-
 
             /*需要调出循环ID 当做 当前分析ID 继续执行分析*/
             /*currentID = problemScanLogic.getCycleStartId();*/
@@ -1305,9 +1373,7 @@ public class SwitchInteraction {
                     insertsInteger, /*问题插入数据库次数*/
                     loop, /*循环次数*/
                     numberOfCycles);/*最大循环次数*/
-
             return loop_string;
-
         }
 
 
@@ -1316,18 +1382,15 @@ public class SwitchInteraction {
         //如果 问题索引字段 不为空 null 则 说明  分析数据 是 分析出问题或者可以结束了
         // problemScanLogic.getProblemId() 可以为 有问题(前端显示:异常) 无问题(前端显示:安全) 完成
         if (problemScanLogic.getProblemId()!=null){
-
             //有问题 无问题  完成
             /*
             查看问题ID(ProblemId)字段。
             如果该字段不为空，则分析出问题了或者分析完成了。
-
             1：如果 ProblemId 字段包含"问题"
             2：ProblemId字段不包含  "问题"  并且ProblemId字段  不包含"完成"  (自定义的问题名称)。
             */
             if (problemScanLogic.getProblemId().indexOf("问题")!=-1
                     || (problemScanLogic.getProblemId().indexOf("问题") ==-1  && !problemScanLogic.getProblemId().equals("完成") )){
-
                 /**自定义的问题名称，*/
                 /*告警、异常信息写入 */
                 /* ProblemId字段不包含  "问题"  并且ProblemId字段  不包含"完成"  (自定义的问题名称)。 */
@@ -1336,42 +1399,32 @@ public class SwitchInteraction {
                     if (subversionNumber!=null){
                         subversionNumber = "、"+subversionNumber;
                     }
-
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                             "异常:IP地址为:"+switchParameters.getIp()+"。"+
                                     "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
                                     "问题类型:"+totalQuestionTable.getTypeProblem()+ "。问题名称:"+totalQuestionTable.getTemProName()+"。\r\n");
                 }
-
-
                 //问题数据 插入问题表
                 Long insertId = insertSwitchScanResult(switchParameters, totalQuestionTable, problemScanLogic, current_Round_Extraction_String);
-
                 if (insertId < 0){
-
                     String subversionNumber = switchParameters.getSubversionNumber();
                     if (subversionNumber!=null){
                         subversionNumber = "、"+subversionNumber;
                     }
-
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null ,
                             "TrueAndFalse:IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                             "问题类型:"+(totalQuestionTable==null?"获取交换机基本信息":(totalQuestionTable.getTypeProblem()+ "问题名称:"+totalQuestionTable.getTemProName()))+
                             "问题数据插入失败\r\n");
-
                     return "问题数据插入失败";
                 }
 
                 //插入问题数据次数 加一
                 insertsInteger++;
-
                 /*单词提取数据清空*/
                 current_Round_Extraction_String = "";
-
                 //根据 用户信息 和 扫描时间 获取扫描出问题数据列表  集合 并放入 websocket
                 new SwitchIssueEcho().getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-
                 //getSwitchScanResultListBySwitchParameters(switchParameters);
                 /*
                 如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
@@ -1379,35 +1432,34 @@ public class SwitchInteraction {
                 */
                 /** 有问题、无问题时，逻辑没有完成 走下一 ID*/
                 if (problemScanLogic.gettNextId() != null){
-
                     /*如果使用 第一条分析ID firstID  则 当前分析ID currentID 要为 null*/
                     String loop_string = selectProblemScanLogicById(switchParameters,totalQuestionTable,
                             return_information_List,"",extractInformation_string,
                             line_n,firstID,problemScanLogicList,
                             problemScanLogic.gettNextId(), /*currentID = problemScanLogic.gettNextId();*/
                             insertsInteger, loop, numberOfCycles);
-
                     return loop_string;
-
                 }
 
                 /*如果tComId不为空时，则调用方法executeScanCommandByCommandId发送新命令，
                 通过analysisReturnResults进行新的分析。*/
                 if (problemScanLogic.gettComId() != null){
-
                     CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
-
-                    if (!commandReturn.isSuccessOrNot()){
+                    // 线程关闭标志
+                    if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                        return null;
+                    }else if (!commandReturn.isSuccessOrNot()){
                         /*交换机返回错误信息处理*/
                         return null;
                     }
 
                     String analysisReturnResults_String = analysisReturnResults(switchParameters,totalQuestionTable,
                             commandReturn,current_Round_Extraction_String, extractInformation_string);
+                    if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                        return null;
+                    }
                     return analysisReturnResults_String;
                 }
-
-
             }
 
 
@@ -1416,11 +1468,9 @@ public class SwitchInteraction {
             // 分析执行 完成
             /*完成有程序分析结束  也可能是 获取基本信息 结束*/
             if (problemScanLogic.getProblemId().equals("完成") && insertsInteger == 0){
-
                 //问题数据 插入问题表  完成
                 //Long insertId = insertSwitchScanResult(switchParameters, totalQuestionTable, problemScanLogic, current_Round_Extraction_String);
                 return extractInformation_string;
-
             }else if (problemScanLogic.getProblemId().equals("完成")){
                 return extractInformation_string;
             }
@@ -1434,17 +1484,14 @@ public class SwitchInteraction {
         /*//相对位置列
         String relativePosition_row ="";*/
         if (problemScanLogic.getRelativePosition()!=null && !(problemScanLogic.getRelativePosition().equals("null"))){
-
             /* present,0
             * 1,0  */
             /*present 当前行*/
             String[] relativePosition_split = problemScanLogic.getRelativePosition().split(",");
-
             //相对位置行
             relativePosition_line = relativePosition_split[0];
             //相对位置列
             /* relativePosition_row = relativePosition_split[1]; */
-
             //匹配方式
             matching_logic = relativePosition_line;
         }
@@ -1579,7 +1626,9 @@ public class SwitchInteraction {
                         insertsInteger, loop, numberOfCycles, problemScanLogic,
                         matching_logic, num);
 
-                if ( matchedReturnString.equals("continue") && num + 1 < return_information_List.size() ){
+                if (matchedReturnString == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    return null;
+                } if ( matchedReturnString.equals("continue") && num + 1 < return_information_List.size() ){
                     continue;
 
                 }else {
@@ -1599,9 +1648,10 @@ public class SwitchInteraction {
                         line_n, firstID, problemScanLogicList, currentID,
                         insertsInteger, loop, numberOfCycles, problemScanLogic,
                         relativePosition_line);
-
-                /* return_information_array[num] */
-                if (actionReturnString.equals("continue") && num + 1 < return_information_List.size() ){
+                // 判断线程是否关闭
+                if (actionReturnString == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    return null;
+                }else if (actionReturnString.equals("continue") && num + 1 < return_information_List.size() ){
                     continue;
                 }
 
@@ -1611,7 +1661,6 @@ public class SwitchInteraction {
 
             //比较
             if (compare!=null){
-
                 String compareReturnString = scanLogicMethods.ComparativeLogicMethod(switchParameters,
                         compare,
                         totalQuestionTable,
@@ -1619,12 +1668,13 @@ public class SwitchInteraction {
                         line_n, firstID, problemScanLogicList, currentID,
                         insertsInteger, loop, numberOfCycles, problemScanLogic);
 
+                // 判断线程是否关闭
+                /*if (compareReturnString == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    return null;
+                }*/
                 return compareReturnString;
-
             }
-
         }
-
         return null;
     }
 
@@ -1954,19 +2004,21 @@ public class SwitchInteraction {
     public CommandReturn executeScanCommandByCommandId(SwitchParameters switchParameters,
                                                       TotalQuestionTable totalQuestionTable,
                                                       String commandId) {
+        // 判断是否停止扫描
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
+
         //命令ID获取具体命令
         commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
         CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandId);
-
         /*告警、异常信息写入*/
         if (commandLogic == null){
             //传输登陆人姓名 及问题简述
             String subversionNumber = switchParameters.getSubversionNumber();
-
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                     "IP地址为:"+switchParameters.getIp()+"。"+
@@ -1975,9 +2027,7 @@ public class SwitchInteraction {
 
             CommandReturn commandReturn = new CommandReturn();
             commandReturn.setSuccessOrNot(false);
-
             return commandReturn;
-
         }
 
         //具体命令
@@ -1985,6 +2035,10 @@ public class SwitchInteraction {
         //执行命令
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> command_string_List = executeCommand.executeScanCommandByCommand(switchParameters, command);
+        if (command_string_List == null
+                && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         //判断是否简单检验 1L为简单校验  默认0L 为分析数据表自定义校验
         String first_problem_scanLogic_Id = "";
@@ -1992,18 +2046,18 @@ public class SwitchInteraction {
             //分析第一条ID
             first_problem_scanLogic_Id = commandLogic.getProblemId();
         }else {
-
             /*接下来还是命令 不进行分析*/
             CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,commandLogic.getEndIndex());
+            if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
             return commandReturn;
-
         }
 
         CommandReturn commandReturn = new CommandReturn();
         if (MyUtils.isCollectionEmpty(command_string_List)){
             /* 是否执行成功 */
             commandReturn.setSuccessOrNot(false);
-
         }else {
             /* 是否执行成功 */
             commandReturn.setSuccessOrNot(true);
@@ -2012,7 +2066,6 @@ public class SwitchInteraction {
             /* 分析ID */
             commandReturn.setAnalysisID(first_problem_scanLogic_Id);
         }
-
         return commandReturn;
     }
 
@@ -2030,15 +2083,17 @@ public class SwitchInteraction {
     public String analysisReturnResults(SwitchParameters switchParameters,
                                         TotalQuestionTable totalQuestionTable,
                                         CommandReturn commandReturn,String current_Round_Extraction_String,String extractInformation_string){
+        // 判断是否停止扫描
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         //配置文件中 获取 最大循环次数  循环 为定义问题的循环 例如 获取多用户
         Integer numberOfCycles = 10;
-
         Object numberOfCyclesObject = CustomConfigurationUtil.getValue("configuration.numberOfCycles", Constant.getProfileInformation());
         if (numberOfCyclesObject instanceof Integer){
             numberOfCycles = (Integer) numberOfCyclesObject;
         }
-
         /*根据分析ID获取问题扫描逻辑详细信息*/
         String problemScanLogic_string = selectProblemScanLogicById(switchParameters, totalQuestionTable,
                 commandReturn.getReturnResults() //交换机返回信息  行信息数组
@@ -2046,6 +2101,10 @@ public class SwitchInteraction {
                 commandReturn.getAnalysisID()  //分析第一条ID
                 ,null,null,0,0,numberOfCycles);// loop end
 
+        //判断是否停止扫描
+        if (problemScanLogic_string == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         return problemScanLogic_string;
     }
@@ -2060,6 +2119,10 @@ public class SwitchInteraction {
      */
     public AjaxResult scanProblem (SwitchParameters switchParameters,
                                   List<TotalQuestionTable> totalQuestionTables) {
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
+
         /* 存储 满足思想基本信息的、将要扫描的 交换机问题 */
         List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
 
@@ -2110,20 +2173,14 @@ public class SwitchInteraction {
 
         /*筛选匹配度高的交换机问题*/
         List<TotalQuestionTable> TotalQuestionTablePojoList = InspectionMethods.ObtainPreciseEntityClasses(totalQuestionTableList);
-
-
-
         for (TotalQuestionTable totalQuestionTable:TotalQuestionTablePojoList){
-
             /*告警、异常信息写入*/
             if (totalQuestionTable.getProblemSolvingId() == null || totalQuestionTable.getProblemSolvingId().equals("null")){
                 //传输登陆人姓名 及问题简述
                 String subversionNumber = switchParameters.getSubversionNumber();
-
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:IP地址为:"+switchParameters.getIp()+"。"+
                         "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
@@ -2132,40 +2189,38 @@ public class SwitchInteraction {
                                 "问题名称为:"+totalQuestionTable.getTemProName()+":"+totalQuestionTable.getProblemName()
                         +",未定义解决问题。\r\n"
                 );
-
             }
-
             if (totalQuestionTable.getLogicalID().indexOf("命令") != -1){
-
                 /* 交换机返回结果未结束标志符：   ---- More ----    */
                 switchParameters.setNotFinished(totalQuestionTable.getNotFinished());
-
                 //根据命令ID获取具体命令，执行
                 //返回  交换机返回信息 和  第一条分析ID
                 CommandReturn commandReturn = executeScanCommandByCommandId(switchParameters,totalQuestionTable,totalQuestionTable.getLogicalID().replace("命令",""));
-                if (!commandReturn.isSuccessOrNot()){
+                if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    return null;
+                }else if (!commandReturn.isSuccessOrNot()){
                     /*交换机返回错误信息处理
                      * 遍历下一个问题*/
                     continue;
                 }
-
                 //分析
                 String analysisReturnResults_String = analysisReturnResults(switchParameters, totalQuestionTable,
                         commandReturn ,  "",  "");
-
+                if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    return null;
+                }
             }else if (totalQuestionTable.getLogicalID().indexOf("分析") != -1){
-
                 CommandReturn commandReturn = new CommandReturn();
                 commandReturn.setReturnResults(new ArrayList<>());
                 commandReturn.setAnalysisID(totalQuestionTable.getLogicalID().replaceAll("分析",""));
-
                 //分析
                 String analysisReturnResults_String = analysisReturnResults(switchParameters, totalQuestionTable,
                         commandReturn,  "",  "");
-
+                if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    return null;
+                }
             }
         }
-
         return new AjaxResult();
     }
 

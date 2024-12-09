@@ -3,10 +3,7 @@ package com.sgcc.sql.util;
 import com.sgcc.share.domain.Constant;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
-import com.sgcc.share.util.CustomConfigurationUtil;
-import com.sgcc.share.util.FunctionalMethods;
-import com.sgcc.share.util.PathHelper;
-import com.sgcc.share.util.StringBufferUtils;
+import com.sgcc.share.util.*;
 import com.sgcc.share.webSocket.WebSocketService;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.domain.CommandReturn;
@@ -57,6 +54,10 @@ public class ScanLogicMethods {
                                              int line_n, String firstID , List<ProblemScanLogic> problemScanLogicList, String currentID,
                                              Integer insertsInteger, Integer loop,Integer numberOfCycles,ProblemScanLogic problemScanLogic,
                                              String matching_logic, int num) {
+        // 判断线程是否关闭
+        if ( WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         /** 匹配方法 */
         // 根据匹配方法 得到是否匹配（成功:true 失败:false）
@@ -87,6 +88,11 @@ public class ScanLogicMethods {
                     return_information_List, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
+
+            // 判断线程是否关闭
+            if (trueLogic == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
 
             return trueLogic;
 
@@ -122,8 +128,11 @@ public class ScanLogicMethods {
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
 
+            // 判断线程是否关闭
+            if (falseLogic == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
             return falseLogic;
-
         }
     }
 
@@ -218,22 +227,10 @@ public class ScanLogicMethods {
             Integer insertsInteger, Integer loop,Integer numberOfCycles,ProblemScanLogic problemScanLogic,
             String relativePosition_line) {
 
-        //取词数  取词的时候没有了通过四项基本信息名称获取数据
-        /*String wordSelection_string = null;
-        if (action.equals("品牌")){
-            wordSelection_string = switchParameters.getDeviceBrand();
-        }else if (action.equals("型号")){
-            wordSelection_string = switchParameters.getDeviceModel();
-        }else if (action.equals("内部固件版本")){
-            wordSelection_string = switchParameters.getFirmwareVersion();
-        }else if (action.equals("子版本号")){
-            wordSelection_string = switchParameters.getSubversionNumber();
-        }else {
-            //取词操作
-            wordSelection_string = FunctionalMethods.wordSelection(
-                    information_line_n,matchContent, //返回信息的一行     matchContent.trim() 提取关键字
-                    relativePosition_line,problemScanLogic.getrPosition(), problemScanLogic.getLength()); //位置 长度WLs
-        }*/
+        // 判断线程是否关闭
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         //取词操作
         StringBuffer wordSelection_string = new StringBuffer();
@@ -246,7 +243,7 @@ public class ScanLogicMethods {
             String s = FunctionalMethods.wordSelection(
                     information_line_n, matchContent, //返回信息的一行     matchContent.trim() 提取关键字
                     relativePosition_line, problemScanLogic.getrPosition(), problemScanLogic.getLength());//位置 长度WLs
-//取词操作
+            //取词操作
             wordSelection_string = new StringBuffer(s);
         }
 
@@ -306,7 +303,10 @@ public class ScanLogicMethods {
                 return_information_List, current_Round_Extraction_String, extractInformation_string,
                 line_n, firstID, problemScanLogicList, currentID,
                 insertsInteger, loop, numberOfCycles, problemScanLogic);
-
+        // 判断线程是否关闭
+        if (trueLogic == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
         return trueLogic;
     }
 
@@ -342,6 +342,10 @@ public class ScanLogicMethods {
             List<String> return_information_List, String current_Round_Extraction_String, String extractInformation_string,
             int line_n, String firstID , List<ProblemScanLogic> problemScanLogicList, String currentID,
             Integer insertsInteger, Integer loop,Integer numberOfCycles,ProblemScanLogic problemScanLogic) {
+
+        if ( WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         /** 比较 */
         boolean compare_boolean = FunctionalMethods.compareVersion(switchParameters,compare,current_Round_Extraction_String);
@@ -384,6 +388,11 @@ public class ScanLogicMethods {
                     return_information_List, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
+            // 判断线程是否关闭
+            if (trueLogic == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
+
             return trueLogic;
         }else {
             /*失败逻辑*/
@@ -391,6 +400,11 @@ public class ScanLogicMethods {
                     return_information_List, current_Round_Extraction_String, extractInformation_string,
                     line_n, firstID, problemScanLogicList, currentID,
                     insertsInteger, loop, numberOfCycles, problemScanLogic);
+            // 判断线程是否关闭
+            if (falseLogic == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
+
             return falseLogic;
         }
 
@@ -423,6 +437,11 @@ public class ScanLogicMethods {
                             int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
                             Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
 
+        // 判断线程是否关闭
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
+
         SwitchInteraction switchInteraction = new SwitchInteraction();
 
         /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
@@ -431,7 +450,9 @@ public class ScanLogicMethods {
             /**发送命令 返回结果*/
             CommandReturn commandReturn = switchInteraction.executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.gettComId());
 
-            if (!commandReturn.isSuccessOrNot()){
+            if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }else if (!commandReturn.isSuccessOrNot()){
                 /*交换机返回错误信息处理*/
                 return null;
             }
@@ -439,6 +460,10 @@ public class ScanLogicMethods {
             /** 分析 */
             String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters,totalQuestionTable,
                     commandReturn,current_Round_Extraction_String, extractInformation_string);
+
+            if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
 
             return analysisReturnResults_String;
         }
@@ -452,13 +477,9 @@ public class ScanLogicMethods {
                     return_information_List,current_Round_Extraction_String,extractInformation_string,
                     line_n,firstID,problemScanLogicList,problemScanLogic.gettNextId(),insertsInteger, loop, numberOfCycles);
 
-            //如果返回信息为null
-            /*if ( ProblemScanLogic_returnstring != null){
-                //内分析传到上一层
-                //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                //extractInformation_string = ProblemScanLogic_returnstring;
-                return ProblemScanLogic_returnstring;
-            }*/
+            if (ProblemScanLogic_returnstring == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
 
             return ProblemScanLogic_returnstring;
 
@@ -493,16 +514,21 @@ public class ScanLogicMethods {
                              List<String> return_information_List, String current_Round_Extraction_String, String extractInformation_string,
                              int line_n, String firstID, List<ProblemScanLogic> problemScanLogicList, String currentID,
                              Integer insertsInteger, Integer loop, Integer numberOfCycles, ProblemScanLogic problemScanLogic) {
+        // 判断线程是否关闭
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
         SwitchInteraction switchInteraction = new SwitchInteraction();
 
         /*判断 命令字段是否为空 不为空 则 进行 发送命令进行分析*/
         if (problemScanLogic.getfComId()!=null && problemScanLogic.getfComId()!=""){
-
             /**发送命令 返回结果*/
             CommandReturn commandReturn  = switchInteraction.executeScanCommandByCommandId(switchParameters,totalQuestionTable,problemScanLogic.getfComId());
-
-            if (!commandReturn.isSuccessOrNot()){
+            // 判断线程是否关闭
+            if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }else if (!commandReturn.isSuccessOrNot()){
                 /*交换机返回错误信息处理*/
                 return null;
             }
@@ -510,6 +536,9 @@ public class ScanLogicMethods {
             /** 分析 */
             String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters,totalQuestionTable,
                     commandReturn ,  current_Round_Extraction_String,  extractInformation_string);
+            if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                return null;
+            }
             return analysisReturnResults_String;
         }
 
@@ -523,17 +552,8 @@ public class ScanLogicMethods {
                     problemScanLogic.getfNextId(), // problemScanLogic.getfNextId(); 下一条frue分析ID
                     insertsInteger, loop, numberOfCycles);
 
-            //如果返回信息为null
-            /*if (ProblemScanLogic_returnstring!=null){
-                //内分析传到上一层
-                //extractInformation_string 是 分析的 总提取信息记录 所以要把内层的记录 传给 外层
-                // extractInformation_string = ProblemScanLogic_returnstring;
-                return ProblemScanLogic_returnstring;
-            }*/
-
             return ProblemScanLogic_returnstring;
         }
-
         return null;
     }
 

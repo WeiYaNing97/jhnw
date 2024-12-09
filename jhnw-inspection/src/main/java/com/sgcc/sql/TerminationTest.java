@@ -5,6 +5,7 @@ import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.ConnectToObtainInformation;
+import com.sgcc.share.util.WorkThreadMonitor;
 import com.sgcc.sql.controller.SwitchInteraction;
 import com.sgcc.sql.domain.CommandReturn;
 import com.sgcc.sql.domain.TotalQuestionTable;
@@ -18,6 +19,10 @@ public class TerminationTest {
     public void logInToGetBasicInformation_scanProblem(SwitchParameters switchParameters,
                                                  List<TotalQuestionTable> totalQuestionTables,
                                                  List<String> advancedName, boolean isRSA) {
+
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return;
+        }
 
         /*连接交换机 获取交换机基本信息*/
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
@@ -63,14 +68,11 @@ public class TerminationTest {
                         ErrorPackage errorPackage = new ErrorPackage();
                         errorPackage.getErrorPackage(switchParameters);
                         break;
-
-
                     case "路由聚合":
                         // 创建RouteAggregation对象并执行obtainAggregationResults方法
                         RouteAggregation routeAggregation = new RouteAggregation();
                         routeAggregation.obtainAggregationResults(switchParameters);
                         break;
-
                     case "链路捆绑":
                         // 创建LinkBundling对象并执行linkBindingInterface方法
                         LinkBundling linkBundling = new LinkBundling();
@@ -86,14 +88,11 @@ public class TerminationTest {
         /*当 totalQuestionTables 不为空时，为专项扫描*/
         /* 存储 满足思想基本信息的、将要扫描的 交换机问题 */
         List<TotalQuestionTable> totalQuestionTableList = new ArrayList<>();
-
         SwitchInteraction switchInteraction = new SwitchInteraction();
-
         /* totalQuestionTables == null 的时候 是扫描全部问题
          * totalQuestionTables != null 的时候 是专项扫描
          * 获取满足思想基本信息的、将要扫描的 交换机问题*/
         if (totalQuestionTables == null){
-
             /* 根据交换机基本信息 查询 可扫描的交换机问题 */
             AjaxResult commandIdByInformation_ajaxResult = switchInteraction.commandIdByInformation(switchParameters);
             /*告警、异常信息写入*/
@@ -110,13 +109,19 @@ public class TerminationTest {
                                 "问题为:未定义交换机问题。\r\n");
 
 
+                /* 关闭交换机连接 */
+                if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                    switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
+                }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                    switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
+                }
+
                 return;
             }
             /* 返回AjaxResult长度不为0 则赋值可扫描交换机问题集合 */
             totalQuestionTableList = (List<TotalQuestionTable>) commandIdByInformation_ajaxResult.get("data");
 
         }else {
-
             //totalQuestionTables != null 是 专项扫描问题
             for (TotalQuestionTable totalQuestionTable:totalQuestionTables){
                 // 匹配符合当前交换机四项基本信息的问题   要么问题和交换机的基本信息相同  要么问题的四项基本信息为*
@@ -124,7 +129,6 @@ public class TerminationTest {
                         && (  totalQuestionTable.getType().equals(switchParameters.getDeviceModel()) || totalQuestionTable.getType().equals("*")  )
                         && (  totalQuestionTable.getFirewareVersion().equals(switchParameters.getFirmwareVersion()) || totalQuestionTable.getFirewareVersion().equals("*")  )
                         && (  totalQuestionTable.getSubVersion().equals(switchParameters.getSubversionNumber()) || totalQuestionTable.getSubVersion().equals("*")  )){
-
                     totalQuestionTableList.add(totalQuestionTable);
                 }else {
                     //不匹配则跳过 继续下一个问题
@@ -163,7 +167,9 @@ public class TerminationTest {
                 //根据命令ID获取具体命令，执行
                 //返回  交换机返回信息 和  第一条分析ID
                 CommandReturn commandReturn = switchInteraction.executeScanCommandByCommandId(switchParameters,totalQuestionTable,totalQuestionTable.getLogicalID().replace("命令",""));
-                if (!commandReturn.isSuccessOrNot()){
+                if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    break;
+                }else if (!commandReturn.isSuccessOrNot()){
                     /*交换机返回错误信息处理
                      * 遍历下一个问题*/
                     continue;
@@ -172,7 +178,9 @@ public class TerminationTest {
                 //分析
                 String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters, totalQuestionTable,
                         commandReturn ,  "",  "");
-
+                if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    break;
+                }
             }else if (totalQuestionTable.getLogicalID().indexOf("分析") != -1){
 
                 CommandReturn commandReturn = new CommandReturn();
@@ -182,16 +190,16 @@ public class TerminationTest {
                 //分析
                 String analysisReturnResults_String = switchInteraction.analysisReturnResults(switchParameters, totalQuestionTable,
                         commandReturn,  "",  "");
-
+                if (analysisReturnResults_String == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    break;
+                }
             }
         }
-
         /* 关闭交换机连接 */
         if (switchParameters.getMode().equalsIgnoreCase("ssh")){
             switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
         }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
             switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
         }
-
     }
 }

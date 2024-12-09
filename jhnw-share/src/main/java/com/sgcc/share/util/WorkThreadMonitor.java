@@ -16,6 +16,12 @@ public class WorkThreadMonitor {
      */
     public static boolean getShutdown_Flag(String key) {
         // 从shutdownFlags中获取以key为键的AtomicBoolean对象
+        if (shutdownFlags == null) {
+            System.err.println("shutdownFlags is null");
+            return false;
+        }
+
+        // 从shutdownFlags中获取以key为键的AtomicBoolean对象
         AtomicBoolean shutdownFlag = shutdownFlags.get(key);
 
         System.err.println("getShutdownFlag:" + shutdownFlag);

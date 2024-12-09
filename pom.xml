@@ -219,11 +219,11 @@
             </dependency>
 
             <!--SQL操作-->
-            <dependency>
+            <!--<dependency>
                 <groupId>com.sgcc</groupId>
                 <artifactId>jhnw-inspection</artifactId>
                 <version>${jhnw.version}</version>
-            </dependency>
+            </dependency>-->
 
         </dependencies>
     </dependencyManagement>

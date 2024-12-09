@@ -26,31 +26,22 @@ public class InspectionMethods {
      * @return 筛选后的交换机问题列表
      */
     public static List<TotalQuestionTable> ObtainPreciseEntityClasses(List<TotalQuestionTable> totalQuestionTableList) {
-
         /*逻辑 定义一个 map集合 key为 范式分类和范式名称 保证问题的唯一*/
         Map<String,TotalQuestionTable> totalQuestionTableHashMap = new HashMap<>();
-
         /*遍历交换机问题集合*/
         for (TotalQuestionTable totalQuestionTable:totalQuestionTableList){
             // 调用comparisonConditions方法，传入HashMap和问题实体进行比较
             comparisonConditions(totalQuestionTableHashMap,totalQuestionTable);
-
         }
-
         /*定义返回格式*/
         List<TotalQuestionTable> TotalQuestionTablePojoList = new ArrayList<>();
-
         /*获取 map 的value值 并更存储到集合中 返回*/
         Iterator<Map.Entry< String, TotalQuestionTable >> iterator = totalQuestionTableHashMap.entrySet().iterator();
-
         while (iterator.hasNext()) {
-
             Map.Entry< String, TotalQuestionTable > entry = iterator.next();
             // 将HashMap中的每个值（即问题实体）添加到返回列表中
             TotalQuestionTablePojoList.add(entry.getValue());
-
         }
-
         return TotalQuestionTablePojoList;
     }
 

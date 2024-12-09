@@ -77,7 +77,7 @@ public class ConnectToObtainInformation {
 
         }
 
-        for (int number = 0; number <1 ; number++){
+        for (int number = 0; number < 3 ; number++){
             // 调用requestConnect方法连接交换机，并获取结果
             requestConnect_ajaxResult = requestConnect(switchParameters);
             if (!(requestConnect_ajaxResult.get("msg").equals("交换机连接失败"))){
@@ -87,19 +87,15 @@ public class ConnectToObtainInformation {
 
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
-
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
             if (loginError != null){
                 for (int number = 1;number<loginError.size();number++){
-
                     String loginErrorString = loginError.get(number);
-
                     // 调用AbnormalAlarmInformationMethod类的afferent方法记录异常信息
                     AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "交换机连接",
                             "异常:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
-
             // 返回交换机连接失败的Ajax结果
             return AjaxResult.error("交换机连接失败");
         }
@@ -338,9 +334,9 @@ public class ConnectToObtainInformation {
             ExecuteCommand executeCommand = new ExecuteCommand();
             commandString = executeCommand.executeScanCommandByCommand(switchParameters, command);
 
-            /*commandString = "";
-            commandString = MyUtils.trimString(commandString);*/
-            if (commandString == null || commandString.size() == 0){
+            if (commandString == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+              return null;
+            } else if (commandString == null || commandString.size() == 0){
                 continue;
             }
 

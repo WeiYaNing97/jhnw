@@ -231,9 +231,9 @@ public class SolveProblemController {
         AjaxResult requestConnect_ajaxResult = connectToObtainInformation.requestConnect( switchParameters );
 
 
+
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
-
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");
             if (loginError != null || loginError.size() != 0){
                 for (int number = 1;number<loginError.size();number++){
@@ -242,12 +242,12 @@ public class SolveProblemController {
                             "风险:"+switchParameters.getIp()+loginErrorString+"\r\n");
                 }
             }
-
             AbnormalAlarmInformationMethod.afferent(null, null, "交换机连接",
                     "风险:"+switchParameters.getIp() + "交换机连接失败\r\n");
-
             return AjaxResult.error("交换机连接失败");
         }
+
+
 
         switchParameters = (SwitchParameters) requestConnect_ajaxResult.get("data");
         //是否连接成功
@@ -257,7 +257,22 @@ public class SolveProblemController {
             //getBasicInformationList 通过 特定方式 获取 基本信息
             //getBasicInformationList 通过扫描方式 获取 基本信息
             AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.getBasicInformationCurrency(switchParameters);
+            if (basicInformationList_ajaxResult == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                //关闭连接
+                if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                    switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
+                }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                    switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
+                }
+                return null;
+            }
             if (basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析")){
+                //关闭连接
+                if (switchParameters.getMode().equalsIgnoreCase("ssh")){
+                    switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
+                }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){
+                    switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
+                }
                 return AjaxResult.error("未定义该交换机获取基本信息命令及分析");
             }
 
@@ -286,6 +301,8 @@ public class SolveProblemController {
                 if (problemIds != null){
                     getSwitchScanResultListByIds(switchParameters.getLoginUser(),problemIds);
                 }
+
+
                 if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                     switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
                 }else if (switchParameters.getMode().equalsIgnoreCase("telnet")){

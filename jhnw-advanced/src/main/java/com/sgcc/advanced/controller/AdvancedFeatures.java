@@ -155,19 +155,4 @@ public class AdvancedFeatures {
         advancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
 
     }
-
-
-    /**
-     * 终止高级线程池。
-     *
-     * 该方法用于终止指定用户的高级线程池，并从HashMap中移除对应的线程池对象。
-     */
-    /* 全面扫描终止 */
-    @PostMapping("/advancedFunctionTerminationScann")
-    public void advancedFunctionTerminationScann() {
-        /*设置线程中断标志*/
-        WorkThreadMonitor.setShutdown_Flag(SecurityUtils.getLoginUser().getUsername(),true);
-
-    }
-
 }
