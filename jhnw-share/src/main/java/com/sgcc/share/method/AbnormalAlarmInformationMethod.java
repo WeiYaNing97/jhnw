@@ -37,19 +37,15 @@ public class AbnormalAlarmInformationMethod {
      * @throws IOException 写入文件异常
      */
     public static void afferent(String ip,String name,String categories,String information) {
-
         // 获取运行分析配置值
         String operationalAnalysis = (String) CustomConfigurationUtil.getValue("运行分析", Constant.getProfileInformation());
-
         // 将运行分析字符串分割成列表
         List<String> operationalAnalysisList = Arrays.asList(operationalAnalysis.split(" "));
-
         boolean isContains = false;
         // 检查问题名是否在运行分析列表中
         if (categories !=null && operationalAnalysisList.contains(categories)){
             isContains = true;
         }
-
         // 创建WebSocketService实例
         WebSocketService webSocketService = new WebSocketService();
         // 如果用户名和问题名都不为空
@@ -103,7 +99,6 @@ public class AbnormalAlarmInformationMethod {
 
         // 如果用户名和问题名都为空
         }else if (name == null && categories == null){
-
             webSocketService.sendMessageAll(information);
             try {
                 // 插入问题简述及问题路径（不分类）
@@ -112,9 +107,7 @@ public class AbnormalAlarmInformationMethod {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
-
         // 创建一个异常告警信息对象
         AbnormalAlarmInformation abnormalAlarmInformation = new AbnormalAlarmInformation();
         // 设置交换机IP
@@ -125,12 +118,9 @@ public class AbnormalAlarmInformationMethod {
         abnormalAlarmInformation.setQuestionType(categories);
         // 设置问题参数
         abnormalAlarmInformation.setQuestionInformation(information);
-
         // 获取AbnormalAlarmInformationService的Bean实例
         abnormalAlarmInformationService = SpringBeanUtil.getBean(IAbnormalAlarmInformationService.class);
         // 将异常告警信息插入到数据库
         abnormalAlarmInformationService.insertAbnormalAlarmInformation(abnormalAlarmInformation);
     }
-
-
 }

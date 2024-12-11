@@ -12,7 +12,7 @@ import java.util.List;
 public class ParameterSet {
 
     private List<SwitchParameters> switchParameters; //交换机信息
-    private LoginUser loginUser;//登陆人信息
+    private LoginUser loginUser;//系统登陆人信息
     private Integer threadCount;//线程数
 
     public void setSwitchParameters(List<SwitchParameters> switchParameters) {

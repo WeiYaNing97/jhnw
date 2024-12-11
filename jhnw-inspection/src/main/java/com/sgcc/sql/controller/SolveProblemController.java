@@ -230,8 +230,6 @@ public class SolveProblemController {
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         AjaxResult requestConnect_ajaxResult = connectToObtainInformation.requestConnect( switchParameters );
 
-
-
         //如果返回为 交换机连接失败 则连接交换机失败
         if(requestConnect_ajaxResult.get("msg").equals("交换机连接失败")){
             List<String> loginError = (List<String>) requestConnect_ajaxResult.get("loginError");

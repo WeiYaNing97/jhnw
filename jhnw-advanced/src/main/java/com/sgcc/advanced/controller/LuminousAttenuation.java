@@ -55,14 +55,11 @@ public class LuminousAttenuation {
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
-
         /** 根据交换机IP获取数据表数据 */
         LightAttenuationComparison selectpojo = new LightAttenuationComparison();
         selectpojo.setSwitchIp(switchParameters.getIp());
         lightAttenuationComparisonService = SpringBeanUtil.getBean(ILightAttenuationComparisonService.class);
         List<LightAttenuationComparison> lightAttenuationComparisons = lightAttenuationComparisonService.selectLightAttenuationComparisonList(selectpojo);
-
         /** 数据表数据 存入MAP集合中 */
         Map<String,LightAttenuationComparison> lightAttenuationComparisonMap = new HashMap<>();
         for (LightAttenuationComparison pojo:lightAttenuationComparisons){
@@ -73,12 +70,10 @@ public class LuminousAttenuation {
         /** 查看字符串集合A中存在，但字符串集合B中不存在的部分
          * 查看 数据表中有，但是扫描后没有的端口    数据表中独有的端口号*/
         List<String> difference = MyUtils.findDifference(keySet,ports);
-
         /**
          * 数据表中有，扫描结果没有的 则 说明 断开了连接
          * 断开接口提示交换机端口断开连接，端口状态为DOWN*/
         for (String portstr:difference){
-
             /** 修改端口号状态  */
             LightAttenuationComparison lightAttenuationComparisonPojo = lightAttenuationComparisonMap.get(portstr);
             lightAttenuationComparisonPojo.setValueOne("DOWN");
@@ -101,14 +96,12 @@ public class LuminousAttenuation {
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "光衰",
                         "系统信息:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:光衰功能端口号:"+portstr +"修改状态为DOWN失败\r\n"
                 );
-
                 return AjaxResult.error();
             }
         }

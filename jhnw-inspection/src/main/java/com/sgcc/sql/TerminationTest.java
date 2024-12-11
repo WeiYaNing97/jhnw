@@ -169,7 +169,7 @@ public class TerminationTest {
                 CommandReturn commandReturn = switchInteraction.executeScanCommandByCommandId(switchParameters,totalQuestionTable,totalQuestionTable.getLogicalID().replace("命令",""));
                 if (commandReturn == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                     break;
-                }else if (!commandReturn.isSuccessOrNot()){
+                }else if (commandReturn == null || !commandReturn.isSuccessOrNot()){
                     /*交换机返回错误信息处理
                      * 遍历下一个问题*/
                     continue;

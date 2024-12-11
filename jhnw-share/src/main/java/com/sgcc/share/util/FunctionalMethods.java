@@ -402,33 +402,25 @@ public class FunctionalMethods {
     public static String wordSelection(String returnString,String matchContent,String relativePosition_line,int integer,String length){
         // 获取 W单词、L字母、S字符串
         String substring = length.substring(length.length() - 1, length.length());//取词类型
-
         //获取取值长度
         int word_length = Integer.valueOf(length.substring(0, length.length() - 1)).intValue();//取词长度
-
         //预设返回值
         String return_string = "";
         /*交换机返回结果 获取到的时候 就已经修改了*/
         //returnString = MyUtils.repaceWhiteSapce(returnString); // 连续空格改为 1 个空格
-
         switch (substring){
-
             // 取词和取字符串
             case "w"://单词
             case "W"://单词
-
             case "s"://字符串
             case "S"://字符串
-
                 //以matchContent 为参照  获取位置 因为后期转化为数组，关键词为 [0]
                 String get_word = "";
                 //String returnString_trim = returnString.trim(); //交换机返回 信息 去除 前后空格
                 String[] split_String = returnString.trim().split(" ");
-
                 if (!(relativePosition_line.equals("0"))){
                     matchContent = "";
                 }
-
                 if (!(matchContent.equals(""))){
                     int num = 0;
                     for ( ; num <split_String.length ; num++){
@@ -440,12 +432,10 @@ public class FunctionalMethods {
                 }else if (matchContent.equals("")){
                     integer = integer - 1 ;
                 }
-
                 //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度  6
                 if ((split_String.length - word_length)  <  integer || integer < 0){
                     return null;
                 }
-
                 //取词位置
                 int number = integer;
                 for (int num = 0;num<word_length;num++){
@@ -458,13 +448,9 @@ public class FunctionalMethods {
                 }else {
                     return null;
                 }
-
-
                 //取字母
             case "l":
             case "L":
-
-
                 String split = returnString.split(matchContent)[0];
                 Integer splitInteger =split.length();
                 int start = integer + splitInteger;
@@ -478,9 +464,7 @@ public class FunctionalMethods {
                     return null;
                 }
         }
-
         return null;
-
     }
 
 
@@ -659,7 +643,6 @@ public class FunctionalMethods {
 
     /**
      * 判断 字符串 最后一位 是否为 . 或者 ,
-     *
      * @param wordSelectionResult
      * @return
      */

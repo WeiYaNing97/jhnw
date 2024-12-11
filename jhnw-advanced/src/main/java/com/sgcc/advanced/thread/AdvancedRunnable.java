@@ -61,7 +61,7 @@ public class AdvancedRunnable {
             //AjaxResult basicInformationList_ajaxResult = getBasicInformationList(user_String,user_Object);   //getBasicInformationList
             if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))
                     && !(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
-                    && !(basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))) {
+                    && !(basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))){
                 this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
                 for (String function:functionName){
                     switch (function){

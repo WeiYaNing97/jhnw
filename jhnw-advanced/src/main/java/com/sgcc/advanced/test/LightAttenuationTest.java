@@ -118,30 +118,22 @@ public class LightAttenuationTest {
                      * 所以 num = -1时，说明 tx在前 RX 在后*/
                     num = -1;
                 }
-
             }else {
-
                 /*如果 TX RX 不同时为 -1 则 说明：收、发光功率不在一行
                 则程序  num = 0
                 为 不在一行
                 为 key：value格式
                 num = 0  不做修改 */
-
             }
-
-
             /* 因为 num = 0 所以 为 不在一行 为 key：value格式
              * 需要 存放入 集合中 */
             /* 去掉了 && (tx != -1 || rx != -1) 因为 之前 RX、TX 都不包含 已经做过判断 */
             if (num == 0){
-
                 /* 包含 TX 或者 RX
                 key:value 格式
                 keyValueList集合 用于存储 key:value 格式数据*/
                 keyValueList.add(Line_split[number]);
-
             }else {
-
                 /*错误信息预定义 用于提取数据失败返回前端显示 */
                 String nextrow = Line_split[number];
                 String parameterInformation = nextrow;
@@ -150,18 +142,12 @@ public class LightAttenuationTest {
                     nextrow = Line_split[number+1];
                     parameterInformation = parameterInformation +"\r\n"+ nextrow;
                 }
-
                 String[] Line_split_split = Line_split[number].split("\\s+");
-
                 /*字符串截取double值*/
                 List<Double> values = MyUtils.StringTruncationDoubleValue(nextrow);
-
                 HashMap<String, Integer> position = new HashMap<>();
-
                 if (Line_split_split.length == values.size()){
-
                     position = getPosition(Line_split[number]);
-
                 }else {
                     /*去除单个的空格,保留连续多个空格*/
                     String replaceAll = Line_split[number].replaceAll("(?<=\\S)\\s(?=\\S)", "");
@@ -174,21 +160,16 @@ public class LightAttenuationTest {
                         if (subversionNumber!=null){
                             subversionNumber = "、"+subversionNumber;
                         }
-
-
                         AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                                 "异常:" +
                                 "IP地址为:"+switchParameters.getIp()+","+
                                 "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                                 "问题为:光衰功能光衰参数取词失败," +
                                 "光衰参数行信息:"+parameterInformation+"\r\n");
-
                     }
                 }
-
                 txpower = values.get(position.get("tx"));
                 rxpower = values.get(position.get("rx"));
-
                 break;
             }
         }
