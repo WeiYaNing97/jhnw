@@ -1435,7 +1435,9 @@ public class SwitchInteraction {
 
                 //问题数据 插入问题表
                 Long insertId = insertSwitchScanResult(switchParameters, totalQuestionTable, problemScanLogic, current_Round_Extraction_String);
-                if (insertId < 0){
+                if(insertId == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+                    return null;
+                }else if (insertId < 0){
                     String subversionNumber = switchParameters.getSubversionNumber();
                     if (subversionNumber!=null){
                         subversionNumber = "、"+subversionNumber;
@@ -1450,11 +1452,13 @@ public class SwitchInteraction {
 
                 //插入问题数据次数 加一
                 insertsInteger++;
+
                 /*单词提取数据清空*/
                 current_Round_Extraction_String = "";
+
                 //根据 用户信息 和 扫描时间 获取扫描出问题数据列表  集合 并放入 websocket
                 new SwitchIssueEcho().getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
-                //getSwitchScanResultListBySwitchParameters(switchParameters);
+
                 /*
                 如果tNextId下一分析ID(此时tNextId默认为下一分析ID)不为空时，(此时逻辑上还有下一部 例如 进行循环)
                 则tNextId赋值给当前分析ID 调用本方法，继续分析流程。
@@ -1689,65 +1693,69 @@ public class SwitchInteraction {
 
 
     /**
-    * @Description
-    * @desc
-    * @param switchParameters	交换机登录信息
-     * @param totalQuestionTable	问题表
-     * @param problemScanLogic	 分析信息
-     * @param parameterString	 单词提取信息
+     * @Description
+     * @desc
+     * @param switchParameters    交换机登录信息
+     * @param totalQuestionTable   问题表
+     * @param problemScanLogic    分析信息
+     * @param parameterString     单词提取信息
      * @return
-    */
+     */
     public Long insertSwitchScanResult (SwitchParameters switchParameters,
                                         TotalQuestionTable totalQuestionTable,
                                         ProblemScanLogic problemScanLogic,
                                         String parameterString){
 
-        /*扫描结果表实体类*/
-        SwitchScanResult switchScanResult = new SwitchScanResult();
-
-        //交换机ID 和 扫描线程名
-        /** 添加线程名原因，测试过程中同一台交换机扫描了两遍，
-         * 因为 交换机IP 与 交换机四项基本信息 一致，两遍扫描结果拼接到了一起，此时要求两遍扫描结果区分开，
-         * 所以加上了线程名，根据不同的线程区分开来*/
-        switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName()); // ip
-        /*获取交换机四项基本信息ID*/
-        switchScanResult.setSwitchId(FunctionalMethods.getSwitchParametersId(switchParameters));
-        /*名字 密码 配置密码 连接方式 端口号*/
-        switchScanResult.setSwitchName(switchParameters.getName()); //name
-        /** EncryptUtil.densificationAndSalt  组合加密 */
-        switchScanResult.setSwitchPassword( EncryptUtil.densificationAndSalt( switchParameters.getPassword() )); //password
-        switchScanResult.setConfigureCiphers( switchParameters.getConfigureCiphers() == null ? null : EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers()));
-
-        /*登录方式 及 端口号*/
-        switchScanResult.setLoginMethod(switchParameters.getMode());
-        switchScanResult.setPortNumber(switchParameters.getPort());
-
-        /*问题索引*/
-        //问题ID
-        switchScanResult.setProblemId(totalQuestionTable.getId()+""); // 问题索引
-
-        /*范式分类 范式名称 自定义名称*/
-        switchScanResult.setTypeProblem(totalQuestionTable.getTypeProblem());
-        switchScanResult.setTemProName(totalQuestionTable.getTemProName());
-        switchScanResult.setProblemName(totalQuestionTable.getProblemName());
-
-        /*问题备注 问题详细说明和指导索引*/
-        switchScanResult.setRemarks(totalQuestionTable.getRemarks());
-        switchScanResult.setProblemDescribeId(totalQuestionTable.getProblemDescribeId());
-
-        /* 取值参数 */
-        switchScanResult.setDynamicInformation(new StringBuffer(parameterString));
-
-        /*是否有问题*/
-        //有问题、无问题
-        switchScanResult.setIfQuestion(problemScanLogic.getProblemId());
-
-        /* 判断是否定义解决问题逻辑*/
-        if (totalQuestionTable.getProblemSolvingId() != null){
-            switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());//命令索引
-
+        /**
+         * 创建交换机扫描结果表实体类
+         *  设置交换机扫描结果表实体类属性值
+         *  1.1：实体类IP
+         *      添加线程名原因，测试过程中同一台交换机扫描了两遍，
+         *      因为交换机IP与交换机四项基本信息一致，两遍扫描结果拼接到了一起，此时要求两遍扫描结果区分开，所以加上了线程名，根据不同的线程区分开来
+         *  1.2：获取交换机四项基本信息ID 判断是否为空，为空则返回null 不在插入数据库
+         *  1.3：名字
+         *  1.4：密码  通过MD5加盐加密
+         *  1.5：配置密码  判断是否为空，为空则不添加，否则进行MD5加盐加密
+         *  1.6：连接方式
+         *  1.7：端口号
+         *  1.8：问题索引
+         *  1.9：范式分类
+         *  1.10：范式名称
+         *  1.11：自定义名称
+         *  1.12：问题备注
+         *  1.13：问题详细说明和指导索引
+         *  1.14：取值参数
+         *  1.15：是否有问题
+         *  1.16：解决问题命令
+         *  1.17：设置登录名称
+         *  1.18：设置登录手机号
+         *  1.19：插入扫描时间
+         */
+        SwitchScanResult switchScanResult = new SwitchScanResult();/*创建扫描结果表实体类*/
+        switchScanResult.setSwitchIp(switchParameters.getIp()+":"+switchParameters.getThreadName());/*1.1：实体类IP*/
+        Long switchParametersId = FunctionalMethods.getSwitchParametersId(switchParameters);/*1.2：获取交换机四项基本信息ID*/
+        if (switchParametersId == null){
+            return null;
         }else {
-
+            switchScanResult.setSwitchId(switchParametersId);
+        }
+        switchScanResult.setSwitchName(switchParameters.getName());/*1.3：名字*/
+        switchScanResult.setSwitchPassword( EncryptUtil.densificationAndSalt( switchParameters.getPassword() ));/*1.4：密码  通过MD5加盐加密*/
+        switchScanResult.setConfigureCiphers(
+                switchParameters.getConfigureCiphers() == null ? null : EncryptUtil.densificationAndSalt(switchParameters.getConfigureCiphers()));/*1.5：配置密码  判断是否为空，为空则不添加，否则进行MD5加盐加密*/
+        switchScanResult.setLoginMethod(switchParameters.getMode());/*1.6：连接方式*/
+        switchScanResult.setPortNumber(switchParameters.getPort());/*1.7：端口号*/
+        switchScanResult.setProblemId(totalQuestionTable.getId()+"");/*1.8：问题索引*/
+        switchScanResult.setTypeProblem(totalQuestionTable.getTypeProblem());/*1.9：范式分类*/
+        switchScanResult.setTemProName(totalQuestionTable.getTemProName());/*1.10：范式名称*/
+        switchScanResult.setProblemName(totalQuestionTable.getProblemName());/*1.11：自定义名称*/
+        switchScanResult.setRemarks(totalQuestionTable.getRemarks());/*1.12：问题备注*/
+        switchScanResult.setProblemDescribeId(totalQuestionTable.getProblemDescribeId());/*1.13：问题详细说明和指导索引*/
+        switchScanResult.setDynamicInformation(new StringBuffer(parameterString));/*1.14：取值参数*/
+        switchScanResult.setIfQuestion(problemScanLogic.getProblemId());/*1.15：是否有问题*/
+        if (totalQuestionTable.getProblemSolvingId() != null){/*1.16：解决问题命令*/
+            switchScanResult.setComId(totalQuestionTable.getProblemSolvingId());
+        }else {
             /* 告警、异常信息写入 */
             //传输登陆人姓名 及问题简述
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), null,
@@ -1756,20 +1764,19 @@ public class SwitchInteraction {
                             +totalQuestionTable.getTemProName()
                             +totalQuestionTable.getProblemName()
                     +"未定义解决问题\r\n");
-
         }
-
+        //设置登录名称
         switchScanResult.setUserName(switchParameters.getLoginUser().getUsername());//登录名称
+        //设置登录手机号
         switchScanResult.setPhonenumber(switchParameters.getLoginUser().getUser().getPhonenumber()); //登录手机号
-        //插入 扫描时间
+        //插入扫描时间
         switchScanResult.setCreateTime(new DateTime(switchParameters.getScanningTime(), "yyyy-MM-dd HH:mm:ss"));
-
         //插入问题
         switchScanResultService = SpringBeanUtil.getBean(ISwitchScanResultService.class);
         int insertId = switchScanResultService.insertSwitchScanResult(switchScanResult);
-
         return Long.valueOf(insertId).longValue();
     };
+
 
     /**
      * @method: 查询扫描出的问题表 放入 websocket
@@ -1780,7 +1787,6 @@ public class SwitchInteraction {
         //用户名
         LoginUser loginUser = (LoginUser)user_Object.get("loginUser");
         String loginName = loginUser.getUsername();
-
         //扫描时间
         String loginTime = user_String.get("ScanningTime");
         switchProblemService = SpringBeanUtil.getBean(ISwitchProblemService.class);
@@ -1788,7 +1794,6 @@ public class SwitchInteraction {
         if (switchProblemList.size() == 0){
             return new ArrayList<>();
         }
-
         for (SwitchProblemVO switchProblemVO:switchProblemList){
             Date date1 = new Date();
             switchProblemVO.hproblemId =  Long.valueOf(FunctionalMethods.getTimestamp(date1)+""+ (int)(Math.random()*10000+1)).longValue();

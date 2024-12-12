@@ -36,9 +36,7 @@ public class SwitchIssueEcho {
         if (pojpVO == null){
             return;
         }
-
         List<SwitchProblemCO> switchProblemCOList = pojpVO.getSwitchProblemCOList();
-
         for (SwitchProblemCO switchProblemCO:switchProblemCOList){
             /*赋值随机数 前端需要*/
             switchProblemCO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
@@ -48,19 +46,15 @@ public class SwitchIssueEcho {
                 SwitchScanResult switchScanResult = hashMap.get(switchProblemCO.getQuestionId());*/
             //提取信息 如果不为空 则有参数
             if (switchProblemCO.getDynamicInformation()!=null && !switchProblemCO.getDynamicInformation().equals("")){//switchScanResult.getDynamicInformation()!=null && !switchScanResult.getDynamicInformation().equals("")
-
                 //String dynamicInformation = switchScanResult.getDynamicInformation();
                 String dynamicInformation = switchProblemCO.getDynamicInformation();
                 //几个参数中间的 参数是 以  "=:=" 来分割的
                 //设备型号=:=是=:=S3600-28P-EI=:=设备品牌=:=是=:=H3C=:=内部固件版本=:=是=:=3.10,=:=子版本号=:=是=:=1510P09=:=
-
                 /*自定义分隔符*/
                 String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-
                 String[] dynamicInformationsplit = dynamicInformation.split(customDelimiter);
                 //判断提取参数 是否为空
                 if (dynamicInformationsplit.length>0){
-
                     //考虑到 需要获取 参数 的ID 所以要从参数组中获取第一个参数的 ID
                     //所以 参数组 要倒序插入
                     for (int number=dynamicInformationsplit.length-1;number>0;number--){
@@ -82,13 +76,10 @@ public class SwitchIssueEcho {
                         valueInformationVO.setHproblemId(Long.valueOf(FunctionalMethods.getTimestamp(new Date())+""+ (int)(Math.random()*10000+1)).longValue());
                         valueInformationVOList.add(valueInformationVO);
                     }
-
                 }
             }
             switchProblemCO.setValueInformationVOList(valueInformationVOList);
         }
-
-
         //将ip存入回显实体类
         List<ScanResultsVO> scanResultsVOList = new ArrayList<>();
         ScanResultsVO scanResultsVO = new ScanResultsVO();
