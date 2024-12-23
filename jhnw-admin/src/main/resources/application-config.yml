@@ -103,11 +103,11 @@ OSPF:
   txImmediateDeviation: 0.3
   percentage: 1%
   H3C:
-    R_table:
+    R_table1:
       TableHeader: Temp(Celsius),Voltage(V),Bias(mA),RX power(dBm),TX power(dBm)
       RX: RX power(dBm)
       TX: TX power(dBm)
-    L_list2:
+    L_list:
       RX: 'Current Rx Power(dBM):$'
       TX: 'Current Tx Power(dBM):$'
     L_list1:

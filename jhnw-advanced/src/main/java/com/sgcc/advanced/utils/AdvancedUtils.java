@@ -137,34 +137,25 @@ public class AdvancedUtils {
         List<SwitchParameters> switchParametersList = new ArrayList<>();
         // 设置当前时间格式为"yyyy-MM-dd HH:mm:ss"
         String simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-
         for (String information : switchInformation) {
             // 解析用户登录信息为SwitchLoginInformation对象
             SwitchLoginInformation switchLoginInformation = JSON.parseObject(information, SwitchLoginInformation.class);
-
             // 创建SwitchParameters对象
             SwitchParameters switchParameters = new SwitchParameters();
-
             LoginUser loginUser = SecurityUtils.getLoginUser();
             // 设置扫描标记
             switchParameters.setScanMark(loginUser.getUsername()+scanMark);
-
             // 设置登录用户信息
             switchParameters.setLoginUser(loginUser);
-
             // 设置扫描时间
             switchParameters.setScanningTime(simpleDateFormat);
-
             // 将SwitchLoginInformation对象的属性复制到SwitchParameters对象中
             BeanUtils.copyBeanProp(switchParameters, switchLoginInformation);
-
             // 将端口号转换为整数并设置到SwitchParameters对象中
             switchParameters.setPort(Integer.valueOf(switchLoginInformation.getPort()).intValue());
-
             // 将转换后的SwitchParameters对象添加到列表中
             switchParametersList.add(switchParameters);
         }
-
         // 返回转换后的SwitchParameters列表
         return switchParametersList;
     }

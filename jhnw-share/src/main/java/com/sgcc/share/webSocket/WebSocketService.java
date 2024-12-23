@@ -83,24 +83,19 @@ public class WebSocketService {
     @OnError
     public void onError(Session session, Throwable error) {
 
-        /*error.printStackTrace();*/
+        AbnormalAlarmInformationMethod.afferent(null,
+                getTokenBySession(session),
+                "websocket",
+                error.getMessage()+"\r\n");
 
-        if (error.getMessage().toString().contains("java.io.IOException:")
+        /*if (error.getMessage().toString().contains("java.io.IOException:")
                 || error.getMessage().toString().contains("Unable to wrap data, invalid status [CLOSED]")) {
-
-            System.err.println("进来了" + "java.io.IOException: Unable to wrap data, invalid status [CLOSED]");
-            log.error("进来了" + "java.io.IOException: Unable to wrap data, invalid status [CLOSED]");
-
             AbnormalAlarmInformationMethod.afferent(null,
                     getTokenBySession(session),
                     "websocket",
                     error.getMessage()+"\r\n");
-
         }else if (error.getMessage().toString().contains("java.io.IOException:")
                 || error.getMessage().toString().contains("Unable to unwrap data, invalid status [CLOSED]")){
-            System.err.println("进来了" + "java.io.IOException: Unable to unwrap data, invalid status [CLOSED]");
-            log.error("进来了" + "java.io.IOException: Unable to unwrap data, invalid status [CLOSED]");
-
             AbnormalAlarmInformationMethod.afferent(null,
                     getTokenBySession(session),
                     "websocket",
@@ -109,7 +104,7 @@ public class WebSocketService {
             // 记录异常信息
             log.error("报错信息：" + error.getMessage());
             error.printStackTrace();
-        }
+        }*/
     }
 
     /**

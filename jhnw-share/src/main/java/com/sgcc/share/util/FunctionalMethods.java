@@ -5,6 +5,7 @@ import com.sgcc.share.connectutil.SpringBeanUtil;
 import com.sgcc.share.controller.SwitchErrorController;
 import com.sgcc.share.controller.SwitchFailureController;
 import com.sgcc.share.domain.*;
+import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.service.IReturnRecordService;
 import com.sgcc.share.service.ISwitchInformationService;
@@ -26,6 +27,155 @@ public class FunctionalMethods {
     private static ISwitchInformationService switchInformationService;
 
 
+    /**
+     * @Description 根据四项基本信息 查询获取参数的关键词
+     * @author charles
+     * @createTime 2023/12/19 22:25
+     * @desc
+     * @param switchParameters
+     * @return
+     */
+    public static Map<String, Object> getKeywords (SwitchParameters switchParameters,String functionName) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+        /**
+         * 1:获取配置文件 关于 错误包 的配置信息
+         * */
+        Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue(functionName,Constant.getProfileInformation());
+        /*查询错误包关键词 如果返回为 null 则提示前端*/
+        if (deviceVersion == null){
+            /* 错误包功能未获取到配置文件关键词 */
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:"+ functionName +"功能未获取到配置文件关键词\r\n");
+            return new HashMap<>();
+        }
+
+        /**
+         * 2:获取 key值
+         *    key值为：描述或者品牌名*/
+        Set<String> keys = deviceVersion.keySet();
+        /* 交换机品牌 默认为 null*/
+        String brand = null;
+        /* 遍历交换机 品牌名 获取 品牌名 */
+        for (String key:keys){
+            /* 获取交换机信息实体类中的 设备品牌*/
+            String deviceBrand = switchParameters.getDeviceBrand();
+            /* 判断交换机基本信息品牌名 是否与 配置文件key值(交换机品牌名) 相等 忽略大小写
+             * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
+            if (deviceBrand.equalsIgnoreCase(key)){
+                brand = key;
+                break;
+                /* 如果不相等 则 判断是否为  Huawei  或者 Quidway
+                 * 如果 为 "Huawei或Quidway"  则判断 key交换机品牌 是否 等于 "Quidway或Huawei"
+                 * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
+            }else if (deviceBrand.equalsIgnoreCase("Huawei") || deviceBrand.equalsIgnoreCase("Quidway")){
+                if (deviceBrand.equalsIgnoreCase("Huawei") && "Quidway".equalsIgnoreCase(key)){
+                    brand = key;
+                    break;
+                }else if (deviceBrand.equalsIgnoreCase("Quidway") && "Huawei".equalsIgnoreCase(key)){
+                    brand = key;
+                    break;
+                }
+            }
+        }
+
+        if (brand == null){
+            /* 错误包功能未获取到配置文件关键词 */
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:"+ functionName +"功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
+            return new HashMap<>();
+        }
+
+
+        /*根据 交换机品牌名 获取交换机错误包信息 */
+        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue(functionName+"."+brand,Constant.getProfileInformation());
+        /*错误包功能未获取到品牌大类的关键词 提示前端*/
+        if (deviceVersion == null){
+            /* 错误包功能未获取到配置文件关键词 */
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:"+ functionName +"功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
+            return new HashMap<>();
+        }
+
+        keys = deviceVersion.keySet();
+        /*型号*/
+        String model = null;
+        /*版本*/
+        String firmwareVersion = null;
+        /*子版本*/
+        String subversionNumber = null;
+        /*遍历 错误包 品牌下的 key*/
+        for (String key:keys){
+            /*如果 交换机型号switchParameters.getDeviceModel() 与 配置文件中 key匹配
+             * 则 配置文件key 赋值 型号model */
+            if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
+                model = key;
+                break;
+            }
+        }
+        /*如果 配置文件中型号model 不为 null
+         * 则可以根据 品牌和型号 获取 错误包信息*/
+        if ( model!=null ){
+            deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue(functionName+"."+brand+"."+ model,Constant.getProfileInformation());
+            keys = deviceVersion.keySet();
+            /*遍历 错误包 品牌、型号 下的 key*/
+            for (String key:keys){
+                /*如果 交换机型号switchParameters.getFirmwareVersion() 与 配置文件中 key匹配
+                 * 则 配置文件key 赋值 型号 firmwareVersion */
+                if (switchParameters.getFirmwareVersion().equalsIgnoreCase(key)){
+                    firmwareVersion = key;
+                    break;
+                }
+            }
+            /*如果 配置文件中型号 firmwareVersion 不为 null
+             * 则可以根据 品牌和型号 获取 错误包信息*/
+            if (firmwareVersion!=null){
+                deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue(functionName+"."+brand+"."+ model+"."+firmwareVersion,Constant.getProfileInformation());
+                keys = deviceVersion.keySet();
+                /*遍历 错误包 品牌、型号、版本 下的 key*/
+                for (String key:keys){
+                    /*如果 交换机型号switchParameters.getSubversionNumber() 与 配置文件中 key匹配
+                     * 则 配置文件key 赋值 型号 subversionNumber */
+                    if (switchParameters.getSubversionNumber().equalsIgnoreCase(key)){
+                        subversionNumber = key;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* 动态查询条件
+         *  一定有 品牌 brand
+         * 型号、版本、子版本 如果为 null的 则为""空字符， 如果不为 null 则为  "."+属性值 */
+        String condition = "."+brand +(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
+        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue(functionName + condition,Constant.getProfileInformation());
+        return deviceVersion;
+    }
 
     /**
      * 获取交换机基本信息，如果已有记录则返回对应ID，否则插入并返回新记录的ID
@@ -802,16 +952,22 @@ public class FunctionalMethods {
      * @return
     */
     public static String getTerminalSlogan(String information){
-        /*
-         *根据 "obtainPortNumber.keyword" 在配置文件中 获取端口号关键词
+        /**
+         * 1：在配置文件中获取端口号的关键词
+         * 根据 "obtainPortNumber.keyword" 获取端口号关键词
          * Eth-Trunk Ethernet GigabitEthernet GE BAGG Eth
-         * 根据空格分割为 关键词数组*/
+         * 根据空格分割为 关键词数组
+         * 使用Lambda表达式和Comparator对字符串按长度从长到短排序：避免 Eth 对 Eth-Trunk 有影响*/
         String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword",Constant.getProfileInformation());
         List<String> keywords = Arrays.stream(deviceVersion.trim().split(" ")).collect(Collectors.toList());
-
-        // 使用Lambda表达式和Comparator对字符串按长度从长到短排序
+        //使用Lambda表达式和Comparator对字符串按长度从长到短排序
         Collections.sort(keywords, Comparator.comparingInt(String::length).reversed());
 
+        /**
+         * 2：遍历关键词数组 获取交换机返回信息中的端口号关键词
+         *    预设关键词为""，如果信息中包含关键词，则将关键词赋值给keyword
+         *    如果关键词为“” 返回null
+         */
         String keyword = "";
         for (String key:keywords){
             if (information.toLowerCase().indexOf(key.toLowerCase())!=-1){
@@ -819,74 +975,39 @@ public class FunctionalMethods {
                 break;
             }
         }
-
         if (keyword.equals("")){
             return null;
         }
 
-        /*GigabitEthernet 9/1 up routed Full 1000M fiber*/
+
+        /**
+         * 3.根据端口号关键字去除端口号中可能存在的的空格
+         *      例如 GigabitEthernet 9/1 up routed Full 1000M fiber
+         *          GigabitEthernet9/1 up routed Full 1000M fiber
+         */
         information = caseInsensitiveReplace(information, keyword+" ", keyword);
 
         /*GigabitEthernet9/1 up routed Full 1000M fiber*/
-
         /*根据" "分割字符串*/
         /*交换机信息 " "分割*/
         String[] informationSplit = information.split(" ");
 
-        /*遍历数组  包含/的为端口号 但不能确定端口号是否完全
-         * 此时需要判断提取到的端口号是否包含字母
-         * 包含则为完全端口号 否则为不完全端口号，需要加前面的GigabitEthernet*/
-        for (String string:informationSplit){
-
-            String[] string_split = string.trim().split(" ");
-
-            /* 遍历交换机信息数组 */
-            for (int num = 0;num < string_split.length;num++){
-
-                /* 遍历配置文件 获取端口号关键词
-                *
-                * 查看 是否以 关键字开头
-                *
-                * 端口号不能存在.情况发生。为子端口号，例如 TenGigabitEthernet 5/51.231 为 TenGigabitEthernet 5/51 子端口
-                * 子端口 不用检测*/
-                /*判断数组元素 是否已 关键词为 首*/
-
-                if (string_split[num].toUpperCase().startsWith(keyword.toUpperCase())){
-
-                    String port = string_split[num];
+        /**
+         * 4.遍历字符串数组，如果包含端口号关键词，
+         *  判断是否包含数字，如果包含数字则返回端口号
+         */
+        for (int num = 0;num < informationSplit.length;num++){
+            if (informationSplit[num].toUpperCase().startsWith(keyword.toUpperCase())){
+                String port = informationSplit[num];
+                // 判断端口号是否包含数字，如果包含数字 则判断是否包含"."
+                // 如果包含数字且不包含".",返回端口号
+                if (MyUtils.isNumeric(port)){
                     /* 端口号 不能存在 . 不能为子端口*/
                     if (port.indexOf(".")!=-1){
                         return null;
                     }
                     return port;
-
-                    /*//判断提取到的端口号是否包含数字
-                    //包含数字 则端口号完全
-                    if (MyUtils.isNumeric(string_split[num])){
-                        //包含则为完全端口号 否则为不完全端口号
-                        String port = string_split[num];
-                        //端口号 不能存在 . 不能为子端口
-                        if (port.indexOf(".")!=-1){
-                            return null;
-                        }
-                        return port;
-
-                        //否则 端口号 不全
-                    }else {
-                        //因为之前已经去除了端口号中的空格
-                        // 例如：  GigabitEthernet 2/1
-                        // 获取到的 不包含 2/1
-                        // 则为不完全端口号，需要加后面的GigabitEthernet
-                        String port = string_split[num] +" "+ string_split[num+1];
-                        //端口号 不能存在 . 不能为子端口
-                        if (port.indexOf(".")!=-1){
-                            return null;
-                        }
-                        return port;
-                    }*/
-
                 }
-
             }
         }
         return null;
@@ -945,6 +1066,7 @@ public class FunctionalMethods {
      * @throws IllegalArgumentException 如果输入参数中的任何一个为{@code null}。
      */
     public static String caseInsensitiveReplace(String input, String find, String replacement) {
+
         // 检查输入参数是否为null，如果是，则抛出异常
         if (input == null || find == null || replacement == null) {
             throw new IllegalArgumentException("Arguments cannot be null"); // 抛出异常，提示参数不能为空
@@ -963,12 +1085,15 @@ public class FunctionalMethods {
             // 更新下一次查找的起始位置
             start = end + find.length();
         }
+
         // 将最后一部分（可能没有被替换的部分）添加到StringBuilder中
         builder.append(input.substring(start));
 
         // 返回构建好的字符串
         return builder.toString();
     }
+
+
 
     /**
      * 根据原始字符串的首尾字符的大小写状态，调整替换字符串的首尾字符的大小写。

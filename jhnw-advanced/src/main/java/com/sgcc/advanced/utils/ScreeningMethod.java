@@ -13,7 +13,147 @@ import java.util.*;
 public class ScreeningMethod {
 
     /**
-    * @Description  从errorRateCommandList中 获取四项基本最详细的数据
+     * 日常巡检 光衰命令筛选方法
+     * @Description 从lightAttenuationCommandList中获取四项基本最详细的数据
+     * @author charles
+     * @createTime 2023/12/18 14:09
+     * @desc
+     *  实现逻辑为:
+     * 先比较两个实体类中四项基本信息字段为＊的多少。
+     * 如果字段为 * 的个数不相同，则字段为 * 少的实体类更加精确，则赋值给精确实体类。
+     * 如果两个实体类字段为 * 的个数相同的时候都比较，不为星的字段哪个更加精确。 例如 S* 与 S2152 ，S2152 更加精确
+     *
+     * @param lightAttenuationCommandList
+     * @return
+     */
+    public static LightAttenuationCommand ObtainPreciseEntityClassesLightAttenuationCommand(SwitchParameters switchParameters,
+                                                                                            List<LightAttenuationCommand> lightAttenuationCommandList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+        /**
+         * 1：创建一个返回的精确的光衰命令对象,默认取对象集合中的第一个
+         */
+        LightAttenuationCommand lightAttenuationCommandPojo = lightAttenuationCommandList.get(0);
+
+        /**
+         * 2：获取已经选中的光衰命令对象中四项基本信息的精确度,
+         *      如果属性值不为*则数值加一，数值代表非*数，即数值越大则更精确。
+         */
+        int usedNumber = 0;
+        if (!(lightAttenuationCommandPojo.getSwitchType().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(lightAttenuationCommandPojo.getFirewareVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(lightAttenuationCommandPojo.getSubVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+
+        for (int i = 1; i<lightAttenuationCommandList.size();i++){
+            /**
+             * 3：获取对象集合中对应下标元素的 四项基本信息的精确度
+             *      如果属性值不为*则数值加一，数值代表非*数，即数值越大则更精确。
+             */
+            int newNumber = 0;
+            if (!(lightAttenuationCommandList.get(i).getSwitchType().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(lightAttenuationCommandList.get(i).getFirewareVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(lightAttenuationCommandList.get(i).getSubVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+
+            /**
+             * 4：对比参数的数量大小
+             *       如果属性值不为*则数值加一，数值代表非*数，即数值越大则更精确。
+             *
+             *       usedNumber < newNumber 遍历到的元素比选中的对象精确，替换对象和对象的精确度
+             *       usedNumber > newNumber 选中的对象比遍历到的元素精确，不做任何操作，继续遍历下一个元素
+             *       usedNumber == newNumber 两个元素精确到项一样，则去比较三项的值哪一个更加精确。例如型号：S2152 和 S*  选择 S2152
+             */
+            if (usedNumber < newNumber){
+                /* 遍历到的元素 比 选中的对象精确，替换对象和对象的精确度*/
+                lightAttenuationCommandPojo = lightAttenuationCommandList.get(i);
+                usedNumber = newNumber;
+                continue;
+            }else  if (usedNumber > newNumber) {
+                /* 选中的对象比遍历到的元素精确，不做任何操作，继续遍历下一个元素*/
+                continue;
+            }else if (usedNumber == newNumber){
+
+                /**
+                 * 5：比较型号项的值哪一个更加精确。例如型号：S2152 和 S*  选择 S2152
+                 *      实现逻辑为:获取两个对象中型号属性的属性值。
+                 *        比较两个属性的精确度
+                 *            返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
+                 *            返回0 则精确性相等 则进行下一步分析
+                 */
+                String pojotype = lightAttenuationCommandPojo.getSwitchType();
+                String lightAttenuationCommandType = lightAttenuationCommandList.get(i).getSwitchType();
+                int typeinteger = compareAccuracy(pojotype, lightAttenuationCommandType);
+                if (typeinteger > 0){
+                    continue;
+                }else if (typeinteger < 0 ){
+                    lightAttenuationCommandPojo = lightAttenuationCommandList.get(i);
+                    continue;
+                }else if (typeinteger == 0){
+
+                    /**
+                     * 6：比较版本项的值哪一个更加精确。
+                     *      实现逻辑为:获取两个对象中属性的属性值。
+                     *        比较两个属性的精确度
+                     *            返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
+                     *            返回0 则精确性相等 则进行下一步分析
+                     */
+                    String pojofirewareVersion = lightAttenuationCommandPojo.getFirewareVersion();
+                    String lightAttenuationCommandFirewareVersion = lightAttenuationCommandList.get(i).getFirewareVersion();
+                    int firewareVersioninteger = compareAccuracy(pojofirewareVersion, lightAttenuationCommandFirewareVersion);
+                    if (firewareVersioninteger > 0){
+                        continue;
+                    }else if (firewareVersioninteger < 0){
+                        lightAttenuationCommandPojo = lightAttenuationCommandList.get(i);
+                        continue;
+                    }else if (firewareVersioninteger == 0){
+
+                        /**
+                         * 7：比较子版本项的值哪一个更加精确。
+                         *      实现逻辑为:获取两个对象中属性的属性值。
+                         *        比较两个属性的精确度
+                         *            返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
+                         *            返回0 则精确性相等 则进行下一步分析
+                         */
+                        String pojosubVersion = lightAttenuationCommandPojo.getSubVersion();
+                        String lightAttenuationCommandSubVersion = lightAttenuationCommandList.get(i).getSubVersion();
+                        int subVersioninteger = compareAccuracy(pojosubVersion, lightAttenuationCommandSubVersion);
+                        if (subVersioninteger > 0){
+                            continue;
+                        }else if (subVersioninteger < 0){
+                            lightAttenuationCommandPojo = lightAttenuationCommandList.get(i);
+                            continue;
+                        }else if (subVersioninteger == 0){
+
+                            /** 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
+                             * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
+                             * */
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+        return lightAttenuationCommandPojo;
+    }
+
+    /**
+    * 日常巡检 错误包命令筛选方法
+     * @Description  从errorRateCommandList中 获取四项基本最详细的数据
     * @author charles
     * @createTime 2023/12/18 14:45
     * @desc
@@ -32,226 +172,102 @@ public class ScreeningMethod {
             return null;
         }
 
-        /*定义返回内容*/
-        ErrorRateCommand errorRateCommandPojo = new ErrorRateCommand();
+        /**
+         * 1：获取第一个交换机问题 作为初始的比较对象
+         *  并获取初始的精确度 不等于*则加1
+         */
+        ErrorRateCommand errorRateCommandPojo = errorRateCommandList.get(0);
+        int usedNumber = 0;
+        if (!(errorRateCommandPojo.getSwitchType().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(errorRateCommandPojo.getFirewareVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(errorRateCommandPojo.getSubVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+
+
         /*遍历交换机问题集合*/
-        for (ErrorRateCommand errorRateCommand:errorRateCommandList){
-            /*如果返回为空 则可以直接存入 map集合*/
-            if (errorRateCommandPojo.getId() != null){
-                /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-                /* 获取 两个交换机问题的 参数数量的精确度 */
-                /*map*/
-                int usedNumber = 0;
-                if (!(errorRateCommandPojo.getSwitchType().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(errorRateCommandPojo.getFirewareVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(errorRateCommandPojo.getSubVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                /*新*/
-                int newNumber = 0;
-                if (!(errorRateCommand.getSwitchType().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(errorRateCommand.getFirewareVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(errorRateCommand.getSubVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                /*对比参数的数量大小
-                 * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
-                if (usedNumber < newNumber){
-                    /* 新 比 map中的精确*/
-                    errorRateCommandPojo = errorRateCommand;
+        for (int i=1;i<errorRateCommandList.size();i++){
+            /**
+             * 2：获取新遍历的对象的精确度 不等于*则加1
+             * */
+            int newNumber = 0;
+            if (!(errorRateCommandList.get(i).getSwitchType().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(errorRateCommandList.get(i).getFirewareVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(errorRateCommandList.get(i).getSubVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+
+            /**
+             * 3： 对比精确度的数量大小
+             *     如果新遍历到的对象精确度大于初始精确度则进行替代，
+             *     如果新遍历到的对象精确度小于初始精确度则遍历新的，
+             *     如果新遍历到的对象精确度等于初始精确度则比较四项基本信息的精确度*/
+            if (usedNumber < newNumber){
+                errorRateCommandPojo = errorRateCommandList.get(i);
+                usedNumber = newNumber;
+                continue;
+            }else  if (usedNumber > newNumber) {
+                /* map 中的更加精确  则 进行下一层遍历*/
+                continue;
+            }else if (usedNumber == newNumber){
+                /**
+                 * 4：如果精确到项一样则去比较项的值
+                 * */
+                // 比较两个对象中型号属性的属性值。
+                String pojotype = errorRateCommandPojo.getSwitchType();
+                String errorRateCommandtype = errorRateCommandList.get(i).getSwitchType();
+                /*比较两个属性的精确度
+                 * 返回正数是第一个数属性精确
+                 * 返回负数 是第二个属性更精确
+                 * 返回0 则精确性相等 则进行下一步分析*/
+                int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
+                if (typeinteger > 0){
                     continue;
-                }else if (usedNumber == newNumber){
-
-                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
-                    String pojotype = errorRateCommandPojo.getSwitchType();
-                    String errorRateCommandtype = errorRateCommand.getSwitchType();
-
-                    /*比较两个属性的精确度
-                     * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
-                     * 返回0 则精确性相等 则进行下一步分析*/
-                    int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
-
-                    if (typeinteger > 0){
+                }else if (typeinteger < 0){
+                    errorRateCommandPojo = errorRateCommandList.get(i);
+                    continue;
+                }else if (typeinteger == 0){
+                    //比较两个对象中固件版本属性的属性值。
+                    String pojofirewareVersion = errorRateCommandPojo.getFirewareVersion();
+                    String errorRateCommandFirewareVersion = errorRateCommandList.get(i).getFirewareVersion();
+                    int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
+                    if (firewareVersioninteger > 0){
                         continue;
-                    }else if (typeinteger < 0){
-                        errorRateCommandPojo = errorRateCommand;
+                    }else if (firewareVersioninteger < 0){
+                        errorRateCommandPojo = errorRateCommandList.get(i);
                         continue;
-                    }else if (typeinteger == 0){
-
-                        String pojofirewareVersion = errorRateCommandPojo.getFirewareVersion();
-                        String errorRateCommandFirewareVersion = errorRateCommand.getFirewareVersion();
-
-                        /*比较两个属性的精确度*/
-                        int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
-
-                        if (firewareVersioninteger > 0){
+                    }else if (firewareVersioninteger == 0){
+                        //比较两个对象中子版本属性的属性值。
+                        String pojosubVersion = errorRateCommandPojo.getSubVersion();
+                        String errorRateCommandSubVersion = errorRateCommandList.get(i).getSubVersion();
+                        int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
+                        if (subVersioninteger > 0){
                             continue;
-                        }else if (firewareVersioninteger < 0){
-                            errorRateCommandPojo = errorRateCommand;
+                        }else if (subVersioninteger < 0){
+                            errorRateCommandPojo = errorRateCommandList.get(i);
                             continue;
-                        }else if (firewareVersioninteger == 0){
-
-                            String pojosubVersion = errorRateCommandPojo.getSubVersion();
-                            String errorRateCommandSubVersion = errorRateCommand.getSubVersion();
-
-                            /*比较两个属性的精确度*/
-                            int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
-
-                            if (subVersioninteger > 0){
-                                continue;
-                            }else if (subVersioninteger < 0){
-                                errorRateCommandPojo = errorRateCommand;
-                                continue;
-                            }else if (subVersioninteger == 0){
-                                /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
-                                 * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
-                                 * */
-                                continue;
-                            }
+                        }else if (subVersioninteger == 0){
+                            /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
+                             * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
+                             * */
+                            continue;
                         }
                     }
-                }else  if (usedNumber > newNumber) {
-                    /* map 中的更加精确  则 进行下一层遍历*/
-                    continue;
                 }
-            }else {
-                errorRateCommandPojo = errorRateCommand ;
             }
         }
         return errorRateCommandPojo;
     }
 
-    /**
-    * @Description 从lightAttenuationCommandList中获取四项基本最详细的数据
-    * @author charles
-    * @createTime 2023/12/18 14:09
-    * @desc
-     *  实现逻辑为:
-     * 先比较两个实体类中四项基本信息字段为＊的多少。
-     * 如果字段为 * 的个数不相同，则字段为 * 少的实体类更加精确，则赋值给精确实体类。
-     * 如果两个实体类字段为 * 的个数相同的时候都比较，不为星的字段哪个更加精确。 例如 S* 与 S2152 ，S2152 更加精确
-     *
-    * @param lightAttenuationCommandList
-     * @return
-    */
-    public static LightAttenuationCommand ObtainPreciseEntityClassesLightAttenuationCommand(SwitchParameters switchParameters,
-                                                                                            List<LightAttenuationCommand> lightAttenuationCommandList) {
 
-        // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return null;
-        }
-
-        /*定义返回内容 精确实体类*/
-        LightAttenuationCommand lightAttenuationCommandPojo = new LightAttenuationCommand();
-        /*遍历交换机问题集合*/
-        for (LightAttenuationCommand lightAttenuationCommand:lightAttenuationCommandList){
-            /*如果返回为空 则可以直接存入 map集合*/
-            if (lightAttenuationCommandPojo.getId() != null){
-                /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-                /* 获取 两个交换机问题的 参数数量的精确度 */
-                /*map*/
-
-                int usedNumber = 0;
-                if (!(lightAttenuationCommandPojo.getSwitchType().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(lightAttenuationCommandPojo.getFirewareVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(lightAttenuationCommandPojo.getSubVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-
-                /*新*/
-                int newNumber = 0;
-                if (!(lightAttenuationCommand.getSwitchType().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(lightAttenuationCommand.getFirewareVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(lightAttenuationCommand.getSubVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-
-                /*对比参数的数量大小
-                 * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
-                if (usedNumber < newNumber){
-                    /* 新 比 map中的精确*/
-                    lightAttenuationCommandPojo = lightAttenuationCommand;
-                    continue;
-
-                }else if (usedNumber == newNumber){
-
-                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
-                    String pojotype = lightAttenuationCommandPojo.getSwitchType();
-                    String errorRateCommandtype = lightAttenuationCommand.getSwitchType();
-
-                    /*比较两个属性的精确度
-                     * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
-                     * 返回0 则精确性相等 则进行下一步分析*/
-                    int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
-                    if (typeinteger > 0){
-                        continue;
-                    }else if (typeinteger < 0 ){
-                        lightAttenuationCommandPojo = lightAttenuationCommand;
-                        continue;
-                    }else if (typeinteger == 0){
-
-                        String pojofirewareVersion = lightAttenuationCommandPojo.getFirewareVersion();
-                        String errorRateCommandFirewareVersion = lightAttenuationCommand.getFirewareVersion();
-
-                        /*比较两个属性的精确度*/
-                        int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
-                        if (firewareVersioninteger > 0){
-                            continue;
-                        }else if (firewareVersioninteger < 0){
-                            lightAttenuationCommandPojo = lightAttenuationCommand;
-                            continue;
-                        }else if (firewareVersioninteger == 0){
-
-                            String pojosubVersion = lightAttenuationCommandPojo.getSubVersion();
-                            String errorRateCommandSubVersion = lightAttenuationCommand.getSubVersion();
-
-                            /*比较两个属性的精确度*/
-                            int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
-                            if (subVersioninteger > 0){
-                                continue;
-                            }else if (subVersioninteger < 0){
-                                lightAttenuationCommandPojo = lightAttenuationCommand;
-                                continue;
-                            }else if (subVersioninteger == 0){
-                                /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
-                                 * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
-                                 * */
-                                continue;
-                            }
-
-                        }
-                    }
-
-                }else  if (usedNumber > newNumber) {
-                    /* map 中的更加精确  则 进行下一层遍历*/
-                    continue;
-                }
-
-            }else {
-                lightAttenuationCommandPojo = lightAttenuationCommand ;
-            }
-        }
-        return lightAttenuationCommandPojo;
-
-    }
 
     /**
     * @Description 通过四项基本欸的精确度 筛选最精确的OSPF命令

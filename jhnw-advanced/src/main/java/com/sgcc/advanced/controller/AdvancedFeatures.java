@@ -48,22 +48,31 @@ public class AdvancedFeatures {
                                    @PathVariable Long scanNum,
                                    @PathVariable List<String> functionName) {
 
+        /**
+         * 1:转换用户登录信息列表为SwitchParameters列表
+         *   如果返回集合为空，则返回“没有可用的用户登录信息”，
+         *   否则继续设置线程中断标志，
+         */
         // 转换用户登录信息列表为SwitchParameters列表
         List<SwitchParameters> switchParameters = AdvancedUtils.convertSwitchInformation(switchInformation,":运行分析");
-
-        // 创建参数集对象，将用户登录信息列表和扫描次数传入
-        ParameterSet parameterSet = createParameterSet(switchParameters, scanNum);
-
         if (switchParameters.size() == 0) {
             return "没有可用的用户登录信息";
+        }else {
+            /*设置线程中断标志*/
+            WorkThreadMonitor.setShutdown_Flag(switchParameters.get(0).getScanMark(),false);
         }
 
 
-        /*设置线程中断标志*/
-        WorkThreadMonitor.setShutdown_Flag(switchParameters.get(0).getScanMark(),false);
-
+        /**
+         * 2：创建交换机登录信息对象，
+         *      将交换机登录信息、系统用户登录信息、线程数传入参数集对象中
+         *    调用创建线程的方法，传入
+         *      交换机登录信息对象、
+         *      方法名称列表、
+         *      是否RSA加密 boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
+         */
+        ParameterSet parameterSet = createParameterSet(switchParameters, scanNum);
         try {
-            // 调用高级功能线程池执行登录信息操作
             //boolean isRSA = true; //前端数据是否通过 RSA 加密后传入后端
             executeAdvancedFunction(parameterSet, functionName, true);
         } catch (InterruptedException e) {
@@ -73,8 +82,7 @@ public class AdvancedFeatures {
         /*移除线程中断标志*/
         WorkThreadMonitor.remove_Thread(switchParameters.get(0).getScanMark());
 
-        /* todo 存在问题 前端无法接受全部后端传入WebSocket数据*/
-
+        /* todo 存在问题 前端无法接收全部后端传入WebSocket数据*/
         // 发送WebSocket消息，传输登录人姓名和问题简述
         //传输登陆人姓名 及问题简述
         WebSocketService webSocketService = new WebSocketService();
@@ -143,16 +151,13 @@ public class AdvancedFeatures {
      * @throws InterruptedException 线程中断异常，当线程在等待状态中被中断时抛出
      */
     private void executeAdvancedFunction(ParameterSet parameterSet, List<String> functionName, boolean isRSA) throws InterruptedException {
-
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(parameterSet.getSwitchParameters().get(0).getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return;
         }
-
         // 调用高级线程池具体实现类中的方法来执行登录信息的操作
         AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
         advancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);
-
     }
 }

@@ -113,26 +113,21 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
 
     @Override
     public List<LightAttenuationCommand> selectLightAttenuationCommandListBySQL(LightAttenuationCommand lightAttenuationCommand) {
-
         List<LightAttenuationCommand> pojo = new ArrayList<>();
         pojo.addAll(selectLightAttenuationCommandListByEquivalence(lightAttenuationCommand));
-
         String equivalence = FunctionalMethods.getEquivalence(lightAttenuationCommand.getBrand());
         if (equivalence!=null){
             lightAttenuationCommand.setBrand(equivalence);
             pojo.addAll(selectLightAttenuationCommandListByEquivalence(lightAttenuationCommand));
         }
-
         return pojo;
     }
 
 
 
     public List<LightAttenuationCommand> selectLightAttenuationCommandListByEquivalence(LightAttenuationCommand lightAttenuationCommand) {
-
         String fuzzySQL = FunctionalMethods.getFuzzySQL(lightAttenuationCommand.getBrand(), lightAttenuationCommand.getSwitchType(),
                 lightAttenuationCommand.getFirewareVersion(), lightAttenuationCommand.getSubVersion());
-
         return lightAttenuationCommandMapper.selectLightAttenuationCommandListBySQL(fuzzySQL);
     }
 }

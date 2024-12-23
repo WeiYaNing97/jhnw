@@ -62,15 +62,35 @@ public class AdvancedThread extends Thread {
             // 如果线程中断标志为true，则直接返回
             return;
         }
+
+
+        /**
+         * 1:连接交换机，并获取交换机基本信息
+         */
         // 创建ConnectToObtainInformation对象
         ConnectToObtainInformation connectToObtainInformation = new ConnectToObtainInformation();
         // 调用connectSwitchObtainBasicInformation方法获取交换机基本信息
         AjaxResult basicInformationList_ajaxResult = connectToObtainInformation.connectSwitchObtainBasicInformation(switchParameters,isRSA);
 
+
+        /**
+         * 2:判断交换机是否连接成功、交换机基本信息获取是否获取成功
+         *    如果交换机连接失败或交换机基本信息获取失败，则记录异常信息并继续执行，关闭交换机及连接
+         *    如果交换机连接成功、交换机基本信息获取成功，则执行下一步
+         *
+         *    遍历需要执行的功能列表，进行中断检查，如果中断检查为false，并执行不同的方法
+         */
         // 判断返回的信息是否表示获取基本信息命令未定义、交换机连接失败或交换机登录信息获取失败
-        if (!(basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))
-                && !(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
-                && !(basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))) {
+        if ((basicInformationList_ajaxResult.get("msg").equals("未定义该交换机获取基本信息命令及分析"))
+                || (basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
+                || (basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))) {
+            // 如果获取基本信息失败，则记录异常信息
+            //运行分析未定义该交换机获取基本信息命令及分析
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
+                    "系统信息:"+switchParameters.getIp() +
+                            "基本信息:"+
+                            basicInformationList_ajaxResult.get("msg")+"\r\n");
+        } else {
             // 将返回的数据转换为SwitchParameters对象
             this.switchParameters = (SwitchParameters) basicInformationList_ajaxResult.get("data");
             // 遍历需要执行的功能列表
@@ -109,20 +129,16 @@ public class AdvancedThread extends Thread {
                         break;
                 }
             }
-
-        } else {
-            // 如果获取基本信息失败，则记录异常信息
-            //运行分析未定义该交换机获取基本信息命令及分析
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "基本信息",
-                    "系统信息:"+switchParameters.getIp() +
-                            "基本信息:"+
-                            basicInformationList_ajaxResult.get("msg")+"\r\n");
         }
 
-        // 如果连接未失败，则关闭交换机连接
+
+        /**
+         * 3:关闭交换机连接，并减少计数器计数
+         *      发送WebSocket消息，通知扫描完成,扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转
+         *      减少计数器计数
+         */
         if (!(basicInformationList_ajaxResult.get("msg").equals("交换机连接失败"))
                 && !(basicInformationList_ajaxResult.get("msg").equals("交换机登录信息获取失败"))){
-            /*关闭连接交换机*/
             if (switchParameters.getMode().equalsIgnoreCase("ssh")){
                 // 如果是SSH连接，则调用closeConnect方法关闭连接
                 switchParameters.getConnectMethod().closeConnect(switchParameters.getSshConnect());
@@ -131,16 +147,12 @@ public class AdvancedThread extends Thread {
                 switchParameters.getTelnetSwitchMethod().closeSession(switchParameters.getTelnetComponent());
             }
         }
-
-        /** 运行分析扫描 及 快照功能 旋转的圆圈，用于取消圆圈旋转 */
-        // 发送WebSocket消息，通知扫描完成
-        /*扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转*/
+        // 发送WebSocket消息，通知扫描完成,扫描交换机过程中要求要有一个旋转的圆圈，用于取消圆圈旋转
         WebSocketService webSocketService = new WebSocketService();
-        webSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),"scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
-
+        webSocketService.sendMessage(switchParameters.getLoginUser().getUsername(),
+                "scanThread:"+switchParameters.getIp()+":"+switchParameters.getThreadName());
         // 减少计数器计数
         countDownLatch.countDown();
-
     }
     
 }

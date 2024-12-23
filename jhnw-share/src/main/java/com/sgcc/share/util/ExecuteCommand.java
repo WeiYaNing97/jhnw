@@ -56,7 +56,6 @@ public class ExecuteCommand {
         returnRecord.setCurrentCommLog(command);
 
 
-
         /*交换机返回信息 插入数据库状态 为-1时错误
         否则为交换机返回信息 在数据库中的ID*/
         int insert_id = 0;

@@ -20,15 +20,10 @@ public class WorkThreadMonitor {
             System.err.println("shutdownFlags is null");
             return false;
         }
-
         // 从shutdownFlags中获取以key为键的AtomicBoolean对象
         AtomicBoolean shutdownFlag = shutdownFlags.get(key);
-
-        System.err.println("getShutdownFlag:" + shutdownFlag);
-
         // 返回shutdownFlag不为null且其值为true的情况
         return shutdownFlag != null && shutdownFlag.get();
-
     }
 
     /**

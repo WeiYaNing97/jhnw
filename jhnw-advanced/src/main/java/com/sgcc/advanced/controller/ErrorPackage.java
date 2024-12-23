@@ -32,6 +32,77 @@ public class ErrorPackage {
     @Autowired
     private IErrorRateCommandService errorRateCommandService;
 
+
+    /**
+     * 获取错误包信息
+     *
+     * @param switchParameters 交换机参数对象
+     * @return AjaxResult 包含错误包信息的AjaxResult对象
+     */
+    public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
+
+
+        /**
+         * 1：获取四项基本最详细的数据
+         */
+        AjaxResult errorRateCommandPojo = getErrorRateCommandPojo(switchParameters);
+        // 检查线程中断标志
+        if (errorRateCommandPojo == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!errorRateCommandPojo.get("msg").equals("操作成功")){
+            return errorRateCommandPojo;
+        }
+        ErrorRateCommand errorRateCommand = (ErrorRateCommand) errorRateCommandPojo.get("data");
+
+
+        /**
+         * 2：获取端口列表
+         */
+        AjaxResult AjaxResultPort = getPort(switchParameters, errorRateCommand);
+        // 检查线程中断标志
+        if (AjaxResultPort == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!AjaxResultPort.get("msg").equals("操作成功")){
+            return AjaxResultPort;
+        }
+        List<String> portList = (List<String>) AjaxResultPort.get("data");
+
+
+        /**
+         * 3：获取错误包参数集合
+         */
+        AjaxResult AjaxResultErrorPackageParameter = getErrorPackageParameters(switchParameters, errorRateCommand, portList);
+        // 检查线程中断标志
+        if (AjaxResultErrorPackageParameter == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!AjaxResultErrorPackageParameter.get("msg").equals("操作成功")){
+            return AjaxResultErrorPackageParameter;
+        }
+        HashMap<String, Object> errorPackageParameters = (HashMap<String, Object>) AjaxResultErrorPackageParameter.get("data");
+
+
+        /**
+         * 4：获取扫描结果
+         */
+        AjaxResult ajaxResult = obtainScanningResults(switchParameters, portList, errorPackageParameters);
+        // 检查线程中断标志
+        if (ajaxResult == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
+        return ajaxResult;
+    }
+
+
+
     /**
      * 获取判断结果
      *
@@ -208,76 +279,6 @@ public class ErrorPackage {
 
 
     /**
-     * 获取错误包信息
-     *
-     * @param switchParameters 交换机参数对象
-     * @return AjaxResult 包含错误包信息的AjaxResult对象
-     */
-    public AjaxResult getErrorPackage(SwitchParameters switchParameters) {
-
-        // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        }
-
-
-        // 获取四项基本最详细的数据
-        AjaxResult errorRateCommandPojo = getErrorRateCommandPojo(switchParameters);
-        // 检查线程中断标志
-        if (errorRateCommandPojo == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        } else if (!errorRateCommandPojo.get("msg").equals("操作成功")){
-            return errorRateCommandPojo;
-        }
-        ErrorRateCommand errorRateCommand = (ErrorRateCommand) errorRateCommandPojo.get("data");
-
-
-
-        // 获取端口列表
-        AjaxResult AjaxResultPort = getPort(switchParameters, errorRateCommand);
-        // 检查线程中断标志
-        if (AjaxResultPort == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        } else if (!AjaxResultPort.get("msg").equals("操作成功")){
-            return AjaxResultPort;
-        }
-        List<String> portList = (List<String>) AjaxResultPort.get("data");
-
-
-
-
-        // 获取错误包参数集合
-        AjaxResult AjaxResultErrorPackageParameter = getErrorPackageParameters(switchParameters, errorRateCommand, portList);
-        // 检查线程中断标志
-        if (AjaxResultErrorPackageParameter == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        } else if (!AjaxResultErrorPackageParameter.get("msg").equals("操作成功")){
-            return AjaxResultErrorPackageParameter;
-        }
-        HashMap<String, Object> errorPackageParameters = (HashMap<String, Object>) AjaxResultErrorPackageParameter.get("data");
-
-
-
-
-        // 获取扫描结果
-        AjaxResult ajaxResult = obtainScanningResults(switchParameters, portList, errorPackageParameters);
-        // 检查线程中断标志
-        if (ajaxResult == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        }
-
-
-
-        return ajaxResult;
-    }
-
-
-    /**
      * 获取扫描结果
      *
      * @param switchParameters 交换机参数对象
@@ -390,7 +391,8 @@ public class ErrorPackage {
             return null;
         }
 
-        /*获取错误包参数命令*/
+        /**
+         * 1：获取错误包参数命令*/
         String errorPackageCommand = errorRateCommand.getGetParameterCommand();
         /*获取到错误包参数 map集合*/
         HashMap<String, Object> errorPackageParameters = getErrorPackageParameters(switchParameters, portList, errorPackageCommand);
@@ -399,22 +401,18 @@ public class ErrorPackage {
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
         if ( errorPackageParameters.size() == 0 ){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+","+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
                             "问题为:错误包功能所有UP状态端口皆未获取到错误包参数\r\n");
-
             return AjaxResult.error("所有端口都没有获取到错误包参数");
         }
-
         return AjaxResult.success(errorPackageParameters);
     }
 
@@ -426,17 +424,18 @@ public class ErrorPackage {
      * @return AjaxResult 封装了端口号列表的AjaxResult对象
      */
     public AjaxResult getPort(SwitchParameters switchParameters,ErrorRateCommand errorRateCommand) {
-
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
 
-        /*获取up端口号命令*/
+        /**
+         * 1:获取up端口号命令，执行交换机命令，返回交换机返回信息
+         *  如果交换机返回信息为空 则 命令错误，交换机返回错误信息
+         * */
         String portNumberCommand = errorRateCommand.getGetPortCommand();
-
-        /*3：配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
+        /*配置文件错误包问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> return_information_List = executeCommand.executeScanCommandByCommand(switchParameters, portNumberCommand);
         // 检查线程中断标志
@@ -444,42 +443,34 @@ public class ErrorPackage {
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
-        // todo 错误包虚拟数据
+        // todo 错误包功能获取端口号，虚拟数据
         return_information_List = StringBufferUtils.stringBufferSplit(
                 StringBufferUtils.arrange(new StringBuffer(this.switchPortReturnsResult)),
                 "\r\n");
-
-
-        /*4: 如果交换机返回信息为空 则 命令错误，交换机返回错误信息*/
         if (MyUtils.isCollectionEmpty(return_information_List)) {
-
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:" +
                             "IP地址为:"+switchParameters.getIp()+"。"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
                             "问题为:错误包功能获取端口号命令错误,需要重新定义。\r\n");
-
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能获取端口号命令错误,需要重新定义\r\n");
         }
 
 
-        /*5：如果交换机返回信息不为 null 说明命令执行正常,
-        则继续 根据交换机返回信息获取错误包端口号*/
-        List<String> portList = ObtainUPStatusPortNumber(switchParameters,return_information_List);
 
+
+        /**2：根据交换机返回信息获取错误包端口号*/
+        List<String> portList = ObtainUPStatusPortNumber(switchParameters,return_information_List);
         // 检查线程中断标志
         if (portList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
-        /*6：获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP，是则进行*/
+        /*获取光衰端口号方法返回集合判断是否为空，说明没有端口号为开启状态 UP*/
         if (MyUtils.isCollectionEmpty(portList)){
             //关于没有端口号为UP状态 的错误代码库
             String subversionNumber = switchParameters.getSubversionNumber();
@@ -496,8 +487,12 @@ public class ErrorPackage {
 
         }
 
-        /*7：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
-        GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
+
+
+
+        /**
+         * 3：如果交换机端口号为开启状态 UP 不为空 则需要查看是否需要转义：
+         * GE转译为GigabitEthernet  才能执行获取交换机端口号光衰参数命令*/
         String conversion = errorRateCommand.getConversion();
         if (conversion != null){
             String[] conversionSplit = conversion.split(";");
@@ -531,7 +526,6 @@ public class ErrorPackage {
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
         // 创建一个ErrorRateCommand对象
         ErrorRateCommand errorRateCommand = new ErrorRateCommand();
         // 设置设备品牌
@@ -560,19 +554,26 @@ public class ErrorPackage {
         }
 
 
-        // 获取错误率命令对象
+        /**
+         * 1:获取错误率命令对象
+          */
         ErrorRateCommand errorRateCommand = getErrorRateCommand(switchParameters);
         // 检查线程中断标志
         if (errorRateCommand ==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-        // 获取错误率命令服务对象
+
+        /**
+         * 2:获取错误率命令服务对象
+         *     根据错误率命令对象查询错误率命令列表，
+         *     如果为空则写入日志并返回错误结果，
+         *     否则筛选错误率命令对象
+          */
         errorRateCommandService = SpringBeanUtil.getBean(IErrorRateCommandService.class);
         // 根据错误率命令对象查询错误率命令列表
         List<ErrorRateCommand> errorRateCommandList = errorRateCommandService.selectErrorRateCommandListBySQL(errorRateCommand);
-
-        /*2：当 配置文件错误包问题的命令 为空时 进行 日志写入*/
+        //当配置文件错误包问题的命令为空时进行日志写入
         if (MyUtils.isCollectionEmpty(errorRateCommandList)){
             // 获取子版本号
             String subversionNumber = switchParameters.getSubversionNumber();
@@ -580,29 +581,26 @@ public class ErrorPackage {
             if (subversionNumber!=null){
                 subversionNumber = "、"+subversionNumber;
             }
-
             // 写入异常日志
             AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                     "异常:IP地址为:"+switchParameters.getIp()+"。"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
                             "问题为:错误包功能未定义获取端口号的命令。\r\n"
             );
-
             // 返回错误结果
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:错误包功能未定义获取端口号的命令\r\n");
         }
 
-        /*从errorRateCommandList中 获取四项基本最详细的数据*/
-        // 从错误率命令列表中筛选最详细的数据
+        /**
+         * 3:筛选错误率命令对象
+         *  从errorRateCommandList中获取四项基本最详细的数据
+         */
         ErrorRateCommand errorRateCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(switchParameters,errorRateCommandList);
         // 检查线程中断标志
         if (errorRateCommandPojo ==null){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
-
-
         // 返回成功结果，并包含筛选后的错误率命令对象
         return AjaxResult.success(errorRateCommandPojo);
     }
@@ -695,15 +693,17 @@ public class ErrorPackage {
             return null;
         }
 
-
         // 创建返回对象 HashMap
         HashMap<String,Object> hashMap = new HashMap<>();
         ExecuteCommand executeCommand = new ExecuteCommand();
-        // 遍历端口号集合，检测各端口号的错误包参数
+        /**
+         * 1: 遍历端口号集合，检测各端口号的错误包参数
+         *    替换端口号，得到完整的获取端口号错误包参数命令
+         *    执行交换机命令，并返回结果
+         */
         for (String port:portNumber){
-            // 替换端口号，得到完整的获取端口号错误包参数命令
+            //替换端口号，得到完整的获取错误包参数命令;
             String FullCommand = errorPackageCommand.replaceAll("端口号",port);
-            // 执行交换机命令，并返回结果
             List<String> returnResults_List = executeCommand.executeScanCommandByCommand(switchParameters, FullCommand);
             // 检查线程中断标志
             if (returnResults_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
@@ -714,8 +714,6 @@ public class ErrorPackage {
             returnResults_List = StringBufferUtils.stringBufferSplit(
                     StringBufferUtils.arrange(new StringBuffer(this.switchPortValueReturnsResult)),
                     "\r\n");
-
-
             if (MyUtils.isCollectionEmpty(returnResults_List)) {
                 // 如果结果为空，则进行异常处理
                 String subversionNumber = switchParameters.getSubversionNumber();
@@ -732,22 +730,23 @@ public class ErrorPackage {
                 continue;
             }
 
-            // 查看交换机错误包数量
+
+
+            /**
+             * 2:查看交换机错误包数量
+             */
             Map<String, String> parameters = getParameters(switchParameters,returnResults_List, port);
             // 检查线程中断标志
             if (parameters == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }
-
-
             if (parameters.size() == 0){
                 // 如果获取到的错误包数量为空，则进行异常处理
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
                     subversionNumber = "、"+subversionNumber;
                 }
-
                 // 记录异常日志
                 AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
                         "异常:" +
@@ -762,10 +761,10 @@ public class ErrorPackage {
                 if (description!=null){
                     parameters.put("Description" , description);
                 }
-
                 // 将获取到的错误包参数添加到结果HashMap中
                 hashMap.put(port,parameters);
             }
+
         }
         // 返回结果HashMap
         return hashMap;
@@ -774,25 +773,23 @@ public class ErrorPackage {
     /**
      * 根据交换机返回信息获取错误包端口号
      *
-     * @param returnString 交换机返回的信息字符串
+     * @param return_information_List 交换机返回的信息字符串
      * @return 包含错误包端口号的字符串列表
      * @author charles
      * @createTime 2023/12/19 21:36
      */
     public List<String> ObtainUPStatusPortNumber(SwitchParameters switchParameters,
                                                  List<String> return_information_List) {
-
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
 
-        // 遍历 交换机行信息字符串数组
-        // 判断 交换机返回行信息是否包含 UP（状态）
-        // 是 则存放入端口待取集合
+        /**
+         * 1:遍历交换机行信息字符串数组，筛选UP状态的字符串
+         */
         List<String> strings = new ArrayList<>();
-
         for (String string:return_information_List){
             // 判断是否包含 " UP "
             if ((string.toUpperCase().indexOf(" UP ")!=-1)){
@@ -800,21 +797,18 @@ public class ErrorPackage {
                 strings.add(string.trim());
             }
         }
-
-        // 遍历端口待取集合
-        // 执行取值方法 获取端口号
+        /**
+         * 2：遍历端口待取集合，执行取值方法获取端口号
+          */
         List<String> port = new ArrayList<>();
         for (String information:strings){
-
             // 根据 UP 截取端口号，并去除带"."的子端口
             String terminalSlogan = FunctionalMethods.getTerminalSlogan(information);
-
             if (terminalSlogan != null){
                 // 将端口号添加到结果列表中
                 port.add(terminalSlogan);
             }
         }
-
         return port;
     }
 
@@ -827,15 +821,16 @@ public class ErrorPackage {
      * @return 交换机错误包数量参数的列表，列表中的元素格式为"参数名:参数值"
      */
     public Map<String,String> getParameters(SwitchParameters switchParameters,List<String> returnResults_List,String port) {
-
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
 
-        /*根据四项基本信息 查询获取光衰参数的关键词*/
-        Map<String, Object> deviceVersion = getKeywords(switchParameters);
+        /**
+         * 1: 根据四项基本信息 查询获取光衰参数的关键词
+         */
+        Map<String, Object> deviceVersion = FunctionalMethods.getKeywords(switchParameters,"错误包");
         // 检查线程中断标志
         if (deviceVersion == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
@@ -844,18 +839,19 @@ public class ErrorPackage {
             return new HashMap<>();
         }
 
+        /**
+         * 2: 根据关键词获取交换机错误包数量参数的Key名列表
+         */
         Set<String> strings = deviceVersion.keySet();
         /*key ：value
         *   Input: $ input errors
             Output: $ output errors
             CRC: $ CRC,
         */
-
         /* 获取三个参数的关键词 并存储再 hashMap 集合中*/
         HashMap<String,String> hashMap =new HashMap<>();
         HashMap<String,Object> pktMap =new HashMap<>();
         for (String key:strings){
-
             switch (key.toLowerCase()){
                 case "input":
                     String input = (String) deviceVersion.get(key);
@@ -869,7 +865,6 @@ public class ErrorPackage {
                     String crc = (String) deviceVersion.get(key);
                     hashMap.put("CRC",crc);
                     break;
-
                 case "inputpkt":
                     pktMap.put(ErrorPackageL_listEnum.singlePlaceholderInput().toString(),deviceVersion.get(key));
                     break;
@@ -891,7 +886,6 @@ public class ErrorPackage {
             String mapvalue = hashMap.get(key);
             int num = mapvalue.indexOf("\\n");
             if ( num != -1){
-
                 List<String> value = getValueWrap(returnResults_List,mapvalue, num);
                 if (value.size() == 1){
                     valueTotalError.put(key,value.get(0));
@@ -908,10 +902,8 @@ public class ErrorPackage {
 
         /*总包数*/
         if (pktMap.keySet().size() != 0){
-
             Object inputpkt = pktMap.get(ErrorPackageL_listEnum.singlePlaceholderInput().toString());
             Object outputpkt = pktMap.get(ErrorPackageL_listEnum.singlePlaceholderOutput().toString());
-
             if(inputpkt != null){
                 if (inputpkt instanceof Map){
                     Map<String,Object> InputPKT =(Map<String,Object>) inputpkt;
@@ -1058,165 +1050,6 @@ public class ErrorPackage {
         }
 
         return stringMap;
-    }
-
-    /**
-    * @Description 根据四项基本信息 查询获取光衰参数的关键词
-    * @author charles
-    * @createTime 2023/12/19 22:25
-    * @desc
-    * @param switchParameters
-     * @return
-    */
-    public Map<String, Object> getKeywords (SwitchParameters switchParameters) {
-        // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return null;
-        }
-
-        /* 获取配置文件 关于 错误包 的配置信息*/
-        Map<String, Object> deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包",Constant.getProfileInformation());
-        /*查询错误包关键词 如果返回为 null 则提示前端*/
-        if (deviceVersion == null){
-            /* 错误包功能未获取到配置文件关键词 */
-            String subversionNumber = switchParameters.getSubversionNumber();
-            if (subversionNumber!=null){
-                subversionNumber = "、"+subversionNumber;
-            }
-
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                    "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能未获取到配置文件关键词\r\n");
-
-            return new HashMap<>();
-        }
-
-        /*获取 key值
-         * key值为 ： 描述 或者 品牌名*/
-        Set<String> keys = deviceVersion.keySet();
-        /* 交换机品牌 默认为 null*/
-        String brand = null;
-        /* 遍历交换机 品牌名 获取 品牌名 */
-        for (String key:keys){
-            /* 获取交换机信息实体类中的 设备品牌*/
-            String deviceBrand = switchParameters.getDeviceBrand();
-
-            /* 判断交换机基本信息品牌名 是否与 配置文件key值(交换机品牌名) 相等 忽略大小写
-             * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
-            if (deviceBrand.equalsIgnoreCase(key)){
-                brand = key;
-                break;
-                /* 如果不相等 则 判断是否为  Huawei  或者 Quidway
-                 * 如果 为 "Huawei或Quidway"  则判断 key交换机品牌 是否 等于 "Quidway或Huawei"
-                 * 如果相等则 将配置文件中的 key(交换机品牌名) 赋值给 交换机品牌brand*/
-            }else if (deviceBrand.equalsIgnoreCase("Huawei") || deviceBrand.equalsIgnoreCase("Quidway")){
-                if (deviceBrand.equalsIgnoreCase("Huawei") && "Quidway".equalsIgnoreCase(key)){
-                    brand = key;
-                    break;
-                }else if (deviceBrand.equalsIgnoreCase("Quidway") && "Huawei".equalsIgnoreCase(key)){
-                    brand = key;
-                    break;
-                }
-            }
-        }
-
-        if (brand == null){
-            /* 错误包功能未获取到配置文件关键词 */
-            String subversionNumber = switchParameters.getSubversionNumber();
-            if (subversionNumber!=null){
-                subversionNumber = "、"+subversionNumber;
-            }
-
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                    "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
-
-            return new HashMap<>();
-        }
-
-
-        /*根据 交换机品牌名 获取交换机错误包信息 */
-        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包."+brand,Constant.getProfileInformation());
-        /*错误包功能未获取到品牌大类的关键词 提示前端*/
-        if (deviceVersion == null){
-            /* 错误包功能未获取到配置文件关键词 */
-            String subversionNumber = switchParameters.getSubversionNumber();
-            if (subversionNumber!=null){
-                subversionNumber = "、"+subversionNumber;
-            }
-
-            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
-                    "异常:" +
-                            "IP地址为:"+switchParameters.getIp()+","+
-                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
-                            "问题为:错误包功能未获取到品牌为:"+brand+"配置文件关键词\r\n");
-
-            return new HashMap<>();
-        }
-        keys = deviceVersion.keySet();
-
-        /*型号*/
-        String model = null;
-        /*版本*/
-        String firmwareVersion = null;
-        /*子版本*/
-        String subversionNumber = null;
-
-        /*遍历 错误包 品牌下的 key*/
-        for (String key:keys){
-            /*如果 交换机型号switchParameters.getDeviceModel() 与 配置文件中 key匹配
-             * 则 配置文件key 赋值 型号model */
-            if (switchParameters.getDeviceModel().equalsIgnoreCase(key)){
-                model = key;
-                break;
-            }
-        }
-
-        /*如果 配置文件中型号model 不为 null
-         * 则可以根据 品牌和型号 获取 错误包信息*/
-        if ( model!=null ){
-            deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包."+brand+"."+ model,Constant.getProfileInformation());
-            keys = deviceVersion.keySet();
-
-            /*遍历 错误包 品牌、型号 下的 key*/
-            for (String key:keys){
-                /*如果 交换机型号switchParameters.getFirmwareVersion() 与 配置文件中 key匹配
-                 * 则 配置文件key 赋值 型号 firmwareVersion */
-                if (switchParameters.getFirmwareVersion().equalsIgnoreCase(key)){
-                    firmwareVersion = key;
-                    break;
-                }
-            }
-
-            /*如果 配置文件中型号 firmwareVersion 不为 null
-             * 则可以根据 品牌和型号 获取 错误包信息*/
-            if (firmwareVersion!=null){
-                deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包."+brand+"."+ model+"."+firmwareVersion,Constant.getProfileInformation());
-                keys = deviceVersion.keySet();
-                /*遍历 错误包 品牌、型号、版本 下的 key*/
-                for (String key:keys){
-                    /*如果 交换机型号switchParameters.getSubversionNumber() 与 配置文件中 key匹配
-                     * 则 配置文件key 赋值 型号 subversionNumber */
-                    if (switchParameters.getSubversionNumber().equalsIgnoreCase(key)){
-                        subversionNumber = key;
-                        break;
-                    }
-                }
-            }
-        }
-
-        /* 动态查询条件
-         *  一定有 品牌 brand
-         * 型号、版本、子版本 如果为 null的 则为""空字符， 如果不为 null 则为  "."+属性值 */
-        String condition = "."+brand +(model==null?"":"."+model)+(firmwareVersion==null?"":"."+firmwareVersion)+(subversionNumber==null?"":"."+subversionNumber);
-        deviceVersion = (Map<String, Object>) CustomConfigurationUtil.getValue("错误包"+condition,Constant.getProfileInformation());
-
-        return deviceVersion;
     }
 
 

@@ -26,17 +26,14 @@ public class DataExtraction {
     public static List<HashMap<String, Object>> tableDataExtraction (List<String> switchReturnsInformation,
                                                                      Map<String,String> keywordS,
                                                                      SwitchParameters switchParameters){
-
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return null;
         }
 
-
         // 创建一个用于存储结果的列表
         List<HashMap<String, Object>> returnList = new ArrayList<>();
-
         Integer lineNumber = 0;
         for ( ; lineNumber < switchReturnsInformation.size(); lineNumber++) {
             // 调用single_table方法获取多参数返回结果
@@ -45,17 +42,15 @@ public class DataExtraction {
             if (multiParameterReturn == null) {
                 continue;
             }
-
             // 获取返回的表格数据列表
             List<HashMap<String, Object>> hashMaps = (List<HashMap<String, Object>>) multiParameterReturn.getParameter();
             if (hashMaps.size() > 0) {
                 // 将表格数据添加到结果列表中
                 returnList.addAll(hashMaps);
-                // 更新行号
+                // 更新行号 为当前可以分析到的最后一行行号（因为有的交换机返回信息 需要提取的数据分布在多个位置）
                 lineNumber = multiParameterReturn.getCount();
             }
         }
-
         // 返回结果列表
         return returnList;
     }
@@ -79,13 +74,16 @@ public class DataExtraction {
      *         表格数据列表的每个元素为一个HashMap，包含键值对形式的表格数据，键为字符串类型，值为对象类型
      */
     public static MultiParameterReturn single_table(List<String> switchReturnsInformation, Map<String,String> keywordS, Integer lineNumber,SwitchParameters switchParameters) {
-        // 获取表头、标题栏及位置
+
+        /**
+         * 1：整理表格表头数据，按照“,”分割，获取表格中的列名：tableHeader_name
+         *    表格表头数据，将","替换为" "，获取交换机返回结果中表格表头的位置：HeaderLineNumber
+          */
         String tableHeader = keywordS.get("TableHeader");
         // 将字符串中的中文标点符号替换为英文标点符号
         tableHeader = MyUtils.normalizePunctuation(tableHeader);
         List<String> tableHeader_name = Arrays.stream(tableHeader.split(",")).collect(Collectors.toList());
         tableHeader = tableHeader.replace(",", " ");
-
         int HeaderLineNumber = 0;
         for (; lineNumber<switchReturnsInformation.size(); lineNumber++) {
             if ( switchReturnsInformation.get(lineNumber).equals(tableHeader) ) {
@@ -94,103 +92,111 @@ public class DataExtraction {
             }
         }
 
-        // 特征集合
+        /**
+         * 2：获取表格数据行的特征信息：characteristicList_join
+         *      判断表格表头行是否是交换机返回信息列表中的最后一行，如果是则返回null
+         *      获取表头下一行的数据并按照" "空格分割：firstRowOfDataSplit,
+         *         如果firstRowOfDataSplit的长度不等于tableHeader_name的长度，则返回null，表格表头与下一行数据不匹配
+         *
+         */
         List<String> characteristicList = new ArrayList<>();
         if (HeaderLineNumber+1 >= switchReturnsInformation.size()){
             return null;
         }
-
         String[] firstRowOfDataSplit = switchReturnsInformation.get(HeaderLineNumber+1).split(" ");
+        if (firstRowOfDataSplit.length != tableHeader_name.size()) {
+            return null;
+        }
         for (int i = 0; i < firstRowOfDataSplit.length; i++) {
+            /* obtainDataFeatures 根据给定的字符串信息获取数据特征。 */
             characteristicList.add(obtainDataFeatures(firstRowOfDataSplit[i]));
         }
         String characteristicList_join = String.join(",", characteristicList);
 
+
+        /**
+         * 3：获取表格数据行的信息
+         *      从标题下一行开始，获取每一行数据并按照" "空格分割：rowOfDataSplit
+         *      遍历rowOfDataSplit，调用obtainDataFeatures方法获取每项数据的特征信息，并添加到rowFeatures_List中
+         */
         List<String> tableRowList = new ArrayList<>();
-
         lineNumber++;
-
         for ( ; lineNumber < switchReturnsInformation.size(); lineNumber++) {
-
             String[] rowOfDataSplit = switchReturnsInformation.get(lineNumber).split(" ");
             List<String> rowFeatures_List = new ArrayList<>();
             for (int j = 0; j < rowOfDataSplit.length; j++) {
                 rowFeatures_List.add(obtainDataFeatures(rowOfDataSplit[j]));
             }
-
             // 检查行特征是否全部为"未知"
             String elementToCheck = "未知";
             boolean allMatch1 = rowFeatures_List.stream().allMatch(element -> element.equals(elementToCheck));
-
-            /*  todo 怎样判断不是表格数据
-                */
+            /**
+             * todo 怎样判断不是表格数据
+             *  目前逻辑是：
+             *  如果当前行数 大于 标题属性数 直接结束，跳出for循环 （这个时候已不是表格中的数据了）
+             *  或者当前信息行全为未知 并且 当前信息行数据要小于 标题属性数据 的情况下 默认不满足条件 直接结束for循环 （这个时候不能区分数据是表格中某列的）
+             */
             if ( rowFeatures_List.size() > tableHeader_name.size()
                     || (allMatch1 && rowFeatures_List.size() != tableHeader_name.size())) {
-
-                // 报错 提出数据可能出现异常 因为非正常跳出
-                // 当前信息行全为未知 并且 当前信息行数据要小于 标题属性数据 的情况下 默认不满足条件
-                // 如果当前行数 大于 标题属性数 直接结束
-
-                //程序问题
                 AbnormalAlarmInformationMethod.afferent(null,switchParameters.getLoginUser().getUsername()
                         ,"错误代码",
                         "OPSA0001");
-
                 break;
-
             }
-
             String rowFeatures_List_join = String.join(",", rowFeatures_List);
-
-            // 检查 行特征 是否存在于 标题属性特征 中,并且只出现一次。
+            /*
+            * 检查 行特征 是否存在于 标题属性特征 中,并且只出现一次。
+            *
+            * todo 不能提取的数据情况
+            *  1.如果行特征 不存在于 标题属性特征 中，
+            *  2.行特征中缺失数据 例如：标题属性：IP，纯数字,端口号   行信息：IP," ",端口号 。 不能区分，因为行信息会识别成：IP,端口号。
+            *  3.或者 行特征 存在 标题属性特征中 出现多次，则跳出循环 （比如：标题属性：IP,端口号   行信息：IP,端口号,纯数字,纯数字,IP,端口号）
+            */
             List<Integer> substringPositions = MyUtils.getSubstringPositions(characteristicList_join, rowFeatures_List_join);
             if (substringPositions.size() != 1){
-
                 if (substringPositions.size() > 1){
                     /* 行特征 存在 标题属性特征中 出现多次
                      * 数据不好判断 故 导致数据提取错误  */
                     // 应该报错 ：行信息：IP,端口号   标题属性： IP,端口号,纯数字,纯数字,IP,端口号  也会导致取值错误。
-
                     //程序问题
                     AbnormalAlarmInformationMethod.afferent(null,switchParameters.getLoginUser().getUsername()
                             ,"错误代码",
                             "OPSA0002");
                 }
-
                 // substringPositions.size() < 1 说明行特征 不存在于标题属性特征中
                 // 当前行特征与特征集合中特征不匹配，跳出循环
                 break;
             }
-
-
+            /*
+             * 如果行特征等于特征集合，则直接添加到tableRowList中
+             * 否则，获取特征集合中对应特征的起始索引和结束索引，并拼接特殊字符后添加到tableRowList中
+             */
             if (characteristicList_join.equals(rowFeatures_List_join)){
                 // 如果行特征等于特征集合，则直接添加到tableRowList中
                 tableRowList.add(String.join(",", Arrays.stream(rowOfDataSplit).collect(Collectors.toList())));
-
             } else {
-                // 获取特征集合中对应特征的起始索引和结束索引
+                // 获取特征集合中对应特征的起始索引和结束索引，并拼接特殊字符
+                // 特殊字符为"&"，意义是代替当前行数中 相对于表格表头缺失的列目的数据，并添加到tableRowList中
                 int i1 = characteristicList_join.indexOf(rowFeatures_List_join);
                 String startsubstring = characteristicList_join.substring(0, i1);
                 int i2 = MyUtils.countCharWithRegex(startsubstring, ',');
-
                 String start = "";
                 for (int k = 0; k < i2; k++) {
                     start += "&,";
                 }
-
                 String endsubstring = characteristicList_join.substring(i1+rowFeatures_List_join.length());
                 int i3 = MyUtils.countCharWithRegex(endsubstring, ',');
                 String end = "";
                 for (int k = 0; k < i3; k++) {
                     end += ",&";
                 }
-
                 // 拼接特殊字符后添加到tableRowList中
                 tableRowList.add(start + String.join(",", Arrays.stream(rowOfDataSplit).collect(Collectors.toList())) + end);
             }
-
         }
-
+        /**
+         * 4：将表格数据存储到tableDataList中，并返回tableDataList中的行数和数据值
+         */
         List<HashMap<String, Object>> tableDataList = new ArrayList<>();
         for (int i = 0; i < tableRowList.size(); i++) {
             HashMap<String, Object> tableData = new HashMap<>();
@@ -200,7 +206,6 @@ public class DataExtraction {
                 // 将表头名称和数据值映射存储
                 map_name_value.put(tableHeader_name.get(j),rowOfDataSplit[j]);
             }
-
             // 根据关键字映射更新tableData的键值
             for (String key: map_name_value.keySet()) {
                 String keyByValue = getKeyByValue(keywordS, key);
@@ -210,17 +215,16 @@ public class DataExtraction {
             }
             tableDataList.add(tableData);
         }
-
         MultiParameterReturn multiParameterReturn = new MultiParameterReturn();
         multiParameterReturn.setCount(lineNumber);
         multiParameterReturn.setParameter(tableDataList);
-
         return multiParameterReturn;
     }
 
     /* L_list */
     /**
      * 获取占位符对应的含义
+     * 可以有多个占位符
      *
      * @param input 输入字符串
      * @param keyword 关键字，其中包含了占位符
@@ -233,15 +237,15 @@ public class DataExtraction {
             return null;
         }
 
-
-
-        // 将关键词和输入字符串中的冒号替换为" : "，并将多余的空格替换为单个空格，并去除首尾空格
+        //整理字符串
+        //将关键词和输入字符串中的冒号替换为" : "，并将多余的空格替换为单个空格，并去除首尾空格
         keyword = keyword.replace(":"," : ").replaceAll("\\s+"," ").trim();
         input = input.replace(":"," : ").replaceAll("\\s+"," ").trim();
 
-        // 将关键词按照"$数字"的形式进行拆分
+        /* 将关键词按照"$数字"的形式进行拆分
+        * "Input: $1 bytes, $2 packets" -> ["Input: ", " bytes, ", " packets"]
+        */
         String[] keyword_split = keyword.trim().split("\\$\\d*");
-
         // 如果拆分后的数组第一个元素为空字符串，则忽略它
         if (keyword_split.length > 0 && keyword_split[0].isEmpty()) {
             // 忽略第一个空字符串
@@ -262,7 +266,6 @@ public class DataExtraction {
             String splitkeyword = splitkeywords(keyword,placeholder,placeholders);
             if (splitkeyword.startsWith(placeholder)){
                 // 替换掉"$"方便匹配
-                // 替换掉$ 方便匹配
                 splitkeyword = splitkeyword.replace(placeholder,"").trim();
 
                 // 第一次出现的位置
@@ -307,13 +310,11 @@ public class DataExtraction {
                 String delimiter  = "\\$" + variable;
 
                 // "$" 出现在中间
-                // $ 出现在中间
                 String[] $split = splitkeyword.split(delimiter);
                 if ($split.length > 0 && $split[0].isEmpty()) {
                     // 忽略第一个空字符串
                     $split = Arrays.copyOfRange($split, 1, $split.length);
                 }
-
 
                 // 第一次出现的位置
                 int start = input.indexOf($split[0].trim());
@@ -326,7 +327,6 @@ public class DataExtraction {
                 }
             }
         }
-
         return returnMap;
     }
 
