@@ -5,6 +5,7 @@ import com.sgcc.advanced.domain.*;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.WorkThreadMonitor;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -14,31 +15,40 @@ public class IPAddressUtils {
 
     /**
      * 从给定的返回信息中提取IP信息，并返回IP信息列表
-     *
-     * @param returnInformation 包含IP信息的字符串
+     *  提取IP信息格式，例如： network 10.122.100.0 0.0.0.255 area 0.0.0.0
+     * @param switchReturnsinternalInformation_List 包含IP信息的字符串集合
      * @return 包含提取出的IP信息的列表
      */
     public static List<IPInformation> getIPInformation(SwitchParameters switchParameters,
                                                        List<String> switchReturnsinternalInformation_List) {
-
-        // 检查线程中断标志
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return null;
         }
-
+        /**
+         * 1:创建一个IP信息列表，用于存储提取出的IP信息对象。
+         *   初始化一个空的ArrayList<IPInformation>对象，并将其赋值给ipInformationList变量。
+         */
         List<IPInformation> ipInformationList = new ArrayList<>();
         // 按照换行符将返回信息分割成数组
 
+        /**
+         * 2:遍历返回信息数组，对每个信息进行以下操作：
+         */
         for (String information:switchReturnsinternalInformation_List){
-            // 如果信息中包含"network"字符串
             // todo 获取地址关键字需要确定
+            /**
+             * 1:如果信息中包含"network"字符串，则执行以下操作：
+             * */
             if (information.toLowerCase().indexOf("network".toLowerCase())!=-1){
-
+                // 创建一个IP信息对象，用于存储提取出的IP信息和掩码等信息。
                 IPInformation ipInformation = new IPInformation();
 
+                /**
+                 * 2:如果信息中包含"area"字符串，则根据"area"关键字分割信息
+                 *      获取地址关键字 "area" 关键字，并将其后面的内容赋值给information变量。
+                 */
                 if (information.toLowerCase().indexOf("area".toLowerCase())!=-1){
-                    // 获取地址关键字
                     String[] split = MyUtils.splitIgnoreCase(information,"area");
                     if (split.length == 2){
                         // 将地址关键字添加到结果列表中
@@ -50,35 +60,39 @@ public class IPAddressUtils {
                     information = split[0];
                 }
 
-                // 查找信息中的IP地址
-                // 判断字符串中有几个IP特征数据,并返回ip数据
+                /**
+                 * 3:查找信息中的IP地址，如果提取到的是两个IP地址，
+                 *      则将其赋值给ipInformation对象的ip和mask属性。
+                 */
                 List<String> iPs = MyUtils.findIPs(information);
-
                 if (iPs.size() == 2){
                     // 从最后一个IP地址开始遍历
                     for (int num = iPs.size()-1 ; num >= 0;num--){
                         // 将IP地址按"."分割成整数列表
                         List<Integer> collect = Arrays.stream(iPs.get(num).split("\\.")).map(Integer::parseInt).collect(Collectors.toList());
-                        // 如果第一个整数为0，则将其替换为255减去原值  反子网掩码
+                        /**
+                         * 4:如果第一个整数为0，则将其替换为255减去原值 （存在反子网掩码，例如：0 0.0.0.3 ）
+                         */
                         if (collect.get(0) == 0){
                             collect.set(0,255-collect.get(0));
                             collect.set(1,255-collect.get(1));
                             collect.set(2,255-collect.get(2));
                             collect.set(3,255-collect.get(3));
                         }
-                        // 将处理后的整数列表转换成IP地址格式，并替换原IP地址
+                        // 将处理好的整数列表转换成IP地址格式，并替换原IP地址
                         iPs.set(num,collect.get(0)+"."+collect.get(1)+"."+collect.get(2)+"."+collect.get(3));
                     }
-
+                    // 将提取到的IP地址和掩码分别赋值给ipInformation对象的ip和mask属性
                     ipInformation.setIp(iPs.get(0));
                     ipInformation.setMask(iPs.get(1));
+                    ipInformationList.add(ipInformation);
                 }
-
-                ipInformationList.add(ipInformation);
             }
         }
         return ipInformationList;
     }
+
+
 
     /**
      * 根据IP地址对IPCalculator实体类列表进行排序
@@ -264,28 +278,40 @@ public class IPAddressUtils {
             // 如果线程中断标志为true，则直接返回
             return null;
         }
+
+        // 初始化拼接后的外部IP地址段列表
         List<ExternalIPAddresses> externalIPAddressesList = new ArrayList<>();
+
+        // 遍历外部IP计算器列表
         for (ExternalIPCalculator externalIPCalculator : externalIPCalculatorList) {
+            // 创建新的外部IP地址段对象
             ExternalIPAddresses externalIPAddresses = new ExternalIPAddresses();
+            // 设置起始IP地址
             externalIPAddresses.setIpStart(externalIPCalculator.getFirstAvailable());
+            // 设置结束IP地址
             externalIPAddresses.setIpEnd(externalIPCalculator.getFinallyAvailable());
+            // 创建外部IP计算器列表
             List<ExternalIPCalculator> externalIPCalculators = new ArrayList<>();
+            // 将当前外部IP计算器添加到列表中
             externalIPCalculators.add(externalIPCalculator);
+            // 设置外部IP计算器列表
             externalIPAddresses.setExternalIPCalculatorList(externalIPCalculators);
+            // 将拼接后的外部IP地址段添加到列表中
             externalIPAddressesList.add(externalIPAddresses);
         }
 
         // 标记是否需要继续合并IP地址段
         boolean flag = true;
         while (flag){
-
             // 检查线程中断标志
             if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return null;
             }
 
+            // 重置合并标志
             flag = false;
+            // 从后向前遍历拼接后的外部IP地址段列表
             for (int i = externalIPAddressesList.size()-1; i >= 1; i--){
                 // 判断当前IP地址段与前一个IP地址段是否有交集或连续
                 if (isIPInRange(externalIPAddressesList.get(i-1).getIpStart(),
@@ -294,6 +320,7 @@ public class IPAddressUtils {
                         externalIPAddressesList.get(i-1).getIpStart(), externalIPAddressesList.get(i-1).getIpEnd())
                         || determineIPContinuity(externalIPAddressesList.get(i-1).getIpEnd(), externalIPAddressesList.get(i).getIpStart())
                         || determineIPContinuity(externalIPAddressesList.get(i).getIpEnd(), externalIPAddressesList.get(i-1).getIpStart())) {
+                    // 设置合并标志为true
                     flag = true;
 
                     // 合并IP地址段
@@ -309,12 +336,15 @@ public class IPAddressUtils {
 
                     // 创建新的IP地址段对象
                     ExternalIPAddresses pojo = new ExternalIPAddresses();
+                    // 设置新的起始IP地址
                     pojo.setIpStart(minIp);
+                    // 设置新的结束IP地址
                     pojo.setIpEnd(maxIp);
                     List<ExternalIPCalculator> externalipCalculators = new ArrayList<>();
                     // 合并IP计算器列表
                     externalipCalculators.addAll(externalIPAddressesList.get(i).getExternalIPCalculatorList());
                     externalipCalculators.addAll(externalIPAddressesList.get(i-1).getExternalIPCalculatorList());
+                    // 设置合并后的外部IP计算器列表
                     pojo.setExternalIPCalculatorList(externalipCalculators);
 
                     // 移除旧的IP地址段对象
@@ -326,8 +356,10 @@ public class IPAddressUtils {
             }
         }
 
+        // 返回拼接后的外部IP地址段列表
         return externalIPAddressesList;
     }
+
 
     /**
      * 判断两个IP地址是否连续
@@ -495,4 +527,22 @@ public class IPAddressUtils {
 
         return ipList;
     }
+
+    /**
+     * 给IP排序，并返回排序后的IP列表
+     * 注意：可以给CIDR格式，但返回的是IP地址
+     * @param iPlist
+     * @return
+     */
+    public static List<String> ipSort(List<String> iPlist) {
+        List<Long> collect = iPlist.stream().map(ip -> ipToLong(MyUtils.findIPs(ip).get(0))).collect(Collectors.toList());
+
+        // 使用Stream API进行排序
+        collect = collect.stream()
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
+        List<String> collect1 = collect.stream().map(ipLong -> longToIp(ipLong)).collect(Collectors.toList());
+        return collect1;
+    }
+
 }

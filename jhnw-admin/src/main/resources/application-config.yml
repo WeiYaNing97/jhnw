@@ -76,6 +76,7 @@ obtainPortNumber:
     SFP
     USB
     InLoop
+    Method
     LoopBack
     Loop
     Vlan

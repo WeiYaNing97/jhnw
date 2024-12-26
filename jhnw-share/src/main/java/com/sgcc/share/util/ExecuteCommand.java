@@ -255,7 +255,7 @@ public class ExecuteCommand {
                             "异常:" +
                             "IP地址为:"+switchParameters.getIp()+"。"+
                             "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+"。"+
-                            "问题为:返回结果异常。\r\n "+
+                            "问题为:返回结果异常或定义逻辑异常。\r\n "+
                             "命令:"+command+
                             "。异常信息:"+command_string+"。\r\n");
                     return null;

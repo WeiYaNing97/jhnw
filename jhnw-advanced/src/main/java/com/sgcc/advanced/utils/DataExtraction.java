@@ -32,10 +32,14 @@ public class DataExtraction {
             return null;
         }
 
-        // 创建一个用于存储结果的列表
+        /**
+         * 创建一个用于存储结果的列表
+         * 遍历交换机返回信息列表，根据关键字映射，提取表格数据，并添加到结果列表hashMaps中
+         */
         List<HashMap<String, Object>> returnList = new ArrayList<>();
         Integer lineNumber = 0;
         for ( ; lineNumber < switchReturnsInformation.size(); lineNumber++) {
+
             // 调用single_table方法获取多参数返回结果
             /* 返回多个参数 行号和表格数据 */
             MultiParameterReturn multiParameterReturn = single_table(switchReturnsInformation, keywordS, lineNumber,switchParameters);

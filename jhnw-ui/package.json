@@ -1,7 +1,7 @@
 {
   "name": "ruoyi",
   "version": "3.7.0",
-  "description": "衡水交换机巡检系统",
+  "description": "网络设备安全智能管理系统",
   "author": "若依",
   "license": "MIT",
   "scripts": {

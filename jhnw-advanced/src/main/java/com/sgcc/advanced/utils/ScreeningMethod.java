@@ -173,7 +173,7 @@ public class ScreeningMethod {
         }
 
         /**
-         * 1：获取第一个交换机问题 作为初始的比较对象
+         * 1：获取第一个交换机错误包命令 作为初始的比较对象
          *  并获取初始的精确度 不等于*则加1
          */
         ErrorRateCommand errorRateCommandPojo = errorRateCommandList.get(0);
@@ -211,10 +211,12 @@ public class ScreeningMethod {
              *     如果新遍历到的对象精确度小于初始精确度则遍历新的，
              *     如果新遍历到的对象精确度等于初始精确度则比较四项基本信息的精确度*/
             if (usedNumber < newNumber){
+                //如果新遍历到的对象精确度大于初始精确度则进行替代，则赋值给精确实体类
                 errorRateCommandPojo = errorRateCommandList.get(i);
                 usedNumber = newNumber;
                 continue;
             }else  if (usedNumber > newNumber) {
+                //如果新遍历到的对象精确度小于初始精确度则遍历新的，不做任何操作，继续遍历下一个元素
                 /* map 中的更加精确  则 进行下一层遍历*/
                 continue;
             }else if (usedNumber == newNumber){
@@ -282,7 +284,8 @@ public class ScreeningMethod {
     * @param ospfCommandList
      * @return
     */
-    public static OspfCommand ObtainPreciseEntityClassesOspfCommand(SwitchParameters switchParameters,List<OspfCommand> ospfCommandList) {
+    public static OspfCommand ObtainPreciseEntityClassesOspfCommand(SwitchParameters switchParameters,
+                                                                    List<OspfCommand> ospfCommandList) {
 
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
@@ -290,104 +293,110 @@ public class ScreeningMethod {
             return null;
         }
 
-        /*定义返回内容*/
-        OspfCommand ospfCommandPojo = new OspfCommand();
+        /**
+         * 1：获取第一个交换机错误包命令 作为初始的比较对象
+         *  并获取初始的精确度 不等于*则加1
+         */
+        OspfCommand ospfCommandPojo = ospfCommandList.get(0);
+        //初始对象的精确度 不等于*则加1
+        int usedNumber = 0;
+        if (!(ospfCommandPojo.getSwitchType().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(ospfCommandPojo.getFirewareVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(ospfCommandPojo.getSubVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+
+
         /*遍历交换机问题集合*/
         for (OspfCommand ospfCommand:ospfCommandList){
-            /*如果返回为空 则可以直接存入 map集合*/
-            if (ospfCommandPojo.getId() != null){
-                /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-                /* 获取 两个交换机问题的 参数数量的精确度 */
-                /*map*/
-                int usedNumber = 0;
-                if (!(ospfCommandPojo.getSwitchType().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(ospfCommandPojo.getFirewareVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(ospfCommandPojo.getSubVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                /*新*/
-                int newNumber = 0;
-                if (!(ospfCommand.getSwitchType().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(ospfCommand.getFirewareVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(ospfCommand.getSubVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-
-
-                /*对比参数的数量大小
-                 * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
-                if (usedNumber < newNumber){
-                    /* 新 比 map中的精确*/
-                    ospfCommandPojo = ospfCommand;
-                    continue;
-                }else if (usedNumber == newNumber){
-                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
-
-                    String pojotype = ospfCommandPojo.getSwitchType();
-                    String errorRateCommandtype = ospfCommand.getSwitchType();
-                    /*比较两个属性的精确度
-                     * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
-                     * 返回0 则精确性相等 则进行下一步分析*/
-                    int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
-                    if (typeinteger > 0){
-                        continue;
-                    }else if (typeinteger < 0 ){
-                        ospfCommandPojo = ospfCommand;
-                        continue;
-                    }else if (typeinteger == 0){
-
-                        String pojofirewareVersion = ospfCommandPojo.getFirewareVersion();
-                        String errorRateCommandFirewareVersion = ospfCommand.getFirewareVersion();
-                        /*比较两个属性的精确度
-                         * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
-                         * 返回0 则精确性相等 则进行下一步分析*/
-                        int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
-                        if (firewareVersioninteger > 0){
-                            continue;
-                        }else if (firewareVersioninteger < 0){
-                            ospfCommandPojo = ospfCommand;
-                            continue;
-                        }else if (firewareVersioninteger == 0){
-
-                            String pojosubVersion = ospfCommandPojo.getSubVersion();
-                            String errorRateCommandSubVersion = ospfCommand.getSubVersion();
-                            /*比较两个属性的精确度
-                             * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
-                             * 返回0 则精确性相等 则进行下一步分析*/
-                            int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
-                            if (subVersioninteger > 0){
-                                continue;
-                            }else if (subVersioninteger < 0){
-                                ospfCommandPojo = ospfCommand;
-                                continue;
-                            }else if (subVersioninteger == 0){
-                                /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
-                                 * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
-                                 * */
-                                continue;
-                            }
-                        }
-                    }
-                }else  if (usedNumber > newNumber) {
-                    /* map 中的更加精确  则 进行下一层遍历*/
-                    continue;
-                }
-
-            }else {
-                ospfCommandPojo = ospfCommand ;
+            /**
+             * 2：获取新遍历的对象的精确度 不等于*则加1
+             * */
+            int newNumber = 0;
+            if (!(ospfCommand.getSwitchType().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(ospfCommand.getFirewareVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(ospfCommand.getSubVersion().equals("*"))){
+                newNumber = newNumber +1;
             }
 
+
+            /**
+             * 3： 对比精确度的数量大小
+             *     如果新遍历到的对象精确度大于初始精确度则进行替代，
+             *     如果新遍历到的对象精确度小于初始精确度则遍历新的，
+             *     如果新遍历到的对象精确度等于初始精确度则比较四项基本信息的精确度*/
+            if (usedNumber < newNumber){
+                //如果新遍历到的对象精确度大于初始精确度则进行替代，则赋值给精确实体类
+                ospfCommandPojo = ospfCommand;
+                usedNumber = newNumber;
+                continue;
+            }else  if (usedNumber > newNumber) {
+                //如果新遍历到的对象精确度小于初始精确度则遍历新的，不做任何操作，继续遍历下一个元素
+                continue;
+            }else if (usedNumber == newNumber){
+                /**
+                 * 4：如果精确到项一样则去比较项的值
+                 * */
+                // 比较两个对象中型号属性的属性值。
+                String pojotype = ospfCommandPojo.getSwitchType();
+                String errorRateCommandtype = ospfCommand.getSwitchType();
+                /*比较两个属性的精确度
+                 * 返回正数是第一个数属性精确
+                 * 返回负数 是第二个属性更精确
+                 * 返回0 则精确性相等 则进行下一步分析*/
+                int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
+                if (typeinteger > 0){
+                    continue;
+                }else if (typeinteger < 0 ){
+                    ospfCommandPojo = ospfCommand;
+                    continue;
+                }else if (typeinteger == 0){
+                    //比较两个对象中 版本 属性的属性值。
+                    String pojofirewareVersion = ospfCommandPojo.getFirewareVersion();
+                    String errorRateCommandFirewareVersion = ospfCommand.getFirewareVersion();
+                    /*比较两个属性的精确度
+                     * 返回正数 是第一个数属性精确
+                     * 返回负数 是第二个属性更精确
+                     * 返回0 则精确性相等 则进行下一步分析*/
+                    int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
+                    if (firewareVersioninteger > 0){
+                        continue;
+                    }else if (firewareVersioninteger < 0){
+                        ospfCommandPojo = ospfCommand;
+                        continue;
+                    }else if (firewareVersioninteger == 0){
+                        //比较两个对象中 子版本 属性的属性值。
+                        String pojosubVersion = ospfCommandPojo.getSubVersion();
+                        String errorRateCommandSubVersion = ospfCommand.getSubVersion();
+                        /*比较两个属性的精确度
+                         * 返回正数 是第一个数属性精确
+                         * 返回负数 是第二个属性更精确
+                         * 返回0 则精确性相等 则进行下一步分析*/
+                        int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
+                        if (subVersioninteger > 0){
+                            continue;
+                        }else if (subVersioninteger < 0){
+                            ospfCommandPojo = ospfCommand;
+                            continue;
+                        }else if (subVersioninteger == 0){
+                            /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
+                             * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
+                             * */
+                            continue;
+                        }
+                    }
+                }
+            }
         }
         return ospfCommandPojo;
-
     }
 
 
@@ -401,110 +410,101 @@ public class ScreeningMethod {
      */
     public static RouteAggregationCommand ObtainPreciseEntityClassesRouteAggregationCommand(SwitchParameters switchParameters,
                                                                                             List<RouteAggregationCommand> routeAggregationCommandList) {
-        // 检查线程中断标志
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return null;
         }
-
-
-        /*定义返回内容*/
-        RouteAggregationCommand routeAggregationCommandPojo = new RouteAggregationCommand();
-        /*遍历交换机问题集合*/
-        for (RouteAggregationCommand routeAggregationCommand:routeAggregationCommandList){
-            /*如果返回为空 则可以直接存入 map集合*/
-            if (routeAggregationCommandPojo.getId() != null){
-                /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-                /* 获取 两个交换机问题的 参数数量的精确度 */
-                /*map*/
-                int usedNumber = 0;
-                if (!(routeAggregationCommandPojo.getSwitchType().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(routeAggregationCommandPojo.getFirewareVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(routeAggregationCommandPojo.getSubVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                /*新*/
-                int newNumber = 0;
-                if (!(routeAggregationCommand.getSwitchType().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(routeAggregationCommand.getFirewareVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(routeAggregationCommand.getSubVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                /*对比参数的数量大小
-                 * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
-                if (usedNumber < newNumber){
-                    /* 新 比 map中的精确*/
-                    routeAggregationCommandPojo = routeAggregationCommand;
-                    continue;
-                }else if (usedNumber == newNumber){
-
-                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
-                    String pojotype = routeAggregationCommandPojo.getSwitchType();
-                    String errorRateCommandtype = routeAggregationCommand.getSwitchType();
-
-                    /*比较两个属性的精确度
-                     * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
-                     * 返回0 则精确性相等 则进行下一步分析*/
-                    int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
-
-                    if (typeinteger > 0){
-                        continue;
-                    }else if (typeinteger < 0){
-                        routeAggregationCommandPojo = routeAggregationCommand;
-                        continue;
-                    }else if (typeinteger == 0){
-
-                        String pojofirewareVersion = routeAggregationCommandPojo.getFirewareVersion();
-                        String errorRateCommandFirewareVersion = routeAggregationCommand.getFirewareVersion();
-
-                        /*比较两个属性的精确度*/
-                        int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
-
-                        if (firewareVersioninteger > 0){
-                            continue;
-                        }else if (firewareVersioninteger < 0){
-                            routeAggregationCommandPojo = routeAggregationCommand;
-                            continue;
-                        }else if (firewareVersioninteger == 0){
-
-                            String pojosubVersion = routeAggregationCommandPojo.getSubVersion();
-                            String errorRateCommandSubVersion = routeAggregationCommand.getSubVersion();
-
-                            /*比较两个属性的精确度*/
-                            int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
-
-                            if (subVersioninteger > 0){
-                                continue;
-                            }else if (subVersioninteger < 0){
-                                routeAggregationCommandPojo = routeAggregationCommand;
-                                continue;
-                            }else if (subVersioninteger == 0){
-                                /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
-                                 * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
-                                 * */
-                                continue;
-                            }
-                        }
-                    }
-                }else  if (usedNumber > newNumber) {
-                    /* map 中的更加精确  则 进行下一层遍历*/
-                    continue;
-                }
-            }else {
-                routeAggregationCommandPojo = routeAggregationCommand ;
-            }
+        /**
+         * 1：获取第一个交换机路由聚合命令 作为初始的比较对象
+         *  并获取初始的精确度 不等于*则加1
+         */
+        RouteAggregationCommand routeAggregationCommandPojo = routeAggregationCommandList.get(0);
+        int usedNumber = 0;
+        if (!(routeAggregationCommandPojo.getSwitchType().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(routeAggregationCommandPojo.getFirewareVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(routeAggregationCommandPojo.getSubVersion().equals("*"))){
+            usedNumber = usedNumber +1;
         }
 
+        /*遍历交换机问题集合*/
+        for (RouteAggregationCommand routeAggregationCommand:routeAggregationCommandList){
+            /**
+             * 2：获取新遍历的对象的精确度 不等于*则加1
+             * */
+            int newNumber = 0;
+            if (!(routeAggregationCommand.getSwitchType().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(routeAggregationCommand.getFirewareVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(routeAggregationCommand.getSubVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
 
 
+            /**
+             * 3： 对比精确度的数量大小
+             *     如果新遍历到的对象精确度大于初始精确度则进行替代，
+             *     如果新遍历到的对象精确度小于初始精确度则遍历新的，
+             *     如果新遍历到的对象精确度等于初始精确度则比较四项基本信息的精确度*/
+            if (usedNumber < newNumber){
+                //如果新遍历到的对象精确度大于初始精确度则进行替代，则赋值给精确实体类
+                routeAggregationCommandPojo = routeAggregationCommand;
+                usedNumber = newNumber;
+                continue;
+            }else  if (usedNumber > newNumber) {
+                //如果新遍历到的对象精确度小于初始精确度则遍历新的，不做任何操作，继续遍历下一个元素
+                continue;
+            }else if (usedNumber == newNumber){
+                /**
+                 * 4：如果精确到项一样则去比较项的值
+                 * */
+                String pojotype = routeAggregationCommandPojo.getSwitchType();
+                String errorRateCommandtype = routeAggregationCommand.getSwitchType();
+                /*比较两个属性的精确度
+                 * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
+                 * 返回0 则精确性相等 则进行下一步分析*/
+                int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
+                if (typeinteger > 0){
+                    continue;
+                }else if (typeinteger < 0){
+                    routeAggregationCommandPojo = routeAggregationCommand;
+                    continue;
+                }else if (typeinteger == 0){
+                    String pojofirewareVersion = routeAggregationCommandPojo.getFirewareVersion();
+                    String errorRateCommandFirewareVersion = routeAggregationCommand.getFirewareVersion();
+                    /*比较两个属性的精确度*/
+                    int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
+                    if (firewareVersioninteger > 0){
+                        continue;
+                    }else if (firewareVersioninteger < 0){
+                        routeAggregationCommandPojo = routeAggregationCommand;
+                        continue;
+                    }else if (firewareVersioninteger == 0){
+                        String pojosubVersion = routeAggregationCommandPojo.getSubVersion();
+                        String errorRateCommandSubVersion = routeAggregationCommand.getSubVersion();
+                        /*比较两个属性的精确度*/
+                        int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
+                        if (subVersioninteger > 0){
+                            continue;
+                        }else if (subVersioninteger < 0){
+                            routeAggregationCommandPojo = routeAggregationCommand;
+                            continue;
+                        }else if (subVersioninteger == 0){
+                            /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
+                             * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
+                             * */
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
         return routeAggregationCommandPojo;
     }
 

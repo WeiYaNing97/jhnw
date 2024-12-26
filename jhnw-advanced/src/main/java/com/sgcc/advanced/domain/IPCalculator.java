@@ -1,7 +1,9 @@
 package com.sgcc.advanced.domain;
 
 
-
+/**
+ * IP地址段范围
+ */
 public class IPCalculator {
 
     /*ip*/

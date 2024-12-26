@@ -186,7 +186,7 @@ public class LuminousAttenuation {
         //配置文件光衰问题的命令 不为空时，执行交换机命令，返回交换机返回信息
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> returnString_List = executeCommand.executeScanCommandByCommand(switchParameters, command);
-        if (returnString_List == null || WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+        if (returnString_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             return null;
         }
         // todo 光衰功能交换机端口号命令返回结果，虚拟数据

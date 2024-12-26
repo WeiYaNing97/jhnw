@@ -29,6 +29,76 @@ public class RouteAggregation {
     private IRouteAggregationCommandService routeAggregationCommandService;
 
     /**
+     * 获取聚合结果
+     *
+     * @param switchParameters 交换机参数对象
+     * @return 无返回值
+     */
+    public AjaxResult obtainAggregationResults(SwitchParameters switchParameters) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        }
+
+        /**
+         * 1:获取路由聚合命令对象
+         */
+        AjaxResult commandPojo = getRouteAggregationCommandPojo(switchParameters);
+        // 检查线程中断标志
+        if (commandPojo==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!commandPojo.get("msg").equals("操作成功")){
+            return commandPojo;
+        }
+        RouteAggregationCommand routeAggregationCommandPojo = (RouteAggregationCommand) commandPojo.get("data");
+
+
+
+        /**
+         * 2:内部路由聚合
+         * 如果internal信息不为空，则调用InternalRouteAggregation类的internalRouteAggregation方法进行内部路由聚合
+         */
+        List<String> internal_List = executeInternalCommand(switchParameters, routeAggregationCommandPojo);
+        // 检查线程中断标志
+        if (internal_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!MyUtils.isCollectionEmpty(internal_List)){// 如果internal信息不为空
+            /**
+             * 调用internalRouteAggregation方法进行内部路由聚合
+             */
+            internalRouteAggregation(switchParameters,internal_List);
+        }
+
+
+        /**
+         * 3：外部路由聚合
+         * 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
+         */
+        List<String> external_List = executeExternalCommand(switchParameters, routeAggregationCommandPojo);
+        // 检查线程中断标志
+        if (external_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return AjaxResult.success("操作成功", "线程已终止扫描");
+        } else if (!MyUtils.isCollectionEmpty(external_List)){// 如果external信息不为空
+            // 从switchReturnsMap中获取externalKeywords信息
+            String externalKeywords = routeAggregationCommandPojo.getExternalKeywords();
+            // todo 外部路由聚合 协议关键词 虚假数据
+            externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
+
+            /**
+             * 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
+             * */
+            ExternalRouteAggregation.externalRouteAggregation(switchParameters,external_List,externalKeywords);
+        }
+        return AjaxResult.success();
+    }
+
+
+
+    /**
      * 执行内部命令以获取路由聚合问题的信息
      *
      * @param switchParameters 交换机参数对象
@@ -42,16 +112,30 @@ public class RouteAggregation {
             return null;
         }
 
-        // 获取路由聚合问题的内部命令
+        /**
+         * 1：获取路由聚合问题的内部命令，执行交换机命令返回交换机返回信息
+         *      检查线程中断标志，并判空
+         * */
         String internalCommand = routeAggregationCommandPojo.getInternalCommand();
-        // 执行交换机命令，返回交换机返回信息
-        /* 配置文件路由聚合问题的命令 不为空时，执行交换机命令，返回交换机返回信息*/
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> internal_List = executeCommand.executeScanCommandByCommand(switchParameters, internalCommand);
+        if (internal_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
 
-        // 去除返回信息中的空白字符
-        // todo 路由聚合虚拟数据
+        // todo 内部路由聚合命令交换机返回信息-虚拟数据
         internal_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(H3C)),"\r\n");
+        if (MyUtils.isCollectionEmpty(internal_List)){
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:路由聚合问题的内部命令错误,请重新定义\r\n");
+        }
         return internal_List;
     }
 
@@ -69,89 +153,38 @@ public class RouteAggregation {
             return null;
         }
 
-        // 获取路由聚合问题的外部命令
+        /**
+         * 1：获取路由聚合问题的外部命令，执行交换机命令返回交换机返回信息
+         * */
         String externalCommand = routeAggregationCommandPojo.getExternalCommand();
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> external_List = executeCommand.executeScanCommandByCommand(switchParameters, externalCommand);
-        // 去除返回信息中的空白字符
-        // todo 路由聚合虚拟数据
+        if (external_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
+        // todo 外部路由聚合命令交换机返回信息-虚拟数据
         external_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(externalreturnInformation)),
                 "\r\n");
+        if (MyUtils.isCollectionEmpty(external_List)){
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:路由聚合问题的外部命令错误,请重新定义\r\n");
+        }
         return external_List;
     }
 
 
-    /**
-     * 获取聚合结果
-     *
-     * @param switchParameters 交换机参数对象
-     * @return 无返回值
-     */
-    public AjaxResult obtainAggregationResults(SwitchParameters switchParameters) {
-        // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        }
 
-        AjaxResult commandPojo = getRouteAggregationCommandPojo(switchParameters);
-        // 检查线程中断标志
-        if (commandPojo==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        } else if (!commandPojo.get("msg").equals("操作成功")){
-            return commandPojo;
-        }
-        RouteAggregationCommand routeAggregationCommandPojo = (RouteAggregationCommand) commandPojo.get("data");
-
-
-
-
-        /**
-         * 执行内部路由命令
-         * 如果internal信息不为空，则调用InternalRouteAggregation类的internalRouteAggregation方法进行内部路由聚合
-         */
-        List<String> internal_List = executeInternalCommand(switchParameters, routeAggregationCommandPojo);
-        // 检查线程中断标志
-        if (internal_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        } else if (MyUtils.isCollectionEmpty(internal_List)){// 如果internal信息不为空
-            // 调用internalRouteAggregation方法进行内部路由聚合
-            internalRouteAggregation(switchParameters,internal_List);
-        }
-
-
-
-
-        /**
-         * 执行外部路由命令
-         * 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
-         */
-        List<String> external_List = executeExternalCommand(switchParameters, routeAggregationCommandPojo);
-        // 检查线程中断标志
-        if (external_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return AjaxResult.success("操作成功", "线程已终止扫描");
-        } else if (MyUtils.isCollectionEmpty(external_List)){// 如果external信息不为空
-            // 从switchReturnsMap中获取externalKeywords信息
-            String externalKeywords = routeAggregationCommandPojo.getExternalKeywords();
-            // todo 虚假数据
-            externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
-
-            // 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
-            ExternalRouteAggregation.externalRouteAggregation(switchParameters,external_List,externalKeywords);
-        }
-
-
-
-
-        return AjaxResult.success();
-    }
 
 
     /**
-     * 获取路由聚合命令
+     * 根据四项基本信息，填写路由聚合命令对象，并返回该对象。
      *
      * @param switchParameters 交换机参数对象
      * @return 路由聚合命令对象
@@ -162,7 +195,6 @@ public class RouteAggregation {
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
 
         // 创建一个路由聚合命令对象
         RouteAggregationCommand routeAggregationCommand = new RouteAggregationCommand();
@@ -191,21 +223,18 @@ public class RouteAggregation {
             return null;
         }
 
-        // 1：获取配置文件关于路由聚合问题的符合交换机品牌的命令的配置信息
-        /* SwitchParameters switchParameters */
+        /**
+         * 1：根据四项基本信息，填写路由聚合命令对象,
+         *       后根据带有四项基本信息命令的路由聚合命令对象 查询符合配置的路由聚合命令列表
+         *       判断路由聚合命令列表是否为空，为空则返回未定义信息
+         */
         RouteAggregationCommand routeAggregationCommand = getRouteAggregationCommand(switchParameters);
-        // 检查线程中断标志
-        if (routeAggregationCommand == null &&
-                WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
+        if (routeAggregationCommand == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             return null;
         }
-        // 获取IRouteAggregationCommandService的bean实例
         routeAggregationCommandService = SpringBeanUtil.getBean(IRouteAggregationCommandService.class);
-        // 查询符合配置的路由聚合命令列表
         List<RouteAggregationCommand> routeAggregationCommandList = routeAggregationCommandService.selectRouteAggregationCommandListBySQL(routeAggregationCommand);
-
-        // 当配置文件路由聚合问题的命令为空时，进行日志写入
         if (MyUtils.isCollectionEmpty(routeAggregationCommandList)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
@@ -219,18 +248,16 @@ public class RouteAggregation {
             return AjaxResult.error("IP地址为:"+switchParameters.getIp()+","+"问题为:路由聚合功能未定义获取网络号命令\r\n");
         }
 
-        // 从routeAggregationCommandList中获取四项基本最详细的数据
-        /* 从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
+        /**
+         * 2：路由聚合命令列表不为空，则筛选出四项基本最详细的数据
+         */
         RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesRouteAggregationCommand(
                 switchParameters,
                 routeAggregationCommandList);
-
-        // 检查线程中断标志
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (routeAggregationCommandPojo==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return null;
         }
-
         return AjaxResult.success(routeAggregationCommandPojo);
     }
 
@@ -239,43 +266,44 @@ public class RouteAggregation {
      * 内部路由聚合方法
      *
      * @param switchParameters 交换机参数对象
-     * @param switchReturnsinternalInformation 交换机返回的内部信息
+     * @param switchReturnsinternalInformation_List 交换机返回的内部信息集合
      * @return 无返回值
      */
     public static void internalRouteAggregation(SwitchParameters switchParameters,List<String> switchReturnsinternalInformation_List) {
-
-        // 检查线程中断标志
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return;
         }
 
-
-
-        // 获取IP信息列表
+        /**
+         * 1：从给定的交换机返回信息中提取IP信息，并返回IP信息列表
+         */
         List<IPInformation> ipInformationList = IPAddressUtils.getIPInformation(switchParameters,switchReturnsinternalInformation_List);
-        // 检查线程中断标志
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (ipInformationList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return;
         }
+        // 将IP地址和子网掩码转换为CIDR表示法的字符串。 10.98.136.0/24
         List<String> collect = ipInformationList.stream().map(ipInformation -> MyUtils.convertToCIDR(ipInformation.getIp(), ipInformation.getMask())).collect(Collectors.toList());
-        // 将IP信息列表转换为IP计算器列表
+        // 将IP信息列表转换为 IP地址段范围 列表 ： 获取CIDR表示法的 子网掩码和地址段范围
         List<IPCalculator> ipCalculatorList = collect.stream().map(ipCIDR -> IPAddressCalculator.Calculator(ipCIDR)).collect(Collectors.toList());
-        // 对IP计算器列表进行排序
+        // 对 IP地址段范围 列表进行排序
         IPAddressUtils.sortIPCalculator(ipCalculatorList);
 
 
 
+        /**
+         * 2：将传入的 IP地址段范围 列表进行IP地址段的拼接，返回拼接后的IP地址段列表。拼接IP地址段包含起始IP地址和结束IP地址及对应的IP地址段范围
+         * */
         List<IPAddresses> ipAddresses = IPAddressUtils.splicingAddressRange(switchParameters,ipCalculatorList);
-        // 检查线程中断标志
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (ipAddresses == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return;
         }
 
-
-
+        /**
+         * 3:遍历拼接后的IP地址段列表，对每个IP地址段的地址段范围拆分成新的更长的地址段。返回聚合后的IP地址段列表。
+         */
         List<List<String>> returnList = new ArrayList<>();
         for (IPAddresses ipAddress : ipAddresses) {
             // 检查线程中断标志
@@ -283,36 +311,51 @@ public class RouteAggregation {
                 // 如果线程中断标志为true，则直接返回
                 return;
             }
+            // 获取IP地址段的预聚合结果列表
             List<String> preAggregationRouteList = ipAddress.getIpCalculatorList().stream()
                     .map(x -> x.getIp() + "/" + x.getMask() + "[" + x.getFirstAvailable() + " - " + x.getFinallyAvailable() + "]")
                     .collect(Collectors.toList());
+
+            // 获取IP地址段的聚合结果列表
             List<String> aggregatedRouteList = IPAddressUtils.getNetworkNumber(ipAddress.getIpStart(), ipAddress.getIpEnd());
             List<String> returnString = new ArrayList<>();
+            // 添加原始网络号标签
             returnString.add("原始网络号:");
+            // 添加预聚合结果列表
             returnString.addAll(preAggregationRouteList);
+            // 添加聚合网络号标签
             returnString.add("聚合网络号:");
+            // 添加聚合结果列表
             returnString.addAll(aggregatedRouteList);
+            // 将结果添加到返回列表中
             returnList.add(returnString);
-
-            //输出控制台
+            // 输出控制台
             returnString.stream().forEach(System.err::println);
             System.err.println("==============================================================");
-
             HashMap<String,String> hashMap = new HashMap<>();
-            if (preAggregationRouteList.size() == aggregatedRouteList.size()) {
+            // 判断聚合结果是否有问题
+            if (MyUtils.areAllElementsEqualAtSameIndex(
+                    IPAddressUtils.ipSort(preAggregationRouteList),
+                    IPAddressUtils.ipSort(aggregatedRouteList))) {//preAggregationRouteList.size() == aggregatedRouteList.size()
                 hashMap.put("IfQuestion","无问题");
             }else {
                 hashMap.put("IfQuestion","有问题");
             }
-
+            // 创建SwitchScanResultController对象用于插入扫描结果
             SwitchScanResultController switchScanResultController = new SwitchScanResultController();
+            // 设置问题名称为"内部路由聚合"
             hashMap.put("ProblemName","内部路由聚合");
+            // 将结果拼接成字符串存入parameterString
             hashMap.put("parameterString",String.join("\r\n" , returnString));
+            // 插入扫描结果并获取插入ID
             Long insertId = switchScanResultController.insertSwitchScanResult(switchParameters, hashMap);
+            // 创建SwitchIssueEcho对象用于获取扫描结果回显
             SwitchIssueEcho switchIssueEcho = new SwitchIssueEcho();
+            // 获取扫描结果回显
             switchIssueEcho.getSwitchScanResultListByData(switchParameters.getLoginUser().getUsername(),insertId);
         }
     }
+
 
     public static String H3C = "  network 10.98.136.0 0.0.0.255\n" +
             "  network 10.98.137.0 0.0.0.255\n" +

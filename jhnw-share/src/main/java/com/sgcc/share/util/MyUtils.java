@@ -326,12 +326,16 @@ public class MyUtils {
      */
     public static String includePortNumberKeywords(String lineData ) {
 
-        /** 端口号特征关键字集合 */
-        //String deviceVersion = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
-        String deviceVersionKey ="GigabitEthernet GE FastEthernet Ten-GigabitEthernet Ethernet Eth-Trunk XGigabitEthernet Trunking BAGG Eth FastEthernet SFP USB InLoop Method Vlan";
+        /**
+         * 1:配置文件端口号特征关键字集合，并进行排序，以便首先匹配最长的关键字
+         * */
+        String deviceVersionKey = (String) CustomConfigurationUtil.getValue("obtainPortNumber.keyword", Constant.getProfileInformation());
         List<String> deviceVersionList = Arrays.stream(deviceVersionKey.split(" ")).collect(Collectors.toList());
         Collections.sort(deviceVersionList, Comparator.comparingInt(String::length).reversed());
 
+        /**
+         * 2:遍历排序后的关键字列表，查找包含设备端口号关键字的单词
+         */
         for (String deviceVersion : deviceVersionList) {
             // 检查行数据是否包含设备端口号关键字
             if (MyUtils.containIgnoreCase(lineData,deviceVersion)) {
@@ -355,6 +359,8 @@ public class MyUtils {
 
     /**
      * 不区分大小写地替换字符串中的指定子串。
+     *
+     * 方法目的：替换端口号中的空格，但不改变端口号的大小写。
      *
      * <p>此方法接收三个字符串参数：输入字符串（{@code input}），要查找的子串（{@code find}），以及用于替换的子串（{@code replacement}）。
      * 它遍历输入字符串，查找所有与要查找的子串（不区分大小写）匹配的实例，并将它们替换为指定的替换子串。
@@ -545,9 +551,7 @@ public class MyUtils {
      * @return
      */
     public static String[] splitIgnoreCase(String string,String str){
-
         return string.split("(?i)"+str);
-
     }
 
     /**
@@ -762,6 +766,49 @@ public class MyUtils {
      */
     public static boolean isMapEmpty(Map<?, ?> map) {
         return map == null || map.isEmpty() || map.size() == 0;
+    }
+
+
+    /**
+     * 判断多个集合是否相等
+     * 检查传入的多个列表在相同索引处的元素是否全部相等。
+     *
+     * @param lists 一个或多个列表的数组，每个列表包含可比较的元素
+     * @return 如果所有传入的列表在相同索引处的元素都相等，则返回true；否则返回false
+     *
+     * 注意：
+     * 1. 如果传入的列表数组为null或长度为0，则直接返回true。
+     * 2. 首先检查所有列表的长度是否相同，如果长度不同，则直接返回false。
+     * 3. 然后，逐索引比较各列表中的元素，如果发现任何两个列表在相同索引处的元素不相等，则返回false。
+     * 4. 如果所有列表在相同索引处的元素都相等，则返回true。
+     */
+    public static boolean areAllElementsEqualAtSameIndex(List<?>... lists) {
+        if (lists == null || lists.length == 0) return true;
+
+        // Check if all lists have the same size.
+        int size = -1;
+        for (List<?> list : lists) {
+            if (size == -1) {
+                size = list.size();
+            } else if (list.size() != size) {
+                return false; // Lists of different sizes.
+            }
+        }
+
+        // Compare elements at each index.
+        for (int i = 0; i < size; i++) {
+            Object firstElement = null;
+            for (List<?> list : lists) {
+                Object currentElement = list.get(i);
+                if (firstElement == null) {
+                    firstElement = currentElement;
+                } else if (!Objects.equals(firstElement, currentElement)) {
+                    return false; // Elements at index i are not equal.
+                }
+            }
+        }
+
+        return true; // All elements at the same indexes are equal.
     }
     /* ============================== 集合 结束 ==============================*/
     /* ============================== Double 开始 ==============================*/

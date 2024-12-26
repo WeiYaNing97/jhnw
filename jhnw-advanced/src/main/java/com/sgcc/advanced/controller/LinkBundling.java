@@ -41,9 +41,8 @@ public class LinkBundling {
      */
     public AjaxResult linkBindingInterface(SwitchParameters switchParameters) {
 
-        // 检查线程中断标志
+        // 检查线程中断标志  如果线程中断标志为true，则直接返回
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
 
@@ -81,8 +80,7 @@ public class LinkBundling {
                     externalKeywords);
 
             // 检查线程中断标志
-            if (externalIPCalculatorList == null &&
-                    WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            if (externalIPCalculatorList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return AjaxResult.success("操作成功", "线程已终止扫描");
             }
