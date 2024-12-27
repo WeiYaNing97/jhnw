@@ -40,13 +40,14 @@ public class LinkBundling {
      * @return AjaxResult对象，包含操作结果
      */
     public AjaxResult linkBindingInterface(SwitchParameters switchParameters) {
-
         // 检查线程中断标志  如果线程中断标志为true，则直接返回
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             return AjaxResult.success("操作成功", "线程已终止扫描");
         }
 
-        // 获取链路绑定命令的AjaxResult对象
+        /**
+         * 1：根据四项基本信息获取链路绑定命令的对象
+         */
         AjaxResult commandPojo = getLinkBindingCommandPojo(switchParameters);
         // 检查线程中断标志
         if (commandPojo == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
@@ -58,7 +59,10 @@ public class LinkBundling {
         // 将commandPojo中的数据转换为LinkBindingCommand对象
         LinkBindingCommand linkBindingCommand = (LinkBindingCommand) commandPojo.get("data");
 
-        // 执行外部路由命令
+
+        /**
+         * 2: 获取路由表命令,获取交换机返回信息
+         */
         // 如果external信息不为空，则调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
         List<String> external_List = getRoutingTableCommand(switchParameters,linkBindingCommand);
         // 存储目标地址和掩码的列表
@@ -67,42 +71,42 @@ public class LinkBundling {
         if (external_List == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
             return AjaxResult.success("操作成功", "线程已终止扫描");
-        }else if (MyUtils.isCollectionEmpty(external_List)){// 如果external信息不为空
-
-            // 从switchReturnsMap中获取externalKeywords信息
+        }else if (MyUtils.isCollectionEmpty(external_List)){
+            /**
+             * 3: 获取实体类的协议关键字，并根据协议关键字获取外部IP地址和掩码列表
+             */
             String externalKeywords = linkBindingCommand.getKeywords();
             /* todo 虚假数据 */
             externalKeywords = "OSPF/O_INTRA/O/O_ASE/O_ASE2/C/S";
-
-            // 调用ExternalRouteAggregation类的externalRouteAggregation方法进行外部路由聚合
             List<ExternalIPCalculator> externalIPCalculatorList = ExternalRouteAggregation.getExternalIPCalculatorList(switchParameters,
                     external_List,
                     externalKeywords);
-
             // 检查线程中断标志
             if (externalIPCalculatorList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
                 // 如果线程中断标志为true，则直接返回
                 return AjaxResult.success("操作成功", "线程已终止扫描");
             }
-
             DestinationMaskList = externalIPCalculatorList.stream().map(x -> x.getDestinationMask()).collect(Collectors.toList());
         }
 
         // 用于映射IP地址和链路捆绑类型的HashMap
         HashMap<String,String> ipListMap = new HashMap<>();
-        // 与登录设备相连的用户站IP，需要前端输入的数据
+
+
+        List<IPCalculator> IPCalculatorList = DestinationMaskList.stream().map(ipCIDR -> IPAddressCalculator.Calculator(ipCIDR)).collect(Collectors.toList());
+
+
+        // todo 与登录设备相连的用户站IP，需要前端输入的数据
         List<String> ipList = new ArrayList<>();
         for (String ip:ipList){
-            for (String destinationMask : DestinationMaskList) {
-
+            for (IPCalculator ipCalculator : IPCalculatorList) {
                 // 判断是否为三层链路捆绑
-                boolean three_layers = LinkBundlingAnalysis(ip,destinationMask);
+                boolean three_layers = LinkBundlingAnalysis(ip,ipCalculator);
                 if (three_layers){
                     ipListMap.put(ip,"三层链路捆绑");
                 }
             }
         }
-
         // 返回操作成功的AjaxResult对象
         return AjaxResult.success();
     }
@@ -129,25 +133,42 @@ public class LinkBundling {
         String routingTableCommand = linkBindingCommand.getRoutingTableCommand();
         ExecuteCommand executeCommand = new ExecuteCommand();
         List<String> stringList = executeCommand.executeScanCommandByCommand(switchParameters, routingTableCommand);
-        // 去除返回信息中的空白字符
-        // todo 链路捆绑虚拟数据
+        if (stringList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            return null;
+        }
+        // todo 链路捆绑命令返回结果虚拟数据
         stringList = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(routingTableCommandReturnInformation)),
                 "\r\n");
+        if (MyUtils.isCollectionEmpty(stringList)){
+            String subversionNumber = switchParameters.getSubversionNumber();
+            if (subversionNumber!=null){
+                subversionNumber = "、"+subversionNumber;
+            }
+            AbnormalAlarmInformationMethod.afferent(switchParameters.getIp(), switchParameters.getLoginUser().getUsername(), "问题日志",
+                    "异常:" +
+                            "IP地址为:"+switchParameters.getIp()+","+
+                            "基本信息为:"+switchParameters.getDeviceBrand()+"、"+switchParameters.getDeviceModel()+"、"+switchParameters.getFirmwareVersion()+subversionNumber+","+
+                            "问题为:路由聚合问题的外部命令错误,请重新定义\r\n");
+        }
         return stringList;
     }
 
 
+
     /**
-     * 链路捆绑分析
-     * @param ip 给定的IP地址
-     * @param ipCIDR CIDR范围的字符串表示
-     * @return 如果给定的IP地址在CIDR范围内则返回true，否则返回false
+     * 分析给定的IP地址是否可以进行链路捆绑。
+     *
+     * @param ip 要分析的IP地址
+     * @param ipCalculator IP计算器，用于计算IP地址的范围
+     * @return 如果IP地址在CIDR范围内且可以Ping通，则返回true；否则返回false
+     *
+     * 此方法首先使用IPAddressUtils工具类判断给定的IP地址是否在CIDR范围内。
+     * 如果在范围内，则调用itCanBePinged方法判断该IP地址是否可以Ping通，如果可以Ping通则返回true，否则返回false。
+     * 如果IP地址不在CIDR范围内，则直接返回false。
      */
-    public static boolean LinkBundlingAnalysis(String ip,String ipCIDR) {
-        // 创建一个IPCalculator对象，用于计算CIDR范围的起始和结束IP地址
-        IPCalculator calculator = IPAddressCalculator.Calculator(ipCIDR);
+    public static boolean LinkBundlingAnalysis(String ip,IPCalculator ipCalculator) {
         // 判断给定的IP地址是否在CIDR范围内
-        if (IPAddressUtils.isIPInRange(ip, calculator.getFirstAvailable(),calculator.getFinallyAvailable())) {
+        if (IPAddressUtils.isIPInRange(ip, ipCalculator.getFirstAvailable(),ipCalculator.getFinallyAvailable())) {
             // 如果在范围内，则判断是否可以Ping通
             boolean ifPing = itCanBePinged(ip, 3000);
             return ifPing;
@@ -202,14 +223,13 @@ public class LinkBundling {
             // 如果线程中断标志为true，则直接返回
             return null;
         }
-
-
+        /**
+         * 1:根据四项基本信息创建IRouteAggregationCommandService的bean实例
+         *    根据Bean实例查询数据库的链路捆绑命令对象列表，当链路捆绑命令对象列表为空时，进行日志写入
+         */
         LinkBindingCommand linkBindingCommand = getLinkBindingCommand(switchParameters);
-        // 获取IRouteAggregationCommandService的bean实例
         linkBindingCommandService = SpringBeanUtil.getBean(ILinkBindingCommandService.class);
-        // 查询符合配置的路由聚合命令列表
         List<LinkBindingCommand> linkBindingCommandList = linkBindingCommandService.selectLinkBindingCommandListBySQL(linkBindingCommand);
-        // 当配置文件路由聚合问题的命令为空时，进行日志写入
         if (MyUtils.isCollectionEmpty(linkBindingCommandList)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
@@ -224,19 +244,17 @@ public class LinkBundling {
         }
 
 
-        // 从routeAggregationCommandList中获取四项基本最详细的数据
-        /* 从 routeAggregationCommandList 中 获取四项基本最详细的数据*/
+        /**
+         * 2：从链路捆绑命令对象列表中获取四项基本最详细的数据
+         * */
         LinkBindingCommand linkBindingCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesLinkBindingCommand(
                 switchParameters,
                 linkBindingCommandList);
-
-        // 检查线程中断标志
+        // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (linkBindingCommandPojo ==  null &&
                 WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
             return null;
         }
-
         return AjaxResult.success(linkBindingCommandPojo);
     }
 

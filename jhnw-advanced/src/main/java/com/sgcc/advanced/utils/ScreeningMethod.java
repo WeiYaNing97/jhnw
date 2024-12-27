@@ -12,19 +12,25 @@ import java.util.*;
  */
 public class ScreeningMethod {
 
+
     /**
-     * 日常巡检 光衰命令筛选方法
-     * @Description 从lightAttenuationCommandList中获取四项基本最详细的数据
-     * @author charles
-     * @createTime 2023/12/18 14:09
-     * @desc
-     *  实现逻辑为:
-     * 先比较两个实体类中四项基本信息字段为＊的多少。
-     * 如果字段为 * 的个数不相同，则字段为 * 少的实体类更加精确，则赋值给精确实体类。
-     * 如果两个实体类字段为 * 的个数相同的时候都比较，不为星的字段哪个更加精确。 例如 S* 与 S2152 ，S2152 更加精确
+     * 获取精确度最高的实体类对象的光衰命令。
      *
-     * @param lightAttenuationCommandList
-     * @return
+     * @param switchParameters 交换机参数对象，包含扫描标记等信息
+     * @param lightAttenuationCommandList 光衰命令对象列表，每个对象包含交换机类型、固件版本、子版本等信息
+     * @return 精确度最高的实体类对象的光衰命令，如果线程中断则返回null
+     *
+     * 此方法首先检查线程中断标志，如果线程中断则返回null。
+     * 接着，从lightAttenuationCommandList中提取第一个元素作为初始比较对象，
+     * 并根据其交换机类型、固件版本、子版本等信息的具体程度初始化精确度计数器usedNumber。
+     * 然后，遍历lightAttenuationCommandList中的每个元素，对于每个元素执行以下操作：
+     * 1. 初始化精确度计数器newNumber，并根据其交换机类型、固件版本、子版本等信息的具体程度计算精确度。
+     * 2. 如果newNumber大于usedNumber，则将当前元素作为新的精确度最高的实体类对象，并更新usedNumber。
+     * 3. 如果newNumber小于usedNumber，则继续遍历下一个元素。
+     * 4. 如果newNumber等于usedNumber，则进一步比较交换机类型、固件版本、子版本等信息的具体程度，
+     *    选择更具体的元素作为精确度最高的实体类对象。如果所有比较都相等，则说明存在重复元素，
+     *    根据业务逻辑，此时应不应该存在重复元素，因此跳过。
+     * 最后，返回精确度最高的实体类对象的光衰命令。
      */
     public static LightAttenuationCommand ObtainPreciseEntityClassesLightAttenuationCommand(SwitchParameters switchParameters,
                                                                                             List<LightAttenuationCommand> lightAttenuationCommandList) {
@@ -152,18 +158,24 @@ public class ScreeningMethod {
     }
 
     /**
-    * 日常巡检 错误包命令筛选方法
-     * @Description  从errorRateCommandList中 获取四项基本最详细的数据
-    * @author charles
-    * @createTime 2023/12/18 14:45
-    * @desc
-     * 实现逻辑为:
-     *     先比较两个实体类中四项基本信息字段为＊的多少。
-     *     如果字段为 * 的个数不相同，则字段为 * 少的实体类更加精确，则赋值给精确实体类。
-     *     如果两个实体类字段为 * 的个数相同的时候都比较，不为星的字段哪个更加精确。 例如 S* 与 S2152 ，S2152 更加精确
-    * @param errorRateCommandList
-     * @return
-    */
+     * 获取精确度最高的实体类对象的错误率命令。
+     *
+     * @param switchParameters 交换机参数对象，包含扫描标记等信息
+     * @param errorRateCommandList 错误率命令对象列表，每个对象包含交换机类型、固件版本、子版本等信息
+     * @return 精确度最高的实体类对象的错误率命令，如果线程中断则返回null
+     *
+     * 此方法首先检查线程中断标志，如果线程中断则返回null。
+     * 然后，从errorRateCommandList中提取第一个元素作为初始比较对象，
+     * 并根据其交换机类型、固件版本、子版本等信息的具体程度初始化精确度计数器usedNumber。
+     * 接着，遍历errorRateCommandList中的每个元素，对于每个元素执行以下操作：
+     * 1. 初始化精确度计数器newNumber，并根据其交换机类型、固件版本、子版本等信息的具体程度计算精确度。
+     * 2. 如果newNumber大于usedNumber，则将当前元素作为新的精确度最高的实体类对象，并更新usedNumber。
+     * 3. 如果newNumber小于usedNumber，则继续遍历下一个元素。
+     * 4. 如果newNumber等于usedNumber，则进一步比较交换机类型、固件版本、子版本等信息的具体程度，
+     *    选择更具体的元素作为精确度最高的实体类对象。如果所有比较都相等，则说明存在重复元素，
+     *    根据业务逻辑，此时应不应该存在重复元素，因此跳过。
+     * 最后，返回精确度最高的实体类对象的错误率命令。
+     */
     public static ErrorRateCommand ObtainPreciseEntityClassesErrorRateCommand(SwitchParameters switchParameters,
                                                                               List<ErrorRateCommand> errorRateCommandList) {
         // 检查线程中断标志
@@ -269,21 +281,25 @@ public class ScreeningMethod {
         return errorRateCommandPojo;
     }
 
-
-
     /**
-    * @Description 通过四项基本欸的精确度 筛选最精确的OSPF命令
-    * @author charles
-    * @createTime 2023/12/18 14:42
-    * @desc
-     * 实现逻辑为:
-     *    先比较两个实体类中四项基本信息字段为＊的多少。
-     *    如果字段为 * 的个数不相同，则字段为 * 少的实体类更加精确，则赋值给精确实体类。
-     *    如果两个实体类字段为 * 的个数相同的时候都比较，不为星的字段哪个更加精确。 例如 S* 与 S2152 ，S2152 更加精确
+     * 获取精确度最高的实体类对象的OSPF命令。
      *
-    * @param ospfCommandList
-     * @return
-    */
+     * @param switchParameters 交换机参数对象，包含扫描标记等信息
+     * @param ospfCommandList OSPF命令对象列表，每个对象包含交换机类型、固件版本、子版本等信息
+     * @return 精确度最高的实体类对象的OSPF命令，如果线程中断则返回null
+     *
+     * 此方法首先检查线程中断标志，如果线程中断则返回null。
+     * 接着，从ospfCommandList中提取第一个元素作为初始比较对象，
+     * 并根据其交换机类型、固件版本、子版本等信息的具体程度初始化精确度计数器usedNumber。
+     * 然后，遍历ospfCommandList中的每个元素，对于每个元素执行以下操作：
+     * 1. 初始化精确度计数器newNumber，并根据其交换机类型、固件版本、子版本等信息的具体程度计算精确度。
+     * 2. 如果newNumber大于usedNumber，则将当前元素作为新的精确度最高的实体类对象，并更新usedNumber。
+     * 3. 如果newNumber小于usedNumber，则继续遍历下一个元素。
+     * 4. 如果newNumber等于usedNumber，则进一步比较交换机类型、固件版本、子版本等信息的具体程度，
+     *    选择更具体的元素作为精确度最高的实体类对象。如果所有比较都相等，则说明存在重复元素，
+     *    根据业务逻辑，此时应不应该存在重复元素，因此跳过。
+     * 最后，返回精确度最高的实体类对象的OSPF命令。
+     */
     public static OspfCommand ObtainPreciseEntityClassesOspfCommand(SwitchParameters switchParameters,
                                                                     List<OspfCommand> ospfCommandList) {
 
@@ -312,18 +328,18 @@ public class ScreeningMethod {
 
 
         /*遍历交换机问题集合*/
-        for (OspfCommand ospfCommand:ospfCommandList){
+        for (int i=1;i<ospfCommandList.size();i++){
             /**
              * 2：获取新遍历的对象的精确度 不等于*则加1
              * */
             int newNumber = 0;
-            if (!(ospfCommand.getSwitchType().equals("*"))){
+            if (!(ospfCommandList.get(i).getSwitchType().equals("*"))){
                 newNumber = newNumber +1;
             }
-            if (!(ospfCommand.getFirewareVersion().equals("*"))){
+            if (!(ospfCommandList.get(i).getFirewareVersion().equals("*"))){
                 newNumber = newNumber +1;
             }
-            if (!(ospfCommand.getSubVersion().equals("*"))){
+            if (!(ospfCommandList.get(i).getSubVersion().equals("*"))){
                 newNumber = newNumber +1;
             }
 
@@ -335,7 +351,7 @@ public class ScreeningMethod {
              *     如果新遍历到的对象精确度等于初始精确度则比较四项基本信息的精确度*/
             if (usedNumber < newNumber){
                 //如果新遍历到的对象精确度大于初始精确度则进行替代，则赋值给精确实体类
-                ospfCommandPojo = ospfCommand;
+                ospfCommandPojo = ospfCommandList.get(i);
                 usedNumber = newNumber;
                 continue;
             }else  if (usedNumber > newNumber) {
@@ -347,7 +363,7 @@ public class ScreeningMethod {
                  * */
                 // 比较两个对象中型号属性的属性值。
                 String pojotype = ospfCommandPojo.getSwitchType();
-                String errorRateCommandtype = ospfCommand.getSwitchType();
+                String errorRateCommandtype = ospfCommandList.get(i).getSwitchType();
                 /*比较两个属性的精确度
                  * 返回正数是第一个数属性精确
                  * 返回负数 是第二个属性更精确
@@ -356,12 +372,12 @@ public class ScreeningMethod {
                 if (typeinteger > 0){
                     continue;
                 }else if (typeinteger < 0 ){
-                    ospfCommandPojo = ospfCommand;
+                    ospfCommandPojo = ospfCommandList.get(i);
                     continue;
                 }else if (typeinteger == 0){
                     //比较两个对象中 版本 属性的属性值。
                     String pojofirewareVersion = ospfCommandPojo.getFirewareVersion();
-                    String errorRateCommandFirewareVersion = ospfCommand.getFirewareVersion();
+                    String errorRateCommandFirewareVersion = ospfCommandList.get(i).getFirewareVersion();
                     /*比较两个属性的精确度
                      * 返回正数 是第一个数属性精确
                      * 返回负数 是第二个属性更精确
@@ -370,12 +386,12 @@ public class ScreeningMethod {
                     if (firewareVersioninteger > 0){
                         continue;
                     }else if (firewareVersioninteger < 0){
-                        ospfCommandPojo = ospfCommand;
+                        ospfCommandPojo = ospfCommandList.get(i);
                         continue;
                     }else if (firewareVersioninteger == 0){
                         //比较两个对象中 子版本 属性的属性值。
                         String pojosubVersion = ospfCommandPojo.getSubVersion();
-                        String errorRateCommandSubVersion = ospfCommand.getSubVersion();
+                        String errorRateCommandSubVersion = ospfCommandList.get(i).getSubVersion();
                         /*比较两个属性的精确度
                          * 返回正数 是第一个数属性精确
                          * 返回负数 是第二个属性更精确
@@ -384,7 +400,7 @@ public class ScreeningMethod {
                         if (subVersioninteger > 0){
                             continue;
                         }else if (subVersioninteger < 0){
-                            ospfCommandPojo = ospfCommand;
+                            ospfCommandPojo = ospfCommandList.get(i);
                             continue;
                         }else if (subVersioninteger == 0){
                             /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
@@ -399,14 +415,24 @@ public class ScreeningMethod {
         return ospfCommandPojo;
     }
 
-
-
-
     /**
-     * 从给定的RouteAggregationCommand列表中获取精确度最高的RouteAggregationCommand对象
+     * 获取精确度最高的实体类对象的路由聚合命令。
      *
-     * @param routeAggregationCommandList RouteAggregationCommand对象列表
-     * @return 精确度最高的RouteAggregationCommand对象
+     * @param switchParameters 交换机参数对象，包含扫描标记等信息
+     * @param routeAggregationCommandList 路由聚合命令对象列表，每个对象包含交换机类型、固件版本、子版本等信息
+     * @return 精确度最高的实体类对象的路由聚合命令，如果线程中断则返回null
+     *
+     * 此方法首先检查线程中断标志，如果线程中断则返回null。
+     * 接着，从routeAggregationCommandList中提取第一个元素作为初始比较对象，
+     * 并根据其交换机类型、固件版本、子版本等信息的具体程度初始化精确度计数器usedNumber。
+     * 然后，遍历routeAggregationCommandList中的每个元素，对于每个元素执行以下操作：
+     * 1. 初始化精确度计数器newNumber，并根据其交换机类型、固件版本、子版本等信息的具体程度计算精确度。
+     * 2. 如果newNumber大于usedNumber，则将当前元素作为新的精确度最高的实体类对象，并更新usedNumber。
+     * 3. 如果newNumber小于usedNumber，则继续遍历下一个元素。
+     * 4. 如果newNumber等于usedNumber，则进一步比较交换机类型、固件版本、子版本等信息的具体程度，
+     *    选择更具体的元素作为精确度最高的实体类对象。如果所有比较都相等，则说明存在重复元素，
+     *    根据业务逻辑，此时应不应该存在重复元素，因此跳过。
+     * 最后，返回精确度最高的实体类对象的路由聚合命令。
      */
     public static RouteAggregationCommand ObtainPreciseEntityClassesRouteAggregationCommand(SwitchParameters switchParameters,
                                                                                             List<RouteAggregationCommand> routeAggregationCommandList) {
@@ -431,18 +457,18 @@ public class ScreeningMethod {
         }
 
         /*遍历交换机问题集合*/
-        for (RouteAggregationCommand routeAggregationCommand:routeAggregationCommandList){
+        for (int i = 1 ;i<routeAggregationCommandList.size();i++){
             /**
              * 2：获取新遍历的对象的精确度 不等于*则加1
              * */
             int newNumber = 0;
-            if (!(routeAggregationCommand.getSwitchType().equals("*"))){
+            if (!(routeAggregationCommandList.get(i).getSwitchType().equals("*"))){
                 newNumber = newNumber +1;
             }
-            if (!(routeAggregationCommand.getFirewareVersion().equals("*"))){
+            if (!(routeAggregationCommandList.get(i).getFirewareVersion().equals("*"))){
                 newNumber = newNumber +1;
             }
-            if (!(routeAggregationCommand.getSubVersion().equals("*"))){
+            if (!(routeAggregationCommandList.get(i).getSubVersion().equals("*"))){
                 newNumber = newNumber +1;
             }
 
@@ -454,7 +480,7 @@ public class ScreeningMethod {
              *     如果新遍历到的对象精确度等于初始精确度则比较四项基本信息的精确度*/
             if (usedNumber < newNumber){
                 //如果新遍历到的对象精确度大于初始精确度则进行替代，则赋值给精确实体类
-                routeAggregationCommandPojo = routeAggregationCommand;
+                routeAggregationCommandPojo = routeAggregationCommandList.get(i);
                 usedNumber = newNumber;
                 continue;
             }else  if (usedNumber > newNumber) {
@@ -465,7 +491,7 @@ public class ScreeningMethod {
                  * 4：如果精确到项一样则去比较项的值
                  * */
                 String pojotype = routeAggregationCommandPojo.getSwitchType();
-                String errorRateCommandtype = routeAggregationCommand.getSwitchType();
+                String errorRateCommandtype = routeAggregationCommandList.get(i).getSwitchType();
                 /*比较两个属性的精确度
                  * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
                  * 返回0 则精确性相等 则进行下一步分析*/
@@ -473,27 +499,27 @@ public class ScreeningMethod {
                 if (typeinteger > 0){
                     continue;
                 }else if (typeinteger < 0){
-                    routeAggregationCommandPojo = routeAggregationCommand;
+                    routeAggregationCommandPojo = routeAggregationCommandList.get(i);
                     continue;
                 }else if (typeinteger == 0){
                     String pojofirewareVersion = routeAggregationCommandPojo.getFirewareVersion();
-                    String errorRateCommandFirewareVersion = routeAggregationCommand.getFirewareVersion();
+                    String errorRateCommandFirewareVersion = routeAggregationCommandList.get(i).getFirewareVersion();
                     /*比较两个属性的精确度*/
                     int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
                     if (firewareVersioninteger > 0){
                         continue;
                     }else if (firewareVersioninteger < 0){
-                        routeAggregationCommandPojo = routeAggregationCommand;
+                        routeAggregationCommandPojo = routeAggregationCommandList.get(i);
                         continue;
                     }else if (firewareVersioninteger == 0){
                         String pojosubVersion = routeAggregationCommandPojo.getSubVersion();
-                        String errorRateCommandSubVersion = routeAggregationCommand.getSubVersion();
+                        String errorRateCommandSubVersion = routeAggregationCommandList.get(i).getSubVersion();
                         /*比较两个属性的精确度*/
                         int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
                         if (subVersioninteger > 0){
                             continue;
                         }else if (subVersioninteger < 0){
-                            routeAggregationCommandPojo = routeAggregationCommand;
+                            routeAggregationCommandPojo = routeAggregationCommandList.get(i);
                             continue;
                         }else if (subVersioninteger == 0){
                             /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
@@ -508,8 +534,126 @@ public class ScreeningMethod {
         return routeAggregationCommandPojo;
     }
 
+    /**
+     * 获取精确度最高的实体类对象的链路捆绑命令。
+     *
+     * @param switchParameters 交换机参数对象，包含扫描标记等信息
+     * @param linkBindingCommandList LinkBindingCommand对象列表，每个对象包含交换机类型、固件版本、子版本等信息
+     * @return 精确度最高的实体类对象的LinkBindingCommand，如果线程中断则返回null
+     *
+     * 此方法首先检查线程中断标志，如果线程中断则返回null。
+     * 接着，从linkBindingCommandList中提取第一个元素作为初始精确度最高的实体类对象，
+     * 并根据其交换机类型、固件版本、子版本等信息的具体程度初始化精确度计数器usedNumber。
+     * 然后，遍历linkBindingCommandList中的每个元素，对于每个元素执行以下操作：
+     * 1. 初始化精确度计数器newNumber，并根据其交换机类型、固件版本、子版本等信息的具体程度计算精确度。
+     * 2. 如果newNumber大于usedNumber，则将当前元素作为新的精确度最高的实体类对象，并更新usedNumber。
+     * 3. 如果newNumber等于usedNumber，则进一步比较交换机类型、固件版本、子版本等信息的具体程度，
+     *    选择更具体的元素作为精确度最高的实体类对象。
+     * 4. 如果所有比较都相等，则说明存在重复元素，根据业务逻辑，此时应不应该存在重复元素，因此跳过。
+     * 5. 如果newNumber小于usedNumber，则继续遍历下一个元素。
+     * 最后，返回精确度最高的实体类对象的LinkBindingCommand。
+     */
+    public static LinkBindingCommand ObtainPreciseEntityClassesLinkBindingCommand(SwitchParameters switchParameters,
+                                                                                  List<LinkBindingCommand> linkBindingCommandList) {
+        // 检查线程中断标志
+        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
+            // 如果线程中断标志为true，则直接返回
+            return null;
+        }
+
+        /**
+         * 1：提取列表中的第一个元素作为初始精确度最高的实体类对象，
+         *     并初始化其精确度计数器usedNumber。
+         * */
+        LinkBindingCommand linkBindingCommandPojo = linkBindingCommandList.get(0);
+        int usedNumber = 0;
+        if (!(linkBindingCommandPojo.getSwitchType().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(linkBindingCommandPojo.getFirewareVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
+        if (!(linkBindingCommandPojo.getSubVersion().equals("*"))){
+            usedNumber = usedNumber +1;
+        }
 
 
+        /**
+         * 2：遍历交换机问题集合，对于每个元素执行以下操作：
+         *     1：初始化精确度计数器newNumber，并计算当前元素的精确度。
+         *     2：如果新遍历到的对象，精度计数器数值大于精确度最高的实体类对象，则进行替代；
+         * */
+        for (int i = 1;i<linkBindingCommandList.size();i++){
+            int newNumber = 0;
+            if (!(linkBindingCommandList.get(i).getSwitchType().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(linkBindingCommandList.get(i).getFirewareVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+            if (!(linkBindingCommandList.get(i).getSubVersion().equals("*"))){
+                newNumber = newNumber +1;
+            }
+
+            /**
+             * 3：新遍历到的对象，精度计数器数值大于精确度最高的实体类对象，则进行替代并替换精确度计数器值，继续遍历新的元素。
+             * */
+            if (usedNumber < newNumber){
+                /* 新 比 map中的精确*/
+                linkBindingCommandPojo = linkBindingCommandList.get(i);
+                usedNumber = newNumber;
+                continue;
+            }else if (usedNumber == newNumber){
+                /**
+                 * 4：如果精确度计数器数值相等，则进行下一步分析，比较三项基本信息，
+                 * 例如型号：S2152 和 S*  选择 S2152
+                 */
+                String pojotype = linkBindingCommandPojo.getSwitchType();
+                String errorRateCommandtype = linkBindingCommandList.get(i).getSwitchType();
+                /*比较两个属性的精确度
+                 * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
+                 * 返回0 则精确性相等 则进行下一步分析*/
+                int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
+                if (typeinteger > 0){
+                    continue;
+                }else if (typeinteger < 0){
+                    linkBindingCommandPojo = linkBindingCommandList.get(i);
+                    continue;
+                }else if (typeinteger == 0){
+                    String pojofirewareVersion = linkBindingCommandPojo.getFirewareVersion();
+                    String errorRateCommandFirewareVersion = linkBindingCommandList.get(i).getFirewareVersion();
+                    /*比较两个属性的精确度*/
+                    int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
+                    if (firewareVersioninteger > 0){
+                        continue;
+                    }else if (firewareVersioninteger < 0){
+                        linkBindingCommandPojo = linkBindingCommandList.get(i);
+                        continue;
+                    }else if (firewareVersioninteger == 0){
+                        String pojosubVersion = linkBindingCommandPojo.getSubVersion();
+                        String errorRateCommandSubVersion = linkBindingCommandList.get(i).getSubVersion();
+                        /*比较两个属性的精确度*/
+                        int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
+                        if (subVersioninteger > 0){
+                            continue;
+                        }else if (subVersioninteger < 0){
+                            linkBindingCommandPojo = linkBindingCommandList.get(i);
+                            continue;
+                        }else if (subVersioninteger == 0){
+                            /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
+                             * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
+                             * */
+                            continue;
+                        }
+                    }
+                }
+            }else  if (usedNumber > newNumber) {
+                /* map 中的更加精确  则 进行下一层遍历*/
+                continue;
+            }
+        }
+        return linkBindingCommandPojo;
+    }
 
     /**
     * @Description  比较两个属性的精确度
@@ -584,110 +728,5 @@ public class ScreeningMethod {
         value1 = value1.replaceAll("\\D", "");
         value2 = value2.replaceAll("\\D", "");
         return value1.compareTo(value2);
-    }
-
-    public static LinkBindingCommand ObtainPreciseEntityClassesLinkBindingCommand(SwitchParameters switchParameters,
-                                                                                  List<LinkBindingCommand> linkBindingCommandList) {
-        // 检查线程中断标志
-        if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
-            // 如果线程中断标志为true，则直接返回
-            return null;
-        }
-
-        /*定义返回内容*/
-        LinkBindingCommand linkBindingCommandPojo = new LinkBindingCommand();
-        /*遍历交换机问题集合*/
-        for (LinkBindingCommand linkBindingCommand:linkBindingCommandList){
-            /*如果返回为空 则可以直接存入 map集合*/
-            if (linkBindingCommandPojo.getId() != null){
-                /*如果不为空 则需要比较 两个问题那个更加精确  精确的存入Map */
-                /* 获取 两个交换机问题的 参数数量的精确度 */
-                /*map*/
-                int usedNumber = 0;
-                if (!(linkBindingCommandPojo.getSwitchType().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(linkBindingCommandPojo.getFirewareVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                if (!(linkBindingCommandPojo.getSubVersion().equals("*"))){
-                    usedNumber = usedNumber +1;
-                }
-                /*新*/
-                int newNumber = 0;
-                if (!(linkBindingCommand.getSwitchType().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(linkBindingCommand.getFirewareVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                if (!(linkBindingCommand.getSubVersion().equals("*"))){
-                    newNumber = newNumber +1;
-                }
-                /*对比参数的数量大小
-                 * 如果新遍历到的问题 数量大于 map 中的问题 则进行替代 否则 则遍历新的*/
-                if (usedNumber < newNumber){
-                    /* 新 比 map中的精确*/
-                    linkBindingCommandPojo = linkBindingCommand;
-                    continue;
-                }else if (usedNumber == newNumber){
-
-                    /*如果精确到项一样 则去比较 项的值 哪一个更加精确 例如型号：S2152 和 S*  选择 S2152*/
-                    String pojotype = linkBindingCommandPojo.getSwitchType();
-                    String errorRateCommandtype = linkBindingCommand.getSwitchType();
-
-                    /*比较两个属性的精确度
-                     * 返回正数 是第一个数属性精确 返回负数 是第二个属性更精确
-                     * 返回0 则精确性相等 则进行下一步分析*/
-                    int typeinteger = compareAccuracy(pojotype, errorRateCommandtype);
-
-                    if (typeinteger > 0){
-                        continue;
-                    }else if (typeinteger < 0){
-                        linkBindingCommandPojo = linkBindingCommand;
-                        continue;
-                    }else if (typeinteger == 0){
-
-                        String pojofirewareVersion = linkBindingCommandPojo.getFirewareVersion();
-                        String errorRateCommandFirewareVersion = linkBindingCommand.getFirewareVersion();
-
-                        /*比较两个属性的精确度*/
-                        int firewareVersioninteger = compareAccuracy(pojofirewareVersion, errorRateCommandFirewareVersion);
-
-                        if (firewareVersioninteger > 0){
-                            continue;
-                        }else if (firewareVersioninteger < 0){
-                            linkBindingCommandPojo = linkBindingCommand;
-                            continue;
-                        }else if (firewareVersioninteger == 0){
-
-                            String pojosubVersion = linkBindingCommandPojo.getSubVersion();
-                            String errorRateCommandSubVersion = linkBindingCommand.getSubVersion();
-
-                            /*比较两个属性的精确度*/
-                            int subVersioninteger = compareAccuracy(pojosubVersion, errorRateCommandSubVersion);
-
-                            if (subVersioninteger > 0){
-                                continue;
-                            }else if (subVersioninteger < 0){
-                                linkBindingCommandPojo = linkBindingCommand;
-                                continue;
-                            }else if (subVersioninteger == 0){
-                                /* 如果 都相等 则 四项基本信息完全一致 此时 不应该存在
-                                 * 因为 sql 有联合唯一索引  四项基本信息+范式名称+范式分类
-                                 * */
-                                continue;
-                            }
-                        }
-                    }
-                }else  if (usedNumber > newNumber) {
-                    /* map 中的更加精确  则 进行下一层遍历*/
-                    continue;
-                }
-            }else {
-                linkBindingCommandPojo = linkBindingCommand;
-            }
-        }
-        return linkBindingCommandPojo;
     }
 }

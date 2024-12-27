@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class ExternalRouteAggregation {
 
     /**
-     * 获取外部IP计算器列表
+     * 获取IP列表
      *
      * @param switchParameters 交换机参数对象
      * @param switchReturnsexternalInformation 交换机返回的外部信息
