@@ -417,7 +417,10 @@ public class OSPFFeatures {
         /**
          * 1:获取OSPF配置参数键值对的键值对
           */
-        Map<String,String> key_value = (Map<String,String>)CustomConfigurationUtil.getValue("OSPF." + switchParameters.getDeviceBrand() + ".R_table", Constant.getProfileInformation());
+        //Map<String,String> key_value = (Map<String,String>)CustomConfigurationUtil.getValue("OSPF." + switchParameters.getDeviceBrand() + ".R_table", Constant.getProfileInformation());
+        Map<String,String> key_value = (Map<String,String>)FunctionalMethods.getKeywords(switchParameters, "OSPF").get("R_table");
+
+
         // 如果键值对为空，则返回空列表
         if (key_value == null){
             return new ArrayList<>();

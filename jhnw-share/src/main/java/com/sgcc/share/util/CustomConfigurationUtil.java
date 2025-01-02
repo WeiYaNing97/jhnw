@@ -20,16 +20,12 @@ public class CustomConfigurationUtil {
     public void ObtainAllConfigurationFileParameters() {
         // 配置文件路径
         String path3 = "/application-config.yml";/*customconfiguration*/
-
         // 获取配置文件输入流
         InputStream inputStream = this.getClass().getResourceAsStream(path3);
-
         // 创建Yaml对象
         Yaml yaml = new Yaml();
-
         // 读取配置文件内容并设置到常量类中
         Constant.setProfileInformation(yaml.load(inputStream));
-
         try {
             // 关闭输入流
             inputStream.close();
@@ -61,7 +57,6 @@ public class CustomConfigurationUtil {
             String subKey = key.substring(keys[0].length() + 1);
             // 获取key对应的value值，保存在subMap变量中
             Object subMap = map.get(keys[0]);
-
             // 判断subMap是否是Map类型
             if (subMap instanceof Map) {
                 // 如果是Map类型，则递归调用getValue方法，继续查询子key对应的value值

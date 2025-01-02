@@ -69,9 +69,7 @@ public class LightAttenuationCommandServiceImpl implements ILightAttenuationComm
     {
         String regionalCode = (CustomConfigurationUtil.getValue("configuration.problemCode.日常巡检", Constant.getProfileInformation())).toString();
         String id = MyUtils.getID(regionalCode, null);
-
         lightAttenuationCommand.setId(id);
-
         return lightAttenuationCommandMapper.insertLightAttenuationCommand(lightAttenuationCommand);
     }
 

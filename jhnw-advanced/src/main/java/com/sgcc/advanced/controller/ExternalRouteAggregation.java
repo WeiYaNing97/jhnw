@@ -12,6 +12,7 @@ import com.sgcc.share.method.AbnormalAlarmInformationMethod;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.switchboard.SwitchIssueEcho;
 import com.sgcc.share.util.CustomConfigurationUtil;
+import com.sgcc.share.util.FunctionalMethods;
 import com.sgcc.share.util.MyUtils;
 import com.sgcc.share.util.WorkThreadMonitor;
 
@@ -50,7 +51,9 @@ public class ExternalRouteAggregation {
          * todo 获取路由聚合配置信息,是否精确四项基本信息
          * 2:获取路由聚合配置信息
          */
-        HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+switchParameters.getDeviceBrand(), Constant.getProfileInformation());
+        //HashMap<String,Object> keyMap = (HashMap<String,Object>) CustomConfigurationUtil.getValue("路由聚合."+switchParameters.getDeviceBrand(), Constant.getProfileInformation());
+        HashMap<String,Object> keyMap = (HashMap<String,Object>) FunctionalMethods.getKeywords(switchParameters, "路由聚合");
+
 
         // 获取keyMap的所有键，存储到keyList列表中
         List<String> keyList = keyMap.keySet().stream().collect(Collectors.toList());
@@ -63,7 +66,7 @@ public class ExternalRouteAggregation {
         /* 符合表格格式 */
         // 如果keyList中存在"R_table"，则使用getTableExternalIPList方法获取外部IP计算器列表
         if (keyList.indexOf("R_table")!=-1){
-            externalIPList = getTableExternalIPList(switchReturnsexternalInformation_List,switchParameters);
+            externalIPList = getTableExternalIPList(switchReturnsexternalInformation_List,switchParameters,keyMap);
         }else {
             /* 不符合表格格式 */
             // 如果不符合表格格式，则使用getExternalIPList方法获取外部IP计算器列表
@@ -221,7 +224,8 @@ public class ExternalRouteAggregation {
      * @return 包含提取到的外部IP地址列表的列表，如果没有提取到任何IP地址或线程中断，则返回null
      */
     private static List<ExternalIPCalculator> getTableExternalIPList(List<String> returnInformationList,
-                                                                     SwitchParameters switchParameters) {
+                                                                     SwitchParameters switchParameters,
+                                                                     HashMap<String,Object> keyMap_R_table) {
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             // 如果线程中断标志为true，则直接返回
@@ -235,7 +239,7 @@ public class ExternalRouteAggregation {
          *
          * 1：获取标题行和关键字映射，用于提取表格数据。
          */
-        HashMap<String,String> keyMap = (HashMap<String,String>) CustomConfigurationUtil.getValue("路由聚合."+switchParameters.getDeviceBrand()+".R_table", Constant.getProfileInformation());
+        HashMap<String,String> keyMap = (HashMap<String,String>)keyMap_R_table.get("R_table");
         if (keyMap == null){
             // 如果没有找到配置，则返回空列表
             return new ArrayList<>();

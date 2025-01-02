@@ -91,22 +91,20 @@ public class LinkBundling {
 
         // 用于映射IP地址和链路捆绑类型的HashMap
         HashMap<String,String> ipListMap = new HashMap<>();
-
-
         List<IPCalculator> IPCalculatorList = DestinationMaskList.stream().map(ipCIDR -> IPAddressCalculator.Calculator(ipCIDR)).collect(Collectors.toList());
 
-
-        // todo 与登录设备相连的用户站IP，需要前端输入的数据
+        //todo 与登录设备相连的用户站IP，需要前端输入的数据
         List<String> ipList = new ArrayList<>();
         for (String ip:ipList){
             for (IPCalculator ipCalculator : IPCalculatorList) {
-                // 判断是否为三层链路捆绑
+                //判断是否为三层链路捆绑
                 boolean three_layers = LinkBundlingAnalysis(ip,ipCalculator);
                 if (three_layers){
                     ipListMap.put(ip,"三层链路捆绑");
                 }
             }
         }
+
         // 返回操作成功的AjaxResult对象
         return AjaxResult.success();
     }

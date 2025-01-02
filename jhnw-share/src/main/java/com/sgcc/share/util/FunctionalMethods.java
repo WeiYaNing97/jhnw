@@ -27,14 +27,7 @@ public class FunctionalMethods {
     private static ISwitchInformationService switchInformationService;
 
 
-    /**
-     * @Description 根据四项基本信息 查询获取参数的关键词
-     * @author charles
-     * @createTime 2023/12/19 22:25
-     * @desc
-     * @param switchParameters
-     * @return
-     */
+
     public static Map<String, Object> getKeywords (SwitchParameters switchParameters,String functionName) {
         // 检查线程中断标志
         if (WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
