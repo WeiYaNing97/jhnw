@@ -1550,11 +1550,13 @@ public class SwitchInteraction {
         * */
         if (problemScanLogic.getMatched()!=null){
             matched = problemScanLogic.getMatched();
+
+            /*截取四位匹配逻辑后的 位置关键词：full 全文 、present当前行
+             * 拼接最终的位置关键词  如：full&present 从当前行开始全文操作 */
+            matching_logic = matched.substring(4,matched.length()) + "&" +matching_logic;
+
             /*截取匹配逻辑： 精确匹配、模糊匹配*/
             matched = matched.substring(0,4);
-            /*截取四位匹配逻辑后的 位置关键词：full 全文 、present当前行
-            * 拼接最终的位置关键词  如：full&present 从当前行开始全文操作 */
-            matching_logic = matched.substring(4,matched.length()) + "&" +matching_logic;
         }
         //取词逻辑
         String action = problemScanLogic.getAction();

@@ -225,56 +225,75 @@ public class InspectionMethods {
 
 
 
-
-
     /**
+     * 命令实体类转化为字符串
      * @method: commandLogic转化为String
      * @Param: [commandLogic]
      * @return: java.lang.String
      */
     public static String commandLogicString(CommandLogic commandLogic){
+        // 获取命令实体类的ID
         String onlyIndex = commandLogic.getId();
+        // 初始化trueFalse为空字符串
         String trueFalse = "";
+        // 获取命令实体类的命令
         String command = commandLogic.getCommand();
+        // 初始化参数为空字符串
         String para = "";
-        if (command.indexOf(":")!=-1){
+        // 判断命令中是否包含":"，如果包含则进行拆分
+        if (command.indexOf(":") != -1){
             String[] command_split = command.split(":");
-            command = command_split[0];
-            para = command_split[1];
+            command = command_split[0]; // 命令
+            para = command_split[1];    // 参数
         }
+        // 获取命令实体类的结果检查ID
         String resultCheckId =  commandLogic.getResultCheckId();
         String nextIndex;
+        // 根据结果检查ID决定下一个索引是问题ID还是结束索引
         if (resultCheckId.equals("0")){
-            //resultCheckId.equals("0")  自定义
-            nextIndex = commandLogic.getProblemId();
+            // resultCheckId.equals("0")  自定义
+            nextIndex = commandLogic.getProblemId(); // 自定义检验，使用问题ID作为下一个索引
         }else {
-            //常规检验 执行下一命令
-            nextIndex = commandLogic.getEndIndex();
+            // 常规检验 执行下一命令
+            nextIndex = commandLogic.getEndIndex(); // 常规检验，使用结束索引作为下一个索引
         }
+        // 获取命令实体类的行号
         String pageIndex = commandLogic.getcLine();
+
+        // 创建CommandLogicVO对象
         CommandLogicVO commandLogicVO = new CommandLogicVO();
+        // 设置ID
         commandLogicVO.setOnlyIndex(onlyIndex);
+        // 设置trueFalse
         commandLogicVO.setTrueFalse(trueFalse);
+        // 设置命令
         commandLogicVO.setCommand(command);
+        // 设置参数
         commandLogicVO.setPara(para);
+        // 设置结果检查ID
         commandLogicVO.setResultCheckId(resultCheckId);
+        // 设置下一个索引
         commandLogicVO.setNextIndex(nextIndex);
+        // 设置行号
         commandLogicVO.setPageIndex(pageIndex);
 
-        /*自定义分隔符*/
+        /* 自定义分隔符 */
         String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
 
-        String commandLogicVOSting =commandLogicVO.getPageIndex()+ customDelimiter +"{"
-                +"\"onlyIndex\"" +"="+ "\""+ commandLogicVO.getOnlyIndex() +"\","
-                +"\"trueFalse\"" +"="+ "\""+ commandLogicVO.getTrueFalse() +"\","
-                +"\"pageIndex\"" +"="+ "\""+ commandLogicVO.getPageIndex() +"\","
-                +"\"command\"" +"="+ "\""+ commandLogicVO.getCommand() +"\","
-                +"\"para\"" +"="+ "\""+ commandLogicVO.getPara() +"\","
-                +"\"resultCheckId\"" +"="+ "\""+ commandLogicVO.getResultCheckId() +"\","
-                +"\"nextIndex\"" +"="+ "\""+ commandLogicVO.getNextIndex() +"\"" +"}";
+        // 拼接CommandLogicVO对象为字符串
+        String commandLogicVOSting = commandLogicVO.getPageIndex() + customDelimiter +"{"
+                + "\"onlyIndex\"" +"="+ "\""+ commandLogicVO.getOnlyIndex() +"\","
+                + "\"trueFalse\"" +"="+ "\""+ commandLogicVO.getTrueFalse() +"\","
+                + "\"pageIndex\"" +"="+ "\""+ commandLogicVO.getPageIndex() +"\","
+                + "\"command\"" +"="+ "\""+ commandLogicVO.getCommand() +"\","
+                + "\"para\"" +"="+ "\""+ commandLogicVO.getPara() +"\","
+                + "\"resultCheckId\"" +"="+ "\""+ commandLogicVO.getResultCheckId() +"\","
+                + "\"nextIndex\"" +"="+ "\""+ commandLogicVO.getNextIndex() +"\"" +"}";
 
+        // 返回拼接后的字符串
         return commandLogicVOSting;
     }
+
 
     /**
      * 字符串解析CommandLogic实体类并返回
@@ -286,15 +305,23 @@ public class InspectionMethods {
      */
     public static CommandLogic analysisCommandLogic(String problem_area_code, String jsonPojo,String ifCommand){
 
-        // 将提交的分析数据从Json格式转化为实体类AnalyzeConvertJson
+        /**
+         * 1： 将提交的分析数据从Json格式转化为实体类AnalyzeConvertJson
+         * */
         AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(jsonPojo, AnalyzeConvertJson.class);
 
-        // 遍历analyzeConvertJson对象的所有字段，如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null
+        /**
+         * 2：
+         * 遍历analyzeConvertJson对象的所有字段
+         * 如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null
+         */
         analyzeConvertJson = (AnalyzeConvertJson) MyUtils.setNullIfEmpty(analyzeConvertJson);
 
-        // 调用trimCommandTable方法，传入analyzeConvertJson、problem_area_code和ifCommand，返回解析后的CommandLogic实体类
+        /**
+         * 3：将AnalyzeConvertJson实体类信息 赋值给 CommandLogic
+         * 如果ifCommand是"命令"，则对analyzeConvertJson对象进行变形处理 下一ID为命令
+         * */
         CommandLogic commandLogic = trimCommandTable(analyzeConvertJson, problem_area_code,ifCommand);
-
         return commandLogic;
     }
 
@@ -308,32 +335,44 @@ public class InspectionMethods {
      * @return 转化后的CommandLogic对象
      */
     public static CommandLogic trimCommandTable(AnalyzeConvertJson analyzeConvertJson, String problem_area_code,String ifCommand) {
-        // 设置AnalyzeConvertJson对象的onlyIndex属性
+        /**
+         * 1：设置AnalyzeConvertJson对象的onlyIndex属性
+         *   encodeID 判断是否为编码ID，
+         *    是则直接使用（前端修改时，会有这种情况），
+         *    不是则在前面拼接问题编码+onlyIndex
+         * */
         analyzeConvertJson.setOnlyIndex(MyUtils.encodeID( analyzeConvertJson.getOnlyIndex() )?
                 analyzeConvertJson.getOnlyIndex() : problem_area_code + analyzeConvertJson.getOnlyIndex());
 
-        // 设置AnalyzeConvertJson对象的nextIndex属性
+        /**
+         * 2：设置AnalyzeConvertJson对象的nextIndex属性
+         *   encodeID 判断是否为编码ID，
+         *    是则直接使用（前端修改时，会有这种情况），
+         *    不是则在前面拼接问题编码+onlyIndex
+         * */
         analyzeConvertJson.setNextIndex(MyUtils.encodeID( analyzeConvertJson.getNextIndex() )?
                 analyzeConvertJson.getNextIndex() : problem_area_code + analyzeConvertJson.getNextIndex());
 
-        // 如果AnalyzeConvertJson对象的para属性不为空
+        /**
+         * 3： Para 是什么？前端传过来的，暂时不清楚用处，暂时不做处理
+         *    如果AnalyzeConvertJson对象的para属性不为空
+         */
         if (analyzeConvertJson.getPara() != null){
             // 拼接AnalyzeConvertJson对象的command和para属性，并设置给command属性
             analyzeConvertJson.setCommand( analyzeConvertJson.getCommand() +":"+ analyzeConvertJson.getPara());
         }
 
+        /**
+         * 4： 赋值给 CommandLogic对象
+         */
         // 创建CommandLogic对象
         CommandLogic commandLogic = new CommandLogic();
-
         // 设置CommandLogic对象的id属性
         commandLogic.setId(analyzeConvertJson.getOnlyIndex());
-
         // 设置CommandLogic对象的command属性
         commandLogic.setCommand(analyzeConvertJson.getCommand());
-
         // 此处原本设置CommandLogic对象的resultCheckId属性，但已被注释掉
         //commandLogic.setResultCheckId( analyzeConvertJson.getResultCheckId() );
-
         // 根据ifCommand的值决定CommandLogic对象的resultCheckId属性
         /** 该字段本想由前端传入，后发现前端传入数据始终为0
          * 记得之前实现过，后来可能前端有修改
@@ -357,17 +396,16 @@ public class InspectionMethods {
             /** 命令结束索引 */
             commandLogic.setProblemId(analyzeConvertJson.getNextIndex());
         }
-
         // 设置CommandLogic对象的cLine属性
         /** 命令行号 */
         commandLogic.setcLine(analyzeConvertJson.getPageIndex());
-
         // 返回CommandLogic对象
         return commandLogic;
     }
 
 
     /**
+     * 分析实体类转换为字符串
      * @method: problemScanLogic 实体类转化  Sting
      * @Param: [problemScanLogic]
      * @return: java.lang.String
@@ -898,34 +936,42 @@ public class InspectionMethods {
      * @return
      */
     public static  List<ProblemScanLogic> splitSuccessFailureLogic(List<ProblemScanLogic> ProblemScanLogicList) {
-        /* 定义需要返回的实体类*/
+        /* 定义需要返回的实体类集合 */
         List<ProblemScanLogic> ProblemScanLogics = new ArrayList<>();
-        /*当错误行号不为空时 则 错误信息取出 放入 一个新的实体类 然后放入 需要返回的实体类集合 并把原实体类错误信息清空*/
-        for (ProblemScanLogic problemScanLogic:ProblemScanLogicList){
-            if (problemScanLogic.getfLine()!=null){
+
+        /* 遍历传入的ProblemScanLogic对象列表 */
+        for (ProblemScanLogic problemScanLogic : ProblemScanLogicList) {
+            /* 当错误行号不为空时，执行以下操作 */
+            if (problemScanLogic.getfLine() != null) {
+                /* 创建一个新的ProblemScanLogic对象用于存储错误信息 */
                 ProblemScanLogic problemScanLogicf = new ProblemScanLogic();
+
+                /* 复制原对象的ID到新对象 */
                 problemScanLogicf.setId(problemScanLogic.getId());
 
-                /*problemScanLogicf.setMatched(problemScanLogic.getMatched());
-                problemScanLogicf.setRelativePosition(problemScanLogic.getRelativePosition());
-                problemScanLogicf.setLength(problemScanLogic.getLength());
-                problemScanLogicf.setProblemId(problemScanLogic.getProblemId());*/
-
+                /* 复制与错误相关的属性到新对象 */
                 problemScanLogicf.setfLine(problemScanLogic.getfLine());
                 problemScanLogicf.setfNextId(problemScanLogic.getfNextId());
                 problemScanLogicf.setfComId(problemScanLogic.getfComId());
 
+                /* 清空原对象中的错误相关信息 */
                 problemScanLogic.setfLine(null);
                 problemScanLogic.setfNextId(null);
                 problemScanLogic.setProblemId(null);
                 problemScanLogic.setfComId(null);
 
+                /* 将新对象添加到返回集合中 */
                 ProblemScanLogics.add(problemScanLogicf);
             }
+
+            /* 无论错误行号是否为空，都将原对象添加到返回集合中 */
             ProblemScanLogics.add(problemScanLogic);
         }
+
+        /* 返回处理后的实体类集合 */
         return ProblemScanLogics;
     }
+
 
     /**
      * @Description 将相同ID  时间戳 的 实体类 放到一个实体

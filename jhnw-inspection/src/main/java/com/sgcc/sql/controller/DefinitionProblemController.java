@@ -425,7 +425,9 @@ public class DefinitionProblemController extends BaseController {
             @ApiImplicitParam(name = "jsonPojoList", value = "问题分析逻辑的JSON对象列表", dataTypeClass = List.class, required = true)
     })
     public boolean definitionProblemJson(@RequestParam String totalQuestionTableId,@RequestBody List<String> jsonPojoList){
-        // 获取系统登录人信息
+        /**
+         * 1：获取系统登录人信息
+         * */
         LoginUser loginUser = SecurityUtils.getLoginUser();
         // 调用definitionProblemJsonPojo方法，传入交换机问题实体类的ID、分析问题的JSON对象列表和登录人信息
         // 并将返回的结果赋值给definitionProblemJsonboolean变量
@@ -461,10 +463,16 @@ public class DefinitionProblemController extends BaseController {
     @GetMapping("getAnalysisList")
     @MyLog(title = "查询交换机问题分析逻辑数据", businessType = BusinessType.OTHER)
     public AjaxResult getAnalysisListTimeouts(TotalQuestionTable totalQuestionTable) {
-        // 获取系统登录人信息
+        /**
+         * 1：获取系统登录人信息
+         * */
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
-        // 创建一个单线程执行器
+        /**
+         * 2：创建一个单线程执行器，用于超时控制。
+         *      这里使用了单线程执行器，因为不需要并行处理多个任务，只需要等待一个任务的完成即可
+         *      只想任务 方法：getAnalysisList
+         */
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
         // 创建一个数组，用于存储返回的字符串列表
@@ -474,7 +482,7 @@ public class DefinitionProblemController extends BaseController {
         FutureTask future = new FutureTask(new Callable<List<String>>() {
             @Override
             public List<String> call() throws Exception {
-                // 调用获取问题分析逻辑数据的方法，并将结果存储在数组中
+                // 获取分析列表 : 调用获取问题分析逻辑数据的方法，并将结果存储在数组中
                 analysisList[0] = getAnalysisList(totalQuestionTable,loginUser);
                 return analysisList[0];
             }
@@ -484,7 +492,10 @@ public class DefinitionProblemController extends BaseController {
         executor.execute(future);
 
         try {
-            // 获取最大超时时间
+            /**
+             * 3：设置超时时间，默认为1000毫秒（即1秒）。
+             *    这里使用了自定义配置工具类CustomConfigurationUtil来获取超时时间，如果配置文件中没有设置，则使用默认值1000毫秒。
+             */
             Integer maximumTimeoutString = 1000;
             Object  maximumTimeoutObject = CustomConfigurationUtil.getValue("configuration.maximumTimeout", Constant.getProfileInformation());
             if (maximumTimeoutObject !=null && maximumTimeoutObject instanceof Integer){
@@ -566,10 +577,6 @@ public class DefinitionProblemController extends BaseController {
                 /*System.err.println(" 集合下一元素 包含 command ");*/
                 isCommand = true;
             }
-
-
-
-
             // 如果 前端传输字符串  存在 command  说明 是命令数据
             if (jsonPojoList.get(number).indexOf("command")!=-1){
 
@@ -584,9 +591,6 @@ public class DefinitionProblemController extends BaseController {
                     commandLogicList.add(commandLogic);
                     continue;
                 }
-
-
-
             }else if (!(jsonPojoList.get(number).indexOf("command") !=-1)){
                 /*如果分析数据中不含有command 则 是分析 则 进入 String 转 分析实体类方法
                 * 如果当前集合元素是分析 则 需要考虑下一集合元素是 命令 还是分析
@@ -594,18 +598,15 @@ public class DefinitionProblemController extends BaseController {
                 * 如果是分析 则 在 Sting 转 分析实体类中 传入 分析属性值
                 * 这会影响到 前端数据传入的 下一ID 的 赋值问题*/
                 if (number+1<jsonPojoList.size()){
-
                     // 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
                     if ( isCommand  ){
                         //本条是分析 下一条是 命令
                         /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
                         problemScanLogicList.add(problemScanLogic);*/
-
                         AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code, jsonPojoList.get(number), "命令");
                         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
                         problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
                         problemScanLogicList.add(problemScanLogic);
-
                         continue;
                     }else {
                         //本条是分析 下一条是 分析
@@ -615,7 +616,6 @@ public class DefinitionProblemController extends BaseController {
                         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
                         problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
                         problemScanLogicList.add(problemScanLogic);
-
                         continue;
                     }
                 }else {
@@ -626,11 +626,9 @@ public class DefinitionProblemController extends BaseController {
                     ProblemScanLogic problemScanLogic = new ProblemScanLogic();
                     problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
                     problemScanLogicList.add(problemScanLogic);
-
                     continue;
                 }
             }
-
         }
 
         //将相同ID  时间戳 的 实体类 放到一个实体
@@ -651,23 +649,18 @@ public class DefinitionProblemController extends BaseController {
         /*获取交换机基本信息第一条数据为ID 需要传送给 获取交换机基本信息命令的分析ID*/
         String jsonPojoOne = jsonPojoList.get(0);
 
-
         /*ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoOne, "分析");*/
         AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson( problem_area_code , jsonPojoOne, "分析");
         ProblemScanLogic problemScanLogic = new ProblemScanLogic();
         problemScanLogic = (ProblemScanLogic) copyProperties( analyzeConvertJson , problemScanLogic);
-
         BasicInformation basicInformation = basicInformationService.selectBasicInformationById(basicInformationId);
         basicInformation.setProblemId(problemScanLogic.getId());
         int i = basicInformationService.updateBasicInformation(basicInformation);
         if (i<=0){
-
             AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                     "错误:获取交换机基本信息命令的ProblemId字段失败\r\n");
-
             return false;
         }
-
         return true;
     }
 
@@ -680,14 +673,10 @@ public class DefinitionProblemController extends BaseController {
      * @return
     */
     public boolean definitionProblemJsonPojo(String totalQuestionTableId,@RequestBody List<String> jsonPojoList,LoginUser loginUser){
-        //@RequestBody List<String> jsonPojoList
-        // /*判断问题分析逻辑是否为空*/
+        // /*判断问题分析逻辑是否为空 传输登陆人姓名 及问题简述*/
        if (jsonPojoList.size() == 0){
-           //传输登陆人姓名 及问题简述
-
            AbnormalAlarmInformationMethod.afferent(null, loginUser.getUsername(), null,
                    "错误:扫描分析数据非法为空\r\n");
-
            return false;
        }
 
@@ -698,38 +687,40 @@ public class DefinitionProblemController extends BaseController {
 
         List<CommandLogic> commandLogicList = new ArrayList<>();
         List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
-
-        /*List<String> list1 = new ArrayList<>();
-        List<String> list2 = new ArrayList<>();*/
-
         String problem_area_code = totalQuestionTableId.substring(0, 8);
 
         /*遍历数据 属于命令还是分析数据*/
         for (int number=0;number<jsonPojoList.size();number++){
-
             boolean isCommand = false;
-
             /** 判断下一条是否是命令  因为 如果下一条是命令 则要 将 下一条分析ID 放入 命令ID
              * 获取下一ID 判断下一ID对应的数据 是否包含 command
-             * 如果此方法不能实现，则获取下一元素 判断是否包含 command  但是此方法有风险。因为下一条要执行的数据 不一定是集合的下一个元素。*/
+             * 如果此方法不能实现，则获取下一元素 判断是否包含 command  但是此方法有风险。因为下一条要执行的数据 不一定是集合的下一个元素。
+             *
+             * todo :也可以通过判断是否   "targetType":"command"
+             * */
             String[] split = jsonPojoList.get(number).split("\"nextIndex\":");
             if (split.length == 2){
+                // 使用正则表达式,在Java中获取字符串第一个数值数字部分。
                 String firstNumberFromString = MyUtils.getEncodingID(split[1]);
                 for (String jsonPojo:jsonPojoList){
-                    if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1 || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
-                            &&jsonPojo.indexOf("command") !=-1){
+                    if ((jsonPojo.indexOf("\"onlyIndex\":" + firstNumberFromString)!=-1
+                      || jsonPojo.indexOf("\"onlyIndex\":\"" + firstNumberFromString)!=-1 )
+                      && jsonPojo.indexOf("\"targetType\":\"command\"") !=-1){
                         isCommand = true;
                         System.err.println(" id符合，且包含 command ");
                     }
                 }
-            }else if ( number+1<jsonPojoList.size() && jsonPojoList.get(number+1).indexOf("command") !=-1){
+            }else if ( number+1<jsonPojoList.size() && jsonPojoList.get(number+1).indexOf("\"targetType\":\"command\"") !=-1){
                 System.err.println(" 集合下一元素 包含 command ");
                 isCommand = true;
             }
 
-            // 如果 前端传输字符串  存在 command  说明 是命令
-            if (jsonPojoList.get(number).indexOf("command")!=-1){
 
+            // 如果 前端传输字符串  存在 command  说明 是命令
+            if (jsonPojoList.get(number).indexOf("\"targetType\":\"command\"")!=-1){
+                /**
+                 * 转变为命令实体类
+                 */
                 if (isCommand){
                     CommandLogic commandLogic = InspectionMethods.analysisCommandLogic(problem_area_code,jsonPojoList.get(number),"命令");
                     commandLogicList.add(commandLogic);
@@ -739,53 +730,42 @@ public class DefinitionProblemController extends BaseController {
                     commandLogicList.add(commandLogic);
                     continue;
                 }
-
-            }else if (!(jsonPojoList.get(number).indexOf("command") !=-1) && !(jsonPojoList.get(number).indexOf("method") !=-1)){
-
+            }else if (!(jsonPojoList.get(number).indexOf("\"targetType\":\"command\"") !=-1)
+                    && !(jsonPojoList.get(number).indexOf("method") !=-1)){//!(jsonPojoList.get(number).indexOf("method") !=-1)    什么原因？？？？？
+                /**
+                 * 转变为分析实体类
+                 */
                 /*当数据不为集合的最后一个元素时
                 * 需要判断 下一条数据是否为 命令 如果是命令 则 分析数据应该标明下一条为命令表数据*/
                 if (number+1<jsonPojoList.size()){
-
                     if (isCommand){
                         //本条是分析 下一条是 命令
-                        //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "命令");
                         AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code,jsonPojoList.get(number), "命令");
                         ProblemScanLogic pojo = new ProblemScanLogic();
                         pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
                         problemScanLogicList.add(pojo);
-
                         continue;
                     }else {
                         //本条是分析 下一条是 分析
-                        //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
-
                         AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code,jsonPojoList.get(number), "分析");
                         ProblemScanLogic pojo = new ProblemScanLogic();
                         pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
                         problemScanLogicList.add(pojo);
-
                         continue;
                     }
-
                 }else {
-
                     //本条是分析 下一条是 问题
-                    //ProblemScanLogic problemScanLogic = InspectionMethods.analysisProblemScanLogic(jsonPojoList.get(number), "分析");
-
                     AnalyzeConvertJson analyzeConvertJson = getAnalyzeConvertJson(problem_area_code,jsonPojoList.get(number), "分析");
                     ProblemScanLogic pojo = new ProblemScanLogic();
                     pojo = (ProblemScanLogic) copyProperties( analyzeConvertJson , pojo);
                     problemScanLogicList.add(pojo);
                     continue;
-
                 }
-
             }
         }
 
         //将相同ID  时间戳 的 实体类 放到一个实体
         List<ProblemScanLogic> problemScanLogics = InspectionMethods.definitionProblem(problemScanLogicList);
-
         String commandId = null;
         for (ProblemScanLogic problemScanLogic:problemScanLogics){
             problemScanLogicService = SpringBeanUtil.getBean(IProblemScanLogicService.class);
@@ -795,6 +775,9 @@ public class DefinitionProblemController extends BaseController {
             }
         }
 
+        /**
+         * 获取问题分析中的第一条数据将对应ID 赋值给问题表逻辑ID字段
+         */
         /* 如果命令 为 第一个参数 则 问题数据的下一条ID 添加命令*/
         for (CommandLogic commandLogic:commandLogicList){
             /*判断行号是否为 1 */
@@ -807,7 +790,6 @@ public class DefinitionProblemController extends BaseController {
                 return false;
             }
         }
-
         if(commandId == null){
             for (ProblemScanLogic problemScanLogic:problemScanLogics){
                 if (problemScanLogic.gettLine().equals("1")){
@@ -820,12 +802,6 @@ public class DefinitionProblemController extends BaseController {
         TotalQuestionTable totalQuestionTable = totalQuestionTableService.selectTotalQuestionTableById(totalQuestionTableId);
         /*赋值问题表数据的 逻辑ID  此时为命令ID*/
         totalQuestionTable.setLogicalID(commandId);
-
-        /*String logicalID = totalQuestionTable.getLogicalID();
-        String logic = logicalID.substring(0, 2);
-        String id = logicalID.replace(logic, "");
-        totalQuestionTable.setLogicalID(logic+MyUtils.getID(totalQuestionTableId.substring(0,4),id));*/
-
         int i = totalQuestionTableService.updateTotalQuestionTable(totalQuestionTable);
         if (i<=0){
             return false;
@@ -876,63 +852,72 @@ public class DefinitionProblemController extends BaseController {
 
     /**
      * 获取分析列表
-     *
      * @param totalQuestionTable 交换机问题实体类
      * @param loginUser 登录用户
      * @return 包含分析结果的字符串列表
      */
-    public  List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser){
-        // 根据交换机问题实体类获取命令集合和分析实体类集合
+    public  List<String> getAnalysisList(@RequestBody TotalQuestionTable totalQuestionTable, LoginUser loginUser){
+        /**
+         * 1: 根据交换机问题实体类获取命令集合和分析实体类集合
+         */
         HashMap<String, Object> scanLogicalEntityClass = getScanLogicalEntityClass(totalQuestionTable, loginUser);
+        // 如果获取的实体类集合为空，则直接返回空列表
         if (scanLogicalEntityClass.size() == 0){
             return new ArrayList<>();
         }
 
-        // 获取命令、逻辑实体类集合
-        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        // 用于存储命令和分析实体类集合的哈希表，key为行号，value为实体类字符串
+        HashMap<Long, String> hashMap = new HashMap<>();
 
-        HashMap<Long,String> hashMap = new HashMap<>();
-
-        // 获取配置文件自定义分隔符
+        // 获取配置文件中的自定义分隔符
         String customDelimiter = null;
         Object customDelimiterObject = CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
+        // 判断获取到的分隔符是否为字符串类型
         if (customDelimiterObject instanceof String){
-            customDelimiter = (String) customDelimiterObject ;
+            customDelimiter = (String) customDelimiterObject;
         }
 
-        // 遍历命令逻辑实体类集合，并转换为字符串存入哈希表
-        for (CommandLogic commandLogic:commandLogicList){
-            // 转换命令逻辑实体类为字符串
-            /* 1=:={"onlyIndex"="1697080798279","trueFalse"="","pageIndex"="1","command"="dis cu","para"="","resultCheckId"="0","nextIndex"="1697080824879"} */
+        /**
+         * 2: 获取命令实体类集合
+         *    将实体类转变为字符串并存入哈希表
+         */
+        List<CommandLogic> commandLogicList = (List<CommandLogic>) scanLogicalEntityClass.get("CommandLogic");
+        // 遍历命令逻辑实体类集合，将每个实体类转换为字符串，并存入哈希表
+        for (CommandLogic commandLogic : commandLogicList){
+            // 将命令逻辑实体类转换为字符串
             String commandLogicString = InspectionMethods.commandLogicString(commandLogic);
-            String[] commandLogicStringsplit = commandLogicString.split( customDelimiter );
-            hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(),commandLogicStringsplit[1]);
+            // 使用自定义分隔符对字符串进行分割
+            String[] commandLogicStringsplit = commandLogicString.split(customDelimiter);
+            // 将行号和对应的字符串存入哈希表
+            hashMap.put(Integer.valueOf(commandLogicStringsplit[0]).longValue(), commandLogicStringsplit[1]);
         }
 
-        // 获取问题扫描逻辑实体类集合
+        /**
+         * 3: 获取分析实体类集合
+         *    将实体类转变为字符串并存入哈希表
+         */
         List<ProblemScanLogic> problemScanLogics = (List<ProblemScanLogic>) scanLogicalEntityClass.get("ProblemScanLogic");
-
-        // 遍历问题扫描逻辑实体类集合，并转换为字符串存入哈希表
-        for (ProblemScanLogic problemScanLogic:problemScanLogics){
-            // 转换问题扫描逻辑实体类为字符串
-            /*problemScanLogic 转化 Sting*/
-            String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic,totalQuestionTable.getId());
-            // 使用配置文件自定义分隔符进行字符串分割
+        // 遍历问题扫描逻辑实体类集合，将每个实体类转换为字符串，并存入哈希表
+        for (ProblemScanLogic problemScanLogic : problemScanLogics){
+            // 将问题扫描逻辑实体类转换为字符串
+            String problemScanLogicString = InspectionMethods.problemScanLogicSting(problemScanLogic, totalQuestionTable.getId());
+            // 使用自定义分隔符对字符串进行分割
             String[] problemScanLogicStringsplit = problemScanLogicString.split(customDelimiter);
-            hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(),problemScanLogicStringsplit[1]);
+            // 将行号和对应的字符串存入哈希表
+            hashMap.put(Integer.valueOf(problemScanLogicStringsplit[0]).longValue(), problemScanLogicStringsplit[1]);
         }
 
-        // 将哈希表的value集合转换为列表
+        // 将哈希表中的value集合转换为列表
         Collection<String> values = hashMap.values();
         List<String> stringList = new ArrayList<>(values);
-
         // 打印转换后的字符串列表
-        for (String str:stringList){
+        for (String str : stringList){
             System.err.println(str);
         }
-
+        // 返回转换后的字符串列表
         return stringList;
     }
+
 
     /**
      * 根据交换机问题实体类获取命令集合和分析实体类集合
@@ -942,57 +927,74 @@ public class DefinitionProblemController extends BaseController {
      * @return 包含命令集合和分析实体类集合的HashMap
      */
     public  HashMap<String,Object> getScanLogicalEntityClass(@RequestBody TotalQuestionTable totalQuestionTable,LoginUser loginUser) {
-        /* 判断分析ID 是否为空
-         * 如果为空 则 返回 null
-         * 取出命令 或 分析 字段 */
+        /** 1: 判断逻辑ID 是否为空
+         *     如果为空 则 返回 null
+         *     取出命令 或 分析 字段
+         */
         if (totalQuestionTable.getLogicalID() == null){
             return new HashMap<>();
         }
         String problemScanLogicID = totalQuestionTable.getLogicalID();
 
-        /*去除 "命令" 或 "分析"
-        * 得到 命令表 或者    分析表ID（存入分析集合）
-        * */
-        List<String> problemIds = new ArrayList<>();
-        List<String> commandIDs = new ArrayList<>();
+        /**
+         * 2: 判断逻辑ID 是命令ID还是分析ID
+         *    去除 "命令" 或 "分析"
+         *    得到 命令表或分析表ID（存入分析集合）
+         */
+        List<String> problemIds = new ArrayList<>();//存储 分析ID集合
+        List<String> commandIDs = new ArrayList<>();//存储 命令ID集合
         if (problemScanLogicID.indexOf("分析") != -1){
             problemIds.add(problemScanLogicID.replaceAll("分析",""));
         }else if (problemScanLogicID.indexOf("命令") != -1){
             commandIDs.add(problemScanLogicID.replaceAll("命令",""));
         }
 
-        /* 命令表集合
-        * 返回分析数据集合 */
-        List<CommandLogic> commandLogicList = new ArrayList<>();
-        List<ProblemScanLogic> problemScanLogics = new ArrayList<>();
-        HashMap<String,Object> hashMappojo = new HashMap<>();
+        /**
+         * 3: 根据 分析ID集合 和 命令ID集合 获取命令集合和分析实体类集合
+         */
+        HashMap<String, Object> problemIdsAndCommandIDs = getProblemIdsAndCommandIDs(problemIds, commandIDs, loginUser);
+        return problemIdsAndCommandIDs;
+    }
 
+    /**
+     * 根据提供的问题ID和命令ID，获取对应的问题实体类和命令实体类，并返回一个包含这些实体类的HashMap。
+     *
+     * @param problemIds 包含问题ID的列表
+     * @param commandIDs 包含命令ID的列表
+     * @param loginUser 当前登录用户
+     * @return 包含命令实体类和问题实体类的HashMap，键为行号，值为对应的实体类对象
+     */
+    public HashMap<String,Object> getProblemIdsAndCommandIDs (List<String> problemIds,
+                                            List<String> commandIDs,
+                                            LoginUser loginUser) {
+        List<CommandLogic> commandLogicList = new ArrayList<>();//命令实体类集合
+        List<ProblemScanLogic> problemScanLogics = new ArrayList<>();//分析实体类集合
+        HashMap<String,Object> hashMappojo = new HashMap<>();//存储方法返回数据
         do {
-            /* 如果分析ID 不为空
-             * 则当前的ID为 分析数据ID */
-            if (problemIds.size() != 0){
-                //根据分析ID 查询出所有的数据条数
-                /*需要行号 所以 需要拆分 true false */
-                List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();
+            if (problemIds.size() != 0){//如果分析ID集合不为空，则可以根据分析ID查询出，分析实体类集合
+                List<ProblemScanLogic> problemScanLogicList = new ArrayList<>();//根据分析ID 查询出所有的数据条数
                 for (String problemId:problemIds){
                     problemScanLogicList.addAll(problemScanLogicList(problemId,loginUser));//commandLogic.getProblemId()
                 }
-                /*存放入数据库里的数据实体类拆分true和false*/
+                /*实体类拆分true和false*/
                 problemScanLogicList = InspectionMethods.splitSuccessFailureLogic(problemScanLogicList);
+
+
                 /* 查询完数据 将分析ID置空 */
                 problemIds = new ArrayList<>();
-                if (problemScanLogicList.size() ==0 ){
+                if (problemScanLogicList.size() ==0 && commandIDs.size() == 0){
                     HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
                     ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
                     ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
                     return ScanLogicalEntityMap;
-
                 }
+
+
                 /*遍历分析实体类集合，筛选出 命令ID  拼接命令String*/
                 for (ProblemScanLogic problemScanLogic:problemScanLogicList){
                     /* 根据行号 查询 map集合中 是否存在 分析实体类
-                    * 存在则结束本次循环
-                    * 不存在 则插入map集合 并插入 返回分析数据集合 */
+                     * 存在则结束本次循环
+                     * 不存在 则插入map集合 并插入 返回分析数据集合 */
                     if (hashMappojo.get(problemScanLogic.gettLine()) != null
                             || hashMappojo.get(problemScanLogic.getfLine()) != null){
                         continue;
@@ -1019,31 +1021,33 @@ public class DefinitionProblemController extends BaseController {
                     break;
                 }
             }
+
+
             /*如果 命令ID集合 不为空*/
             if (commandIDs.size() != 0){
                 List<String>  commandIDList = commandIDs;
                 /*命令ID 清空 */
                 commandIDs = new ArrayList<>();
                 for (String commandid:commandIDList){
-
                     commandLogicService = SpringBeanUtil.getBean(ICommandLogicService.class);
                     CommandLogic commandLogic = commandLogicService.selectCommandLogicById(commandid);
-
-                    if (commandLogic == null || (commandLogic.getProblemId() == null && commandLogic.getEndIndex() == null )){
+                    if (commandLogic == null){
+                        continue;
+                    }
+                    if (commandLogic.getProblemId() == null &&
+                        commandLogic.getEndIndex() == null &&
+                        problemIds.size() == 0){
                         HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
                         ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
                         ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
                         return ScanLogicalEntityMap;
                     }
-
                     commandLogicList.add(commandLogic);
-
                     if (hashMappojo.get(commandLogic.getcLine()) != null){
                         continue;
                     }else {
                         hashMappojo.put(commandLogic.getcLine(),commandLogic);
                     }
-
                     /*根据命令实体类 ResultCheckId 值  考虑 是否走 分析表
                      * ResultCheckId 为 0 时，则 进行分析
                      * ResultCheckId 为 1 时，则 进行命令 */
@@ -1052,16 +1056,13 @@ public class DefinitionProblemController extends BaseController {
                     }else {
                         commandIDs.add(commandLogic.getEndIndex());
                     }
-
                 }
             }
         }while (commandIDs.size() != 0 || problemIds.size() != 0);
-
         HashMap<String,Object> ScanLogicalEntityMap = new HashMap<>();
         ScanLogicalEntityMap.put("CommandLogic",commandLogicList);
         ScanLogicalEntityMap.put("ProblemScanLogic",problemScanLogics);
         return ScanLogicalEntityMap;
-
     }
 
     /**
@@ -1090,7 +1091,7 @@ public class DefinitionProblemController extends BaseController {
                     // 如果查询不为null
                     // 则 说明 map中存在 分析实体类，
                     // 需要进行 分析ID数组的 下一项 查询
-                    problemScanLogicHashMap.put(id,pojo);
+                    //problemScanLogicHashMap.put(id,pojo);
                     continue;
                 }
                 // 如果查询为null
@@ -1215,24 +1216,30 @@ public class DefinitionProblemController extends BaseController {
      *       此外，如果ifCommand为"命令"，则会对转化后的对象进行变形处理。
      */
     public static AnalyzeConvertJson getAnalyzeConvertJson(String problem_area_code,String information,String ifCommand) {
-        // TODO: 修改分析逻辑，前端提交的数据有问题，例如 "length":"nullnull"
-        // 此处可能是处理前端提交数据中存在 "length":"nullnull" 的情况，但代码中并未进行实际操作
         /**
-        TODO 修改分析逻辑，前端提交的数据有问题  "length":"nullnull"
-            {"targetType":"takeword","onlyIndex":1716950612245,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"1","nextIndex":"SCRT00011716946238058","length":"nullnull","pageIndex":2}
-            {"targetType":"takeword","onlyIndex":1716950619965,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"2","nextIndex":"SCRT00011716946250825","length":"nullnull","pageIndex":4}
+         *TODO 修改分析逻辑，前端提交的数据有问题  "length":"nullnull"
+         * {"targetType":"takeword","onlyIndex":1716950612245,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"1","nextIndex":"SCRT00011716946238058","length":"nullnull","pageIndex":2}
+         * {"targetType":"takeword","onlyIndex":1716950619965,"trueFalse":"","checked":false,"action":"取词","position":0,"cursorRegion":"2","exhibit":"显示","wordName":"2","nextIndex":"SCRT00011716946250825","length":"nullnull","pageIndex":4}
         */
         // 删除information中所有的"null"字符串
-        //information = information.replace("\"null\"","\"\"");
         information = information.replace("null","");
 
-        // 将提交的分析数据从Json格式转化为实体类对象
+        /**
+         * 1： 将提交的分析数据从Json格式转化为实体类对象
+         * */
         AnalyzeConvertJson analyzeConvertJson = JSON.parseObject(information, AnalyzeConvertJson.class);
 
-        // 遍历analyzeConvertJson对象的所有字段，将空字符串("")的字段值设为null
+        /**
+         * 2：
+         * 遍历analyzeConvertJson对象的所有字段
+         * 如果某个字段的类型为String且值为空字符串（""），则将该字段的值设置为null
+         */
         analyzeConvertJson = (AnalyzeConvertJson) MyUtils.setNullIfEmpty(analyzeConvertJson);
 
-        // 如果ifCommand是"命令"，则对analyzeConvertJson对象进行变形处理 下一ID为命令
+        /**
+         * 3：将AnalyzeConvertJson实体类信息 赋值给 CommandLogic
+         * 如果ifCommand是"命令"，则对analyzeConvertJson对象进行变形处理 下一ID为命令
+         * */
         analyzeConvertJson = deformation(problem_area_code,analyzeConvertJson, ifCommand);
 
         // 返回转化后的分析实体类对象
@@ -1265,7 +1272,8 @@ public class DefinitionProblemController extends BaseController {
 
         /** 取词逻辑*/
         /* 取值逻辑中 取出的值是否可以显示 */
-        if (analyzeConvertJson.getExhibit()!=null && analyzeConvertJson.getExhibit().equals("显示")){
+        if (analyzeConvertJson.getExhibit()!=null
+                && analyzeConvertJson.getExhibit().equals("显示")){
             analyzeConvertJson.setExhibit("是");
         }else {
             analyzeConvertJson.setExhibit("否");
@@ -1388,8 +1396,6 @@ public class DefinitionProblemController extends BaseController {
         if (analyzeConvertJson.getCycleStartId()!=null){
             analyzeConvertJson.setCycleStartId(MyUtils.encodeID( analyzeConvertJson.getCycleStartId() )? analyzeConvertJson.getCycleStartId() : problem_area_code + analyzeConvertJson.getCycleStartId());
         }
-
-
         return analyzeConvertJson;
     }
 }

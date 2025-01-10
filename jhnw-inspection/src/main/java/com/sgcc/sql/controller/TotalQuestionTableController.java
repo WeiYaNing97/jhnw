@@ -284,39 +284,10 @@ public class TotalQuestionTableController extends BaseController
         //系统登陆人信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
 
-        String brand = null;
-        if (!(totalQuestionTable.getBrand().equals(""))){
-            brand = totalQuestionTable.getBrand();
-        }
-        String type = null;
-        if (!(totalQuestionTable.getType().equals(""))){
-            type = totalQuestionTable.getType();
-        }else {type = "*";}
-        String firewareVersion = null;
-        if (!(totalQuestionTable.getFirewareVersion().equals(""))){
-            firewareVersion = totalQuestionTable.getFirewareVersion();
-        }else {firewareVersion = "*";}
-        String subVersion = null;
-        if (!(totalQuestionTable.getSubVersion().equals(""))){
-            subVersion = totalQuestionTable.getSubVersion();
-        }else {subVersion = "*";}
-        String typeProblem = null;
-        if (!(totalQuestionTable.getTypeProblem().equals(""))){
-            typeProblem = totalQuestionTable.getTypeProblem();
-        }
-        String temProName = null;
-        if (!(totalQuestionTable.getTemProName().equals(""))){
-            temProName = totalQuestionTable.getTemProName();
-        }
-
-        //先根据六个条件 查询 是否存在 如果存在 则 返回错误 问题已存在
-        TotalQuestionTable pojo = new TotalQuestionTable();
-        pojo.setBrand(brand);
-        pojo.setType(type);
-        pojo.setFirewareVersion(firewareVersion);
-        pojo.setSubVersion(subVersion);
-        pojo.setTypeProblem(typeProblem);/*范式种类*/
-        pojo.setTemProName(temProName);/*范式名称*/
+        /**
+         * 整理四个基本信息项及问题，用以判断问题是否已存在
+         */
+        TotalQuestionTable pojo = OrganizeFourBasicInformationItems(totalQuestionTable);
         List<TotalQuestionTable> totalQuestionTables = totalQuestionTableService.selectTotalQuestionTableListInsert(pojo);
 
         if (totalQuestionTables.size() != 0){
@@ -355,11 +326,11 @@ public class TotalQuestionTableController extends BaseController
             return AjaxResult.error();
         }
 
+
         Information information = new Information();
         information.setDeviceBrand(totalQuestionTable.getBrand());
         information.setDeviceModel(totalQuestionTable.getType());
         List<Information> informationlist = informationService.selectInformationList(information);
-
         if (informationlist.size() == 0){
             int i = informationService.insertInformation(information);
             if (i>0){
@@ -370,6 +341,65 @@ public class TotalQuestionTableController extends BaseController
         }
 
         return AjaxResult.success(totalQuestionTable.getId()+"");
+    }
+
+    /**
+     * 整理四个基本信息项及问题，用以判断问题是否已存在
+     * @param totalQuestionTable 总问题表对象
+     */
+    public TotalQuestionTable OrganizeFourBasicInformationItems(TotalQuestionTable totalQuestionTable) {
+        // 获取品牌信息
+        String brand = null;
+        if (!(totalQuestionTable.getBrand().equals(""))){
+            brand = totalQuestionTable.getBrand();
+        }
+
+        // 获取类型信息
+        String type = null;
+        if (!(totalQuestionTable.getType().equals(""))){
+            type = totalQuestionTable.getType();
+        } else {
+            type = "*"; // 如果类型为空，则设置为 "*"
+        }
+
+        // 获取固件版本信息
+        String firewareVersion = null;
+        if (!(totalQuestionTable.getFirewareVersion().equals(""))){
+            firewareVersion = totalQuestionTable.getFirewareVersion();
+        } else {
+            firewareVersion = "*"; // 如果固件版本为空，则设置为 "*"
+        }
+
+        // 获取子版本信息
+        String subVersion = null;
+        if (!(totalQuestionTable.getSubVersion().equals(""))){
+            subVersion = totalQuestionTable.getSubVersion();
+        } else {
+            subVersion = "*"; // 如果子版本为空，则设置为 "*"
+        }
+
+        // 获取问题类型信息
+        String typeProblem = null;
+        if (!(totalQuestionTable.getTypeProblem().equals(""))){
+            typeProblem = totalQuestionTable.getTypeProblem();
+        }
+
+        // 获取范式名称信息
+        String temProName = null;
+        if (!(totalQuestionTable.getTemProName().equals(""))){
+            temProName = totalQuestionTable.getTemProName();
+        }
+
+        // 先根据六个条件查询是否存在，如果存在则返回错误，问题已存在
+        TotalQuestionTable pojo = new TotalQuestionTable();
+        pojo.setBrand(brand);
+        pojo.setType(type);
+        pojo.setFirewareVersion(firewareVersion);
+        pojo.setSubVersion(subVersion);
+        pojo.setTypeProblem(typeProblem); /* 范式种类 */
+        pojo.setTemProName(temProName); /* 范式名称 */
+
+        return pojo;
     }
 
 

@@ -156,6 +156,7 @@ public class AdvancedFeatures {
             // 如果线程中断标志为true，则直接返回
             return;
         }
+
         // 调用高级线程池具体实现类中的方法来执行登录信息的操作
         AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
         advancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);

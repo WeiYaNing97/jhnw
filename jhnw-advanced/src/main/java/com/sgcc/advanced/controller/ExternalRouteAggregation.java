@@ -233,10 +233,6 @@ public class ExternalRouteAggregation {
         }
 
         /**
-         * todo 待优化：
-         *      1：应该需要由四项基本信息来提取，只用品牌来做区分，可能会导致提取错误。
-         *      2：可以由调用方法传入关键字列表，然后根据关键字提取，这样可以减少冗余代码。
-         *
          * 1：获取标题行和关键字映射，用于提取表格数据。
          */
         HashMap<String,String> keyMap = (HashMap<String,String>)keyMap_R_table.get("R_table");
@@ -246,8 +242,8 @@ public class ExternalRouteAggregation {
         }
 
         /**
-         *:2：根据关键词列表中 提取 交换机返回信息的 表格数据
-         * */
+         *2：根据关键词列表中 提取 交换机返回信息的 表格数据
+         */
         List<HashMap<String, Object>> stringObjectHashMapList = DataExtraction.tableDataExtraction(returnInformationList, keyMap, switchParameters);
         // 检查线程中断标志
         if (stringObjectHashMapList == null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
