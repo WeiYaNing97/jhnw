@@ -4,6 +4,7 @@ import com.sgcc.advanced.domain.ErrorRateCommand;
 import com.sgcc.advanced.service.IErrorRateCommandService;
 import com.sgcc.advanced.service.IErrorRateService;
 import com.sgcc.advanced.utils.DataExtraction;
+import com.sgcc.advanced.utils.ObtainPreciseEntityClasses;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -595,7 +596,12 @@ public class ErrorPackage {
          * 3:筛选错误率命令对象
          *  从errorRateCommandList中获取四项基本最详细的数据
          */
-        ErrorRateCommand errorRateCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(switchParameters,errorRateCommandList);
+        // 此处注释掉的代码是原来的方法，后通过泛型和反射的方式进行了优化，整合了几个高级功能的筛选方法，此处注释掉的代码不再使用。
+        // ErrorRateCommand errorRateCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesErrorRateCommand(switchParameters,errorRateCommandList);
+
+        ObtainPreciseEntityClasses genericTest = new ObtainPreciseEntityClasses();
+        ErrorRateCommand errorRateCommandPojo = (ErrorRateCommand) genericTest.genericObtainsExactEntityClasses(switchParameters, errorRateCommandList);
+
         // 检查线程中断标志
         if (errorRateCommandPojo ==null){
             // 如果线程中断标志为true，则直接返回

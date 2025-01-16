@@ -428,11 +428,9 @@ public class InspectionMethods {
         problemScanLogicVO.setPosition(position);
         problemScanLogicVO.setCursorRegion("0");
         if (problemScanLogic.getMatched()!=null && !(problemScanLogic.getMatched().equals("null"))){
-
             if (problemScanLogic.getMatched().indexOf("present")!=-1 || problemScanLogic.getMatched().indexOf("full")!=-1){
                 matched = problemScanLogic.getMatched().substring(0,4);
             }
-
         }
         problemScanLogicVO.setMatched(matched);
         /* 如果 Ln Cn 不为 null  和  "null"  则  为 0,0 格式 则 需要分割*/
@@ -455,9 +453,7 @@ public class InspectionMethods {
             problemScanLogicVO.setMatchContent(matchContent);
         }
         if (problemScanLogic.getAction()!=null){
-
             String action = problemScanLogic.getAction();
-
             if (action.indexOf("full")!=-1){
                 problemScanLogicVO.setCursorRegion("1");
                 action=action.replace("full","");
@@ -468,7 +464,6 @@ public class InspectionMethods {
                 action=action.replace("all","");
                 problemScanLogic.setAction(action);
             }
-
             problemScanLogicVO.setAction(action);
             if (!(problemScanLogic.getRelativePosition().equals("null"))){
                 String relativePosition = problemScanLogic.getRelativePosition();
@@ -478,7 +473,6 @@ public class InspectionMethods {
                 problemScanLogicVO.setRelative(relative);
                 problemScanLogicVO.setPosition(position);
             }
-
         }
         if (problemScanLogic.getrPosition()!=null){
             Integer rPosition = problemScanLogic.getrPosition();
@@ -561,10 +555,8 @@ public class InspectionMethods {
             //动作属性的参数 赋值为  “循环”
             problemScanLogicVO.setAction("循环");
         }
-
         /*自定义分隔符*/
         String customDelimiter = (String) CustomConfigurationUtil.getValue("configuration.customDelimiter", Constant.getProfileInformation());
-
         String problemScanLogicVOString = problemScanLogicVO.getPageIndex()+ customDelimiter +"{"
                 +"\"onlyIndex\"" +"="+ "\""+ problemScanLogicVO.getOnlyIndex() +"\","
                 +"\"trueFalse\"" +"="+ "\""+ problemScanLogicVO.getTrueFalse() +"\","

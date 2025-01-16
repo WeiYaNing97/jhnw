@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -251,6 +252,36 @@ public class MyUtils {
     }
     /* ============================== 数字 结束 ==============================*/
     /* ============================== 实体类 开始 ==============================*/
+
+    /**
+     * 从指定对象中提取多个属性的值，并将这些值存储在一个Map中返回。
+     *
+     * @param <T>          对象的类型
+     * @param t            需要提取属性的对象
+     * @param propertyNames 需要提取的属性名称数组
+     * @return 包含所有指定属性名称及其对应值的Map，其中键为属性名称，值为属性值
+     * @throws NoSuchMethodException 如果在对象的类中找不到对应的getter方法，将抛出此异常
+     * @throws IllegalAccessException 如果无法访问getter方法，将抛出此异常
+     */
+    public static <T> Map<String, Object> extractProperties(T t, String... propertyNames) {
+        Map<String, Object> properties = new HashMap<>();
+        try {
+            // 获取对象的实际类
+            Class<?> clazz = t.getClass();
+            for (String propertyName : propertyNames) {
+                // 构造getter方法名称，例如从"switchType"构造"getSwitchType"
+                String getterName = "get" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
+                Method method = clazz.getMethod(getterName);
+                Object value = method.invoke(t);
+                properties.put(propertyName, value);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return properties;
+    }
+
+
     /**
      * @Description 实体类转化为 字符串
      * @param object

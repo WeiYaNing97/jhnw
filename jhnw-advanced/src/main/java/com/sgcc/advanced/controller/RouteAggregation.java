@@ -4,6 +4,7 @@ import com.sgcc.advanced.aggregation.IPAddressCalculator;
 import com.sgcc.advanced.aggregation.IPAddressUtils;
 import com.sgcc.advanced.domain.*;
 import com.sgcc.advanced.service.IRouteAggregationCommandService;
+import com.sgcc.advanced.utils.ObtainPreciseEntityClasses;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -20,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RouteAggregation {
@@ -251,9 +251,12 @@ public class RouteAggregation {
         /**
          * 2：路由聚合命令列表不为空，则筛选出四项基本最详细的数据
          */
-        RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesRouteAggregationCommand(
-                switchParameters,
-                routeAggregationCommandList);
+        // 此处注释掉的代码是原来的方法，后通过泛型和反射的方式进行了优化，整合了几个高级功能的筛选方法，此处注释掉的代码不再使用。
+        // RouteAggregationCommand routeAggregationCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesRouteAggregationCommand(switchParameters,routeAggregationCommandList);
+
+        ObtainPreciseEntityClasses genericTest = new ObtainPreciseEntityClasses();
+        RouteAggregationCommand routeAggregationCommandPojo = (RouteAggregationCommand) genericTest.genericObtainsExactEntityClasses(switchParameters, routeAggregationCommandList);
+
         // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (routeAggregationCommandPojo==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             return null;

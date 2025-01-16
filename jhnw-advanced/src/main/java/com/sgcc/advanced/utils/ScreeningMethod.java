@@ -12,6 +12,28 @@ import java.util.*;
  */
 public class ScreeningMethod {
 
+    /**
+     * @Description 比较两个属性的精确度
+     * @author charles
+     * @createTime 2023/12/18 14:34
+     * @desc
+     *  去掉字符串中的非数字字符
+     * 使用compareTo()方法比较两个字符串
+     * 首先去掉了字符串中的非数字字符，然后使用compareTo()方法比较了两个字符串
+     *
+     * @param value1
+     * @param value2
+     * @return
+     * 这个方法会根据字符串中的数字进行比较，
+     * 如果第一个字符串表示的数字小于第二个字符串表示的数字，则返回负数；
+     * 如果相等，则返回0；
+     * 如果大于，则返回正数。
+     */
+    public static int compareAccuracy(String value1,String value2) {
+        value1 = value1.replaceAll("\\D", "");
+        value2 = value2.replaceAll("\\D", "");
+        return value1.compareTo(value2);
+    }
 
     /**
      * 获取精确度最高的实体类对象的光衰命令。
@@ -705,28 +727,5 @@ public class ScreeningMethod {
 
         }
         return 0;
-    }
-
-    /**
-    * @Description 比较两个属性的精确度
-    * @author charles
-    * @createTime 2023/12/18 14:34
-    * @desc
-     *  去掉字符串中的非数字字符
-     * 使用compareTo()方法比较两个字符串
-     * 首先去掉了字符串中的非数字字符，然后使用compareTo()方法比较了两个字符串
-     *
-    * @param value1
-     * @param value2
-     * @return
-     * 这个方法会根据字符串中的数字进行比较，
-     * 如果第一个字符串表示的数字小于第二个字符串表示的数字，则返回负数；
-     * 如果相等，则返回0；
-     * 如果大于，则返回正数。
-    */
-    public static int compareAccuracy(String value1,String value2) {
-        value1 = value1.replaceAll("\\D", "");
-        value2 = value2.replaceAll("\\D", "");
-        return value1.compareTo(value2);
     }
 }

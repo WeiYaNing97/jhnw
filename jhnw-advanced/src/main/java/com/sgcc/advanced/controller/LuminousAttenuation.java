@@ -5,6 +5,7 @@ import com.sgcc.advanced.domain.LightAttenuationComparison;
 import com.sgcc.advanced.service.ILightAttenuationCommandService;
 import com.sgcc.advanced.service.ILightAttenuationComparisonService;
 import com.sgcc.advanced.utils.DataExtraction;
+import com.sgcc.advanced.utils.ObtainPreciseEntityClasses;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -154,7 +155,12 @@ public class LuminousAttenuation {
         /**
          * 3:不为空则从lightAttenuationCommandList中获取四项基本最详细的数据
          */
-        LightAttenuationCommand lightAttenuationCommandpojo = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand(switchParameters,lightAttenuationCommandList );
+        // 此处注释掉的代码是原来的方法，后通过泛型和反射的方式进行了优化，整合了几个高级功能的筛选方法，此处注释掉的代码不再使用。
+        //LightAttenuationCommand lightAttenuationCommandpojo = ScreeningMethod.ObtainPreciseEntityClassesLightAttenuationCommand(switchParameters,lightAttenuationCommandList );
+
+        ObtainPreciseEntityClasses genericTest = new ObtainPreciseEntityClasses();
+        LightAttenuationCommand lightAttenuationCommandpojo = (LightAttenuationCommand) genericTest.genericObtainsExactEntityClasses(switchParameters, lightAttenuationCommandList);
+
         if (lightAttenuationCommandpojo==null && WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){
             return null;
         }else {

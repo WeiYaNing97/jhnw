@@ -2,11 +2,9 @@ package com.sgcc.advanced.controller;
 
 import com.sgcc.advanced.aggregation.IPAddressCalculator;
 import com.sgcc.advanced.aggregation.IPAddressUtils;
-import com.sgcc.advanced.domain.ExternalIPCalculator;
-import com.sgcc.advanced.domain.IPCalculator;
-import com.sgcc.advanced.domain.LinkBindingCommand;
-import com.sgcc.advanced.domain.RouteAggregationCommand;
+import com.sgcc.advanced.domain.*;
 import com.sgcc.advanced.service.ILinkBindingCommandService;
+import com.sgcc.advanced.utils.ObtainPreciseEntityClasses;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -245,9 +243,13 @@ public class LinkBundling {
         /**
          * 2：从链路捆绑命令对象列表中获取四项基本最详细的数据
          * */
-        LinkBindingCommand linkBindingCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesLinkBindingCommand(
-                switchParameters,
-                linkBindingCommandList);
+        // 此处注释掉的代码是原来的方法，后通过泛型和反射的方式进行了优化，整合了几个高级功能的筛选方法，此处注释掉的代码不再使用。
+        // LinkBindingCommand linkBindingCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesLinkBindingCommand(switchParameters,linkBindingCommandList);
+
+        ObtainPreciseEntityClasses genericTest = new ObtainPreciseEntityClasses();
+        LinkBindingCommand linkBindingCommandPojo = (LinkBindingCommand) genericTest.genericObtainsExactEntityClasses(switchParameters, linkBindingCommandList);
+
+
         // 检查线程中断标志 如果线程中断标志为true，则直接返回
         if (linkBindingCommandPojo ==  null &&
                 WorkThreadMonitor.getShutdown_Flag(switchParameters.getScanMark())){

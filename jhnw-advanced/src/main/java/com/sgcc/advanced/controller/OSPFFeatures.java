@@ -3,6 +3,7 @@ package com.sgcc.advanced.controller;
 import com.sgcc.advanced.domain.*;
 import com.sgcc.advanced.service.IOspfCommandService;
 import com.sgcc.advanced.utils.DataExtraction;
+import com.sgcc.advanced.utils.ObtainPreciseEntityClasses;
 import com.sgcc.advanced.utils.ScreeningMethod;
 import com.sgcc.common.core.domain.AjaxResult;
 import com.sgcc.share.connectutil.SpringBeanUtil;
@@ -143,7 +144,12 @@ public class OSPFFeatures {
         /**
          * 3.通过四项基本欸的精确度，筛选最精确的OSPF命令
          */
-        OspfCommand ospfCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesOspfCommand(switchParameters, ospfCommandList);
+        // 此处注释掉的代码是原来的方法，后通过泛型和反射的方式进行了优化，整合了几个高级功能的筛选方法，此处注释掉的代码不再使用。
+        // OspfCommand ospfCommandPojo = ScreeningMethod.ObtainPreciseEntityClassesOspfCommand(switchParameters, ospfCommandList);
+
+        ObtainPreciseEntityClasses genericTest = new ObtainPreciseEntityClasses();
+        OspfCommand ospfCommandPojo = (OspfCommand) genericTest.genericObtainsExactEntityClasses(switchParameters, ospfCommandList);
+
         if (ospfCommandPojo == null){
             // 如果返回结果为 null，则线程中断标志为true，并返回
             return null;
