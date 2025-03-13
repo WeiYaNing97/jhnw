@@ -1,5 +1,7 @@
 package com.sgcc.share.util;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
  * @author:
  * @create: 2023-11-29 11:56
  **/
+@Api(tags = "文章比较")
 @RestController
 @RequestMapping("/share/ArticleComparisonUtil")
 public class ArticleComparisonUtil {
@@ -357,6 +360,7 @@ public class ArticleComparisonUtil {
      * @desc
      * @return
      */
+    @ApiOperation(value = "后端测试方法")
     @GetMapping("/fuwenbentest")
     public static List<String> fuwenbentest() {
 

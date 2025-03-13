@@ -49,6 +49,9 @@ public class AdvancedThreadPool {
             // AdvancedThread的构造函数中包含了线程名、SwitchParameters对象、函数列表、CountDownLatch对象、线程池对象和是否使用RSA算法的参数
             AdvancedThread advancedThread = new AdvancedThread(threadName, switchParameters, functionName, countDownLatch, fixedThreadPool, isRSA);
             fixedThreadPool.execute(advancedThread);//mode, ip, name, password,configureCiphers, port, loginUser,time
+
+
+
         }
 
         /**

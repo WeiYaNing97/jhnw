@@ -1,12 +1,9 @@
 package com.sgcc.advanced.controller;
-import com.alibaba.fastjson.JSON;
 import com.sgcc.advanced.thread.AdvancedThreadPool;
 import com.sgcc.advanced.utils.AdvancedUtils;
 import com.sgcc.common.annotation.MyLog;
 import com.sgcc.common.enums.BusinessType;
 import com.sgcc.common.utils.SecurityUtils;
-import com.sgcc.common.utils.bean.BeanUtils;
-import com.sgcc.share.domain.SwitchLoginInformation;
 import com.sgcc.share.parametric.ParameterSet;
 import com.sgcc.share.parametric.SwitchParameters;
 import com.sgcc.share.util.PathHelper;
@@ -20,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 @Api(tags = "运行分析")
 @RestController
@@ -137,14 +135,13 @@ public class AdvancedFeatures {
     }
 
 
+
     /**
      * 调用高级功能线程池执行登录信息操作。
-     *
      * 本方法利用线程池异步执行登录信息的操作，旨在提高执行效率和处理性能。
      * 它适用于需要对登录信息进行批量或复杂操作的场景，通过指定不同的功能名称列表，
      * 可以实现包括但不限于更新、验证等操作。注意，本方法默认假设传入的参数通过RSA加密，
      * 除非明确指定不使用加密。
-     *
      * @param parameterSet    包含登录信息和其他参数的ParameterSet对象
      * @param functionName    功能名称列表，每个名称对应一个具体操作
      * @param isRSA           是否通过RSA加密后端传入的数据，默认为true
@@ -156,7 +153,6 @@ public class AdvancedFeatures {
             // 如果线程中断标志为true，则直接返回
             return;
         }
-
         // 调用高级线程池具体实现类中的方法来执行登录信息的操作
         AdvancedThreadPool advancedThreadPool = new AdvancedThreadPool();
         advancedThreadPool.switchLoginInformations(parameterSet, functionName, isRSA);

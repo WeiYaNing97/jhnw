@@ -545,6 +545,7 @@ public class SwitchInteraction {
      *
      * @param scanClassification 扫描分类   ： 运行分析、模板扫描、专项扫描、安全配置(即全部扫描)
      */
+    @ApiOperation("终止扫描接口")
     @PostMapping("/terminationScann/{scanClassification}")
     public void terminationScann(@PathVariable String scanClassification){
         // 获取当前登录用户的用户名

@@ -66,6 +66,7 @@ obtainPortNumber:
     GE
     FastEthernet
     Ten-GigabitEthernet
+    TenGigabitEthernet
     Ethernet
     Eth-Trunk
     XGigabitEthernet
@@ -86,11 +87,12 @@ obtainPortNumber:
 OSPF:
   H3C:
     R_table:
-      TableHeader: Area Id,Interface,Neighbor id,State
+      TableHeader: Area Id,Interface,Neighbor id,State  # Area Id,Interface,Neighbor id,State
       address: Area Id
       portNumber: Interface
       neighborID: Neighbor id
       state: State
+
 
 #光衰
 光衰:

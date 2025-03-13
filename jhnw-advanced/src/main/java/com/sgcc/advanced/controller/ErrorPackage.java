@@ -1562,7 +1562,7 @@ public class ErrorPackage {
                     "      Runts: 0, DropEvents: 0\n" +
                     "      Alignments: 0, Symbols: 1\n" +
                     "      Ignoreds: 0\n" +
-                    "      Output: 508606045 packets, 45046419657 bytes\n" +
+                    "Output: 508606045 packets, 45046419657 bytes\n" +
                     "      Unicast: 502482495, Multicast: 6122779\n" +
                     "      Broadcast: 771, Jumbo: 0\n" +
                     "      Discard: 0, Pause: 0\n" +

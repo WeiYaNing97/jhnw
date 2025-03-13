@@ -133,8 +133,8 @@ public class LinkBundling {
             return null;
         }
         // todo 链路捆绑命令返回结果虚拟数据
-        stringList = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(routingTableCommandReturnInformation)),
-                "\r\n");
+        /*stringList = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(routingTableCommandReturnInformation)),
+                "\r\n");*/
         if (MyUtils.isCollectionEmpty(stringList)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){

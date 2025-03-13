@@ -352,6 +352,9 @@ public class FunctionalMethods {
         getParameters = getParameters.replace(">",":");
         getParameters = getParameters.replace("=",":");
         String[] parameter = getParameters.split(":");
+        for (int i = 0;i<parameter.length;i++){
+            parameter[i] = parameter[i].trim();
+        }
 
         /** 提取比较符号 这样做可以不打乱顺序*/
         String getComparisonNumber = compare;
@@ -367,6 +370,9 @@ public class FunctionalMethods {
 
         //comparisonNumber 得到 [<,<]
         String[] comparisonNumber = getComparisonNumber.split(":");
+        for (int i = 0;i<comparisonNumber.length;i++){
+            comparisonNumber[i] = comparisonNumber[i].trim();
+        }
 
         /** 获取比较数组的集合
          * 例如：
@@ -577,7 +583,7 @@ public class FunctionalMethods {
                 }
                 //提取关键字后面的单词数组长度  应大于  提取关键字后面的取值位置 加 取词长度  6
                 if ((split_String.length - word_length)  <  integer || integer < 0){
-                    return null;
+                    return return_string;
                 }
                 //取词位置
                 int number = integer;
@@ -589,7 +595,7 @@ public class FunctionalMethods {
                 if (return_string.length()>0){
                     return return_string.trim();
                 }else {
-                    return null;
+                    return return_string;
                 }
                 //取字母
             case "l":
@@ -598,16 +604,16 @@ public class FunctionalMethods {
                 Integer splitInteger =split.length();
                 int start = integer + splitInteger;
                 if (start+word_length > returnString.length()){
-                    return null;
+                    return return_string;
                 }
                 return_string = returnString.substring(start, start+word_length);
                 if (return_string.length()>0){
                     return return_string.trim();
                 }else {
-                    return null;
+                    return return_string;
                 }
         }
-        return null;
+        return return_string;
     }
 
 

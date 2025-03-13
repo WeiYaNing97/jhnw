@@ -35,8 +35,8 @@ export default {
   },
   data() {
     return {
-      title: '衡水交换机巡检系统',
-      logo: logoImg
+      title: '网络设备安全智能管理系统',
+      /*logo: logoImg*/
     }
   }
 }

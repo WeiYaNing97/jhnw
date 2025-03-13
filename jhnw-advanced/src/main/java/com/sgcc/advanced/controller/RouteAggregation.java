@@ -124,7 +124,7 @@ public class RouteAggregation {
         }
 
         // todo 内部路由聚合命令交换机返回信息-虚拟数据
-        internal_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(H3C)),"\r\n");
+        //internal_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(H3C)),"\r\n");
         if (MyUtils.isCollectionEmpty(internal_List)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
@@ -163,8 +163,8 @@ public class RouteAggregation {
             return null;
         }
         // todo 外部路由聚合命令交换机返回信息-虚拟数据
-        external_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(externalreturnInformation)),
-                "\r\n");
+        /*external_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(externalreturnInformation)),
+                "\r\n");*/
         if (MyUtils.isCollectionEmpty(external_List)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){

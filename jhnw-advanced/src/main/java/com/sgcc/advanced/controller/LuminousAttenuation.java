@@ -196,7 +196,7 @@ public class LuminousAttenuation {
             return null;
         }
         // todo 光衰功能交换机端口号命令返回结果，虚拟数据
-        returnString_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.returnPortString)), "\r\n");
+        //returnString_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.returnPortString)), "\r\n");
         if (MyUtils.isCollectionEmpty(returnString_List)){
             String subversionNumber = switchParameters.getSubversionNumber();
             if (subversionNumber!=null){
@@ -349,7 +349,7 @@ public class LuminousAttenuation {
                 return null;
             }
             // todo 光衰虚拟数据
-            returnResults_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.returnValueResults)), "\r\n");
+            //returnResults_List = StringBufferUtils.stringBufferSplit(StringBufferUtils.arrange(new StringBuffer(this.returnValueResults)), "\r\n");
             if (MyUtils.isCollectionEmpty(returnResults_List)){
                 String subversionNumber = switchParameters.getSubversionNumber();
                 if (subversionNumber!=null){
